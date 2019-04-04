@@ -1,6 +1,6 @@
 <?php
 /**
- * Copyright © 2013-2017 Magento, Inc. All rights reserved.
+ * Copyright © Magento, Inc. All rights reserved.
  * See COPYING.txt for license details.
  */
 namespace Magento\ConfigurableProduct\Pricing\Price;
@@ -63,7 +63,9 @@ class LowestPriceOptionsProvider implements LowestPriceOptionsProviderInterface
             );
 
             $this->productsMap[$product->getId()] = $this->collectionFactory->create()
-                ->addAttributeToSelect(['price', 'special_price'])
+                ->addAttributeToSelect(
+                    ['price', 'special_price', 'special_from_date', 'special_to_date', 'tax_class_id']
+                )
                 ->addIdFilter($productIds)
                 ->getItems();
         }
