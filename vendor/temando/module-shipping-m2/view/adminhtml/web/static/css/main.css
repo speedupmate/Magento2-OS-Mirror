@@ -129,6 +129,10 @@
 .Table-m2_fit-with-pagination_3eaf {
   margin-top: 30px;
 }
+
+.Table-m2_invalid-header-border-bottom_2c5a th {
+  border-bottom: 1px solid #ee7d7d !important;
+}
 .TableHeaderText-m2_text_ca72 {
   display: inline-block;
   white-space: nowrap;
@@ -236,7 +240,8 @@
 
 .Wizard-m2_actionNextStepFix_46e4:before {
   left: auto !important;
-}.FormControlSet-m2_fieldset-as-page-section_9b14 {
+}
+.FormControlSet-m2_fieldset-as-page-section_9b14 {
   margin-bottom: 5rem;
 }
 
@@ -327,6 +332,51 @@
 }.GridRow-m2_highlight_563d {
    background-color: #f5f5f5;
 }
+
+.GridRow-m2_error-nonExpandableColumns-collapsed_f5f0 td:first-child {
+  border-left: 1px solid #ee7d7d !important;
+}
+
+.GridRow-m2_error-nonExpandableColumns-collapsed_f5f0 td:last-child {
+  border-right: 1px solid #ee7d7d !important;
+}
+
+.GridRow-m2_error-nonExpandableColumns-collapsed_f5f0 td{
+  border-bottom: 1px solid #ee7d7d !important;
+}
+
+.GridRow-m2_error-nonExpandableColumns-expanded_cbcf {
+  border-left: 1px solid #ee7d7d;
+  border-right: 1px solid #ee7d7d;
+}
+
+.GridRow-m2_is-next-row-error_63c2 td {
+  border-bottom: 1px solid #ee7d7d !important;
+}
+
+.GridRow-m2_is-next-row-error-nonExpandableColumns-collapsed_cae5 td{
+  border-bottom: 1px solid #ee7d7d !important;
+}
+
+.GridRow-m2_error-expandableColumns_7064 td:first-child {
+  border-left: 1px solid #ee7d7d;
+}
+
+.GridRow-m2_error-expandableColumns_7064 td:last-child {
+  border-right: 1px solid #ee7d7d;
+}
+
+.GridRow-m2_error-expandableColumns_7064 td {
+  border-bottom: 1px solid #ee7d7d !important;
+}
+
+
+.GridRow-m2_fetch-data-fail_9312 label label::before {
+  content: '\E632' !important;
+  color: #e22626 !important;
+  opacity: 1 !important;
+  border: none;
+}
 .CheckboxInputField_inline-help-text_d667 {
   display: inline-block;
   line-height: 3.2rem;
@@ -352,6 +402,12 @@
 }
 .TextActionContainer-m2_text-action-container_4b14 {
   padding-top: 0.9rem;
+}
+.ErrorContainer-m2_error-container_4d61{
+  color: #e22626;
+}
+.MessageErrorContainer-m2_message-error-container_226c {
+  margin-top: 8px;
 }
 .OrderIdBlock-m2_order-id_e255 {
   font-size: 2rem;
@@ -751,7 +807,10 @@ td.rdtYear:hover {
 }.FormControlMultiple-m2_delete-cell_f0ab {
   width: 50px;
 }
-.WeightField_weight-field_74be {
+.ItemsOrderedSection_item-weight-warning_ff9d {
+  color:#ff0000;
+  font-style: italic;
+}.WeightField_weight-field_74be {
   display: inline-block;
   vertical-align: top;
 }

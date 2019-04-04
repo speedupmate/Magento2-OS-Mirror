@@ -2,6 +2,125 @@
 
 All notable changes to this project will be documented in this file, in reverse chronological order by release.
 
+## 2.11.2 - 2019-02-19
+
+### Added
+
+- Nothing.
+
+### Changed
+
+- [#180](https://github.com/zendframework/zend-view/pull/180) alters the behavior of the `HeadMeta` helper to honor the value of the
+  `autoEscape` flag when rendering values. Previously, it would ignore the
+  setting and always escape the values.
+
+### Deprecated
+
+- Nothing.
+
+### Removed
+
+- Nothing.
+
+### Fixed
+
+- Nothing.
+
+## 2.11.1 - 2018-12-10
+
+### Added
+
+- [#179](https://github.com/zendframework/zend-view/pull/179) adds `^3.0` to the zendframework/zend-json constraints, allowing v3
+  releases to be used with zend-view.
+
+### Changed
+
+- Nothing.
+
+### Deprecated
+
+- Nothing.
+
+### Removed
+
+- Nothing.
+
+### Fixed
+
+- Nothing.
+
+## 2.11.0 - 2018-12-06
+
+### Added
+
+- [#168](https://github.com/zendframework/zend-view/pull/168) adds two new methods to `Zend\View\Helper\Placeholder` (and thus any
+  helper extending it):
+
+  - `deleteContainer(string $name)` can be used to delete a placeholder container.
+  - `clearContainers()` can be used to clear all placeholder containers.
+
+  These new features are particularly useful when in long-running server
+  environments, such as Swoole, where you may need to clear the contents on each
+  request.
+
+### Changed
+
+- [#155](https://github.com/zendframework/zend-view/pull/155) modifies the `Zend\View\Helper\Service\IdentifyFactory` such that it will
+  now also look for the service `Zend\Authentication\AuthenticationServiceInterface`
+  if the service `Zend\Authentication\AuthenticationService` is not found. This
+  allows using a service named after the interface instead of the
+  implementation if desired.
+
+- [#158](https://github.com/zendframework/zend-view/pull/158) modifies how a `ViewModel` (and all extensions) is cloned; the `$variables`
+  property, if it is an object, is now cloned as well to ensure changes in the
+  new instance do not affect the current one.
+
+- [#153](https://github.com/zendframework/zend-view/pull/153) updates the `ConsoleModel::setErrorLevel()` method to implement a fluent
+  interface.
+
+### Deprecated
+
+- Nothing.
+
+### Removed
+
+- [#147](https://github.com/zendframework/zend-view/pull/147) removes the property `$regKey` from a number of helpers; these were a
+  remnant of ZF1, and have not been used internally since the initial 2.0.0
+  release.
+
+### Fixed
+
+- [#164](https://github.com/zendframework/zend-view/pull/164) fixes the various `Head*` view helpers such that they will now properly
+  escape attributes as HTML attributes (instead of as HTML content).
+
+## 2.10.1 - 2018-12-06
+
+### Added
+
+- [#173](https://github.com/zendframework/zend-view/pull/173) adds support for PHP 7.3.
+
+### Changed
+
+- Nothing.
+
+### Deprecated
+
+- Nothing.
+
+### Removed
+
+- Nothing.
+
+### Fixed
+
+- [#170](https://github.com/zendframework/zend-view/pull/170) ensures that variables referenced in `compact()` operations are properly
+  initialized, fixing an error that occures in PHP 7.3.
+
+- [#169](https://github.com/zendframework/zend-view/pull/169) adds zendframework/zend-json as a required dependency, as it is referenced
+  in multiple locations within the package.
+
+- [#156](https://github.com/zendframework/zend-view/pull/156) adds missing `@method` annotations to the `HeadMeta` helper.
+
 ## 2.10.0 - 2018-01-17
 
 ### Added

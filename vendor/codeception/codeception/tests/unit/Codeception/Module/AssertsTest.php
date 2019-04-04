@@ -1,5 +1,5 @@
 <?php
-class AssertsTest extends PHPUnit_Framework_TestCase
+class AssertsTest extends \PHPUnit\Framework\TestCase
 {
     public function testAsserts()
     {
@@ -19,7 +19,13 @@ class AssertsTest extends PHPUnit_Framework_TestCase
         $module->assertNotNull(false);
         $module->assertNotNull(0);
         $module->assertTrue(true);
+        $module->assertNotTrue(false);
+        $module->assertNotTrue(null);
+        $module->assertNotTrue('foo');
         $module->assertFalse(false);
+        $module->assertNotFalse(true);
+        $module->assertNotFalse(null);
+        $module->assertNotFalse('foo');
         $module->assertFileExists(__FILE__);
         $module->assertFileNotExists(__FILE__ . '.notExist');
         $module->assertInstanceOf('Exception', new Exception());
@@ -44,13 +50,24 @@ class AssertsTest extends PHPUnit_Framework_TestCase
     }
 
     /**
-     * @expectedException PHPUnit_Framework_AssertionFailedError
+     * @expectedException PHPUnit\Framework\AssertionFailedError
      */
     public function testExceptionFails()
     {
         $module = new \Codeception\Module\Asserts(make_container());
         $module->expectException(new Exception('here', 200), function () {
             throw new Exception('here', 2);
+        });
+    }
+
+    /**
+     * @expectedException PHPUnit\Framework\AssertionFailedError
+     * @expectedExceptionMessageRegExp /RuntimeException/
+     */
+    public function testOutputExceptionTimeWhenNothingCaught()
+    {
+        $module = new \Codeception\Module\Asserts(make_container());
+        $module->expectException(RuntimeException::class, function () {
         });
     }
 }

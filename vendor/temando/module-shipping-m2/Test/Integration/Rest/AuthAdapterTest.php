@@ -238,6 +238,6 @@ class AuthAdapterTest extends \PHPUnit\Framework\TestCase
         $request = Bootstrap::getObjectManager()->create(ItemRequestInterface::class, ['entityId' => 'foo']);
         /** @var RestAdapter $adapter */
         $adapter = Bootstrap::getObjectManager()->create(RestAdapter::class);
-        $adapter->getTrackingEvents($request);
+        $adapter->getBatch($request);
     }
 }

@@ -127,6 +127,7 @@ class PackageResponseMapper
         $package = $this->packageFactory->create(['data' => [
             PackageInterface::PACKAGE_ID => $apiPackage->getId(),
             PackageInterface::TRACKING_REFERENCE => $apiPackage->getTrackingReference(),
+            PackageInterface::TRACKING_URL => $apiPackage->getTrackingUrl(),
             PackageInterface::WEIGHT => sprintf(
                 '%s %s',
                 $grossWeight->getValue(),

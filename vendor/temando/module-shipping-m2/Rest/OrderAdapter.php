@@ -6,9 +6,11 @@ namespace Temando\Shipping\Rest;
 
 use Psr\Log\LoggerInterface;
 use Psr\Log\LogLevel;
+use Temando\Shipping\Rest\Adapter\ExperienceApiInterface;
 use Temando\Shipping\Rest\Adapter\OrderApiInterface;
 use Temando\Shipping\Rest\Exception\AdapterException;
 use Temando\Shipping\Rest\Exception\RestClientErrorException;
+use Temando\Shipping\Rest\Request\ListRequestInterface;
 use Temando\Shipping\Rest\Request\OrderRequestInterface;
 use Temando\Shipping\Rest\Request\RequestHeadersInterface;
 use Temando\Shipping\Rest\Response\AllocateOrder;
@@ -18,6 +20,7 @@ use Temando\Shipping\Rest\Response\CreateOrderInterface;
 use Temando\Shipping\Rest\Response\Errors;
 use Temando\Shipping\Rest\Response\GetCollectionPoints;
 use Temando\Shipping\Rest\Response\GetCollectionPointsInterface;
+use Temando\Shipping\Rest\Response\Type\ExperienceResponseType;
 use Temando\Shipping\Rest\Response\UpdateOrder;
 use Temando\Shipping\Rest\Response\UpdateOrderInterface;
 use Temando\Shipping\Rest\SchemaMapper\ParserInterface;
@@ -32,7 +35,7 @@ use Temando\Shipping\Webservice\Config\WsConfigInterface;
  * @license  http://opensource.org/licenses/osl-3.0.php Open Software License (OSL 3.0)
  * @link     http://www.temando.com/
  */
-class OrderAdapter implements OrderApiInterface
+class OrderAdapter implements OrderApiInterface, ExperienceApiInterface
 {
     /**
      * @var string
@@ -252,5 +255,43 @@ class OrderAdapter implements OrderApiInterface
         }
 
         return $response;
+    }
+
+    /**
+     * Obtain shipping experiences.
+     *
+     * @param ListRequestInterface $request
+     * @return ExperienceResponseType[]
+     * @throws AdapterException
+     */
+    public function getExperiences(ListRequestInterface $request)
+    {
+        $uri = sprintf('%s/experiences', $this->endpoint);
+        $queryParams = $request->getRequestParams();
+
+        $this->logger->log(LogLevel::DEBUG, sprintf('%s?%s', $uri, http_build_query($queryParams)));
+
+        try {
+            $this->auth->connect($this->accountId, $this->bearerToken);
+            $headers = $this->requestHeaders->getHeaders();
+
+            $rawResponse = $this->restClient->get($uri, $queryParams, $headers);
+            $this->logger->log(LogLevel::DEBUG, $rawResponse);
+
+            /** @var Response\GetExperiences $response */
+            $response = $this->responseParser->parse($rawResponse, Response\GetExperiences::class);
+            $experiences = $response->getData();
+        } catch (RestClientErrorException $e) {
+            $this->logger->log(LogLevel::ERROR, $e->getMessage());
+
+            /** @var Errors $response */
+            $response = $this->responseParser->parse($e->getMessage(), Errors::class);
+            throw AdapterException::errorResponse($response, $e);
+        } catch (\Exception $e) {
+            $this->logger->critical($e->getMessage(), ['exception' => $e]);
+            $experiences = [];
+        }
+
+        return $experiences;
     }
 }

@@ -22,6 +22,7 @@ use Temando\Shipping\Rest\Authentication;
 class CredentialsValidationTest extends \PHPUnit\Framework\TestCase
 {
     const ENDPOINT = 'https://auth.temando.io/v1/';
+    const ENDPOINT_INVALID = 'gopher://127.0.0.1';
 
     const CHECKOUT_DISABLED = '0';
     const CHECKOUT_ENABLED = '1';
@@ -59,6 +60,27 @@ class CredentialsValidationTest extends \PHPUnit\Framework\TestCase
         ]);
 
         return $validator;
+    }
+
+    /**
+     * @test
+     */
+    public function canSaveWithCheckoutDisabledAndApiEndpointEmpty()
+    {
+        $backendModel = Bootstrap::getObjectManager()->create(Active::class, [
+            'validationRules' => $this->getValidator(),
+            'data' => [
+                'value' => self::CHECKOUT_DISABLED,
+                'fieldset_data' => [
+                    'session_endpoint' => '',
+                    'account_id' => '',
+                    'bearer_token' => '',
+                ]
+            ]
+        ]);
+
+        // just assert no exception is thrown
+        $this->assertSame($backendModel, $backendModel->validateBeforeSave());
     }
 
     /**
@@ -275,6 +297,49 @@ class CredentialsValidationTest extends \PHPUnit\Framework\TestCase
 
         $this->expectException(\Magento\Framework\Validator\Exception::class);
         $this->expectExceptionMessage('Magento Shipping authentication failed. Please check your credentials.');
+        $backendModel->validateBeforeSave();
+    }
+
+    /**
+     * @test
+     */
+    public function canSaveWithValidEndpointProtocol()
+    {
+        $backendModel = Bootstrap::getObjectManager()->create(Active::class, [
+            'validationRules' => $this->getValidator(),
+            'data' => [
+                'value' => self::CHECKOUT_ENABLED,
+                'fieldset_data' => [
+                    'session_endpoint' => self::ENDPOINT,
+                    'account_id' => self::USER_VALID,
+                    'bearer_token' => self::PASSWORD_VALID,
+                ]
+            ]
+        ]);
+
+        // just assert no exception is thrown
+        $this->assertSame($backendModel, $backendModel->validateBeforeSave());
+    }
+
+    /**
+     * @test
+     */
+    public function cannotSaveWithInvalidEndpointProtocol()
+    {
+        $backendModel = Bootstrap::getObjectManager()->create(Active::class, [
+            'validationRules' => $this->getValidator(),
+            'data' => [
+                'value' => self::CHECKOUT_ENABLED,
+                'fieldset_data' => [
+                    'session_endpoint' => self::ENDPOINT_INVALID,
+                    'account_id' => self::USER_INVALID,
+                    'bearer_token' => self::PASSWORD_INVALID,
+                ]
+            ]
+        ]);
+
+        $this->expectException(\Magento\Framework\Validator\Exception::class);
+        $this->expectExceptionMessage('Please enter a valid URL. Protocol (http://, https://) is required.');
         $backendModel->validateBeforeSave();
     }
 }

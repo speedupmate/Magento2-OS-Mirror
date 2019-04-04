@@ -6,7 +6,6 @@
 namespace Temando\Shipping\ViewModel\Rma\RmaShipment\Tracking;
 
 use Magento\Framework\App\Config\ScopeConfigInterface;
-use Magento\Framework\Exception\LocalizedException;
 use Magento\Framework\Stdlib\DateTime\DateTimeFormatterInterface;
 use Magento\Framework\Stdlib\DateTime\TimezoneInterface;
 use Magento\Framework\UrlInterface;
@@ -16,7 +15,6 @@ use Temando\Shipping\Model\ResourceModel\Rma\RmaAccess;
 use Temando\Shipping\Model\Shipment;
 use Temando\Shipping\Model\ShipmentInterface;
 use Temando\Shipping\Model\Shipping\Carrier;
-use Temando\Shipping\Model\Shipment\TrackEventInterface;
 
 /**
  * View model for tracking popup.
@@ -133,25 +131,6 @@ class Popup implements ArgumentInterface
     }
 
     /**
-     * Get tracking progress info
-     *
-     * @return string[]
-     */
-    public function getTrackingProgressInfo()
-    {
-        try {
-            $trackEvents = $this->shipmentRepository->getTrackingById($this->getShipment()->getShipmentId());
-            $trackEventsData = array_map(function (TrackEventInterface $trackEvent) {
-                return $trackEvent->getEventData();
-            }, $trackEvents);
-        } catch (LocalizedException $e) {
-            $trackEventsData = [];
-        }
-
-        return $trackEventsData;
-    }
-
-    /**
      * @return string
      */
     public function getCarrierTitle()
@@ -164,19 +143,6 @@ class Popup implements ArgumentInterface
         );
 
         return $carrierTitle;
-    }
-
-    /**
-     * @param string[] $trackEventsData
-     * @return string
-     */
-    public function getTrackingStatus(array $trackEventsData)
-    {
-        if (empty($trackEventsData)) {
-            return $this->getShipment()->getStatus();
-        }
-
-        return $trackEventsData[0]['activity'];
     }
 
     /**

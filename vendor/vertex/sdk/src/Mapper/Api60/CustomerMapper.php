@@ -14,6 +14,7 @@ use Vertex\Exception\ValidationException;
 use Vertex\Mapper\AddressMapperInterface;
 use Vertex\Mapper\CustomerMapperInterface;
 use Vertex\Mapper\MapperUtilities;
+use Vertex\Mapper\TaxRegistrationMapperInterface;
 
 /**
  * API Level 60 implementation of {@see CustomerMapperInterface}
@@ -43,17 +44,25 @@ class CustomerMapper implements CustomerMapperInterface
     /** @var AddressMapper */
     private $addressMapper;
 
+    /** @var TaxRegistrationMapperInterface */
+    private $registrationMapper;
+
     /** @var MapperUtilities */
     private $utilities;
 
     /**
      * @param MapperUtilities|null $utilities
      * @param AddressMapperInterface|null $addressMapper
+     * @param TaxRegistrationMapperInterface|null $registrationMapper
      */
-    public function __construct(MapperUtilities $utilities = null, AddressMapperInterface $addressMapper = null)
-    {
+    public function __construct(
+        MapperUtilities $utilities = null,
+        AddressMapperInterface $addressMapper = null,
+        TaxRegistrationMapperInterface $registrationMapper = null
+    ) {
         $this->utilities = $utilities ?: new MapperUtilities();
         $this->addressMapper = $addressMapper ?: new AddressMapper();
+        $this->registrationMapper = $registrationMapper ?: new TaxRegistrationMapper();
     }
 
     /**
@@ -63,21 +72,7 @@ class CustomerMapper implements CustomerMapperInterface
     {
         $object = new Customer();
 
-        if (isset($map->CustomerCode)) {
-            if ($map->CustomerCode instanceof \stdClass) {
-                $object->setCode($map->CustomerCode->_);
-
-                if (isset($map->CustomerCode->isBusinessIndicator)) {
-                    $object->setIsBusiness($map->CustomerCode->isBusinessIndicator);
-                }
-
-                if (isset($map->CustomerCode->classCode)) {
-                    $object->setTaxClass($map->CustomerCode->classCode);
-                }
-            } else {
-                $object->setCode($map->CustomerCode);
-            }
-        }
+        $this->buildCustomerCode($map, $object);
 
         if (isset($map->Destination)) {
             $object->setDestination($this->addressMapper->build($map->Destination));
@@ -85,6 +80,18 @@ class CustomerMapper implements CustomerMapperInterface
 
         if (isset($map->AdministrativeDestination)) {
             $object->setAdministrativeDestination($this->addressMapper->build($map->AdministrativeDestination));
+        }
+
+        if (isset($map->TaxRegistration)) {
+            $rawRegistrations = $map->TaxRegistration instanceof \stdClass ? [$map->TaxRegistration] :
+                $map->TaxRegistration;
+            $registrations = [];
+
+            foreach ($rawRegistrations as $rawRegistration) {
+                $registrations[] = $this->registrationMapper->build($rawRegistration);
+            }
+
+            $object->setTaxRegistrations($registrations);
         }
 
         return $object;
@@ -141,6 +148,12 @@ class CustomerMapper implements CustomerMapperInterface
             'Administrative Destination'
         );
 
+        $registrations = [];
+        foreach ($object->getTaxRegistrations() as $taxRegistration) {
+            $registrations[] = $this->registrationMapper->map($taxRegistration);
+        }
+        $map->TaxRegistration = $registrations;
+
         return $map;
     }
 
@@ -173,5 +186,31 @@ class CustomerMapper implements CustomerMapperInterface
         }
 
         return $mapping;
+    }
+
+    /**
+     * Build out customer code information
+     *
+     * @param \stdClass $map
+     * @param CustomerInterface $object
+     * @return void
+     */
+    private function buildCustomerCode(\stdClass $map, CustomerInterface $object)
+    {
+        if (isset($map->CustomerCode)) {
+            if ($map->CustomerCode instanceof \stdClass) {
+                $object->setCode($map->CustomerCode->_);
+
+                if (isset($map->CustomerCode->isBusinessIndicator)) {
+                    $object->setIsBusiness($map->CustomerCode->isBusinessIndicator);
+                }
+
+                if (isset($map->CustomerCode->classCode)) {
+                    $object->setTaxClass($map->CustomerCode->classCode);
+                }
+            } else {
+                $object->setCode($map->CustomerCode);
+            }
+        }
     }
 }

@@ -93,10 +93,12 @@ class Activation extends Field
     }
 
     /**
+     * Obtain the URL to redirect the user into the Shipping Portal account.
+     *
      * @return string
      */
-    public function getShippingPortalUrl()
+    public function getAccountRedirectUrl()
     {
-        return $this->moduleConfig->getShippingPortalUrl();
+        return $this->_urlBuilder->getUrl('temando/configuration_portal/account');
     }
 }

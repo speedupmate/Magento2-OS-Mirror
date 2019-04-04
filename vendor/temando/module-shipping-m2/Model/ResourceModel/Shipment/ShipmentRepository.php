@@ -13,20 +13,15 @@ use Magento\Framework\Exception\CouldNotSaveException;
 use Magento\Framework\Exception\LocalizedException;
 use Magento\Framework\Exception\NoSuchEntityException;
 use Magento\Sales\Api\ShipmentTrackRepositoryInterface;
-use Magento\Sales\Model\ResourceModel\Order\Shipment\Track as TrackResource;
 use Temando\Shipping\Api\Data\Shipment\ShipmentReferenceInterface;
 use Temando\Shipping\Api\Data\Shipment\ShipmentReferenceInterfaceFactory;
 use Temando\Shipping\Model\ResourceModel\Repository\ShipmentRepositoryInterface;
 use Temando\Shipping\Model\ResourceModel\Shipment\ShipmentReference as ShipmentReferenceResource;
-use Temando\Shipping\Model\Shipment\TrackEventInterface;
 use Temando\Shipping\Model\ShipmentInterface;
 use Temando\Shipping\Rest\Adapter\ShipmentApiInterface;
 use Temando\Shipping\Rest\EntityMapper\ShipmentResponseMapper;
-use Temando\Shipping\Rest\EntityMapper\TrackingResponseMapper;
 use Temando\Shipping\Rest\Exception\AdapterException;
 use Temando\Shipping\Rest\Request\ItemRequestInterfaceFactory;
-use Temando\Shipping\Rest\Response\Type\TrackingEventResponseType;
-use Temando\Shipping\Setup\SetupSchema;
 
 /**
  * Temando Shipment Repository
@@ -53,11 +48,6 @@ class ShipmentRepository implements ShipmentRepositoryInterface
      * @var ShipmentResponseMapper
      */
     private $shipmentMapper;
-
-    /**
-     * @var TrackingResponseMapper
-     */
-    private $trackMapper;
 
     /**
      * @var ShipmentReferenceResource
@@ -95,16 +85,10 @@ class ShipmentRepository implements ShipmentRepositoryInterface
     private $shipmentTrackRepository;
 
     /**
-     * @var TrackResource
-     */
-    private $trackResource;
-
-    /**
      * ShipmentRepository constructor.
      * @param ShipmentApiInterface $apiAdapter
      * @param ItemRequestInterfaceFactory $requestFactory
      * @param ShipmentResponseMapper $shipmentMapper
-     * @param TrackingResponseMapper $trackMapper
      * @param ShipmentReference $resource
      * @param ShipmentReferenceInterfaceFactory $shipmentReferenceFactory
      * @param ShipmentReferenceCollectionFactory $shipmentReferenceCollectionFactory
@@ -112,26 +96,22 @@ class ShipmentRepository implements ShipmentRepositoryInterface
      * @param SearchCriteriaBuilderFactory $searchCriteriaBuilderFactory
      * @param FilterBuilder $filterBuilder
      * @param ShipmentTrackRepositoryInterface $shipmentTrackRepository
-     * @param TrackResource $trackResource
      */
     public function __construct(
         ShipmentApiInterface $apiAdapter,
         ItemRequestInterfaceFactory $requestFactory,
         ShipmentResponseMapper $shipmentMapper,
-        TrackingResponseMapper $trackMapper,
         ShipmentReferenceResource $resource,
         ShipmentReferenceInterfaceFactory $shipmentReferenceFactory,
         ShipmentReferenceCollectionFactory $shipmentReferenceCollectionFactory,
         CollectionProcessorInterface $collectionProcessor,
         SearchCriteriaBuilderFactory $searchCriteriaBuilderFactory,
         FilterBuilder $filterBuilder,
-        ShipmentTrackRepositoryInterface $shipmentTrackRepository,
-        TrackResource $trackResource
+        ShipmentTrackRepositoryInterface $shipmentTrackRepository
     ) {
         $this->apiAdapter = $apiAdapter;
         $this->requestFactory = $requestFactory;
         $this->shipmentMapper = $shipmentMapper;
-        $this->trackMapper = $trackMapper;
         $this->resource = $resource;
         $this->shipmentReferenceFactory = $shipmentReferenceFactory;
         $this->shipmentReferenceCollectionFactory = $shipmentReferenceCollectionFactory;
@@ -139,7 +119,6 @@ class ShipmentRepository implements ShipmentRepositoryInterface
         $this->searchCriteriaBuilderFactory = $searchCriteriaBuilderFactory;
         $this->filterBuilder = $filterBuilder;
         $this->shipmentTrackRepository = $shipmentTrackRepository;
-        $this->trackResource = $trackResource;
     }
 
     /**
@@ -169,67 +148,6 @@ class ShipmentRepository implements ShipmentRepositoryInterface
         }
 
         return $shipment;
-    }
-
-    /**
-     * Load external tracking info from platform using external shipment id.
-     *
-     * @param string $shipmentId
-     * @return TrackEventInterface[]
-     * @throws NoSuchEntityException
-     * @throws LocalizedException
-     */
-    public function getTrackingById($shipmentId)
-    {
-        try {
-            $request = $this->requestFactory->create(['entityId' => $shipmentId]);
-            $apiTrackingEvents = $this->apiAdapter->getTrackingEvents($request);
-
-            // Sort the tracking events by occurredAt descending.
-            usort($apiTrackingEvents, function (TrackingEventResponseType $eventA, TrackingEventResponseType $eventB) {
-                $occurredA = strtotime($eventA->getAttributes()->getOccurredAt());
-                $occurredB = strtotime($eventB->getAttributes()->getOccurredAt());
-                return ($occurredB - $occurredA);
-            });
-
-            $trackEvents = array_map(function (TrackingEventResponseType $apiTrackingEvent) {
-                return $this->trackMapper->map($apiTrackingEvent);
-            }, $apiTrackingEvents);
-        } catch (AdapterException $e) {
-            if ($e->getCode() === 404) {
-                throw NoSuchEntityException::singleField('shipmentId', $shipmentId);
-            }
-
-            throw new LocalizedException(__('An error occurred while loading tracking history.'), $e);
-        }
-
-        return $trackEvents;
-    }
-
-    /**
-     * Load external tracking info from platform using tracking number.
-     *
-     * @param string $trackingNumber
-     * @return TrackEventInterface[]
-     * @throws NoSuchEntityException
-     */
-    public function getTrackingByNumber($trackingNumber)
-    {
-        $connection = $this->resource->getConnection();
-        $select = $connection
-            ->select()
-            ->from(['ts' => SetupSchema::TABLE_SHIPMENT], ShipmentReferenceInterface::EXT_SHIPMENT_ID)
-            ->join(['sst' => $this->trackResource->getMainTable()], 'ts.shipment_id = sst.parent_id')
-            ->where('sst.track_number = ?', $trackingNumber);
-
-        $shipmentId = $connection->fetchOne($select);
-
-        $trackEvents = $this->getTrackingById($shipmentId);
-        $trackEvents = array_filter($trackEvents, function (TrackEventInterface $trackEvent) use ($trackingNumber) {
-            return ($trackingNumber === $trackEvent->getTrackingReference());
-        });
-
-        return $trackEvents;
     }
 
     /**
@@ -344,24 +262,6 @@ class ShipmentRepository implements ShipmentRepositoryInterface
     public function getReferenceByExtReturnShipmentId($extShipmentId)
     {
         $entityId = $this->resource->getIdByExtReturnShipmentId($extShipmentId);
-
-        return $this->getReferenceById($entityId);
-    }
-
-    /**
-     * @param string $trackingNumber
-     * @return ShipmentReferenceInterface
-     */
-    public function getReferenceByTrackingNumber($trackingNumber)
-    {
-        $connection = $this->resource->getConnection();
-        $select = $connection
-            ->select()
-            ->from(['ts' => SetupSchema::TABLE_SHIPMENT], ShipmentReferenceInterface::ENTITY_ID)
-            ->join(['sst' => $this->trackResource->getMainTable()], 'ts.shipment_id = sst.parent_id')
-            ->where('sst.track_number = ?', $trackingNumber);
-
-        $entityId = $connection->fetchOne($select);
 
         return $this->getReferenceById($entityId);
     }

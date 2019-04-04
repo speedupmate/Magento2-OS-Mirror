@@ -7,10 +7,10 @@ namespace Temando\Shipping\Model\Config\Backend\Active;
 /**
  * Validator functions for merchant account credentials.
  *
- * @package  Temando\Shipping\Model
- * @author   Christoph Aßmann <christoph.assmann@netresearch.de>
- * @license  http://opensource.org/licenses/osl-3.0.php Open Software License (OSL 3.0)
- * @link     http://www.temando.com/
+ * @package Temando\Shipping\Model
+ * @author  Christoph Aßmann <christoph.assmann@netresearch.de>
+ * @license https://opensource.org/licenses/osl-3.0.php Open Software License (OSL 3.0)
+ * @link    https://www.temando.com/
  */
 class CredentialsValidator
 {
@@ -59,6 +59,28 @@ class CredentialsValidator
 
         $validator = new \Zend_Validate_Callback($callback);
         $message = __('Please set API credentials before enabling Magento Shipping.');
+        $validator->setMessage($message);
+
+        return $validator;
+    }
+
+    /**
+     * Check if API endpoint URI scheme is either "http" or "https" if given.
+     *
+     * @return \Zend_Validate_Callback
+     * @throws \Zend_Validate_Exception
+     */
+    public function getUriEndpointValidator()
+    {
+        $callback = function (\Magento\Framework\App\Config\Value $field) {
+            // read session endpoint from current save operation
+            $sessionUrl = $field->getFieldsetDataValue('session_endpoint');
+
+            return (empty($sessionUrl) || \Zend_Uri::check($sessionUrl));
+        };
+
+        $validator = new \Zend_Validate_Callback($callback);
+        $message = __('Please enter a valid URL. Protocol (http://, https://) is required.');
         $validator->setMessage($message);
 
         return $validator;

@@ -190,25 +190,18 @@ class ShipmentResponseMapper
      */
     private function mapFulfillment($apiFulfillment)
     {
-        /** @var \Temando\Shipping\Model\Shipment\Fulfillment $fulfillment */
-        $fulfillment = $this->fulfillmentFactory->create();
+        $data = [];
 
-        if ($apiFulfillment) {
-            $fulfillment->setData(
-                FulfillmentInterface::TRACKING_REFERENCE,
-                $apiFulfillment->getCarrierBooking()->getTrackingReference()
-            );
+        if ($apiFulfillment && $apiFulfillment->getCarrierBooking()) {
+            $carrierBooking = $apiFulfillment->getCarrierBooking();
 
-            $fulfillment->setData(
-                FulfillmentInterface::SERVICE_NAME,
-                $apiFulfillment->getCarrierBooking()->getServiceName()
-            );
-
-            $fulfillment->setData(
-                FulfillmentInterface::CARRIER_NAME,
-                $apiFulfillment->getCarrierBooking()->getCarrierName()
-            );
+            $data[FulfillmentInterface::TRACKING_REFERENCE] = $carrierBooking->getTrackingReference();
+            $data[FulfillmentInterface::TRACKING_URL] = $carrierBooking->getTrackingUrl();
+            $data[FulfillmentInterface::SERVICE_NAME] = $carrierBooking->getServiceName();
+            $data[FulfillmentInterface::CARRIER_NAME] = $carrierBooking->getCarrierName();
         }
+
+        $fulfillment = $this->fulfillmentFactory->create(['data' => $data]);
 
         return $fulfillment;
     }

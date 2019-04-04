@@ -17,7 +17,7 @@
                 <p>
                     <?php if ($block->isMerchantRegistered()) : ?>
                         <a class="shipping_portal__link" target="_blank" rel="noopener noreferrer"
-                           href="<?= $block->escapeUrl($block->getShippingPortalUrl()); ?>">
+                           href="<?= $block->escapeUrl($block->getAccountRedirectUrl()); ?>">
                             <?= $block->escapeHtml(__('Access the Magento Shipping Portal here')); ?>
                             <span></span>
                         </a>

@@ -18,6 +18,7 @@ interface PackageInterface
 {
     const PACKAGE_ID = 'id';
     const TRACKING_REFERENCE = 'tracking_reference';
+    const TRACKING_URL = 'tracking_url';
     const WEIGHT = 'gross_weight_value';
     const LENGTH = 'dimensions_length';
     const WIDTH = 'dimensions_width';
@@ -33,6 +34,11 @@ interface PackageInterface
      * @return string
      */
     public function getTrackingReference();
+
+    /**
+     * @return string
+     */
+    public function getTrackingUrl();
 
     /**
      * @return float

@@ -38,6 +38,11 @@ class CarrierBooking
     /**
      * @var string
      */
+    private $trackingUrl;
+
+    /**
+     * @var string
+     */
     private $integrationId;
 
     /**
@@ -48,28 +53,12 @@ class CarrierBooking
     /**
      * @var string
      */
-    private $serviceName;
+    private $configurationId;
 
     /**
      * @var string
      */
-    private $configurationId;
-
-    /**
-     * @return string
-     */
-    public function getConfigurationId()
-    {
-        return $this->configurationId;
-    }
-
-    /**
-     * @param string $configurationId
-     */
-    public function setConfigurationId($configurationId)
-    {
-        $this->configurationId = $configurationId;
-    }
+    private $serviceName;
 
     /**
      * @return \Temando\Shipping\Rest\Response\Type\Shipment\Attributes\Fulfill\CarrierBooking\ShippingTaxInclusiveCharge
@@ -143,6 +132,22 @@ class CarrierBooking
     /**
      * @return string
      */
+    public function getTrackingUrl()
+    {
+        return $this->trackingUrl;
+    }
+
+    /**
+     * @param string $trackingUrl
+     */
+    public function setTrackingUrl($trackingUrl)
+    {
+        $this->trackingUrl = $trackingUrl;
+    }
+
+    /**
+     * @return string
+     */
     public function getIntegrationId()
     {
         return $this->integrationId;
@@ -172,6 +177,22 @@ class CarrierBooking
     public function setIntegrationServiceId($integrationServiceId)
     {
         $this->integrationServiceId = $integrationServiceId;
+    }
+
+    /**
+     * @return string
+     */
+    public function getConfigurationId()
+    {
+        return $this->configurationId;
+    }
+
+    /**
+     * @param string $configurationId
+     */
+    public function setConfigurationId($configurationId)
+    {
+        $this->configurationId = $configurationId;
     }
 
     /**

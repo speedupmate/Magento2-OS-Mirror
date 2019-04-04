@@ -10,6 +10,7 @@ use Magento\Framework\Exception\NoSuchEntityException;
 use Magento\Sales\Api\Data\OrderInterface;
 use Magento\Sales\Api\Data\ShipmentCreationArgumentsExtensionInterfaceFactory;
 use Magento\Sales\Api\Data\ShipmentCreationArgumentsInterfaceFactory;
+use Magento\Sales\Api\Data\ShipmentItemCreationInterface;
 use Magento\Sales\Api\Data\ShipmentItemCreationInterfaceFactory;
 use Magento\Sales\Api\Data\ShipmentTrackCreationInterfaceFactory;
 use Magento\Sales\Api\Data\ShipmentTrackInterfaceFactory;
@@ -199,15 +200,14 @@ class ShipmentProcessor implements EntityProcessorInterface
         // find local order id for external order
         $orderId = $this->orderReferenceResource->getOrderIdByExtOrderId($shipment->getOrderId());
         if (!$orderId) {
-            throw EventException::operationSkipped(
+            throw EventProcessorException::processingFailed(
                 StreamEventInterface::ENTITY_TYPE_SHIPMENT,
-                StreamEventInterface::EVENT_TYPE_CREATE,
-                $extShipmentId,
-                "No order found for entity ID {$shipment->getOrderId()}."
+                $extShipmentId
             );
         }
 
         // items
+        /** @var ShipmentItemCreationInterface[] $creationItems */
         $creationItems = [];
         $packages = $shipment->getPackages() ?: [];
 
@@ -218,13 +218,22 @@ class ShipmentProcessor implements EntityProcessorInterface
         }, []);
 
         $salesOrder = $this->salesOrderRepository->get($orderId);
-        foreach ($fulfilledItems as $fulfilledItem) {
-            $orderItemId = $this->getOrderItemIdBySku($salesOrder, $fulfilledItem->getSku());
 
-            $creationItem = $this->itemCreationFactory->create();
-            $creationItem->setQty($fulfilledItem->getQty());
-            $creationItem->setOrderItemId($orderItemId);
-            $creationItems[]= $creationItem;
+        foreach ($fulfilledItems as $fulfilledItem) {
+            if (!isset($creationItems[$fulfilledItem->getSku()])) {
+                // add new creation item
+                $orderItemId = $this->getOrderItemIdBySku($salesOrder, $fulfilledItem->getSku());
+
+                $creationItem = $this->itemCreationFactory->create();
+                $creationItem->setQty($fulfilledItem->getQty());
+                $creationItem->setOrderItemId($orderItemId);
+
+                $creationItems[$fulfilledItem->getSku()] = $creationItem;
+            } else {
+                // increase qty of existing creation item
+                $creationItem = $creationItems[$fulfilledItem->getSku()];
+                $creationItem->setQty($fulfilledItem->getQty() + $creationItem->getQty());
+            }
         }
 
         // tracking

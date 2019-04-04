@@ -1,5 +1,6 @@
 # Db
 
+
 Access a database.
 
 The most important function of this module is to clean a database before each test.
@@ -34,9 +35,12 @@ if you run into problems loading dumps and cleaning databases.
 * populate: false - whether the the dump should be loaded before the test suite is started
 * cleanup: false - whether the dump should be reloaded before each test
 * reconnect: false - whether the module should reconnect to the database before each test
+* waitlock: 0 - wait lock (in seconds) that the database session should use for DDL statements
 * ssl_key - path to the SSL key (MySQL specific, @see http://php.net/manual/de/ref.pdo-mysql.php#pdo.constants.mysql-attr-key)
 * ssl_cert - path to the SSL certificate (MySQL specific, @see http://php.net/manual/de/ref.pdo-mysql.php#pdo.constants.mysql-attr-ssl-cert)
 * ssl_ca - path to the SSL certificate authority (MySQL specific, @see http://php.net/manual/de/ref.pdo-mysql.php#pdo.constants.mysql-attr-ssl-ca)
+* ssl_verify_server_cert - disables certificate CN verification (MySQL specific, @see http://php.net/manual/de/ref.pdo-mysql.php)
+* ssl_cipher - list of one or more permissible ciphers to use for SSL encryption (MySQL specific, @see http://php.net/manual/de/ref.pdo-mysql.php#pdo.constants.mysql-attr-cipher)
 
 ## Example
 
@@ -50,9 +54,12 @@ if you run into problems loading dumps and cleaning databases.
              populate: true
              cleanup: true
              reconnect: true
+             waitlock: 10
              ssl_key: '/path/to/client-key.pem'
              ssl_cert: '/path/to/client-cert.pem'
              ssl_ca: '/path/to/ca-cert.pem'
+             ssl_verify_server_cert: false
+             ssl_cipher: 'AES256-SHA'
 
 ## SQL data dump
 
@@ -169,10 +176,11 @@ SELECT COUNT(*) FROM `users` WHERE `name` = 'Davert' AND `email` LIKE 'davert%'
 * dbh - contains the PDO connection
 * driver - contains the Connection Driver
 
+
 ## Actions
 
 ### dontSeeInDatabase
-
+ 
 Effect is opposite to ->seeInDatabase
 
 Asserts that there is no record with the given column values in a database.
@@ -197,8 +205,9 @@ Supported operators: `<`, `>`, `>=`, `<=`, `!=`, `like`.
  * `param string` $table
  * `param array` $criteria
 
-### grabColumnFromDatabase
 
+### grabColumnFromDatabase
+ 
 Fetches all values from the column in database.
 Provide table name, desired column and criteria.
 
@@ -213,31 +222,26 @@ $mails = $I->grabColumnFromDatabase('users', 'email', array('name' => 'RebOOter'
 
  * `return` array
 
-### grabFromDatabase
 
-Fetches a single column value from a database.
+### grabFromDatabase
+ 
+Fetches all values from the column in database.
 Provide table name, desired column and criteria.
 
 ``` php
 <?php
-$mail = $I->grabFromDatabase('users', 'email', array('name' => 'Davert'));
+$mails = $I->grabFromDatabase('users', 'email', array('name' => 'RebOOter'));
 ```
-Comparison expressions can be used as well:
-
-```php
-<?php
-$post = $I->grabFromDatabase('posts', ['num_comments >=' => 100']);
-$user = $I->grabFromDatabase('users', ['email like' => 'miles%']);
-```
-
-Supported operators: `<`, `>`, `>=`, `<=`, `!=`, `like`.
 
  * `param string` $table
  * `param string` $column
- * `param array` $criteria
+ * `param array`  $criteria
+
+ * `return` array
+
 
 ### grabNumRecords
-
+ 
 Returns the number of rows in a database
 
  * `param string` $table    Table name
@@ -245,8 +249,9 @@ Returns the number of rows in a database
 
  * `return` int
 
-### haveInDatabase
 
+### haveInDatabase
+ 
 Inserts an SQL record into a database. This record will be erased after the test.
 
 ```php
@@ -260,11 +265,13 @@ $I->haveInDatabase('users', array('name' => 'miles', 'email' => 'miles@davis.com
 
  * `return integer` $id
 
+
 ### isPopulated
 __not documented__
 
-### seeInDatabase
 
+### seeInDatabase
+ 
 Asserts that a row with the given column values exists.
 Provide table name and column values.
 
@@ -287,8 +294,9 @@ Supported operators: `<`, `>`, `>=`, `<=`, `!=`, `like`.
  * `param string` $table
  * `param array` $criteria
 
-### seeNumRecords
 
+### seeNumRecords
+ 
 Asserts that the given number of records were found in the database.
 
 ```php
@@ -301,8 +309,9 @@ $I->seeNumRecords(1, 'users', ['name' => 'davert'])
  * `param string` $table Table name
  * `param array` $criteria Search criteria [Optional]
 
-### updateInDatabase
 
+### updateInDatabase
+ 
 Update an SQL record into a database.
 
 ```php
@@ -315,4 +324,4 @@ $I->updateInDatabase('users', array('isAdmin' => true), array('email' => 'miles@
  * `param array` $data
  * `param array` $criteria
 
-<p>&nbsp;</p><div class="alert alert-warning">Module reference is taken from the source code. <a href="https://github.com/Codeception/Codeception/tree/2.3/src/Codeception/Module/Db.php">Help us to improve documentation. Edit module reference</a></div>
+<p>&nbsp;</p><div class="alert alert-warning">Module reference is taken from the source code. <a href="https://github.com/Codeception/Codeception/tree/2.4/src/Codeception/Module/Db.php">Help us to improve documentation. Edit module reference</a></div>

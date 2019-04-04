@@ -2,6 +2,66 @@
 
 All notable changes to this project will be documented in this file, in reverse chronological order by release.
 
+## 2.13.0 - 2018-12-11
+
+### Added
+
+- [#224](https://github.com/zendframework/zend-form/pull/224) adds support for zend-hydrator v3 releases, while keeping support for
+  versions 1 and 2.
+
+- [#211](https://github.com/zendframework/zend-form/pull/211) adds support for the HTML5 `minlength` attribute in all form elements
+  that support it.
+
+- [#217](https://github.com/zendframework/zend-form/pull/217) adds `Zend\Form\View\HelperTrait`, which can be used to provide IDE
+  autocompletion for view helpers provided by zend-form. See
+  https://docs.zendframework.com/zend-form/view-helpers/#ide-auto-completion-in-templates
+  for more information.
+
+### Changed
+
+- Nothing.
+
+### Deprecated
+
+- Nothing.
+
+### Removed
+
+- Nothing.
+
+### Fixed
+
+- Nothing.
+
+## 2.12.1 - 2018-12-11
+
+### Added
+
+- Nothing.
+
+### Changed
+
+- Nothing.
+
+### Deprecated
+
+- Nothing.
+
+### Removed
+
+- Nothing.
+
+### Fixed
+
+- [#218](https://github.com/zendframework/zend-form/pull/218) ensures object values of select elements can be rendered without error.
+
+- [#216](https://github.com/zendframework/zend-form/pull/216) fixes an issue when performing data binding and a fieldset has no mapped
+  input elements, casting `null` values to empty arrays to ensure they can be
+  passed to an input filter.
+
+- [#207](https://github.com/zendframework/zend-form/pull/207) fixes the return value annotation for the `Fieldset::get()` method to
+  indicate it can also return a `FieldsetInterface` instance.
+
 ## 2.12.0 - 2018-05-16
 
 ### Added

@@ -65,6 +65,7 @@
     #mix-grid .return_length(@field-label-grid__column, @field-grid__columns, '+');
     //@codingStandardsIgnoreEnd
     margin-left: @_length;
+    //@codingStandardsIgnoreEnd
 }
 
 //
@@ -206,7 +207,6 @@
 
         &:before {
             .appearing__off();
-            content: '.';
             margin-left: -7px;
             overflow: hidden;
         }
@@ -229,7 +229,7 @@
 
     .required > &, // ToDo UI: change classes 'required' to '_required'.
     ._required > & {
-        > span {
+        span {
             &:after {
                 color: @validation__color;
                 content: '*';
@@ -287,6 +287,14 @@
         }
     }
 
+    legend.admin__field-label {
+        span {
+            &:after {
+                display: none;
+            }
+        }
+    }
+
     //  ToDo UI: Scope Labels must be moved from right side of each control to the place under the label of the control.
     //  This code must be removed after Scope Labels are moved completely.
     //  Till that time they'll be disabled by commenting pseudo-element content property.
@@ -301,7 +309,11 @@
             content: attr(data-config-scope);
             display: inline-block;
             font-size: @font-size__s;
+            /**
+             *@codingStandardsIgnoreStart
+             */
             left: @_length;
+            //@codingStandardsIgnoreEnd
             line-height: 3.2rem;
             margin-left: 2 * @temp_gutter;
             position: absolute;
@@ -666,8 +678,11 @@
                 margin: 0;
                 opacity: 1;
                 position: static;
-                text-align: left;
             }
+        }
+
+        .admin__field-label {
+            text-align: left;
         }
 
         &:nth-child(n + 2) {

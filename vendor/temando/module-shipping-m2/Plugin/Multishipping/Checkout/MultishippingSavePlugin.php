@@ -161,19 +161,22 @@ class MultishippingSavePlugin
      *
      * @param Multishipping $subject
      *
-     * @return null Argument of original method remains unaltered.
+     * @return Multishipping
      */
-    public function afterSave(Multishipping $subject, $result)
+    public function afterSave(Multishipping $subject)
     {
         if (!$this->moduleConfig->isEnabled($this->storeManager->getStore()->getId())) {
-            return $result;
+            return $subject;
         }
 
         $ship = $this->request->getParam('ship');
 
         if (empty($ship)) {
-            return null;
+            return $subject;
         }
+
+        /** @var \Magento\Quote\Model\Quote\Address[] $recollectAddresses */
+        $recollectAddresses = [];
 
         // keep user input in session, prefill fields in case of error or when going back.
         $subject->getCheckoutSession()->setData('checkoutFieldSelection', $ship);
@@ -187,6 +190,9 @@ class MultishippingSavePlugin
                 // obtain shipping address for current quote item
                 $addressId = $quoteItem['address'];
                 $shippingAddress = $subject->getQuote()->getShippingAddressByCustomerAddressId($addressId);
+                if (!$shippingAddress) {
+                    continue;
+                }
 
                 try {
                     $address = $this->addressRepository->getByQuoteAddressId($shippingAddress->getId());
@@ -203,12 +209,18 @@ class MultishippingSavePlugin
                 $address->setServiceSelection($checkoutFields);
                 $this->addressRepository->save($address);
 
-                // re-collect rates with checkout field selection
-                $shippingAddress->setCollectShippingRates(true);
-                $shippingAddress->collectShippingRates();
+                $recollectAddresses[$shippingAddress->getId()] = $shippingAddress;
             }
         }
 
-        return $result;
+        // re-collect rates with checkout field selection
+        foreach ($recollectAddresses as $shippingAddress) {
+            $shippingAddress->setCollectShippingRates(true);
+            $shippingAddress->collectShippingRates();
+        }
+
+        // workaround for M2.2 which does not display any shipping methods.
+        $subject->getQuote()->setTotalsCollectedFlag(false);
+        return $subject;
     }
 }

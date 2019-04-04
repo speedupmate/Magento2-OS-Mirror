@@ -8,7 +8,7 @@
 namespace Vertex\Data;
 
 /**
- * Default implementation of {@see LoginInterface}
+ * {@inheritDoc}
  */
 class Login implements LoginInterface
 {

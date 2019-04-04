@@ -6,6 +6,7 @@
 namespace Magento\Customer\Test\Unit\Controller\Adminhtml\Index;
 
 use Magento\Customer\Model\EmailNotificationInterface;
+use Magento\Framework\Message\MessageInterface;
 
 /**
  * @SuppressWarnings(PHPMD.TooManyFields)
@@ -74,7 +75,10 @@ class InlineEditTest extends \PHPUnit\Framework\TestCase
     {
         $objectManager = new \Magento\Framework\TestFramework\Unit\Helper\ObjectManager($this);
 
-        $this->request = $this->getMockForAbstractClass(\Magento\Framework\App\RequestInterface::class, [], '', false);
+        $this->request = $this->getMockBuilder(\Magento\Framework\App\RequestInterface::class)
+            ->setMethods(['isPost'])
+            ->getMockForAbstractClass();
+        $this->request->expects($this->any())->method('isPost')->willReturn(true);
         $this->messageManager = $this->getMockForAbstractClass(
             \Magento\Framework\Message\ManagerInterface::class,
             [],
@@ -242,10 +246,11 @@ class InlineEditTest extends \PHPUnit\Framework\TestCase
             ->method('getMessages')
             ->willReturn($this->messageCollection);
         $this->messageCollection->expects($this->once())
-            ->method('getItems')
+            ->method('getErrors')
             ->willReturn([$this->message]);
         $this->messageCollection->expects($this->once())
-            ->method('getCount')
+            ->method('getCountByType')
+            ->with(MessageInterface::TYPE_ERROR)
             ->willReturn(1);
         $this->message->expects($this->once())
             ->method('getText')

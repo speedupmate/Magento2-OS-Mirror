@@ -62,10 +62,12 @@ class Active extends Value
     protected function _getValidationRulesBeforeSave()
     {
         $inputValidator = $this->validationRules->getInputValidator();
+        $uriValidator = $this->validationRules->getUriEndpointValidator();
         $authenticationValidator = $this->validationRules->getAuthenticationValidator();
 
         $validatorChain = new \Zend_Validate();
         $validatorChain->addValidator($inputValidator, true);
+        $validatorChain->addValidator($uriValidator, true);
         $validatorChain->addValidator($authenticationValidator, true);
 
         return $validatorChain;

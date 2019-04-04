@@ -36,6 +36,14 @@ class Package extends DataObject implements PackageInterface
     }
 
     /**
+     * @return string
+     */
+    public function getTrackingUrl()
+    {
+        return $this->getData(self::TRACKING_URL);
+    }
+
+    /**
      * @return float
      */
     public function getWeight()

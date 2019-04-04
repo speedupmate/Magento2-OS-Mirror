@@ -59,6 +59,8 @@
     <!-- ## account data return types -->
     <preference for="Temando\Shipping\Model\CarrierInterface"
                 type="Temando\Shipping\Model\Carrier" />
+    <preference for="Temando\Shipping\Model\ExperienceInterface"
+                type="Temando\Shipping\Model\Experience" />
     <preference for="Temando\Shipping\Model\LocationInterface"
                 type="Temando\Shipping\Model\Location" />
     <preference for="Temando\Shipping\Model\PackagingInterface"
@@ -146,6 +148,8 @@
                 type="Temando\Shipping\Model\ResourceModel\Batch\BatchRepository" />
     <preference for="Temando\Shipping\Model\ResourceModel\Repository\DispatchRepositoryInterface"
                 type="Temando\Shipping\Model\ResourceModel\Dispatch\DispatchRepository" />
+    <preference for="Temando\Shipping\Model\ResourceModel\Repository\ExperienceRepositoryInterface"
+                type="Temando\Shipping\Model\ResourceModel\Experience\ExperienceRepository" />
     <preference for="Temando\Shipping\Model\ResourceModel\Repository\LocationRepositoryInterface"
                 type="Temando\Shipping\Model\ResourceModel\Location\LocationRepository" />
     <preference for="Temando\Shipping\Model\ResourceModel\Repository\OrderCollectionPointRepositoryInterface"
@@ -178,6 +182,8 @@
                 type="Temando\Shipping\Rest\Adapter"/>
     <preference for="Temando\Shipping\Rest\Adapter\EventStreamApiInterface"
                 type="Temando\Shipping\Rest\Adapter"/>
+    <preference for="Temando\Shipping\Rest\Adapter\ExperienceApiInterface"
+                type="Temando\Shipping\Rest\OrderAdapter"/>
     <preference for="Temando\Shipping\Rest\Adapter\LocationApiInterface"
                 type="Temando\Shipping\Rest\Adapter"/>
     <preference for="Temando\Shipping\Rest\Adapter\OrderApiInterface"
@@ -335,8 +341,10 @@
         <arguments>
             <argument name="logger" xsi:type="object">Temando\Shipping\Webservice\Logger</argument>
             <argument name="shipmentRepository" xsi:type="object">Temando\Shipping\Model\ResourceModel\Repository\ShipmentRepositoryInterface\Proxy</argument>
+            <argument name="experienceRepository" xsi:type="object">Temando\Shipping\Model\ResourceModel\Repository\ExperienceRepositoryInterface\Proxy</argument>
             <argument name="orderRepository" xsi:type="object">Temando\Shipping\Model\ResourceModel\Repository\OrderRepositoryInterface\Proxy</argument>
             <argument name="processorPool" xsi:type="object">Temando\Shipping\Webservice\Processor\CollectRatesProcessorPool</argument>
+            <argument name="freeShipping" xsi:type="object">Temando\Shipping\Model\Shipping\RateResult\FreeShipping\Proxy</argument>
         </arguments>
     </type>
     <type name="Temando\Shipping\Observer\PrepareMyOrderInfoObserver">

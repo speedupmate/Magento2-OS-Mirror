@@ -8,7 +8,7 @@
 namespace Vertex\Data;
 
 /**
- * Default implementation of {@see TaxInterface}
+ * {@inheritDoc}
  */
 class Tax implements TaxInterface
 {
@@ -38,6 +38,15 @@ class Tax implements TaxInterface
 
     /** @var string */
     private $taxType;
+
+    /** @var int[] */
+    private $invoiceTextCodes;
+
+    /** @var string */
+    private $taxCode;
+
+    /** @var string */
+    private $vertexTaxCode;
 
     /**
      * @inheritdoc
@@ -110,6 +119,31 @@ class Tax implements TaxInterface
     {
         return $this->taxType;
     }
+
+    /**
+     * @inheritdoc
+     */
+    public function getInvoiceTextCodes()
+    {
+        return $this->invoiceTextCodes;
+    }
+
+    /**
+     * @inheritdoc
+     */
+    public function getTaxCode()
+    {
+        return $this->taxCode;
+    }
+
+    /**
+     * @inheritdoc
+     */
+    public function getVertexTaxCode()
+    {
+        return $this->vertexTaxCode;
+    }
+
 
     /**
      * @inheritdoc
@@ -189,6 +223,33 @@ class Tax implements TaxInterface
     public function setType($type)
     {
         $this->taxType = $type;
+        return $this;
+    }
+
+    /**
+     * @inheritdoc
+     */
+    public function setInvoiceTextCodes($codes)
+    {
+        $this->invoiceTextCodes = $codes;
+        return $this;
+    }
+
+    /**
+     * @inheritdoc
+     */
+    public function setTaxCode($code)
+    {
+        $this->taxCode = $code;
+        return $this;
+    }
+
+    /**
+     * @inheritdoc
+     */
+    public function setVertexTaxCode($code)
+    {
+        $this->vertexTaxCode = $code;
         return $this;
     }
 }

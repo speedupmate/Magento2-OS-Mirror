@@ -31,6 +31,10 @@ use Zend\View\Exception;
  * @method HeadMeta offsetGetProperty($index, $keyValue, $content, $modifiers = array())
  * @method HeadMeta prependProperty($keyValue, $content, $modifiers = array())
  * @method HeadMeta setProperty($keyValue, $content, $modifiers = array())
+ * @method HeadMeta appendItemprop($keyValue, $content, $modifiers = array())
+ * @method HeadMeta offsetGetItemprop($index, $keyValue, $content, $modifiers = array())
+ * @method HeadMeta prependItemprop($keyValue, $content, $modifiers = array())
+ * @method HeadMeta setItemprop($keyValue, $content, $modifiers = array())
  */
 class HeadMeta extends Placeholder\Container\AbstractStandalone
 {
@@ -54,13 +58,6 @@ class HeadMeta extends Placeholder\Container\AbstractStandalone
      * @var array
      */
     protected $modifierKeys = ['lang', 'scheme'];
-
-    /**
-     * Registry key for placeholder
-     *
-     * @var string
-     */
-    protected $regKey = 'Zend_View_Helper_HeadMeta';
 
     /**
      * Constructor
@@ -246,7 +243,7 @@ class HeadMeta extends Placeholder\Container\AbstractStandalone
             if (! in_array($key, $this->modifierKeys)) {
                 continue;
             }
-            $modifiersString .= $key . '="' . $this->escape($value) . '" ';
+            $modifiersString .= sprintf('%s="%s"', $key, $this->autoEscape ? $this->escapeAttribute($value) : $value);
         }
 
         $modifiersString = rtrim($modifiersString);
@@ -274,8 +271,8 @@ class HeadMeta extends Placeholder\Container\AbstractStandalone
         $meta = sprintf(
             $tpl,
             $type,
-            $this->escape($item->$type),
-            $this->escape($item->content),
+            $this->autoEscape ? $this->escapeAttribute($item->$type) : $item->$type,
+            $this->autoEscape ? $this->escapeAttribute($item->content) : $item->content,
             $modifiersString
         );
 

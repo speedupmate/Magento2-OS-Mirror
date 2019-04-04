@@ -32,24 +32,6 @@ interface ShipmentRepositoryInterface
     public function getById($shipmentId);
 
     /**
-     * Load external tracking info from platform using external shipment id.
-     *
-     * @param string $shipmentId
-     * @return \Temando\Shipping\Model\Shipment\TrackEventInterface[]
-     * @throws \Magento\Framework\Exception\LocalizedException
-     */
-    public function getTrackingById($shipmentId);
-
-    /**
-     * Load external tracking info from platform using tracking number.
-     *
-     * @param string $trackingNumber
-     * @return \Temando\Shipping\Model\Shipment\TrackEventInterface[]
-     * @throws \Magento\Framework\Exception\LocalizedException
-     */
-    public function getTrackingByNumber($trackingNumber);
-
-    /**
      * Load local track info.
      *
      * @param string $trackingNumber
@@ -104,15 +86,6 @@ interface ShipmentRepositoryInterface
      * @throws \Magento\Framework\Exception\LocalizedException
      */
     public function getReferenceByExtReturnShipmentId($extShipmentId);
-
-    /**
-     * Load local reference to external shipment entity by tracking number.
-     *
-     * @param string $trackingNumber
-     * @return \Temando\Shipping\Api\Data\Shipment\ShipmentReferenceInterface
-     * @throws \Magento\Framework\Exception\LocalizedException
-     */
-    public function getReferenceByTrackingNumber($trackingNumber);
 
     /**
      * List shipment references that match specified search criteria.

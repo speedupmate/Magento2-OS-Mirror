@@ -9,19 +9,20 @@ namespace Vertex\Mapper\Api60;
 
 use Vertex\Data\LoginInterface;
 use Vertex\Mapper\AuthenticatorInterface;
+use Vertex\Mapper\LoginMapperInterface;
 
 /**
  * API Level 60 implementation of {@see AuthenticatorInterface}
  */
 class Authenticator implements AuthenticatorInterface
 {
-    /** @var LoginMapper */
+    /** @var LoginMapperInterface */
     private $loginMapper;
 
     /**
-     * @param LoginMapper|null $loginMapper
+     * @param LoginMapperInterface $loginMapper
      */
-    public function __construct(LoginMapper $loginMapper = null)
+    public function __construct(LoginMapperInterface $loginMapper = null)
     {
         $this->loginMapper = $loginMapper ?: new LoginMapper();
     }

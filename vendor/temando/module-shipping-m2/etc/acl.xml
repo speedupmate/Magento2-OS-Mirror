@@ -14,6 +14,7 @@
                         <resource id="Temando_Shipping::carriers" sortOrder="30" title="Carriers"/>
                         <resource id="Temando_Shipping::locations" sortOrder="30" title="Locations"/>
                         <resource id="Temando_Shipping::packaging" sortOrder="30" title="Packaging"/>
+                        <resource id="Temando_Shipping::portal" sortOrder="40" title="Shipping Portal"/>
                     </resource>
                 </resource>
             </resource>

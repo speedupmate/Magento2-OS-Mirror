@@ -65,14 +65,20 @@ class ViewTest extends AbstractBackendController
         $carrierName = 'Foo';
         $createdAtDate = '1999-01-19T03:03:33.000Z';
         $readyAtDate = '2099-01-19T03:03:33.000Z';
-        $shipmentCount = '42';
+        $pickupCharges = [];
+        $includedShipments = [];
+        $failedShipments = [];
+        $documentation = [];
 
         $dispatch = new Dispatch([
             Dispatch::DISPATCH_ID => $dispatchId,
             Dispatch::CARRIER_NAME => $carrierName,
             Dispatch::CREATED_AT_DATE => $createdAtDate,
             Dispatch::READY_AT_DATE => $readyAtDate,
-            Dispatch::INCLUDED_SHIPMENTS => $shipmentCount,
+            Dispatch::PICKUP_CHARGES => $pickupCharges,
+            Dispatch::INCLUDED_SHIPMENTS => $includedShipments,
+            Dispatch::FAILED_SHIPMENTS => $failedShipments,
+            Dispatch::DOCUMENTATION => $documentation,
         ]);
 
         $this->dispatchRepo
@@ -117,9 +123,17 @@ class ViewTest extends AbstractBackendController
     public function testAclHasAccess()
     {
         $dispatchId = '1234-abcd';
+        $pickupCharges = [];
+        $includedShipments = [];
+        $failedShipments = [];
+        $documentation = [];
 
         $dispatch = new Dispatch([
             Dispatch::DISPATCH_ID => $dispatchId,
+            Dispatch::PICKUP_CHARGES => $pickupCharges,
+            Dispatch::INCLUDED_SHIPMENTS => $includedShipments,
+            Dispatch::FAILED_SHIPMENTS => $failedShipments,
+            Dispatch::DOCUMENTATION => $documentation,
         ]);
 
         $this->dispatchRepo
@@ -141,9 +155,17 @@ class ViewTest extends AbstractBackendController
     public function testAclNoAccess()
     {
         $dispatchId = '1234-abcd';
+        $pickupCharges = [];
+        $includedShipments = [];
+        $failedShipments = [];
+        $documentation = [];
 
         $dispatch = new Dispatch([
             Dispatch::DISPATCH_ID => $dispatchId,
+            Dispatch::PICKUP_CHARGES => $pickupCharges,
+            Dispatch::INCLUDED_SHIPMENTS => $includedShipments,
+            Dispatch::FAILED_SHIPMENTS => $failedShipments,
+            Dispatch::DOCUMENTATION => $documentation,
         ]);
 
         $this->dispatchRepo

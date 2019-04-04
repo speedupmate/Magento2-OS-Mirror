@@ -8,7 +8,7 @@
 namespace Vertex\Data;
 
 /**
- * Default implementation of {@see ConfigurationInterface}
+ * {@inheritDoc}
  */
 class Configuration implements ConfigurationInterface
 {

@@ -1,3 +1,27 @@
+## [1.3.10] - 2019-02-11
+### Fixed
+
+- Read error details from platform response
+- Show experiences configuration link in admin menu
+
+## [1.3.9] - 2019-01-18
+### Fixed
+
+- Allow tracking URLs on package level
+- Support free shipping via cart price rules
+- Validate API URL protocol in module configuration
+
+## [1.3.8] - 2018-12-19
+### Fixed
+
+- Batch Processing
+  - Replace invocation of M2 REST API during batch creation
+  - Improve error highlighting during batch creation
+  - Show info message on batch view page if no documentation is available
+- Event Synchronization
+  - Fix item quantities when the same SKU was shipped in separate packages
+  - Keep events in the queue for distributed event consumption
+
 ## [1.3.7] - 2018-10-17
 ### Fixed
 

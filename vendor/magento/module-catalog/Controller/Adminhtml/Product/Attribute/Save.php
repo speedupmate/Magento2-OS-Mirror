@@ -29,6 +29,7 @@ use Magento\Framework\Filter\FilterManager;
 use Magento\Framework\Registry;
 use Magento\Framework\View\LayoutFactory;
 use Magento\Framework\View\Result\PageFactory;
+use Magento\Framework\Exception\NotFoundException;
 
 /**
  * @SuppressWarnings(PHPMD.CouplingBetweenObjects)
@@ -117,6 +118,7 @@ class Save extends Attribute
 
     /**
      * @inheritdoc
+     * @throws NotFoundException
      *
      * @SuppressWarnings(PHPMD.CyclomaticComplexity)
      * @SuppressWarnings(PHPMD.NPathComplexity)
@@ -124,6 +126,10 @@ class Save extends Attribute
      */
     public function execute()
     {
+        if (!$this->getRequest()->isPost()) {
+            throw new NotFoundException(__('Page not found'));
+        }
+
         try {
             $optionData = $this->formDataSerializer->unserialize(
                 $this->getRequest()->getParam('serialized_options', '[]')
@@ -249,13 +255,13 @@ class Save extends Attribute
                 $data['backend_model'] = $this->productHelper->getAttributeBackendModelByInputType(
                     $data['frontend_input']
                 );
+
+                if ($model->getIsUserDefined() === null) {
+                    $data['backend_type'] = $model->getBackendTypeByInput($data['frontend_input']);
+                }
             }
 
             $data += ['is_filterable' => 0, 'is_filterable_in_search' => 0];
-
-            if ($model->getIsUserDefined() === null || $model->getIsUserDefined() != 0) {
-                $data['backend_type'] = $model->getBackendTypeByInput($data['frontend_input']);
-            }
 
             $defaultValueField = $model->getDefaultValueByInput($data['frontend_input']);
             if ($defaultValueField) {

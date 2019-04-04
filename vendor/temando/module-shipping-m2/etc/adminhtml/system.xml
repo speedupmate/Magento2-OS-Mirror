@@ -26,6 +26,7 @@
                 </field>
                 <field id="session_endpoint" translate="label" type="text" sortOrder="5" showInDefault="1" showInWebsite="0" showInStore="0">
                     <label>API Endpoint</label>
+                    <validate>validate-url</validate>
                     <backend_model>Temando\Shipping\Model\Config\Backend\TrimmedValue</backend_model>
                 </field>
                 <field id="account_id" translate="label" type="text" sortOrder="10" showInDefault="1" showInWebsite="0" showInStore="0">

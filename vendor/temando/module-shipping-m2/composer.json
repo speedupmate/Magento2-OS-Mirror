@@ -1,7 +1,7 @@
 {
     "name": "temando/module-shipping-m2",
     "description": "Temando multi-carrier shipping extension for Magento 2",
-    "version": "1.3.7",
+    "version": "1.3.10",
     "type": "magento2-module",
     "license": "OSL-3.0",
     "require": {

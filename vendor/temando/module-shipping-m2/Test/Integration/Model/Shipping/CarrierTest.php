@@ -14,7 +14,9 @@ use Magento\Quote\Model\Quote\Item;
 use Magento\TestFramework\Helper\Bootstrap;
 use Psr\Log\LogLevel;
 use Temando\Shipping\Api\Data\Shipment\ShipmentReferenceInterface;
+use Temando\Shipping\Model\Experience;
 use Temando\Shipping\Model\Order\OrderReference;
+use Temando\Shipping\Model\ResourceModel\Experience\ExperienceRepository;
 use Temando\Shipping\Model\ResourceModel\Order\OrderRepository;
 use Temando\Shipping\Model\ResourceModel\Shipment\ShipmentRepository;
 use Temando\Shipping\Model\Shipment\TrackEventInterface;
@@ -66,13 +68,54 @@ class CarrierTest extends \PHPUnit\Framework\TestCase
     /**
      * @test
      */
-    public function carrierMethodsAreEmpty()
+    public function carrierMethodsAreLoaded()
     {
-        /** @var Carrier $carrier */
-        $carrier = Bootstrap::getObjectManager()->create(Carrier::class);
+        /** @var Experience $productionExperience */
+        $productionExperience = Bootstrap::getObjectManager()->create(Experience::class, ['data' => [
+            Experience::EXPERIENCE_ID => '123',
+            Experience::NAME => 'PROD',
+            Experience::STATUS => Experience::STATUS_PRODUCTION,
+        ]]);
+        /** @var Experience $draftExperience */
+        $draftExperience = Bootstrap::getObjectManager()->create(Experience::class, ['data' => [
+            Experience::EXPERIENCE_ID => '456',
+            Experience::NAME => 'DRAFT',
+            Experience::STATUS => Experience::STATUS_DRAFT,
+        ]]);
+        /** @var Experience $disabledExperience */
+        $disabledExperience = Bootstrap::getObjectManager()->create(Experience::class, ['data' => [
+            Experience::EXPERIENCE_ID => '789',
+            Experience::NAME => 'DISABLED',
+            Experience::STATUS => Experience::STATUS_DISABLED,
+        ]]);
+        $experiences = [
+            $productionExperience->getExperienceId() => $productionExperience,
+            $draftExperience->getExperienceId() => $draftExperience,
+            $disabledExperience->getExperienceId() => $disabledExperience
+        ];
 
-        $this->assertInternalType('array', $carrier->getAllowedMethods());
-        $this->assertEmpty($carrier->getAllowedMethods());
+        $experienceRepository = $this->getMockBuilder(ExperienceRepository::class)
+            ->setMethods(['getExperiences'])
+            ->disableOriginalConstructor()
+            ->getMock();
+        $experienceRepository
+            ->expects($this->once())
+            ->method('getExperiences')
+            ->willReturn($experiences);
+
+        /** @var Carrier $carrier */
+        $carrier = Bootstrap::getObjectManager()->create(Carrier::class, [
+            'experienceRepository' => $experienceRepository,
+        ]);
+
+        $allowedMethods = $carrier->getAllowedMethods();
+        $this->assertInternalType('array', $allowedMethods);
+        $this->assertNotEmpty($allowedMethods);
+        $this->assertCount(2, $allowedMethods);
+
+        $this->assertArrayHasKey($productionExperience->getExperienceId(), $allowedMethods);
+        $this->assertArrayHasKey($draftExperience->getExperienceId(), $allowedMethods);
+        $this->assertArrayNotHasKey($disabledExperience->getExperienceId(), $allowedMethods);
     }
 
     /**
@@ -202,194 +245,5 @@ class CarrierTest extends \PHPUnit\Framework\TestCase
         foreach ($rates as $rate) {
             $this->assertEquals(Carrier::CODE, $rate->getData('carrier'));
         }
-    }
-
-    /**
-     * @test
-     */
-    public function trackingApiUnavailable()
-    {
-        $salesTrack = Bootstrap::getObjectManager()->create(\Magento\Sales\Model\Order\Shipment\Track::class);
-
-        $trackingNumber = '12-34-ABCD';
-        $trackingUrl = 'https://example.com/track';
-        $apiErrorMessage = 'unavailable foo';
-
-        $shipmentReference = Bootstrap::getObjectManager()->create(ShipmentReferenceInterface::class, ['data' => [
-            ShipmentReferenceInterface::ENTITY_ID => 42,
-            ShipmentReferenceInterface::SHIPMENT_ID => 42,
-            ShipmentReferenceInterface::EXT_LOCATION_ID => '1234-5678',
-            ShipmentReferenceInterface::EXT_SHIPMENT_ID => '8765-4321',
-            ShipmentReferenceInterface::EXT_TRACKING_REFERENCE => $trackingNumber,
-            ShipmentReferenceInterface::EXT_TRACKING_URL => $trackingUrl,
-        ]]);
-
-        $messageManager = $this->getMockBuilder(\Magento\Framework\Message\Manager::class)
-            ->setMethods(['addErrorMessage'])
-            ->disableOriginalConstructor()
-            ->getMock();
-        $messageManager
-            ->expects($this->once())
-            ->method('addErrorMessage');
-
-        $shipmentRepository = $this->getMockBuilder(ShipmentRepository::class)
-            ->setMethods(['getTrackingByNumber', 'getReferenceByTrackingNumber', 'getShipmentTrack'])
-            ->disableOriginalConstructor()
-            ->getMock();
-        $shipmentRepository
-            ->expects($this->once())
-            ->method('getTrackingByNumber')
-            ->willThrowException(new NoSuchEntityException(__($apiErrorMessage)));
-        $shipmentRepository
-            ->expects($this->once())
-            ->method('getReferenceByTrackingNumber')
-            ->willReturn($shipmentReference);
-        $shipmentRepository
-            ->expects($this->once())
-            ->method('getShipmentTrack')
-            ->willReturn($salesTrack);
-
-        /** @var Carrier $carrier */
-        $carrier = Bootstrap::getObjectManager()->create(Carrier::class, [
-            'messageManager' => $messageManager,
-            'shipmentRepository' => $shipmentRepository,
-        ]);
-
-        /** @var \Magento\Shipping\Model\Tracking\Result\Status $trackingInfo */
-        $trackingInfo = $carrier->getTrackingInfo($trackingNumber);
-        $this->assertEquals($trackingNumber, $trackingInfo->getData('tracking'));
-        $this->assertEquals($trackingUrl, $trackingInfo->getData('url'));
-        $this->assertEmpty($trackingInfo->getData('progressdetail'));
-    }
-
-    /**
-     * @test
-     */
-    public function shipmentReferenceNotFound()
-    {
-        $salesTrack = Bootstrap::getObjectManager()->create(\Magento\Sales\Model\Order\Shipment\Track::class);
-
-        $trackingNumber = '12-34-ABCD';
-        $deliveryStatus = 'delivered';
-        $repoExceptionMessage = 'foo does not exist';
-
-        $trackEvent = Bootstrap::getObjectManager()->create(TrackEventInterface::class, ['data' => [
-            TrackEventInterface::TRACKING_EVENT_ID => $trackingNumber,
-            TrackEventInterface::OCCURRED_AT => '1999-01-19T03:03:33.000Z',
-            TrackEventInterface::STATUS => $deliveryStatus,
-        ]]);
-        $trackEvents = [$trackEvent];
-
-        $messageManager = $this->getMockBuilder(\Magento\Framework\Message\Manager::class)
-            ->setMethods(['addErrorMessage'])
-            ->disableOriginalConstructor()
-            ->getMock();
-        $messageManager
-            ->expects($this->once())
-            ->method('addErrorMessage');
-
-        $shipmentRepository = $this->getMockBuilder(ShipmentRepository::class)
-            ->setMethods(['getTrackingByNumber', 'getReferenceByTrackingNumber', 'getShipmentTrack'])
-            ->disableOriginalConstructor()
-            ->getMock();
-        $shipmentRepository
-            ->expects($this->once())
-            ->method('getTrackingByNumber')
-            ->willReturn($trackEvents);
-        $shipmentRepository
-            ->expects($this->once())
-            ->method('getReferenceByTrackingNumber')
-            ->willThrowException(new NoSuchEntityException(__($repoExceptionMessage)));
-        $shipmentRepository
-            ->expects($this->once())
-            ->method('getShipmentTrack')
-            ->willReturn($salesTrack);
-
-        /** @var Carrier $carrier */
-        $carrier = Bootstrap::getObjectManager()->create(Carrier::class, [
-            'messageManager' => $messageManager,
-            'shipmentRepository' => $shipmentRepository,
-        ]);
-
-        /** @var \Magento\Shipping\Model\Tracking\Result\Status $trackingInfo */
-        $trackingInfo = $carrier->getTrackingInfo($trackingNumber);
-        $this->assertEquals($trackingNumber, $trackingInfo->getData('tracking'));
-        $this->assertEmpty($trackingInfo->getData('url'));
-        $this->assertNotEmpty($trackingInfo->getData('progressdetail'));
-
-        $progressDetail = $trackingInfo->getData('progressdetail');
-        $this->assertInternalType('array', $progressDetail);
-        $this->assertCount(1, $progressDetail);
-        $this->assertEquals($deliveryStatus, $progressDetail[0]['activity']);
-    }
-
-    /**
-     * @test
-     */
-    public function trackingInfoGatheredSuccessfully()
-    {
-        $salesTrack = Bootstrap::getObjectManager()->create(\Magento\Sales\Model\Order\Shipment\Track::class);
-
-        $trackingNumber = '12-34-ABCD';
-        $trackingUrl = 'https://example.com/track';
-        $deliveryStatus = 'delivered';
-
-        $trackEvent = Bootstrap::getObjectManager()->create(TrackEventInterface::class, ['data' => [
-            TrackEventInterface::TRACKING_EVENT_ID => $trackingNumber,
-            TrackEventInterface::OCCURRED_AT => '1999-01-19T03:03:33.000Z',
-            TrackEventInterface::STATUS => $deliveryStatus,
-        ]]);
-        $trackEvents = [$trackEvent];
-
-        $shipmentReference = Bootstrap::getObjectManager()->create(ShipmentReferenceInterface::class, ['data' => [
-            ShipmentReferenceInterface::ENTITY_ID => 42,
-            ShipmentReferenceInterface::SHIPMENT_ID => 42,
-            ShipmentReferenceInterface::EXT_LOCATION_ID => '1234-5678',
-            ShipmentReferenceInterface::EXT_SHIPMENT_ID => '8765-4321',
-            ShipmentReferenceInterface::EXT_TRACKING_REFERENCE => $trackingNumber,
-            ShipmentReferenceInterface::EXT_TRACKING_URL => $trackingUrl,
-        ]]);
-
-        $messageManager = $this->getMockBuilder(\Magento\Framework\Message\Manager::class)
-            ->setMethods(['addErrorMessage'])
-            ->disableOriginalConstructor()
-            ->getMock();
-        $messageManager
-            ->expects($this->never())
-            ->method('addErrorMessage');
-
-        $shipmentRepository = $this->getMockBuilder(ShipmentRepository::class)
-            ->setMethods(['getTrackingByNumber', 'getReferenceByTrackingNumber', 'getShipmentTrack'])
-            ->disableOriginalConstructor()
-            ->getMock();
-        $shipmentRepository
-            ->expects($this->once())
-            ->method('getTrackingByNumber')
-            ->willReturn($trackEvents);
-        $shipmentRepository
-            ->expects($this->once())
-            ->method('getReferenceByTrackingNumber')
-            ->willReturn($shipmentReference);
-        $shipmentRepository
-            ->expects($this->once())
-            ->method('getShipmentTrack')
-            ->willReturn($salesTrack);
-
-        /** @var Carrier $carrier */
-        $carrier = Bootstrap::getObjectManager()->create(Carrier::class, [
-            'messageManager' => $messageManager,
-            'shipmentRepository' => $shipmentRepository,
-        ]);
-
-        /** @var \Magento\Shipping\Model\Tracking\Result\Status $trackingInfo */
-        $trackingInfo = $carrier->getTrackingInfo($trackingNumber);
-        $this->assertEquals($trackingNumber, $trackingInfo->getData('tracking'));
-        $this->assertEquals($trackingUrl, $trackingInfo->getData('url'));
-        $this->assertNotEmpty($trackingInfo->getData('progressdetail'));
-
-        $progressDetail = $trackingInfo->getData('progressdetail');
-        $this->assertInternalType('array', $progressDetail);
-        $this->assertCount(1, $progressDetail);
-        $this->assertEquals($deliveryStatus, $progressDetail[0]['activity']);
     }
 }

@@ -8,7 +8,7 @@
 namespace Vertex\Data;
 
 /**
- * Default implementation of {@see JurisdictionInterface}
+ * {@inheritDoc}
  */
 class Jurisdiction implements JurisdictionInterface
 {

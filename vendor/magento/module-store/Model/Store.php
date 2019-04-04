@@ -888,7 +888,10 @@ class Store extends AbstractExtensibleModel implements
         if (in_array($code, $this->getAvailableCurrencyCodes())) {
             $this->_getSession()->setCurrencyCode($code);
 
-            $defaultCode = $this->_storeManager->getWebsite()->getDefaultStore()->getDefaultCurrency()->getCode();
+            $defaultCode = ($this->_storeManager->getStore() !== null)
+                ? $this->_storeManager->getStore()->getDefaultCurrency()->getCode()
+                : $this->_storeManager->getWebsite()->getDefaultStore()->getDefaultCurrency()->getCode();
+
             $this->_httpContext->setValue(Context::CONTEXT_CURRENCY, $code, $defaultCode);
         }
         return $this;
@@ -901,23 +904,17 @@ class Store extends AbstractExtensibleModel implements
      */
     public function getCurrentCurrencyCode()
     {
+        $availableCurrencyCodes = \array_values($this->getAvailableCurrencyCodes(true));
         // try to get currently set code among allowed
-        $code = $this->_httpContext->getValue(Context::CONTEXT_CURRENCY);
-        $code = $code === null ? $this->_getSession()->getCurrencyCode() : $code;
-        if (empty($code)) {
+        $code = $this->_httpContext->getValue(Context::CONTEXT_CURRENCY) ?? $this->_getSession()->getCurrencyCode();
+        if (empty($code) || !\in_array($code, $availableCurrencyCodes)) {
             $code = $this->getDefaultCurrencyCode();
-        }
-        if (in_array($code, $this->getAvailableCurrencyCodes(true))) {
-            return $code;
+            if (!\in_array($code, $availableCurrencyCodes) && !empty($availableCurrencyCodes)) {
+                $code = $availableCurrencyCodes[0];
+            }
         }
 
-        // take first one of allowed codes
-        $codes = array_values($this->getAvailableCurrencyCodes(true));
-        if (empty($codes)) {
-            // return default code, if no codes specified at all
-            return $this->getDefaultCurrencyCode();
-        }
-        return array_shift($codes);
+        return $code;
     }
 
     /**
@@ -1334,12 +1331,14 @@ class Store extends AbstractExtensibleModel implements
     }
 
     /**
+     * Return Store Path
+     *
      * @return string
      */
     public function getStorePath()
     {
         $parsedUrl = parse_url($this->getBaseUrl());
-        return isset($parsedUrl['path']) ? $parsedUrl['path'] : '/';
+        return $parsedUrl['path'] ?? '/';
     }
 
     /**

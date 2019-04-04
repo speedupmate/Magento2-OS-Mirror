@@ -41,6 +41,16 @@ class Fulfillment extends DataObject implements FulfillmentInterface
     }
 
     /**
+     * Get Tracking URL for this shipment.
+     *
+     * @return string
+     */
+    public function getTrackingUrl()
+    {
+        return $this->getData(FulfillmentInterface::TRACKING_URL);
+    }
+
+    /**
      * @return string
      */
     public function getCarrierName()

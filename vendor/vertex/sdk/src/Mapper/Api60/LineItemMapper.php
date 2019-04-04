@@ -21,6 +21,26 @@ use Vertex\Mapper\TaxMapperInterface;
  */
 class LineItemMapper implements LineItemMapperInterface
 {
+    /**
+     * Minimum characters allowed for commodity code
+     */
+    const COMMODITY_CODE_MIN = 0;
+
+    /**
+     * Maximum characters allowed for commodity code
+     */
+    const COMMODITY_CODE_MAX = 40;
+
+    /**
+     * Minimum characters allowed for commodity type code
+     */
+    const COMMODITY_CODE_TYPE_MIN = 0;
+
+    /**
+     * Maximum characters allowed for commodity type code
+     */
+    const COMMODITY_CODE_TYPE_MAX = 60;
+
     /** @var CustomerMapperInterface */
     private $customerMapper;
 
@@ -104,18 +124,25 @@ class LineItemMapper implements LineItemMapperInterface
                 $map->UnitPrice instanceof \stdClass ? $map->UnitPrice->_ : $map->UnitPrice
             );
         }
-
         if (isset($map->Taxes)) {
             $rawTaxes = $map->Taxes instanceof \stdClass ? [$map->Taxes] : $map->Taxes;
         } else {
             $rawTaxes = [];
         }
-
+        if (isset($map->taxIncludedIndicator)) {
+            $object->setTaxIncluded($map->taxIncludedIndicator);
+        }
         $taxes = [];
         foreach ($rawTaxes as $rawTax) {
             $taxes[] = $this->taxMapper->build($rawTax);
         }
         $object->setTaxes($taxes);
+        if (isset($map->CommodityCode) && $map->CommodityCode instanceof \stdClass) {
+            $object->setCommodityCode($map->CommodityCode->_);
+            if (isset($map->CommodityCode->commodityCodeType)) {
+                $object->setCommodityCodeType($map->CommodityCode->commodityCodeType);
+            }
+        }
 
         return $object;
     }
@@ -200,6 +227,12 @@ class LineItemMapper implements LineItemMapperInterface
             true,
             'Total Tax'
         );
+        if ($object->isTaxIncluded() !== null) {
+            $map->taxIncludedIndicator = $object->isTaxIncluded();
+        }
+
+        $this->addCommodityToMap($map, $object);
+
         return $map;
     }
 
@@ -291,5 +324,39 @@ class LineItemMapper implements LineItemMapperInterface
             $map->Seller = $this->sellerMapper->map($object->getSeller());
         }
         return $map;
+    }
+
+    /**
+     * Add Commodity to SOAP map object
+     *
+     * @param \stdClass $map
+     * @param LineItemInterface $object
+     * @throws \Vertex\Exception\ValidationException
+     */
+    private function addCommodityToMap(\stdClass $map, LineItemInterface $object)
+    {
+        if ($object->getCommodityCode() !== null) {
+            $map->CommodityCode = new \stdClass();
+            $map->CommodityCode = $this->utilities->addToMapWithLengthValidation(
+                $map->CommodityCode,
+                $object->getCommodityCode(),
+                '_',
+                static::COMMODITY_CODE_MIN,
+                static::COMMODITY_CODE_MAX,
+                true,
+                'Commodity Code'
+            );
+            if ($object->getCommodityCodeType() !== null) {
+                $map->CommodityCode = $this->utilities->addToMapWithLengthValidation(
+                    $map->CommodityCode,
+                    $object->getCommodityCodeType(),
+                    'commodityCodeType',
+                    static::COMMODITY_CODE_TYPE_MIN,
+                    static::COMMODITY_CODE_TYPE_MAX,
+                    false,
+                    'Commodity Code Type'
+                );
+            }
+        }
     }
 }

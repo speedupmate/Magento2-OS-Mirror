@@ -140,16 +140,18 @@ class RemoveOrderItemsObserverTest extends \PHPUnit\Framework\TestCase
     {
         $actionName = 'adminhtml_order_shipment_new';
 
-        $shippingMethod = new DataObject(['carrier_code' => 'foo', 'method' => 'bar']);
+        $carrierCode = 'foo';
+        $method = 'bar';
+
         $orderMock = $this->getMockBuilder(Order::class)
             ->disableOriginalConstructor()
-            ->setMethods(['getShippingMethod'])
+            ->setMethods(['getData'])
             ->getMock();
         $orderMock
-            ->expects($this->once())
-            ->method('getShippingMethod')
-            ->with(true)
-            ->willReturn($shippingMethod);
+            ->expects($this->any())
+            ->method('getData')
+            ->with('shipping_method', null)
+            ->willReturn("{$carrierCode}_{$method}");
 
         $formMock = $this->getMockBuilder(\Magento\Shipping\Block\Adminhtml\Create\Form::class)
             ->disableOriginalConstructor()
@@ -192,16 +194,18 @@ class RemoveOrderItemsObserverTest extends \PHPUnit\Framework\TestCase
     {
         $actionName = 'adminhtml_order_shipment_new';
 
-        $shippingMethod = new DataObject(['carrier_code' => Carrier::CODE, 'method' => 'bar']);
+        $carrierCode = Carrier::CODE;
+        $method = 'bar';
+
         $orderMock = $this->getMockBuilder(Order::class)
             ->disableOriginalConstructor()
-            ->setMethods(['getShippingMethod'])
+            ->setMethods(['getData'])
             ->getMock();
         $orderMock
-            ->expects($this->once())
-            ->method('getShippingMethod')
-            ->with(true)
-            ->willReturn($shippingMethod);
+            ->expects($this->any())
+            ->method('getData')
+            ->with('shipping_method', null)
+            ->willReturn("{$carrierCode}_{$method}");
 
         $formMock = $this->getMockBuilder(\Magento\Shipping\Block\Adminhtml\Create\Form::class)
             ->disableOriginalConstructor()

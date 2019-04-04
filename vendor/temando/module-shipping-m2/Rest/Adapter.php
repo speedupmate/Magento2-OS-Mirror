@@ -30,18 +30,17 @@ use Temando\Shipping\Rest\Response\Type\ContainerResponseType;
 use Temando\Shipping\Rest\Response\Type\LocationResponseType;
 use Temando\Shipping\Rest\Response\Type\ShipmentResponseType;
 use Temando\Shipping\Rest\Response\Type\StreamEventResponseType;
-use Temando\Shipping\Rest\Response\Type\TrackingEventResponseType;
 use Temando\Shipping\Rest\SchemaMapper\ParserInterface;
 use Temando\Shipping\Webservice\Config\WsConfigInterface;
 
 /**
  * Temando REST API Adapter
  *
- * @package  Temando\Shipping\Rest
- * @author   Christoph Aßmann <christoph.assmann@netresearch.de>
- * @author   Sebastian Ertner <sebastian.ertner@netresearch.de>
- * @license  http://opensource.org/licenses/osl-3.0.php Open Software License (OSL 3.0)
- * @link     http://www.temando.com/
+ * @package Temando\Shipping\Rest
+ * @author  Christoph Aßmann <christoph.assmann@netresearch.de>
+ * @author  Sebastian Ertner <sebastian.ertner@netresearch.de>
+ * @license https://opensource.org/licenses/osl-3.0.php Open Software License (OSL 3.0)
+ * @link    https://www.temando.com/
  */
 class Adapter implements
     BatchApiInterface,
@@ -449,40 +448,6 @@ class Adapter implements
         }
 
         return $shipment;
-    }
-
-    /**
-     * @param ItemRequestInterface $request
-     * @return TrackingEventResponseType[]
-     * @throws AdapterException
-     */
-    public function getTrackingEvents(ItemRequestInterface $request)
-    {
-        $uri = sprintf('%s/shipments/%s/tracking', $this->endpoint, ...$request->getPathParams());
-
-        $this->logger->log(LogLevel::DEBUG, $uri);
-
-        try {
-            $this->auth->connect($this->accountId, $this->bearerToken);
-            $headers = $this->requestHeaders->getHeaders();
-
-            $rawResponse = $this->restClient->get($uri, [], $headers);
-            $this->logger->log(LogLevel::DEBUG, $rawResponse);
-
-            /** @var Response\GetTrackingEvents $response */
-            $response = $this->responseParser->parse($rawResponse, Response\GetTrackingEvents::class);
-            $trackingEvents = $response->getData();
-        } catch (RestClientErrorException $e) {
-            $this->logger->log(LogLevel::ERROR, $e->getMessage());
-
-            /** @var Errors $response */
-            $response = $this->responseParser->parse($e->getMessage(), Errors::class);
-            throw AdapterException::errorResponse($response, $e);
-        } catch (\Exception $e) {
-            throw AdapterException::create($e);
-        }
-
-        return $trackingEvents;
     }
 
     /**

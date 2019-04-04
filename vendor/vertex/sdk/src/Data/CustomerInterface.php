@@ -48,6 +48,13 @@ interface CustomerInterface
     public function getTaxClass();
 
     /**
+     * Retrieve the tax registrations held by the Customer
+     *
+     * @return TaxRegistrationInterface[]
+     */
+    public function getTaxRegistrations();
+
+    /**
      * Retrieve whether or not the customer is a business
      *
      * @return bool|null
@@ -98,4 +105,12 @@ interface CustomerInterface
      * @return CustomerInterface
      */
     public function setTaxClass($taxClass);
+
+    /**
+     * Set the tax registrations held by the Customer
+     *
+     * @param TaxRegistrationInterface[] $registrations
+     * @return CustomerInterface
+     */
+    public function setTaxRegistrations(array $registrations);
 }

@@ -2,7 +2,7 @@
     "name": "magento/magento2-base",
     "description": "Magento 2 Base (Community Edition)",
     "type": "magento2-component",
-    "version": "2.2.7",
+    "version": "2.2.8",
     "require": {
         "magento/magento-composer-installer": "*",
         "php": "~7.0.13|~7.1.0",
@@ -244,6 +244,10 @@
             [
                 "dev/tests/integration/_files",
                 "dev/tests/integration/_files"
+            ],
+            [
+                "dev/tests/integration/bin",
+                "dev/tests/integration/bin"
             ],
             [
                 "dev/tests/integration/etc",

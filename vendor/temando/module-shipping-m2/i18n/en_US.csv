@@ -28,6 +28,7 @@
 "EEI","EEI"
 "Entities to sync","Entities to sync"
 "Enable sync","Enable sync"
+"Experiences","Experiences"
 "Export Category","Export Category"
 "Export Reason","Export Reason"
 "Field ","Field "
@@ -255,3 +256,4 @@
 "batches","batches"
 "checkout options","checkout options"
 "advanced settings","advanced settings"
+"Please enter a valid URL. Protocol (http://, https://) is required.","Please enter a valid URL. Protocol (http://, https://) is required."

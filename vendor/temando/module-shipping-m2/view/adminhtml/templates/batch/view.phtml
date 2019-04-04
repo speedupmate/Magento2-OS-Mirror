@@ -69,9 +69,13 @@ $batch = $viewModel->getBatch();
                     <?php // @codingStandardsIgnoreLine ?>
                     <td><?= $block->escapeHtml(__('Shipping labels for each shipment are consolidated into a single compressed file')); ?></td>
                     <td>
-                        <a href="<?= $block->escapeHtml($batch->getDocumentation()); ?>">
-                            <?= $block->escapeHtml(__('Download Documentation')); ?>
-                        </a>
+                        <?php if ($batch->getDocumentation()) : ?>
+                            <a href="<?= $block->escapeHtml($batch->getDocumentation()); ?>">
+                                <?= $block->escapeHtml(__('Download Documentation')); ?>
+                            </a>
+                        <?php else : ?>
+                            <?= $block->escapeHtml(__('Documentation is not available.')); ?>
+                        <?php endif; ?>
                     </td>
                 </tr>
                 </tbody>

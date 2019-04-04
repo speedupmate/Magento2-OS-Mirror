@@ -12,7 +12,7 @@ use Vertex\Data\LineItemInterface;
 use Vertex\Data\SellerInterface;
 
 /**
- * Default implementation of {@see ResponseInterface}
+ * {@inheritDoc}
  */
 class Response implements ResponseInterface
 {
@@ -51,6 +51,9 @@ class Response implements ResponseInterface
 
     /** @var string */
     private $transactionType;
+
+    /** @var string */
+    private $currencyCode;
 
     /**
      * @inheritdoc
@@ -146,6 +149,14 @@ class Response implements ResponseInterface
     public function getTransactionType()
     {
         return $this->transactionType;
+    }
+
+    /**
+     * @inheritdoc
+     */
+    public function getCurrencyCode()
+    {
+        return $this->currencyCode;
     }
 
     /**
@@ -258,6 +269,15 @@ class Response implements ResponseInterface
     public function setTransactionType($transactionType)
     {
         $this->transactionType = $transactionType;
+        return $this;
+    }
+
+    /**
+     * @inheritdoc
+     */
+    public function setCurrencyCode($currencyCode)
+    {
+        $this->currencyCode = $currencyCode;
         return $this;
     }
 }

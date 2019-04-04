@@ -20,6 +20,7 @@ interface FulfillmentInterface
 {
     const SERVICE_NAME = 'service_name';
     const TRACKING_REFERENCE = 'tracking_reference';
+    const TRACKING_URL = 'tracking_url';
     const CARRIER_NAME = 'carrier_name';
 
     /**
@@ -35,6 +36,13 @@ interface FulfillmentInterface
      * @return string
      */
     public function getTrackingReference();
+
+    /**
+     * Get Tracking URL for this shipment.
+     *
+     * @return string
+     */
+    public function getTrackingUrl();
 
     /**
      * Get carrier name.

@@ -84,6 +84,7 @@ class Date extends AbstractElement
         }
         if (preg_match('/^[0-9]+$/', $value)) {
             $this->_value = (new \DateTime())->setTimestamp($this->_toTimestamp($value));
+
             return $this;
         }
 
@@ -146,7 +147,7 @@ class Date extends AbstractElement
      */
     public function getElementHtml()
     {
-        $this->addClass('admin__control-text  input-text');
+        $this->addClass('admin__control-text input-text input-date');
         $dateFormat = $this->getDateFormat() ?: $this->getFormat();
         $timeFormat = $this->getTimeFormat();
         if (empty($dateFormat)) {

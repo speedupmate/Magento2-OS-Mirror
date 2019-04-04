@@ -26,6 +26,18 @@ The following methods are also supported with `XHTML1_RDFA` doctype set with the
 - `prependProperty($property, $content, $modifiers)`
 - `setProperty($property, $content, $modifiers)`
 
+Finally, starting in 2.11.2, you can call the following method to determine
+whether or not to autoescape values used in meta tags:
+
+- `setAutoEscape(bool $autoEscape = true)` (enabled by default)
+
+> ### AutoEscape
+>
+> **Disable this flag at your own risk.** The one documented case where it is
+> necessary to disable the flag is when setting the `X-UA-Compatible`
+> `http-equiv` value to switch behavior for Internet Explorer, as escaped values
+> will not trigger correct representation.
+
 The `$keyValue` item is used to define a value for the `name` or `http-equiv`
 key; `$content` is the value for the 'content' key, and `$modifiers` is an
 optional associative array that can contain keys for `lang` and/or `scheme`.
@@ -125,3 +137,21 @@ echo $this->headMeta();
 //   <meta property="og:title" content="my article title" />
 //   <meta property="og:type" content="article" />
 ```
+
+## Usage with HTML5 doctype
+
+Enabling the HTML5 doctype with the [Doctype helper](doctype.md) enables the use
+of the `itemprop` attribute (in addition to the standard `name` and
+`http-equiv`) with `HeadMeta`.  This is typically used to add
+[Microdata](https://schema.org) to the head of your document.
+
+```php
+$this->doctype(Zend\View\Helper\Doctype::HTML5);
+$this->headMeta()->setItemprop('headline', 'My Article Headline');
+$this->headMeta()->setItemprop('dateCreated', $date->format('c'));
+echo $this->headMeta();
+
+// output is:
+//   <meta itemprop="headline" content="My Article Headline">
+//   <meta itemprop="dateCreated" content="2018-07-12T22:19:06+00:00">
+``` 

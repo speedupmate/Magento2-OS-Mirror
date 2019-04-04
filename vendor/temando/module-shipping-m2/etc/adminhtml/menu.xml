@@ -39,6 +39,15 @@
              parent="Temando_Shipping::shipping"
              action="temando/configuration_packaging/index"
         />
+        <add id="Temando_Shipping::experiences"
+             title="Experiences"
+             module="Temando_Shipping"
+             sortOrder="24"
+             resource="Temando_Shipping::portal"
+             parent="Temando_Shipping::shipping"
+             action="temando/configuration_portal/experience"
+             target="_blank"
+        />
         <add id="Temando_Shipping::dispatches"
              title="Dispatches"
              module="Temando_Shipping"
