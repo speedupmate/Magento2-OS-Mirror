@@ -179,6 +179,18 @@
         "Lawrence Berkeley National Labs BSD variant license",
         false
     ],
+    "BSD-3-Clause-No-Nuclear-License": [
+        "BSD 3-Clause No Nuclear License",
+        false
+    ],
+    "BSD-3-Clause-No-Nuclear-License-2014": [
+        "BSD 3-Clause No Nuclear License 2014",
+        false
+    ],
+    "BSD-3-Clause-No-Nuclear-Warranty": [
+        "BSD 3-Clause No Nuclear Warranty",
+        false
+    ],
     "BSD-4-Clause": [
         "BSD 4-clause \"Original\" or \"Old\" License",
         false
@@ -189,6 +201,10 @@
     ],
     "BSD-Protection": [
         "BSD Protection License",
+        false
+    ],
+    "BSD-Source-Code": [
+        "BSD Source Code Attribution",
         false
     ],
     "BSL-1.0": [
@@ -807,6 +823,10 @@
         "University of Illinois/NCSA Open Source License",
         true
     ],
+    "Net-SNMP": [
+        "Net-SNMP License",
+        false
+    ],
     "NetCDF": [
         "NetCDF license",
         false
@@ -1143,6 +1163,10 @@
         "TCL/TK License",
         false
     ],
+    "TCP-wrappers": [
+        "TCP Wrappers License",
+        false
+    ],
     "TMate": [
         "TMate Open Source License",
         false
@@ -1153,6 +1177,14 @@
     ],
     "TOSL": [
         "Trusster Open Source License",
+        false
+    ],
+    "Unicode-DFS-2015": [
+        "Unicode License Agreement - Data Files and Software (2015)",
+        false
+    ],
+    "Unicode-DFS-2016": [
+        "Unicode License Agreement - Data Files and Software (2016)",
         false
     ],
     "Unicode-TOU": [
@@ -1185,6 +1217,10 @@
     ],
     "W3C-19980720": [
         "W3C Software Notice and License (1998-07-20)",
+        false
+    ],
+    "W3C-20150513": [
+        "W3C Software Notice and Document License (2015-05-13)",
         false
     ],
     "Watcom-1.0": [

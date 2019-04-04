@@ -4,7 +4,7 @@
 
 namespace Composer\Autoload;
 
-class ComposerStaticInit4fc982ee3e03e2ab3ccf5fd7ef143ff9
+class ComposerStaticInitca98082cc7c6cf28c0f05d0d53447bed
 {
     public static $files = array (
         '07ec02c7e667fdcb3e30c02cc772b743' => __DIR__ . '/..' . '/magento/framework/registration.php',
@@ -40,8 +40,8 @@ class ComposerStaticInit4fc982ee3e03e2ab3ccf5fd7ef143ff9
         '53814a716d73013b1489c928a2cb4164' => __DIR__ . '/..' . '/magento/module-shipping/registration.php',
         'e54a2a6d4f945c30feee43a0713bfb8b' => __DIR__ . '/..' . '/magento/module-checkout/registration.php',
         'a6d2049b4013058aebdab5256bfc92a1' => __DIR__ . '/..' . '/magento/module-import-export/registration.php',
-        '4725125cbaeab31cd4e5c5c07061fa43' => __DIR__ . '/..' . '/magento/module-payment/registration.php',
         'cf44f9b1253939f955772534aabbf624' => __DIR__ . '/..' . '/magento/module-grouped-product/registration.php',
+        '4725125cbaeab31cd4e5c5c07061fa43' => __DIR__ . '/..' . '/magento/module-payment/registration.php',
         '108fd301b720a30c9ec42a785ee00656' => __DIR__ . '/..' . '/magento/module-gift-message/registration.php',
         'bb6621289f135d14ac7bffe9e45ad6ef' => __DIR__ . '/..' . '/magento/module-catalog-import-export/registration.php',
         '44e7790b83e1936666da9a3a94daac39' => __DIR__ . '/..' . '/magento/module-downloadable/registration.php',
@@ -1775,11 +1775,11 @@ class ComposerStaticInit4fc982ee3e03e2ab3ccf5fd7ef143ff9
     public static function getInitializer(ClassLoader $loader)
     {
         return \Closure::bind(function () use ($loader) {
-            $loader->prefixLengthsPsr4 = ComposerStaticInit4fc982ee3e03e2ab3ccf5fd7ef143ff9::$prefixLengthsPsr4;
-            $loader->prefixDirsPsr4 = ComposerStaticInit4fc982ee3e03e2ab3ccf5fd7ef143ff9::$prefixDirsPsr4;
-            $loader->prefixesPsr0 = ComposerStaticInit4fc982ee3e03e2ab3ccf5fd7ef143ff9::$prefixesPsr0;
-            $loader->fallbackDirsPsr0 = ComposerStaticInit4fc982ee3e03e2ab3ccf5fd7ef143ff9::$fallbackDirsPsr0;
-            $loader->classMap = ComposerStaticInit4fc982ee3e03e2ab3ccf5fd7ef143ff9::$classMap;
+            $loader->prefixLengthsPsr4 = ComposerStaticInitca98082cc7c6cf28c0f05d0d53447bed::$prefixLengthsPsr4;
+            $loader->prefixDirsPsr4 = ComposerStaticInitca98082cc7c6cf28c0f05d0d53447bed::$prefixDirsPsr4;
+            $loader->prefixesPsr0 = ComposerStaticInitca98082cc7c6cf28c0f05d0d53447bed::$prefixesPsr0;
+            $loader->fallbackDirsPsr0 = ComposerStaticInitca98082cc7c6cf28c0f05d0d53447bed::$fallbackDirsPsr0;
+            $loader->classMap = ComposerStaticInitca98082cc7c6cf28c0f05d0d53447bed::$classMap;
 
         }, null, ClassLoader::class);
     }
