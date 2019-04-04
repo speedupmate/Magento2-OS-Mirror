@@ -4,7 +4,7 @@
 
 namespace Composer\Autoload;
 
-class ComposerStaticInit86036198f3e990be9e620d3af0e1aa9b
+class ComposerStaticInit45e030a2ea6f99383b5ecfd89a309e83
 {
     public static $files = array (
         '07ec02c7e667fdcb3e30c02cc772b743' => __DIR__ . '/..' . '/magento/framework/registration.php',
@@ -37,14 +37,15 @@ class ComposerStaticInit86036198f3e990be9e620d3af0e1aa9b
         '53814a716d73013b1489c928a2cb4164' => __DIR__ . '/..' . '/magento/module-shipping/registration.php',
         'b6b63f684deb9dbde7a9fc9f251c982b' => __DIR__ . '/..' . '/magento/module-tax/registration.php',
         'e54a2a6d4f945c30feee43a0713bfb8b' => __DIR__ . '/..' . '/magento/module-checkout/registration.php',
-        'a6d2049b4013058aebdab5256bfc92a1' => __DIR__ . '/..' . '/magento/module-import-export/registration.php',
         '5e0667def8057f122d18fe9bd1e06cbb' => __DIR__ . '/..' . '/magento/module-email/registration.php',
+        'a6d2049b4013058aebdab5256bfc92a1' => __DIR__ . '/..' . '/magento/module-import-export/registration.php',
         '4725125cbaeab31cd4e5c5c07061fa43' => __DIR__ . '/..' . '/magento/module-payment/registration.php',
         'cf44f9b1253939f955772534aabbf624' => __DIR__ . '/..' . '/magento/module-grouped-product/registration.php',
         '108fd301b720a30c9ec42a785ee00656' => __DIR__ . '/..' . '/magento/module-gift-message/registration.php',
-        '19b03cc33c349b5e5fbc6577c2f9dc87' => __DIR__ . '/..' . '/magento/module-catalog-url-rewrite/registration.php',
+        '2d0debaab8ec34dfba214036a43af24e' => __DIR__ . '/..' . '/magento/module-url-rewrite/registration.php',
         '47402ddfee46771bcf36e616cf38b137' => __DIR__ . '/..' . '/magento/module-variable/registration.php',
         '44e7790b83e1936666da9a3a94daac39' => __DIR__ . '/..' . '/magento/module-downloadable/registration.php',
+        '19b03cc33c349b5e5fbc6577c2f9dc87' => __DIR__ . '/..' . '/magento/module-catalog-url-rewrite/registration.php',
         'abdeab164c8404da5b237afbed559c74' => __DIR__ . '/..' . '/magento/module-widget/registration.php',
         'ff4a42fb48f753f6d1e6177223059e3d' => __DIR__ . '/..' . '/magento/module-msrp/registration.php',
         '41e3c70b13a38be15b2f71a5ab57282e' => __DIR__ . '/..' . '/magento/module-cron/registration.php',
@@ -54,7 +55,6 @@ class ComposerStaticInit86036198f3e990be9e620d3af0e1aa9b
         'beef4a50b960435d4b145e8d222f5f10' => __DIR__ . '/..' . '/magento/module-configurable-product/registration.php',
         '571be93292212396d8ebf8febc7bed8f' => __DIR__ . '/..' . '/magento/module-wishlist/registration.php',
         '08592fdd5b9e829727a7db2f953d82b2' => __DIR__ . '/..' . '/magento/module-vault/registration.php',
-        '2d0debaab8ec34dfba214036a43af24e' => __DIR__ . '/..' . '/magento/module-url-rewrite/registration.php',
         '488f7c33a6ecd00a43d62e548d61b8d3' => __DIR__ . '/..' . '/magento/module-newsletter/registration.php',
         '4a78493fd48e24e9ec5cd7b77605aa2f' => __DIR__ . '/..' . '/magento/module-developer/registration.php',
         'b2a251005c112dee4a8e7f7580a475f5' => __DIR__ . '/..' . '/magento/module-cookie/registration.php',
@@ -93,6 +93,7 @@ class ComposerStaticInit86036198f3e990be9e620d3af0e1aa9b
         '22aefa74994c2bb709889bd54ea6acda' => __DIR__ . '/..' . '/magento/module-send-friend/registration.php',
         '05b0510631c80cea7eb750a678d5b6d9' => __DIR__ . '/..' . '/magento/module-sample-data/cli_commands.php',
         'ff1738b7e3c49d87ace9a04942b53067' => __DIR__ . '/..' . '/magento/module-sample-data/registration.php',
+        '55aca85371db847a036438dc47c5adf7' => __DIR__ . '/..' . '/magento/module-sales-inventory/registration.php',
         'dd0a1de1d47a365fd0bb8130c756587a' => __DIR__ . '/..' . '/magento/module-product-video/registration.php',
         '622350f03354ae12939dd1d6cf6a73cd' => __DIR__ . '/..' . '/magento/module-persistent/registration.php',
         '61d0a92e63ed94984ecdc51c7a060d96' => __DIR__ . '/..' . '/magento/module-offline-shipping/registration.php',
@@ -220,6 +221,7 @@ class ComposerStaticInit86036198f3e990be9e620d3af0e1aa9b
             'Magento\\Sales\\' => 14,
             'Magento\\SalesSequence\\' => 22,
             'Magento\\SalesRule\\' => 18,
+            'Magento\\SalesInventory\\' => 23,
             'Magento\\Rule\\' => 13,
             'Magento\\Rss\\' => 12,
             'Magento\\Review\\' => 15,
@@ -640,6 +642,10 @@ class ComposerStaticInit86036198f3e990be9e620d3af0e1aa9b
         'Magento\\SalesRule\\' => 
         array (
             0 => __DIR__ . '/..' . '/magento/module-sales-rule',
+        ),
+        'Magento\\SalesInventory\\' => 
+        array (
+            0 => __DIR__ . '/..' . '/magento/module-sales-inventory',
         ),
         'Magento\\Rule\\' => 
         array (
@@ -1551,6 +1557,7 @@ class ComposerStaticInit86036198f3e990be9e620d3af0e1aa9b
         'PHP_Token_STRING' => __DIR__ . '/..' . '/phpunit/php-token-stream/src/Token.php',
         'PHP_Token_STRING_CAST' => __DIR__ . '/..' . '/phpunit/php-token-stream/src/Token.php',
         'PHP_Token_STRING_VARNAME' => __DIR__ . '/..' . '/phpunit/php-token-stream/src/Token.php',
+        'PHP_Token_SUPER' => __DIR__ . '/..' . '/phpunit/php-token-stream/src/Token.php',
         'PHP_Token_SWITCH' => __DIR__ . '/..' . '/phpunit/php-token-stream/src/Token.php',
         'PHP_Token_Stream' => __DIR__ . '/..' . '/phpunit/php-token-stream/src/Token/Stream.php',
         'PHP_Token_Stream_CachingFactory' => __DIR__ . '/..' . '/phpunit/php-token-stream/src/Token/Stream/CachingFactory.php',
@@ -1565,6 +1572,7 @@ class ComposerStaticInit86036198f3e990be9e620d3af0e1aa9b
         'PHP_Token_UNSET' => __DIR__ . '/..' . '/phpunit/php-token-stream/src/Token.php',
         'PHP_Token_UNSET_CAST' => __DIR__ . '/..' . '/phpunit/php-token-stream/src/Token.php',
         'PHP_Token_USE' => __DIR__ . '/..' . '/phpunit/php-token-stream/src/Token.php',
+        'PHP_Token_USE_FUNCTION' => __DIR__ . '/..' . '/phpunit/php-token-stream/src/Token.php',
         'PHP_Token_VAR' => __DIR__ . '/..' . '/phpunit/php-token-stream/src/Token.php',
         'PHP_Token_VARIABLE' => __DIR__ . '/..' . '/phpunit/php-token-stream/src/Token.php',
         'PHP_Token_WHERE' => __DIR__ . '/..' . '/phpunit/php-token-stream/src/Token.php',
@@ -1764,11 +1772,11 @@ class ComposerStaticInit86036198f3e990be9e620d3af0e1aa9b
     public static function getInitializer(ClassLoader $loader)
     {
         return \Closure::bind(function () use ($loader) {
-            $loader->prefixLengthsPsr4 = ComposerStaticInit86036198f3e990be9e620d3af0e1aa9b::$prefixLengthsPsr4;
-            $loader->prefixDirsPsr4 = ComposerStaticInit86036198f3e990be9e620d3af0e1aa9b::$prefixDirsPsr4;
-            $loader->prefixesPsr0 = ComposerStaticInit86036198f3e990be9e620d3af0e1aa9b::$prefixesPsr0;
-            $loader->fallbackDirsPsr0 = ComposerStaticInit86036198f3e990be9e620d3af0e1aa9b::$fallbackDirsPsr0;
-            $loader->classMap = ComposerStaticInit86036198f3e990be9e620d3af0e1aa9b::$classMap;
+            $loader->prefixLengthsPsr4 = ComposerStaticInit45e030a2ea6f99383b5ecfd89a309e83::$prefixLengthsPsr4;
+            $loader->prefixDirsPsr4 = ComposerStaticInit45e030a2ea6f99383b5ecfd89a309e83::$prefixDirsPsr4;
+            $loader->prefixesPsr0 = ComposerStaticInit45e030a2ea6f99383b5ecfd89a309e83::$prefixesPsr0;
+            $loader->fallbackDirsPsr0 = ComposerStaticInit45e030a2ea6f99383b5ecfd89a309e83::$fallbackDirsPsr0;
+            $loader->classMap = ComposerStaticInit45e030a2ea6f99383b5ecfd89a309e83::$classMap;
 
         }, null, ClassLoader::class);
     }

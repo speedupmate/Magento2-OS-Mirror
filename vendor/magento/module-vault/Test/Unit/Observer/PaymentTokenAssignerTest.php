@@ -78,44 +78,6 @@ class PaymentTokenAssignerTest extends \PHPUnit_Framework_TestCase
         $this->observer->execute($observer);
     }
 
-    public function testExecuteNoCustomerId()
-    {
-        $dataObject = new DataObject(
-            [
-                PaymentInterface::KEY_ADDITIONAL_DATA => [
-                    PaymentTokenInterface::PUBLIC_HASH => 'public_hash_value'
-                ]
-            ]
-        );
-
-        $paymentModel = $this->getMockBuilder(Payment::class)
-            ->disableOriginalConstructor()
-            ->getMock();
-        $quote = $this->getMock(CartInterface::class);
-        $customer = $this->getMock(CustomerInterface::class);
-
-        $paymentModel->expects(static::once())
-            ->method('getQuote')
-            ->willReturn($quote);
-        $quote->expects(static::once())
-            ->method('getCustomer')
-            ->willReturn($customer);
-        $customer->expects(static::once())
-            ->method('getId')
-            ->willReturn(null);
-
-        $observer = $this->getPreparedObserverWithMap(
-            [
-                [AbstractDataAssignObserver::DATA_CODE, $dataObject],
-                [AbstractDataAssignObserver::MODEL_CODE, $paymentModel]
-            ]
-        );
-
-        $this->paymentTokenManagement->expects(static::never())
-            ->method('getByPublicHash');
-        $this->observer->execute($observer);
-    }
-
     public function testExecuteNoPaymentToken()
     {
         $customerId = 1;
@@ -199,7 +161,6 @@ class PaymentTokenAssignerTest extends \PHPUnit_Framework_TestCase
         $paymentModel->expects(static::once())
             ->method('setAdditionalInformation')
             ->with(
-                Vault::TOKEN_METADATA_KEY,
                 [
                     PaymentTokenInterface::CUSTOMER_ID => $customerId,
                     PaymentTokenInterface::PUBLIC_HASH => $publicHash

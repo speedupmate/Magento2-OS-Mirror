@@ -7,6 +7,7 @@ namespace Magento\Sales\Model;
 
 use Magento\Framework\Exception\ConfigurationMismatchException;
 use Magento\Framework\ObjectManagerInterface;
+use Magento\Framework\App\ObjectManager;
 
 /**
  * Class Validator
@@ -21,26 +22,43 @@ class Validator
     private $objectManager;
 
     /**
+     * @var ValidatorResultInterfaceFactory
+     */
+    private $validatorResultFactory;
+
+    /**
      * Validator constructor.
      *
      * @param ObjectManagerInterface $objectManager
+     * @param ValidatorResultInterfaceFactory|null $validatorResult
      */
-    public function __construct(ObjectManagerInterface $objectManager)
-    {
+    public function __construct(
+        ObjectManagerInterface $objectManager,
+        ValidatorResultInterfaceFactory $validatorResult = null
+    ) {
         $this->objectManager = $objectManager;
+        $this->validatorResultFactory = $validatorResult ?: ObjectManager::getInstance()->get(
+            ValidatorResultInterfaceFactory::class
+        );
     }
 
     /**
      * @param object $entity
      * @param ValidatorInterface[] $validators
-     * @return string[]
+     * @param object|null $context
+     * @return ValidatorResultInterface
      * @throws ConfigurationMismatchException
      */
-    public function validate($entity, array $validators)
+    public function validate($entity, array $validators, $context = null)
     {
         $messages = [];
+        $validatorArguments = [];
+        if ($context !== null) {
+            $validatorArguments['context'] = $context;
+        }
+
         foreach ($validators as $validatorName) {
-            $validator = $this->objectManager->get($validatorName);
+            $validator = $this->objectManager->create($validatorName, $validatorArguments);
             if (!$validator instanceof ValidatorInterface) {
                 throw new ConfigurationMismatchException(
                     __(
@@ -50,7 +68,11 @@ class Validator
             }
             $messages = array_merge($messages, $validator->validate($entity));
         }
+        $validationResult = $this->validatorResultFactory->create();
+        foreach ($messages as $message) {
+            $validationResult->addMessage($message);
+        }
 
-        return $messages;
+        return $validationResult;
     }
 }
