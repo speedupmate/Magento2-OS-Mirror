@@ -204,6 +204,9 @@ class OrderRepository implements OrderRepositoryInterface
 
         $apiAction = $this->orderActionLocator->getOrderAction($order);
         switch ($apiAction) {
+            case OrderActionLocator::ACTION_NONE:
+                $orderResponse = $this->orderResponseMapper->createEmptyResponse();
+                break;
             case OrderActionLocator::ACTION_QUALIFY:
             case OrderActionLocator::ACTION_PERSIST:
                 $orderResponse = $this->create($orderType);

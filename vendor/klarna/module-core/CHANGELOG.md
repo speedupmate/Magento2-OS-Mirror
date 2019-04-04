@@ -1,4 +1,49 @@
 
+4.4.5 / 2018-08-28
+==================
+
+  * PPI-507 Fix discount issue
+
+4.4.4 / 2018-08-16
+==================
+
+  * PPI-419 Compatibility fixes for splitting modules
+
+4.4.3 / 2018-08-03
+==================
+
+  * PPI-317: Fixed product tax is now working when using bundled products.
+
+4.4.2 / 2018-07-26
+==================
+
+  * PPI-449 Cleanup code
+
+4.4.1 / 2018-07-25
+==================
+
+  * PPI-449 Feedback from Magento for 2.2.6 release
+  * PPI-403 Use the country value from the website level and add US onboarding link
+
+4.4.0 / 2018-07-23
+==================
+
+  * PPI-403 Add link for Klarna on boarding - Phase 1
+  * PPI-317 Add support for Fixed Product Tax
+  * Fix schema scripts
+
+4.3.2 / 2018-06-26
+==================
+
+  * BUNDLE-1462 Validation issues
+  * PI-198 Fix giftwrapping tax issues
+
+4.3.1 / 2018-06-08
+==================
+
+  * PPI-259 Add Shipping and discount order lines to OM calls
+  * PI-254 Fix order with discount fails
+
 4.2.3 / 2018-05-22
 ==================
 

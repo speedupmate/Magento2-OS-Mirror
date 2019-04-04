@@ -62,11 +62,6 @@ class KpConfigProvider implements ConfigProviderInterface
                     'success'           => 0,
                     'debug'             => $this->config->isApiConfigFlag('debug', $store),
                     'enabled'           => $this->config->isPaymentConfigFlag('active', $store, Kp::METHOD_CODE),
-                    'logos'             => [
-                        'slice_it'  => sprintf(Kp::KLARNA_LOGO_SLICE_IT, strtolower($this->config->getLocaleCode())),
-                        'pay_now'   => sprintf(Kp::KLARNA_LOGO_PAY_NOW, strtolower($this->config->getLocaleCode())),
-                        'pay_later' => sprintf(Kp::KLARNA_LOGO_PAY_LATER, strtolower($this->config->getLocaleCode())),
-                    ],
                     'available_methods' => [
                         'type'      => 'klarna_kp',
                         'component' => 'Klarna_Kp/js/view/payments/kp'
@@ -91,6 +86,7 @@ class KpConfigProvider implements ConfigProviderInterface
                 return $paymentConfig;
             }
 
+            $methods = $klarnaQuote->getPaymentMethodInfo();
             $paymentConfig['payment']['klarna_kp']['client_token'] = $klarnaQuote->getClientToken();
             $paymentConfig['payment']['klarna_kp']['authorization_token'] = $klarnaQuote->getAuthorizationToken();
             $paymentConfig['payment']['klarna_kp']['success'] = $response->isSuccessfull() ? 1 : 0;
@@ -98,19 +94,37 @@ class KpConfigProvider implements ConfigProviderInterface
                 $paymentConfig['payment']['klarna_kp']['message'] = $response->getMessage();
                 return $paymentConfig;
             }
-            $paymentConfig['payment']['klarna_kp']['available_methods'] = [];
-            $methods = $klarnaQuote->getPaymentMethods();
-            foreach ($methods as $method) {
-                $paymentConfig['payment']['klarna_kp']['available_methods'][] = [
-                    'type'      => $method,
-                    'component' => 'Klarna_Kp/js/view/payments/kp'
-                ];
-                $paymentConfig['payment'][$method] = $paymentConfig['payment']['klarna_kp'];
-                unset($paymentConfig['payment'][$method]['available_methods']);
-            }
+            $paymentConfig = $this->getAvailableMethods($paymentConfig, $methods);
         } catch (KlarnaException $e) {
             $paymentConfig['payment']['klarna_kp']['message'] = $e->getMessage();
         }
         return $paymentConfig;
+    }
+
+    /**
+     * Get available payment methods
+     *
+     * @param array $config
+     * @param array $methods
+     * @return array
+     */
+    private function getAvailableMethods($config, $methods)
+    {
+        $available_methods = [];
+        foreach ($methods as $method) {
+            $identifier = $method->identifier;
+            $available_methods[] = [
+                'type'      => 'klarna_' . $identifier,
+                'component' => 'Klarna_Kp/js/view/payments/kp'
+            ];
+            $config['payment'][$identifier] = $config['payment']['klarna_kp'];
+            $config['payment']['klarna_kp'][$identifier] = [
+                'title' => $method->name,
+                'logo'  => $method->asset_urls->standard
+            ];
+            unset($config['payment'][$identifier]['available_methods']);
+        }
+        $config['payment']['klarna_kp']['available_methods'] = $available_methods;
+        return $config;
     }
 }

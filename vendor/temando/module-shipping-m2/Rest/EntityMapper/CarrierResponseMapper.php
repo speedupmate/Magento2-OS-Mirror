@@ -61,10 +61,10 @@ class CarrierResponseMapper
     ) {
         /** @var \Temando\Shipping\Model\Carrier $carrier */
         $carrier = $this->carrierFactory->create(['data' => [
-            CarrierInterface::CONFIGURATION_ID => $apiConfiguration->getId(),
-            CarrierInterface::INTEGRATION_ID => $apiConfiguration->getAttributes()->getIntegrationId(),
-            CarrierInterface::CONNECTION_NAME => $apiConfiguration->getAttributes()->getConnectionName(),
-            CarrierInterface::STATUS => $apiConfiguration->getAttributes()->getStatus(),
+            CarrierInterface::CONFIGURATION_ID => (string)$apiConfiguration->getId(),
+            CarrierInterface::INTEGRATION_ID => (string)$apiConfiguration->getAttributes()->getIntegrationId(),
+            CarrierInterface::CONNECTION_NAME => (string)$apiConfiguration->getAttributes()->getConnectionName(),
+            CarrierInterface::STATUS => (string)$apiConfiguration->getAttributes()->getStatus(),
         ]]);
 
         if ($apiIntegration) {
@@ -76,8 +76,8 @@ class CarrierResponseMapper
             $activeServices = array_intersect_key($availableServices, $activeServiceIds);
 
             $carrier->addData([
-                CarrierInterface::NAME => $apiIntegration->getAttributes()->getName(),
-                CarrierInterface::LOGO => $apiIntegration->getAttributes()->getLogo(),
+                CarrierInterface::NAME => (string)$apiIntegration->getAttributes()->getName(),
+                CarrierInterface::LOGO => (string)$apiIntegration->getAttributes()->getLogo(),
                 CarrierInterface::ACTIVE_SERVICES => $activeServices,
             ]);
         }

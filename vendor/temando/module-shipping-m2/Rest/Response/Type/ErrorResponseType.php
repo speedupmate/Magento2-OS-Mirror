@@ -9,6 +9,7 @@ namespace Temando\Shipping\Rest\Response\Type;
  *
  * @package  Temando\Shipping\Rest
  * @author   Christoph Aßmann <christoph.assmann@netresearch.de>
+ * @author   Benjamin Heuer <benjamin.heuer@netresearch.de>
  * @license  http://opensource.org/licenses/osl-3.0.php Open Software License (OSL 3.0)
  * @link     http://www.temando.com/
  */
@@ -28,6 +29,11 @@ class ErrorResponseType
      * @var string
      */
     private $code;
+
+    /**
+     * @var string
+     */
+    private $detail;
 
     /**
      * @return string
@@ -78,5 +84,23 @@ class ErrorResponseType
     public function setCode($code)
     {
         $this->code = $code;
+    }
+
+    /**
+     * @return string
+     */
+    public function getDetail()
+    {
+        return $this->detail;
+    }
+
+    /**
+     * @param string $detail
+     *
+     * @return void
+     */
+    public function setDetail($detail)
+    {
+        $this->detail = $detail;
     }
 }

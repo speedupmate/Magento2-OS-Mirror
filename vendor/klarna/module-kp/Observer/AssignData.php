@@ -102,6 +102,10 @@ class AssignData extends AbstractDataAssignObserver
             /** @var QuoteInterface $klarnaQuote */
             $klarnaQuote = $this->klarnaQuoteRepository->getActiveByQuote($quote);
             $klarnaQuote->setAuthorizationToken($additionalData->getData('authorization_token'));
+            $payment->setAdditionalInformation('method_title', $additionalData->getData('method_title'));
+            $payment->setAdditionalInformation('logo', $additionalData->getData('logo'));
+            $payment->setAdditionalInformation('method_code', $payment->getMethodInstance()->getCode());
+            $payment->setAdditionalInformation('klarna_order_id', $klarnaQuote->getSessionId());
             $this->klarnaQuoteRepository->save($klarnaQuote);
         } catch (NoSuchEntityException $npe) {
             $data = ['klarna_id' => $additionalData->getData('authorization_token')];

@@ -6,6 +6,8 @@ namespace Temando\Shipping\Rest\EntityMapper;
 
 use Temando\Shipping\Model\Dispatch\ShipmentInterface;
 use Temando\Shipping\Model\Dispatch\ShipmentInterfaceFactory;
+use Temando\Shipping\Model\Dispatch\ErrorInterface;
+use Temando\Shipping\Model\Dispatch\ErrorInterfaceFactory;
 use Temando\Shipping\Model\DispatchInterface;
 use Temando\Shipping\Model\DispatchInterfaceFactory;
 use Temando\Shipping\Rest\Response\Type\Completion\Attributes\Shipment;
@@ -28,6 +30,11 @@ class DispatchResponseMapper
     private $dispatchFactory;
 
     /**
+     * @var ErrorInterfaceFactory
+     */
+    private $dispatchErrorFactory;
+
+    /**
      * @var ShipmentInterfaceFactory
      */
     private $shipmentFactory;
@@ -40,15 +47,18 @@ class DispatchResponseMapper
     /**
      * DispatchResponseMapper constructor.
      * @param DispatchInterfaceFactory $dispatchFactory
+     * @param ErrorInterfaceFactory $dispatchErrorFactory
      * @param ShipmentInterfaceFactory $shipmentFactory
      * @param DocumentationResponseMapper $documentationMapper
      */
     public function __construct(
         DispatchInterfaceFactory $dispatchFactory,
+        ErrorInterfaceFactory $dispatchErrorFactory,
         ShipmentInterfaceFactory $shipmentFactory,
         DocumentationResponseMapper $documentationMapper
     ) {
         $this->dispatchFactory = $dispatchFactory;
+        $this->dispatchErrorFactory = $dispatchErrorFactory;
         $this->shipmentFactory = $shipmentFactory;
         $this->documentationMapper = $documentationMapper;
     }
@@ -59,10 +69,19 @@ class DispatchResponseMapper
      */
     private function mapShipment(Shipment $apiShipment)
     {
+        $errors = [];
+        foreach ($apiShipment->getErrors() as $apiError) {
+            $errors[]= $this->dispatchErrorFactory->create(['data' => [
+                ErrorInterface::TITLE => $apiError->getTitle(),
+                ErrorInterface::DETAIL => $apiError->getDetail(),
+            ]]);
+        }
+
         $shipment = $this->shipmentFactory->create(['data' => [
             ShipmentInterface::SHIPMENT_ID => $apiShipment->getId(),
             ShipmentInterface::STATUS => $apiShipment->getStatus(),
             ShipmentInterface::MESSAGE => $apiShipment->getMessage(),
+            ShipmentInterface::ERRORS => $errors,
         ]]);
 
         return $shipment;

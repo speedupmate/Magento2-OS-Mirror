@@ -42,7 +42,8 @@ interface QuoteInterface
      * Get whether the quote is active/inactive
      *
      * @return int
-     * @deprecated
+     * @deprecated 5.3.0
+     * @see isActive
      */
     public function getIsActive();
 
@@ -114,4 +115,19 @@ interface QuoteInterface
      * @return $this
      */
     public function setPaymentMethods($methods);
+
+    /**
+     * Set Klarna Payment Method Info
+     *
+     * @param string[] $methodinfo
+     * @return $this
+     */
+    public function setPaymentMethodInfo($methodinfo);
+
+    /**
+     * Get Klarna Payment Method Info
+     *
+     * @return object[]
+     */
+    public function getPaymentMethodInfo();
 }

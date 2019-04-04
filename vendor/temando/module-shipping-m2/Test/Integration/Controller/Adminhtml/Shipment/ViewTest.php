@@ -70,7 +70,8 @@ class ViewTest extends AbstractBackendController
         $this->getRequest()->setParam('shipment_id', $extShipmentId);
 
         $this->dispatch($this->uri);
-        $this->assertRedirect($this->stringContains('sales/shipment/index'));
+        $this->assertEquals('noroute', $this->getRequest()->getControllerName());
+        $this->assertEquals(404, $this->getResponse()->getHttpResponseCode());
     }
 
     /**
@@ -90,5 +91,20 @@ class ViewTest extends AbstractBackendController
 
         $this->dispatch($this->uri);
         $this->assertRedirect($this->stringContains('sales/shipment/view/shipment_id/' . $shipmentId));
+    }
+
+    /**
+     * @test
+     * @magentoDataFixture createOrderAndShipmentFixture
+     */
+    public function testAclHasAccess()
+    {
+        $shipmentReferenceData = ShippedOrderFixture::getShipmentReferenceData();
+        $extShipmentId = $shipmentReferenceData['id'];
+
+        // existing external shipment id
+        $this->getRequest()->setParam('shipment_id', $extShipmentId);
+
+        parent::testAclHasAccess();
     }
 }

@@ -25,6 +25,13 @@ class Shipping extends AbstractLine
 {
 
     /**
+     * shipping is a line item collector
+     *
+     * @var bool
+     */
+    protected $isTotalCollector = false;
+
+    /**
      * Checkout item types
      */
     const ITEM_TYPE_SHIPPING = 'shipping_fee';
@@ -56,9 +63,9 @@ class Shipping extends AbstractLine
                     $taxRate = 0;
                     $taxAmount = 0;
                 } else {
-                    $taxRate = $this->calculateShippingTax($store);
-                    $taxAmount = $address->getShippingTaxAmount() + $address->getShippingHiddenTaxAmount();
+                    $taxRate = $this->calculateShippingTax($checkout, $store);
                     $unitPrice = $address->getShippingInclTax();
+                    $taxAmount = $unitPrice * ($taxRate / (100 + $taxRate));
                 }
 
                 $checkout->addData(
@@ -77,7 +84,7 @@ class Shipping extends AbstractLine
 
         if ($object instanceof Invoice || $object instanceof Creditmemo) {
             $unitPrice = $object->getBaseShippingInclTax();
-            $taxRate = $this->calculateShippingTax($object->getStore());
+            $taxRate = $this->calculateShippingTax($checkout, $object->getStore());
             $taxAmount = $object->getShippingTaxAmount() + $object->getShippingHiddenTaxAmount();
 
             $checkout->addData(
@@ -94,24 +101,6 @@ class Shipping extends AbstractLine
         }
 
         return $this;
-    }
-
-    /**
-     * Calculate shipping tax rate for an object
-     *
-     * @param StoreInterface $store
-     * @return float
-     */
-    protected function calculateShippingTax(StoreInterface $store)
-    {
-        $request = $this->calculator->getRateRequest(null, null, null, $store);
-        $taxRateId = $this->config->getValue(
-            TaxConfig::CONFIG_XML_PATH_SHIPPING_TAX_CLASS,
-            ScopeInterface::SCOPE_STORES,
-            $store
-        );
-
-        return $this->calculator->getRate($request->setProductClassId($taxRateId));
     }
 
     /**

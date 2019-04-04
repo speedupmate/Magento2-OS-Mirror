@@ -110,6 +110,7 @@ class Documentation extends BackendTemplate
             'codTurnInPage' => 'Cash On Delivery Turn In Page',
             'commercialInvoice' => 'Commercial Invoice',
             'customerInvoice' => 'Customer Invoice',
+            'highValueReport' => 'High Value Report',
             'manifestSummary' => 'Manifest Summary',
             'packageLabel' => 'Package Label',
             'packageReturnLabel' => 'Package Return Label',

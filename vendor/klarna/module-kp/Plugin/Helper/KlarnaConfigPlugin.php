@@ -36,7 +36,7 @@ class KlarnaConfigPlugin
         VersionInterface $versionConfig,
         $methodCode = 'klarna_kp'
     ) {
-        if (in_array($methodCode, Kp::KLARNA_METHODS)) {
+        if ($methodCode !== 'klarna_kco') {
             return \Klarna\Kp\Model\Api\Builder\Kasper::class;
         }
         return $result;

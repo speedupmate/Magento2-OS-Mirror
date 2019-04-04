@@ -6,7 +6,9 @@
 
 namespace Vertex\Tax\Setup;
 
+use Magento\Framework\DB\Adapter\AdapterInterface;
 use Magento\Framework\DB\Ddl\Table;
+use Magento\Framework\Module\Setup;
 use Magento\Framework\Setup\ModuleContextInterface;
 use Magento\Framework\Setup\SchemaSetupInterface;
 use Magento\Framework\Setup\UpgradeSchemaInterface;
@@ -126,13 +128,13 @@ class UpgradeSchema implements UpgradeSchemaInterface
     private function dropTaxAreaIdColumns(SchemaSetupInterface $setup)
     {
         $orderTable = $setup->getTable('sales_order_address');
-        if ($setup->getConnection()->tableColumnExists($orderTable, 'tax_area_id')) {
-            $setup->getConnection()->dropColumn($orderTable, 'tax_area_id');
+        if ($this->getConnection($setup, 'sales')->tableColumnExists($orderTable, 'tax_area_id')) {
+            $this->getConnection($setup, 'sales')->dropColumn($orderTable, 'tax_area_id');
         }
 
         $quoteTable = $setup->getTable('quote_address');
-        if ($setup->getConnection()->tableColumnExists($quoteTable, 'tax_area_id')) {
-            $setup->getConnection()->dropColumn($quoteTable, 'tax_area_id');
+        if ($this->getConnection($setup, 'checkout')->tableColumnExists($quoteTable, 'tax_area_id')) {
+            $this->getConnection($setup, 'checkout')->dropColumn($quoteTable, 'tax_area_id');
         }
     }
 
@@ -181,15 +183,16 @@ class UpgradeSchema implements UpgradeSchemaInterface
      */
     private function migrateInvoiceSentData(SchemaSetupInterface $setup)
     {
+        $salesDb = $this->getConnection($setup, 'sales');
         $db = $setup->getConnection();
         $oldTableName = $setup->getTable('sales_invoice');
         $newTableName = $setup->getTable('vertex_invoice_sent');
 
-        if (!$setup->getConnection()->tableColumnExists($oldTableName, 'vertex_invoice_sent')) {
+        if (!$salesDb->tableColumnExists($oldTableName, 'vertex_invoice_sent')) {
             return;
         }
 
-        $select = $db->select()
+        $select = $salesDb->select()
             ->from($oldTableName)
             ->where('vertex_invoice_sent = 1');
 
@@ -200,7 +203,7 @@ class UpgradeSchema implements UpgradeSchemaInterface
                     'sent_to_vertex' => 1,
                 ];
             },
-            $db->fetchAll($select)
+            $salesDb->fetchAll($select)
         );
 
         if (!count($results)) {
@@ -221,8 +224,8 @@ class UpgradeSchema implements UpgradeSchemaInterface
     private function deleteInvoiceSentColumnFromInvoiceTable(SchemaSetupInterface $setup)
     {
         $table = $setup->getTable('sales_invoice');
-        if ($setup->getConnection()->tableColumnExists($table, 'vertex_invoice_sent')) {
-            $setup->getConnection()->dropColumn($table, 'vertex_invoice_sent');
+        if ($this->getConnection($setup, 'sales')->tableColumnExists($table, 'vertex_invoice_sent')) {
+            $this->getConnection($setup, 'sales')->dropColumn($table, 'vertex_invoice_sent');
         }
     }
 
@@ -261,5 +264,20 @@ class UpgradeSchema implements UpgradeSchemaInterface
 
         $setup->getConnection()
             ->createTable($table);
+    }
+
+    /**
+     * Retrieve Connection
+     *
+     * @param SchemaSetupInterface $setup
+     * @param string $connectionName
+     * @return AdapterInterface
+     */
+    private function getConnection(SchemaSetupInterface $setup, $connectionName)
+    {
+        if ($setup instanceof Setup) {
+            return $setup->getConnection($connectionName);
+        }
+        return $setup->getConnection();
     }
 }

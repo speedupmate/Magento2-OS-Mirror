@@ -11,7 +11,14 @@
 namespace Klarna\Core\Model\Checkout\Orderline;
 
 use Klarna\Core\Api\BuilderInterface;
+use Klarna\Core\Helper\ConfigHelper;
+use Klarna\Core\Helper\DataConverter;
+use Klarna\Core\Helper\KlarnaConfig;
+use Klarna\Core\Model\Fpt\Rate;
+use Magento\Framework\App\Config\ScopeConfigInterface;
+use Magento\Framework\DataObjectFactory;
 use Magento\Quote\Model\Quote;
+use Magento\Tax\Model\Calculation;
 
 /**
  * Generate tax order line details
@@ -22,6 +29,44 @@ class Tax extends AbstractLine
      * Checkout item types
      */
     const ITEM_TYPE_TAX = 'sales_tax';
+
+    /** @var Rate $rate */
+    private $rate;
+
+    /** @var ConfigHelper $configHelper */
+    private $configHelper;
+
+    /**
+     * AbstractLine constructor.
+     *
+     * @param DataConverter        $helper
+     * @param Calculation          $calculator
+     * @param ScopeConfigInterface $config
+     * @param DataObjectFactory    $dataObjectFactory
+     * @param KlarnaConfig         $klarnaConfig
+     * @param ConfigHelper         $configHelper
+     * @param Rate                 $rate
+     */
+    public function __construct(
+        DataConverter $helper,
+        Calculation $calculator,
+        ScopeConfigInterface $config,
+        DataObjectFactory $dataObjectFactory,
+        KlarnaConfig $klarnaConfig,
+        ConfigHelper $configHelper,
+        Rate $rate
+    ) {
+        parent::__construct(
+            $helper,
+            $calculator,
+            $config,
+            $dataObjectFactory,
+            $klarnaConfig
+        );
+
+        $this->configHelper = $configHelper;
+        $this->rate = $rate;
+    }
 
     /**
      * Collect totals process.
@@ -39,12 +84,20 @@ class Tax extends AbstractLine
             return $this;
         }
 
+        $totalTax = $object->getBaseTaxAmount();
         if ($object instanceof Quote) {
             $object->collectTotals();
             $totalTax = $object->isVirtual() ? $object->getBillingAddress()->getBaseTaxAmount()
                 : $object->getShippingAddress()->getBaseTaxAmount();
-        } else {
-            $totalTax = $object->getBaseTaxAmount();
+        }
+
+        /** @var \Magento\Sales\Model\AbstractModel|\Magento\Quote\Model\Quote $object */
+        $object = $checkout->getObject();
+        $store = $object->getStore();
+
+        if ($this->configHelper->isFptEnabled($store) && !$this->configHelper->getDisplayInSubtotalFpt($store)) {
+            $fptResult = $this->rate->getFptTax($object);
+            $totalTax += $fptResult['tax'];
         }
 
         $checkout->addData(

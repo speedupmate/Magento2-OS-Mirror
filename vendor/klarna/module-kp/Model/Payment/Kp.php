@@ -10,9 +10,9 @@
 
 namespace Klarna\Kp\Model\Payment;
 
+use Klarna\Core\Helper\ConfigHelper;
 use Klarna\Kp\Api\KlarnaPaymentMethodInterface;
 use Klarna\Kp\Api\SessionInitiatorInterface;
-use Klarna\Kp\Model\Session;
 use Magento\Framework\App\Config\ScopeConfigInterface;
 use Magento\Framework\DataObject;
 use Magento\Framework\Locale\Resolver;
@@ -26,21 +26,38 @@ use Magento\Store\Model\ScopeInterface;
  * Klarna Payment
  *
  * @SuppressWarnings(PHPMD.ExcessivePublicCount)
+ * @SuppressWarnings(PHPMD.TooManyPublicMethods)
+ * @SuppressWarnings(PHPMD.TooManyMethods)
+ * @SuppressWarnings(PHPMD.ExcessiveClassComplexity) //TODO: Remove in 6.0 when deprecated methods are dropped
  */
 class Kp implements MethodInterface, KlarnaPaymentMethodInterface
 {
-    const METHOD_CODE = 'klarna_kp';
+    const METHOD_CODE = ConfigHelper::KP_METHOD_CODE;
 
     const ACTION_ORDER             = 'order';
     const ACTION_AUTHORIZE         = 'authorize';
     const ACTION_AUTHORIZE_CAPTURE = 'authorize_capture';
 
+    /**
+     * @deprecated 5.3.0
+     */
     const KLARNA_LOGO_SLICE_IT = 'https://cdn.klarna.com/1.0/shared/image/generic/badge/%s/slice_it/standard/pink.svg';
+    /**
+     * @deprecated 5.3.0
+     */
     // @codingStandardsIgnoreLine
     const KLARNA_LOGO_PAY_LATER = 'https://cdn.klarna.com/1.0/shared/image/generic/badge/%s/pay_later/standard/pink.svg';
-    const KLARNA_LOGO_PAY_NOW   = 'https://cdn.klarna.com/1.0/shared/image/generic/badge/%s/pay_now/standard/pink.svg';
-    const KLARNA_LOGO           = 'https://cdn.klarna.com/1.0/shared/image/generic/badge/%s/%s/standard/pink.svg';
-
+    /**
+     * @deprecated 5.3.0
+     */
+    const KLARNA_LOGO_PAY_NOW = 'https://cdn.klarna.com/1.0/shared/image/generic/badge/%s/pay_now/standard/pink.svg';
+    /**
+     * @deprecated 5.3.0
+     */
+    const KLARNA_LOGO = 'https://cdn.klarna.com/1.0/shared/image/generic/badge/%s/%s/standard/pink.svg';
+    /**
+     * @deprecated 5.3.0
+     */
     const KLARNA_METHODS = [
         'klarna_pay_now',
         'klarna_pay_later',
@@ -389,9 +406,6 @@ class Kp implements MethodInterface, KlarnaPaymentMethodInterface
      */
     public function getConfigData($field, $storeId = null)
     {
-        if ($field === 'title') {
-            return $this->getTitle();
-        }
         return $this->adapter->getConfigData($field, $storeId);
     }
 
@@ -400,26 +414,7 @@ class Kp implements MethodInterface, KlarnaPaymentMethodInterface
      */
     public function getTitle()
     {
-        $code = $this->getCode();
-        $text = ucwords(str_replace('_', ' ', $code));
-        return __($text);
-    }
-
-    /**
-     * {@inheritdoc}
-     */
-    public function getCode()
-    {
-        return $this->code;
-    }
-
-    /**
-     * {@inheritdoc}
-     */
-    public function setCode($code)
-    {
-        $this->code = $code;
-        return $this;
+        return $this->adapter->getTitle();
     }
 
     /**
@@ -440,6 +435,23 @@ class Kp implements MethodInterface, KlarnaPaymentMethodInterface
             $klarna_code = 'pay_now';
         }
         return sprintf(self::KLARNA_LOGO, $locale, $klarna_code);
+    }
+
+    /**
+     * {@inheritdoc}
+     */
+    public function getCode()
+    {
+        return $this->code;
+    }
+
+    /**
+     * {@inheritdoc}
+     */
+    public function setCode($code)
+    {
+        $this->code = $code;
+        return $this;
     }
 
     /**

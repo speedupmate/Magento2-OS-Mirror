@@ -86,7 +86,7 @@ class ConfigurationValidator
         $this->validateAddressLookup($result, $scopeType, $scopeId);
 
         if ($result->isValid()) {
-            $this->validateCalculationService($result);
+            $this->validateCalculationService($result, $scopeType, $scopeId);
         }
 
         return $result;
@@ -199,7 +199,9 @@ class ConfigurationValidator
         $result->setValid(false);
         try {
             $this->taxAreaRequestFactory->create()->taxAreaLookup(
-                $address
+                $address,
+                $scopeId,
+                $scopeType
             );
             $result->setValid(true);
         } catch (ConnectionFailureException $e) {
@@ -215,12 +217,22 @@ class ConfigurationValidator
      * Verify Vertex API connectivity by performing a live tax calculation request.
      *
      * @param Result $result
+     * @param string $scopeType
+     * @param string $scopeId
      * @return Result
      */
-    private function validateCalculationService(Result $result)
+    private function validateCalculationService(Result $result, $scopeType, $scopeId)
     {
         $request = $this->sampleRequestFactory->create();
-        $response = $this->apiClient->sendApiRequest($request, 'quote');
+        if ($this->apiClient instanceof ApiClient) {
+            try {
+                $response = $this->apiClient->performRequest($request, 'quote', $scopeType, $scopeId);
+            } catch (\Exception $e) {
+                $response = false;
+            }
+        } else {
+            $response = $this->apiClient->sendApiRequest($request, 'quote');
+        }
 
         if ($response === false) {
             $result->setMessage('Unable to connect to Calculation API');

@@ -6,6 +6,7 @@
                 <resource id="Magento_Sales::sales">
                     <resource id="Magento_Sales::sales_operation">
                         <resource id="Temando_Shipping::dispatches" sortOrder="35" title="Dispatches"/>
+                        <resource id="Temando_Shipping::batches" sortOrder="37" title="Batches"/>
                     </resource>
                 </resource>
                 <resource id="Magento_Backend::stores">

@@ -92,17 +92,18 @@ class LineItem
      *
      * @param QuoteAddress $taxAddress
      * @param Item\AbstractItem $taxAddressItem
+     * @param int $customerGroupId
      * @return array
      * @throws \Magento\Framework\Exception\LocalizedException
      * @throws \Magento\Framework\Exception\NoSuchEntityException
      */
-    public function getFormattedLineItemData(QuoteAddress $taxAddress, $taxAddressItem)
+    public function getFormattedLineItemData(QuoteAddress $taxAddress, $taxAddressItem, $customerGroupId = null)
     {
         $data = [];
         $storeId = $taxAddressItem->getQuote()->getStoreId();
 
         $data['Seller'] = $this->sellerFormatter->getFormattedSellerData($storeId);
-        $data['Customer'] = $this->customerFormatter->getFormattedCustomerData($taxAddress);
+        $data['Customer'] = $this->customerFormatter->getFormattedCustomerData($taxAddress, $customerGroupId);
         $data['Product'] = [
             '_' => substr($taxAddressItem->getData('sku'), 0, Config::MAX_CHAR_PRODUCT_CODE_ALLOWED),
             'productClass' => $this->taxClassNameRepository->getById(
@@ -137,17 +138,18 @@ class LineItem
      * Create properly formatted Line Item data for an Order-level Printed Card
      *
      * @param QuoteAddress $taxAddress
+     * @param int|null $customerGroupId
      * @return array
      * @throws \Magento\Framework\Exception\LocalizedException
      * @throws \Magento\Framework\Exception\NoSuchEntityException
      */
-    public function getFormattedOrderPrintCardData(QuoteAddress $taxAddress)
+    public function getFormattedOrderPrintCardData(QuoteAddress $taxAddress, $customerGroupId = null)
     {
         $data = [];
         $storeId = $taxAddress->getQuote()->getStoreId();
 
         $data['Seller'] = $this->sellerFormatter->getFormattedSellerData();
-        $data['Customer'] = $this->customerFormatter->getFormattedCustomerData($taxAddress);
+        $data['Customer'] = $this->customerFormatter->getFormattedCustomerData($taxAddress, $customerGroupId);
         $data['Product'] = [
             '_' => $this->config->getPrintedGiftcardCode($storeId),
             'productClass' => $this->taxClassNameRepository->getById(
@@ -178,17 +180,18 @@ class LineItem
      * Create properly formatted Line Item data for Order-level Giftwrapping
      *
      * @param QuoteAddress $taxAddress
+     * @param int $customerGroupId
      * @return array
      * @throws \Magento\Framework\Exception\LocalizedException
      * @throws \Magento\Framework\Exception\NoSuchEntityException
      */
-    public function getFormattedOrderGiftWrapData(QuoteAddress $taxAddress)
+    public function getFormattedOrderGiftWrapData(QuoteAddress $taxAddress, $customerGroupId = null)
     {
         $data = [];
         $storeId = $taxAddress->getQuote()->getStoreId();
 
         $data['Seller'] = $this->sellerFormatter->getFormattedSellerData();
-        $data['Customer'] = $this->customerFormatter->getFormattedCustomerData($taxAddress);
+        $data['Customer'] = $this->customerFormatter->getFormattedCustomerData($taxAddress, $customerGroupId);
         $data['Product'] = [
             '_' => $this->config->getGiftWrappingOrderCode($storeId),
             'productClass' => $this->taxClassNameRepository->getById(
@@ -221,17 +224,18 @@ class LineItem
      *
      * @param QuoteAddress $taxAddress
      * @param Item\AbstractItem $item
+     * @param int|null $customerGroupId
      * @return array
      * @throws \Magento\Framework\Exception\LocalizedException
      * @throws \Magento\Framework\Exception\NoSuchEntityException
      */
-    public function getFormattedItemGiftWrapData(QuoteAddress $taxAddress, $item)
+    public function getFormattedItemGiftWrapData(QuoteAddress $taxAddress, $item, $customerGroupId = null)
     {
         $data = [];
         $storeId = $taxAddress->getQuote()->getStoreId();
 
         $data['Seller'] = $this->sellerFormatter->getFormattedSellerData();
-        $data['Customer'] = $this->customerFormatter->getFormattedCustomerData($taxAddress);
+        $data['Customer'] = $this->customerFormatter->getFormattedCustomerData($taxAddress, $customerGroupId);
         $data['Product'] = [
             '_' => $this->config->getGiftWrappingItemCodePrefix($storeId) . '-' . $item->getData('sku'),
             'productClass' => $this->taxClassNameRepository->getById(

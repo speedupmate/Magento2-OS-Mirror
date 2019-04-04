@@ -32,6 +32,40 @@ class UpgradeData implements UpgradeDataInterface
             // Mark all quotes as inactive so that switch over to new payments endpoint happens
             $installer->getConnection()->update($table, ['is_active' => 0]);
         }
+        if (version_compare($context->getVersion(), '5.3.2', '<')) {
+            $methods = [
+                'klarna_pay_later',
+                'klarna_pay_now',
+                'klarna_pay_over_time',
+                'klarna_direct_debit',
+                'klarna_direct_bank_transfer'
+            ];
+            $methods = "'" . implode("','", $methods) . "'";
+            $installer->getConnection()->update(
+                $installer->getTable('klarna_payments_quote'),
+                ['is_active' => 0, 'payment_method_info' => '{}'],
+                '`payment_method_info` is null'
+            );
+            $installer->getConnection()
+                ->query("update `{$installer->getTable('sales_order_payment')}`" .
+                    " set `additional_information`=" .
+                    " replace(`additional_information`, '}', concat(',\"method_code\":\"', `method`, '\"}'))" .
+                    " where `method` in ({$methods})");
+            $installer->getConnection()
+                ->update(
+                    $installer->getTable('sales_order_payment'),
+                    ['method' => 'klarna_kp'],
+                    "`method` in ({$methods})"
+                );
+            foreach (['sales_order_grid', 'sales_invoice_grid', 'sales_creditmemo_grid'] as $table) {
+                $installer->getConnection()
+                    ->update(
+                        $installer->getTable($table),
+                        ['payment_method' => 'klarna_kp'],
+                        "`payment_method` in ({$methods})"
+                    );
+            }
+        }
         $installer->endSetup();
     }
 }

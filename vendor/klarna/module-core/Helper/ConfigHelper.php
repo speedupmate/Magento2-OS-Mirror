@@ -53,6 +53,10 @@ class ConfigHelper extends AbstractHelper
      */
     private $addressRepository;
 
+    const KP_METHOD_CODE = 'klarna_kp';
+
+    const KCO_METHOD_CODE = 'klarna_kco';
+
     /**
      * ConfigHelper constructor.
      *
@@ -106,7 +110,7 @@ class ConfigHelper extends AbstractHelper
         if (!$paymentMethod) {
             $paymentMethod = $this->code;
         }
-        $scope = ($store === null ? ScopeConfigInterface::SCOPE_TYPE_DEFAULT : ScopeInterface::SCOPE_STORES);
+        $scope = $this->getScope($store);
         return $this->scopeConfig->getValue(sprintf('payment/' . $paymentMethod . '/%s', $config), $scope, $store);
     }
 
@@ -116,7 +120,7 @@ class ConfigHelper extends AbstractHelper
      * @param float $float
      *
      * @return int
-     * @deprecated
+     * @deprecated 4.0.1
      * @see DataConverter::toApiFloat()
      */
     public function toApiFloat($float)
@@ -134,7 +138,7 @@ class ConfigHelper extends AbstractHelper
      */
     public function getApiConfig($config, $store = null)
     {
-        $scope = ($store === null ? ScopeConfigInterface::SCOPE_TYPE_DEFAULT : ScopeInterface::SCOPE_STORES);
+        $scope = $this->getScope($store);
         return $this->scopeConfig->getValue(sprintf('klarna/api/%s', $config), $scope, $store);
     }
 
@@ -157,7 +161,7 @@ class ConfigHelper extends AbstractHelper
      */
     public function getCheckoutDesignConfig($store = null)
     {
-        $scope = ($store === null ? ScopeConfigInterface::SCOPE_TYPE_DEFAULT : ScopeInterface::SCOPE_STORES);
+        $scope = $this->getScope($store);
         $designOptions = $this->scopeConfig->getValue('checkout/' . $this->code . '_design', $scope, $store);
 
         return is_array($designOptions) ? $designOptions : [];
@@ -172,7 +176,7 @@ class ConfigHelper extends AbstractHelper
      */
     public function getBaseCurrencyCode($store = null)
     {
-        $scope = ($store === null ? ScopeConfigInterface::SCOPE_TYPE_DEFAULT : ScopeInterface::SCOPE_STORES);
+        $scope = $this->getScope($store);
         return $this->scopeConfig->getValue('currency/options/base', $scope, $store);
     }
 
@@ -190,7 +194,7 @@ class ConfigHelper extends AbstractHelper
         if (null === $paymentMethod) {
             $paymentMethod = $this->code;
         }
-        $scope = ($store === null ? ScopeConfigInterface::SCOPE_TYPE_DEFAULT : ScopeInterface::SCOPE_STORES);
+        $scope = $this->getScope($store);
         return $this->scopeConfig->isSetFlag(sprintf('payment/' . $paymentMethod . '/%s', $config), $scope, $store);
     }
 
@@ -204,7 +208,7 @@ class ConfigHelper extends AbstractHelper
      */
     public function isApiConfigFlag($config, $store = null)
     {
-        $scope = ($store === null ? ScopeConfigInterface::SCOPE_TYPE_DEFAULT : ScopeInterface::SCOPE_STORES);
+        $scope = $this->getScope($store);
         return $this->scopeConfig->isSetFlag(sprintf('klarna/api/%s', $config), $scope, $store);
     }
 
@@ -233,7 +237,7 @@ class ConfigHelper extends AbstractHelper
         if (null === $paymentMethod) {
             $paymentMethod = $this->code;
         }
-        $scope = ($store === null ? ScopeConfigInterface::SCOPE_TYPE_DEFAULT : ScopeInterface::SCOPE_STORES);
+        $scope = $this->getScope($store);
         return $this->scopeConfig->isSetFlag(sprintf('checkout/%s/%s', $paymentMethod, $config), $scope, $store);
     }
 
@@ -298,7 +302,7 @@ class ConfigHelper extends AbstractHelper
      */
     public function getCheckoutConfig($config, $store = null)
     {
-        $scope = ($store === null ? ScopeConfigInterface::SCOPE_TYPE_DEFAULT : ScopeInterface::SCOPE_STORES);
+        $scope = $this->getScope($store);
         return $this->scopeConfig->getValue(sprintf('checkout/%s/%s', $this->code, $config), $scope, $store);
     }
 
@@ -319,5 +323,43 @@ class ConfigHelper extends AbstractHelper
             return $defaultBillingAddress->getCompany();
         }
         return false;
+    }
+
+    /**
+     * Determine if FPT (Fixed Product Tax) is set to be included in the subtotal
+     *
+     * @param Store $store
+     * @return int
+     */
+    public function getDisplayInSubtotalFpt($store = null)
+    {
+        $scope = $this->getScope($store);
+        return $this->scopeConfig->getValue('tax/weee/include_in_subtotal', $scope, $store);
+    }
+
+    /**
+     * Checking if Fixed Product Taxes are enabled
+     *
+     * @param Store $store
+     * @return bool
+     */
+    public function isFptEnabled($store = null)
+    {
+        $scope = $this->getScope($store);
+        return $this->scopeConfig->getValue('tax/weee/enable', $scope, $store);
+    }
+
+    /**
+     * Get the scope value of the store
+     *
+     * @param Store $store
+     * @return string
+     */
+    private function getScope($store = null)
+    {
+        if ($store === null) {
+            return ScopeConfigInterface::SCOPE_TYPE_DEFAULT;
+        }
+        return ScopeInterface::SCOPE_STORES;
     }
 }

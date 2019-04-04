@@ -31,6 +31,9 @@
                         <item name="authorityToLeave" xsi:type="string">Temando_Shipping::shipping/view/form/addon/authority_to_leave.phtml</item>
                         <item name="addressType" xsi:type="string">Temando_Shipping::shipping/view/form/addon/address_type.phtml</item>
                         <item name="collectionPoints" xsi:type="string">Temando_Shipping::shipping/view/form/addon/collection_point.phtml</item>
+                        <item name="deliveryAvailability" xsi:type="string">Temando_Shipping::shipping/view/form/addon/delivery_availability.phtml</item>
+                        <item name="directDeliveryOnly" xsi:type="string">Temando_Shipping::shipping/view/form/addon/direct_delivery_only.phtml</item>
+                        <item name="adultSignature" xsi:type="string">Temando_Shipping::shipping/view/form/addon/adult_signature.phtml</item>
                     </argument>
                 </arguments>
             </block>

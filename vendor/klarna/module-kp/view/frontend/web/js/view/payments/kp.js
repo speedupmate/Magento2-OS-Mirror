@@ -52,40 +52,8 @@ define(
         }
       },
 
-      getTagLine: function() {
-        var code = this.getCode();
-
-        switch (code) {
-          case 'klarna_pay_now':
-            return $t('Simple and secure.');
-          case 'klarna_pay_later':
-            return $t('Pay X days after delivery');
-          case 'klarna_pay_over_time':
-            return $t('Pay over time');
-          case 'klarna_direct_debit':
-            return $t('Fast and simple');
-          case 'klarna_direct_bank_transfer':
-            return $t('Simple and secure.');
-          default:
-            return $t('Klarna Payments');
-        }
-      },
-
       getLogoUrl: function() {
-        var code = this.getCode();
-
-        switch (code) {
-          case 'klarna_direct_bank_transfer':
-          case 'klarna_direct_debit':
-          case 'klarna_pay_now':
-            return config.logos.pay_now;
-          case 'klarna_pay_later':
-            return config.logos.pay_later;
-          case 'klarna_pay_over_time':
-            return config.logos.slice_it;
-          default:
-            return '';
-        }
+        return config.getLogo(this.getCategoryId());
       },
 
       /**
@@ -116,6 +84,10 @@ define(
         return true;
       },
 
+      getTitle: function () {
+        return config.getTitle(this.getCategoryId());
+      },
+
       /**
        * Get data
        * @returns {Object}
@@ -124,6 +96,8 @@ define(
         return {
           'method': this.item.method,
           'additional_data': {
+            'method_title': this.getTitle(),
+            'logo': this.getLogoUrl(),
             'authorization_token': config.authorization_token()
           }
         };
@@ -246,8 +220,10 @@ define(
           self.showButton(true);
         });
 
+      },
+      getBillingAddressFormName: function () {
+          return 'billing-address-form-klarna_kp';
       }
-
     });
   }
 );

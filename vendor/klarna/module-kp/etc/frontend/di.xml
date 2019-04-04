@@ -26,4 +26,7 @@
     <type name="Klarna\Ordermanagement\Controller\Api\Notification">
         <plugin sortOrder="1" name="klarnaKpNotification" type="Klarna\Kp\Plugin\Controller\Api\NotificationPlugin"/>
     </type>
+    <type name="Magento\Payment\Model\MethodList">
+        <plugin sortOrder="1" name="klarnaKpMethodList" type="Klarna\Kp\Plugin\Model\MethodListPlugin"/>
+    </type>
 </config>

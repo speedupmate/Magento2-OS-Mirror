@@ -67,6 +67,24 @@ class DeliveryOptionManagement
     }
 
     /**
+     * Indicate a collection point search as pending. That is, the delivery
+     * option was chosen but no collection point search was triggered yet.
+     *
+     * @param int $shippingAddressId
+     * @param string $selectedOption
+     * @return void
+     * @throws CouldNotDeleteException
+     */
+    private function setOptionPending($shippingAddressId, $selectedOption)
+    {
+        if ($selectedOption !== self::DELIVERY_OPTION_TO_COLLECTION_POINT) {
+            return;
+        }
+
+        $this->collectionPointManagement->saveSearchRequest($shippingAddressId, '', '', true);
+    }
+
+    /**
      * Perform actions when the selected delivery option changed.
      *
      * @param int $shippingAddressId
@@ -77,6 +95,7 @@ class DeliveryOptionManagement
     {
         try {
             $this->cleanUpPreviousOption($shippingAddressId, $selectedOption);
+            $this->setOptionPending($shippingAddressId, $selectedOption);
         } catch (CouldNotDeleteException $exception) {
             throw new LocalizedException(__('Delivery option processing failed.'));
         }

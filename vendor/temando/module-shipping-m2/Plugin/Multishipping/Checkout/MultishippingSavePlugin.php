@@ -9,9 +9,11 @@ use Magento\Framework\Api\AttributeInterfaceFactory;
 use Magento\Framework\App\RequestInterface;
 use Magento\Framework\Exception\LocalizedException;
 use Magento\Multishipping\Model\Checkout\Type\Multishipping;
+use Magento\Store\Model\StoreManagerInterface;
 use Temando\Shipping\Api\Data\Checkout\AddressInterface;
 use Temando\Shipping\Api\Data\Checkout\AddressInterfaceFactory;
 use Temando\Shipping\Model\Checkout\Schema\CheckoutFieldsSchema;
+use Temando\Shipping\Model\Config\ModuleConfigInterface;
 use Temando\Shipping\Model\ResourceModel\Repository\AddressRepositoryInterface;
 
 /**
@@ -48,25 +50,42 @@ class MultishippingSavePlugin
     private $schema;
 
     /**
+     * @var ModuleConfigInterface
+     */
+    private $moduleConfig;
+
+    /**
+     * @var StoreManagerInterface
+     */
+    private $storeManager;
+
+    /**
      * MultishippingSavePlugin constructor.
-     * @param RequestInterface $request
+     *
+     * @param RequestInterface           $request
      * @param AddressRepositoryInterface $addressRepository
-     * @param AddressInterfaceFactory $addressFactory
-     * @param CheckoutFieldsSchema $schema
-     * @param AttributeInterfaceFactory $attributeFactory
+     * @param AddressInterfaceFactory    $addressFactory
+     * @param CheckoutFieldsSchema       $schema
+     * @param AttributeInterfaceFactory  $attributeFactory
+     * @param ModuleConfigInterface      $moduleConfig
+     * @param StoreManagerInterface      $storeManager
      */
     public function __construct(
         RequestInterface $request,
         AddressRepositoryInterface $addressRepository,
         AddressInterfaceFactory $addressFactory,
         CheckoutFieldsSchema $schema,
-        AttributeInterfaceFactory $attributeFactory
+        AttributeInterfaceFactory $attributeFactory,
+        ModuleConfigInterface $moduleConfig,
+        StoreManagerInterface $storeManager
     ) {
-        $this->request = $request;
+        $this->request           = $request;
         $this->addressRepository = $addressRepository;
-        $this->addressFactory = $addressFactory;
-        $this->schema = $schema;
-        $this->attributeFactory = $attributeFactory;
+        $this->addressFactory    = $addressFactory;
+        $this->schema            = $schema;
+        $this->attributeFactory  = $attributeFactory;
+        $this->moduleConfig      = $moduleConfig;
+        $this->storeManager      = $storeManager;
     }
 
     /**
@@ -146,6 +165,10 @@ class MultishippingSavePlugin
      */
     public function afterSave(Multishipping $subject, $result)
     {
+        if (!$this->moduleConfig->isEnabled($this->storeManager->getStore()->getId())) {
+            return $result;
+        }
+
         $ship = $this->request->getParam('ship');
 
         if (empty($ship)) {
@@ -157,6 +180,10 @@ class MultishippingSavePlugin
 
         foreach ($ship as $quoteItems) {
             foreach ($quoteItems as $itemId => $quoteItem) {
+                // Skip item if it has no address (virtual or downloadable...)
+                if (!isset($quoteItem['address'])) {
+                    continue;
+                }
                 // obtain shipping address for current quote item
                 $addressId = $quoteItem['address'];
                 $shippingAddress = $subject->getQuote()->getShippingAddressByCustomerAddressId($addressId);

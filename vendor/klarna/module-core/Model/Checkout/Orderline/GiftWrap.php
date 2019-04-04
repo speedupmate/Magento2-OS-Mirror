@@ -43,7 +43,6 @@ class GiftWrap extends AbstractLine
      */
     private $itemType;
 
-
     /**
      * @var GiftWrapping
      */

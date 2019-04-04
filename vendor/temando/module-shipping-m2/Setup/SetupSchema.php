@@ -545,4 +545,39 @@ class SetupSchema
 
         $installer->getConnection(self::SALES_CONNECTION_NAME)->createTable($table);
     }
+
+    /**
+     * Add an indicator for collection point checkout being in progress.
+     *
+     * @param SchemaSetupInterface|\Magento\Framework\Module\Setup $installer
+     * @return void
+     */
+    public function addCollectionPointSearchPendingColumn(SchemaSetupInterface $installer)
+    {
+        $tableName = $installer->getTable(self::TABLE_COLLECTION_POINT_SEARCH, self::CHECKOUT_CONNECTION_NAME);
+
+        // allow empty values for pending searches
+        $installer->getConnection(self::CHECKOUT_CONNECTION_NAME)->modifyColumn(
+            $tableName,
+            SearchRequestInterface::COUNTRY_ID,
+            ['type' => Table::TYPE_TEXT, 'length' => 2, 'nullable' => true]
+        );
+        $installer->getConnection(self::CHECKOUT_CONNECTION_NAME)->modifyColumn(
+            $tableName,
+            SearchRequestInterface::POSTCODE,
+            ['type' => Table::TYPE_TEXT, 'length' => 255, 'nullable' => true]
+        );
+
+        // add pending indicator
+        $installer->getConnection(self::CHECKOUT_CONNECTION_NAME)->addColumn(
+            $tableName,
+            SearchRequestInterface::PENDING,
+            [
+                'type'     => \Magento\Framework\DB\Ddl\Table::TYPE_BOOLEAN,
+                'nullable' => false,
+                'default' => 0,
+                'comment'  => 'Pending'
+            ]
+        );
+    }
 }

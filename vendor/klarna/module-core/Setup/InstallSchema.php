@@ -32,15 +32,19 @@ class InstallSchema implements InstallSchemaInterface
     {
         $installer = $setup;
 
+        if ($installer->tableExists('klarna_core_order')) {
+            return;
+        }
+
         $installer->startSetup();
 
         /**
          * Create table 'klarna_kco_order'
          */
         $table = $installer->getConnection()
-            ->newTable($installer->getTable('klarna_kco_order'))
+            ->newTable($installer->getTable('klarna_core_order'))
             ->addColumn(
-                'kco_order_id',
+                'id',
                 Table::TYPE_INTEGER,
                 null,
                 [
@@ -49,21 +53,28 @@ class InstallSchema implements InstallSchemaInterface
                     'nullable' => false,
                     'primary'  => true,
                 ],
-                'Order Id'
+                'Entity Id'
             )
             ->addColumn(
-                'klarna_checkout_id',
+                'klarna_order_id',
                 Table::TYPE_TEXT,
                 255,
                 [],
-                'Klarna Checkout Id'
+                'Klarna Order Id'
             )
             ->addColumn(
-                'klarna_reservation_id',
+                'session_id',
                 Table::TYPE_TEXT,
                 255,
                 [],
-                'Klarna Reservation Id'
+                'Session Id'
+            )
+            ->addColumn(
+                'reservation_id',
+                Table::TYPE_TEXT,
+                255,
+                [],
+                'Reservation Id'
             )
             ->addColumn(
                 'order_id',
@@ -87,7 +98,7 @@ class InstallSchema implements InstallSchemaInterface
             )
             ->addForeignKey(
                 $installer->getFkName(
-                    'klarna_kco_order',
+                    'klarna_core_order',
                     'order_id',
                     'sales_order',
                     'entity_id'
@@ -98,7 +109,7 @@ class InstallSchema implements InstallSchemaInterface
                 Table::ACTION_CASCADE,
                 Table::ACTION_CASCADE
             )
-            ->setComment('Klarna Checkout Order');
+            ->setComment('Klarna Order');
         $installer->getConnection()->createTable($table);
 
         $installer->endSetup();

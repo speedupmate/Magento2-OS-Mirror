@@ -42,5 +42,6 @@
         <line id="customer_balance" class="KpCustomerBalanceOrderLine"/>
         <line id="reward" class="KpRewardOrderLine"/>
         <line id="gift_wrap" class="KpGiftWrapLine"/>
+        <line id="surcharge" class="KpSurchargeLine"/>
     </order_lines>
 </klarna>

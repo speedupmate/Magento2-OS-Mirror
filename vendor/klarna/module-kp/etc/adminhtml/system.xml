@@ -20,6 +20,9 @@
                         <label>Klarna Payments</label>
                         <attribute type="expanded">1</attribute>
                         <frontend_model>Magento\Config\Block\System\Config\Form\Fieldset</frontend_model>
+                        <field id="onboarding_link" type="note" translate="label" sortOrder="0" showInDefault="1" showInWebsite="1" showInStore="1">
+                            <frontend_model>Klarna\Kp\Block\Adminhtml\System\Config\Form\Field\Onboarding</frontend_model>
+                        </field>
                         <field id="active" translate="label" type="select" showInDefault="1" showInWebsite="1"
                                showInStore="1">
                             <label>Enable this Solution</label>

@@ -17,6 +17,7 @@ use Magento\Tax\Model\Calculation;
 use Magento\Store\Api\Data\StoreInterface;
 use Klarna\Core\Helper\DataConverter;
 use Magento\Quote\Model\Quote;
+use Magento\Sales\Model\Order;
 use Magento\Framework\DataObject;
 
 /**
@@ -41,7 +42,6 @@ class GiftWrapping extends AbstractHelper
      */
     const XML_PATH_TAX_CLASS_GW = 'tax/classes/wrapping_tax_class';
 
-
     /**
      * GiftWrapping Helper.
      *
@@ -58,19 +58,25 @@ class GiftWrapping extends AbstractHelper
         $this->dataConverter = $dataConverter;
     }
 
-
     /**
      * Calculate gift wrapping tax rate for an object
      *
-     * @param Quote $quote
+     * @param Quote|Order $object
      * @param StoreInterface $store
      * @return float
      */
-    public function getGiftWrappingTaxRate(Quote $quote, StoreInterface $store)
+    public function getGiftWrappingTaxRate($object, StoreInterface $store)
     {
+        //if address object doesn't contain valid data tax rate will be mis-calculated to 0
+        //in this case use null instead
+        $billingAddress = $this->isAddressValidForTaxCalculation($object->getBillingAddress())
+            ? $object->getBillingAddress() : null;
+        $shippingAddress = $this->isAddressValidForTaxCalculation($object->getBillingAddress())
+            ? $object->getBillingAddress() : null;
+
         $request = $this->calculator->getRateRequest(
-            $quote->getShippingAddress(),
-            $quote->getBillingAddress(),
+            $shippingAddress,
+            $billingAddress,
             null,
             $store
         );
@@ -81,6 +87,17 @@ class GiftWrapping extends AbstractHelper
         );
 
         return $this->calculator->getRate($request->setProductClassId($taxRateId));
+    }
+
+    /**
+     * check if address is ready to send for calculating tax
+     *
+     * @param \Magento\Sales\Api\Data\OrderAddressInterface|\Magento\Quote\Api\Data\AddressInterface $address
+     * @return bool
+     */
+    private function isAddressValidForTaxCalculation($address)
+    {
+        return (bool)$address->getCountryId();
     }
 
     /**
@@ -107,6 +124,7 @@ class GiftWrapping extends AbstractHelper
                 && $taxRate > 0) {
                 $gwTotalAmount = $quote->getGwBasePrice() * ((100 + $taxRate) / 100);
                 $taxAmount = $gwTotalAmount * ($taxRate / (100 + $taxRate));
+                $taxAmount = (int)$this->dataConverter->toApiFloat($taxAmount);
                 //additional validation to ensure only gift wrapping tax is missing from quote total
                 if ($klarnaTotal == ($quoteTotal + $taxAmount)) {
                     return $taxAmount;

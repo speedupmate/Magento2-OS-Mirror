@@ -10,6 +10,7 @@ use Temando\Shipping\Model\Shipment\LocationInterface;
 use Temando\Shipping\Model\Shipment\PackageInterface;
 use Temando\Shipping\Model\Shipment\PackageItemInterface;
 use Temando\Shipping\Model\Shipment\ShipmentProvider;
+use Temando\Shipping\Model\Shipment\ShipmentProviderInterface;
 use Temando\Shipping\Model\ShipmentInterface;
 
 /**
@@ -47,6 +48,7 @@ class PrepareShipmentViewObserverTest extends \PHPUnit\Framework\TestCase
     {
         Bootstrap::getObjectManager()->removeSharedInstance(PrepareShipmentViewObserver::class);
         Bootstrap::getObjectManager()->removeSharedInstance(ShipmentProvider::class);
+        Bootstrap::getObjectManager()->removeSharedInstance(ShipmentProviderInterface\Proxy::class);
 
         parent::tearDown();
     }

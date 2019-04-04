@@ -16,6 +16,7 @@ use Klarna\Core\Helper\DataConverter;
 use Klarna\Core\Helper\KlarnaConfig;
 use Klarna\Core\Model\Api\Exception as KlarnaApiException;
 use Klarna\Core\Model\Checkout\Orderline\Collector;
+use Klarna\Core\Model\Fpt\Rate;
 use Klarna\Kp\Api\Data\RequestInterface;
 use Klarna\Kp\Model\Api\Request;
 use Klarna\Kp\Model\Payment\Kp;
@@ -43,6 +44,9 @@ class Kasper extends \Klarna\Core\Model\Api\Builder
      */
     private $dataConverter;
 
+    /** @var Rate $rate */
+    private $rate;
+
     /**
      * Kasper constructor.
      *
@@ -50,6 +54,7 @@ class Kasper extends \Klarna\Core\Model\Api\Builder
      * @param Collector                                   $collector
      * @param Url                                         $url
      * @param ConfigHelper                                $configHelper
+     * @param Rate                                        $rate
      * @param DirectoryHelper                             $directoryHelper
      * @param \Magento\Framework\Stdlib\DateTime\DateTime $coreDate
      * @param DataObject\Copy                             $objCopyService
@@ -66,6 +71,7 @@ class Kasper extends \Klarna\Core\Model\Api\Builder
         Collector $collector,
         Url $url,
         ConfigHelper $configHelper,
+        Rate $rate,
         DirectoryHelper $directoryHelper,
         \Magento\Framework\Stdlib\DateTime\DateTime $coreDate,
         \Magento\Framework\DataObject\Copy $objCopyService,
@@ -92,6 +98,7 @@ class Kasper extends \Klarna\Core\Model\Api\Builder
         $this->prefix = 'kp';
         $this->dataConverter = $dataConverter;
         $this->requestBuilder = $requestBuilder;
+        $this->rate = $rate;
     }
 
     /**
@@ -147,13 +154,19 @@ class Kasper extends \Klarna\Core\Model\Api\Builder
 
         $address = $quote->isVirtual() ? $quote->getBillingAddress() : $quote->getShippingAddress();
 
+        $tax = $address->getBaseTaxAmount();
+        if ($this->configHelper->isFptEnabled($store) && !$this->configHelper->getDisplayInSubtotalFpt($store)) {
+            $fptResult = $this->rate->getFptTax($quote);
+            $tax += $fptResult['tax'];
+        }
+
         $this->requestBuilder->setPurchaseCountry($this->directoryHelper->getDefaultCountry($store))
             ->setPurchaseCurrency($quote->getBaseCurrencyCode())
             ->setLocale(str_replace('_', '-', $this->configHelper->getLocaleCode()))
             ->setOptions($options)
             ->setOrderAmount((int)$this->dataConverter->toApiFloat($address->getBaseGrandTotal()))
             ->addOrderlines($this->getOrderLines($quote->getStore()))
-            ->setOrderTaxAmount((int)$this->dataConverter->toApiFloat($address->getBaseTaxAmount()))
+            ->setOrderTaxAmount((int)$this->dataConverter->toApiFloat($tax))
             ->setMerchantUrls($this->processMerchantUrls())
             ->validate($requiredAttributes, self::GENERATE_TYPE_CREATE);
 
@@ -290,12 +303,18 @@ class Kasper extends \Klarna\Core\Model\Api\Builder
         $this->addBillingAddress($this->getAddressData($quote, Address::TYPE_BILLING));
         $this->addShippingAddress($this->getAddressData($quote, Address::TYPE_SHIPPING));
 
+        $tax = $address->getBaseTaxAmount();
+        if ($this->configHelper->isFptEnabled($store) && !$this->configHelper->getDisplayInSubtotalFpt($store)) {
+            $fptResult = $this->rate->getFptTax($quote);
+            $tax += $fptResult['tax'];
+        }
+
         $this->requestBuilder->setPurchaseCountry($this->directoryHelper->getDefaultCountry($store))
             ->setPurchaseCurrency($quote->getBaseCurrencyCode())
             ->setLocale(str_replace('_', '-', $this->configHelper->getLocaleCode()))
             ->setOrderAmount((int)$this->dataConverter->toApiFloat($address->getBaseGrandTotal()))
             ->addOrderlines($this->getOrderLines($quote->getStore()))
-            ->setOrderTaxAmount((int)$this->dataConverter->toApiFloat($address->getBaseTaxAmount()))
+            ->setOrderTaxAmount((int)$this->dataConverter->toApiFloat($tax))
             ->setMerchantUrls($this->processMerchantUrls())
             ->setMerchantReferences($this->getMerchantReferences($quote))
             ->validate($requiredAttributes, self::GENERATE_TYPE_PLACE);

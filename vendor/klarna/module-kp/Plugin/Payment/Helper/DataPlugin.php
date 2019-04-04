@@ -21,6 +21,7 @@ use Magento\Payment\Model\MethodInterface;
 use Magento\Quote\Api\CartRepositoryInterface;
 use Magento\Quote\Api\Data\CartInterface;
 use Magento\Sales\Api\OrderRepositoryInterface;
+use Magento\Store\Model\StoreManagerInterface;
 use Magento\Store\Model\ScopeInterface;
 
 /**
@@ -67,6 +68,11 @@ class DataPlugin
     private $config;
 
     /**
+     * @var StoreManagerInterface $storeManager
+     */
+    private $storeManager;
+
+    /**
      * DataPlugin constructor.
      *
      * @param RequestInterface           $request
@@ -82,7 +88,8 @@ class DataPlugin
         CartRepositoryInterface $mageQuoteRepository,
         Session $session,
         ScopeConfigInterface $config,
-        PaymentMethodListInterface $paymentMethodList
+        PaymentMethodListInterface $paymentMethodList,
+        StoreManagerInterface $storeManager
     ) {
         $this->request = $request;
         $this->orderRepository = $orderRepository;
@@ -90,6 +97,7 @@ class DataPlugin
         $this->session = $session;
         $this->config = $config;
         $this->paymentMethodList = $paymentMethodList;
+        $this->storeManager = $storeManager;
     }
 
     /**
@@ -99,19 +107,28 @@ class DataPlugin
      * @param                              $result
      * @return array
      * @SuppressWarnings(PMD.UnusedFormalParameter)
+     * @throws NoSuchEntityException
      */
     public function afterGetPaymentMethods(\Magento\Payment\Helper\Data $subject, $result)
     {
-        if (!$this->config->isSetFlag('payment/' . Kp::METHOD_CODE . '/active')) {
+        $store = $this->storeManager->getStore();
+        $scope = ($store === null ? ScopeConfigInterface::SCOPE_TYPE_DEFAULT : ScopeInterface::SCOPE_STORES);
+
+        if (!$this->config->isSetFlag('payment/' . Kp::METHOD_CODE . '/active', $scope, $store)) {
             return $result;
         }
-        $methods = $this->paymentMethodList->getKlarnaMethodCodes($this->getQuote());
+        $quote = $this->getQuote();
+        if (!$quote) {
+            return $result;
+        }
+        $methods = $this->paymentMethodList->getKlarnaMethodInfo($quote);
         if (empty($methods)) {
             return $result;
         }
         foreach ($methods as $method) {
-            $result[$method] = $result['klarna_kp'];
-            $result[$method]['title'] = $this->paymentMethodList->getPaymentMethod($method)->getTitle();
+            $code = 'klarna_' . $method->identifier;
+            $result[$code] = $result['klarna_kp'];
+            $result[$code]['title'] = $method->name;
         }
         return $result;
     }
@@ -167,8 +184,7 @@ class DataPlugin
         if (false === strpos($code, 'klarna_')) {
             return $proceed($code);
         }
-        $methods = $this->paymentMethodList->getKlarnaMethodCodes();
-        if (!in_array($code, $methods)) {
+        if ($code === 'klarna_kco') {
             return $proceed($code);
         }
         return $this->paymentMethodList->getPaymentMethod($code);

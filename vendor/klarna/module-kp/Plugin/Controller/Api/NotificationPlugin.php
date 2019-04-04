@@ -10,6 +10,7 @@
 
 namespace Klarna\Kp\Plugin\Controller\Api;
 
+use Klarna\Core\Helper\ConfigHelper;
 use Klarna\Kp\Model\Payment\Kp;
 use Klarna\Ordermanagement\Controller\Api\Notification;
 use Magento\Sales\Model\Order;
@@ -35,7 +36,7 @@ class NotificationPlugin
         $method,
         $status = null
     ) {
-        if (in_array($method, Kp::KLARNA_METHODS)) {
+        if ($method !== ConfigHelper::KCO_METHOD_CODE) {
             $method = Kp::METHOD_CODE;
         }
         return [$order, $method, $status];

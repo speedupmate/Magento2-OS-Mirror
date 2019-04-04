@@ -62,18 +62,25 @@ class QuotationRequest
      * Create a properly formatted Quote Request for the Vertex API
      *
      * @param AddressInterface $taxAddress
+     * @param int|null $customerGroupId
      * @return array
      * @throws \Magento\Framework\Exception\LocalizedException
      * @throws \Magento\Framework\Exception\NoSuchEntityException
      */
-    public function getFormattedRequestData(AddressInterface $taxAddress)
+    public function getFormattedRequestData(AddressInterface $taxAddress, $customerGroupId = null)
     {
         $date = $this->dateTime->date('Y-m-d');
         $taxLineItems = [];
-        $taxLineItems = array_merge($taxLineItems, $this->getFormattedItemData($taxAddress));
-        $taxLineItems[] = $this->lineItemShippingFormatter->getFormattedShippingLineItemData($taxAddress);
-        $taxLineItems = array_merge($taxLineItems, $this->getFormattedOrderGiftWrapData($taxAddress));
-        $taxLineItems = array_merge($taxLineItems, $this->getFormattedOrderPrintCardData($taxAddress));
+        $taxLineItems = array_merge($taxLineItems, $this->getFormattedItemData($taxAddress, $customerGroupId));
+        $taxLineItems[] = $this->lineItemShippingFormatter->getFormattedShippingLineItemData(
+            $taxAddress,
+            $customerGroupId
+        );
+        $taxLineItems = array_merge($taxLineItems, $this->getFormattedOrderGiftWrapData($taxAddress, $customerGroupId));
+        $taxLineItems = array_merge(
+            $taxLineItems,
+            $this->getFormattedOrderPrintCardData($taxAddress, $customerGroupId)
+        );
 
         $request = $this->requestHeaderFormatter->getFormattedHeaderData();
 
@@ -91,11 +98,12 @@ class QuotationRequest
      * Create properly formatted line item data for a Quote Request
      *
      * @param AddressInterface $taxAddress
+     * @param int $customerGroupId
      * @return array
      * @throws \Magento\Framework\Exception\LocalizedException
      * @throws \Magento\Framework\Exception\NoSuchEntityException
      */
-    private function getFormattedItemData(AddressInterface $taxAddress)
+    private function getFormattedItemData(AddressInterface $taxAddress, $customerGroupId = null)
     {
         $giftWrappingEnabled = $this->moduleManager->isEnabled('Magento_GiftWrapping');
 
@@ -105,19 +113,32 @@ class QuotationRequest
         foreach ($taxAddress->getAllVisibleItems() as $taxAddressItem) {
             if (!empty($taxAddressItem->getChildren()) && $taxAddressItem->isChildrenCalculated()) {
                 foreach ($taxAddressItem->getChildren() as $child) {
-                    $taxLineItems[] = $this->lineItemFormatter->getFormattedLineItemData($taxAddress, $child);
+                    $taxLineItems[] = $this->lineItemFormatter->getFormattedLineItemData(
+                        $taxAddress,
+                        $child,
+                        $customerGroupId
+                    );
 
                     if ($giftWrappingEnabled && $child->getData('gw_id')) {
-                        $taxLineItems[] = $this->lineItemFormatter->getFormattedItemGiftWrapData($taxAddress, $child);
+                        $taxLineItems[] = $this->lineItemFormatter->getFormattedItemGiftWrapData(
+                            $taxAddress,
+                            $child,
+                            $customerGroupId
+                        );
                     }
                 }
             } else {
-                $taxLineItems[] = $this->lineItemFormatter->getFormattedLineItemData($taxAddress, $taxAddressItem);
+                $taxLineItems[] = $this->lineItemFormatter->getFormattedLineItemData(
+                    $taxAddress,
+                    $taxAddressItem,
+                    $customerGroupId
+                );
 
                 if ($giftWrappingEnabled && $taxAddressItem->getData('gw_id')) {
                     $taxLineItems[] = $this->lineItemFormatter->getFormattedItemGiftWrapData(
                         $taxAddress,
-                        $taxAddressItem
+                        $taxAddressItem,
+                        $customerGroupId
                     );
                 }
             }
@@ -130,33 +151,35 @@ class QuotationRequest
      * Create properly formatted line item data of Order-level Giftwrapping for a Quote Request
      *
      * @param AddressInterface $taxAddress
+     * @param int|null $customerGroupId
      * @return array
      * @throws \Magento\Framework\Exception\LocalizedException
      * @throws \Magento\Framework\Exception\NoSuchEntityException
      */
-    private function getFormattedOrderGiftWrapData(AddressInterface $taxAddress)
+    private function getFormattedOrderGiftWrapData(AddressInterface $taxAddress, $customerGroupId = null)
     {
         if (!$taxAddress->getData('gw_id') || !$this->moduleManager->isEnabled('Magento_GiftWrapping')) {
             return [];
         }
 
-        return [$this->lineItemFormatter->getFormattedOrderGiftWrapData($taxAddress)];
+        return [$this->lineItemFormatter->getFormattedOrderGiftWrapData($taxAddress, $customerGroupId)];
     }
 
     /**
      * Create properly formatted line item data of Order-level Printed Cards for a Quote Request
      *
      * @param AddressInterface $taxAddress
+     * @param int $customerGroupId
      * @return array
      * @throws \Magento\Framework\Exception\LocalizedException
      * @throws \Magento\Framework\Exception\NoSuchEntityException
      */
-    private function getFormattedOrderPrintCardData(AddressInterface $taxAddress)
+    private function getFormattedOrderPrintCardData(AddressInterface $taxAddress, $customerGroupId = null)
     {
         if (!$taxAddress->getData('gw_add_card') || !$this->moduleManager->isEnabled('Magento_GiftWrapping')) {
             return [];
         }
 
-        return [$this->lineItemFormatter->getFormattedOrderPrintCardData($taxAddress)];
+        return [$this->lineItemFormatter->getFormattedOrderPrintCardData($taxAddress, $customerGroupId)];
     }
 }

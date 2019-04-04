@@ -21,8 +21,6 @@ class Index extends AbstractRegisteredAction
     const ADMIN_RESOURCE = 'Temando_Shipping::dispatches';
 
     /**
-     * Render template.
-     *
      * @return \Magento\Backend\Model\View\Result\Page
      */
     public function execute()

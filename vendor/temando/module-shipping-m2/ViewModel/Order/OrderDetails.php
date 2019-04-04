@@ -4,6 +4,7 @@
  */
 namespace Temando\Shipping\ViewModel\Order;
 
+use Magento\Backend\Model\UrlInterface;
 use Magento\Framework\Exception\NoSuchEntityException;
 use Magento\Framework\Stdlib\DateTime\TimezoneInterface;
 use Magento\Framework\View\Element\Block\ArgumentInterface;
@@ -50,25 +51,33 @@ class OrderDetails implements ArgumentInterface
     private $orderRepository;
 
     /**
+     * @var UrlInterface
+     */
+    private $urlBuilder;
+
+    /**
      * OrderDetails constructor.
      * @param TimezoneInterface $localeDate
      * @param StoreManagerInterface $storeManager
      * @param StoreGroupRepository $storeGroupRepository
      * @param WebsiteRepositoryInterface $websiteRepository
      * @param OrderRepositoryInterface $orderRepository
+     * @param UrlInterface $urlBuilder
      */
     public function __construct(
         TimezoneInterface $localeDate,
         StoreManagerInterface $storeManager,
         StoreGroupRepository $storeGroupRepository,
         WebsiteRepositoryInterface $websiteRepository,
-        OrderRepositoryInterface $orderRepository
+        OrderRepositoryInterface $orderRepository,
+        UrlInterface $urlBuilder
     ) {
         $this->localeDate = $localeDate;
         $this->storeManager = $storeManager;
         $this->storeGroupRepository = $storeGroupRepository;
         $this->websiteRepository = $websiteRepository;
         $this->orderRepository = $orderRepository;
+        $this->urlBuilder = $urlBuilder;
     }
 
     /**
@@ -147,5 +156,15 @@ class OrderDetails implements ArgumentInterface
         } catch (NoSuchEntityException $noSuchEntityException) {
             return '';
         }
+    }
+
+    /**
+     * @param string $orderId
+     *
+     * @return string
+     */
+    public function getViewActionUrl($orderId)
+    {
+        return $this->urlBuilder->getUrl('sales/order/view', ['order_id' => $orderId]);
     }
 }

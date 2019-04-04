@@ -29,14 +29,21 @@
             </tr>
             </thead>
             <tbody>
-            <?php /** @var \Magento\Sales\Model\Order\Shipment $failedShipment */ ?>
             <?php foreach ($failedShipments as $failedShipment) : ?>
                 <tr class="data-row">
                     <td><?= $block->escapeHtml($failedShipment->getData('shipment_id')) ?></td>
-                    <td><?= $block->escapeHtml($failedShipment->getData('message')) ?></td>
                     <td>
-                        <?php $shipmentUrl = $block->getShipmentUrl($failedShipment->getEntityId()) ?>
-                        <a href="<?= $block->escapeUrl($shipmentUrl) ?>"><?= $block->escapeHtml(__('View Shipment #%1', $failedShipment->getData('increment_id'))) ?></a>
+                        <?php $errors = $failedShipment->hasData('errors') ? $failedShipment->getData('errors') : []; ?>
+                        <?php foreach ($errors as $error) : ?>
+                            <p>
+                                <strong><?= $block->escapeHtml($error->getData('title')) ?></strong><br>
+                                <?= $block->escapeHtml($error->getData('detail')) ?>
+                            </p>
+                        <?php endforeach; ?>
+                    </td>
+                    <td>
+                        <?php $shipmentUrl = $block->getShipmentUrl($failedShipment->getShipmentId()) ?>
+                        <a href="<?= $block->escapeUrl($shipmentUrl) ?>"><?= $block->escapeHtml(__('View Shipment')) ?></a>
                     </td>
                 </tr>
             <?php endforeach; ?>

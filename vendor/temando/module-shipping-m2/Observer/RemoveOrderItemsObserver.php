@@ -6,6 +6,7 @@ namespace Temando\Shipping\Observer;
 
 use Magento\Framework\Event\Observer;
 use Magento\Framework\Event\ObserverInterface;
+use Magento\Sales\Api\Data\OrderInterface;
 use Temando\Shipping\Model\Shipping\Carrier;
 
 /**
@@ -39,7 +40,13 @@ class RemoveOrderItemsObserver implements ObserverInterface
             return;
         }
 
-        $shippingMethod = $formBlock->getOrder()->getShippingMethod(true);
+        $order = $formBlock->getOrder();
+        if (!$order instanceof OrderInterface || !$order->getData('shipping_method')) {
+            // wrong type, virtual or corrupt order
+            return;
+        }
+
+        $shippingMethod = $order->getShippingMethod(true);
         if ($shippingMethod->getData('carrier_code') !== Carrier::CODE) {
             return;
         }

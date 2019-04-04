@@ -7,6 +7,8 @@ namespace Temando\Shipping\Controller\Adminhtml\Shipment;
 
 use Magento\Backend\App\Action;
 use Magento\Backend\App\Action\Context;
+use Magento\Framework\Controller\ResultFactory;
+use Magento\Framework\Escaper;
 use Temando\Shipping\Model\ResourceModel\Repository\ShipmentRepositoryInterface;
 
 /**
@@ -30,24 +32,33 @@ class View extends Action
     private $shipmentRepository;
 
     /**
+     * @var Escaper
+     */
+    private $escaper;
+
+    /**
      * View constructor.
-     * @param Context $context
+     *
+     * @param Context                     $context
      * @param ShipmentRepositoryInterface $shipmentRepository
+     * @param Escaper                     $escaper
      */
     public function __construct(
         Context $context,
-        ShipmentRepositoryInterface $shipmentRepository
+        ShipmentRepositoryInterface $shipmentRepository,
+        Escaper $escaper
     ) {
         $this->shipmentRepository = $shipmentRepository;
+        $this->escaper            = $escaper;
         parent::__construct($context);
     }
 
     /**
-     * @return \Magento\Framework\Controller\Result\Redirect
+     * @return \Magento\Framework\Controller\AbstractResult
      */
     public function execute()
     {
-        $extShipmentId = $this->getRequest()->getParam('shipment_id');
+        $extShipmentId = $this->escaper->escapeHtml($this->getRequest()->getParam('shipment_id'));
 
         /** @var \Magento\Framework\Controller\Result\Redirect $resultRedirect */
         $resultRedirect = $this->resultRedirectFactory->create();
@@ -56,8 +67,14 @@ class View extends Action
             $shipmentId = $this->shipmentRepository->getReferenceByExtShipmentId($extShipmentId)->getShipmentId();
             $resultRedirect->setPath('sales/shipment/view', ['shipment_id' => $shipmentId]);
         } catch (\Magento\Framework\Exception\LocalizedException $exception) {
-            $this->messageManager->addExceptionMessage($exception, 'No shipment Id found');
-            $resultRedirect->setPath('sales/shipment/index');
+            $message = "Shipment '$extShipmentId' not found.";
+            $this->messageManager->addExceptionMessage($exception, __($message));
+
+            /** @var \Magento\Framework\Controller\Result\Forward $resultForward */
+            $resultForward = $this->resultFactory->create(ResultFactory::TYPE_FORWARD);
+            $resultForward->forward('noroute');
+
+            return $resultForward;
         }
 
         return $resultRedirect;

@@ -122,6 +122,7 @@ class OrderShip implements ArgumentInterface, CoreApiInterface, OrderShipInterfa
     {
         return [
             'entity_id',
+            'increment_id',
             'is_virtual',
             'store_id',
             'customer_id',
@@ -131,7 +132,7 @@ class OrderShip implements ArgumentInterface, CoreApiInterface, OrderShipInterfa
             'shipping_address_id',
             'weight',
             'total_qty_ordered',
-            'base_currency_code',
+            'base_currency_code'
         ];
     }
 

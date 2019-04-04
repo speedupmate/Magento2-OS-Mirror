@@ -30,6 +30,16 @@ class Shipment
     private $message;
 
     /**
+     * @var bool
+     */
+    private $isPaperless;
+
+    /**
+     * @var \Temando\Shipping\Rest\Response\Type\Completion\Attributes\Shipment\Error[]
+     */
+    private $errors = [];
+
+    /**
      * @return string
      */
     public function getId()
@@ -78,5 +88,39 @@ class Shipment
     public function setMessage($message)
     {
         $this->message = $message;
+    }
+
+    /**
+     * @return bool
+     */
+    public function getIsPaperless()
+    {
+        return $this->isPaperless;
+    }
+
+    /**
+     * @param bool $isPaperless
+     * @return void
+     */
+    public function setIsPaperless($isPaperless)
+    {
+        $this->isPaperless = $isPaperless;
+    }
+
+    /**
+     * @return \Temando\Shipping\Rest\Response\Type\Completion\Attributes\Shipment\Error[]
+     */
+    public function getErrors()
+    {
+        return $this->errors;
+    }
+
+    /**
+     * @param \Temando\Shipping\Rest\Response\Type\Completion\Attributes\Shipment\Error[] $errors
+     * @return void
+     */
+    public function setErrors(array $errors)
+    {
+        $this->errors = $errors;
     }
 }

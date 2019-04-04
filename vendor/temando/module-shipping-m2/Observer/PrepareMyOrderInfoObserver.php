@@ -6,6 +6,7 @@ namespace Temando\Shipping\Observer;
 
 use Magento\Framework\Event\Observer;
 use Magento\Framework\Event\ObserverInterface;
+use Magento\Sales\Api\Data\OrderInterface;
 use Temando\Shipping\Model\Shipping\Carrier;
 use Temando\Shipping\ViewModel\Order\Location;
 
@@ -63,7 +64,8 @@ class PrepareMyOrderInfoObserver implements ObserverInterface
         }
 
         $order = $infoBlock->getOrder();
-        if ($order->getIsVirtual()) {
+        if (!$order instanceof OrderInterface || !$order->getData('shipping_method')) {
+            // wrong type, virtual or corrupt order
             return;
         }
 

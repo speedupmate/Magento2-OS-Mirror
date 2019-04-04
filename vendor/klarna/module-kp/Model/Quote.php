@@ -127,9 +127,7 @@ class Quote extends AbstractModel implements QuoteInterface, IdentityInterface
     }
 
     /**
-     * Get Klarna Payment Methods
-     *
-     * @return string[]
+     * {@inheritdoc}
      */
     public function getPaymentMethods()
     {
@@ -141,10 +139,7 @@ class Quote extends AbstractModel implements QuoteInterface, IdentityInterface
     }
 
     /**
-     * Set Klarna Payment Methods
-     *
-     * @param string[]|string $methods
-     * @return $this
+     * {@inheritdoc}
      */
     public function setPaymentMethods($methods)
     {
@@ -153,6 +148,30 @@ class Quote extends AbstractModel implements QuoteInterface, IdentityInterface
         }
         $this->setData('payment_methods', implode(',', $methods));
         return $this;
+    }
+
+    /**
+     * {@inheritdoc}
+     */
+    public function setPaymentMethodInfo($methodinfo)
+    {
+        if (!is_array($methodinfo)) {
+            $methodinfo = [$methodinfo];
+        }
+        $this->setData('payment_method_info', json_encode($methodinfo));
+        return $this;
+    }
+
+    /**
+     * {@inheritdoc}
+     */
+    public function getPaymentMethodInfo()
+    {
+        $methods = $this->_getData('payment_method_info');
+        if (empty($methods)) {
+            return [];
+        }
+        return json_decode($methods);
     }
 
     /**

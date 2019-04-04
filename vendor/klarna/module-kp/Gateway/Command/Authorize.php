@@ -17,6 +17,7 @@ use Klarna\Core\Model\OrderFactory;
 use Klarna\Kp\Api\CreditApiInterface;
 use Klarna\Kp\Api\Data\RequestInterface;
 use Klarna\Kp\Api\QuoteRepositoryInterface;
+use Klarna\Kp\Model\Payment\Kp;
 use Magento\Payment\Gateway\Command;
 use Magento\Payment\Gateway\Command\CommandException;
 use Magento\Payment\Gateway\CommandInterface;
@@ -134,42 +135,43 @@ class Authorize implements CommandInterface
         $authorizationToken = $klarnaQuote->getAuthorizationToken();
         $result = $this->getKpApi()->placeOrder($authorizationToken, $data, $klarnaQuote->getSessionId());
 
-        if ($result->isSuccessfull()) {
-            switch ($result->getFraudStatus()) {
-                case self::FRAUD_STATUS_REJECTED:
-                    $payment->setIsFraudDetected(true);
-                    break;
-                case self::FRAUD_STATUS_PENDING:
-                    $payment->setIsTransactionPending(true);
-                    break;
-            }
-
-            $klarnaOrder = $this->klarnaOrderFactory->create();
-
-            $this->mageOrderRepository->save($order);
-            $klarnaOrder->setData([
-                'klarna_order_id' => $result->getOrderId(),
-                'reservation_id'  => $result->getOrderId(),
-                'session_id'      => $klarnaQuote->getSessionId(),
-                'order_id'        => $order->getId()
-            ]);
-            $this->klarnaOrderRepository->save($klarnaOrder);
-
-            if (!$klarnaOrder->getId() || !$klarnaOrder->getReservationId()) {
-                throw new \Klarna\Core\Exception(__('Unable to authorize payment for this order.'));
-            }
-
-            $payment->setTransactionId($result->getOrderId())->setIsTransactionClosed(0);
-        } else {
+        if (!$result->isSuccessfull()) {
             $response = $this->getKpApi()->cancelOrder($authorizationToken, $klarnaQuote->getSessionId());
             if (!$response->isSuccessfull()) {
                 $message = $response->getMessage()
                     ?: __('Unable to release authorization for the token %1', $authorizationToken);
                 throw new \Klarna\Core\Model\Api\Exception($message);
             }
-
             throw new \Klarna\Core\Exception(__('Unable to authorize payment for this order.'));
         }
+
+        switch ($result->getFraudStatus()) {
+            case self::FRAUD_STATUS_REJECTED:
+                $payment->setIsFraudDetected(true);
+                break;
+            case self::FRAUD_STATUS_PENDING:
+                $payment->setIsTransactionPending(true);
+                break;
+        }
+
+        $klarnaOrder = $this->klarnaOrderFactory->create();
+        $payment->getMethodInstance()->setCode(Kp::METHOD_CODE);
+        $order->getPayment()->setMethod(Kp::METHOD_CODE);
+
+        $this->mageOrderRepository->save($order);
+        $klarnaOrder->setData([
+            'klarna_order_id' => $result->getOrderId(),
+            'reservation_id'  => $result->getOrderId(),
+            'session_id'      => $klarnaQuote->getSessionId(),
+            'order_id'        => $order->getId()
+        ]);
+        $this->klarnaOrderRepository->save($klarnaOrder);
+
+        if (!$klarnaOrder->getId() || !$klarnaOrder->getReservationId()) {
+            throw new \Klarna\Core\Exception(__('Unable to authorize payment for this order.'));
+        }
+
+        $payment->setTransactionId($result->getOrderId())->setIsTransactionClosed(0);
         return null;
     }
 
@@ -179,6 +181,7 @@ class Authorize implements CommandInterface
      * @param CartInterface $quote
      *
      * @return \Klarna\Kp\Api\QuoteInterface
+     * @throws \Magento\Framework\Exception\NoSuchEntityException
      */
     private function getKlarnaQuote(CartInterface $quote)
     {

@@ -69,12 +69,12 @@ class PaymentMethodList implements \Klarna\Kp\Api\PaymentMethodListInterface
     public function getKlarnaMethodCodes(CartInterface $quote = null)
     {
         if (!$quote) {
-            return Kp::KLARNA_METHODS;
+            return [];
         }
         try {
             return $this->quoteRepository->getActiveByQuote($quote)->getPaymentMethods();
         } catch (NoSuchEntityException $e) {
-            return Kp::KLARNA_METHODS;
+            return [];
         }
     }
 
@@ -88,5 +88,17 @@ class PaymentMethodList implements \Klarna\Kp\Api\PaymentMethodListInterface
                 ->setCode($method);
         }
         return $this->paymentMethods[$method];
+    }
+
+    /**
+     * {@inheritdoc}
+     */
+    public function getKlarnaMethodInfo(CartInterface $quote)
+    {
+        try {
+            return $this->quoteRepository->getActiveByQuote($quote)->getPaymentMethodInfo();
+        } catch (NoSuchEntityException $e) {
+            return null;
+        }
     }
 }

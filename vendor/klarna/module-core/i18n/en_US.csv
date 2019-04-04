@@ -5,3 +5,5 @@
 "Requested order doesn't exist","Requested order doesn't exist"
 "Order with id ""%1"" does not exist.","Order with id ""%1"" does not exist."
 "Order with reservationId ""%1"" does not exist.","Order with reservationId ""%1"" does not exist."
+"Click on this %1 to visit the Klarna Merchant Onboarding Page and request credentials.","Click on this %1 to visit the Klarna Merchant Onboarding Page and request credentials."
+"link","link"

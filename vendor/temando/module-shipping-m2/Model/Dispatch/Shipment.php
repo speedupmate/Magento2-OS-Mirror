@@ -39,4 +39,12 @@ class Shipment extends DataObject implements ShipmentInterface
     {
         return $this->getData(ShipmentInterface::MESSAGE);
     }
+
+    /**
+     * @return ErrorInterface
+     */
+    public function getErrors()
+    {
+        return $this->getData(ShipmentInterface::ERRORS);
+    }
 }

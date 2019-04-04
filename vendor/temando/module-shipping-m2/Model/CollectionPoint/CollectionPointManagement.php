@@ -72,16 +72,23 @@ class CollectionPointManagement
      * @param int $addressId
      * @param string $countryId
      * @param string $postcode
+     * @param bool $pending
      * @return \Temando\Shipping\Api\Data\CollectionPoint\SearchRequestInterface
      * @throws CouldNotSaveException
      */
-    public function saveSearchRequest($addressId, $countryId, $postcode)
+    public function saveSearchRequest($addressId, $countryId, $postcode, $pending = false)
     {
-        $searchRequest = $this->searchRequestFactory->create(['data' => [
+        $data = [
             SearchRequestInterface::SHIPPING_ADDRESS_ID => $addressId,
-            SearchRequestInterface::COUNTRY_ID => $countryId,
-            SearchRequestInterface::POSTCODE => $postcode,
-        ]]);
+            SearchRequestInterface::PENDING => $pending,
+        ];
+
+        if ($countryId && $postcode) {
+            $data[SearchRequestInterface::COUNTRY_ID] = $countryId;
+            $data[SearchRequestInterface::POSTCODE] = $postcode;
+        }
+
+        $searchRequest = $this->searchRequestFactory->create(['data' => $data]);
 
         try {
             $this->searchRequestRepository->save($searchRequest);

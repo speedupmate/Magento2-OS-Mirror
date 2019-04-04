@@ -76,5 +76,9 @@ class UpgradeSchema implements UpgradeSchemaInterface
             $this->installer->createQuoteCollectionPointTable($setup);
             $this->installer->createOrderCollectionPointTable($setup);
         }
+
+        if (version_compare($moduleVersion, '1.2.1', '<')) {
+            $this->installer->addCollectionPointSearchPendingColumn($setup);
+        }
     }
 }

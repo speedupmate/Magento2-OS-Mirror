@@ -9,7 +9,6 @@ use Magento\Framework\Api\Search\SearchCriteriaBuilder;
 use Magento\Framework\Api\SearchCriteria\CollectionProcessorInterface;
 use Magento\Framework\Api\SearchCriteriaInterface;
 use Magento\Framework\Api\SortOrder;
-use Magento\Framework\App\ResourceConnection;
 use Magento\Framework\Exception\CouldNotSaveException;
 use Magento\Framework\Exception\LocalizedException;
 use Magento\Framework\Exception\NoSuchEntityException;
@@ -32,11 +31,11 @@ use Temando\Shipping\Setup\SetupSchema;
 /**
  * Temando Shipment Repository
  *
- * @package  Temando\Shipping\Model
- * @author   Christoph Aßmann <christoph.assmann@netresearch.de>
- * @author   Sebastian Ertner <sebastian.ertner@netresearch.de>
- * @license  http://opensource.org/licenses/osl-3.0.php Open Software License (OSL 3.0)
- * @link     http://www.temando.com/
+ * @package Temando\Shipping\Model
+ * @author  Christoph Aßmann <christoph.assmann@netresearch.de>
+ * @author  Sebastian Ertner <sebastian.ertner@netresearch.de>
+ * @license https://opensource.org/licenses/osl-3.0.php Open Software License (OSL 3.0)
+ * @link    https://www.temando.com/
  */
 class ShipmentRepository implements ShipmentRepositoryInterface
 {
@@ -81,11 +80,6 @@ class ShipmentRepository implements ShipmentRepositoryInterface
     private $collectionProcessor;
 
     /**
-     * @var ResourceConnection
-     */
-    private $resourceConnection;
-
-    /**
      * @var SearchCriteriaBuilder
      */
     private $searchCriteriaBuilder;
@@ -115,7 +109,6 @@ class ShipmentRepository implements ShipmentRepositoryInterface
      * @param ShipmentReferenceInterfaceFactory $shipmentReferenceFactory
      * @param ShipmentReferenceCollectionFactory $shipmentReferenceCollectionFactory
      * @param CollectionProcessorInterface $collectionProcessor
-     * @param ResourceConnection $resourceConnection
      * @param SearchCriteriaBuilder $searchCriteriaBuilder
      * @param FilterBuilder $filterBuilder
      * @param ShipmentTrackRepositoryInterface $shipmentTrackRepository
@@ -130,7 +123,6 @@ class ShipmentRepository implements ShipmentRepositoryInterface
         ShipmentReferenceInterfaceFactory $shipmentReferenceFactory,
         ShipmentReferenceCollectionFactory $shipmentReferenceCollectionFactory,
         CollectionProcessorInterface $collectionProcessor,
-        ResourceConnection $resourceConnection,
         SearchCriteriaBuilder $searchCriteriaBuilder,
         FilterBuilder $filterBuilder,
         ShipmentTrackRepositoryInterface $shipmentTrackRepository,
@@ -144,7 +136,6 @@ class ShipmentRepository implements ShipmentRepositoryInterface
         $this->shipmentReferenceFactory = $shipmentReferenceFactory;
         $this->shipmentReferenceCollectionFactory = $shipmentReferenceCollectionFactory;
         $this->collectionProcessor = $collectionProcessor;
-        $this->resourceConnection = $resourceConnection;
         $this->searchCriteriaBuilder = $searchCriteriaBuilder;
         $this->filterBuilder = $filterBuilder;
         $this->shipmentTrackRepository = $shipmentTrackRepository;

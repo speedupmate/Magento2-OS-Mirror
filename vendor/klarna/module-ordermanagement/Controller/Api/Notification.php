@@ -129,6 +129,12 @@ class Notification extends Action
             switch ($notification->getEventType()) {
                 case Ordermanagement::ORDER_NOTIFICATION_FRAUD_STOPPED:
                     // Intentionally fall through as logic is the same
+                    $order->addStatusHistoryComment(__('Suspected Fraud: DO NOT SHIP. If already shipped, 
+                    please attempt to stop the carrier from delivering.'));
+                    $payment->setNotificationResult(true);
+                    $payment->setIsFraudDetected(true);
+                    $payment->deny(false);
+                    break;
                 case Ordermanagement::ORDER_NOTIFICATION_FRAUD_REJECTED:
                     $payment->setNotificationResult(true);
                     $payment->setIsFraudDetected(true);

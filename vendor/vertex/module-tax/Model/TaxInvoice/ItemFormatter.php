@@ -127,8 +127,8 @@ class ItemFormatter
             $qty = $this->determineItemQty($item, $originalEntityItem, $type);
             $rowTotal = $useOriginalPrice
                 ? ($item->getBaseOriginalPrice() * $qty)
-                : $item->getBaseRowTotal();
-            return $rowTotal - $item->getBaseDiscountAmount();
+                : $originalEntityItem->getBaseRowTotal();
+            return $rowTotal - $originalEntityItem->getBaseDiscountAmount();
         }
 
         $byInvoiceCreation = $this->config->requestByInvoiceCreation($item->getStoreId());

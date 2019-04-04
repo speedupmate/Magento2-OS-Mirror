@@ -15,6 +15,14 @@
         font-weight: bold;
     }
 }
+.batch-solve {
+    .list-items {
+        list-style-position: inside;
+        .sub-list {
+            padding-left: 15px;
+        }
+    }
+}
 
 .shipment-packaging {
     .data-table.packages{
@@ -119,6 +127,23 @@
         }
     }
 }
+
+.custom-tooltip {
+    .question-mark {
+        &::before {
+            color: #41362f;
+            content: '\e633';
+            font-size: 1.7rem;
+            -webkit-font-smoothing: antialiased;
+            font-family: 'Admin Icons';
+            font-style: normal;
+            font-weight: normal;
+            line-height: 1;
+            speak: none;
+        }
+    }
+}
+
 
 .media-width(@extremum, @break) when (@extremum = 'min') and (@break = @screen__m) {
     .order-shipping-export-details {

@@ -103,13 +103,16 @@ class Guest
      */
     public function exportGuestPerWebsite($website)
     {
-        $guests = $this->contactFactory->create()
-            ->getGuests($website);
+        $onlySubscribers = $this->helper->isOnlySubscribersForContactSync($website->getWebsiteId());
+        $contact = $this->contactFactory->create();
+        $guests = ($onlySubscribers) ? $contact->getGuests($website, true) :
+            $contact->getGuests($website);
+
         //found some guests
         if ($guests->getSize()) {
             $guestFilename = strtolower(
                 $website->getCode() . '_guest_'
-                . date('d_m_Y_Hi') . '.csv'
+                . date('d_m_Y_His') . '.csv'
             );
             $this->helper->log('Guest file: ' . $guestFilename);
             $storeName = $this->helper->getMappedStoreName($website);

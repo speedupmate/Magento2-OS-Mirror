@@ -167,6 +167,20 @@ class Ordermanagement
     }
 
     /**
+     * Add shipping info to capture
+     *
+     * @param string $orderId
+     * @param string $captureId
+     * @param array $data
+     * @return array
+     */
+    public function addShippingInfo($orderId, $captureId, $data)
+    {
+        $url = "/ordermanagement/" . self::API_VERSION . "/orders/{$orderId}/captures/{$captureId}/shipping-info";
+        return $this->service->makeRequest($url, $data, ServiceInterface::POST, $orderId);
+    }
+
+    /**
      * Cancel an authorized order. For a cancellation to be successful, there must be no captures on the order.
      * The authorized amount will be released and no further updates to the order will be allowed.
      *

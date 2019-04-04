@@ -31,6 +31,12 @@ class Discount extends AbstractLine
      * Checkout item type
      */
     const ITEM_TYPE_DISCOUNT = 'discount';
+    /**
+     * Discunt is a line item collector
+     *
+     * @var bool
+     */
+    protected $isTotalCollector = false;
 
     /**
      * Collect totals process.
@@ -98,7 +104,10 @@ class Discount extends AbstractLine
         $total = $totals['discount'];
 
         $taxRate = $this->getDiscountTaxRate($checkout, $object->getAllItems());
+        $taxRate = $taxRate / 100;
+
         $taxAmount = $this->getDiscountTaxAmount($object->getAllItems(), $total, $taxRate);
+        $taxAmount += $this->getShippingDiscountTaxAmount($checkout);
 
         $amount = -$total->getValue();
         $taxRate = ($taxAmount / ($amount - $taxAmount)) * 100;
@@ -123,6 +132,28 @@ class Discount extends AbstractLine
             'discount_reference'    => $total->getCode()
 
         ];
+    }
+
+    /**
+     * get amount of tax on shipping
+     *
+     * @param BuilderInterface $checkout
+     *
+     * @return float|int
+     */
+    private function getShippingDiscountTaxAmount(BuilderInterface $checkout)
+    {
+        $object = $checkout->getObject();
+        $address = $object->getShippingAddress();
+        $store = $object->getStore();
+        $taxRate = $this->calculateShippingTax($checkout, $store);
+
+        $taxAmountAfterDiscount = $address->getShippingTaxAmount() + $address->getShippingHiddenTaxAmount();
+
+        $unitPrice = $address->getShippingInclTax();
+        $taxAmountBeforeDiscount = $unitPrice * ($taxRate / (100 + $taxRate));
+
+        return $taxAmountBeforeDiscount - $taxAmountAfterDiscount;
     }
 
     /**
@@ -152,20 +183,16 @@ class Discount extends AbstractLine
     /**
      * Determine if quote/invoice/creditmemo contains a discount
      *
-     * @param $object
+     * @param Quote|CreditMemo|Invoice $object
      * @return bool
      */
     private function isDiscounted($object)
     {
         /** @noinspection IsEmptyFunctionUsageInspection */
-        if (!empty($object->getDiscountAmount())) {
+        if (!empty($object->getDiscountAmount()) || !empty($object->getCouponCode())) {
             return true;
         }
-        if (!empty($object->getBaseSubtotalWithDiscount()) &&
-            $object->getBaseSubtotalWithDiscount() !== $object->getBaseSubtotal()
-        ) {
-            return true;
-        }
+
         return false;
     }
 
@@ -184,14 +211,22 @@ class Discount extends AbstractLine
         }
 
         $amount = $object->getDiscountAmount();
+
         /** @noinspection IsEmptyFunctionUsageInspection */
         if (empty($amount) && !empty($object->getBaseSubtotalWithDiscount())) {
             $amount = $object->getBaseSubtotal() - $object->getBaseSubtotalWithDiscount();
         }
+
         $taxRate = $this->getDiscountTaxRate($checkout, $object->getAllVisibleItems());
+
+        if ($taxRate > 100) {
+            $taxRate = $taxRate / 100;
+        }
+
         if ($taxRate > 1) {
             $taxRate = $taxRate / 100;
         }
+
         $taxAmount = -($amount - ($amount / (1 + $taxRate)));
 
         $unitPrice = $amount;

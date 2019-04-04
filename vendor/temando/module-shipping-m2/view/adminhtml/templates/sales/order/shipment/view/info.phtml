@@ -136,6 +136,7 @@ $shipmentDetailsViewModel = $block->getData('shipmentDetailsViewModel');
                     <?php
                         $extOrderId = $orderDetailsViewModel->getExtOrderId($order);
                         $extShipmentId = $shipmentDetailsViewModel->getExtShipmentId();
+                        $extShipmentReference = $shipmentDetailsViewModel->getCustomerReference();
                     ?>
                     <?php if ($extOrderId) : ?>
                         <tr>
@@ -148,6 +149,13 @@ $shipmentDetailsViewModel = $block->getData('shipmentDetailsViewModel');
                         <tr>
                             <th><?= $block->escapeHtml(__('Magento Shipping Shipment ID')) ?></th>
                             <td><?= $block->escapeHtml($extShipmentId) ?></td>
+                        </tr>
+                    <?php endif; ?>
+
+                    <?php if ($extShipmentReference) : ?>
+                        <tr>
+                            <th><?= $block->escapeHtml(__('Shipment Reference')) ?></th>
+                            <td><?= $block->escapeHtml($extShipmentReference) ?></td>
                         </tr>
                     <?php endif; ?>
                 </table>

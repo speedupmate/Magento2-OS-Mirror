@@ -113,12 +113,13 @@ class ShipmentResponseMapper
      */
     private function mapLocation(Location $apiLocation)
     {
+        $contact = $apiLocation->getContact();
         $location = $this->locationFactory->create(['data' => [
-            LocationInterface::COMPANY => $apiLocation->getContact()->getOrganisationName(),
-            LocationInterface::PERSON_FIRST_NAME => $apiLocation->getContact()->getPersonFirstName(),
-            LocationInterface::PERSON_LAST_NAME => $apiLocation->getContact()->getPersonLastName(),
-            LocationInterface::EMAIL => $apiLocation->getContact()->getEmail(),
-            LocationInterface::PHONE_NUMBER => $apiLocation->getContact()->getPhoneNumber(),
+            LocationInterface::COMPANY => $contact ? $contact->getOrganisationName() : '',
+            LocationInterface::PERSON_FIRST_NAME => $contact ? $contact->getPersonFirstName() : '',
+            LocationInterface::PERSON_LAST_NAME => $contact ? $contact->getPersonLastName() : '',
+            LocationInterface::EMAIL => $contact ? $contact->getEmail() : '',
+            LocationInterface::PHONE_NUMBER => $contact ? $contact->getPhoneNumber() : '',
             LocationInterface::STREET => $apiLocation->getAddress()->getLines(),
             LocationInterface::CITY => $apiLocation->getAddress()->getLocality(),
             LocationInterface::POSTAL_CODE => $apiLocation->getAddress()->getPostalCode(),
@@ -337,6 +338,7 @@ class ShipmentResponseMapper
         $shipmentId          = $apiShipment->getId();
         $shipmentOrderId     = $apiShipment->getAttributes()->getOrderId();
         $shipmentOriginId    = $apiShipment->getAttributes()->getOriginId();
+        $shipmentOrder       = $apiShipment->getAttributes()->getOrder();
         $isPaperless         = $apiShipment->getAttributes()->getIsPaperless();
         $status              = $apiShipment->getAttributes()->getStatus();
         $createdAt           = $apiShipment->getAttributes()->getCreatedAt();
@@ -361,6 +363,7 @@ class ShipmentResponseMapper
             ShipmentInterface::SHIPMENT_ID => $shipmentId,
             ShipmentInterface::ORDER_ID => $shipmentOrderId,
             ShipmentInterface::ORIGIN_ID => $shipmentOriginId,
+            ShipmentInterface::CUSTOMER_REFERENCE => $shipmentOrder ? $shipmentOrder->getCustomerReference() : '',
             ShipmentInterface::ORIGIN_LOCATION => $origin,
             ShipmentInterface::DESTINATION_LOCATION => $destination,
             ShipmentInterface::FINAL_RECIPIENT_LOCATION => $finalRecipient,

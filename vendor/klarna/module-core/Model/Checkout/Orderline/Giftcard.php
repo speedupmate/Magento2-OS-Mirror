@@ -42,7 +42,6 @@ class Giftcard extends AbstractLine
                 'giftcardaccount_tax_amount'   => 0,
                 'giftcardaccount_title'        => $total->getTitle(),
                 'giftcardaccount_reference'    => $total->getCode()
-
             ]);
         }
 

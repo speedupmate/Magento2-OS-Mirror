@@ -11,7 +11,7 @@ class Contact
      * @var \Dotdigitalgroup\Email\Model\ResourceModel\Contact
      */
     private $contactResource;
-    
+
     /**
      * @var mixed
      */
@@ -26,11 +26,6 @@ class Contact
      * @var \Dotdigitalgroup\Email\Helper\Data
      */
     private $helper;
-
-    /**
-     * @var \Dotdigitalgroup\Email\Model\ContactFactory
-     */
-    public $contactModel;
 
     /**
      * @var \Dotdigitalgroup\Email\Model\Apiconnector\Customer
@@ -48,31 +43,35 @@ class Contact
     public $contactImportQueueExport;
 
     /**
+     * @var \Dotdigitalgroup\Email\Model\ResourceModel\Contact\CollectionFactory
+     */
+    private $contactCollectionFactory;
+
+    /**
      * Contact constructor.
      *
      * @param CustomerFactory $customerFactory
      * @param \Dotdigitalgroup\Email\Helper\File $file
      * @param \Dotdigitalgroup\Email\Helper\Data $helper
-     * @param \Dotdigitalgroup\Email\Model\ContactFactory $contactFactory
      * @param \Dotdigitalgroup\Email\Model\ResourceModel\Contact $contactResource
      * @param ContactImportQueueExport $contactImportQueueExport
+     * @param \Dotdigitalgroup\Email\Model\ResourceModel\Contact\CollectionFactory $contactCollectionFactory
      */
     public function __construct(
         \Dotdigitalgroup\Email\Model\Apiconnector\CustomerFactory $customerFactory,
         \Dotdigitalgroup\Email\Helper\File $file,
         \Dotdigitalgroup\Email\Helper\Data $helper,
-        \Dotdigitalgroup\Email\Model\ContactFactory $contactFactory,
         \Dotdigitalgroup\Email\Model\ResourceModel\Contact $contactResource,
-        \Dotdigitalgroup\Email\Model\Apiconnector\ContactImportQueueExport $contactImportQueueExport
+        \Dotdigitalgroup\Email\Model\Apiconnector\ContactImportQueueExport $contactImportQueueExport,
+        \Dotdigitalgroup\Email\Model\ResourceModel\Contact\CollectionFactory $contactCollectionFactory
     ) {
-        $this->file            = $file;
-        $this->helper          = $helper;
+        $this->file = $file;
+        $this->helper = $helper;
         //email contact
-        $this->emailCustomer      = $customerFactory;
-        //email contact collection
-        $this->contactModel = $contactFactory;
+        $this->emailCustomer = $customerFactory;
         $this->contactResource = $contactResource;
         $this->contactImportQueueExport = $contactImportQueueExport;
+        $this->contactCollectionFactory = $contactCollectionFactory;
     }
 
     /**
@@ -139,10 +138,10 @@ class Contact
             return 0;
         }
 
-        //contacts ready for website
-        $contacts = $this->contactModel->create()
-            ->getCollection()
-            ->getContactsToImportByWebsite($website->getId(), $syncLimit);
+        $onlySubscribers = $this->helper->isOnlySubscribersForContactSync($website->getId());
+        $contacts = $this->contactCollectionFactory->create();
+        $contacts = ($onlySubscribers) ? $contacts->getContactsToImportByWebsite($website->getId(), $syncLimit, true) :
+            $contacts->getContactsToImportByWebsite($website->getId(), $syncLimit);
 
         // no contacts found
         if (!$contacts->getSize()) {
@@ -150,7 +149,7 @@ class Contact
         }
         //customer filename
         $customersFile = strtolower(
-            $website->getCode() . '_customers_' . date('d_m_Y_Hi') . '.csv'
+            $website->getCode() . '_customers_' . date('d_m_Y_His') . '.csv'
         );
         $this->helper->log('Customers file : ' . $customersFile);
         //get customers ids
@@ -214,11 +213,11 @@ class Contact
 
     /**
      * @param \Magento\Store\Api\Data\WebsiteInterface $website
-     * @param mixed $customerCollection
-     * @param mixed $mappedHash
-     * @param mixed $customAttributes
-     * @param mixed $customersFile
-     * @param mixed $customerIds
+     * @param \Dotdigitalgroup\Email\Model\ResourceModel\Contact\Collection $customerCollection
+     * @param array $mappedHash
+     * @param array $customAttributes
+     * @param string $customersFile
+     * @param array $customerIds
      *
      * @return int
      */
@@ -271,9 +270,10 @@ class Contact
     /**
      * Customer collection with all data ready for export.
      *
-     * @param mixed $customerIds
+     * @param array $customerIds
      * @param int $websiteId
-     * @return mixed
+     *
+     * @return \Dotdigitalgroup\Email\Model\ResourceModel\Contact
      */
     private function getCustomerCollection($customerIds, $websiteId = 0)
     {

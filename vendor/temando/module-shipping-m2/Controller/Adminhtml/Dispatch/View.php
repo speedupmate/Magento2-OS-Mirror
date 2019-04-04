@@ -7,7 +7,7 @@ namespace Temando\Shipping\Controller\Adminhtml\Dispatch;
 use Magento\Framework\Controller\ResultFactory;
 
 /**
- * Temando List Dispatches Action
+ * Temando View Dispatch Action
  *
  * @package  Temando\Shipping\Controller
  * @author   Christoph Aßmann <christoph.assmann@netresearch.de>

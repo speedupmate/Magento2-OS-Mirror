@@ -18,6 +18,7 @@ interface SearchRequestInterface
     const SHIPPING_ADDRESS_ID = 'shipping_address_id';
     const COUNTRY_ID = 'country_id';
     const POSTCODE = 'postcode';
+    const PENDING = 'pending';
 
     /**
      * @return int
@@ -33,4 +34,9 @@ interface SearchRequestInterface
      * @return string
      */
     public function getPostcode();
+
+    /**
+     * @return bool
+     */
+    public function isPending();
 }

@@ -7,54 +7,60 @@ namespace Dotdigitalgroup\Email\Block\Adminhtml\Dashboard;
  *
  * @api
  */
-class Information extends \Magento\Backend\Block\Widget\Grid\Extended
+class Information extends \Magento\Backend\Block\Template
 {
-
-    /**
-     * @var string
-     */
-    public $_template = 'dashboard/information.phtml';
-
     /**
      * Helper.
      *
      * @var \Dotdigitalgroup\Email\Helper\Data
      */
-    public $data;
+    private $helper;
 
     /**
      * Test class.
      * @var \Dotdigitalgroup\Email\Model\Apiconnector\Test
      */
-    public $test;
+    private $test;
 
     /**
      * @var \Magento\Framework\App\ProductMetadata
      */
-    public $productMetadata;
+    private $productMetadata;
+
+    /*
+     * @var \Dotdigitalgroup\Email\Model\ResourceModel\FailedAuth\Collection
+     */
+    private $failedAuthCollectionFactory;
+
+    /**
+     * @var int
+     */
+    private $storeIdFromParam = 1;
 
     /**
      * Information constructor.
-     *
      * @param \Magento\Backend\Block\Template\Context $context
-     * @param \Magento\Backend\Helper\Data $backendHelper
      * @param \Dotdigitalgroup\Email\Model\Apiconnector\Test $test
      * @param \Dotdigitalgroup\Email\Helper\Data $helper
      * @param \Magento\Framework\App\ProductMetadataFactory $productMetadata
+     * @param \Dotdigitalgroup\Email\Model\ResourceModel\FailedAuth\CollectionFactory $failedAuthCollectionFactory
      * @param array $data
+     * @throws \Magento\Framework\Exception\LocalizedException
      */
     public function __construct(
         \Magento\Backend\Block\Template\Context $context,
-        \Magento\Backend\Helper\Data $backendHelper,
         \Dotdigitalgroup\Email\Model\Apiconnector\Test $test,
         \Dotdigitalgroup\Email\Helper\Data $helper,
         \Magento\Framework\App\ProductMetadataFactory $productMetadata,
+        \Dotdigitalgroup\Email\Model\ResourceModel\FailedAuth\CollectionFactory $failedAuthCollectionFactory,
         array $data = []
     ) {
         $this->productMetadata = $productMetadata->create();
         $this->test = $test;
-        $this->data = $helper;
-        parent::__construct($context, $backendHelper, $data);
+        $this->helper = $helper;
+        $this->failedAuthCollectionFactory = $failedAuthCollectionFactory;
+        parent::__construct($context, $data);
+        $this->getStoreIdParam();
     }
 
     /**
@@ -93,11 +99,11 @@ class Information extends \Magento\Backend\Block\Widget\Grid\Extended
     }
 
     /**
-     * @return mixed
+     * @return string
      */
     public function getConnectorVersion()
     {
-        return $this->escapeHtml(__('v. %1', $this->data->getConnectorVersion()));
+        return $this->escapeHtml(__('v. %1', $this->helper->getConnectorVersion()));
     }
 
     /**
@@ -106,8 +112,8 @@ class Information extends \Magento\Backend\Block\Widget\Grid\Extended
      */
     public function getApiValid()
     {
-        $apiUsername = $this->data->getApiUsername();
-        $apiPassword = $this->data->getApiPassword();
+        $apiUsername = $this->helper->getApiUsername();
+        $apiPassword = $this->helper->getApiPassword();
 
         $result = $this->test->validate($apiUsername, $apiPassword);
 
@@ -123,7 +129,7 @@ class Information extends \Magento\Backend\Block\Widget\Grid\Extended
     public function getCronLastExecution()
     {
 
-        $date = $this->escapeHtml($this->data->getDateLastCronRun('ddg_automation_importer'));
+        $date = $this->escapeHtml($this->helper->getDateLastCronRun('ddg_automation_importer'));
 
         if (! $date) {
             $date = '<span class="message message-error">No cron found</span>';
@@ -138,16 +144,64 @@ class Information extends \Magento\Backend\Block\Widget\Grid\Extended
      */
     public function getDynamicContentPasscode()
     {
-        return $this->data->getPasscode();
+        return $this->helper->getPasscode();
     }
 
     /**
      * Abandoned cart limit.
      *
-     * @return mixed
+     * @return string
      */
     public function getAbandonedCartLimit()
     {
-        return ($this->data->getAbandonedCartLimit())? __('%1 h', $this->data->getAbandonedCartLimit()): __('No limit');
+        return ($this->helper->getAbandonedCartLimit()) ? __('%1 h', $this->helper->getAbandonedCartLimit()) :
+            __('No limit');
+    }
+
+    /**
+     * @return \Magento\Framework\Phrase|string]
+     */
+    public function getAuthStatus()
+    {
+        $collection = $this->failedAuthCollectionFactory->create()
+            ->loadByStoreId($this->storeIdFromParam);
+        $failedAuth = $collection->getFirstItem();
+
+        //check if the failed auth is set for the store
+        if ($failedAuth->getId()) {
+            return ($failedAuth->isLocked())? __('Locked.'): __('Not Locked.');
+        } else {
+            return __('Not Locked.');
+        }
+    }
+
+    /**
+     * @return \Magento\Framework\Phrase
+     */
+    public function getLastFailedAuth()
+    {
+        $collection = $this->failedAuthCollectionFactory->create()
+            ->loadByStoreId($this->storeIdFromParam);
+        $failedAuth = $collection->getFirstItem();
+
+        if ($failedAuth->getId()) {
+            return $this->formatTime($failedAuth->getLastAttemptDate(), \IntlDateFormatter::LONG);
+        }
+    }
+
+    /**
+     * @throws \Magento\Framework\Exception\LocalizedException
+     */
+    private function getStoreIdParam()
+    {
+        $storeCode = $this->getRequest()->getParam('store');
+        $websiteCode = $this->getRequest()->getParam('website');
+        //store level
+        if ($storeCode) {
+            $this->storeIdFromParam = $this->_storeManager->getStore($storeCode)->getId();
+        } else {
+            //website level
+            $this->storeIdFromParam = $this->_storeManager->getWebsite($websiteCode)->getDefaultStore()->getId();
+        }
     }
 }

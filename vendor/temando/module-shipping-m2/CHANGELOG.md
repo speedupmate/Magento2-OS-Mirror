@@ -1,3 +1,52 @@
+## [1.3.3] - 2018-08-28
+### Fixed
+
+- [`#17363`](https://github.com/magento/magento2/issues/17363) Improve sanity check before accessing shipping method property
+
+## [1.3.2] - 2018-08-17
+### Fixed
+
+- Improve performance
+- Display collection point experiences only after a delivery location was chosen
+
+## [1.3.1] - 2018-08-07
+### Fixed
+
+- Consider virtual products in multi shipping checkout
+- Prevent exception when unable to display a Shipment’s capability value
+
+### Added
+
+- Delivery Options for UPS
+    - Adult Signature
+    - Direct Delivery
+
+### Changed
+
+- Improved error messages for dispatch errors
+- Improved error messages during booking a shipment with _Magento Shipping_
+
+## [1.3.0] - 2018-07-23
+### Added
+
+- Bulk Booking of Shipments
+
+## [1.2.9] - 2018-07-13
+### Fixed
+
+- Consider partially shipped orders during shipment synchronization
+- Download shipping labels to database if shipment was created through auto-processing or shipment synchronization
+- UI display issues:
+  - Enhance dispatch error messages
+  - Add customer reference number
+  - Add _Delivery Availability_ capability
+  - Add UPS _High Value Report_ documentation
+
+## [1.2.8] - 2018-06-15
+### Fixed
+
+- Limit shipping methods after collection point selection
+
 ## [1.2.7] - 2018-06-08
 ### Fixed
 

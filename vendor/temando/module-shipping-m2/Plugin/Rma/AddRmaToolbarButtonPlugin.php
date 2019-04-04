@@ -9,6 +9,7 @@ use Magento\Backend\Block\Widget\Container;
 use Magento\Framework\UrlInterface;
 use Magento\Framework\View\LayoutInterface;
 use Magento\Rma\Block\Adminhtml\Rma\Edit as RmaEdit;
+use Magento\Sales\Api\Data\OrderInterface;
 use Temando\Shipping\Model\Config\ModuleConfigInterface;
 use Temando\Shipping\Model\ResourceModel\Rma\RmaAccess;
 use Temando\Shipping\Model\Shipping\Carrier;
@@ -55,6 +56,9 @@ class AddRmaToolbarButtonPlugin
     }
 
     /**
+     * Add "Create Return Shipment" button to toolbar if original order was shipped
+     * with Temando Shipping.
+     *
      * @param RmaEdit|Container $block
      * @param LayoutInterface $layout
      *
@@ -74,10 +78,15 @@ class AddRmaToolbarButtonPlugin
             return null;
         }
 
-        // only display button if original order was shipped with temando shipping
-        $shippingMethod = $rma->getOrder()->getShippingMethod(true);
-        $carrierCode = $shippingMethod->getData('carrier_code');
-        if ($carrierCode !== Carrier::CODE) {
+        /** @var \Magento\Sales\Model\Order $order */
+        $order = $rma->getOrder();
+        if (!$order instanceof OrderInterface || !$order->getData('shipping_method')) {
+            // wrong type, virtual or corrupt order
+            return false;
+        }
+
+        $shippingMethod = $order->getShippingMethod(true);
+        if ($shippingMethod->getData('carrier_code') !== Carrier::CODE) {
             return null;
         }
 

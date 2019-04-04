@@ -9,6 +9,7 @@ use Magento\Framework\App\RequestInterface;
 use Magento\Framework\Exception\LocalizedException;
 use Magento\Framework\Exception\NoSuchEntityException;
 use Magento\Framework\Message\ManagerInterface;
+use Magento\Sales\Api\Data\OrderInterface;
 use Magento\Shipping\Controller\Adminhtml\Order\ShipmentLoader;
 use Temando\Shipping\Model\ResourceModel\Repository\ShipmentRepositoryInterface;
 use Temando\Shipping\Model\Shipment\ShipmentProviderInterface;
@@ -82,7 +83,13 @@ class ShipmentLoaderPlugin
             return $salesShipment;
         }
 
-        $shippingMethod = $salesShipment->getOrder()->getShippingMethod(true);
+        $order = $salesShipment->getOrder();
+        if (!$order instanceof OrderInterface || !$order->getData('shipping_method')) {
+            // wrong type, virtual or corrupt order
+            return $salesShipment;
+        }
+
+        $shippingMethod = $order->getShippingMethod(true);
         if ($shippingMethod->getData('carrier_code') !== Carrier::CODE) {
             return $salesShipment;
         }

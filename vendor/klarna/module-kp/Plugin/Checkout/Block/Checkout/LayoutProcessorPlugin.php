@@ -86,7 +86,7 @@ class LayoutProcessorPlugin
             }
             $methods = $this->quoteRepository->getActiveByQuote($quote)->getPaymentMethods();
         } catch (NoSuchEntityException $e) {
-            $methods = Kp::KLARNA_METHODS;
+            $methods = [];
         }
         foreach ($methods as $method) {
             $configuration['klarna']['methods'][$method] = $configuration['klarna']['methods']['klarna_kp'];

@@ -16,19 +16,33 @@ use Magento\Quote\Api\Data\CartInterface;
 
 /**
  * Interface PaymentMethodListInterface
- *
+ * @api
  * @package Klarna\Kp\Api
  */
 interface PaymentMethodListInterface
 {
     /**
+     * Get list of Klarna payment types
+     *
      * @param CartInterface $quote
      * @return string[]
+     * @deprecated 5.3.0
+     * @see getKlarnaMethodInfo
      */
     public function getKlarnaMethodCodes(CartInterface $quote = null);
 
     /**
-     * @param $method
+     * Get list of Klarna payment types
+     *
+     * @param CartInterface $quote
+     * @return string[]
+     */
+    public function getKlarnaMethodInfo(CartInterface $quote);
+
+    /**
+     * Get payment instance for specified Klarna payment method
+     *
+     * @param string $method
      * @return MethodInterface|Kp
      */
     public function getPaymentMethod($method);

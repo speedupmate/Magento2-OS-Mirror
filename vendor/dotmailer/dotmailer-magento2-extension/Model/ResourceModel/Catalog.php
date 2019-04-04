@@ -4,6 +4,7 @@ namespace Dotdigitalgroup\Email\Model\ResourceModel;
 
 /**
  * @SuppressWarnings(PHPMD.CouplingBetweenObjects)
+ * @SuppressWarnings(PHPMD.ExcessiveParameterList)
  */
 class Catalog extends \Magento\Framework\Model\ResourceModel\Db\AbstractDb
 {
@@ -94,7 +95,6 @@ class Catalog extends \Magento\Framework\Model\ResourceModel\Db\AbstractDb
         \Magento\Reports\Model\ResourceModel\Product\Sold\CollectionFactory $productSoldFactory,
         $connectionName = null
     ) {
-    
         $this->helper                   = $helper;
         $this->productIndexcollection = $productIndexCollection;
         $this->config = $config;
@@ -113,8 +113,8 @@ class Catalog extends \Magento\Framework\Model\ResourceModel\Db\AbstractDb
     /**
      * Get most viewed product collection.
      *
-     * @param mixed $from
-     * @param mixed $to
+     * @param string $from
+     * @param string $to
      * @param int $limit
      * @param int $catId
      * @param string $catName
@@ -257,8 +257,8 @@ class Catalog extends \Magento\Framework\Model\ResourceModel\Db\AbstractDb
     /**
      * Get bestseller collection.
      *
-     * @param mixed $from
-     * @param mixed $to
+     * @param string $from
+     * @param string $to
      * @param int $limit
      * @param int $storeId
      *
@@ -325,8 +325,8 @@ class Catalog extends \Magento\Framework\Model\ResourceModel\Db\AbstractDb
     /**
      * Reset for re-import.
      *
-     * @param mixed $from
-     * @param mixed $to
+     * @param string|null $from
+     * @param string|null $to
      *
      * @return int
      *
@@ -428,5 +428,24 @@ class Catalog extends \Magento\Framework\Model\ResourceModel\Db\AbstractDb
 
         //run query
         $write->query($deleteSql);
+    }
+
+    /**
+     * Set modified if already imported
+     *
+     * @param array $ids
+     */
+    public function setModified($ids)
+    {
+        $write     = $this->getConnection();
+        $tableName = $this->getTable('email_catalog');
+        $write->update(
+            $tableName,
+            ['modified' => 1],
+            [
+                $write->quoteInto("product_id IN (?)", $ids),
+                $write->quoteInto("imported = ?", 1)
+            ]
+        );
     }
 }

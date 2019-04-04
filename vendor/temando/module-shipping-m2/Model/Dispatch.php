@@ -45,7 +45,7 @@ class Dispatch extends DataObject implements DispatchInterface
     }
 
     /**
-     * @return \DateTime
+     * @return string
      */
     public function getCreatedAtDate()
     {
@@ -53,7 +53,7 @@ class Dispatch extends DataObject implements DispatchInterface
     }
 
     /**
-     * @return \DateTime
+     * @return string
      */
     public function getReadyAtDate()
     {

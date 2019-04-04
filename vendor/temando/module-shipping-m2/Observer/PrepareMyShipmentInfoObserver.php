@@ -7,6 +7,7 @@ namespace Temando\Shipping\Observer;
 use Magento\Framework\Event\Observer;
 use Magento\Framework\Event\ObserverInterface;
 use Magento\Framework\Exception\LocalizedException;
+use Magento\Sales\Api\Data\OrderInterface;
 use Temando\Shipping\Model\ResourceModel\Repository\ShipmentRepositoryInterface;
 use Temando\Shipping\Model\Shipment\ShipmentProviderInterface;
 use Temando\Shipping\Model\Shipping\Carrier;
@@ -78,6 +79,11 @@ class PrepareMyShipmentInfoObserver implements ObserverInterface
         }
 
         $order = $infoBlock->getOrder();
+        if (!$order instanceof OrderInterface || !$order->getData('shipping_method')) {
+            // wrong type, virtual or corrupt order
+            return;
+        }
+
         $shippingMethod = $order->getShippingMethod(true);
         if ($shippingMethod->getData('carrier_code') !== Carrier::CODE) {
             return;

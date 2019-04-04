@@ -10,12 +10,10 @@
     <tr>
         <th><?= $block->escapeHtml($capability->getCapabilityId()) ?></th>
         <td>
-            <?php foreach ($capability->getProperties() as $key => $value) : ?>
-                <?php if (is_bool($value)) : ?>
-                    <?php $value = $value ? __('Yes') : __('No') ?>
-                <?php endif; ?>
-                <?= $block->escapeHtml($key) ?>: <?= $block->escapeHtml($value) ?>
-            <?php endforeach; ?>
+            <?php $properties = $capability->getProperties() ?>
+            <?php if (isset($properties['required']) && (bool)$properties['required']) :  ?>
+                <?= $block->escapeHtml(__('Yes')) ?>
+            <?php endif; ?>
         </td>
     </tr>
 <?php endif; ?>

@@ -47,6 +47,22 @@ class UpgradeSchema implements UpgradeSchemaInterface
                     );
             }
         }
-        $installer->endSetup();
+        if (version_compare($context->getVersion(), '5.3.1', '<')) {
+            $table = $installer->getTable('klarna_payments_quote');
+
+            $ddl = $installer->getConnection()->describeTable($table);
+            if (!isset($ddl['payment_method_info'])) {
+                $installer->getConnection()
+                    ->addColumn(
+                        $table,
+                        'payment_method_info',
+                        [
+                            'type'    => Table::TYPE_TEXT,
+                            'length'  => 4096,
+                            'comment' => 'Payment Method Category Info'
+                        ]
+                    );
+            }
+        }        $installer->endSetup();
     }
 }

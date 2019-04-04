@@ -7,15 +7,15 @@ namespace Temando\Shipping\Model\Shipment;
 use Magento\Framework\DataObject;
 
 /**
- * Temando Shipment Destination Entity
+ * Temando Shipment Location Entity
  *
  * This model contains the data used in the shipping module, not necessarily all
  * data available in its webservice representation.
  *
- * @package  Temando\Shipping\Model
- * @author   Christoph Aßmann <christoph.assmann@netresearch.de>
- * @license  http://opensource.org/licenses/osl-3.0.php Open Software License (OSL 3.0)
- * @link     http://www.temando.com/
+ * @package Temando\Shipping\Model
+ * @author  Christoph Aßmann <christoph.assmann@netresearch.de>
+ * @license https://opensource.org/licenses/osl-3.0.php Open Software License (OSL 3.0)
+ * @link    https://www.temando.com/
  */
 class Location extends DataObject implements LocationInterface
 {

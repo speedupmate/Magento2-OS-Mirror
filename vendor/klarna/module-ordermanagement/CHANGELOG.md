@@ -1,4 +1,35 @@
 
+4.3.4 / 2018-08-15
+==================
+
+  * PPI-468 Fix Invoice fails with no tracking info
+
+4.3.3 / 2018-08-03
+==================
+
+  * PI-331 Trunate shipping tracking number and company name if too long
+  * PPI-419 Fix check when processing shipment with invoice
+
+4.3.2 / 2018-07-26
+==================
+
+  * PPI-449 Cleanup code
+
+4.3.1 / 2018-07-23
+==================
+
+  * PPI-419 Remove replaces line from composer.json
+
+4.3.0 / 2018-06-26
+==================
+
+  * PI-91 Add support for passing shipping details in capture request
+
+4.2.0 / 2018-06-08
+==================
+
+  * PPI-372 Add support for FRAUD_STOPPED
+
 4.1.3 / 2018-05-14
 ==================
 

@@ -93,13 +93,14 @@ class Calculator
      * Retrieve a Quotation Response given a Quote Address
      *
      * @param QuoteAddressInterface $taxAddress
+     * @param int|null $customerGroupId
      * @return TaxQuoteResponse|bool
      * @throws \Magento\Framework\Exception\LocalizedException
      * @throws NoSuchEntityException
      */
-    public function calculateTax(QuoteAddressInterface $taxAddress)
+    public function calculateTax(QuoteAddressInterface $taxAddress, $customerGroupId = null)
     {
-        $request = $this->quotationRequestFormatter->getFormattedRequestData($taxAddress);
+        $request = $this->quotationRequestFormatter->getFormattedRequestData($taxAddress, $customerGroupId);
 
         /* Send API Request */
         $response = $this->taxQuoteRequest->taxQuote($request);

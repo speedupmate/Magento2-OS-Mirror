@@ -18,18 +18,24 @@ namespace Klarna\Kp\Api;
 interface KlarnaPaymentMethodInterface
 {
     /**
+     * Set payment method code
+     *
      * @param string $code
      * @return $this
      */
     public function setCode($code);
 
     /**
+     * Get tag line
+     *
      * @return string
+     * @deprecated 5.3.0
      */
     public function getTagLine();
 
     /**
      * @return string
+     * @deprecated 5.3.0
      */
     public function getLogoUrl();
 }

@@ -90,6 +90,18 @@ class OrderResponseMapper
     }
 
     /**
+     * @return OrderResponseTypeInterface
+     */
+    public function createEmptyResponse()
+    {
+        $orderResponse = $this->orderResponseFactory->create(['data' => [
+            OrderResponseTypeInterface::SHIPPING_EXPERIENCES => [],
+        ]]);
+
+        return $orderResponse;
+    }
+
+    /**
      * @param CreateOrderInterface $apiOrder
      * @return OrderResponseTypeInterface
      */

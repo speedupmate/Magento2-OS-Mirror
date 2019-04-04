@@ -13,6 +13,22 @@ use Magento\Framework\DB\Ddl\Table;
 class InstallSchema implements InstallSchemaInterface
 {
     /**
+     * @var Schema\Shared
+     */
+    private $shared;
+
+    /**
+     * InstallSchema constructor.
+     *
+     * @param Schema\Shared $shared
+     */
+    public function __construct(
+        Schema\Shared $shared
+    ) {
+        $this->shared = $shared;
+    }
+
+    /**
      * {@inheritdoc}
      */
     public function install(
@@ -35,6 +51,8 @@ class InstallSchema implements InstallSchemaInterface
         $this->createImporterTable($installer);
         $this->createAutomationTable($installer);
         $this->createAbandonedCartTable($installer);
+        $this->createConsentTable($installer);
+        $this->createFailedAuth($installer);
 
         /**
          * Modify table
@@ -790,6 +808,21 @@ class InstallSchema implements InstallSchemaInterface
         $wishlistTable = $installer->getConnection()->newTable($tableName);
         $wishlistTable = $this->addColumnsToWishlistTable($wishlistTable);
         $wishlistTable = $this->addIndexesToWishlistTable($installer, $wishlistTable);
+        $wishlistTable->addForeignKey(
+            $installer->getFkName('email_wishlist', 'customer_id', 'customer_entity', 'entity_id'),
+            'customer_id',
+            $installer->getTable('customer_entity'),
+            'entity_id',
+            \Magento\Framework\DB\Ddl\Table::ACTION_CASCADE
+        )->addForeignKey(
+            $installer->getFkName('email_wishlist', 'wishlist_id', 'wishlist', 'wishlist_id'),
+            'wishlist_id',
+            $installer->getTable('wishlist'),
+            'wishlist_id',
+            \Magento\Framework\DB\Ddl\Table::ACTION_CASCADE,
+            \Magento\Framework\DB\Ddl\Table::ACTION_CASCADE
+        );
+
         $wishlistTable->setComment('Connector Wishlist');
         $installer->getConnection()->createTable($wishlistTable);
     }
@@ -828,9 +861,9 @@ class InstallSchema implements InstallSchemaInterface
         )
         ->addColumn(
             'customer_id',
-            \Magento\Framework\DB\Ddl\Table::TYPE_SMALLINT,
+            \Magento\Framework\DB\Ddl\Table::TYPE_INTEGER,
             11,
-            ['unsigned' => true, 'nullable' => false],
+            ['unsigned' => true, 'nullable' => true],
             'Customer ID'
         )
         ->addColumn(
@@ -1542,23 +1575,18 @@ class InstallSchema implements InstallSchemaInterface
     }
 
     /**
-     * @param $installer SchemaSetupInterface
+     * @param SchemaSetupInterface $installer
      */
     private function createAbandonedCartTable($installer)
     {
         $tableName = $installer->getTable('email_abandoned_cart');
         $this->dropTableIfExists($installer, $tableName);
-
-        $abandonedCartTable = $installer->getConnection()->newTable($installer->getTable($tableName));
-        $abandonedCartTable = $this->addColumnForAbandonedCartTable($abandonedCartTable);
-        $abandonedCartTable = $this->addIndexKeyForAbandonedCarts($installer, $abandonedCartTable);
-        $abandonedCartTable->setComment('Abandoned Carts Table');
-        $installer->getConnection()->createTable($abandonedCartTable);
+        $this->shared->createAbandonedCartTable($installer, $tableName);
     }
 
     /**
-     * @param $installer SchemaSetupInterface
-     * @param $table string
+     * @param SchemaSetupInterface $installer
+     * @param string $table
      */
     private function dropTableIfExists($installer, $table)
     {
@@ -1570,124 +1598,22 @@ class InstallSchema implements InstallSchemaInterface
     }
 
     /**
-     * @param $abandonedCartTable Table
-     * @return mixed
+     * @param SchemaSetupInterface $installer
      */
-    private function addColumnForAbandonedCartTable($abandonedCartTable)
+    private function createConsentTable($installer)
     {
-        return $abandonedCartTable->addColumn(
-            'id',
-            \Magento\Framework\DB\Ddl\Table::TYPE_INTEGER,
-            null,
-            [
-                'primary' => true,
-                'identity' => true,
-                'unsigned' => true,
-                'nullable' => false
-            ],
-            'Primary Key'
-        )
-            ->addColumn(
-                'quote_id',
-                \Magento\Framework\DB\Ddl\Table::TYPE_INTEGER,
-                null,
-                ['unsigned' => true, 'nullable' => true],
-                'Quote Id'
-            )
-            ->addColumn(
-                'store_id',
-                \Magento\Framework\DB\Ddl\Table::TYPE_SMALLINT,
-                10,
-                ['unsigned' => true, 'nullable' => true],
-                'Store Id'
-            )
-            ->addColumn(
-                'customer_id',
-                \Magento\Framework\DB\Ddl\Table::TYPE_INTEGER,
-                10,
-                ['unsigned' => true, 'nullable' => true, 'default' => null],
-                'Customer ID'
-            )
-            ->addColumn(
-                'email',
-                \Magento\Framework\DB\Ddl\Table::TYPE_TEXT,
-                255,
-                ['nullable' => false, 'default' => ''],
-                'Email'
-            )
-            ->addColumn(
-                'is_active',
-                \Magento\Framework\DB\Ddl\Table::TYPE_SMALLINT,
-                5,
-                ['unsigned' => true, 'nullable' => false, 'default' => '1'],
-                'Quote Active'
-            )
-            ->addColumn(
-                'quote_updated_at',
-                \Magento\Framework\DB\Ddl\Table::TYPE_TIMESTAMP,
-                null,
-                [],
-                'Quote updated at'
-            )
-            ->addColumn(
-                'abandoned_cart_number',
-                \Magento\Framework\DB\Ddl\Table::TYPE_SMALLINT,
-                null,
-                ['unsigned' => true, 'nullable' => false, 'default' => 0],
-                'Abandoned Cart number'
-            )
-            ->addColumn(
-                'items_count',
-                \Magento\Framework\DB\Ddl\Table::TYPE_SMALLINT,
-                null,
-                ['unsigned' => true, 'nullable' => true, 'default' => 0],
-                'Quote items count'
-            )
-            ->addColumn(
-                'items_ids',
-                \Magento\Framework\DB\Ddl\Table::TYPE_TEXT,
-                255,
-                ['unsigned' => true, 'nullable' => true],
-                'Quote item ids'
-            )
-            ->addColumn(
-                'created_at',
-                \Magento\Framework\DB\Ddl\Table::TYPE_TIMESTAMP,
-                null,
-                [],
-                'Created At'
-            )
-            ->addColumn(
-                'updated_at',
-                \Magento\Framework\DB\Ddl\Table::TYPE_TIMESTAMP,
-                null,
-                [],
-                'Updated at'
-            );
+        $tableName = $installer->getTable('email_contact_consent');
+        $this->dropTableIfExists($installer, $tableName);
+        $this->shared->createConsentTable($installer, $tableName);
     }
 
     /**
-     * @param $installer
-     * @param $abandonedCartTable
-     * @return mixed
+     * @param SchemaSetupInterface $installer
      */
-    private function addIndexKeyForAbandonedCarts($installer, $abandonedCartTable)
+    private function createFailedAuth($installer)
     {
-        return $abandonedCartTable->addIndex(
-            $installer->getIdxName('email_abandoned_cart', ['quote_id']),
-            ['quote_id']
-        )
-            ->addIndex(
-                $installer->getIdxName('email_abandoned_cart', ['store_id']),
-                ['store_id']
-            )
-            ->addIndex(
-                $installer->getIdxName('email_abandoned_cart', ['customer_id']),
-                ['customer_id']
-            )
-            ->addIndex(
-                $installer->getIdxName('email_abandoned_cart', ['email']),
-                ['email']
-            );
+        $tableName = $installer->getTable('email_failed_auth');
+        $this->dropTableIfExists($installer, $tableName);
+        $this->shared->createFailedAuthTable($installer, $tableName);
     }
 }

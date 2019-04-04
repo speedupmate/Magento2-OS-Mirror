@@ -7,42 +7,50 @@ namespace Temando\Shipping\Sync;
 
 use Magento\Framework\Exception\LocalizedException;
 use Magento\Framework\Exception\NoSuchEntityException;
-use Magento\Sales\Api\Data\ShipmentCreationArgumentsExtensionFactory;
-use Magento\Sales\Api\Data\ShipmentCreationArgumentsInterface;
+use Magento\Sales\Api\Data\OrderInterface;
+use Magento\Sales\Api\Data\ShipmentCreationArgumentsExtensionInterfaceFactory;
+use Magento\Sales\Api\Data\ShipmentCreationArgumentsInterfaceFactory;
+use Magento\Sales\Api\Data\ShipmentItemCreationInterfaceFactory;
 use Magento\Sales\Api\Data\ShipmentTrackCreationInterfaceFactory;
 use Magento\Sales\Api\Data\ShipmentTrackInterfaceFactory;
+use Magento\Sales\Api\OrderRepositoryInterface;
+use Magento\Sales\Api\ShipmentRepositoryInterface as SalesShipmentRepositoryInterface;
 use Magento\Sales\Api\ShipOrderInterface;
+use Temando\Shipping\Model\DocumentationInterface;
+use Temando\Shipping\Model\ResourceModel\Order\OrderReference as OrderReferenceResource;
+use Temando\Shipping\Model\ResourceModel\Repository\ShipmentRepositoryInterface;
+use Temando\Shipping\Model\Shipment\PackageInterface;
+use Temando\Shipping\Model\Shipment\PackageItemInterface;
+use Temando\Shipping\Model\ShipmentInterface;
+use Temando\Shipping\Model\Shipping\Carrier;
 use Temando\Shipping\Model\StreamEventInterface;
 use Temando\Shipping\Sync\Exception\EventException;
 use Temando\Shipping\Sync\Exception\EventProcessorException;
-use Temando\Shipping\Model\ResourceModel\Order\OrderReference as OrderReferenceResource;
-use Temando\Shipping\Model\ResourceModel\Repository\ShipmentRepositoryInterface;
-use Temando\Shipping\Model\Shipping\Carrier;
 
 /**
  * Temando Shipment Event Processor
  *
- * @package  Temando\Shipping\Sync
- * @author   Christoph Aßmann <christoph.assmann@netresearch.de>
- * @license  http://opensource.org/licenses/osl-3.0.php Open Software License (OSL 3.0)
- * @link     http://www.temando.com/
+ * @package Temando\Shipping\Sync
+ * @author  Christoph Aßmann <christoph.assmann@netresearch.de>
+ * @license https://opensource.org/licenses/osl-3.0.php Open Software License (OSL 3.0)
+ * @link    https://www.temando.com/
  */
 class ShipmentProcessor implements EntityProcessorInterface
 {
     /**
-     * @var ShipmentRepositoryInterface
+     * @var OrderRepositoryInterface
      */
-    private $shipmentRepository;
+    private $salesOrderRepository;
 
     /**
-     * @var \Magento\Sales\Api\ShipmentRepositoryInterface
+     * @var SalesShipmentRepositoryInterface
      */
     private $salesShipmentRepository;
 
     /**
-     * @var ShipmentCreationArgumentsInterface
+     * @var ShipmentRepositoryInterface
      */
-    private $shipmentCreationArguments;
+    private $shipmentRepository;
 
     /**
      * @var ShipOrderInterface
@@ -55,6 +63,11 @@ class ShipmentProcessor implements EntityProcessorInterface
     private $orderReferenceResource;
 
     /**
+     * @var ShipmentItemCreationInterfaceFactory
+     */
+    private $itemCreationFactory;
+
+    /**
      * @var ShipmentTrackCreationInterfaceFactory
      */
     private $trackCreationFactory;
@@ -65,39 +78,50 @@ class ShipmentProcessor implements EntityProcessorInterface
     private $trackUpdateFactory;
 
     /**
-     * @var ShipmentCreationArgumentsExtensionFactory
+     * @var ShipmentCreationArgumentsInterfaceFactory
      */
-    private $shipmentExtensionFactory;
+    private $shipmentCreationArgumentsFactory;
+
+    /**
+     * @var ShipmentCreationArgumentsExtensionInterfaceFactory
+     */
+    private $shipmentCreationArgumentsExtensionFactory;
 
     /**
      * ShipmentEventProcessor constructor.
+     * @param OrderRepositoryInterface $salesOrderRepository
+     * @param SalesShipmentRepositoryInterface $salesShipmentRepository
      * @param ShipmentRepositoryInterface $shipmentRepository
-     * @param \Magento\Sales\Api\ShipmentRepositoryInterface $salesShipmentRepository
-     * @param ShipmentCreationArgumentsInterface $shipmentCreationArguments
      * @param ShipOrderInterface $shipOrder
      * @param OrderReferenceResource $orderReferenceResource
+     * @param ShipmentItemCreationInterfaceFactory $itemCreationFactory
      * @param ShipmentTrackCreationInterfaceFactory $trackCreationFactory
      * @param ShipmentTrackInterfaceFactory $trackUpdateFactory
-     * @param ShipmentCreationArgumentsExtensionFactory $shipmentExtensionFactory
+     * @param ShipmentCreationArgumentsInterfaceFactory $shipmentCreationArgumentsFactory
+     * @param ShipmentCreationArgumentsExtensionInterfaceFactory $shipmentCreationArgumentsExtensionFactory
      */
     public function __construct(
+        OrderRepositoryInterface $salesOrderRepository,
+        SalesShipmentRepositoryInterface $salesShipmentRepository,
         ShipmentRepositoryInterface $shipmentRepository,
-        \Magento\Sales\Api\ShipmentRepositoryInterface $salesShipmentRepository,
-        ShipmentCreationArgumentsInterface $shipmentCreationArguments,
         ShipOrderInterface $shipOrder,
         OrderReferenceResource $orderReferenceResource,
+        ShipmentItemCreationInterfaceFactory $itemCreationFactory,
         ShipmentTrackCreationInterfaceFactory $trackCreationFactory,
         ShipmentTrackInterfaceFactory $trackUpdateFactory,
-        ShipmentCreationArgumentsExtensionFactory $shipmentExtensionFactory
+        ShipmentCreationArgumentsInterfaceFactory $shipmentCreationArgumentsFactory,
+        ShipmentCreationArgumentsExtensionInterfaceFactory $shipmentCreationArgumentsExtensionFactory
     ) {
-        $this->shipmentRepository        = $shipmentRepository;
-        $this->salesShipmentRepository   = $salesShipmentRepository;
-        $this->shipmentCreationArguments = $shipmentCreationArguments;
-        $this->shipOrder                 = $shipOrder;
-        $this->orderReferenceResource    = $orderReferenceResource;
-        $this->trackCreationFactory      = $trackCreationFactory;
-        $this->trackUpdateFactory        = $trackUpdateFactory;
-        $this->shipmentExtensionFactory  = $shipmentExtensionFactory;
+        $this->salesOrderRepository = $salesOrderRepository;
+        $this->salesShipmentRepository = $salesShipmentRepository;
+        $this->shipmentRepository = $shipmentRepository;
+        $this->shipOrder = $shipOrder;
+        $this->orderReferenceResource = $orderReferenceResource;
+        $this->itemCreationFactory = $itemCreationFactory;
+        $this->trackCreationFactory = $trackCreationFactory;
+        $this->trackUpdateFactory = $trackUpdateFactory;
+        $this->shipmentCreationArgumentsFactory = $shipmentCreationArgumentsFactory;
+        $this->shipmentCreationArgumentsExtensionFactory = $shipmentCreationArgumentsExtensionFactory;
     }
 
     /**
@@ -115,15 +139,30 @@ class ShipmentProcessor implements EntityProcessorInterface
     }
 
     /**
+     * @param OrderInterface $salesOrder
+     * @param string $sku
+     * @return int|null
+     */
+    private function getOrderItemIdBySku(OrderInterface $salesOrder, $sku)
+    {
+        foreach ($salesOrder->getItems() as $item) {
+            if ($item->getSku() === $sku) {
+                return $item->getItemId();
+            }
+        }
+
+        return null;
+    }
+
+    /**
      * @param string $extShipmentId
-     * @return \Temando\Shipping\Model\ShipmentInterface
+     * @return ShipmentInterface
      * @throws EventProcessorException
      */
     private function loadExternalShipment($extShipmentId)
     {
         try {
             // load external shipment
-            /** @var \Temando\Shipping\Model\Shipment $shipment */
             return $this->shipmentRepository->getById($extShipmentId);
         } catch (LocalizedException $e) {
             throw EventProcessorException::processingFailed(
@@ -168,27 +207,55 @@ class ShipmentProcessor implements EntityProcessorInterface
             );
         }
 
+        // items
+        $creationItems = [];
+        $packages = $shipment->getPackages() ?: [];
+
+        /** @var PackageItemInterface[] $fulfilledItems */
+        $fulfilledItems = array_reduce($packages, function (array $items, PackageInterface $package) {
+            $items = array_merge($items, $package->getItems());
+            return $items;
+        }, []);
+
+        $salesOrder = $this->salesOrderRepository->get($orderId);
+        foreach ($fulfilledItems as $fulfilledItem) {
+            $orderItemId = $this->getOrderItemIdBySku($salesOrder, $fulfilledItem->getSku());
+
+            $creationItem = $this->itemCreationFactory->create();
+            $creationItem->setQty($fulfilledItem->getQty());
+            $creationItem->setOrderItemId($orderItemId);
+            $creationItems[]= $creationItem;
+        }
+
+        // tracking
         $tracking = $this->trackCreationFactory->create();
         $tracking->setCarrierCode(Carrier::CODE);
         $tracking->setTitle($fulfillment->getServiceName());
         $tracking->setTrackNumber($fulfillment->getTrackingReference());
 
-        $extensionAttributes = $this->shipmentExtensionFactory->create();
+        // shipping label
+        /** @var DocumentationInterface $documentation */
+        $documentation = current($shipment->getDocumentation());
+        $labelUrl = empty($documentation) ? '' : $documentation->getUrl();
+
+        $extensionAttributes = $this->shipmentCreationArgumentsExtensionFactory->create();
         $extensionAttributes->setExtLocationId($shipment->getOriginId());
         $extensionAttributes->setExtShipmentId($extShipmentId);
         $extensionAttributes->setExtTrackingReference($fulfillment->getTrackingReference());
+        $extensionAttributes->setShippingLabel($labelUrl);
 
-        $arguments = $this->shipmentCreationArguments->setExtensionAttributes($extensionAttributes);
+        $arguments = $this->shipmentCreationArgumentsFactory->create();
+        $arguments->setExtensionAttributes($extensionAttributes);
 
         try {
             $shipmentId = $this->shipOrder->execute(
                 $orderId,
-                [], // items information is not available at the API
+                $creationItems, // items within partial shipments
                 true, // Notify the customer (tracking email)
                 false, // add comment
                 null,
                 [$tracking],
-                [], // Package information is not available at the API
+                [], // Package definition
                 $arguments
             );
         } catch (LocalizedException $e) {
@@ -233,8 +300,6 @@ class ShipmentProcessor implements EntityProcessorInterface
 
         /** @var \Magento\Sales\Model\Order\Shipment $salesShipment */
         $salesShipment = $this->salesShipmentRepository->get($salesShipmentId);
-
-        /** @var  $tracks */
         $tracks = $salesShipment->getTracksCollection();
         foreach ($tracks as $track) {
             if ($track->getTrackNumber() === $fulfillment->getTrackingReference()) {

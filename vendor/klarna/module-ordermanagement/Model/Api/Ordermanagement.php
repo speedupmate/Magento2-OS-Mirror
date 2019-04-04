@@ -50,6 +50,16 @@ class Ordermanagement implements ApiInterface
     const ORDER_NOTIFICATION_FRAUD_STOPPED  = 'FRAUD_RISK_STOPPED';
 
     /**
+     * API allowed shipping method code
+     */
+    const KLARNA_API_SHIPPING_METHOD_HOME = "Home";
+    const KLARNA_API_SHIPPING_METHOD_PICKUPSTORE = "PickUpStore";
+    const KLARNA_API_SHIPPING_METHOD_BOXREG = "BoxReg";
+    const KLARNA_API_SHIPPING_METHOD_BOXUNREG = "BoxUnreg";
+    const KLARNA_API_SHIPPING_METHOD_PICKUPPOINT = "PickUpPoint";
+    const KLARNA_API_SHIPPING_METHOD_OWN = "Own";
+
+    /**
      * @var DataObject
      */
     private $klarnaOrder;
@@ -231,6 +241,57 @@ class Ordermanagement implements ApiInterface
 
         return $response;
     }
+
+    /**
+     * Add shipping info to capture
+     *
+     * @param string $orderId
+     * @param string $captureId
+     * @param array $shippingInfo
+     * @return array|DataObject
+     */
+    public function addShippingInfo($orderId, $captureId, $shippingInfo)
+    {
+        $data = $this->prepareShippingInfo($shippingInfo);
+        $response = $this->orderManagement->addShippingInfo($orderId, $captureId, $data);
+        $response = $this->dataObjectFactory->create(['data' => $response]);
+        return $response;
+    }
+
+    /**
+     * Prepare shipping info
+     *
+     * @param array $shippingInfo
+     * @return array
+     */
+    private function prepareShippingInfo(array $shippingInfo)
+    {
+        $data = [];
+        foreach ($shippingInfo as $shipping) {
+            $data['shipping_info'][] = [
+                'tracking_number' => substr($shipping['number'], 0, 100),
+                'shipping_method' => $this->getKlarnaShippingMethod($shipping),
+                'shipping_company' => substr($shipping['title'], 0, 100)
+            ];
+        }
+
+        return $data;
+    }
+
+    /**
+     * Get Api Accepted shipping method,For merchant who implement this feature
+     * Create Plugin to overwrite this default method code
+     * Allowed values matches (PickUpStore|Home|BoxReg|BoxUnreg|PickUpPoint|Own)
+     *
+     * @param array $shipping
+     * @return string
+     * @SuppressWarnings(PHPMD.UnusedFormalParameter)
+     */
+    public function getKlarnaShippingMethod(array $shipping)
+    {
+        return self::KLARNA_API_SHIPPING_METHOD_HOME;
+    }
+
 
     /**
      * @param array                   $data

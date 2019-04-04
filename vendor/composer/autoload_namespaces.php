@@ -17,5 +17,5 @@ return array(
     'Doctrine\\Common\\Lexer\\' => array($vendorDir . '/doctrine/lexer/lib'),
     'Cm\\RedisSession\\' => array($vendorDir . '/colinmollenhour/php-redis-session-abstract/src'),
     'Braintree' => array($vendorDir . '/braintree/braintree_php/lib'),
-    '' => array($baseDir . '/app/code'),
+    '' => array($baseDir . '/app/code', $baseDir . '/generated/code'),
 );

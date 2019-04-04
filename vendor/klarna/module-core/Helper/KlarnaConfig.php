@@ -359,6 +359,8 @@ class KlarnaConfig extends AbstractHelper
      * @param $store
      * @return bool
      * @throws KlarnaException
+     * @deprecated 4.4.0
+     * @see \Klarna\Kco\Helper\Checkout::isShippingInIframe
      */
     public function isShippingInIframe($store)
     {

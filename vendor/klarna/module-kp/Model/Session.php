@@ -263,6 +263,7 @@ class Session
             $klarnaQuote->setPaymentMethods(
                 $this->extractPaymentMethods($klarnaResponse->getPaymentMethodCategories())
             );
+            $klarnaQuote->setPaymentMethodInfo($klarnaResponse->getPaymentMethodCategories());
             $this->kQuoteRepository->save($klarnaQuote);
             return $klarnaQuote;
         } catch (NoSuchEntityException $e) {
@@ -298,6 +299,7 @@ class Session
         $klarnaQuote->setIsActive(1);
         $klarnaQuote->setQuoteId($this->getQuote()->getId());
         $klarnaQuote->setPaymentMethods($this->extractPaymentMethods($resp->getPaymentMethodCategories()));
+        $klarnaQuote->setPaymentMethodInfo($resp->getPaymentMethodCategories());
         $this->kQuoteRepository->save($klarnaQuote);
         return $klarnaQuote;
     }

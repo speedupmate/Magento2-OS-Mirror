@@ -12,7 +12,7 @@ use Magento\Sales\Api\Data\ShipmentItemCreationInterface;
 use Magento\Sales\Api\Data\ShipmentItemCreationInterfaceFactory;
 use Magento\Sales\Api\Data\ShipmentTrackCreationInterfaceFactory;
 use Magento\Sales\Api\ShipOrderInterface;
-use Temando\Shipping\Api\Data\Shipment\ShipmentReferenceInterface;
+use Temando\Shipping\Model\DocumentationInterface;
 use Temando\Shipping\Model\Shipment\PackageInterface;
 use Temando\Shipping\Model\Shipment\PackageItemInterface;
 use Temando\Shipping\Model\Shipping\Carrier;
@@ -166,22 +166,24 @@ class AutoFulfill implements AutoFulfillInterface
             $tracking->setTitle($fulfillment->getServiceName());
             $tracking->setTrackNumber($fulfillment->getTrackingReference());
 
-            // platform data
-            $arguments = $this->shipmentCreationArgumentsFactory->create();
-            $shipmentId = $fulfilledShipment->getShipmentId();
-            $locationId = $fulfilledShipment->getOriginId();
-            $trackingReference = $fulfilledShipment->getFulfillment()->getTrackingReference();
-            $argumentsExtension = $this->shipmentCreationArgumentsExtensionFactory->create(['data' => [
-                ShipmentReferenceInterface::EXT_SHIPMENT_ID => $shipmentId,
-                ShipmentReferenceInterface::EXT_LOCATION_ID => $locationId,
-                ShipmentReferenceInterface::EXT_TRACKING_REFERENCE => $trackingReference,
-            ]]);
-            $arguments->setExtensionAttributes($argumentsExtension);
+            // remote references and shipping label
+            /** @var DocumentationInterface $documentation */
+            $documentation = current($fulfilledShipment->getDocumentation());
+            $labelUrl = empty($documentation) ? '' : $documentation->getUrl();
+
+            $extensionAttributes = $this->shipmentCreationArgumentsExtensionFactory->create();
+            $extensionAttributes->setExtLocationId($fulfilledShipment->getOriginId());
+            $extensionAttributes->setExtShipmentId($fulfilledShipment->getShipmentId());
+            $extensionAttributes->setExtTrackingReference($fulfilledShipment->getFulfillment()->getTrackingReference());
+            $extensionAttributes->setShippingLabel($labelUrl);
 
             if (isset($returnShipments[$index])) {
                 // add forward fulfillment return shipment ID
-                $argumentsExtension->setExtReturnShipmentId($returnShipments[$index]->getShipmentId());
+                $extensionAttributes->setExtReturnShipmentId($returnShipments[$index]->getShipmentId());
             }
+
+            $arguments = $this->shipmentCreationArgumentsFactory->create();
+            $arguments->setExtensionAttributes($extensionAttributes);
 
             // comment
             $comment = $this->commentFactory->create();

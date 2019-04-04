@@ -5,9 +5,14 @@
 ?>
 <?php /** @var \Temando\Shipping\Block\Adminhtml\System\Config\Form\Field\GettingStarted $block */ ?>
 <p class="getting-started">
-    <span class="tooltip"><span class="help"><span></span></span></span>
-    <?php // @codingStandardsIgnoreLine ?>
-    <span class="hint"><?= $block->escapeHtml(__('Once you have activated Magento Shipping, configure these sections to get up and running:')) ?></span>
+    <span class="custom-tooltip">
+        <span class="question-mark">
+            <span class="custom-hint">
+                <?php // @codingStandardsIgnoreLine ?>
+                <?= $block->escapeHtml(__('Once you have activated Magento Shipping, configure these sections to get up and running:')) ?>
+            </span>
+        </span>
+    </span>
 </p>
 
 <ol class="getting-started-actions">

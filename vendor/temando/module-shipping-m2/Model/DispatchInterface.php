@@ -42,12 +42,12 @@ interface DispatchInterface
     public function getCarrierName();
 
     /**
-     * @return \DateTime
+     * @return string
      */
     public function getCreatedAtDate();
 
     /**
-     * @return \DateTime
+     * @return string
      */
     public function getReadyAtDate();
 

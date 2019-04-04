@@ -54,10 +54,12 @@ class CollectionPointSearchProcessor implements RatesProcessorInterface
         OrderInterface $requestType,
         OrderResponseTypeInterface $responseType
     ) {
-        $shippingAddressId = $requestType->getCollectionPointSearchRequest()->getShippingAddressId();
+        $searchRequest = $requestType->getCollectionPointSearchRequest();
+        $shippingAddressId = $searchRequest->getShippingAddressId();
+        $isPending = $searchRequest->isPending();
 
         // persist collection points for a given search request
-        if ($shippingAddressId) {
+        if ($shippingAddressId && !$isPending) {
             $collectionPoints = (array) $responseType->getCollectionPoints();
 
             /** @var QuoteCollectionPoint $collectionPoint */

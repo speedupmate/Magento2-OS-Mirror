@@ -55,10 +55,10 @@ class Uninstall implements UninstallInterface
         $salesConnection->dropTable(SetupSchema::TABLE_ORDER);
         $checkoutConnection->dropTable(SetupSchema::TABLE_QUOTE_COLLECTION_POINT);
         $checkoutConnection->dropTable(SetupSchema::TABLE_COLLECTION_POINT_SEARCH);
+        $checkoutConnection->dropTable(SetupSchema::TABLE_ORDER_COLLECTION_POINT);
         $checkoutConnection->dropTable(SetupSchema::TABLE_CHECKOUT_ADDRESS);
         $salesConnection->dropTable(SetupSchema::TABLE_SHIPMENT);
         $defaultConnection->dropTable(RmaSetupSchema::TABLE_RMA_SHIPMENT);
-        $checkoutConnection->dropTable(SetupSchema::TABLE_COLLECTION_POINT_SEARCH);
 
         $configTable = $uninstaller->getTable('core_config_data');
         $defaultConnection->delete($configTable, "`path` LIKE 'carriers/temando/%'");

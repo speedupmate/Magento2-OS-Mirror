@@ -65,11 +65,12 @@ class Customer
      * Create a properly formatted array of Customer Data for a Vertex API
      *
      * @param AddressInterface $taxAddress
+     * @param int $customerGroupId
      * @return array
      * @throws \Magento\Framework\Exception\LocalizedException
      * @throws \Magento\Framework\Exception\NoSuchEntityException
      */
-    public function getFormattedCustomerData(AddressInterface $taxAddress)
+    public function getFormattedCustomerData(AddressInterface $taxAddress, $customerGroupId = null)
     {
         $data = [];
         $street = $taxAddress->getStreet();
@@ -87,8 +88,8 @@ class Customer
         $data['CustomerCode']['_'] = $this->getCustomerCodeById($customerId, $taxAddress->getQuote()->getStoreId());
 
         if ($customerId) {
-            $customerData = $this->customerRepository->getById($customerId);
-            $customerTaxClass = $this->customerGroupRepository->getById($customerData->getGroupId())->getTaxClassId();
+            $groupId = $customerGroupId ?: $this->customerRepository->getById($customerId)->getGroupId();
+            $customerTaxClass = $this->customerGroupRepository->getById($groupId)->getTaxClassId();
         } else {
             $customerTaxClass = $this->customerGroupManagement->getNotLoggedInGroup()->getTaxClassId();
         }

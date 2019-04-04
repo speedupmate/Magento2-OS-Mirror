@@ -4,6 +4,7 @@
  */
 namespace Temando\Shipping\ViewModel\Shipment;
 
+use Magento\Backend\Model\UrlInterface;
 use Magento\Framework\DataObject;
 use Magento\Framework\View\Element\Block\ArgumentInterface;
 use Temando\Shipping\Model\DispatchProviderInterface;
@@ -16,10 +17,10 @@ use Temando\Shipping\Model\ShipmentInterfaceFactory;
 /**
  * View model for shipment related information.
  *
- * @package  Temando\Shipping\ViewModel
- * @author   Christoph Aßmann <christoph.assmann@netresearch.de>
- * @license  http://opensource.org/licenses/osl-3.0.php Open Software License (OSL 3.0)
- * @link     http://www.temando.com/
+ * @package Temando\Shipping\ViewModel
+ * @author  Christoph Aßmann <christoph.assmann@netresearch.de>
+ * @license https://opensource.org/licenses/osl-3.0.php Open Software License (OSL 3.0)
+ * @link    https://www.temando.com/
  */
 class ShipmentDetails implements ArgumentInterface
 {
@@ -44,22 +45,30 @@ class ShipmentDetails implements ArgumentInterface
     private $rmaAccess;
 
     /**
+     * @var UrlInterface
+     */
+    private $urlBuilder;
+
+    /**
      * ShipmentDetails constructor.
      * @param ShipmentInterfaceFactory $shipmentFactory
      * @param ShipmentProviderInterface $shipmentProvider
      * @param DispatchProviderInterface $dispatchProvider
      * @param RmaAccess $rmaAccess
+     * @param UrlInterface $urlBuilder
      */
     public function __construct(
         ShipmentInterfaceFactory $shipmentFactory,
         ShipmentProviderInterface $shipmentProvider,
         DispatchProviderInterface $dispatchProvider,
-        RmaAccess $rmaAccess
+        RmaAccess $rmaAccess,
+        UrlInterface $urlBuilder
     ) {
         $this->shipmentFactory = $shipmentFactory;
         $this->shipmentProvider = $shipmentProvider;
         $this->dispatchProvider = $dispatchProvider;
         $this->rmaAccess = $rmaAccess;
+        $this->urlBuilder = $urlBuilder;
     }
 
     /**
@@ -79,12 +88,30 @@ class ShipmentDetails implements ArgumentInterface
     }
 
     /**
+     * @param string $extShipmentId
+     * @return string
+     */
+    public function getViewActionUrl($extShipmentId)
+    {
+        return $this->urlBuilder->getUrl('temando/shipment/view', ['shipment_id' => $extShipmentId]);
+    }
+
+    /**
      * @return string
      */
     public function getExtShipmentId()
     {
         $shipment = $this->getShipment();
-        return ($shipment ? $shipment->getShipmentId() : '');
+        return ($shipment ? (string) $shipment->getShipmentId() : '');
+    }
+
+    /**
+     * @return string
+     */
+    public function getCustomerReference()
+    {
+        $shipment = $this->getShipment();
+        return ($shipment ? (string) $shipment->getCustomerReference() : '');
     }
 
     /**
@@ -143,6 +170,7 @@ class ShipmentDetails implements ArgumentInterface
             'codTurnInPage' => 'Cash On Delivery Turn In Page',
             'commercialInvoice' => 'Commercial Invoice',
             'customerInvoice' => 'Customer Invoice',
+            'highValueReport' => 'High Value Report',
             'manifestSummary' => 'Manifest Summary',
             'packageLabel' => 'Package Label',
             'packageReturnLabel' => 'Package Return Label',

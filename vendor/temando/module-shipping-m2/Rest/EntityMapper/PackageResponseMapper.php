@@ -13,10 +13,10 @@ use Temando\Shipping\Rest\Response\Type\Generic\Package;
 /**
  * Map API data to application data object
  *
- * @package  Temando\Shipping\Rest
- * @author   Rhodri Davies <rhodri.davies@temando.com>
- * @license  http://opensource.org/licenses/osl-3.0.php Open Software License (OSL 3.0)
- * @link     http://www.temando.com
+ * @package Temando\Shipping\Rest
+ * @author  Rhodri Davies <rhodri.davies@temando.com>
+ * @license https://opensource.org/licenses/osl-3.0.php Open Software License (OSL 3.0)
+ * @link    https://www.temando.com
  */
 class PackageResponseMapper
 {

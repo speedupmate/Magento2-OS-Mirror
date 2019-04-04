@@ -47,5 +47,13 @@
              parent="Magento_Sales::sales_operation"
              action="temando/dispatch/index"
         />
+        <add id="Temando_Shipping::batches"
+             title="Batches"
+             module="Temando_Shipping"
+             sortOrder="37"
+             resource="Temando_Shipping::batches"
+             parent="Magento_Sales::sales_operation"
+             action="temando/batch/index"
+        />
     </menu>
 </config>

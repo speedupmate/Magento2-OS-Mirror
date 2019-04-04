@@ -9,9 +9,10 @@ use Magento\Framework\EntityManager\HydratorInterface;
 use Magento\Framework\Exception\LocalizedException;
 use Magento\Framework\Session\SessionManagerInterface;
 use Temando\Shipping\Api\Data\CollectionPoint\QuoteCollectionPointInterface;
-use Temando\Shipping\Model\CollectionPoint\QuoteCollectionPoint;
+use Temando\Shipping\Api\Data\CollectionPoint\SearchRequestInterface;
 use Temando\Shipping\Model\CollectionPoint\CartCollectionPointManagement;
 use Temando\Shipping\Model\CollectionPoint\OpeningHoursFormatter;
+use Temando\Shipping\Model\CollectionPoint\QuoteCollectionPoint;
 use Temando\Shipping\Model\Config\ModuleConfigInterface;
 use Temando\Shipping\Model\ResourceModel\Repository\CollectionPointSearchRepositoryInterface;
 
@@ -98,23 +99,25 @@ class CollectionPoints implements SectionSourceInterface
         $quote = $this->checkoutSession->getQuote();
         $quoteAddressId = $quote->getShippingAddress()->getId();
 
+        // check if customer checks out with collection points delivery option
         try {
-            // check if customer performed a search for collection points
+            // a search request was performed or is pending (waiting for search input)
             $searchRequest = $this->searchRequestRepository->get($quoteAddressId);
-            $searchRequest = $this->hydrator->extract($searchRequest);
-            $collectionPoints = $this->cartCollectionPointManagement->getCollectionPoints($quote->getId());
-
-            if (!empty($collectionPoints)) {
-                $message = __('There were %1 results for your search.', count($collectionPoints));
-            } else {
-                $message = __('No Collection Points found.');
-            }
-
+            $searchRequestData = $this->hydrator->extract($searchRequest);
         } catch (LocalizedException $e) {
-            $searchRequest = [];
-            $collectionPoints = [];
-            $message = __('Enter country and postal code to search for a collection point.');
+            // no search request found at all for given address
+            $searchRequestData = [];
         }
+
+        if (empty($searchRequestData) || !empty($searchRequestData['pending'])) {
+            return [
+                'collection-points' => [],
+                'search-request' => $searchRequestData,
+                'message' => __('Enter country and postal code to search for a collection point.')
+            ];
+        }
+
+        $collectionPoints = $this->cartCollectionPointManagement->getCollectionPoints($quote->getId());
 
         // map collection points to data array with formatted/localized opening hours
         $collectionPoints = array_map(function (QuoteCollectionPointInterface $collectionPoint) {
@@ -127,9 +130,13 @@ class CollectionPoints implements SectionSourceInterface
             return $collectionPointData;
         }, $collectionPoints);
 
+        $message = !empty($collectionPoints)
+            ? __('There were %1 results for your search.', count($collectionPoints))
+            : $message = __('No Collection Points found.');
+
         return [
             'collection-points' => array_values($collectionPoints),
-            'search-request' => $searchRequest,
+            'search-request' => $searchRequestData,
             'message' => $message
         ];
     }

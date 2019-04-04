@@ -35,7 +35,7 @@ class UpgradeSchema implements UpgradeSchemaInterface
 
         $installer->startSetup();
 
-        if (version_compare($context->getVersion(), '1.1.0', '<')) {
+        if (version_compare($context->getVersion(), '1.1.0', '<') && $installer->tableExists('klarna_kco_order')) {
             $oldTable = $installer->getTable('klarna_kco_order');
             $newTable = $installer->getTable('klarna_core_order');
 

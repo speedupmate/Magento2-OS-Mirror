@@ -66,6 +66,10 @@ class Notice extends Template
                 $this->pageConfig->getTitle()->prepend(__('Checkout View Settings'));
                 $this->assign('subject', 'checkout options');
                 break;
+            case 'batch':
+                $this->pageConfig->getTitle()->prepend(__('Batches'));
+                $this->assign('subject', 'batches');
+                break;
             default:
                 $this->pageConfig->getTitle()->prepend(__('Magento Shipping'));
                 $this->assign('subject', 'Magento Shipping');

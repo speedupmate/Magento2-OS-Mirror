@@ -18,6 +18,11 @@ use Temando\Shipping\Model\OrderInterface;
 class OrderActionLocator
 {
     /**
+     * No API call
+     */
+    const ACTION_NONE= 'none';
+
+    /**
      * Retrieve rates
      */
     const ACTION_QUALIFY = 'qualify';
@@ -85,6 +90,12 @@ class OrderActionLocator
     private function getQualifyOrderAction(OrderInterface $order)
     {
         $searchRequest = $order->getCollectionPointSearchRequest();
+
+        // collection point delivery chosen, no search triggered yet
+        $isCollectionPointDeliveryOption = $searchRequest->isPending();
+        if ($isCollectionPointDeliveryOption) {
+            return self::ACTION_NONE;
+        }
 
         // collection point search request exists
         $isCollectionPointSearch = ($searchRequest->getPostcode() && $searchRequest->getCountryId());

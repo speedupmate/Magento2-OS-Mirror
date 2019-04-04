@@ -16,8 +16,12 @@ use Klarna\Core\Helper\DataConverter;
 use Klarna\Core\Helper\KlarnaConfig;
 use Magento\Framework\App\Config\ScopeConfigInterface;
 use Magento\Framework\DataObjectFactory;
+use Magento\Quote\Model\Quote;
 use Magento\Quote\Model\Quote\Item;
 use Magento\Tax\Model\Calculation;
+use Magento\Tax\Model\Config as TaxConfig;
+use Magento\Store\Api\Data\StoreInterface;
+use Magento\Store\Model\ScopeInterface;
 
 /**
  * Klarna order line abstract
@@ -140,6 +144,7 @@ abstract class AbstractLine implements OrderLineInterface
             }
             $taxAmount += $item->getDiscountTaxCompensationAmount();
         }
+
         if ($taxAmount === 0) {
             if ($taxRate > 1) {
                 $taxRate = $taxRate / 100;
@@ -234,5 +239,30 @@ abstract class AbstractLine implements OrderLineInterface
             return reset($itemTaxRates);
         }
         return false;
+    }
+
+    /**
+     * Calculate shipping tax rate for an object
+     *
+     * @param BuilderInterface $checkout
+     * @param StoreInterface $store
+     * @return float
+     */
+    protected function calculateShippingTax(BuilderInterface $checkout, StoreInterface $store)
+    {
+        $object = $checkout->getObject();
+        $request = $this->calculator->getRateRequest(
+            $object->getShippingAddress(),
+            $object->getBillingAddress(),
+            null,
+            $store
+        );
+        $taxRateId = $this->config->getValue(
+            TaxConfig::CONFIG_XML_PATH_SHIPPING_TAX_CLASS,
+            ScopeInterface::SCOPE_STORES,
+            $store
+        );
+
+        return $this->calculator->getRate($request->setProductClassId($taxRateId));
     }
 }

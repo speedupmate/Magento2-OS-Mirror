@@ -6,6 +6,7 @@ namespace Temando\Shipping\Observer;
 
 use Magento\Framework\Event\Observer;
 use Magento\Framework\Event\ObserverInterface;
+use Magento\Sales\Api\Data\OrderInterface;
 use Magento\Sales\Block\Adminhtml\Order\View\Tab\Info;
 use Magento\Shipping\Block\Adminhtml\Create\Form;
 use Temando\Shipping\Model\Shipping\Carrier;
@@ -82,8 +83,8 @@ class PrepareOrderViewObserver implements ObserverInterface
         /** @var Info|Form $parentBlock */
         $parentBlock = $layout->getBlock('order_tab_info') ?: $layout->getBlock('form');
         $order = $parentBlock->getOrder();
-
-        if ($order->getIsVirtual()) {
+        if (!$order instanceof OrderInterface || !$order->getData('shipping_method')) {
+            // wrong type, virtual or corrupt order
             return;
         }
 

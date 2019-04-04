@@ -85,24 +85,25 @@ class TaxAreaRequest
      * Lookup the Tax Area for an Address
      *
      * @param array $address
-     * @param string|null $store
+     * @param string|null $scopeCode
+     * @param string $scopeType
      * @return bool|TaxAreaResponse
-     * @throws ConnectionFailureException
      * @throws ApiRequestException
+     * @throws ConnectionFailureException
      */
-    public function taxAreaLookup(array $address, $store = null)
+    public function taxAreaLookup(array $address, $scopeCode = null, $scopeType = ScopeInterface::SCOPE_STORE)
     {
         $cacheKey = $this->getRequestCacheKey($address);
 
         if (!isset($this->requestCache[$cacheKey])) {
-            $requestData = $this->getFormattedRequest($address, $store);
+            $requestData = $this->getFormattedRequest($address, $scopeCode);
 
             if ($this->vertex instanceof ApiClient) {
                 $apiResponse = $this->vertex->performRequest(
                     $requestData,
                     static::REQUEST_TYPE,
-                    ScopeInterface::SCOPE_STORE,
-                    $store
+                    $scopeType,
+                    $scopeCode
                 );
             } else {
                 $apiResponse = $this->vertex->sendApiRequest($requestData, static::REQUEST_TYPE);

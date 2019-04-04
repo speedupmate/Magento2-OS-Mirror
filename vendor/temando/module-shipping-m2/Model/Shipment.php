@@ -12,10 +12,10 @@ use Magento\Framework\DataObject;
  * This model contains a subset of data that is used in the shipping module.
  * It does not contain all data as available in its platform representation.
  *
- * @package  Temando\Shipping\Model
- * @author   Christoph Aßmann <christoph.assmann@netresearch.de>
- * @license  http://opensource.org/licenses/osl-3.0.php Open Software License (OSL 3.0)
- * @link     http://www.temando.com/
+ * @package Temando\Shipping\Model
+ * @author  Christoph Aßmann <christoph.assmann@netresearch.de>
+ * @license https://opensource.org/licenses/osl-3.0.php Open Software License (OSL 3.0)
+ * @link    https://www.temando.com/
  */
 class Shipment extends DataObject implements ShipmentInterface
 {
@@ -41,6 +41,14 @@ class Shipment extends DataObject implements ShipmentInterface
     public function getOriginId()
     {
         return $this->getData(ShipmentInterface::ORIGIN_ID);
+    }
+
+    /**
+     * @return string
+     */
+    public function getCustomerReference()
+    {
+        return $this->getData(ShipmentInterface::CUSTOMER_REFERENCE);
     }
 
     /**

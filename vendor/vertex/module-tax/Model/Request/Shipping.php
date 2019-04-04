@@ -58,17 +58,18 @@ class Shipping
      * Create properly formatted Line Item data for the Order Shipping
      *
      * @param AddressInterface $taxAddress
+     * @param int|null $customerGroupId
      * @return array
      * @throws \Magento\Framework\Exception\LocalizedException
      * @throws \Magento\Framework\Exception\NoSuchEntityException
      */
-    public function getFormattedShippingLineItemData(AddressInterface $taxAddress)
+    public function getFormattedShippingLineItemData(AddressInterface $taxAddress, $customerGroupId = null)
     {
         $data = [];
         $storeId = $taxAddress->getQuote()->getStoreId();
 
         $data['Seller'] = $this->sellerFormatter->getFormattedSellerData($storeId);
-        $data['Customer'] = $this->customerFormatter->getFormattedCustomerData($taxAddress);
+        $data['Customer'] = $this->customerFormatter->getFormattedCustomerData($taxAddress, $customerGroupId);
         $data['Product'] = [
             '_' => substr($taxAddress->getShippingMethod(), 0, Config::MAX_CHAR_PRODUCT_CODE_ALLOWED),
             'productClass' => substr(

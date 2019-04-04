@@ -1,4 +1,45 @@
 
+5.4.4 / 2018-08-15
+==================
+
+  * PPI-465 Fix issue with loading of payment methods when cart is virtual
+  * PPI-464 Fix issue with billing address form not loading
+
+5.4.3 / 2018-07-26
+==================
+
+  * PPI-449 Cleanup code
+
+5.4.2 / 2018-07-25
+==================
+
+  * PPI-449 Feedback from Magento for 2.2.6 release
+  * PPI-403 Use the onboarding model
+  * PPI-449 Fixed not existing column in upgrade data script
+
+5.4.1 / 2018-07-24
+==================
+
+  * PPI-449 Fix table name
+
+5.4.0 / 2018-07-23
+==================
+
+  * PI-385 Allow KP to be disabled at default scope but enabled at website scope
+  * PPI-317 Add support for Fixed Product Tax
+  * PPI-383 Fix setup scripts
+  * PPI-403 Add link for Klarna on boarding - Phase 1
+
+5.3.3 / 2018-06-26
+==================
+
+  * PPI-383 Fix duplicate logo when viewing order in admin
+
+5.3.2 / 2018-06-08
+==================
+
+  * PPI-383 Migrate from hard-coded mapping to dynamic name & assets
+
 5.2.3 / 2018-05-30
 ==================
 

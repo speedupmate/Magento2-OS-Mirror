@@ -6,6 +6,7 @@ namespace Temando\Shipping\Rest;
 
 use Psr\Log\LoggerInterface;
 use Psr\Log\LogLevel;
+use Temando\Shipping\Rest\Adapter\BatchApiInterface;
 use Temando\Shipping\Rest\Adapter\CarrierApiInterface;
 use Temando\Shipping\Rest\Adapter\CompletionApiInterface;
 use Temando\Shipping\Rest\Adapter\ContainerApiInterface;
@@ -21,6 +22,7 @@ use Temando\Shipping\Rest\Request\StreamCreateRequestInterface;
 use Temando\Shipping\Rest\Request\StreamEventItemRequestInterface;
 use Temando\Shipping\Rest\Request\StreamEventListRequestInterface;
 use Temando\Shipping\Rest\Response\Errors;
+use Temando\Shipping\Rest\Response\GetBatch;
 use Temando\Shipping\Rest\Response\Type\CarrierConfigurationResponseType;
 use Temando\Shipping\Rest\Response\Type\CarrierIntegrationResponseType;
 use Temando\Shipping\Rest\Response\Type\CompletionResponseType;
@@ -42,6 +44,7 @@ use Temando\Shipping\Webservice\Config\WsConfigInterface;
  * @link     http://www.temando.com/
  */
 class Adapter implements
+    BatchApiInterface,
     CarrierApiInterface,
     CompletionApiInterface,
     ContainerApiInterface,
@@ -115,6 +118,39 @@ class Adapter implements
         $this->restClient = $restClient;
         $this->responseParser = $responseParser;
         $this->logger = $logger;
+    }
+
+    /**
+     * @param ItemRequestInterface $request
+     * @return GetBatch
+     * @throws AdapterException
+     */
+    public function getBatch(ItemRequestInterface $request)
+    {
+        $uri = sprintf('%s/shipments/batches/%s', $this->endpoint, ...$request->getPathParams());
+
+        $this->logger->log(LogLevel::DEBUG, $uri);
+
+        try {
+            $this->auth->connect($this->accountId, $this->bearerToken);
+            $headers = $this->requestHeaders->getHeaders();
+
+            $rawResponse = $this->restClient->get($uri, [], $headers);
+            $this->logger->log(LogLevel::DEBUG, $rawResponse);
+
+            /** @var GetBatch $response */
+            $response = $this->responseParser->parse($rawResponse, Response\GetBatch::class);
+        } catch (RestClientErrorException $e) {
+            $this->logger->log(LogLevel::ERROR, $e->getMessage());
+
+            /** @var Errors $response */
+            $response = $this->responseParser->parse($e->getMessage(), Errors::class);
+            throw AdapterException::errorResponse($response, $e);
+        } catch (\Exception $e) {
+            throw AdapterException::create($e);
+        }
+
+        return $response;
     }
 
     /**

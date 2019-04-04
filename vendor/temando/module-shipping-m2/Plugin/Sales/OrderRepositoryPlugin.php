@@ -96,7 +96,7 @@ class OrderRepositoryPlugin
         }
 
         if (!$salesOrder->getData('shipping_method')) {
-            // incomplete or wrong shipments can not be updated
+            // virtual or corrupt order
             return $salesOrder;
         }
 

@@ -17,6 +17,7 @@ interface ShipmentInterface
     const SHIPMENT_ID = 'shipment_id';
     const STATUS = 'status';
     const MESSAGE = 'message';
+    const ERRORS = 'errors';
 
     /**
      * @return string
@@ -32,4 +33,9 @@ interface ShipmentInterface
      * @return string
      */
     public function getMessage();
+
+    /**
+     * @return ErrorInterface
+     */
+    public function getErrors();
 }

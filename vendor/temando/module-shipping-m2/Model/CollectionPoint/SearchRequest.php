@@ -51,4 +51,12 @@ class SearchRequest extends AbstractModel implements SearchRequestInterface
     {
         return $this->getData(SearchRequestInterface::POSTCODE);
     }
+
+    /**
+     * @return bool
+     */
+    public function isPending()
+    {
+        return (bool)$this->getData(SearchRequestInterface::PENDING);
+    }
 }

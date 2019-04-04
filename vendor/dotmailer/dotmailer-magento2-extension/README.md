@@ -15,6 +15,32 @@ You are welcome to contribute to dotmailer for Magento! You can either:
 - Fix a bug: please clone and use our [Develop branch](https://github.com/dotmailer/dotmailer-magento2-extension/tree/develop) to submit your Pull Request
 - Request a feature on our [community forum](https://support.dotmailer.com/hc/en-gb/community/topics/200432508-Feedback-and-feature-requests)
 
+## V2.5.3
+
+###### Improvements
+- We've implemented prevention against cross-site scripting in the TrialController.php
+- We've implemented an improved retry process after a failed attempt to access EDC
+
+###### Bug fix
+- ROI reporting is working again 
+- We've fixed an error that was being caused by the importer 
+
+## V2.5.2
+
+###### New Features
+- You're now able to record your customers and guests' consent and store it using dotmailer's new ConsentInsight
+
+## V2.5.1
+
+###### Improvements
+- Users can now import only those Magento contacts who've opted-in (customer subscribers, guest subscribers, and other subscribers)
+- Users now get warned when they're about to sync non-subscribers into their dotmailer account
+
+###### Bug fix
+- We've fixed the catalog sync so it now syncs all products across all created collections when it's configured to sync on store level 
+- We’ve changed validation for new subscribers so that it's no longer possible for them to get enrolled multiple times into the new subscriber program
+- We've fixed occurrences of unexpected errors during subscriber and/or customer creation
+
 ## V2.5.0
 
 ###### Improvements:
@@ -276,7 +302,7 @@ You are welcome to contribute to dotmailer for Magento! You can either:
 ## V2.1.4
 ###### Bugs fixes
  - InvalidContactIdentifier for single orders.
- - Compatibility with catalogStaging for enterprise.
+ - Compatibility with catalogStaging.
  - Fix admin configuration fancybox error.
 
 ## V2.1.0

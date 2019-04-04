@@ -76,7 +76,7 @@ class QuoteTaxCollectorPlugin
             );
 
             if ($this->isValidAddress($taxAddress)) {
-                $this->calculateTax($taxAddress);
+                $this->calculateTax($taxAddress, $quote->getCustomerGroupId());
             }
         }
 
@@ -87,12 +87,13 @@ class QuoteTaxCollectorPlugin
      * Perform Vertex tax calculation.
      *
      * @param AddressInterface $taxAddress
+     * @param int|null $customerGroupId
      * @return void
      */
-    private function calculateTax(AddressInterface $taxAddress)
+    private function calculateTax(AddressInterface $taxAddress, $customerGroupId = null)
     {
         /** @var \Vertex\Tax\Model\TaxQuote\TaxQuoteResponse $result */
-        $result = $this->taxCollectorService->calculateTax($taxAddress);
+        $result = $this->taxCollectorService->calculateTax($taxAddress, $customerGroupId);
 
         if ($result === false) {
             $this->taxRegistry->registerError(

@@ -9,10 +9,10 @@ namespace Temando\Shipping\Model\Shipment;
  *
  * The package data object represents one part of the shipment packages list.
  *
- * @package  Temando\Shipping\Model
- * @author   Rhodri Davies <rhodri.davies@temando.com>
- * @license  http://opensource.org/licenses/osl-3.0.php Open Software License (OSL 3.0)
- * @link     http://www.temando.com
+ * @package Temando\Shipping\Model
+ * @author  Rhodri Davies <rhodri.davies@temando.com>
+ * @license https://opensource.org/licenses/osl-3.0.php Open Software License (OSL 3.0)
+ * @link    https://www.temando.com
  */
 interface PackageItemInterface
 {
