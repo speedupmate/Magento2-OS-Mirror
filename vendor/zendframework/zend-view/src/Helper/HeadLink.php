@@ -35,7 +35,7 @@ class HeadLink extends Placeholder\Container\AbstractStandalone
      *
      * @var string[]
      */
-    protected $itemKeys = array(
+    protected $itemKeys = [
         'charset',
         'href',
         'hreflang',
@@ -46,8 +46,9 @@ class HeadLink extends Placeholder\Container\AbstractStandalone
         'sizes',
         'type',
         'title',
-        'extras'
-    );
+        'extras',
+        'itemprop'
+    ];
 
     /**
      * Registry key for placeholder
@@ -80,7 +81,7 @@ class HeadLink extends Placeholder\Container\AbstractStandalone
      */
     public function headLink(array $attributes = null, $placement = Placeholder\Container\AbstractContainer::APPEND)
     {
-        return call_user_func_array(array($this, '__invoke'), func_get_args());
+        return call_user_func_array([$this, '__invoke'], func_get_args());
     }
 
     /**
@@ -340,7 +341,7 @@ class HeadLink extends Placeholder\Container\AbstractStandalone
                 ? $this->getWhitespace($indent)
                 : $this->getIndent();
 
-        $items = array();
+        $items = [];
         $this->getContainer()->ksort();
         foreach ($this as $item) {
             $items[] = $this->itemToString($item);

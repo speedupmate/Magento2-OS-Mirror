@@ -166,7 +166,7 @@ class Factory
             $inputSpecification = ArrayUtils::iteratorToArray($inputSpecification);
         }
 
-        $class = 'Zend\InputFilter\Input';
+        $class = Input::class;
 
         if (isset($inputSpecification['type'])) {
             $class = $inputSpecification['type'];
@@ -176,14 +176,14 @@ class Factory
         if ($this->getInputFilterManager()->has($class)) {
             $managerInstance = $this->getInputFilterManager()->get($class);
         }
-        if (! $managerInstance && ! class_exists($class)) {
+        if (!$managerInstance && !class_exists($class)) {
             throw new Exception\RuntimeException(sprintf(
                 'Input factory expects the "type" to be a valid class or a plugin name; received "%s"',
                 $class
             ));
         }
 
-        $input = $managerInstance ?: new $class;
+        $input = $managerInstance ?: new $class();
 
         if ($input instanceof InputFilterInterface) {
             return $this->createInputFilter($inputSpecification);
@@ -192,7 +192,7 @@ class Factory
         if (!$input instanceof InputInterface) {
             throw new Exception\RuntimeException(sprintf(
                 'Input factory expects the "type" to be a class implementing %s; received "%s"',
-                'Zend\InputFilter\InputInterface',
+                InputInterface::class,
                 $class
             ));
         }
@@ -223,7 +223,7 @@ class Factory
                         throw new Exception\RuntimeException(sprintf(
                             '%s "continue_if_empty" can only set to inputs of type "%s"',
                             __METHOD__,
-                            'Zend\InputFilter\Input'
+                            Input::class
                         ));
                     }
                     $input->setContinueIfEmpty($inputSpecification['continue_if_empty']);
@@ -236,7 +236,7 @@ class Factory
                         throw new Exception\RuntimeException(sprintf(
                             '%s "fallback_value" can only set to inputs of type "%s"',
                             __METHOD__,
-                            'Zend\InputFilter\Input'
+                            Input::class
                         ));
                     }
                     $input->setFallbackValue($value);
@@ -306,7 +306,7 @@ class Factory
             $inputFilterSpecification = ArrayUtils::iteratorToArray($inputFilterSpecification);
         }
 
-        $type = 'Zend\InputFilter\InputFilter';
+        $type = InputFilter::class;
 
         if (isset($inputFilterSpecification['type']) && is_string($inputFilterSpecification['type'])) {
             $type = $inputFilterSpecification['type'];
@@ -370,7 +370,7 @@ class Factory
                 }
                 $name = $filter['name'];
                 $priority = isset($filter['priority']) ? $filter['priority'] : FilterChain::DEFAULT_PRIORITY;
-                $options = array();
+                $options = [];
                 if (isset($filter['options'])) {
                     $options = $filter['options'];
                 }
@@ -405,7 +405,7 @@ class Factory
                     );
                 }
                 $name    = $validator['name'];
-                $options = array();
+                $options = [];
                 if (isset($validator['options'])) {
                     $options = $validator['options'];
                 }

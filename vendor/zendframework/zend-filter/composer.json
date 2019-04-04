@@ -14,14 +14,16 @@
     },
     "require": {
         "php": ">=5.3.23",
-        "zendframework/zend-stdlib": "self.version"
+        "zendframework/zend-stdlib": "~2.5"
     },
     "require-dev": {
-        "zendframework/zend-crypt": "self.version",
-        "zendframework/zend-servicemanager": "self.version",
-        "zendframework/zend-uri": "self.version",
+        "zendframework/zend-config": "~2.5",
+        "zendframework/zend-crypt": "~2.5",
+        "zendframework/zend-i18n": "~2.5",
+        "zendframework/zend-loader": "~2.5",
+        "zendframework/zend-servicemanager": "~2.5",
+        "zendframework/zend-uri": "~2.5",
         "fabpot/php-cs-fixer": "1.7.*",
-        "satooshi/php-coveralls": "dev-master",
         "phpunit/PHPUnit": "~4.0"
     },
     "suggest": {
@@ -30,10 +32,12 @@
         "zendframework/zend-servicemanager": "Zend\\ServiceManager component",
         "zendframework/zend-uri": "Zend\\Uri component for UriNormalize filter"
     },
+    "minimum-stability": "dev",
+    "prefer-stable": true,
     "extra": {
         "branch-alias": {
-            "dev-master": "2.4-dev",
-            "dev-develop": "2.5-dev"
+            "dev-master": "2.5-dev",
+            "dev-develop": "2.6-dev"
         }
     },
     "autoload-dev": {

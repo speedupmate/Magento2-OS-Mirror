@@ -13,27 +13,33 @@
         }
     },
     "require": {
-        "php": ">=5.3.23",
-        "zendframework/zend-eventmanager": "self.version",
-        "zendframework/zend-loader": "self.version",
-        "zendframework/zend-stdlib": "self.version"
+        "php": "^5.5 || ^7.0",
+        "zendframework/zend-eventmanager": "~2.5",
+        "zendframework/zend-loader": "~2.5",
+        "zendframework/zend-stdlib": "~2.5"
     },
     "require-dev": {
-        "zendframework/zend-authentication": "self.version",
-        "zendframework/zend-escaper": "self.version",
-        "zendframework/zend-feed": "self.version",
-        "zendframework/zend-filter": "self.version",
-        "zendframework/zend-http": "self.version",
-        "zendframework/zend-i18n": "self.version",
-        "zendframework/zend-json": "self.version",
-        "zendframework/zend-mvc": "self.version",
-        "zendframework/zend-navigation": "self.version",
-        "zendframework/zend-paginator": "self.version",
-        "zendframework/zend-permissions-acl": "self.version",
-        "zendframework/zend-servicemanager": "self.version",
-        "zendframework/zend-uri": "self.version",
+        "zendframework/zend-authentication": "~2.5",
+        "zendframework/zend-cache": "~2.5",
+        "zendframework/zend-config": "~2.5",
+        "zendframework/zend-console": "~2.5",
+        "zendframework/zend-escaper": "~2.5",
+        "zendframework/zend-feed": "~2.5",
+        "zendframework/zend-filter": "~2.5",
+        "zendframework/zend-http": "~2.5",
+        "zendframework/zend-i18n": "~2.5",
+        "zendframework/zend-json": "~2.5",
+        "zendframework/zend-log": "~2.5",
+        "zendframework/zend-modulemanager": "~2.5",
+        "zendframework/zend-mvc": "~2.5",
+        "zendframework/zend-navigation": "~2.5",
+        "zendframework/zend-paginator": "~2.5",
+        "zendframework/zend-permissions-acl": "~2.5",
+        "zendframework/zend-serializer": "~2.5",
+        "zendframework/zend-servicemanager": "~2.5",
+        "zendframework/zend-session": "dev-master",
+        "zendframework/zend-uri": "~2.5",
         "fabpot/php-cs-fixer": "1.7.*",
-        "satooshi/php-coveralls": "dev-master",
         "phpunit/PHPUnit": "~4.0"
     },
     "suggest": {
@@ -51,10 +57,12 @@
         "zendframework/zend-servicemanager": "Zend\\ServiceManager component",
         "zendframework/zend-uri": "Zend\\Uri component"
     },
+    "minimum-stability": "dev",
+    "prefer-stable": true,
     "extra": {
         "branch-alias": {
-            "dev-master": "2.4-dev",
-            "dev-develop": "2.5-dev"
+            "dev-master": "2.5-dev",
+            "dev-develop": "2.6-dev"
         }
     },
     "autoload-dev": {

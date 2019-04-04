@@ -93,7 +93,7 @@ class PhpRenderer implements Renderer, TreeRendererInterface
      * Queue of templates to render
      * @var array
      */
-    private $__templates = array();
+    private $__templates = [];
 
     /**
      * Template resolver
@@ -129,7 +129,7 @@ class PhpRenderer implements Renderer, TreeRendererInterface
     /**
      * @var array Temporary variable stack; used when variables passed to render()
      */
-    private $__varsCache = array();
+    private $__varsCache = [];
 
     /**
      * Constructor.
@@ -141,7 +141,7 @@ class PhpRenderer implements Renderer, TreeRendererInterface
      * @todo handle passing resolver object, options
      * @param array $config Configuration key-value pairs.
      */
-    public function __construct($config = array())
+    public function __construct($config = [])
     {
         $this->init();
     }
@@ -221,7 +221,7 @@ class PhpRenderer implements Renderer, TreeRendererInterface
 
         // Enforce a Variables container
         if (!$variables instanceof Variables) {
-            $variablesAsArray = array();
+            $variablesAsArray = [];
             foreach ($variables as $key => $value) {
                 $variablesAsArray[$key] = $value;
             }
@@ -515,7 +515,11 @@ class PhpRenderer implements Renderer, TreeRendererInterface
 
         $this->setVars(array_pop($this->__varsCache));
 
-        return $this->getFilterChain()->filter($this->__content); // filter output
+        if ($this->__filterChain instanceof FilterChain) {
+            return $this->__filterChain->filter($this->__content); // filter output
+        }
+
+        return $this->__content;
     }
 
     /**
