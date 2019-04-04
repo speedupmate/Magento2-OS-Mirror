@@ -4,7 +4,7 @@
 
 namespace Composer\Autoload;
 
-class ComposerStaticInitf711a612d5efd61fe13db05e5dbc44fe
+class ComposerStaticInit5ba3f69c1f7e17c28be7126ae9ebd505
 {
     public static $files = array (
         '07ec02c7e667fdcb3e30c02cc772b743' => __DIR__ . '/..' . '/magento/framework/registration.php',
@@ -182,6 +182,7 @@ class ComposerStaticInitf711a612d5efd61fe13db05e5dbc44fe
         array (
             'Psr\\Log\\' => 8,
             'Pelago\\' => 7,
+            'PDepend\\' => 8,
         ),
         'M' => 
         array (
@@ -495,6 +496,10 @@ class ComposerStaticInitf711a612d5efd61fe13db05e5dbc44fe
         'Pelago\\' => 
         array (
             0 => __DIR__ . '/..' . '/pelago/emogrifier/Classes',
+        ),
+        'PDepend\\' => 
+        array (
+            0 => __DIR__ . '/..' . '/pdepend/pdepend/src/main/php/PDepend',
         ),
         'Monolog\\' => 
         array (
@@ -999,10 +1004,6 @@ class ComposerStaticInitf711a612d5efd61fe13db05e5dbc44fe
             'PHPMD\\' => 
             array (
                 0 => __DIR__ . '/..' . '/phpmd/phpmd/src/main/php',
-            ),
-            'PDepend\\' => 
-            array (
-                0 => __DIR__ . '/..' . '/pdepend/pdepend/src/main/php',
             ),
         ),
         'O' => 
@@ -1774,11 +1775,11 @@ class ComposerStaticInitf711a612d5efd61fe13db05e5dbc44fe
     public static function getInitializer(ClassLoader $loader)
     {
         return \Closure::bind(function () use ($loader) {
-            $loader->prefixLengthsPsr4 = ComposerStaticInitf711a612d5efd61fe13db05e5dbc44fe::$prefixLengthsPsr4;
-            $loader->prefixDirsPsr4 = ComposerStaticInitf711a612d5efd61fe13db05e5dbc44fe::$prefixDirsPsr4;
-            $loader->prefixesPsr0 = ComposerStaticInitf711a612d5efd61fe13db05e5dbc44fe::$prefixesPsr0;
-            $loader->fallbackDirsPsr0 = ComposerStaticInitf711a612d5efd61fe13db05e5dbc44fe::$fallbackDirsPsr0;
-            $loader->classMap = ComposerStaticInitf711a612d5efd61fe13db05e5dbc44fe::$classMap;
+            $loader->prefixLengthsPsr4 = ComposerStaticInit5ba3f69c1f7e17c28be7126ae9ebd505::$prefixLengthsPsr4;
+            $loader->prefixDirsPsr4 = ComposerStaticInit5ba3f69c1f7e17c28be7126ae9ebd505::$prefixDirsPsr4;
+            $loader->prefixesPsr0 = ComposerStaticInit5ba3f69c1f7e17c28be7126ae9ebd505::$prefixesPsr0;
+            $loader->fallbackDirsPsr0 = ComposerStaticInit5ba3f69c1f7e17c28be7126ae9ebd505::$fallbackDirsPsr0;
+            $loader->classMap = ComposerStaticInit5ba3f69c1f7e17c28be7126ae9ebd505::$classMap;
 
         }, null, ClassLoader::class);
     }
