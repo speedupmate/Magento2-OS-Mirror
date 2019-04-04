@@ -4,11 +4,12 @@
  * See COPYING.txt for license details.
  */
 
-/**
- * Storage model test
- */
 namespace Magento\Theme\Test\Unit\Model\Wysiwyg;
 
+/**
+ * Class StorageTest
+ * @SuppressWarnings(PHPMD.CouplingBetweenObjects)
+ */
 class StorageTest extends \PHPUnit_Framework_TestCase
 {
     /**
@@ -159,8 +160,7 @@ class StorageTest extends \PHPUnit_Framework_TestCase
         $this->_helperStorage->expects($this->any())->method('getSession')->will($this->returnValue($session));
 
         $expectedResult = [
-            'not_empty',
-            'cookie' => ['name' => null, 'value' => null, 'lifetime' => null, 'path' => null, 'domain' => null],
+            'not_empty'
         ];
 
         $this->assertEquals($expectedResult, $this->_storageModel->uploadFile($this->_storageRoot));
@@ -179,6 +179,9 @@ class StorageTest extends \PHPUnit_Framework_TestCase
         $this->_storageModel->uploadFile($this->_storageRoot);
     }
 
+    /**
+     * @return \PHPUnit_Framework_MockObject_MockObject
+     */
     protected function _prepareUploader()
     {
         $uploader = $this->getMockBuilder(\Magento\MediaStorage\Model\File\Uploader::class)
@@ -550,6 +553,9 @@ class StorageTest extends \PHPUnit_Framework_TestCase
         $this->_storageModel->deleteDirectory($directoryPath);
     }
 
+    /**
+     * @return array
+     */
     public function booleanCasesDataProvider()
     {
         return [[true], [false]];

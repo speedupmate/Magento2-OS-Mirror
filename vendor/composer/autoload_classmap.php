@@ -6,7 +6,6 @@ $vendorDir = dirname(dirname(__FILE__));
 $baseDir = dirname($vendorDir);
 
 return array(
-    'CSSmin' => $vendorDir . '/tubalmartin/cssmin/cssmin.php',
     'Cm_Cache_Backend_File' => $vendorDir . '/colinmollenhour/cache-backend-file/File.php',
     'Cm_Cache_Backend_Redis' => $vendorDir . '/colinmollenhour/cache-backend-redis/Cm/Cache/Backend/Redis.php',
     'CredisException' => $vendorDir . '/colinmollenhour/credis/Client.php',

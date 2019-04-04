@@ -166,6 +166,9 @@ class UploaderTest extends \PHPUnit_Framework_TestCase
         $this->assertEquals(['name' => $fileName], $this->uploader->move($fileName));
     }
 
+    /**
+     * @return array
+     */
     public function moveFileUrlDataProvider()
     {
         return [

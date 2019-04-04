@@ -314,6 +314,9 @@ class EavAttributeTest extends \PHPUnit_Framework_TestCase
         $this->eavAttribute->beforeBeforeSave($this->attribute);
     }
 
+    /**
+     * @return array
+     */
     public function visualSwatchProvider()
     {
         return [

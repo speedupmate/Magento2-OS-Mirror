@@ -27,6 +27,7 @@
         <?php echo $block->getAdjustmentsHtml() ?>
     <?php endif; ?>
     <?php if ($block->getSchema()): ?>
+        <meta itemprop="price" content="<?php /* @noEscape */ echo $block->getDisplayValue(); ?>" />
         <meta itemprop="priceCurrency" content="<?php /* @escapeNotVerified */ echo $block->getDisplayCurrencyCode()?>" />
     <?php endif; ?>
 </span>
