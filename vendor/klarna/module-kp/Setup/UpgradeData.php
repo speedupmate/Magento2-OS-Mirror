@@ -66,6 +66,21 @@ class UpgradeData implements UpgradeDataInterface
                     );
             }
         }
+        if (version_compare($context->getVersion(), '5.4.5', '<')) {
+            $values = [
+                '<strong>',
+                '<\/strong>'
+            ];
+            foreach ($values as $value) {
+                $manipulation = new \Zend_Db_Expr("replace(`additional_information`, '$value', '')");
+                $installer->getConnection()
+                    ->update(
+                        $installer->getTable('sales_order_payment'),
+                        ['additional_information' => $manipulation],
+                        "`method` = 'klarna_kp'"
+                    );
+            }
+        }
         $installer->endSetup();
     }
 }

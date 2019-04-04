@@ -9,6 +9,7 @@
         <arguments>
             <argument name="messages" xsi:type="array">
                 <item name="vertex" xsi:type="string">Vertex\Tax\Model\System\Message\Notification\LiabilityErrors</item>
+                <item name="vertex_catalog" xsi:type="string">Vertex\Tax\Model\System\Message\Notification\DisplayTaxesInCatalog</item>
             </argument>
         </arguments>
     </type>

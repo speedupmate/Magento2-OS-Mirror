@@ -46,9 +46,10 @@ class Refund extends AbstractCommand
                          ->refund($klarnaOrder->getReservationId(), $amount, $payment->getCreditmemo());
 
         if (!$response->getIsSuccessful()) {
-            $e = new KlarnaException(__('Payment refund failed, please try again.'));
-            $this->messageManager->addErrorMessage($e->getMessage());
-            throw $e;
+            $errorMessage = __('Payment refund failed, please try again.');
+
+            $errorMessage = $this->getFullErrorMessage($response, $errorMessage, 'refund');
+            throw new KlarnaException($errorMessage);
         }
 
         if ($response->getTransactionId()) {

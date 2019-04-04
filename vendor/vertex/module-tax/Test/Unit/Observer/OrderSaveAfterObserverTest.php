@@ -7,7 +7,9 @@ use Magento\Framework\Event;
 use Magento\Framework\Exception\NoSuchEntityException;
 use Magento\Framework\Message\ManagerInterface;
 use Magento\Sales\Model\Order;
+use Vertex\Services\Invoice\Request;
 use Vertex\Tax\Model\Config;
+use Vertex\Tax\Model\ConfigurationValidator;
 use Vertex\Tax\Model\CountryGuard;
 use Vertex\Tax\Model\Data\OrderInvoiceStatus;
 use Vertex\Tax\Model\Data\OrderInvoiceStatusFactory;
@@ -23,26 +25,23 @@ use Vertex\Tax\Test\Unit\TestCase;
  */
 class OrderSaveAfterObserverTest extends TestCase
 {
-    /** @var int */
-    private $orderId;
-
     /** @var \PHPUnit_Framework_MockObject_MockObject|Config */
     private $configMock;
+
+    /** @var \PHPUnit_Framework_MockObject_MockObject|ConfigurationValidator */
+    private $configValidatorMock;
 
     /** @var \PHPUnit_Framework_MockObject_MockObject|CountryGuard */
     private $countryGuardMock;
 
-    /** @var \PHPUnit_Framework_MockObject_MockObject|TaxInvoice */
-    private $taxInvoiceMock;
+    /** @var \PHPUnit_Framework_MockObject_MockObject|OrderInvoiceStatusFactory */
+    private $factoryMock;
 
     /** @var \PHPUnit_Framework_MockObject_MockObject|ManagerInterface */
     private $managerInterfaceMock;
 
-    /** @var \PHPUnit_Framework_MockObject_MockObject|OrderInvoiceStatusRepository */
-    private $repositoryMock;
-
-    /** @var \PHPUnit_Framework_MockObject_MockObject|OrderInvoiceStatusFactory */
-    private $factoryMock;
+    /** @var int */
+    private $orderId;
 
     /** @var \PHPUnit_Framework_MockObject_MockObject|OrderInvoiceStatus */
     private $orderInvoiceStatusMock;
@@ -52,6 +51,12 @@ class OrderSaveAfterObserverTest extends TestCase
 
     /** @var OrderSavedAfterObserver */
     private $orderSavedAfterObserver;
+
+    /** @var \PHPUnit_Framework_MockObject_MockObject|OrderInvoiceStatusRepository */
+    private $repositoryMock;
+
+    /** @var \PHPUnit_Framework_MockObject_MockObject|TaxInvoice */
+    private $taxInvoiceMock;
 
     /**
      * @inheritdoc
@@ -103,6 +108,11 @@ class OrderSaveAfterObserverTest extends TestCase
             ->disableOriginalConstructor()
             ->getMock();
 
+        $this->configValidatorMock = $this->getMockBuilder(ConfigurationValidator::class)
+            ->setMethods(['execute'])
+            ->disableOriginalConstructor()
+            ->getMock();
+
         $this->orderId = rand();
 
         $this->orderMock->method('getId')
@@ -117,8 +127,180 @@ class OrderSaveAfterObserverTest extends TestCase
                 'messageManager' => $this->managerInterfaceMock,
                 'repository' => $this->repositoryMock,
                 'factory' => $this->factoryMock,
+                'configValidator' => $this->configValidatorMock,
             ]
         );
+    }
+
+    /**
+     * Test that invoice is not sent when configuration is not valid
+     *
+     * @covers \Vertex\Tax\Observer\OrderSavedAfterObserver
+     * @return void
+     * @throws \Magento\Framework\Exception\LocalizedException
+     */
+    public function testInvoiceNotSentIfConfigurationInvalid()
+    {
+        $this->assertInvoiceNeverSent();
+
+        $this->setVertexActive();
+        $this->setCanService();
+        $this->setHasNoInvoice();
+        $this->prepareEmptyInvoiceData();
+        $this->setupRequestByOrderFlag();
+        $this->setConfigValid(false);
+
+        $observer = $this->createObserver();
+        $this->orderSavedAfterObserver->execute($observer);
+    }
+
+    /**
+     * Test that invoice is not sent when order has been invoiced
+     *
+     * @covers \Vertex\Tax\Observer\OrderSavedAfterObserver
+     * @return void
+     */
+    public function testInvoiceNotSentIfOrderAlreadyInvoiced()
+    {
+        $this->assertInvoiceNeverSent();
+
+        $this->setVertexActive();
+        $this->setConfigValid();
+        $this->setupRequestByOrderFlag();
+        $this->setCanService();
+        $this->prepareEmptyInvoiceData();
+
+        // An Invoice is already stored.  Existence is based on non-exception return
+        $orderInvoiceStatus = new DataObject();
+        $this->repositoryMock->method('getByOrderId')
+            ->willReturn($orderInvoiceStatus);
+
+        $observer = $this->createObserver();
+        $this->orderSavedAfterObserver->execute($observer);
+    }
+
+    /**
+     * Test that invoice is not sent when order is not serviceable
+     *
+     * @covers \Vertex\Tax\Observer\OrderSavedAfterObserver
+     * @return void
+     */
+    public function testInvoiceNotSentIfOrderNotServiceable()
+    {
+        $this->assertInvoiceNeverSent();
+        $this->setConfigValid();
+        $this->setVertexActive();
+
+        $this->countryGuardMock->expects($this->atLeastOnce())
+            ->method('isOrderServiceableByVertex')
+            ->willReturn(false);
+
+        $this->setHasNoInvoice();
+        $this->prepareEmptyInvoiceData();
+        $this->setupRequestByOrderFlag();
+
+        $observer = $this->createObserver();
+        $this->orderSavedAfterObserver->execute($observer);
+    }
+
+    /**
+     * Test that invoice is not sent when order is not right status
+     *
+     * @covers \Vertex\Tax\Observer\OrderSavedAfterObserver
+     * @return void
+     */
+    public function testInvoiceNotSentIfOrderStatusWrong()
+    {
+        $this->assertInvoiceNeverSent();
+        $this->setConfigValid();
+        $this->setVertexActive();
+        $this->setCanService();
+        $this->setHasNoInvoice();
+        $this->prepareEmptyInvoiceData();
+
+        $this->configMock->method('requestByOrderStatus')
+            ->willReturn(true);
+
+        $status1 = uniqid('order-status-', false);
+        $status2 = uniqid('order-status-', false);
+
+        $this->configMock->expects($this->atLeastOnce())
+            ->method('invoiceOrderStatus')
+            ->willReturn($status1);
+
+        $this->orderMock->expects($this->atLeastOnce())
+            ->method('getStatus')
+            ->willReturn($status2);
+
+        $observer = $this->createObserver();
+        $this->orderSavedAfterObserver->execute($observer);
+    }
+
+    /**
+     * Test that invoice is not sent when Vertex is not active
+     *
+     * @covers \Vertex\Tax\Observer\OrderSavedAfterObserver
+     * @return void
+     */
+    public function testInvoiceNotSentIfVertexIsNotActive()
+    {
+        $this->assertInvoiceNeverSent();
+        $this->setConfigValid();
+        $this->configMock->expects($this->atLeastOnce())
+            ->method('isVertexActive')
+            ->willReturn(false);
+
+        $this->setCanService();
+        $this->setHasNoInvoice();
+        $this->prepareEmptyInvoiceData();
+        $this->setupRequestByOrderFlag();
+
+        $observer = $this->createObserver();
+        $this->orderSavedAfterObserver->execute($observer);
+    }
+
+    /**
+     * Test that invoice is sent when conditions align
+     *
+     * @covers \Vertex\Tax\Observer\OrderSavedAfterObserver
+     * @return void
+     */
+    public function testInvoiceSentAndActionsOccur()
+    {
+        $this->setVertexActive();
+        $this->setCanService();
+        $this->setHasNoInvoice();
+        $this->prepareEmptyInvoiceData();
+        $this->setupRequestByOrderFlag();
+        $this->setConfigValid();
+
+        // Assert Invoice is Sent
+        $this->taxInvoiceMock->expects($this->once())
+            ->method('sendInvoiceRequest')
+            ->willReturn(true);
+
+        // Assert success message is added
+        $this->managerInterfaceMock->expects($this->once())
+            ->method('addSuccessMessage')
+            ->with(
+                'The Vertex invoice has been sent.'
+            );
+
+        // Assert OrderInvoiceStatus given correct data
+        $this->orderInvoiceStatusMock->expects($this->once())
+            ->method('setId')
+            ->with($this->orderId);
+        $this->orderInvoiceStatusMock->expects($this->once())
+            ->method('setIsSent')
+            ->with(true);
+
+        // Assert OrderInvoiceStatus record saved
+        $this->repositoryMock->expects($this->once())
+            ->method('save')
+            ->with($this->orderInvoiceStatusMock);
+
+        $observer = $this->createObserver();
+        $this->orderSavedAfterObserver->execute($observer);
     }
 
     /**
@@ -130,6 +312,68 @@ class OrderSaveAfterObserverTest extends TestCase
     {
         $this->taxInvoiceMock->expects($this->never())
             ->method('sendInvoiceRequest');
+    }
+
+    /**
+     * Generate the instance of {@see OrderSavedAfterObserver}
+     *
+     * @return Event\Observer
+     */
+    private function createObserver()
+    {
+        $observer = $this->getObject(Event\Observer::class);
+        $observer->setData('event', $observer);
+        $observer->setData('order', $this->orderMock);
+        return $observer;
+    }
+
+    /**
+     * Ensure that taxInvoice->prepareInvoiceData always returns an array for check before sendInvoiceRequest
+     *
+     * @return void
+     */
+    private function prepareEmptyInvoiceData()
+    {
+        $this->taxInvoiceMock->method('prepareInvoiceData')
+            ->willReturn(new Request());
+    }
+
+    /**
+     * Register that Vertex can/can't service the order
+     *
+     * @param bool $canService
+     * @return void
+     */
+    private function setCanService($canService = true)
+    {
+        $this->countryGuardMock->method('isOrderServiceableByVertex')
+            ->willReturn($canService);
+    }
+
+    /**
+     * Register that the Configuration is OK
+     *
+     * @param bool $configValid
+     * @return void
+     */
+    private function setConfigValid($configValid = true)
+    {
+        $validatorResult = new ConfigurationValidator\Result();
+        $validatorResult->setValid($configValid);
+
+        $this->configValidatorMock->method('execute')
+            ->willReturn($validatorResult);
+    }
+
+    /**
+     * Register that an Order does not have a corresponding Vertex Invoice sent for it
+     *
+     * @return void
+     */
+    private function setHasNoInvoice()
+    {
+        $this->repositoryMock->method('getByOrderId')
+            ->willThrowException(new NoSuchEntityException(__('No Such Entity')));
     }
 
     /**
@@ -162,199 +406,5 @@ class OrderSaveAfterObserverTest extends TestCase
 
         $this->orderMock->method('getStatus')
             ->willReturn($status);
-    }
-
-    /**
-     * Register that Vertex can/can't service the order
-     *
-     * @param bool $canService
-     * @return void
-     */
-    private function setCanService($canService = true)
-    {
-        $this->countryGuardMock->method('isOrderServiceableByVertex')
-            ->willReturn($canService);
-    }
-
-    /**
-     * Register that an Order does not have a corresponding Vertex Invoice sent for it
-     *
-     * @return void
-     */
-    private function setHasNoInvoice()
-    {
-        $this->repositoryMock->method('getByOrderId')
-            ->willThrowException(new NoSuchEntityException(__('No Such Entity')));
-    }
-
-    /**
-     * Ensure that taxInvoice->prepareInvoiceData always returns an array for check before sendInvoiceRequest
-     *
-     * @return void
-     */
-    private function prepareEmptyInvoiceData()
-    {
-        $this->taxInvoiceMock->method('prepareInvoiceData')
-            ->willReturn([]);
-    }
-
-    /**
-     * Generate the instance of {@see OrderSavedAfterObserver}
-     *
-     * @return object
-     */
-    private function createObserver()
-    {
-        $observer = $this->getObject(Event\Observer::class);
-        $observer->setData('event', $observer);
-        $observer->setData('order', $this->orderMock);
-        return $observer;
-    }
-
-    /**
-     * Test that invoice is not sent when order has been invoiced
-     *
-     * @covers \Vertex\Tax\Observer\OrderSavedAfterObserver
-     * @return void
-     */
-    public function testInvoiceNotSentIfOrderAlreadyInvoiced()
-    {
-        $this->assertInvoiceNeverSent();
-
-        $this->setVertexActive();
-        $this->setupRequestByOrderFlag();
-        $this->setCanService();
-        $this->prepareEmptyInvoiceData();
-
-        // An Invoice is already stored.  Existence is based on non-exception return
-        $orderInvoiceStatus = new DataObject();
-        $this->repositoryMock->method('getByOrderId')
-            ->willReturn($orderInvoiceStatus);
-
-        $observer = $this->createObserver();
-        $this->orderSavedAfterObserver->execute($observer);
-    }
-
-    /**
-     * Test that invoice is not sent when order is not right status
-     *
-     * @covers \Vertex\Tax\Observer\OrderSavedAfterObserver
-     * @return void
-     */
-    public function testInvoiceNotSentIfOrderStatusWrong()
-    {
-        $this->assertInvoiceNeverSent();
-
-        $this->setVertexActive();
-        $this->setCanService();
-        $this->setHasNoInvoice();
-        $this->prepareEmptyInvoiceData();
-
-        $this->configMock->method('requestByOrderStatus')
-            ->willReturn(true);
-
-        $status1 = uniqid('order-status-', false);
-        $status2 = uniqid('order-status-', false);
-
-        $this->configMock->expects($this->atLeastOnce())
-            ->method('invoiceOrderStatus')
-            ->willReturn($status1);
-
-        $this->orderMock->expects($this->atLeastOnce())
-            ->method('getStatus')
-            ->willReturn($status2);
-
-        $observer = $this->createObserver();
-        $this->orderSavedAfterObserver->execute($observer);
-    }
-
-    /**
-     * Test that invoice is not sent when order is not serviceable
-     *
-     * @covers \Vertex\Tax\Observer\OrderSavedAfterObserver
-     * @return void
-     */
-    public function testInvoiceNotSentIfOrderNotServiceable()
-    {
-        $this->assertInvoiceNeverSent();
-
-        $this->setVertexActive();
-
-        $this->countryGuardMock->expects($this->atLeastOnce())
-            ->method('isOrderServiceableByVertex')
-            ->willReturn(false);
-
-        $this->setHasNoInvoice();
-        $this->prepareEmptyInvoiceData();
-        $this->setupRequestByOrderFlag();
-
-        $observer = $this->createObserver();
-        $this->orderSavedAfterObserver->execute($observer);
-    }
-
-    /**
-     * Test that invoice is not sent when Vertex is not active
-     *
-     * @covers \Vertex\Tax\Observer\OrderSavedAfterObserver
-     * @return void
-     */
-    public function testInvoiceNotSentIfVertexIsNotActive()
-    {
-        $this->assertInvoiceNeverSent();
-
-        $this->configMock->expects($this->atLeastOnce())
-            ->method('isVertexActive')
-            ->willReturn(false);
-
-        $this->setCanService();
-        $this->setHasNoInvoice();
-        $this->prepareEmptyInvoiceData();
-        $this->setupRequestByOrderFlag();
-
-        $observer = $this->createObserver();
-        $this->orderSavedAfterObserver->execute($observer);
-    }
-
-    /**
-     * Test that invoice is sent when conditions align
-     *
-     * @covers \Vertex\Tax\Observer\OrderSavedAfterObserver
-     * @return void
-     */
-    public function testInvoiceSentAndActionsOccur()
-    {
-        $this->setVertexActive();
-        $this->setCanService();
-        $this->setHasNoInvoice();
-        $this->prepareEmptyInvoiceData();
-        $this->setupRequestByOrderFlag();
-
-        // Assert Invoice is Sent
-        $this->taxInvoiceMock->expects($this->once())
-            ->method('sendInvoiceRequest')
-            ->willReturn(true);
-
-        // Assert success message is added
-        $this->managerInterfaceMock->expects($this->once())
-            ->method('addSuccessMessage')
-            ->with(
-                'The Vertex invoice has been sent.'
-            );
-
-        // Assert OrderInvoiceStatus given correct data
-        $this->orderInvoiceStatusMock->expects($this->once())
-            ->method('setId')
-            ->with($this->orderId);
-        $this->orderInvoiceStatusMock->expects($this->once())
-            ->method('setIsSent')
-            ->with(true);
-
-        // Assert OrderInvoiceStatus record saved
-        $this->repositoryMock->expects($this->once())
-            ->method('save')
-            ->with($this->orderInvoiceStatusMock);
-
-        $observer = $this->createObserver();
-        $this->orderSavedAfterObserver->execute($observer);
     }
 }

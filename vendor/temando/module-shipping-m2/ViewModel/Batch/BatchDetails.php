@@ -5,6 +5,7 @@
 namespace Temando\Shipping\ViewModel\Batch;
 
 use Magento\Framework\DataObjectFactory;
+use Magento\Framework\Exception\LocalizedException;
 use Magento\Framework\Stdlib\DateTime\TimezoneInterfaceFactory;
 use Magento\Framework\View\Element\Block\ArgumentInterface;
 use Magento\Sales\Api\Data\OrderAddressInterfaceFactory;
@@ -12,9 +13,12 @@ use Magento\Sales\Api\Data\ShipmentItemInterface;
 use Magento\Sales\Model\Order\Address;
 use Magento\Sales\Model\Order\Address\Renderer as AddressRenderer;
 use Magento\Sales\Model\Order\Shipment;
+use Temando\Shipping\Api\Data\CollectionPoint\OrderCollectionPointInterface;
 use Temando\Shipping\Model\BatchInterface;
 use Temando\Shipping\Model\BatchProviderInterface;
 use Temando\Shipping\ViewModel\DataProvider\BatchUrl;
+use Magento\Directory\Model\RegionFactory;
+use Temando\Shipping\Model\ResourceModel\Repository\OrderCollectionPointRepositoryInterface;
 
 /**
  * View model for batch details page.
@@ -57,6 +61,16 @@ class BatchDetails implements ArgumentInterface
     private $addressFactory;
 
     /**
+     * @var OrderCollectionPointRepositoryInterface
+     */
+    private $collectionPointRepository;
+
+    /**
+     * @var RegionFactory
+     */
+    private $regionFactory;
+
+    /**
      * BatchDetails constructor.
      * @param BatchProviderInterface $batchProvider
      * @param TimezoneInterfaceFactory $timezoneFactory
@@ -64,6 +78,8 @@ class BatchDetails implements ArgumentInterface
      * @param DataObjectFactory $dataObjectFactory
      * @param AddressRenderer $addressRenderer
      * @param OrderAddressInterfaceFactory $orderAddressInterfaceFactory
+     * @param OrderCollectionPointRepositoryInterface $collectionPointRepository
+     * @param RegionFactory $regionFactory
      */
     public function __construct(
         BatchProviderInterface $batchProvider,
@@ -71,7 +87,9 @@ class BatchDetails implements ArgumentInterface
         BatchUrl $batchUrl,
         DataObjectFactory $dataObjectFactory,
         AddressRenderer $addressRenderer,
-        OrderAddressInterfaceFactory $orderAddressInterfaceFactory
+        OrderAddressInterfaceFactory $orderAddressInterfaceFactory,
+        OrderCollectionPointRepositoryInterface $collectionPointRepository,
+        RegionFactory $regionFactory
     ) {
         $this->batchProvider = $batchProvider;
         $this->timezoneFactory = $timezoneFactory;
@@ -79,6 +97,8 @@ class BatchDetails implements ArgumentInterface
         $this->dataObjectFactory = $dataObjectFactory;
         $this->addressRenderer = $addressRenderer;
         $this->addressFactory = $orderAddressInterfaceFactory;
+        $this->collectionPointRepository = $collectionPointRepository;
+        $this->regionFactory = $regionFactory;
     }
 
     /**
@@ -162,15 +182,40 @@ class BatchDetails implements ArgumentInterface
      */
     public function getShipmentInfoForGrid($extShipmentId)
     {
-
         $info = [];
+
+        /** @var \Magento\Sales\Model\Order $order */
         $order = $this->getSalesShipmentOrder($extShipmentId);
+
         if ($order) {
             /** @var Shipment $shipment */
             $shipment = $order->getShipmentsCollection()->getFirstItem();
-            /** @var Address $shippingAddress */
             $shippingAddress = $shipment->getShippingAddress();
-            $formattedShippingAddress = $this->getFormattedAddress($shipment->getShippingAddress());
+            $shippingAddressId = $shippingAddress->getId();
+
+            try {
+                /** @var OrderCollectionPointInterface $collectionPoint */
+                $collectionPoint = $this->collectionPointRepository->get($shippingAddressId);
+
+                /** @var \Magento\Directory\Model\Region $region */
+                $region = $this->regionFactory->create();
+                $region = $region->loadByCode($collectionPoint->getRegion(), $collectionPoint->getCountry());
+                $regionName = $region->getName();
+
+                $addressData = [
+                    'company'    => $collectionPoint->getName(),
+                    'street'     => $collectionPoint->getStreet(),
+                    'region'     => $regionName,
+                    'city'       => $collectionPoint->getCity(),
+                    'postcode'   => $collectionPoint->getPostcode(),
+                    'country_id' => $collectionPoint->getCountry(),
+
+                ];
+            } catch (LocalizedException $e) {
+                $addressData = $shipment->getShippingAddress()->getData();
+            }
+
+            $formattedShippingAddress = $this->getFormattedAddress($addressData);
             $itemsInfo = $this->getItemsOrderedInfo($shipment->getItems());
             $info = [
                 'shipment_id' => $shipment->getId(),
@@ -202,17 +247,19 @@ class BatchDetails implements ArgumentInterface
     /**
      * Returns string with formatted address
      *
-     * @param Address $address
-     * @return null|string
+     * @param string[] $addressData
+     * @return string
      */
-    private function getFormattedAddress(Address $address)
+    private function getFormattedAddress(array $addressData)
     {
+        // reduce address attributes for display
         $addressData = [
-            'street'     => $address->getStreet(),
-            'region'     => $address->getRegion(),
-            'city'       => $address->getCity(),
-            'postcode'   => $address->getPostcode(),
-            'country_id' => $address->getCountryId(),
+            'company' => $addressData['company'],
+            'street' => $addressData['street'],
+            'region' => $addressData['region'],
+            'city' => $addressData['city'],
+            'postcode' => $addressData['postcode'],
+            'country_id' => $addressData['country_id']
         ];
 
         /** @var \Magento\Sales\Model\Order\Address $address */

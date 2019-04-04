@@ -5,7 +5,7 @@
 namespace Temando\Shipping\Rest\Response\Type\Completion\Attributes;
 
 /**
- * Temando API Completion Group Type
+ * Temando API Completion Group Response Type
  *
  * @package  Temando\Shipping\Rest
  * @author   Christoph Aßmann <christoph.assmann@netresearch.de>
@@ -17,7 +17,22 @@ class Group
     /**
      * @var string
      */
-    private $id;
+    private $ref;
+
+    /**
+     * @var string
+     */
+    private $manifestReference;
+
+    /**
+     * @var string
+     */
+    private $pickupReference;
+
+    /**
+     * @var \Temando\Shipping\Rest\Response\Type\Completion\Attributes\Group\Charge[]
+     */
+    private $charges = [];
 
     /**
      * @var string
@@ -27,12 +42,12 @@ class Group
     /**
      * @var string
      */
-    private $carrierReference;
+    private $carrierName;
 
     /**
      * @var string
      */
-    private $carrierName;
+    private $carrierMessage;
 
     /**
      * @var string
@@ -47,18 +62,69 @@ class Group
     /**
      * @return string
      */
-    public function getId()
+    public function getRef()
     {
-        return $this->id;
+        return $this->ref;
     }
 
     /**
-     * @param string $id
+     * @param string $ref
      * @return void
      */
-    public function setId($id)
+    public function setRef($ref)
     {
-        $this->id = $id;
+        $this->ref = $ref;
+    }
+
+    /**
+     * @return string
+     */
+    public function getManifestReference()
+    {
+        return $this->manifestReference;
+    }
+
+    /**
+     * @param string $manifestReference
+     * @return void
+     */
+    public function setManifestReference($manifestReference)
+    {
+        $this->manifestReference = $manifestReference;
+    }
+
+    /**
+     * @return string
+     */
+    public function getPickupReference()
+    {
+        return $this->pickupReference;
+    }
+
+    /**
+     * @param string $pickupReference
+     * @return void
+     */
+    public function setPickupReference($pickupReference)
+    {
+        $this->pickupReference = $pickupReference;
+    }
+
+    /**
+     * @return \Temando\Shipping\Rest\Response\Type\Completion\Attributes\Group\Charge[]
+     */
+    public function getCharges()
+    {
+        return $this->charges;
+    }
+
+    /**
+     * @param \Temando\Shipping\Rest\Response\Type\Completion\Attributes\Group\Charge[] $charges
+     * @return void
+     */
+    public function setCharges(array $charges)
+    {
+        $this->charges = $charges;
     }
 
     /**
@@ -81,23 +147,6 @@ class Group
     /**
      * @return string
      */
-    public function getCarrierReference()
-    {
-        return $this->carrierReference;
-    }
-
-    /**
-     * @param string $carrierReference
-     * @return void
-     */
-    public function setCarrierReference($carrierReference)
-    {
-        $this->carrierReference = $carrierReference;
-    }
-
-    /**
-     * @return string
-     */
     public function getCarrierName()
     {
         return $this->carrierName;
@@ -110,6 +159,23 @@ class Group
     public function setCarrierName($carrierName)
     {
         $this->carrierName = $carrierName;
+    }
+
+    /**
+     * @return string
+     */
+    public function getCarrierMessage()
+    {
+        return $this->carrierMessage;
+    }
+
+    /**
+     * @param string $carrierMessage
+     * @return void
+     */
+    public function setCarrierMessage($carrierMessage)
+    {
+        $this->carrierMessage = $carrierMessage;
     }
 
     /**

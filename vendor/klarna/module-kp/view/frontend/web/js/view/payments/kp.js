@@ -202,7 +202,13 @@ define(
             }
             self.placeOrder();
           }
-          self.showButton(true);
+
+          if (res.show_form === false) {
+            self.showButton(false);
+          } else {
+            self.showButton(true);
+          }
+
         });
       },
       finalize: function () {
@@ -220,9 +226,6 @@ define(
           self.showButton(true);
         });
 
-      },
-      getBillingAddressFormName: function () {
-          return 'billing-address-form-klarna_kp';
       }
     });
   }

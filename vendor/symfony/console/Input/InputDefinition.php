@@ -23,8 +23,8 @@ use Symfony\Component\Console\Output\BufferedOutput;
  * Usage:
  *
  *     $definition = new InputDefinition(array(
- *       new InputArgument('name', InputArgument::REQUIRED),
- *       new InputOption('foo', 'f', InputOption::VALUE_REQUIRED),
+ *         new InputArgument('name', InputArgument::REQUIRED),
+ *         new InputOption('foo', 'f', InputOption::VALUE_REQUIRED),
  *     ));
  *
  * @author Fabien Potencier <fabien@symfony.com>
@@ -390,7 +390,7 @@ class InputDefinition
             if (!$argument->isRequired()) {
                 $element = '['.$element.']';
             } elseif ($argument->isArray()) {
-                $element = $element.' ('.$element.')';
+                $element .= ' ('.$element.')';
             }
 
             if ($argument->isArray()) {

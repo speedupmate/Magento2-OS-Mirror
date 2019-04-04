@@ -34,10 +34,6 @@ class Kp implements MethodInterface, KlarnaPaymentMethodInterface
 {
     const METHOD_CODE = ConfigHelper::KP_METHOD_CODE;
 
-    const ACTION_ORDER             = 'order';
-    const ACTION_AUTHORIZE         = 'authorize';
-    const ACTION_AUTHORIZE_CAPTURE = 'authorize_capture';
-
     /**
      * @deprecated 5.3.0
      */

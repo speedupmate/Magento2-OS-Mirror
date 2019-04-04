@@ -8,6 +8,9 @@ namespace Vertex\Tax\Model\TaxQuote;
 
 use Magento\Framework\DataObject;
 use Magento\Framework\DataObjectFactory;
+use Vertex\Data\LineItemInterface;
+use Vertex\Data\LineItemInterfaceFactory;
+use Vertex\Services\Quote\ResponseInterface;
 
 /**
  * Quotation Response object
@@ -29,63 +32,6 @@ class TaxQuoteResponse
     }
 
     /**
-     * Parse a Quotation Request response and store it's data here
-     *
-     * @param array $responseObject
-     * @return $this
-     */
-    public function parseResponse(array $responseObject)
-    {
-        $taxLineItems = isset($responseObject['LineItem']) ? $responseObject['LineItem'] : [];
-        $this->prepareQuoteTaxedItems($taxLineItems);
-        return $this;
-    }
-
-    /**
-     * Prepare the taxable item data
-     *
-     * @param array $itemsTax
-     */
-    public function prepareQuoteTaxedItems(array $itemsTax)
-    {
-        $quoteTaxedItems = [];
-
-        foreach ($itemsTax as $item) {
-            $itemTotalTax = 0;
-            if (isset($item['TotalTax'])) {
-                if (is_array($item['TotalTax'])) {
-                    $itemTotalTax += $item['TotalTax']['_'];
-                } else {
-                    $itemTotalTax += $item['TotalTax'];
-                }
-            }
-            $taxRate = $this->getTaxRate($item);
-
-            $taxPercent = $taxRate * 100;
-
-            if (!isset($item['lineItemId'])) {
-                continue;
-            }
-
-            $quoteItemId = $item['lineItemId'];
-            $taxItemInfo = $this->dataObjectFactory->create();
-            $taxItemInfo->setProductClass($this->getProductClass($item));
-            $taxItemInfo->setProductSku($this->getProductSku($item));
-            if (isset($item['Quantity'])) {
-                $taxItemInfo->setProductQty($this->getProductQty($item));
-            }
-            if (isset($item['UnitPrice'])) {
-                $taxItemInfo->setUnitPrice($this->getUnitPrice($item));
-            }
-            $taxItemInfo->setTaxRate($taxRate);
-            $taxItemInfo->setTaxPercent($taxPercent);
-            $taxItemInfo->setTaxAmount($itemTotalTax);
-            $quoteTaxedItems[$quoteItemId] = $taxItemInfo;
-        }
-        $this->quoteTaxedItems = $quoteTaxedItems;
-    }
-
-    /**
      * Get all items with tax data
      *
      * @return DataObject[]
@@ -96,70 +42,90 @@ class TaxQuoteResponse
     }
 
     /**
-     * Get the Tax Rate from the response
+     * Parse a Quotation Request response and store it's data here
      *
-     * @param array[] $item
-     * @return float|int
+     * @param ResponseInterface $response
+     * @return $this
      */
-    private function getTaxRate($item)
+    public function parseResponse(ResponseInterface $response)
     {
-        $taxRate = 0;
-        if (!isset($item['Taxes'])) {
-            return $taxRate;
-        }
+        $this->prepareQuoteTaxedItems($response->getLineItems());
+        return $this;
+    }
 
-        foreach ($item['Taxes'] as $key => $taxValue) {
-            if (isset($taxValue['EffectiveRate'])) {
-                $taxRate += (float)$taxValue['EffectiveRate'];
-            } elseif ($key === 'EffectiveRate') {
-                $taxRate += (float)$taxValue;
+    /**
+     * Prepare the taxable item data
+     *
+     * @param LineItemInterface[] $itemsTax
+     */
+    public function prepareQuoteTaxedItems(array $itemsTax)
+    {
+        $quoteTaxedItems = [];
+
+        foreach ($itemsTax as $item) {
+            $itemTotalTax = $item->getTotalTax() ?: 0;
+
+            $taxRate = $this->getTaxRate($item);
+            $taxPercent = $taxRate * 100;
+
+            $itemId = $item->getLineItemId();
+            if ($itemId === null) {
+                continue;
             }
-        }
 
-        return $taxRate;
+            $taxItemInfo = $this->dataObjectFactory->create();
+            $taxItemInfo->setProductClass($this->getProductClass($item));
+            $taxItemInfo->setProductSku($this->getProductSku($item));
+            if ($item->getQuantity() !== null) {
+                $taxItemInfo->setProductQty($item->getQuantity());
+            }
+            if ($item->getUnitPrice() !== null) {
+                $taxItemInfo->setUnitPrice($item->getUnitPrice());
+            }
+            $taxItemInfo->setTaxRate($taxRate);
+            $taxItemInfo->setTaxPercent($taxPercent);
+            $taxItemInfo->setTaxAmount($itemTotalTax);
+            $quoteTaxedItems[$itemId] = $taxItemInfo;
+        }
+        $this->quoteTaxedItems = $quoteTaxedItems;
     }
 
     /**
      * Get an item's product class
      *
-     * @param array $item
+     * @param LineItemInterface $item
      * @return string
      */
-    private function getProductClass($item)
+    private function getProductClass(LineItemInterface $item)
     {
-        return isset($item['Product']['productClass']) ? $item['Product']['productClass'] : '';
+        return $item->getProductClass() ?: '';
     }
 
     /**
      * Get an item's product sku
      *
-     * @param array $item
+     * @param LineItemInterface $item
      * @return string
      */
-    private function getProductSku($item)
+    private function getProductSku(LineItemInterface $item)
     {
-        return isset($item['Product']['_']) ? $item['Product']['_'] : '';
+        return $item->getProductCode() ?: '';
     }
 
     /**
-     * Get an item's product qty
+     * Get the Tax Rate from the response
      *
-     * @param array $item
-     * @return int
+     * @param LineItemInterface $item
+     * @return float|int
      */
-    private function getProductQty($item)
+    private function getTaxRate(LineItemInterface $item)
     {
-        return isset($item['Quantity']['_']) ? $item['Quantity']['_'] : 0;
-    }
+        $taxRate = 0;
 
-    /**
-     * Get an item's unit price
-     *
-     * @param array $item
-     * @return int
-     */
-    private function getUnitPrice($item)
-    {
-        return isset($item['UnitPrice']['_']) ? (float) $item['UnitPrice']['_'] : 0;
+        foreach ($item->getTaxes() as $tax) {
+            $taxRate += $tax->getEffectiveRate();
+        }
+
+        return $taxRate;
     }
 }

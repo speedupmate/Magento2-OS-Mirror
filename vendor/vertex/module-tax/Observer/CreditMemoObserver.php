@@ -9,7 +9,13 @@ namespace Vertex\Tax\Observer;
 use Magento\Framework\Event\Observer;
 use Magento\Framework\Event\ObserverInterface;
 use Magento\Framework\Message\ManagerInterface;
+use Magento\Sales\Model\Order;
+use Magento\Sales\Model\Order\Creditmemo;
+use Magento\Store\Model\ScopeInterface;
+use Magento\Store\Model\Store;
+use Vertex\Tax\Model\Api\Data\InvoiceRequestBuilder;
 use Vertex\Tax\Model\Config;
+use Vertex\Tax\Model\ConfigurationValidator;
 use Vertex\Tax\Model\CountryGuard;
 use Vertex\Tax\Model\TaxInvoice;
 
@@ -21,31 +27,49 @@ class CreditMemoObserver implements ObserverInterface
     /** @var Config */
     private $config;
 
+    /** @var ConfigurationValidator */
+    private $configValidator;
+
     /** @var CountryGuard */
     private $countryGuard;
 
-    /** @var TaxInvoice */
-    private $taxInvoice;
+    /** @var GiftwrapExtensionLoader */
+    private $extensionLoader;
+
+    /** @var InvoiceRequestBuilder */
+    private $invoiceRequestBuilder;
 
     /** @var ManagerInterface */
     private $messageManager;
+
+    /** @var TaxInvoice */
+    private $taxInvoice;
 
     /**
      * @param Config $config
      * @param CountryGuard $countryGuard
      * @param TaxInvoice $taxInvoice
      * @param ManagerInterface $messageManager
+     * @param ConfigurationValidator $configValidator
+     * @param InvoiceRequestBuilder $invoiceRequestBuilder
+     * @param GiftwrapExtensionLoader $extensionLoader
      */
     public function __construct(
         Config $config,
         CountryGuard $countryGuard,
         TaxInvoice $taxInvoice,
-        ManagerInterface $messageManager
+        ManagerInterface $messageManager,
+        ConfigurationValidator $configValidator,
+        InvoiceRequestBuilder $invoiceRequestBuilder,
+        GiftwrapExtensionLoader $extensionLoader
     ) {
         $this->config = $config;
         $this->countryGuard = $countryGuard;
         $this->taxInvoice = $taxInvoice;
         $this->messageManager = $messageManager;
+        $this->configValidator = $configValidator;
+        $this->invoiceRequestBuilder = $invoiceRequestBuilder;
+        $this->extensionLoader = $extensionLoader;
     }
 
     /**
@@ -53,17 +77,17 @@ class CreditMemoObserver implements ObserverInterface
      *
      * @param Observer $observer
      * @return void
-     * @throws \Magento\Framework\Exception\LocalizedException
      */
     public function execute(Observer $observer)
     {
-        /** @var \Magento\Sales\Model\Order\Creditmemo $creditMemo */
+        /** @var Creditmemo $creditMemo */
         $creditMemo = $observer->getEvent()->getCreditmemo();
+        $this->extensionLoader->loadOnCreditmemo($creditMemo);
 
-        /** @var \Magento\Sales\Model\Order $order */
+        /** @var Order $order */
         $order = $creditMemo->getOrder();
 
-        /** @var \Magento\Store\Model\Store $store */
+        /** @var Store $store */
         $store = $order->getStore();
 
         /** @var boolean $isActive */
@@ -72,13 +96,14 @@ class CreditMemoObserver implements ObserverInterface
         /** @var boolean $canService */
         $canService = $this->countryGuard->isOrderServiceableByVertex($order);
 
-        if ($isActive && $canService) {
-            /** @var array $creditMemoRequestData */
-            $creditMemoRequestData = $this->taxInvoice->prepareInvoiceData($creditMemo, 'refund');
+        /** @var boolean $configValid */
+        $configValid = $this->configValidator->execute(ScopeInterface::SCOPE_STORE, $creditMemo->getStoreId(), true)
+            ->isValid();
 
-            if (is_array($creditMemoRequestData) &&
-                $this->taxInvoice->sendRefundRequest($creditMemoRequestData, $order)
-            ) {
+        if ($isActive && $canService && $configValid) {
+            $request = $this->invoiceRequestBuilder->buildFromCreditmemo($creditMemo);
+
+            if ($this->taxInvoice->sendRefundRequest($request, $order)) {
                 $this->messageManager->addSuccessMessage(__('The Vertex invoice has been refunded.')->render());
             }
         }

@@ -15,8 +15,8 @@ class SendRequestTest extends TestCase
 {
     const VERTEX_HOST = 'fake_vertex_host';
     const VERTEX_LOOKUP_HOST = 'fake_lookup_host';
-    const CALCULATION_FUNCTION = 'calculate';
-    const LOOKUP_FUNCTION = 'lookup';
+    const CALCULATION_FUNCTION = 'CalculateTax60';
+    const LOOKUP_FUNCTION = 'LookupTaxAreas60';
 
     public function setUp()
     {
@@ -25,14 +25,14 @@ class SendRequestTest extends TestCase
 
     private function createCalculationConfigMock()
     {
-        return $this->createPartialMock(Config::class, ['getVertexHost', 'getCalculationFunction']);
+        return $this->createPartialMock(Config::class, ['getVertexHost']);
     }
 
     private function createValidationConfigMock()
     {
         return $this->createPartialMock(
             Config::class,
-            ['getVertexHost', 'getVertexAddressHost', 'getValidationFunction']
+            ['getVertexHost', 'getVertexAddressHost']
         );
     }
 
@@ -41,9 +41,6 @@ class SendRequestTest extends TestCase
         $calculationReturn = ['moo'];
 
         $configMock = $this->createCalculationConfigMock();
-        $configMock->expects($this->atLeastOnce())
-            ->method('getCalculationFunction')
-            ->willReturn(static::CALCULATION_FUNCTION);
 
         $soapClientMock = $this->createPartialMock(\SoapClient::class, [static::CALCULATION_FUNCTION]);
         $soapClientMock->expects($this->once())
@@ -64,9 +61,6 @@ class SendRequestTest extends TestCase
         $lookupReturn = ['cow'];
 
         $configMock = $this->createValidationConfigMock();
-        $configMock->expects($this->atLeastOnce())
-            ->method('getValidationFunction')
-            ->willReturn(static::LOOKUP_FUNCTION);
 
         $soapClientMock = $this->createPartialMock(\SoapClient::class, [static::LOOKUP_FUNCTION]);
         $soapClientMock->expects($this->once())
@@ -80,39 +74,5 @@ class SendRequestTest extends TestCase
         $result = $this->invokeInaccessibleMethod($vertex, 'performSoapCall', $soapClientMock, 'tax_area_lookup', '');
 
         $this->assertEquals($lookupReturn, $result);
-    }
-
-    public function testExceptionWhenNoValidationFunction()
-    {
-        $this->expectException(LocalizedException::class);
-
-        $configMock = $this->createValidationConfigMock();
-
-        $soapMock = $this->createMock(\SoapClient::class);
-
-        $vertex = $this->getObject(
-            ApiClient::class,
-            [
-                'config' => $configMock,
-            ]
-        );
-        $this->invokeInaccessibleMethod($vertex, 'performSoapCall', $soapMock, 'tax_area_lookup', '');
-    }
-
-    public function testExceptionWhenNoCalculationFunction()
-    {
-        $this->expectException(LocalizedException::class);
-
-        $configMock = $this->createCalculationConfigMock();
-
-        $soapMock = $this->createMock(\SoapClient::class);
-
-        $vertex = $this->getObject(
-            ApiClient::class,
-            [
-                'config' => $configMock,
-            ]
-        );
-        $this->invokeInaccessibleMethod($vertex, 'performSoapCall', $soapMock, 'quote', '');
     }
 }

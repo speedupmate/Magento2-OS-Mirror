@@ -16,10 +16,10 @@ use Vertex\Tax\Api\Data\LogEntryInterfaceFactory;
 use Vertex\Tax\Model\ApiClient;
 use Vertex\Tax\Model\Config;
 use Vertex\Tax\Model\DomDocumentFactory;
-use Vertex\Tax\Model\ObjectConverter;
+use Vertex\Tax\Model\ApiClient\ObjectConverter;
 use Vertex\Tax\Model\RequestLogger;
-use Vertex\Tax\Model\SoapClientFactory;
 use Vertex\Tax\Test\Unit\TestCase;
+use Vertex\Utility\SoapClientFactory;
 
 /**
  * @SuppressWarnings(PHPMD.CouplingBetweenObjects)
@@ -36,8 +36,8 @@ class SendApiRequestTest extends TestCase
     const ORDER = null;
     const DATE = '1991-08-06 12:00:00';
 
-    const VALIDATION_FUNCTION = 'validate';
-    const CALCULATION_FUNCTION = 'calculate';
+    const VALIDATION_FUNCTION = 'LookupTaxAreas60';
+    const CALCULATION_FUNCTION = 'CalculateTax60';
     const VERTEX_HOST = 'vertex_host';
     const VERTEX_ADDRESS_HOST = 'vertex_address_host';
 
@@ -135,13 +135,6 @@ class SendApiRequestTest extends TestCase
 
     public function testNonSoapExceptionDuringRequestLogs()
     {
-        $exceptionString = uniqid('exception-');
-        $testException = new \Exception($exceptionString);
-
-        $mockConfig = $this->createMock(Config::class);
-        $mockConfig->method('getValidationFunction')
-            ->willThrowException($testException);
-
         $mockSoapClient = $this->createMock(\SoapClient::class);
 
         $mockSoapClientFactory = $this->createPartialMock(SoapClientFactory::class, ['create']);
@@ -151,26 +144,25 @@ class SendApiRequestTest extends TestCase
         // Test logged through Magento
         $loggerMock = $this->createMock(LoggerInterface::class);
         $loggerMock->expects($this->once())
-            ->method('critical')
-            ->with($this->stringContains($exceptionString));
+            ->method('critical');
 
         // Ensure no attempt is made to log to database
         $logFactory = $this->createMock(LogEntryInterfaceFactory::class);
         $logFactory->expects($this->never())
             ->method('create');
 
+        /** @var ApiClient $vertex */
         $vertex = $this->getObject(
             ApiClient::class,
             [
                 'logger' => $loggerMock,
-                'config' => $mockConfig,
                 'soapClientFactory' => $mockSoapClientFactory,
                 'storeManager' => $this->storeManagerMock,
                 'logEntryFactory' => $logFactory,
             ]
         );
 
-        $vertex->sendApiRequest($this->defaultRequest, static::TYPE_LOOKUP, static::ORDER);
+        $vertex->sendApiRequest($this->defaultRequest, 'invalid_type', static::ORDER);
     }
 
     public function testErrorLoggingIsLogged()

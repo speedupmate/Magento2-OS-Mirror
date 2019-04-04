@@ -7,7 +7,7 @@ namespace Temando\Shipping\Sync;
 use Magento\Framework\Exception\CouldNotDeleteException;
 use Magento\Framework\Exception\LocalizedException;
 use Psr\Log\LoggerInterface;
-use Temando\Shipping\Model\Config\ModuleConfig;
+use Temando\Shipping\Model\Config\ModuleConfigInterface;
 use Temando\Shipping\Model\ResourceModel\EventStream\EventRepositoryInterface;
 use Temando\Shipping\Model\StreamEventInterface;
 
@@ -22,7 +22,7 @@ use Temando\Shipping\Model\StreamEventInterface;
 class EventStreamProcessor
 {
     /**
-     * @var ModuleConfig
+     * @var ModuleConfigInterface
      */
     private $config;
 
@@ -37,25 +37,33 @@ class EventStreamProcessor
     private $streamEventRepository;
 
     /**
+     * @var EventFilter
+     */
+    private $streamEventFilter;
+
+    /**
      * @var LoggerInterface
      */
     private $logger;
 
     /**
-     * @param ModuleConfig $config
+     * @param ModuleConfigInterface $config
      * @param EventListProcessor $eventListProcessor
      * @param EventRepositoryInterface $streamEventRepository
+     * @param EventFilter $streamEventFilter
      * @param LoggerInterface $logger
      */
     public function __construct(
-        ModuleConfig $config,
+        ModuleConfigInterface $config,
         EventListProcessor $eventListProcessor,
         EventRepositoryInterface $streamEventRepository,
+        EventFilter $streamEventFilter,
         LoggerInterface $logger
     ) {
         $this->config = $config;
         $this->eventListProcessor = $eventListProcessor;
         $this->streamEventRepository = $streamEventRepository;
+        $this->streamEventFilter = $streamEventFilter;
         $this->logger = $logger;
     }
 
@@ -68,28 +76,14 @@ class EventStreamProcessor
         $streamId = $this->config->getStreamId();
         $eventList = EventList::fromArray([]);
 
-        /* Filters treated as OR condition. Empty filter leads to empty result */
-        $filter = [];
-        if ($this->config->isSyncOrderEnabled()) {
-            $filter[] = [
-                "field" => "entity_type",
-                "value" => "order"
-            ];
-        }
-        if ($this->config->isSyncShipmentEnabled()) {
-            $filter[] = [
-                "field" => "entity_type",
-                "value" => "shipment"
-            ];
-        }
-
         do {
             $iterations--;
 
             try {
                 // obtain next events, pass on to list processor
-                $streamEvents = $this->streamEventRepository->getEventList($streamId, $filter);
-                $this->eventListProcessor->processEventList($streamEvents, $eventList);
+                $streamEvents = $this->streamEventRepository->getEventList($streamId);
+                $processableEvents = $this->streamEventFilter->filter($streamEvents);
+                $this->eventListProcessor->processEventList($processableEvents, $eventList);
             } catch (LocalizedException $e) {
                 $this->logger->error($e->getMessage(), ['exception' => $e]);
                 continue;
@@ -107,6 +101,6 @@ class EventStreamProcessor
             } catch (CouldNotDeleteException $e) {
                 $this->logger->error($e->getMessage(), ['exception' => $e]);
             }
-        } while ($iterations > 0);
+        } while ($iterations > 0 && !empty($streamEvents));
     }
 }

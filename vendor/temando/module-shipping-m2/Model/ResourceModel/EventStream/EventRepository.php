@@ -58,22 +58,21 @@ class EventRepository implements EventRepositoryInterface
         StreamEventListRequestInterfaceFactory $listRequestFactory,
         StreamEventResponseMapper $streamEventMapper
     ) {
-        $this->apiAdapter         = $apiAdapter;
+        $this->apiAdapter = $apiAdapter;
         $this->eventItemRequestFactory = $eventItemRequestFactory;
         $this->eventListRequestFactory = $listRequestFactory;
-        $this->streamEventMapper  = $streamEventMapper;
+        $this->streamEventMapper = $streamEventMapper;
     }
 
     /**
      * @param string $streamId
-     * @param string[][] $filter
      * @param int|null $offset
      * @param int|null $limit
      *
      * @return \Temando\Shipping\Model\StreamEventInterface[]
      * @throws LocalizedException
      */
-    public function getEventList($streamId, array $filter, $offset = null, $limit = null)
+    public function getEventList($streamId, $offset = null, $limit = null)
     {
         try {
             $request = $this->eventListRequestFactory->create([
@@ -87,24 +86,6 @@ class EventRepository implements EventRepositoryInterface
             $streamEvents = array_map(function (StreamEventResponseType $apiEvent) {
                 return $this->streamEventMapper->map($apiEvent);
             }, $apiStreamEvents);
-
-            // filter converted event objects
-            $eventFilter = function (StreamEventInterface $streamEvent) use ($filter) {
-                $match = false;
-
-                /** @var \Temando\Shipping\Model\StreamEvent $streamEvent */
-                foreach ($filter as $filterItem) {
-                    $value = $streamEvent->getData($filterItem['field']);
-                    $match = ($value === $filterItem['value']);
-                    if ($match) {
-                        break;
-                    }
-                }
-
-                return $match;
-            };
-
-            $streamEvents = array_filter($streamEvents, $eventFilter);
         } catch (AdapterException $e) {
             throw new LocalizedException(__('Unable to load stream events.'), $e);
         }

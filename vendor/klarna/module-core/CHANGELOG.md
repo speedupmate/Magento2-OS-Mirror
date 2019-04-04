@@ -1,7 +1,23 @@
 
-4.4.5 / 2018-08-28
+4.5.2 / 2018-08-31
 ==================
 
+  * PPI-500 2.3.0 Compatibility updates
+
+4.5.1 / 2018-08-27
+==================
+
+  * PPI-508 Revert change to PPI-258 that broke payment method display
+
+4.5.0 / 2018-08-24
+==================
+
+  * PPI-258 Add link to Merchant Portal in admin
+  * PPI-467 Extended cleanser filtering
+  * PPI-500 Add support for PHP 7.2 and Magento 2.3
+
+4.4.5 / 2018-08-28
+==================
   * PPI-507 Fix discount issue
 
 4.4.4 / 2018-08-16

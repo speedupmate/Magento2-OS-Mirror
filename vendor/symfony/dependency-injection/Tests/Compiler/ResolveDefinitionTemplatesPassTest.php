@@ -16,9 +16,6 @@ use Symfony\Component\DependencyInjection\ChildDefinition;
 use Symfony\Component\DependencyInjection\Compiler\ResolveDefinitionTemplatesPass;
 use Symfony\Component\DependencyInjection\ContainerBuilder;
 
-/**
- * @group legacy
- */
 class ResolveDefinitionTemplatesPassTest extends TestCase
 {
     public function testProcess()

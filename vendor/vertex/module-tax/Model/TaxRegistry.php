@@ -6,6 +6,8 @@
 
 namespace Vertex\Tax\Model;
 
+use Magento\Framework\DataObject;
+use Magento\Framework\DataObjectFactory;
 use Vertex\Tax\Model\TaxRegistry\StorageInterface;
 use Vertex\Tax\Model\TaxQuote\TaxQuoteResponse;
 
@@ -16,17 +18,49 @@ class TaxRegistry
 {
     const KEY_TAXES = 'vertex_tax_response';
     const KEY_ERROR_GENERIC = 'vertex_error_generic';
+    const LIFETIME_DEFAULT = 300;
+
+    /** @var DataObjectFactory */
+    private $dataObjectFactory;
 
     /** @var StorageInterface */
     private $storage;
 
     /**
+     * In-object storage of error messages to persist for the life of the request.
+     *
+     * @var array
+     */
+    private $errorInfo = [];
+
+    /**
+     * In-object storage of calculated taxes to persist for the life of the request.
+     *
+     * @var DataObject[]
+     */
+    private $calculatedTaxInfo;
+
+    /**
+     * @param DataObjectFactory $dataObjectFactory,
      * @param StorageInterface $storage
      */
     public function __construct(
+        DataObjectFactory $dataObjectFactory,
         StorageInterface $storage
     ) {
+        $this->dataObjectFactory = $dataObjectFactory;
         $this->storage = $storage;
+    }
+
+    /**
+     * Determine whether error information is available.
+     *
+     * @param string $type
+     * @return bool
+     */
+    public function hasError($type = self::KEY_ERROR_GENERIC)
+    {
+        return !empty($this->errorInfo[$type]);
     }
 
     /**
@@ -36,7 +70,7 @@ class TaxRegistry
      */
     public function hasTaxes()
     {
-        return $this->lookup(self::KEY_TAXES) !== null;
+        return !empty($this->calculatedTaxInfo);
     }
 
     /**
@@ -53,11 +87,22 @@ class TaxRegistry
     /**
      * Retrieve calculated tax data from the registry.
      *
-     * @return TaxQuoteResponse|null
+     * @return DataObject[]|null
      */
     public function lookupTaxes()
     {
-        return $this->lookup(self::KEY_TAXES);
+        return $this->calculatedTaxInfo ?: null;
+    }
+
+    /**
+     * Retrieve stored error message.
+     *
+     * @param string $type
+     * @return string|null
+     */
+    public function lookupError($type = self::KEY_ERROR_GENERIC)
+    {
+        return !empty($this->errorInfo[$type]) ? $this->errorInfo[$type] : null;
     }
 
     /**
@@ -65,11 +110,12 @@ class TaxRegistry
      *
      * @param string $key
      * @param mixed $value
+     * @param int $lifetime
      * @return bool
      */
-    public function register($key, $value)
+    public function register($key, $value, $lifetime = self::LIFETIME_DEFAULT)
     {
-        return $this->storage->set($key, $value);
+        return $this->storage->set($key, $value, $lifetime);
     }
 
     /**
@@ -81,9 +127,9 @@ class TaxRegistry
      */
     public function registerError($message, $type = self::KEY_ERROR_GENERIC)
     {
-        $this->unregister($type);
+        $this->errorInfo[$type] = $message;
 
-        return $this->register($type, $message);
+        return true;
     }
 
     /**
@@ -94,8 +140,9 @@ class TaxRegistry
      */
     public function registerTaxes(TaxQuoteResponse $taxInfo)
     {
-        $this->unregister(self::KEY_TAXES);
-        return $this->register(self::KEY_TAXES, $taxInfo->getQuoteTaxedItems());
+        $this->calculatedTaxInfo = $taxInfo->getQuoteTaxedItems();
+
+        return !empty($this->calculatedTaxInfo);
     }
 
     /**
@@ -114,8 +161,28 @@ class TaxRegistry
      *
      * @return bool
      */
+    public function unregisterError($type = null)
+    {
+        if ($type === null) {
+            $this->errorInfo = [];
+        } elseif (isset($this->errorInfo[$type])) {
+            $this->errorInfo[$type] = null;
+        } else {
+            return false;
+        }
+
+        return true;
+    }
+
+    /**
+     * Remove calculated tax data from its registry slot.
+     *
+     * @return bool
+     */
     public function unregisterTaxes()
     {
-        return $this->storage->unsetData(self::KEY_TAXES);
+        $this->calculatedTaxInfo = null;
+
+        return empty($this->calculatedTaxInfo);
     }
 }

@@ -8,15 +8,9 @@
         <tax>
             <vertex_settings>
                 <enable_vertex><![CDATA[0]]></enable_vertex>
-                <trustedId><![CDATA[]]></trustedId>
                 <invoice_order><![CDATA[invoice_created]]></invoice_order>
-                <api_url><![CDATA[https://mgcsconnect.vertexsmb.com/vertex-ws/services/CalculateTax60]]></api_url>
-                <address_api_url><![CDATA[https://mgcsconnect.vertexsmb.com/vertex-ws/services/LookupTaxAreas60]]></address_api_url>
-                <show_manual_button><![CDATA[0]]></show_manual_button>
-                <show_taxrequest_popup><![CDATA[1]]></show_taxrequest_popup>
-                <allow_cart_request>1</allow_cart_request>
-                <calculation_function>CalculateTax60</calculation_function>
-                <valadtion_function>LookupTaxAreas60</valadtion_function>
+                <api_url><![CDATA[https://mgconnect.vertexsmb.com/vertex-ws/services/CalculateTax70]]></api_url>
+                <address_api_url><![CDATA[https://mgconnect.vertexsmb.com/vertex-ws/services/LookupTaxAreas70]]></address_api_url>
             </vertex_settings>
             <classes>
                 <default_customer_code><![CDATA[General]]></default_customer_code>

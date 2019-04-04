@@ -9,7 +9,10 @@ namespace Vertex\Tax\Observer;
 use Magento\Framework\Event\Observer;
 use Magento\Framework\Event\ObserverInterface;
 use Magento\Framework\Message\ManagerInterface;
+use Magento\Store\Model\ScopeInterface;
+use Vertex\Tax\Model\Api\Data\InvoiceRequestBuilder;
 use Vertex\Tax\Model\Config;
+use Vertex\Tax\Model\ConfigurationValidator;
 use Vertex\Tax\Model\CountryGuard;
 use Vertex\Tax\Model\InvoiceSentRegistry;
 use Vertex\Tax\Model\TaxInvoice;
@@ -22,17 +25,26 @@ class InvoiceSavedAfterObserver implements ObserverInterface
     /** @var Config */
     private $config;
 
+    /** @var ConfigurationValidator */
+    private $configValidator;
+
     /** @var CountryGuard */
     private $countryGuard;
 
-    /** @var TaxInvoice */
-    private $taxInvoice;
+    /** @var GiftwrapExtensionLoader */
+    private $extensionLoader;
+
+    /** @var InvoiceRequestBuilder */
+    private $invoiceRequestBuilder;
+
+    /** @var InvoiceSentRegistry */
+    private $invoiceSentRegistry;
 
     /** @var ManagerInterface */
     private $messageManager;
 
-    /** @var InvoiceSentRegistry */
-    private $invoiceSentRegistry;
+    /** @var TaxInvoice */
+    private $taxInvoice;
 
     /**
      * @param Config $config
@@ -40,19 +52,28 @@ class InvoiceSavedAfterObserver implements ObserverInterface
      * @param TaxInvoice $taxInvoice
      * @param ManagerInterface $messageManager
      * @param InvoiceSentRegistry $invoiceSentRegistry
+     * @param ConfigurationValidator $configValidator
+     * @param InvoiceRequestBuilder $invoiceRequestBuilder
+     * @param GiftwrapExtensionLoader $extensionLoader
      */
     public function __construct(
         Config $config,
         CountryGuard $countryGuard,
         TaxInvoice $taxInvoice,
         ManagerInterface $messageManager,
-        InvoiceSentRegistry $invoiceSentRegistry
+        InvoiceSentRegistry $invoiceSentRegistry,
+        ConfigurationValidator $configValidator,
+        InvoiceRequestBuilder $invoiceRequestBuilder,
+        GiftwrapExtensionLoader $extensionLoader
     ) {
         $this->config = $config;
         $this->countryGuard = $countryGuard;
         $this->taxInvoice = $taxInvoice;
         $this->messageManager = $messageManager;
         $this->invoiceSentRegistry = $invoiceSentRegistry;
+        $this->configValidator = $configValidator;
+        $this->invoiceRequestBuilder = $invoiceRequestBuilder;
+        $this->extensionLoader = $extensionLoader;
     }
 
     /**
@@ -61,12 +82,12 @@ class InvoiceSavedAfterObserver implements ObserverInterface
      * Only when Request by Invoice Creation is turned on
      *
      * @param Observer $observer
-     * @throws \Magento\Framework\Exception\LocalizedException
      */
     public function execute(Observer $observer)
     {
         /** @var \Magento\Sales\Model\Order\Invoice $invoice */
         $invoice = $observer->getEvent()->getInvoice();
+        $this->extensionLoader->loadOnInvoice($invoice);
 
         /** @var \Magento\Sales\Model\Order $order */
         $order = $invoice->getOrder();
@@ -83,14 +104,17 @@ class InvoiceSavedAfterObserver implements ObserverInterface
         /** @var boolean $canService */
         $canService = $this->countryGuard->isOrderServiceableByVertex($order);
 
-        if (!$isInvoiceSent && $isActive && $requestByInvoice && $canService) {
-            /** @var array $invoiceRequestData */
-            $invoiceRequestData = $this->taxInvoice->prepareInvoiceData($invoice, 'invoice');
+        /** @var boolean $configValid */
+        $configValid = $this->configValidator->execute(ScopeInterface::SCOPE_STORE, $invoice->getStoreId(), true)
+            ->isValid();
+
+        if (!$isInvoiceSent && $isActive && $requestByInvoice && $canService && $configValid) {
+            $request = $this->invoiceRequestBuilder->buildFromInvoice($invoice);
 
             /** @var boolean $sendInvoice */
-            $sendInvoice = $this->taxInvoice->sendInvoiceRequest($invoiceRequestData, $invoice->getOrder());
+            $sendInvoice = $this->taxInvoice->sendInvoiceRequest($request, $invoice->getOrder());
 
-            if (is_array($invoiceRequestData) && $sendInvoice) {
+            if ($sendInvoice) {
                 $this->invoiceSentRegistry->setInvoiceHasBeenSentToVertex($invoice);
                 $this->messageManager->addSuccessMessage(__('The Vertex invoice has been sent.')->render());
             }

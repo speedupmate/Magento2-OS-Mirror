@@ -143,4 +143,27 @@ abstract class AbstractCommand extends DataObject implements CommandInterface
 
         return $this->om;
     }
+
+    /**
+     * Extending the error message with information from the api response
+     *
+     * @param DataObject $response
+     * @param string $errorMessage
+     * @param string $type
+     * @return \Magento\Framework\Phrase
+     */
+    public function getFullErrorMessage($response, $errorMessage, $type)
+    {
+        $apiMessage = implode($response->getErrorMessages(), '<br/>');
+        if (!empty($apiMessage)) {
+            $errorMessage = __(
+                '%1 Klarna %2 api error messages: %3',
+                "$errorMessage<br/><br/>",
+                $type,
+                '<br/><i>' . $apiMessage . '</i>'
+            );
+        }
+
+        return $errorMessage;
+    }
 }

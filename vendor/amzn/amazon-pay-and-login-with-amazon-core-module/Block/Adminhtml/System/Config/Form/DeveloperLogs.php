@@ -22,8 +22,7 @@ use Magento\Backend\Model\UrlInterface;
 use Magento\Framework\App\Filesystem\DirectoryList;
 
 /**
- * Class DeveloperLogs
- * @package Block\Adminhtml\System\Config\Form
+ * Displays links to available custom logs
  */
 class DeveloperLogs extends \Magento\Config\Block\System\Config\Form\Field
 {

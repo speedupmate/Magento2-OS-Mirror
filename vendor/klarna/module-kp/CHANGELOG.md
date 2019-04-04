@@ -1,4 +1,19 @@
 
+5.5.1 / 2018-08-31
+==================
+
+  * PPI-500 2.3.0 Compatibility updates
+
+5.5.0 / 2018-08-24
+==================
+
+  * PI-397 Disable purchase button if payment declined
+  * PPI-450 Add initial MFTF test
+  * PPI-497 Fix 'elements with non-unique id' errors
+  * PPI-498 Remove 'store view' span
+  * PPI-499 Fix HTML tags as string in admin table
+  * PPI-500 Add support for PHP 7.2 and Magento 2.3
+
 5.4.4 / 2018-08-15
 ==================
 

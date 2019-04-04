@@ -14,6 +14,10 @@ use Magento\Sales\Api\Data\OrderInterface;
  * Recommended usage of this class is for modifying the request or response to Vertex
  *
  * @api
+ * @see TaxAreaLookupInterface Tax Area Lookup Service - for looking up tax areas & addresses
+ * @see InvoiceInterface Invoice Service - for recording invoices against the tax log
+ * @see QuoteInterface Quotation Service - for getting taxation quotations
+ * @deprecated Please use the request specific services mentioned in the @see annotations
  */
 interface ClientInterface
 {

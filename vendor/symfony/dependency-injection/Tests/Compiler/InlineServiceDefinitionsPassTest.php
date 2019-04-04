@@ -12,14 +12,14 @@
 namespace Symfony\Component\DependencyInjection\Tests\Compiler;
 
 use PHPUnit\Framework\TestCase;
-use Symfony\Component\DependencyInjection\Argument\IteratorArgument;
-use Symfony\Component\DependencyInjection\Argument\ServiceClosureArgument;
-use Symfony\Component\DependencyInjection\Compiler\AnalyzeServiceReferencesPass;
-use Symfony\Component\DependencyInjection\Compiler\InlineServiceDefinitionsPass;
-use Symfony\Component\DependencyInjection\Compiler\RepeatedPass;
-use Symfony\Component\DependencyInjection\ContainerBuilder;
 use Symfony\Component\DependencyInjection\Definition;
+use Symfony\Component\DependencyInjection\Compiler\AnalyzeServiceReferencesPass;
+use Symfony\Component\DependencyInjection\Compiler\RepeatedPass;
+use Symfony\Component\DependencyInjection\Compiler\InlineServiceDefinitionsPass;
 use Symfony\Component\DependencyInjection\Reference;
+use Symfony\Component\DependencyInjection\ContainerBuilder;
+use Symfony\Component\DependencyInjection\Argument\ServiceClosureArgument;
+use Symfony\Component\DependencyInjection\Argument\IteratorArgument;
 
 class InlineServiceDefinitionsPassTest extends TestCase
 {
@@ -92,7 +92,7 @@ class InlineServiceDefinitionsPassTest extends TestCase
         $this->assertNotSame($container->getDefinition('bar'), $arguments[2]);
     }
 
-    public function testProcessDoesNotInlineMixedServicesLoop()
+    public function testProcessInlinesMixedServicesLoop()
     {
         $container = new ContainerBuilder();
         $container
@@ -108,7 +108,7 @@ class InlineServiceDefinitionsPassTest extends TestCase
 
         $this->process($container);
 
-        $this->assertEquals(new Reference('bar'), $container->getDefinition('foo')->getArgument(0));
+        $this->assertEquals($container->getDefinition('foo')->getArgument(0), $container->getDefinition('bar'));
     }
 
     /**
@@ -325,9 +325,6 @@ class InlineServiceDefinitionsPassTest extends TestCase
         $this->assertSame('inline', (string) $values[0]);
     }
 
-    /**
-     * @group legacy
-     */
     public function testGetInlinedServiceIdData()
     {
         $container = new ContainerBuilder();

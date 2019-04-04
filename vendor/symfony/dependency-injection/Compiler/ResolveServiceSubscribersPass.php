@@ -26,7 +26,7 @@ class ResolveServiceSubscribersPass extends AbstractRecursivePass
 
     protected function processValue($value, $isRoot = false)
     {
-        if ($value instanceof Reference && $this->serviceLocator && ContainerInterface::class === $this->container->normalizeId($value)) {
+        if ($value instanceof Reference && $this->serviceLocator && ContainerInterface::class === (string) $value) {
             return new Reference($this->serviceLocator);
         }
 
@@ -35,12 +35,7 @@ class ResolveServiceSubscribersPass extends AbstractRecursivePass
         }
 
         $serviceLocator = $this->serviceLocator;
-        $this->serviceLocator = null;
-
-        if ($value->hasTag('container.service_subscriber.locator')) {
-            $this->serviceLocator = $value->getTag('container.service_subscriber.locator')[0]['id'];
-            $value->clearTag('container.service_subscriber.locator');
-        }
+        $this->serviceLocator = $value->hasTag('container.service_subscriber.locator') ? $value->getTag('container.service_subscriber.locator')[0]['id'] : null;
 
         try {
             return parent::processValue($value);

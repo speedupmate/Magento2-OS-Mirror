@@ -5,7 +5,7 @@
 namespace Temando\Shipping\Model\ResourceModel\Shipment;
 
 use Magento\Framework\Api\FilterBuilder;
-use Magento\Framework\Api\Search\SearchCriteriaBuilder;
+use Magento\Framework\Api\Search\SearchCriteriaBuilderFactory;
 use Magento\Framework\Api\SearchCriteria\CollectionProcessorInterface;
 use Magento\Framework\Api\SearchCriteriaInterface;
 use Magento\Framework\Api\SortOrder;
@@ -80,9 +80,9 @@ class ShipmentRepository implements ShipmentRepositoryInterface
     private $collectionProcessor;
 
     /**
-     * @var SearchCriteriaBuilder
+     * @var SearchCriteriaBuilderFactory
      */
-    private $searchCriteriaBuilder;
+    private $searchCriteriaBuilderFactory;
 
     /**
      * @var FilterBuilder
@@ -109,7 +109,7 @@ class ShipmentRepository implements ShipmentRepositoryInterface
      * @param ShipmentReferenceInterfaceFactory $shipmentReferenceFactory
      * @param ShipmentReferenceCollectionFactory $shipmentReferenceCollectionFactory
      * @param CollectionProcessorInterface $collectionProcessor
-     * @param SearchCriteriaBuilder $searchCriteriaBuilder
+     * @param SearchCriteriaBuilderFactory $searchCriteriaBuilderFactory
      * @param FilterBuilder $filterBuilder
      * @param ShipmentTrackRepositoryInterface $shipmentTrackRepository
      * @param TrackResource $trackResource
@@ -123,7 +123,7 @@ class ShipmentRepository implements ShipmentRepositoryInterface
         ShipmentReferenceInterfaceFactory $shipmentReferenceFactory,
         ShipmentReferenceCollectionFactory $shipmentReferenceCollectionFactory,
         CollectionProcessorInterface $collectionProcessor,
-        SearchCriteriaBuilder $searchCriteriaBuilder,
+        SearchCriteriaBuilderFactory $searchCriteriaBuilderFactory,
         FilterBuilder $filterBuilder,
         ShipmentTrackRepositoryInterface $shipmentTrackRepository,
         TrackResource $trackResource
@@ -136,7 +136,7 @@ class ShipmentRepository implements ShipmentRepositoryInterface
         $this->shipmentReferenceFactory = $shipmentReferenceFactory;
         $this->shipmentReferenceCollectionFactory = $shipmentReferenceCollectionFactory;
         $this->collectionProcessor = $collectionProcessor;
-        $this->searchCriteriaBuilder = $searchCriteriaBuilder;
+        $this->searchCriteriaBuilderFactory = $searchCriteriaBuilderFactory;
         $this->filterBuilder = $filterBuilder;
         $this->shipmentTrackRepository = $shipmentTrackRepository;
         $this->trackResource = $trackResource;
@@ -187,8 +187,8 @@ class ShipmentRepository implements ShipmentRepositoryInterface
 
             // Sort the tracking events by occurredAt descending.
             usort($apiTrackingEvents, function (TrackingEventResponseType $eventA, TrackingEventResponseType $eventB) {
-                $occurredA = $eventA->getAttributes()->getOccurredAt();
-                $occurredB = $eventB->getAttributes()->getOccurredAt();
+                $occurredA = strtotime($eventA->getAttributes()->getOccurredAt());
+                $occurredB = strtotime($eventB->getAttributes()->getOccurredAt());
                 return ($occurredB - $occurredA);
             });
 
@@ -224,7 +224,12 @@ class ShipmentRepository implements ShipmentRepositoryInterface
 
         $shipmentId = $connection->fetchOne($select);
 
-        return $this->getTrackingById($shipmentId);
+        $trackEvents = $this->getTrackingById($shipmentId);
+        $trackEvents = array_filter($trackEvents, function (TrackEventInterface $trackEvent) use ($trackingNumber) {
+            return ($trackingNumber === $trackEvent->getTrackingReference());
+        });
+
+        return $trackEvents;
     }
 
     /**
@@ -248,7 +253,9 @@ class ShipmentRepository implements ShipmentRepositoryInterface
             ->setConditionType('eq')
             ->create();
 
-        $searchCriteria = $this->searchCriteriaBuilder
+        // builder does not get reset properly on `create()`, instantiate a fresh one…
+        $searchCriteriaBuilder = $this->searchCriteriaBuilderFactory->create();
+        $searchCriteria = $searchCriteriaBuilder
             ->addFilter($numberFilter)
             ->addFilter($carrierFilter)
             ->addSortOrder('entity_id', SortOrder::SORT_DESC)
@@ -259,6 +266,9 @@ class ShipmentRepository implements ShipmentRepositoryInterface
         $shipmentTracksCollection = $this->shipmentTrackRepository->getList($searchCriteria);
         /** @var \Magento\Sales\Model\Order\Shipment\Track $shipmentTrack */
         $shipmentTrack = $shipmentTracksCollection->fetchItem();
+        if (!$shipmentTrack) {
+            throw NoSuchEntityException::singleField('track_number', $trackingNumber);
+        }
 
         return $shipmentTrack;
     }

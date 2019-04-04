@@ -91,10 +91,6 @@ class OrderRepositoryPlugin
      */
     public function afterSave(SalesOrderRepositoryInterface $subject, OrderInterface $salesOrder)
     {
-        if ($salesOrder->getState() !== \Magento\Sales\Model\Order::STATE_NEW) {
-            return $salesOrder;
-        }
-
         if (!$salesOrder->getData('shipping_method')) {
             // virtual or corrupt order
             return $salesOrder;

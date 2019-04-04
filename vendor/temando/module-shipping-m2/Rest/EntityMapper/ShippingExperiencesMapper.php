@@ -5,6 +5,7 @@
 namespace Temando\Shipping\Rest\EntityMapper;
 
 use Magento\Framework\Exception\LocalizedException;
+use Magento\Framework\Exception\NotFoundException;
 use Magento\Framework\Locale\ResolverInterface;
 use Magento\Store\Model\StoreManagerInterface;
 use Psr\Log\LoggerInterface;
@@ -76,7 +77,6 @@ class ShippingExperiencesMapper
      * @param Experience[] $apiExperiences
      *
      * @return ShippingExperienceInterface[]
-     * @throws LocalizedException
      */
     public function map(array $apiExperiences)
     {
@@ -86,7 +86,6 @@ class ShippingExperiencesMapper
             try {
                 $cost = $this->extractShippingCost($apiExperience->getCost());
             } catch (LocalizedException $e) {
-                $this->logger->error($e->getMessage(), ['exception' => $e]);
                 continue;
             }
 
@@ -98,6 +97,10 @@ class ShippingExperiencesMapper
             ]);
 
             $shippingExperiences[]= $shippingExperience;
+        }
+
+        if (empty($shippingExperiences)) {
+            $this->logger->error(__('No applicable shipping cost found in webservice response.'));
         }
 
         return $shippingExperiences;
@@ -129,7 +132,7 @@ class ShippingExperiencesMapper
         });
 
         if (empty($applicableCosts)) {
-            throw new LocalizedException(__('No applicable shipping cost found in webservice response.'));
+            throw new NotFoundException(__('No applicable shipping cost found.'));
         }
 
         // return first available cost

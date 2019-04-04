@@ -6,50 +6,40 @@
 
 namespace Vertex\Tax\Model\TaxRegistry;
 
-use Magento\Framework\Registry;
-
 /**
  * Generic framework-registry-based storage for Vertex tax information.
  */
 class GenericStorage implements StorageInterface
 {
-    /** @var Registry */
-    private $registry;
-
     /**
-     * @param Registry $registry
+     * Internal storage for tax data.
+     *
+     * @var array
      */
-    public function __construct(Registry $registry)
-    {
-        $this->registry = $registry;
-    }
+    protected $data = [];
 
     /**
      * {@inheritdoc}
      */
     public function get($key, $default = null)
     {
-        $result = $this->registry->registry($key);
-
-        return $result === null ? $default : $result;
+        return isset($this->data[$key]) ? $this->data[$key] : $default;
     }
 
     /**
      * {@inheritdoc}
      *
-     * @SuppressWarnings(PHPMD.UnusedFormalParameter) Lifetime not supported for registry-based storage.
+     * @SuppressWarnings(PHPMD.UnusedFormalParameter) Lifetime not supported for generic storage.
      */
     public function set($key, $value, $lifetime = 0)
     {
-        try {
-            $result = true;
-
-            $this->registry->register($key, $value);
-        } catch (\RuntimeException $error) {
-            $result = false;
+        if (isset($this->data[$key])) {
+            return false;
         }
 
-        return $result;
+        $this->data[$key] = $value;
+
+        return true;
     }
 
     /**
@@ -57,8 +47,12 @@ class GenericStorage implements StorageInterface
      */
     public function unsetData($key)
     {
-        $this->registry->unregister($key);
+        if (isset($this->data[$key])) {
+            unset($this->data[$key]);
 
-        return $this->registry->registry($key) === null;
+            return true;
+        }
+
+        return false;
     }
 }

@@ -102,11 +102,14 @@ class Capture extends AbstractCommand
             ->capture($klarnaOrder->getReservationId(), $amount, $payment->getInvoice());
 
         if (!$response->getIsSuccessful()) {
+            $errorMessage = __('Payment capture failed, please try again.');
             if ($response->getErrorCode() === 'CAPTURE_NOT_ALLOWED') {
                 //TODO: Implement https://developers.klarna.com/api/#get-all-captures-for-one-order
-                throw new KlarnaException(__('Payment capture not allowed.'));
+                $errorMessage = __('Payment capture not allowed.');
             }
-            throw new KlarnaException(__('Payment capture failed, please try again.'));
+
+            $errorMessage = $this->getFullErrorMessage($response, $errorMessage, 'capture');
+            throw new KlarnaException($errorMessage);
         }
 
         if (!$response->getTransactionId()) {

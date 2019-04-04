@@ -5,11 +5,12 @@
 namespace Temando\Shipping\Plugin\Sales\Order;
 
 use Magento\Framework\Exception\LocalizedException;
-use Magento\Sales\Api\Data\ShippingInterface;
 use Magento\Sales\Api\Data\ShippingExtensionFactory;
+use Magento\Sales\Api\Data\ShippingInterface;
 use Magento\Sales\Model\Order\ShippingBuilder;
 use Temando\Shipping\Api\Data\Order\ShippingExperienceInterface;
 use Temando\Shipping\Api\Data\Order\ShippingExperienceInterfaceFactory;
+use Temando\Shipping\Model\ResourceModel\Repository\OrderCollectionPointRepositoryInterface;
 use Temando\Shipping\Model\ResourceModel\Repository\OrderRepositoryInterface;
 use Temando\Shipping\Model\Shipping\Carrier;
 
@@ -39,19 +40,27 @@ class ShippingBuilderPlugin
     private $orderRepository;
 
     /**
+     * @var OrderCollectionPointRepositoryInterface
+     */
+    private $collectionPointRepository;
+
+    /**
      * ShippingBuilderPlugin constructor.
      * @param ShippingExtensionFactory $shippingExtensionFactory
      * @param ShippingExperienceInterfaceFactory $shippingExperienceFactory
      * @param OrderRepositoryInterface $orderRepository
+     * @param OrderCollectionPointRepositoryInterface $collectionPointRepository
      */
     public function __construct(
         ShippingExtensionFactory $shippingExtensionFactory,
         ShippingExperienceInterfaceFactory $shippingExperienceFactory,
-        OrderRepositoryInterface $orderRepository
+        OrderRepositoryInterface $orderRepository,
+        OrderCollectionPointRepositoryInterface $collectionPointRepository
     ) {
         $this->shippingExtensionFactory = $shippingExtensionFactory;
         $this->shippingExperienceFactory = $shippingExperienceFactory;
         $this->orderRepository = $orderRepository;
+        $this->collectionPointRepository = $collectionPointRepository;
     }
 
     /**
@@ -98,6 +107,16 @@ class ShippingBuilderPlugin
             $extensionAttributes->setExtOrderId($orderReference->getExtOrderId());
         } catch (LocalizedException $e) {
             $extensionAttributes->setExtOrderId('');
+        }
+
+        try {
+            $collectionPoint = $this->collectionPointRepository->get($orderAddress->getEntityId());
+        } catch (LocalizedException $e) {
+            $collectionPoint = null;
+        }
+
+        if ($collectionPoint) {
+            $extensionAttributes->setCollectionPoint($collectionPoint);
         }
 
         $shipping->setExtensionAttributes($extensionAttributes);

@@ -6,120 +6,105 @@
 
 namespace Vertex\Tax\Model;
 
-use Magento\Framework\Exception\NoSuchEntityException;
-use Vertex\Tax\Exception\ApiRequestException;
-use Vertex\Tax\Exception\ApiRequestException\ConnectionFailureException;
-use Vertex\Tax\Model\ConfigurationValidator\ValidSampleRequestFactory;
+use Vertex\Exception\ApiException\ConnectionFailureException;
+use Vertex\Exception\ConfigurationException;
+use Vertex\Services\TaxAreaLookup\RequestInterface;
+use Vertex\Services\TaxAreaLookup\RequestInterfaceFactory;
+use Vertex\Tax\Api\QuoteInterface;
+use Vertex\Tax\Api\TaxAreaLookupInterface;
 use Vertex\Tax\Model\ConfigurationValidator\Result;
 use Vertex\Tax\Model\ConfigurationValidator\ResultFactory;
-use Vertex\Tax\Model\TaxArea\TaxAreaRequestFactory;
+use Vertex\Tax\Model\ConfigurationValidator\ValidSampleRequestBuilder;
 
 /**
  * Validates the Credentials provided in the configuration
  */
 class ConfigurationValidator
 {
+    /** @var \Vertex\Tax\Model\Api\Data\AddressBuilder */
+    private $addressBuilder;
+
     /** @var Config */
     private $config;
 
-    /** @var Request\Address */
-    private $addressFormatter;
+    /** @var RequestInterfaceFactory */
+    private $lookupRequestFactory;
 
-    /** @var ApiClient */
-    private $apiClient;
-
-    /** @var TaxAreaRequestFactory */
-    private $taxAreaRequestFactory;
-
-    /** @var ValidSampleRequestFactory */
-    private $sampleRequestFactory;
+    /** @var QuoteInterface */
+    private $quote;
 
     /** @var ResultFactory */
     private $resultFactory;
 
+    /** @var ValidSampleRequestBuilder */
+    private $sampleRequestFactory;
+
+    /** @var TaxAreaLookupInterface */
+    private $taxAreaLookup;
+
     /**
      * @param Config $config
-     * @param ApiClient $apiClient
-     * @param Request\Address $addressFormatter
-     * @param TaxAreaRequestFactory $taxAreaRequestFactory
-     * @param ValidSampleRequestFactory $sampleRequestFactory
+     * @param \Vertex\Tax\Model\Api\Data\AddressBuilder $addressBuilder
+     * @param ValidSampleRequestBuilder $sampleRequestFactory
      * @param ResultFactory $resultFactory
+     * @param QuoteInterface $quote
+     * @param TaxAreaLookupInterface $taxAreaLookup
+     * @param RequestInterfaceFactory $lookupRequestFactory
      */
     public function __construct(
         Config $config,
-        ApiClient $apiClient,
-        Request\Address $addressFormatter,
-        TaxAreaRequestFactory $taxAreaRequestFactory,
-        ValidSampleRequestFactory $sampleRequestFactory,
-        ResultFactory $resultFactory
+        Api\Data\AddressBuilder $addressBuilder,
+        ValidSampleRequestBuilder $sampleRequestFactory,
+        ResultFactory $resultFactory,
+        QuoteInterface $quote,
+        TaxAreaLookupInterface $taxAreaLookup,
+        RequestInterfaceFactory $lookupRequestFactory
     ) {
         $this->config = $config;
-        $this->apiClient = $apiClient;
-        $this->addressFormatter = $addressFormatter;
-        $this->taxAreaRequestFactory = $taxAreaRequestFactory;
+        $this->addressBuilder = $addressBuilder;
         $this->sampleRequestFactory = $sampleRequestFactory;
         $this->resultFactory = $resultFactory;
+        $this->quote = $quote;
+        $this->taxAreaLookup = $taxAreaLookup;
+        $this->lookupRequestFactory = $lookupRequestFactory;
     }
 
     /**
      * Validate configuration
      *
      * @param string $scopeType
-     * @param string|int $scopeId
+     * @param string|int $scopeCode
+     * @param bool $withoutCallValidation Skip validation that calls Vertex APIs
      * @return Result
      */
-    public function execute($scopeType, $scopeId)
+    public function execute($scopeType, $scopeCode, $withoutCallValidation = false)
     {
         /** @var Result $result */
         $result = $this->resultFactory->create();
 
-        $this->validateConfigurationComplete($result, $scopeType, $scopeId);
+        $this->validateConfigurationCompatibility($result, $scopeType, $scopeCode);
         if (!$result->isValid()) {
             return $result;
         }
 
-        $this->validateAddressComplete($result, $scopeType, $scopeId);
+        $this->validateConfigurationComplete($result, $scopeType, $scopeCode);
         if (!$result->isValid()) {
             return $result;
         }
 
-        $this->validateAddressLookup($result, $scopeType, $scopeId);
+        $this->validateAddressComplete($result, $scopeType, $scopeCode);
+        if (!$result->isValid()) {
+            return $result;
+        }
+
+        if ($withoutCallValidation) {
+            return $result;
+        }
+
+        $this->validateAddressLookup($result, $scopeType, $scopeCode);
 
         if ($result->isValid()) {
-            $this->validateCalculationService($result, $scopeType, $scopeId);
-        }
-
-        return $result;
-    }
-
-    /**
-     * Validates that Vertex API, Lookup API, and Trusted ID have been configured in the admin
-     *
-     * @param Result $result
-     * @param string $scopeType
-     * @param string|int $scopeId
-     * @return Result
-     */
-    private function validateConfigurationComplete(Result $result, $scopeType, $scopeId)
-    {
-        $missing = [];
-        if (!$this->config->getVertexHost($scopeId, $scopeType)) {
-            $missing[] = 'Vertex API URL';
-        }
-        if (!$this->config->getVertexAddressHost($scopeId, $scopeType)) {
-            $missing[] = 'Address Lookup API URL';
-        }
-
-        if (!$this->config->getTrustedId($scopeId, $scopeType)) {
-            $missing[] = 'Trusted ID';
-        }
-
-        if (!empty($missing)) {
-            $result->setMessage('Configuration Incomplete, Missing: %1');
-            $result->setArguments([implode(', ', $missing)]);
-            $result->setValid(false);
-        } else {
-            $result->setValid(true);
+            $this->validateCalculationService($result, $scopeType, $scopeCode);
         }
 
         return $result;
@@ -130,25 +115,25 @@ class ConfigurationValidator
      *
      * @param Result $result
      * @param string $scopeType
-     * @param string|int $scopeId
+     * @param string|int $scopeCode
      * @return Result
      */
-    private function validateAddressComplete(Result $result, $scopeType, $scopeId)
+    private function validateAddressComplete(Result $result, $scopeType, $scopeCode)
     {
-        if (!$this->config->getCompanyRegionId($scopeId, $scopeType)) {
+        if (!$this->config->getCompanyRegionId($scopeCode, $scopeType)) {
             $missing[] = 'Company State';
         }
 
-        if (!$this->config->getCompanyCountry($scopeId, $scopeType)) {
+        if (!$this->config->getCompanyCountry($scopeCode, $scopeType)) {
             $missing[] = 'Company Country';
         }
 
-        if (!$this->config->getCompanyStreet1($scopeId, $scopeType)) {
+        if (!$this->config->getCompanyStreet1($scopeCode, $scopeType)) {
             $missing[] = 'Company Street';
         }
 
-        if (!$this->config->getCompanyCity($scopeId, $scopeType) ||
-            !$this->config->getCompanyPostalCode($scopeId, $scopeType)
+        if (!$this->config->getCompanyCity($scopeCode, $scopeType) ||
+            !$this->config->getCompanyPostalCode($scopeCode, $scopeType)
         ) {
             $missing[] = 'one of Company City or Postcode';
         }
@@ -169,44 +154,41 @@ class ConfigurationValidator
      *
      * @param Result $result
      * @param string $scopeType
-     * @param string|int $scopeId
+     * @param string|int $scopeCode
      * @return Result
      */
-    private function validateAddressLookup(Result $result, $scopeType, $scopeId)
+    private function validateAddressLookup(Result $result, $scopeType, $scopeCode)
     {
-        try {
-            $address = $this->addressFormatter->getFormattedAddressData(
-                [
-                    $this->config->getCompanyStreet1($scopeId, $scopeType),
-                    $this->config->getCompanyStreet2($scopeId, $scopeType)
-                ],
-                $this->config->getCompanyCity($scopeId, $scopeType),
-                $this->config->getCompanyRegionId($scopeId, $scopeType),
-                $this->config->getCompanyPostalCode($scopeId, $scopeType),
-                $this->config->getCompanyCountry($scopeId, $scopeType)
-            );
-        } catch (NoSuchEntityException $exception) {
-            $result->setMessage('Invalid Address');
-            $result->setValid(false);
-            return $result;
-        }
+        $street = [
+            $this->config->getCompanyStreet1($scopeCode, $scopeType),
+            $this->config->getCompanyStreet2($scopeCode, $scopeType)
+        ];
+        $address = $this->addressBuilder->setStreet($street)
+            ->setCity($this->config->getCompanyCity($scopeCode, $scopeType))
+            ->setRegionId($this->config->getCompanyRegionId($scopeCode, $scopeType))
+            ->setPostalCode($this->config->getCompanyPostalCode($scopeCode, $scopeType))
+            ->setCountryCode($this->config->getCompanyCountry($scopeCode, $scopeType))
+            ->build();
 
-        if ($address['Country'] !== 'USA') {
+        if ($address->getCountry() !== 'USA') {
+            // skip validation for non-US countries
             $result->setValid(true);
             return $result;
         }
+
+        /** @var RequestInterface $request */
+        $request = $this->lookupRequestFactory->create();
+        $request->setPostalAddress($address);
 
         $result->setValid(false);
         try {
-            $this->taxAreaRequestFactory->create()->taxAreaLookup(
-                $address,
-                $scopeId,
-                $scopeType
-            );
+            $this->taxAreaLookup->lookup($request, $scopeCode, $scopeType);
             $result->setValid(true);
+        } catch (ConfigurationException $e) {
+            $result->setMessage('Unable to connect to Address Validation API');
         } catch (ConnectionFailureException $e) {
             $result->setMessage('Unable to connect to Address Validation API');
-        } catch (ApiRequestException $e) {
+        } catch (\Exception $e) {
             $result->setMessage('Unable to validate address against API');
         }
 
@@ -218,24 +200,78 @@ class ConfigurationValidator
      *
      * @param Result $result
      * @param string $scopeType
-     * @param string $scopeId
+     * @param string|int $scopeCode
      * @return Result
      */
-    private function validateCalculationService(Result $result, $scopeType, $scopeId)
+    private function validateCalculationService(Result $result, $scopeType, $scopeCode)
     {
-        $request = $this->sampleRequestFactory->create();
-        if ($this->apiClient instanceof ApiClient) {
-            try {
-                $response = $this->apiClient->performRequest($request, 'quote', $scopeType, $scopeId);
-            } catch (\Exception $e) {
-                $response = false;
-            }
-        } else {
-            $response = $this->apiClient->sendApiRequest($request, 'quote');
+        $request = $this->sampleRequestFactory
+            ->setScopeType($scopeType)
+            ->setScopeCode($scopeCode)
+            ->build();
+
+        $result->setValid(false);
+
+        try {
+            $this->quote->request($request, $scopeCode, $scopeType);
+            $result->setValid(true);
+        } catch (ConfigurationException $e) {
+            $result->setMessage('Unable to connect to Calculation API');
+        } catch (ConnectionFailureException $e) {
+            $result->setMessage('Unable to connect to Calculation API');
+        } catch (\Exception $e) {
+            $result->setMessage('Unable to perform quote request');
         }
 
-        if ($response === false) {
-            $result->setMessage('Unable to connect to Calculation API');
+        return $result;
+    }
+
+    /**
+     * Validates that Catalog Prices are not set to display including tax
+     *
+     * @param Result $result
+     * @param string $scopeType
+     * @param string|int $scopeCode
+     * @return Result
+     */
+    private function validateConfigurationCompatibility(Result $result, $scopeType, $scopeCode)
+    {
+        if ($this->config->isVertexActive($scopeCode, $scopeType)
+            && $this->config->isDisplayPriceInCatalogEnabled($scopeCode, $scopeType)) {
+            $result->setValid(false);
+            $result->setMessage('Automatically Disabled');
+        } else {
+            $result->setValid(true);
+        }
+
+        return $result;
+    }
+
+    /**
+     * Validates that Vertex API, Lookup API, and Trusted ID have been configured in the admin
+     *
+     * @param Result $result
+     * @param string $scopeType
+     * @param string|int $scopeCode
+     * @return Result
+     */
+    private function validateConfigurationComplete(Result $result, $scopeType, $scopeCode)
+    {
+        $missing = [];
+        if (!$this->config->getVertexHost($scopeCode, $scopeType)) {
+            $missing[] = 'Vertex API URL';
+        }
+        if (!$this->config->getVertexAddressHost($scopeCode, $scopeType)) {
+            $missing[] = 'Address Lookup API URL';
+        }
+
+        if (!$this->config->getTrustedId($scopeCode, $scopeType)) {
+            $missing[] = 'Trusted ID';
+        }
+
+        if (!empty($missing)) {
+            $result->setMessage('Configuration Incomplete, Missing: %1');
+            $result->setArguments([implode(', ', $missing)]);
             $result->setValid(false);
         } else {
             $result->setValid(true);

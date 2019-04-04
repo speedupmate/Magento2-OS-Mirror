@@ -1,4 +1,16 @@
 
+4.4.1 / 2018-08-31
+==================
+
+  * PPI-500 2.3.0 Compatibility updates
+
+4.4.0 / 2018-08-24
+==================
+
+  * PPI-63 Add description in refund API call
+  * PPI-260 Show detailed Klarna error message in Magento backend
+  * PPI-500 Add support for PHP 7.2 and Magento 2.3
+
 4.3.4 / 2018-08-15
 ==================
 

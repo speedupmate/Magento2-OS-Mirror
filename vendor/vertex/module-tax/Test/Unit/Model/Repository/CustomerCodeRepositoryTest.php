@@ -38,6 +38,7 @@ class CustomerCodeRepositoryTest extends TestCase
         $this->registry = $this->getObject(CustomerCodeRegistry::class);
         $this->resourceModel = $this->createMock(CustomerCode::class);
         $this->factory = $this->getMockBuilder(\Vertex\Tax\Model\Data\CustomerCodeFactory::class)
+            ->disableOriginalConstructor()
             ->setMethods(['create'])
             ->getMock();
         $this->factory->method('create')

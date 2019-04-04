@@ -56,16 +56,18 @@ class Onboarding extends Field
      */
     public function render(AbstractElement $element)
     {
-        $parentResult = parent::render($element);
-
         $moduleVersion = $this->versionInfo->getVersion('Klarna_Kp');
         $moduleKey = 'kp';
 
         $url = $this->onboarding->getUrl($moduleKey, $moduleVersion);
+        if (empty($url)) {
+            return parent::render($element);
+        }
+
         $urlText = __('link');
         $urlTag = '<p style="display:inline"><a href="' . $url . '" target="_blank">' . $urlText . '</a></span>';
 
         $text = __('Click on this %1 to visit the Klarna Merchant Onboarding Page and request credentials.', $urlTag);
-        return $parentResult . $text;
+        return $text;
     }
 }

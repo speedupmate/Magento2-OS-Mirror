@@ -4,12 +4,13 @@
  */
 namespace Temando\Shipping\ViewModel\Dispatch;
 
+use Magento\Framework\UrlInterface;
 use Magento\Framework\View\Element\Block\ArgumentInterface;
-use Temando\Shipping\ViewModel\ShippingApiInterface;
-use Temando\Shipping\ViewModel\DataProvider\ShippingApiAccess;
-use Temando\Shipping\ViewModel\DataProvider\ShippingApiAccessInterface;
 use Temando\Shipping\ViewModel\DataProvider\DispatchUrl;
 use Temando\Shipping\ViewModel\DataProvider\EntityUrlInterface;
+use Temando\Shipping\ViewModel\DataProvider\ShippingApiAccess;
+use Temando\Shipping\ViewModel\DataProvider\ShippingApiAccessInterface;
+use Temando\Shipping\ViewModel\ShippingApiInterface;
 
 /**
  * View model for dispatch new/edit JS component.
@@ -32,16 +33,24 @@ class DispatchEdit implements ArgumentInterface, ShippingApiInterface
     private $dispatchUrl;
 
     /**
-     * DispatchListing constructor.
+     * @var UrlInterface
+     */
+    private $urlBuilder;
+
+    /**
+     * DispatchEdit constructor.
      * @param ShippingApiAccess $apiAccess
      * @param DispatchUrl $dispatchUrl
+     * @param UrlInterface $urlBuilder
      */
     public function __construct(
         ShippingApiAccess $apiAccess,
-        DispatchUrl $dispatchUrl
+        DispatchUrl $dispatchUrl,
+        UrlInterface $urlBuilder
     ) {
         $this->apiAccess = $apiAccess;
         $this->dispatchUrl = $dispatchUrl;
+        $this->urlBuilder = $urlBuilder;
     }
 
     /**
@@ -58,5 +67,13 @@ class DispatchEdit implements ArgumentInterface, ShippingApiInterface
     public function getDispatchUrl(): EntityUrlInterface
     {
         return $this->dispatchUrl;
+    }
+
+    /**
+     * @return string
+     */
+    public function getShipmentViewPageUrl(): string
+    {
+        return $this->urlBuilder->getUrl('temando/shipment/view', ['shipment_id' => '--id--']);
     }
 }

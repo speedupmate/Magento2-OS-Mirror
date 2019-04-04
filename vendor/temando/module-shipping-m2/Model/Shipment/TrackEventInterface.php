@@ -17,6 +17,7 @@ namespace Temando\Shipping\Model\Shipment;
 interface TrackEventInterface
 {
     const TRACKING_EVENT_ID = 'tracking_event_id';
+    const TRACKING_REFERENCE = 'tracking_reference';
     const STATUS = 'status';
     const OCCURRED_AT = 'occurred_at';
 
@@ -24,6 +25,11 @@ interface TrackEventInterface
      * @return string
      */
     public function getTrackingEventId();
+
+    /**
+     * @return string
+     */
+    public function getTrackingReference();
 
     /**
      * @return string

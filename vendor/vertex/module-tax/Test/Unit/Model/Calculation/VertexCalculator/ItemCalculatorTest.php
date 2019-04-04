@@ -21,6 +21,7 @@ class ItemCalculatorTest extends TestCase
     private function getCalculator()
     {
         $dataObjectFactory = $this->getMockBuilder(DataObjectFactory::class)
+            ->disableOriginalConstructor()
             ->getMock();
 
         $mockCurrency = $this->getMockBuilder(PriceCurrencyInterface::class)

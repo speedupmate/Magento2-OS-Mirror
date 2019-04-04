@@ -214,12 +214,17 @@ class Carrier extends AbstractCarrier implements CarrierInterface
     {
         /** @var \Magento\Shipping\Model\Tracking\Result\Status $tracking */
         $tracking = $this->trackStatusFactory->create();
-        $tracking->setCarrier($this->_code);
-        $tracking->setTracking($trackingNumber);
 
-        $shipmentTrack = $this->shipmentRepository->getShipmentTrack($this->_code, $trackingNumber);
-        $carrierTitle = $shipmentTrack->getTitle() ? $shipmentTrack->getTitle() : $this->getConfigData('title');
+        try {
+            $shipmentTrack = $this->shipmentRepository->getShipmentTrack($this->_code, $trackingNumber);
+            $carrierTitle = $shipmentTrack->getTitle() ? $shipmentTrack->getTitle() : $this->getConfigData('title');
+        } catch (LocalizedException $exception) {
+            $carrierTitle = $this->getConfigData('title');
+        }
+
+        $tracking->setCarrier($this->_code);
         $tracking->setCarrierTitle($carrierTitle);
+        $tracking->setTracking($trackingNumber);
 
         try {
             $trackEvents = $this->shipmentRepository->getTrackingByNumber($trackingNumber);

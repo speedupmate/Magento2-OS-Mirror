@@ -369,13 +369,18 @@ class Ordermanagement implements ApiInterface
             'refunded_amount' => $this->dataConverter->toApiFloat($amount)
         ];
 
+        if (!is_null($creditMemo->getCustomerNote())) {
+            $data['description'] = $creditMemo->getCustomerNote();
+        }
+
         $data = $this->prepareOrderLines($data, $creditMemo);
 
         $response = $this->orderManagement->refund($orderId, $data);
         $response = $this->dataObjectFactory->create(['data' => $response]);
 
-        $response->setTransactionId($this->orderManagement->getLocationResourceId($response));
-
+        if ($response->getIsSuccessful()) {
+            $response->setTransactionId($this->orderManagement->getLocationResourceId($response));
+        }
         return $response;
     }
 

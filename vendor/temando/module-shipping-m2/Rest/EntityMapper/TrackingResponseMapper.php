@@ -41,6 +41,7 @@ class TrackingResponseMapper
     {
         $trackEvent = $this->trackEventFactory->create(['data' => [
             TrackEventInterface::TRACKING_EVENT_ID => $apiTrackingEvent->getId(),
+            TrackEventInterface::TRACKING_REFERENCE => $apiTrackingEvent->getAttributes()->getTrackingReference(),
             TrackEventInterface::STATUS => $apiTrackingEvent->getAttributes()->getStatus(),
             TrackEventInterface::OCCURRED_AT => $apiTrackingEvent->getAttributes()->getOccurredAt(),
         ]]);

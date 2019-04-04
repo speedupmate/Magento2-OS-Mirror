@@ -182,7 +182,7 @@ abstract class AbstractLine implements OrderLineInterface
      */
     private function getPartialOrderDiscount($items)
     {
-        if (!count($items)) {
+        if ($items === null || !count($items)) {
             return false;
         }
         $itemTaxRates = [];

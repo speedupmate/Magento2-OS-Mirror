@@ -8,4 +8,7 @@
     <extension_attributes for="Magento\Customer\Api\Data\CustomerInterface">
         <attribute code="vertex_customer_code" type="string" />
     </extension_attributes>
+    <extension_attributes for="Magento\Tax\Api\Data\QuoteDetailsItemInterface">
+        <attribute code="vertex_product_code" type="string" />
+    </extension_attributes>
 </config>

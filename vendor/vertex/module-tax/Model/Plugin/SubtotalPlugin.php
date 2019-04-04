@@ -6,76 +6,64 @@
 
 namespace Vertex\Tax\Model\Plugin;
 
-use Magento\Framework\Registry;
-use Magento\Quote\Model\Quote\Item\AbstractItem;
+use Magento\Quote\Api\Data\ShippingAssignmentInterface;
+use Magento\Quote\Model\Quote;
 use Magento\Tax\Api\Data\QuoteDetailsItemInterface;
 use Magento\Tax\Api\Data\QuoteDetailsItemInterfaceFactory;
 use Magento\Tax\Model\Sales\Total\Quote\Subtotal;
-use Vertex\Tax\Model\Calculation\VertexCalculator\ItemKeyManager;
-use Vertex\Tax\Model\Calculation\VertexCalculator\GwItemKeyManager;
+use Vertex\Tax\Model\VertexUsageDeterminer;
 
 /**
- * Assists with retrieving tax information for items during subtotal routine
+ * Prevent Subtotal Tax calculation when Vertex is enabled
  *
  * @see Subtotal
  */
 class SubtotalPlugin
 {
-    /** @var GwItemKeyManager */
-    private $gwItemKeyManager;
-
-    /** @var ItemKeyManager */
-    private $itemKeyManager;
+    /** @var VertexUsageDeterminer */
+    private $usageDeterminer;
 
     /**
-     * @param ItemKeyManager $itemKeyManager
-     * @param GwItemKeyManager $gwItemKeyManager
+     * @param VertexUsageDeterminer $usageDeterminer
      */
-    public function __construct(
-        ItemKeyManager $itemKeyManager,
-        GwItemKeyManager $gwItemKeyManager
-    ) {
-        $this->itemKeyManager = $itemKeyManager;
-        $this->gwItemKeyManager = $gwItemKeyManager;
+    public function __construct(VertexUsageDeterminer $usageDeterminer)
+    {
+        $this->usageDeterminer = $usageDeterminer;
     }
 
     /**
-     * Register line item identifier with Vertex
+     * Prevent Subtotal Tax calculation when Vertex is enabled
      *
-     * MEQP2 Warning: Unused Parameter - Parameter expected from plugin
+     * Vertex doesn't support post-tax discounts, so this isn't necessary
      *
-     * @see Subtotal::mapItem()
-     * @todo Convert to afterMapItem once we only support Magento 2.2+
-     *
-     * @param Subtotal $subtotal
-     * @param \Closure $proceed
-     * @param QuoteDetailsItemInterfaceFactory $itemDataObjectFactory
-     * @param AbstractItem $item
-     * @param bool $priceIncludesTax
-     * @param bool $useBaseCurrency
-     * @param string $parentCode
+     * @param Subtotal $subject
+     * @param callable $super
+     * @param Quote $quote
+     * @param ShippingAssignmentInterface $shippingAssignment
+     * @param Quote\Address\Total $total
      * @return QuoteDetailsItemInterface
+     * @throws \InvalidArgumentException
      * @SuppressWarnings(PHPMD.UnusedFormalParameter) $subject is a necessary part of a plugin
-     * @throws \RuntimeException
      */
-    public function aroundMapItem(
-        Subtotal $subtotal,
-        \Closure $proceed,
-        QuoteDetailsItemInterfaceFactory $itemDataObjectFactory,
-        AbstractItem $item,
-        $priceIncludesTax,
-        $useBaseCurrency,
-        $parentCode = null
+    public function aroundCollect(
+        Subtotal $subject,
+        callable $super,
+        Quote $quote,
+        ShippingAssignmentInterface $shippingAssignment,
+        Quote\Address\Total $total
     ) {
-        /** @var QuoteDetailsItemInterface $itemDataObject */
-        $itemDataObject = $proceed($itemDataObjectFactory, $item, $priceIncludesTax, $useBaseCurrency, $parentCode);
-
-        $this->itemKeyManager->set($itemDataObject, $item);
-
-        if ($item->getGwId()) {
-            $this->gwItemKeyManager->set($itemDataObject, $item);
+        $storeId = $quote->getStoreId();
+        $address = $shippingAssignment->getShipping()->getAddress();
+        if (!$this->usageDeterminer->shouldUseVertex(
+            $storeId,
+            $address,
+            $quote->getCustomerId(),
+            $quote->isVirtual()
+        )) {
+            // Allows forward compatibility with argument additions
+            $arguments = func_get_args();
+            array_splice($arguments, 0, 2);
+            return call_user_func_array($super, $arguments);
         }
-
-        return $itemDataObject;
     }
 }

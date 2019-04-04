@@ -43,36 +43,41 @@ class Notice extends Template
             // merchant account configuration
             case 'carrier':
                 $this->pageConfig->getTitle()->prepend(__('Shipping Partners'));
-                $this->assign('subject', 'carriers');
+                $this->assign('subject', __('carriers'));
                 break;
             case 'dispatch':
                 $this->pageConfig->getTitle()->prepend(__('Dispatches'));
-                $this->assign('subject', 'dispatches');
+                $this->assign('subject', __('dispatches'));
                 break;
             case 'location':
                 $this->pageConfig->getTitle()->prepend(__('Locations'));
-                $this->assign('subject', 'shipping locations');
+                $this->assign('subject', __('shipping locations'));
                 break;
             case 'packaging':
                 $this->pageConfig->getTitle()->prepend(__('Packaging'));
-                $this->assign('subject', 'packaging types');
+                $this->assign('subject', __('packaging types'));
+                break;
+            // shipment creation
+            case 'shipment':
+                $this->pageConfig->getTitle()->prepend(__('Returns'));
+                $this->assign('subject', __('RMA shipments'));
+                break;
+            case 'batch':
+                $this->pageConfig->getTitle()->prepend(__('Batches'));
+                $this->assign('subject', __('batches'));
                 break;
             // settings configuration
             case 'advanced':
                 $this->pageConfig->getTitle()->prepend(__('Advanced Settings'));
-                $this->assign('subject', 'advanced settings');
+                $this->assign('subject', __('advanced settings'));
                 break;
             case 'checkout':
                 $this->pageConfig->getTitle()->prepend(__('Checkout View Settings'));
-                $this->assign('subject', 'checkout options');
-                break;
-            case 'batch':
-                $this->pageConfig->getTitle()->prepend(__('Batches'));
-                $this->assign('subject', 'batches');
+                $this->assign('subject', __('checkout options'));
                 break;
             default:
                 $this->pageConfig->getTitle()->prepend(__('Magento Shipping'));
-                $this->assign('subject', 'Magento Shipping');
+                $this->assign('subject', __('Magento Shipping'));
         }
 
         parent::_construct();

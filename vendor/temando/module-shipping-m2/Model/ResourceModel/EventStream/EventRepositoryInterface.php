@@ -24,13 +24,12 @@ interface EventRepositoryInterface
 {
     /**
      * @param string $streamId
-     * @param string[][] $filter
      * @param int|null $offset
      * @param int|null $limit
      *
      * @return \Temando\Shipping\Model\StreamEventInterface[]
      */
-    public function getEventList($streamId, array $filter, $offset = null, $limit = null);
+    public function getEventList($streamId, $offset = null, $limit = null);
 
     /**
      * @param string $streamId

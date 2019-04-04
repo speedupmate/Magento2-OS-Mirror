@@ -20,8 +20,11 @@ interface DispatchInterface
     const DISPATCH_ID = 'dispatch_id';
     const STATUS = 'status';
     const CARRIER_NAME = 'carrier_name';
+    const CARRIER_MESSAGES = 'carrier_messages';
     const CREATED_AT_DATE = 'created_at_date';
     const READY_AT_DATE = 'ready_at_date';
+    const PICKUP_NUMBERS = 'pickup_numbers';
+    const PICKUP_CHARGES = 'pickup_charges';
     const INCLUDED_SHIPMENTS = 'included_shipments';
     const FAILED_SHIPMENTS = 'failed_shipments';
     const DOCUMENTATION = 'documentation';
@@ -42,6 +45,11 @@ interface DispatchInterface
     public function getCarrierName();
 
     /**
+     * @return string[]
+     */
+    public function getCarrierMessages();
+
+    /**
      * @return string
      */
     public function getCreatedAtDate();
@@ -52,12 +60,22 @@ interface DispatchInterface
     public function getReadyAtDate();
 
     /**
-     * @return \Temando\Shipping\Model\Dispatch\Shipment[]
+     * @return string[]
+     */
+    public function getPickupNumbers();
+
+    /**
+     * @return \Temando\Shipping\Model\Dispatch\PickupChargeInterface[]
+     */
+    public function getPickupCharges();
+
+    /**
+     * @return \Temando\Shipping\Model\Dispatch\ShipmentInterface[]
      */
     public function getIncludedShipments();
 
     /**
-     * @return \Temando\Shipping\Model\Dispatch\Shipment[]
+     * @return \Temando\Shipping\Model\Dispatch\ShipmentInterface[]
      */
     public function getFailedShipments();
 

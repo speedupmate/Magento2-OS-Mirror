@@ -1,3 +1,33 @@
+## [1.3.7] - 2018-10-17
+### Fixed
+
+- Use collection point address during batch processing
+- Decrease number of API requests during shipment synchronization
+- Improve error handling while reading shipping cost from webservice
+
+## [1.3.6] - 2018-10-10
+### Fixed
+
+- Display collection point address in batch details page if applicable
+- Remove attribute group assignments for product dimensions attributes
+- Add translation capabilities to activation notice
+
+## [1.3.5] - 2018-09-28
+### Fixed
+
+- Select individual shipments for dispatch
+- Display activation notice on RMA Shipment page if API credentials are not configured
+
+## [1.3.4] - 2018-09-13
+### Fixed
+
+- Manifest order with instant payment methods, e.g. PayPal Express
+- Display tracking popup for multi-package shipments
+- Enhance dispatch details page
+  - Add pickup request number
+  - Add pickup charges
+  - Add carrier notices
+
 ## [1.3.3] - 2018-08-28
 ### Fixed
 
@@ -13,7 +43,7 @@
 ### Fixed
 
 - Consider virtual products in multi shipping checkout
-- Prevent exception when unable to display a Shipment’s capability value
+- Prevent exception when unable to display a shipment's capability value
 
 ### Added
 

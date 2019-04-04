@@ -35,7 +35,11 @@ $logo_url = 'https://cdn.klarna.com/1.0/shared/image/generic/logo/' . $logo_loca
             <tr>
                 <th><?= $block->escapeHtml($label) ?>:</th>
                 <td>
-                    <?= nl2br($block->escapeHtml($implodedValue)); ?>
+                    <?php if ($block->isStringUrl($value)): ?>
+                       <a href="<?= /* @noEscape */ $value; ?>" target="_blank"><?= $block->escapeHtml(__('Click Here')) ?></a>
+                    <?php else: ?>
+                        <?= nl2br($block->escapeHtml($implodedValue)); ?>
+                    <?php endif; ?>
                 </td>
             </tr>
         <?php endforeach; ?>

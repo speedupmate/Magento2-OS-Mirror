@@ -99,6 +99,8 @@
                 type="Temando\Shipping\Model\Dispatch" />
     <preference for="Temando\Shipping\Model\Dispatch\ErrorInterface"
                 type="Temando\Shipping\Model\Dispatch\Error" />
+    <preference for="Temando\Shipping\Model\Dispatch\PickupChargeInterface"
+                type="Temando\Shipping\Model\Dispatch\PickupCharge" />
     <preference for="Temando\Shipping\Model\Dispatch\ShipmentInterface"
                 type="Temando\Shipping\Model\Dispatch\Shipment" />
 

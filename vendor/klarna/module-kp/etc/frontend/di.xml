@@ -29,4 +29,7 @@
     <type name="Magento\Payment\Model\MethodList">
         <plugin sortOrder="1" name="klarnaKpMethodList" type="Klarna\Kp\Plugin\Model\MethodListPlugin"/>
     </type>
+    <type name="Magento\Checkout\Block\Onepage">
+        <plugin sortOrder="1" name="klarnaKpOnepageCheckout" type="Klarna\Kp\Plugin\Checkout\Block\OnepagePlugin"/>
+    </type>
 </config>

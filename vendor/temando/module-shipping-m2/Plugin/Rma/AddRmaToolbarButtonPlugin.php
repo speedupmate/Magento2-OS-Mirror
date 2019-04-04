@@ -82,7 +82,7 @@ class AddRmaToolbarButtonPlugin
         $order = $rma->getOrder();
         if (!$order instanceof OrderInterface || !$order->getData('shipping_method')) {
             // wrong type, virtual or corrupt order
-            return false;
+            return null;
         }
 
         $shippingMethod = $order->getShippingMethod(true);

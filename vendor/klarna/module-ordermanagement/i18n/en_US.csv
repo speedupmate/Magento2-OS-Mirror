@@ -8,3 +8,4 @@
 "Unable to refund payment for this order.","Unable to refund payment for this order."
 "Payment refund failed, please try again.","Payment refund failed, please try again."
 "%1 class doesn't implement \Klarna\Ordermanagement\Api\ApiInterface","%1 class doesn't implement \Klarna\Ordermanagement\Api\ApiInterface"
+"%1 Klarna %2 api error messages: %3","%1 Klarna %2 api error messages: %3"

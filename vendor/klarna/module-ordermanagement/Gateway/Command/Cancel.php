@@ -46,7 +46,9 @@ class Cancel extends AbstractCommand
         $response = $this->processPayment($order, $klarnaOrder, $payment);
 
         if (!$response->getIsSuccessful()) {
-            throw new KlarnaException(__('Order cancellation failed, please try again.'));
+            $errorMessage = __('Order cancellation failed, please try again.');
+            $errorMessage = $this->getFullErrorMessage($response, $errorMessage, 'cancel');
+            throw new KlarnaException($errorMessage);
         }
 
         if ($response->getTransactionId()) {

@@ -40,12 +40,6 @@ class TitleHandler implements ValueHandlerInterface
         /** @var InfoInterface $payment */
         $payment = $subject['payment']->getPayment();
         $title = $this->getTitle($payment);
-        if ($payment->hasAdditionalInformation('logo')) {
-            $title = sprintf(
-                '<strong>%s</strong>',
-                $title
-            );
-        }
 
         return $title;
     }

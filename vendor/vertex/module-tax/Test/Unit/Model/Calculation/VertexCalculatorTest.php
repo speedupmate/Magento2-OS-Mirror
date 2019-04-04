@@ -22,9 +22,15 @@ class VertexCalculatorTest extends TestCase
      */
     public function testConstructorThrowsNoErrors()
     {
-        $taxDetailsItemDataObjectFactory = $this->getMockBuilder(TaxDetailsItemInterfaceFactory::class)->getMock();
-        $appliedTaxDataObjectFactory = $this->getMockBuilder(AppliedTaxInterfaceFactory::class)->getMock();
-        $appliedTaxRateDataObjectFactory = $this->getMockBuilder(AppliedTaxRateInterfaceFactory::class)->getMock();
+        $taxDetailsItemDataObjectFactory = $this->getMockBuilder(TaxDetailsItemInterfaceFactory::class)
+            ->disableOriginalConstructor()
+            ->getMock();
+        $appliedTaxDataObjectFactory = $this->getMockBuilder(AppliedTaxInterfaceFactory::class)
+            ->disableOriginalConstructor()
+            ->getMock();
+        $appliedTaxRateDataObjectFactory = $this->getMockBuilder(AppliedTaxRateInterfaceFactory::class)
+            ->disableOriginalConstructor()
+            ->getMock();
         $this->getObject(
             VertexCalculator::class,
             [

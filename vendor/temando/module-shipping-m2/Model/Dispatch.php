@@ -45,6 +45,14 @@ class Dispatch extends DataObject implements DispatchInterface
     }
 
     /**
+     * @return string[]
+     */
+    public function getCarrierMessages()
+    {
+        return $this->getData(self::CARRIER_MESSAGES);
+    }
+
+    /**
      * @return string
      */
     public function getCreatedAtDate()
@@ -61,7 +69,23 @@ class Dispatch extends DataObject implements DispatchInterface
     }
 
     /**
-     * @return \Temando\Shipping\Model\Dispatch\Shipment[]
+     * @return string[]
+     */
+    public function getPickupNumbers()
+    {
+        return $this->getData(self::PICKUP_NUMBERS);
+    }
+
+    /**
+     * @return \Temando\Shipping\Model\Dispatch\PickupChargeInterface[]
+     */
+    public function getPickupCharges()
+    {
+        return $this->getData(self::PICKUP_CHARGES);
+    }
+
+    /**
+     * @return \Temando\Shipping\Model\Dispatch\ShipmentInterface[]
      */
     public function getIncludedShipments()
     {
@@ -69,7 +93,7 @@ class Dispatch extends DataObject implements DispatchInterface
     }
 
     /**
-     * @return \Temando\Shipping\Model\Dispatch\Shipment[]
+     * @return \Temando\Shipping\Model\Dispatch\ShipmentInterface[]
      */
     public function getFailedShipments()
     {

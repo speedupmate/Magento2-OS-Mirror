@@ -30,6 +30,14 @@ class TrackEvent extends DataObject implements TrackEventInterface
     /**
      * @return string
      */
+    public function getTrackingReference()
+    {
+        return $this->getData(TrackEventInterface::TRACKING_REFERENCE);
+    }
+
+    /**
+     * @return string
+     */
     public function getStatus()
     {
         return $this->getData(TrackEventInterface::STATUS);

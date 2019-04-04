@@ -18,33 +18,29 @@ use Vertex\Tax\Test\Unit\TestCase;
 
 class LogRequestTest extends TestCase
 {
+    const DATE = '1991-08-06 12:00:00';
+    const OBJECT_ID = '42';
     const REQUEST_XML = '<request/>';
-    const RESPONSE_XML = <<<'XML'
-<response><Total>5.25</Total><SubTotal>4.20</SubTotal><Status lookupResult="RESULT OK"/></response>
-XML;
-
-    const RESPONSE_XML_EXCEPTIONTYPE = '<response><exceptionType>SOME EXCEPTION</exceptionType></response>';
     const REQUEST_XML_FORMATTED = "<?xml version=\"1.0\"?>\n<request/>\n";
+    const RESPONSE_EXCEPTIONTYPE = 'SOME EXCEPTION';
+    const RESPONSE_LOOKUP_RESULT = 'RESULT OK';
+    const RESPONSE_SUBTOTAL = '4.20';
+    const RESPONSE_TOTAL = '5.25';
+    const RESPONSE_TOTAL_TAX = '1.05';
+    const RESPONSE_XML = '<QuotationResponse><TotalTax>1.05</TotalTax><Total>5.25</Total><SubTotal>4.20</SubTotal>'
+    . '<Status lookupResult="RESULT OK"/></QuotationResponse>';
+    const RESPONSE_XML_EXCEPTIONTYPE = '<response><exceptionType>SOME EXCEPTION</exceptionType></response>';
     const RESPONSE_XML_FORMATTED = <<<XML
 <?xml version="1.0"?>
-<response>
+<QuotationResponse>
+  <TotalTax>1.05</TotalTax>
   <Total>5.25</Total>
   <SubTotal>4.20</SubTotal>
   <Status lookupResult="RESULT OK"/>
-</response>\n
+</QuotationResponse>\n
 XML;
-
-    const DATE = '1991-08-06 12:00:00';
-    const TAX_AREA_ID = '3.14';
     const SOURCE_PATH = 'source_path';
-    const OBJECT_ID = '42';
-
-    const RESPONSE_TOTAL = '5.25';
-    const RESPONSE_SUBTOTAL = '4.20';
-    const RESPONSE_TOTAL_TAX = '1.05';
-    const RESPONSE_LOOKUP_RESULT = 'RESULT OK';
-    const RESPONSE_EXCEPTIONTYPE = 'SOME EXCEPTION';
-
+    const TAX_AREA_ID = '3.14';
     private $dateTimeFactory;
 
     public function setUp()
@@ -92,11 +88,6 @@ XML;
             ->with(static::DATE)
             ->willReturnSelf();
 
-        // Test that Total Tax is set from constructor
-        $logEntry->expects($this->once())
-            ->method('setTotalTax')
-            ->with(static::RESPONSE_TOTAL_TAX);
-
         // Test that Request XML is formatted
         $logEntry->expects($this->once())
             ->method('setRequestXml')
@@ -107,10 +98,10 @@ XML;
             ->method('setResponseXml')
             ->with(static::RESPONSE_XML_FORMATTED);
 
-        // Test that tax area id is from constructor
+        // Test that Total Tax is set from XML
         $logEntry->expects($this->once())
-            ->method('setTaxAreaId')
-            ->with(static::TAX_AREA_ID);
+            ->method('setTotalTax')
+            ->with(static::RESPONSE_TOTAL_TAX);
 
         // Test that total is set from XML
         $logEntry->expects($this->once())

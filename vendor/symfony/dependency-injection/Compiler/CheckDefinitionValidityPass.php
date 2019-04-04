@@ -38,7 +38,7 @@ class CheckDefinitionValidityPass implements CompilerPassInterface
     {
         foreach ($container->getDefinitions() as $id => $definition) {
             // synthetic service is public
-            if ($definition->isSynthetic() && !($definition->isPublic() || $definition->isPrivate())) {
+            if ($definition->isSynthetic() && !$definition->isPublic()) {
                 throw new RuntimeException(sprintf('A synthetic service ("%s") must be public.', $id));
             }
 
@@ -48,15 +48,6 @@ class CheckDefinitionValidityPass implements CompilerPassInterface
                     throw new RuntimeException(sprintf('Please add the class to service "%s" even if it is constructed by a factory since we might need to add method calls based on compile-time checks.', $id));
                 }
                 if (class_exists($id) || interface_exists($id, false)) {
-                    if (0 === strpos($id, '\\') && 1 < substr_count($id, '\\')) {
-                        throw new RuntimeException(sprintf(
-                            'The definition for "%s" has no class attribute, and appears to reference a class or interface. '
-                            .'Please specify the class attribute explicitly or remove the leading backslash by renaming '
-                            .'the service to "%s" to get rid of this error.',
-                            $id, substr($id, 1)
-                        ));
-                    }
-
                     throw new RuntimeException(sprintf(
                          'The definition for "%s" has no class attribute, and appears to reference a '
                         .'class or interface in the global namespace. Leaving out the "class" attribute '
@@ -86,7 +77,7 @@ class CheckDefinitionValidityPass implements CompilerPassInterface
                 }
             }
 
-            if ($definition->isPublic() && !$definition->isPrivate()) {
+            if ($definition->isPublic()) {
                 $resolvedId = $container->resolveEnvPlaceholders($id, null, $usedEnvs);
                 if (null !== $usedEnvs) {
                     throw new EnvParameterException(array($resolvedId), null, 'A service name ("%s") cannot contain dynamic values.');
@@ -95,7 +86,7 @@ class CheckDefinitionValidityPass implements CompilerPassInterface
         }
 
         foreach ($container->getAliases() as $id => $alias) {
-            if ($alias->isPublic() && !$alias->isPrivate()) {
+            if ($alias->isPublic()) {
                 $resolvedId = $container->resolveEnvPlaceholders($id, null, $usedEnvs);
                 if (null !== $usedEnvs) {
                     throw new EnvParameterException(array($resolvedId), null, 'An alias name ("%s") cannot contain dynamic values.');

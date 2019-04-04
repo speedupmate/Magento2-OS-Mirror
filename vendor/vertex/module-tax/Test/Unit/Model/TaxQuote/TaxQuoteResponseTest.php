@@ -8,42 +8,17 @@ namespace Vertex\Tax\Test\Unit\Model\TaxQuote;
 
 use Magento\Framework\DataObject;
 use Magento\Framework\DataObjectFactory;
+use SebastianBergmann\Diff\Line;
+use Vertex\Data\LineItem;
+use Vertex\Data\Tax;
+use Vertex\Services\Quote\Response;
 use Vertex\Tax\Model\TaxQuote\TaxQuoteResponse;
 use Vertex\Tax\Test\Unit\TestCase;
 
 class TaxQuoteResponseTest extends TestCase
 {
-    private $arrayResponse = [
-        'LineItem' => [
-            [
-                'Taxes' => [
-                    'EffectiveRate' => 1.0,
-                    ['EffectiveRate' => 2.0]
-                ],
-                'lineItemId' => 1,
-                'Product' => [
-                    'productClass' => 'Taxable Goods',
-                    '_' => 'PRODUCT-LINE-1',
-                ],
-                'Quantity' => ['_' => 1],
-                'UnitPrice' => ['_' => 2.50],
-                'TotalTax' => ['_' => 2.50],
-            ],
-            [
-                'Taxes' => [
-                    'EffectiveRate' => 1.0,
-                ],
-                'lineItemId' => 2,
-                'Product' => [
-                    'productClass' => 'None',
-                    '_' => 'PRODUCT-LINE-2',
-                ],
-                'Quantity' => ['_' => 2],
-                'UnitPrice' => ['_' => 1.50],
-                'TotalTax' => 1.50,
-            ]
-        ]
-    ];
+    /** @var Response */
+    private $response;
 
     private $dataObjectFactory;
 
@@ -57,6 +32,31 @@ class TaxQuoteResponseTest extends TestCase
                     return new DataObject();
                 }
             );
+
+        $lineItem1 = new LineItem();
+        $lineItem1->setLineItemId(1);
+        $lineItem1->setProductCode('PRODUCT-LINE-1');
+        $lineItem1->setProductClass('Taxable Goods');
+        $lineItem1->setQuantity(1);
+        $lineItem1->setUnitPrice(2.50);
+        $lineItem1->setTotalTax(2.50);
+        $lineItem1Tax1 = new Tax();
+        $lineItem1Tax1->setEffectiveRate(1.0);
+        $lineItem1Tax2 = new Tax();
+        $lineItem1Tax2->setEffectiveRate(2.0);
+        $lineItem1->setTaxes([$lineItem1Tax1, $lineItem1Tax2]);
+
+        $lineItem2 = new LineItem();
+        $lineItem2->setTaxes([$lineItem1Tax1]);
+        $lineItem2->setLineItemId(2);
+        $lineItem2->setProductCode('PRODUCT-LINE-2');
+        $lineItem2->setProductClass('None');
+        $lineItem2->setQuantity(2);
+        $lineItem2->setUnitPrice(1.50);
+        $lineItem2->setTotalTax(1.50);
+
+        $this->response = new Response();
+        $this->response->setLineItems([$lineItem1, $lineItem2]);
     }
 
     /**
@@ -74,7 +74,7 @@ class TaxQuoteResponseTest extends TestCase
     public function testPrepareQuoteTaxedItems()
     {
         $response = $this->getObject(TaxQuoteResponse::class, ['dataObjectFactory' => $this->dataObjectFactory]);
-        $response->prepareQuoteTaxedItems($this->arrayResponse['LineItem']);
+        $response->prepareQuoteTaxedItems($this->response->getLineItems());
 
         $result = $response->getQuoteTaxedItems();
         $this->assertInternalType('array', $result);

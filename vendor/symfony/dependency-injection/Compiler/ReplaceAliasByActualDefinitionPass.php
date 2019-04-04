@@ -36,14 +36,14 @@ class ReplaceAliasByActualDefinitionPass extends AbstractRecursivePass
         $seenAliasTargets = array();
         $replacements = array();
         foreach ($container->getAliases() as $definitionId => $target) {
-            $targetId = $container->normalizeId($target);
+            $targetId = (string) $target;
             // Special case: leave this target alone
             if ('service_container' === $targetId) {
                 continue;
             }
             // Check if target needs to be replaces
             if (isset($replacements[$targetId])) {
-                $container->setAlias($definitionId, $replacements[$targetId])->setPublic($target->isPublic())->setPrivate($target->isPrivate());
+                $container->setAlias($definitionId, $replacements[$targetId]);
             }
             // No need to process the same target twice
             if (isset($seenAliasTargets[$targetId])) {
@@ -56,12 +56,11 @@ class ReplaceAliasByActualDefinitionPass extends AbstractRecursivePass
             } catch (InvalidArgumentException $e) {
                 throw new InvalidArgumentException(sprintf('Unable to replace alias "%s" with actual definition "%s".', $definitionId, $targetId), null, $e);
             }
-            if ($definition->isPublic() || $definition->isPrivate()) {
+            if ($definition->isPublic()) {
                 continue;
             }
             // Remove private definition and schedule for replacement
-            $definition->setPublic(!$target->isPrivate());
-            $definition->setPrivate($target->isPrivate());
+            $definition->setPublic(true);
             $container->setDefinition($definitionId, $definition);
             $container->removeDefinition($targetId);
             $replacements[$targetId] = $definitionId;
@@ -77,7 +76,7 @@ class ReplaceAliasByActualDefinitionPass extends AbstractRecursivePass
      */
     protected function processValue($value, $isRoot = false)
     {
-        if ($value instanceof Reference && isset($this->replacements[$referenceId = $this->container->normalizeId($value)])) {
+        if ($value instanceof Reference && isset($this->replacements[$referenceId = (string) $value])) {
             // Perform the replacement
             $newId = $this->replacements[$referenceId];
             $value = new Reference($newId, $value->getInvalidBehavior());

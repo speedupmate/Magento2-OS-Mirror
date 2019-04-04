@@ -7,6 +7,13 @@
 <?php /** @var \Temando\Shipping\Model\Dispatch $dispatch */ ?>
 <?php $dispatch = $block->getDispatch(); ?>
 <?php if ($dispatch) : ?>
+    <?php $messages = $dispatch->getCarrierMessages(); ?>
+    <?php if (!empty($messages)) : ?>
+        <?php foreach ($messages as $message) : ?>
+            <p class="message message-notice"><?= $block->escapeHtml($message) ?></p>
+        <?php endforeach; ?>
+    <?php endif; ?>
+
     <section class="admin__page-section">
         <div class="admin__page-section-title">
             <span class="title"><?= $block->escapeHtml(__('Dispatch Information')); ?></span>
@@ -43,10 +50,19 @@
                             </td>
                         </tr>
                     <?php endif; ?>
+                    <?php $pickupNumbers = $dispatch->getPickupNumbers(); ?>
+                    <?php if (!empty($pickupNumbers)) : ?>
+                        <tr>
+                            <th><?= $block->escapeHtml(__('Pickup Request No.')); ?></th>
+                            <td><?= $block->escapeHtml(implode(', ', $pickupNumbers)); ?></td>
+                        </tr>
+                    <?php endif; ?>
                 </tbody>
             </table>
         </div>
     </section>
+
+    <?= /* @noEscape */ $block->getChildHtml('charges_listing') ?>
 
     <?= /* @noEscape */ $block->getChildHtml('documentation_listing') ?>
 <?php endif; ?>

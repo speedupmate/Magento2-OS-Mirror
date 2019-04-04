@@ -4,12 +4,15 @@
  */
 namespace Temando\Shipping\Rest\EntityMapper;
 
-use Temando\Shipping\Model\Dispatch\ShipmentInterface;
-use Temando\Shipping\Model\Dispatch\ShipmentInterfaceFactory;
 use Temando\Shipping\Model\Dispatch\ErrorInterface;
 use Temando\Shipping\Model\Dispatch\ErrorInterfaceFactory;
+use Temando\Shipping\Model\Dispatch\PickupChargeInterface;
+use Temando\Shipping\Model\Dispatch\PickupChargeInterfaceFactory;
+use Temando\Shipping\Model\Dispatch\ShipmentInterface;
+use Temando\Shipping\Model\Dispatch\ShipmentInterfaceFactory;
 use Temando\Shipping\Model\DispatchInterface;
 use Temando\Shipping\Model\DispatchInterfaceFactory;
+use Temando\Shipping\Rest\Response\Type\Completion\Attributes\Group\Charge;
 use Temando\Shipping\Rest\Response\Type\Completion\Attributes\Shipment;
 use Temando\Shipping\Rest\Response\Type\CompletionResponseType;
 
@@ -40,6 +43,11 @@ class DispatchResponseMapper
     private $shipmentFactory;
 
     /**
+     * @var PickupChargeInterfaceFactory
+     */
+    private $pickupChargeFactory;
+
+    /**
      * @var DocumentationResponseMapper
      */
     private $documentationMapper;
@@ -49,17 +57,20 @@ class DispatchResponseMapper
      * @param DispatchInterfaceFactory $dispatchFactory
      * @param ErrorInterfaceFactory $dispatchErrorFactory
      * @param ShipmentInterfaceFactory $shipmentFactory
+     * @param PickupChargeInterfaceFactory $pickupChargeFactory
      * @param DocumentationResponseMapper $documentationMapper
      */
     public function __construct(
         DispatchInterfaceFactory $dispatchFactory,
         ErrorInterfaceFactory $dispatchErrorFactory,
         ShipmentInterfaceFactory $shipmentFactory,
+        PickupChargeInterfaceFactory $pickupChargeFactory,
         DocumentationResponseMapper $documentationMapper
     ) {
         $this->dispatchFactory = $dispatchFactory;
         $this->dispatchErrorFactory = $dispatchErrorFactory;
         $this->shipmentFactory = $shipmentFactory;
+        $this->pickupChargeFactory = $pickupChargeFactory;
         $this->documentationMapper = $documentationMapper;
     }
 
@@ -88,6 +99,21 @@ class DispatchResponseMapper
     }
 
     /**
+     * @param Charge $apiCharge
+     * @return PickupChargeInterface
+     */
+    private function mapPickupCharge(Charge $apiCharge)
+    {
+        $pickupCharge = $this->pickupChargeFactory->create(['data' => [
+            PickupChargeInterface::DESCRIPTION => (string) $apiCharge->getDescription(),
+            PickupChargeInterface::AMOUNT => (float) $apiCharge->getAmount()->getAmount(),
+            PickupChargeInterface::CURRENCY => (string) $apiCharge->getAmount()->getCurrency(),
+        ]]);
+
+        return $pickupCharge;
+    }
+
+    /**
      * @param CompletionResponseType $apiCompletion
      * @return DispatchInterface
      */
@@ -99,6 +125,9 @@ class DispatchResponseMapper
         $carrierName = $customAttributes ? $customAttributes->getCarrierName() : 'No Carrier Found';
         $createdAtDate = $apiCompletion->getAttributes()->getCreatedAt();
         $readyAtDate = $apiCompletion->getAttributes()->getReadyAt();
+        $carrierMessages = [];
+        $pickupReferences = [];
+        $pickupCharges = [];
         $failedShipments = [];
         $includedShipments = [];
         $documentation = [];
@@ -114,17 +143,31 @@ class DispatchResponseMapper
 
         // map collected documentation
         foreach ($apiCompletion->getAttributes()->getGroups() as $attributeGroup) {
+            $carrierMessages[]= $attributeGroup->getCarrierMessage();
+            $pickupReferences[]= $attributeGroup->getPickupReference();
+
+            foreach ($attributeGroup->getCharges() as $pickupCharge) {
+                $pickupCharges[]= $this->mapPickupCharge($pickupCharge);
+            }
+
             foreach ($attributeGroup->getDocumentation() as $apiDoc) {
                 $documentation[]= $this->documentationMapper->map($apiDoc);
             }
         }
 
+        $carrierMessages = array_filter($carrierMessages);
+        $pickupReferences = array_filter($pickupReferences);
+        sort($pickupReferences);
+
         $dispatch = $this->dispatchFactory->create(['data' => [
             DispatchInterface::DISPATCH_ID => $dispatchId,
             DispatchInterface::STATUS => $status,
             DispatchInterface::CARRIER_NAME => $carrierName,
+            DispatchInterface::CARRIER_MESSAGES => $carrierMessages,
             DispatchInterface::CREATED_AT_DATE => $createdAtDate,
             DispatchInterface::READY_AT_DATE => $readyAtDate,
+            DispatchInterface::PICKUP_NUMBERS => $pickupReferences,
+            DispatchInterface::PICKUP_CHARGES => $pickupCharges,
             DispatchInterface::INCLUDED_SHIPMENTS => $includedShipments,
             DispatchInterface::FAILED_SHIPMENTS => $failedShipments,
             DispatchInterface::DOCUMENTATION => $documentation,
