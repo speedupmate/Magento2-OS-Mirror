@@ -10,7 +10,6 @@ use Temando\Shipping\Model\DispatchInterface;
 use Temando\Shipping\Model\DispatchInterfaceFactory;
 use Temando\Shipping\Rest\Response\Type\Completion\Attributes\Shipment;
 use Temando\Shipping\Rest\Response\Type\CompletionResponseType;
-use Temando\Shipping\Model\DocumentationCollectionFactory;
 
 /**
  * Map API data to application data object
@@ -29,9 +28,9 @@ class DispatchResponseMapper
     private $dispatchFactory;
 
     /**
-     * @var DocumentationCollectionFactory
+     * @var ShipmentInterfaceFactory
      */
-    private $documentationCollectionFactory;
+    private $shipmentFactory;
 
     /**
      * @var DocumentationResponseMapper
@@ -42,18 +41,15 @@ class DispatchResponseMapper
      * DispatchResponseMapper constructor.
      * @param DispatchInterfaceFactory $dispatchFactory
      * @param ShipmentInterfaceFactory $shipmentFactory
-     * @param DocumentationCollectionFactory $documentationCollectionFactory
      * @param DocumentationResponseMapper $documentationMapper
      */
     public function __construct(
         DispatchInterfaceFactory $dispatchFactory,
         ShipmentInterfaceFactory $shipmentFactory,
-        DocumentationCollectionFactory $documentationCollectionFactory,
         DocumentationResponseMapper $documentationMapper
     ) {
         $this->dispatchFactory = $dispatchFactory;
         $this->shipmentFactory = $shipmentFactory;
-        $this->documentationCollectionFactory = $documentationCollectionFactory;
         $this->documentationMapper = $documentationMapper;
     }
 
@@ -81,25 +77,26 @@ class DispatchResponseMapper
         $dispatchId = $apiCompletion->getId();
         $status = $apiCompletion->getAttributes()->getStatus();
         $customAttributes = $apiCompletion->getAttributes()->getCustomAttributes();
-        $carrierName = $customAttributes ? $customAttributes->getCarrierName() : 'No Carrier Found' ;
+        $carrierName = $customAttributes ? $customAttributes->getCarrierName() : 'No Carrier Found';
         $createdAtDate = $apiCompletion->getAttributes()->getCreatedAt();
         $readyAtDate = $apiCompletion->getAttributes()->getReadyAt();
-
-        $documentationCollection = $this->documentationCollectionFactory->create();
-        foreach ($apiCompletion->getAttributes()->getGroups() as $attributeGroup) {
-            foreach ($attributeGroup->getDocumentation() as $apiDoc) {
-                $documentation = $this->documentationMapper->map($apiDoc);
-                $documentationCollection->offsetSet($documentation->getDocumentationId(), $documentation);
-            }
-        }
-
         $failedShipments = [];
         $includedShipments = [];
+        $documentation = [];
+
+        // split shipments into failed and successfully dispatched
         foreach ($apiCompletion->getAttributes()->getShipments() as $apiShipment) {
             if ($apiShipment->getStatus() === 'error') {
                 $failedShipments[$apiShipment->getId()] = $this->mapShipment($apiShipment);
             } else {
                 $includedShipments[$apiShipment->getId()] = $this->mapShipment($apiShipment);
+            }
+        }
+
+        // map collected documentation
+        foreach ($apiCompletion->getAttributes()->getGroups() as $attributeGroup) {
+            foreach ($attributeGroup->getDocumentation() as $apiDoc) {
+                $documentation[]= $this->documentationMapper->map($apiDoc);
             }
         }
 
@@ -111,7 +108,7 @@ class DispatchResponseMapper
             DispatchInterface::READY_AT_DATE => $readyAtDate,
             DispatchInterface::INCLUDED_SHIPMENTS => $includedShipments,
             DispatchInterface::FAILED_SHIPMENTS => $failedShipments,
-            DispatchInterface::DOCUMENTATION => $documentationCollection,
+            DispatchInterface::DOCUMENTATION => $documentation,
         ]]);
 
         return $dispatch;

@@ -19,10 +19,10 @@ use PhpCsFixer\Error\ErrorsManager;
 use PhpCsFixer\FileRemoval;
 use PhpCsFixer\Fixer\FixerInterface;
 use PhpCsFixer\FixerFactory;
+use PhpCsFixer\Linter\CachingLinter;
 use PhpCsFixer\Linter\Linter;
 use PhpCsFixer\Linter\LinterInterface;
 use PhpCsFixer\Runner\Runner;
-use PhpCsFixer\Tests\Test\Constraint\SameStringsConstraint;
 use PhpCsFixer\Tests\TestCase;
 use PhpCsFixer\Tokenizer\Tokens;
 use PhpCsFixer\WhitespacesFixerConfig;
@@ -30,6 +30,7 @@ use Prophecy\Argument;
 use Symfony\Component\Filesystem\Exception\IOException;
 use Symfony\Component\Filesystem\Filesystem;
 use Symfony\Component\Finder\Finder;
+use Symfony\Component\Finder\SplFileInfo;
 
 /**
  * Integration test base class.
@@ -99,6 +100,7 @@ abstract class AbstractIntegrationTestCase extends TestCase
         $tmpFile = static::getTempFile();
 
         self::$fileRemoval->delete($tmpFile);
+        self::$fileRemoval = null;
     }
 
     protected function setUp()
@@ -106,6 +108,13 @@ abstract class AbstractIntegrationTestCase extends TestCase
         parent::setUp();
 
         $this->linter = $this->getLinter();
+    }
+
+    protected function tearDown()
+    {
+        parent::tearDown();
+
+        $this->linter = null;
     }
 
     /**
@@ -135,12 +144,13 @@ abstract class AbstractIntegrationTestCase extends TestCase
         $factory = static::createIntegrationCaseFactory();
         $tests = array();
 
+        /** @var SplFileInfo $file */
         foreach (Finder::create()->files()->in($fixturesDir) as $file) {
             if ('test' !== $file->getExtension()) {
                 continue;
             }
 
-            $tests[] = array(
+            $tests[$file->getPathname()] = array(
                 $factory->create($file),
             );
         }
@@ -253,7 +263,7 @@ abstract class AbstractIntegrationTestCase extends TestCase
         $fixedInputCode = file_get_contents($tmpFile);
         $this->assertThat(
             $fixedInputCode,
-            new SameStringsConstraint($expected),
+            self::createIsIdenticalStringConstraint($expected),
             sprintf(
                 "Expected changes do not match result for \"%s\" in \"%s\".\nFixers applied:\n%s.",
                 $case->getTitle(),
@@ -382,10 +392,32 @@ abstract class AbstractIntegrationTestCase extends TestCase
 
                 $linter = $linterProphecy->reveal();
             } else {
-                $linter = new Linter();
+                $linter = new CachingLinter(new Linter());
             }
         }
 
         return $linter;
+    }
+
+    /**
+     * @todo Remove me when this class will end up in dedicated package.
+     *
+     * @param string $expected
+     */
+    private static function createIsIdenticalStringConstraint($expected)
+    {
+        $candidates = array_filter(array(
+            'PhpCsFixer\PhpunitConstraintIsIdenticalString\Constraint\IsIdenticalString',
+            'PHPUnit\Framework\Constraint\IsIdentical',
+            'PHPUnit_Framework_Constraint_IsIdentical',
+        ), function ($className) { return class_exists($className); });
+
+        if (empty($candidates)) {
+            throw new \RuntimeException('PHPUnit not installed?!');
+        }
+
+        $candidate = array_shift($candidates);
+
+        return new $candidate($expected);
     }
 }

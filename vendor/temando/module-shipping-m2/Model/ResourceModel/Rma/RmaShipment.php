@@ -117,4 +117,28 @@ class RmaShipment extends AbstractDb
 
         return $connection->insertOnDuplicate($table, $data);
     }
+
+    /**
+     * @param int $rmaId
+     * @param string[] $shipmentIds
+     * @return int Number of dropped entries
+     */
+    public function deleteShipmentIds($rmaId, array $shipmentIds)
+    {
+        $connection = $this->getConnection();
+        $table = $this->getMainTable();
+
+        $conditions = [
+            sprintf("`%s` = ?", self::RMA_ID),
+            sprintf("`%s` in (?)", self::RMA_SHIPMENT_ID),
+        ];
+        $terms = [
+            $rmaId,
+            $shipmentIds,
+        ];
+
+        $where = array_combine($conditions, $terms);
+
+        return $connection->delete($table, $where);
+    }
 }

@@ -9,10 +9,11 @@ namespace Vertex\Tax\Model\Request;
 use Magento\Framework\ObjectManagerInterface;
 use Magento\GiftWrapping\Api\WrappingRepositoryInterface;
 use Magento\GiftWrapping\Model\Total\Quote\Tax\Giftwrapping;
-use Magento\Quote\Model\Quote\Address;
+use Magento\Quote\Model\Quote\Address as QuoteAddress;
 use Magento\Quote\Model\Quote\Item;
 use Vertex\Tax\Model\Config;
 use Vertex\Tax\Model\Repository\TaxClassNameRepository;
+use Vertex\Tax\Model\Calculation\VertexCalculator\ItemKeyManager;
 
 /**
  * Line Item data formatter for Vertex API Calls
@@ -42,6 +43,9 @@ class LineItem
     /** @var TaxClassNameRepository */
     private $taxClassNameRepository;
 
+    /** @var ItemKeyManager */
+    private $itemKeyManager;
+
     /**
      * @param Seller $sellerFormatter
      * @param Customer $customerFormatter
@@ -49,6 +53,7 @@ class LineItem
      * @param ObjectManagerInterface $objectManager
      * @param DeliveryTerm $deliveryTerm
      * @param TaxClassNameRepository $taxClassNameRepository
+     * @param ItemKeyManager $itemKeyManager
      */
     public function __construct(
         Seller $sellerFormatter,
@@ -56,7 +61,8 @@ class LineItem
         Config $config,
         ObjectManagerInterface $objectManager,
         DeliveryTerm $deliveryTerm,
-        TaxClassNameRepository $taxClassNameRepository
+        TaxClassNameRepository $taxClassNameRepository,
+        ItemKeyManager $itemKeyManager
     ) {
         $this->customerFormatter = $customerFormatter;
         $this->objectManager = $objectManager;
@@ -64,6 +70,7 @@ class LineItem
         $this->config = $config;
         $this->deliveryTerm = $deliveryTerm;
         $this->taxClassNameRepository = $taxClassNameRepository;
+        $this->itemKeyManager = $itemKeyManager;
     }
 
     /**
@@ -83,17 +90,18 @@ class LineItem
     /**
      * Create properly formatted Line Item data for a Vertex API Call
      *
-     * @param Address $taxAddress
+     * @param QuoteAddress $taxAddress
      * @param Item\AbstractItem $taxAddressItem
      * @return array
      * @throws \Magento\Framework\Exception\LocalizedException
      * @throws \Magento\Framework\Exception\NoSuchEntityException
      */
-    public function getFormattedLineItemData(Address $taxAddress, $taxAddressItem)
+    public function getFormattedLineItemData(QuoteAddress $taxAddress, $taxAddressItem)
     {
         $data = [];
+        $storeId = $taxAddressItem->getQuote()->getStoreId();
 
-        $data['Seller'] = $this->sellerFormatter->getFormattedSellerData();
+        $data['Seller'] = $this->sellerFormatter->getFormattedSellerData($storeId);
         $data['Customer'] = $this->customerFormatter->getFormattedCustomerData($taxAddress);
         $data['Product'] = [
             '_' => substr($taxAddressItem->getData('sku'), 0, Config::MAX_CHAR_PRODUCT_CODE_ALLOWED),
@@ -103,23 +111,22 @@ class LineItem
             )
         ];
 
-        $storeId = $taxAddressItem->getStore() ? $taxAddressItem->getStore()->getId() : null;
         $useOriginalPrice = $this->config->getApplyTaxOn($storeId) == Config::VALUE_APPLY_ON_ORIGINAL_ONLY;
 
-        $data['Quantity'] = $taxAddressItem->getQty();
-        $data['UnitPrice'] = $useOriginalPrice ? $taxAddressItem->getBaseOriginalPrice() : $taxAddressItem->getPrice();
+        $data['Quantity'] = floatval($taxAddressItem->getQty());
+        $data['UnitPrice'] = floatval($useOriginalPrice
+            ? $taxAddressItem->getBaseOriginalPrice()
+            : $taxAddressItem->getPrice());
 
-        $rowTotal = $useOriginalPrice
-            ? $taxAddressItem->getBaseOriginalPrice() * $taxAddressItem->getQty()
-            : $taxAddressItem->getBaseRowTotal();
+        $rowTotal = floatval(
+            $useOriginalPrice
+                ? $taxAddressItem->getBaseOriginalPrice() * $taxAddressItem->getQty()
+                : $taxAddressItem->getBaseRowTotal()
+        );
 
-        $data['ExtendedPrice'] = $rowTotal - $taxAddressItem->getBaseDiscountAmount();
-
-        $data['lineItemId'] = method_exists($taxAddressItem, 'getItemId') && $taxAddressItem->getItemId()
-            ? $taxAddressItem->getItemId()
-            : $taxAddressItem->getId();
-
-        $data['locationCode'] = $this->config->getLocationCode();
+        $data['ExtendedPrice'] = floatval($rowTotal - $taxAddressItem->getBaseDiscountAmount());
+        $data['lineItemId'] = $this->itemKeyManager->createQuoteItemHash($taxAddressItem);
+        $data['locationCode'] = $this->config->getLocationCode($storeId);
 
         $data = $this->deliveryTerm->addDeliveryTerm($data, $taxAddress);
 
@@ -129,21 +136,22 @@ class LineItem
     /**
      * Create properly formatted Line Item data for an Order-level Printed Card
      *
-     * @param Address $taxAddress
+     * @param QuoteAddress $taxAddress
      * @return array
      * @throws \Magento\Framework\Exception\LocalizedException
      * @throws \Magento\Framework\Exception\NoSuchEntityException
      */
-    public function getFormattedOrderPrintCardData(Address $taxAddress)
+    public function getFormattedOrderPrintCardData(QuoteAddress $taxAddress)
     {
         $data = [];
+        $storeId = $taxAddress->getQuote()->getStoreId();
 
         $data['Seller'] = $this->sellerFormatter->getFormattedSellerData();
         $data['Customer'] = $this->customerFormatter->getFormattedCustomerData($taxAddress);
         $data['Product'] = [
-            '_' => $this->config->getPrintedGiftcardCode(),
+            '_' => $this->config->getPrintedGiftcardCode($storeId),
             'productClass' => $this->taxClassNameRepository->getById(
-                $this->config->getPrintedGiftcardClass()
+                $this->config->getPrintedGiftcardClass($storeId)
             )
         ];
 
@@ -151,12 +159,15 @@ class LineItem
         $data['UnitPrice'] = $taxAddress->getData('gw_card_base_price');
 
         if (empty($data['UnitPrice'])) {
-            $printedCardBasePrice = $this->config->getPrintedCardPrice($taxAddress->getData('store_id'));
+            $printedCardBasePrice = $this->config->getPrintedCardPrice($storeId);
             $data['UnitPrice'] = $printedCardBasePrice;
+        }
+        if ($data['UnitPrice'] === null) {
+            $data['UnitPrice'] = 0;
         }
         $data['ExtendedPrice'] = $data['UnitPrice'];
         $data['lineItemId'] = Giftwrapping::CODE_PRINTED_CARD;
-        $data['locationCode'] = $this->config->getLocationCode();
+        $data['locationCode'] = $this->config->getLocationCode($storeId);
 
         $data = $this->deliveryTerm->addDeliveryTerm($data, $taxAddress);
 
@@ -166,21 +177,22 @@ class LineItem
     /**
      * Create properly formatted Line Item data for Order-level Giftwrapping
      *
-     * @param Address $taxAddress
+     * @param QuoteAddress $taxAddress
      * @return array
      * @throws \Magento\Framework\Exception\LocalizedException
      * @throws \Magento\Framework\Exception\NoSuchEntityException
      */
-    public function getFormattedOrderGiftWrapData(Address $taxAddress)
+    public function getFormattedOrderGiftWrapData(QuoteAddress $taxAddress)
     {
         $data = [];
+        $storeId = $taxAddress->getQuote()->getStoreId();
 
         $data['Seller'] = $this->sellerFormatter->getFormattedSellerData();
         $data['Customer'] = $this->customerFormatter->getFormattedCustomerData($taxAddress);
         $data['Product'] = [
-            '_' => $this->config->getGiftWrappingOrderCode(),
+            '_' => $this->config->getGiftWrappingOrderCode($storeId),
             'productClass' => $this->taxClassNameRepository->getById(
-                $this->config->getGiftWrappingOrderClass()
+                $this->config->getGiftWrappingOrderClass($storeId)
             )
         ];
 
@@ -188,14 +200,17 @@ class LineItem
 
         $wrapping = $this->getWrappingRepository()->get(
             $taxAddress->getData('gw_id'),
-            $taxAddress->getData('store_id')
+            $storeId
         );
         $wrappingBaseAmount = $wrapping->getBasePrice();
 
         $data['UnitPrice'] = $wrappingBaseAmount;
+        if ($data['UnitPrice'] === null) {
+            $data['UnitPrice'] = 0;
+        }
         $data['ExtendedPrice'] = $data['UnitPrice'];
         $data['lineItemId'] = Giftwrapping::CODE_QUOTE_GW;
-        $data['locationCode'] = $this->config->getLocationCode();
+        $data['locationCode'] = $this->config->getLocationCode($storeId);
         $data = $this->deliveryTerm->addDeliveryTerm($data, $taxAddress);
 
         return $data;
@@ -204,22 +219,23 @@ class LineItem
     /**
      * Create properly formatted Line Item data for Item-level Giftwrapping
      *
-     * @param Address $taxAddress
+     * @param QuoteAddress $taxAddress
      * @param Item\AbstractItem $item
      * @return array
      * @throws \Magento\Framework\Exception\LocalizedException
      * @throws \Magento\Framework\Exception\NoSuchEntityException
      */
-    public function getFormattedItemGiftWrapData(Address $taxAddress, $item)
+    public function getFormattedItemGiftWrapData(QuoteAddress $taxAddress, $item)
     {
         $data = [];
+        $storeId = $taxAddress->getQuote()->getStoreId();
 
         $data['Seller'] = $this->sellerFormatter->getFormattedSellerData();
         $data['Customer'] = $this->customerFormatter->getFormattedCustomerData($taxAddress);
         $data['Product'] = [
-            '_' => $this->config->getGiftWrappingItemCodePrefix() . '-' . $item->getData('sku'),
+            '_' => $this->config->getGiftWrappingItemCodePrefix($storeId) . '-' . $item->getData('sku'),
             'productClass' => $this->taxClassNameRepository->getById(
-                $this->config->getGiftWrappingItemClass()
+                $this->config->getGiftWrappingItemClass($storeId)
             )
         ];
 
@@ -231,6 +247,9 @@ class LineItem
         }
 
         $data['UnitPrice'] = $wrappingBasePrice;
+        if ($data['UnitPrice'] === null) {
+            $data['UnitPrice'] = 0;
+        }
 
         $data['Quantity'] = $item->getQty();
         $data['ExtendedPrice'] = $data['Quantity'] * $data['UnitPrice'];

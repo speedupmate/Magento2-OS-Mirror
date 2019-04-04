@@ -42,7 +42,7 @@ class PackagingActions extends Column
                         'href' => $this->getContext()->getUrl(self::PACKAGING_URL_PATH_DELETE, [$key => $item[$key]]),
                         'label' => __('Delete'),
                         'confirm' => [
-                            'title'   => __('Delete "${ $.$data.name }" of type "${ $.$data.type }"'),
+                            'title'   => __('Delete "${ $.$data.name }"'),
                             'message' => __('Are you sure you want to delete the package "${ $.$data.name }"?')
                         ]
                     ];

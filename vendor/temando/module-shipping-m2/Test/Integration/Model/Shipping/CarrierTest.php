@@ -5,13 +5,12 @@
 namespace Temando\Shipping\Model\Shipping;
 
 use Magento\Catalog\Model\Product;
-use Magento\Framework\DataObject;
 use Magento\Framework\Exception\CouldNotSaveException;
 use Magento\Framework\Exception\NoSuchEntityException;
 use Magento\Quote\Model\Quote;
-use Magento\Quote\Model\Quote\Item;
 use Magento\Quote\Model\Quote\Address\RateRequest;
 use Magento\Quote\Model\Quote\Address\RateResult\Error;
+use Magento\Quote\Model\Quote\Item;
 use Magento\TestFramework\Helper\Bootstrap;
 use Psr\Log\LogLevel;
 use Temando\Shipping\Api\Data\Shipment\ShipmentReferenceInterface;
@@ -21,6 +20,7 @@ use Temando\Shipping\Model\ResourceModel\Shipment\ShipmentRepository;
 use Temando\Shipping\Model\Shipment\TrackEventInterface;
 use Temando\Shipping\Test\Integration\Provider\RateRequestProvider;
 use Temando\Shipping\Webservice\Logger;
+use Temando\Shipping\Webservice\Response\Type\OrderResponseTypeInterface;
 
 /**
  * Temando Shipping Carrier Test
@@ -45,7 +45,7 @@ class CarrierTest extends \PHPUnit\Framework\TestCase
 
     /**
      * Delegate provisioning of test data to separate class
-     * @return RateRequest|OrderReference[][]
+     * @return RateRequest|OrderResponseTypeInterface[][]
      */
     public function getRateRequestWithShippingExperience()
     {
@@ -146,9 +146,9 @@ class CarrierTest extends \PHPUnit\Framework\TestCase
      * @magentoConfigFixture default_store general/store_information/name Foo Store
      *
      * @param RateRequest $rateRequest
-     * @param OrderReference $orderReference
+     * @param OrderResponseTypeInterface $orderResponseType
      */
-    public function collectRatesSuccess(RateRequest $rateRequest, OrderReference $orderReference)
+    public function collectRatesSuccess(RateRequest $rateRequest, OrderResponseTypeInterface $orderResponseType)
     {
         $loggerMock = $this->getMockBuilder(Logger::class)
             ->setMethods(['log'])
@@ -166,7 +166,7 @@ class CarrierTest extends \PHPUnit\Framework\TestCase
         $orderRepository
             ->expects($this->once())
             ->method('save')
-            ->willReturn($orderReference);
+            ->willReturn($orderResponseType);
 
         /** @var Carrier $carrier */
         $carrier = Bootstrap::getObjectManager()->create(Carrier::class, [

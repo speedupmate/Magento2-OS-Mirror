@@ -1,6 +1,6 @@
 <!-- ko if: getFields().length -->
 <form id="carrier-fields-block" class="form form-shipping-address form-carrier-fields">
-    <div class="fieldset">
+    <div class="fieldset"  data-bind="visible: checkoutFieldsVisible">
         <!-- ko foreach: getFields() -->
         <!-- ko if: type == 'checkbox' -->
         <table class="table-checkout-shipping-method">

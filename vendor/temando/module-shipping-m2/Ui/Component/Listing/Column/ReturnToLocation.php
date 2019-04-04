@@ -9,7 +9,7 @@ use Magento\Framework\Escaper;
 use Magento\Framework\View\Element\UiComponent\ContextInterface;
 use Magento\Framework\View\Element\UiComponentFactory;
 use Magento\Ui\Component\Listing\Columns\Column;
-use Temando\Shipping\Model\Shipment\ShipmentDestinationInterface;
+use Temando\Shipping\Model\Shipment\LocationInterface;
 use Temando\Shipping\Model\ShipmentInterface;
 
 /**
@@ -39,8 +39,8 @@ class ReturnToLocation extends Column
      * @param UiComponentFactory $uiComponentFactory
      * @param Escaper $escaper
      * @param Region $region
-     * @param array $components
-     * @param array $data
+     * @param mixed[] $components
+     * @param mixed[] $data
      */
     public function __construct(
         ContextInterface $context,
@@ -67,7 +67,7 @@ class ReturnToLocation extends Column
         if (isset($dataSource['data']['items'])) {
             foreach ($dataSource['data']['items'] as & $item) {
                 if (isset($item[$key])) {
-                    /** @var ShipmentDestinationInterface $destinationLocation */
+                    /** @var LocationInterface $destinationLocation */
                     $destinationLocation = $item[$key];
                     $address = sprintf(
                         '%s %s %s %s',
@@ -89,10 +89,10 @@ class ReturnToLocation extends Column
     /**
      * Get street as string
      *
-     * @param ShipmentDestinationInterface $destinationLocation
+     * @param LocationInterface $destinationLocation
      * @return string
      */
-    private function getStreet(ShipmentDestinationInterface $destinationLocation)
+    private function getStreet(LocationInterface $destinationLocation)
     {
         $street = '';
         foreach ($destinationLocation->getStreet() as $streetLine) {
@@ -105,10 +105,10 @@ class ReturnToLocation extends Column
     /**
      * Get Region Name.
      *
-     * @param ShipmentDestinationInterface $destinationLocation
+     * @param LocationInterface $destinationLocation
      * @return string
      */
-    private function getRegionName(ShipmentDestinationInterface $destinationLocation)
+    private function getRegionName(LocationInterface $destinationLocation)
     {
         $region = $this->region->loadByCode(
             $destinationLocation->getRegionCode(),

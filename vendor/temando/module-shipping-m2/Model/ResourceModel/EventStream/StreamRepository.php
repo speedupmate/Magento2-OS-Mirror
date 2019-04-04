@@ -74,7 +74,7 @@ class StreamRepository implements StreamRepositoryInterface
             $request = $this->streamCreateRequestFactory->create(['stream' => $stream]);
             $this->apiAdapter->createStream($request);
         } catch (AdapterException $e) {
-            throw new CouldNotSaveException(__($e->getMessage()), $e);
+            throw new CouldNotSaveException(__('Unable to save event stream.'), $e);
         }
     }
 
@@ -89,7 +89,7 @@ class StreamRepository implements StreamRepositoryInterface
             $request = $this->itemRequestFactory->create(['entityId' => $streamId]);
             $this->apiAdapter->deleteStream($request);
         } catch (AdapterException $e) {
-            throw new CouldNotDeleteException(__($e->getMessage()), $e);
+            throw new CouldNotDeleteException(__('Unable to delete event stream.'), $e);
         }
     }
 }

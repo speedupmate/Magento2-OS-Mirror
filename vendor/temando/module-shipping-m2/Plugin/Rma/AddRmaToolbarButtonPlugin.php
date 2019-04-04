@@ -56,7 +56,7 @@ class AddRmaToolbarButtonPlugin
 
     /**
      * @param RmaEdit|Container $block
-     * @param LayoutInterface $block
+     * @param LayoutInterface $layout
      *
      * @return null
      */

@@ -6,9 +6,9 @@
 
 namespace Vertex\Tax\Model;
 
-use Magento\Customer\Api\Data\AddressInterface as CustomerAddress;
+use Magento\Quote\Api\Data\AddressInterface as QuoteAddressInterface;
 use Magento\Framework\Exception\NoSuchEntityException;
-use Magento\Quote\Model\Quote\Address;
+use Vertex\Tax\Exception\ApiRequestException;
 use Vertex\Tax\Model\TaxArea\TaxAreaRequest;
 use Vertex\Tax\Model\TaxQuote\TaxQuoteRequest;
 use Vertex\Tax\Model\TaxQuote\TaxQuoteResponse;
@@ -59,11 +59,12 @@ class Calculator
     /**
      * Retrieve the tax area IDs for a Customer Address
      *
-     * @param CustomerAddress $taxAddress
+     * @param QuoteAddressInterface $taxAddress
+     * @param string|null $store
      * @return bool|\Magento\Framework\DataObject
      * @throws NoSuchEntityException
      */
-    public function calculateTaxAreaIds(CustomerAddress $taxAddress)
+    public function calculateTaxAreaIds(QuoteAddressInterface $taxAddress, $store = null)
     {
         $street = $taxAddress->getStreet();
 
@@ -79,25 +80,24 @@ class Calculator
             return true;
         }
 
-        $response = $this->taxAreaRequest->taxAreaLookup(
-            $address
-        );
-
-        if ($response === false) {
+        try {
+            $response = $this->taxAreaRequest->taxAreaLookup($address, $store);
+        } catch (ApiRequestException $e) {
             return false;
         }
+
         return $response->getTaxAreaWithHighestConfidence();
     }
 
     /**
      * Retrieve a Quotation Response given a Quote Address
      *
-     * @param Address $taxAddress
+     * @param QuoteAddressInterface $taxAddress
      * @return TaxQuoteResponse|bool
      * @throws \Magento\Framework\Exception\LocalizedException
      * @throws NoSuchEntityException
      */
-    public function calculateTax(Address $taxAddress)
+    public function calculateTax(QuoteAddressInterface $taxAddress)
     {
         $request = $this->quotationRequestFormatter->getFormattedRequestData($taxAddress);
 

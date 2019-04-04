@@ -72,6 +72,7 @@ class ShipmentRepositoryPlugin
             /** @var \Temando\Shipping\Api\Data\Shipment\ShipmentReferenceInterface $extShipment */
             $extShipment = $this->shipmentRepository->getReferenceByShipmentId($shipment->getEntityId());
             $extensionAttributes->setExtShipmentId($extShipment->getExtShipmentId());
+            $extensionAttributes->setExtReturnShipmentId($extShipment->getExtReturnShipmentId());
             $extensionAttributes->setExtLocationId($extShipment->getExtLocationId());
             $extensionAttributes->setExtTrackingUrl($extShipment->getExtTrackingUrl());
             $extensionAttributes->setExtTrackingReference($extShipment->getExtTrackingReference());
@@ -117,6 +118,7 @@ class ShipmentRepositoryPlugin
             $shipmentReference = $this->shipmentReferenceFactory->create();
             $shipmentReference->setShipmentId($shipment->getEntityId());
             $shipmentReference->setExtShipmentId($extensionAttributes->getExtShipmentId());
+            $shipmentReference->setExtReturnShipmentId($extensionAttributes->getExtReturnShipmentId());
             $shipmentReference->setExtLocationId($extensionAttributes->getExtLocationId());
             $shipmentReference->setExtTrackingUrl($extensionAttributes->getExtTrackingUrl());
             $shipmentReference->setExtTrackingReference($extensionAttributes->getExtTrackingReference());

@@ -148,51 +148,10 @@ XML;
             $vertex,
             'logRequest',
             $type,
-            0,
             static::REQUEST_XML,
             static::RESPONSE_XML,
             ['_' => static::RESPONSE_TOTAL_TAX],
             static::TAX_AREA_ID
-        );
-    }
-
-    public function testSetOrderIdWhenTypeIsInvoice()
-    {
-        $logEntry = $this->createMock(LogEntryInterface::class);
-        $logEntry->expects($this->any())
-            ->method('setType')
-            ->willReturnSelf();
-        $logEntry->expects($this->once())
-            ->method('setOrderId')
-            ->with(static::OBJECT_ID);
-
-        $logEntryFactory = $this->createMock(LogEntryInterfaceFactory::class);
-        $logEntryFactory->method('create')
-            ->willReturn($logEntry);
-
-        $requestLogger = $this->getObject(
-            RequestLogger::class,
-            [
-                'logEntryFactory' => $logEntryFactory,
-                'dateTime' => $this->dateTimeFactory->create(),
-                'documentFactory' => $this->getObject(DomDocumentFactory::class),
-            ]
-        );
-
-        $vertex = $this->getObject(
-            ApiClient::class,
-            [
-                'requestLogger' => $requestLogger,
-            ]
-        );
-
-        $this->invokeInaccessibleMethod(
-            $vertex,
-            'logRequest',
-            'invoice',
-            static::OBJECT_ID,
-            static::REQUEST_XML,
-            static::RESPONSE_XML
         );
     }
 }

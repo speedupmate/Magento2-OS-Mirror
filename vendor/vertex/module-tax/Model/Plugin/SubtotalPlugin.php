@@ -11,7 +11,8 @@ use Magento\Quote\Model\Quote\Item\AbstractItem;
 use Magento\Tax\Api\Data\QuoteDetailsItemInterface;
 use Magento\Tax\Api\Data\QuoteDetailsItemInterfaceFactory;
 use Magento\Tax\Model\Sales\Total\Quote\Subtotal;
-use Vertex\Tax\Model\Calculation\VertexCalculator;
+use Vertex\Tax\Model\Calculation\VertexCalculator\ItemKeyManager;
+use Vertex\Tax\Model\Calculation\VertexCalculator\GwItemKeyManager;
 
 /**
  * Assists with retrieving tax information for items during subtotal routine
@@ -20,15 +21,22 @@ use Vertex\Tax\Model\Calculation\VertexCalculator;
  */
 class SubtotalPlugin
 {
-    /** @var Registry */
-    private $registry;
+    /** @var GwItemKeyManager */
+    private $gwItemKeyManager;
+
+    /** @var ItemKeyManager */
+    private $itemKeyManager;
 
     /**
-     * @param Registry $registry
+     * @param ItemKeyManager $itemKeyManager
+     * @param GwItemKeyManager $gwItemKeyManager
      */
-    public function __construct(Registry $registry)
-    {
-        $this->registry = $registry;
+    public function __construct(
+        ItemKeyManager $itemKeyManager,
+        GwItemKeyManager $gwItemKeyManager
+    ) {
+        $this->itemKeyManager = $itemKeyManager;
+        $this->gwItemKeyManager = $gwItemKeyManager;
     }
 
     /**
@@ -61,12 +69,12 @@ class SubtotalPlugin
     ) {
         /** @var QuoteDetailsItemInterface $itemDataObject */
         $itemDataObject = $proceed($itemDataObjectFactory, $item, $priceIncludesTax, $useBaseCurrency, $parentCode);
-        $itemDataObject->setItemId($item->getId());
-        $this->registry->register(
-            VertexCalculator::VERTEX_QUOTE_ITEM_ID_PREFIX . $itemDataObject->getCode(),
-            $item->getId(),
-            true
-        );
+
+        $this->itemKeyManager->set($itemDataObject, $item);
+
+        if ($item->getGwId()) {
+            $this->gwItemKeyManager->set($itemDataObject, $item);
+        }
 
         return $itemDataObject;
     }

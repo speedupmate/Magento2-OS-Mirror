@@ -14,11 +14,12 @@ namespace PhpCsFixer\Fixer\PhpUnit;
 
 use PhpCsFixer\AbstractFixer;
 use PhpCsFixer\Fixer\ConfigurationDefinitionFixerInterface;
+use PhpCsFixer\FixerConfiguration\AllowedValueSubset;
 use PhpCsFixer\FixerConfiguration\FixerConfigurationResolverRootless;
 use PhpCsFixer\FixerConfiguration\FixerOptionBuilder;
-use PhpCsFixer\FixerConfiguration\FixerOptionValidatorGenerator;
 use PhpCsFixer\FixerDefinition\CodeSample;
 use PhpCsFixer\FixerDefinition\FixerDefinition;
+use PhpCsFixer\Tokenizer\Analyzer\ArgumentsAnalyzer;
 use PhpCsFixer\Tokenizer\Token;
 use PhpCsFixer\Tokenizer\Tokens;
 
@@ -72,7 +73,7 @@ final class MyTest extends \PHPUnit_Framework_TestCase
                 ),
             ),
             null,
-            'Risky when any of the functions are overridden.'
+            'Risky when any of the functions are overridden or when testing object equality.'
         );
     }
 
@@ -97,6 +98,8 @@ final class MyTest extends \PHPUnit_Framework_TestCase
      */
     protected function applyFix(\SplFileInfo $file, Tokens $tokens)
     {
+        $argumentsAnalyzer = new ArgumentsAnalyzer();
+
         foreach ($this->configuration['assertions'] as $methodBefore) {
             $methodAfter = self::$assertionMap[$methodBefore];
 
@@ -116,6 +119,17 @@ final class MyTest extends \PHPUnit_Framework_TestCase
                 }
 
                 $sequenceIndexes = array_keys($sequence);
+
+                $argumentsCount = $argumentsAnalyzer->countArguments(
+                    $tokens,
+                    $sequenceIndexes[3],
+                    $tokens->findBlockEnd(Tokens::BLOCK_TYPE_PARENTHESIS_BRACE, $sequenceIndexes[3])
+                );
+
+                if (2 !== $argumentsCount && 3 !== $argumentsCount) {
+                    continue;
+                }
+
                 $tokens[$sequenceIndexes[2]] = new Token(array(T_STRING, $methodAfter));
 
                 $index = $sequenceIndexes[3];
@@ -128,14 +142,10 @@ final class MyTest extends \PHPUnit_Framework_TestCase
      */
     protected function createConfigurationDefinition()
     {
-        $generator = new FixerOptionValidatorGenerator();
-
         $assertions = new FixerOptionBuilder('assertions', 'List of assertion methods to fix.');
         $assertions = $assertions
             ->setAllowedTypes(array('array'))
-            ->setAllowedValues(array(
-                $generator->allowedValueIsSubsetOf(array_keys(self::$assertionMap)),
-            ))
+            ->setAllowedValues(array(new AllowedValueSubset(array_keys(self::$assertionMap))))
             ->setDefault(array(
                 'assertAttributeEquals',
                 'assertAttributeNotEquals',

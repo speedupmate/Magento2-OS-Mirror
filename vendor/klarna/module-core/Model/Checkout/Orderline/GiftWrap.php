@@ -24,6 +24,7 @@ use Magento\Sales\Model\Order\Invoice\Item as InvoiceItem;
 use Magento\Sales\Model\Order\Item;
 use Magento\Store\Model\Store;
 use Magento\Tax\Model\Calculation;
+use Klarna\Core\Helper\GiftWrapping;
 
 /**
  * Generate order gift wrapping item details
@@ -42,6 +43,12 @@ class GiftWrap extends AbstractLine
      */
     private $itemType;
 
+
+    /**
+     * @var GiftWrapping
+     */
+    private $giftWrappingHelper;
+
     /**
      * GiftWrap constructor.
      *
@@ -58,10 +65,12 @@ class GiftWrap extends AbstractLine
         ScopeConfigInterface $config,
         DataObjectFactory $dataObjectFactory,
         KlarnaConfig $klarnaConfig,
+        GiftWrapping $giftWrapping,
         $itemType = 'surcharge'
     ) {
         parent::__construct($dataConverter, $calculator, $config, $dataObjectFactory, $klarnaConfig);
         $this->itemType = $itemType;
+        $this->giftWrappingHelper = $giftWrapping;
     }
 
     /**
@@ -171,20 +180,25 @@ class GiftWrap extends AbstractLine
     {
         if ($object->getGwId()) {
             //check gift wrap on quote/object level
-            $taxRate = ($object->getGwBaseTaxAmount() / $object->getGwBasePrice() * 100);
-            $taxAmount = $object->getGwBaseTaxAmount();
+            $store =  $object->getStore();
+            $taxRate = $this->giftWrappingHelper->getGiftWrappingTaxRate($object, $store);
+
+            $totalAmount = $object->getGwBasePrice() * ((100+$taxRate)/100);
+            $taxAmount = $totalAmount * ($taxRate/(100+$taxRate));
+
             if ($this->klarnaConfig->isSeparateTaxLine($store)) {
                 $taxRate = 0;
                 $taxAmount = 0;
+                $totalAmount = $object->getGwBasePrice();
             }
             $_item = [
                 'type'             => $this->getGwItemType(),
                 'reference'        => $object->getGwId(),
                 'name'             => 'Gift Wrapping',
                 'quantity'         => 1,
-                'unit_price'       => $this->helper->toApiFloat($object->getGwBasePrice()),
+                'unit_price'       => $this->helper->toApiFloat($totalAmount),
                 'tax_rate'         => $this->helper->toApiFloat($taxRate),
-                'total_amount'     => $this->helper->toApiFloat($object->getGwBasePrice()),
+                'total_amount'     => $this->helper->toApiFloat($totalAmount),
                 'total_tax_amount' => $this->helper->toApiFloat($taxAmount),
             ];
 

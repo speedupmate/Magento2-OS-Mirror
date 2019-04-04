@@ -15,9 +15,9 @@ namespace Temando\Shipping\Rest\Response\Type\Order;
 class Attributes
 {
     /**
-     * @var string
+     * @var \Temando\Shipping\Rest\Response\Type\Order\Attributes\Fee[]
      */
-    private $createdAt;
+    private $fees = [];
 
     /**
      * @var string
@@ -25,9 +25,9 @@ class Attributes
     private $lastModifiedAt;
 
     /**
-     * @var string
+     * @var \Temando\Shipping\Rest\Response\Type\Generic\MonetaryValue
      */
-    private $orderedAt;
+    private $totalPaid;
 
     /**
      * @var \Temando\Shipping\Rest\Response\Type\Order\Attributes\Source
@@ -35,9 +35,9 @@ class Attributes
     private $source;
 
     /**
-     * @var \Temando\Shipping\Rest\Response\Type\Order\Attributes\Customer
+     * @var \Temando\Shipping\Rest\Response\Type\Generic\Package[]
      */
-    private $customer;
+    private $packages;
 
     /**
      * @var \Temando\Shipping\Rest\Response\Type\Order\Attributes\DeliverTo
@@ -45,14 +45,39 @@ class Attributes
     private $deliverTo;
 
     /**
-     * @var \Temando\Shipping\Rest\Response\Type\Order\Attributes\Item[]
+     * @var string
      */
-    private $items = [];
+    private $orderedAt;
+
+    /**
+     * @var string
+     */
+    private $createdAt;
 
     /**
      * @var \Temando\Shipping\Rest\Response\Type\Generic\MonetaryValue
      */
     private $total;
+
+    /**
+     * @var string
+     */
+    private $originId;
+
+    /**
+     * @var \Temando\Shipping\Rest\Response\Type\Generic\Item[]
+     */
+    private $items = [];
+
+    /**
+     * @var string
+     */
+    private $status;
+
+    /**
+     * @var \Temando\Shipping\Rest\Response\Type\Order\Attributes\Customer
+     */
+    private $customer;
 
     /**
      * @return string
@@ -157,7 +182,7 @@ class Attributes
     }
 
     /**
-     * @return \Temando\Shipping\Rest\Response\Type\Order\Attributes\Item[]
+     * @return \Temando\Shipping\Rest\Response\Type\Generic\Item[]
      */
     public function getItems()
     {
@@ -165,7 +190,7 @@ class Attributes
     }
 
     /**
-     * @param \Temando\Shipping\Rest\Response\Type\Order\Attributes\Item[] $items
+     * @param \Temando\Shipping\Rest\Response\Type\Generic\Item[] $items
      * @return void
      */
     public function setItems(array $items)
@@ -188,5 +213,85 @@ class Attributes
     public function setTotal(\Temando\Shipping\Rest\Response\Type\Generic\MonetaryValue $total)
     {
         $this->total = $total;
+    }
+
+    /**
+     * @return \Temando\Shipping\Rest\Response\Type\Order\Attributes\Fee[]
+     */
+    public function getFees()
+    {
+        return $this->fees;
+    }
+
+    /**
+     * @param \Temando\Shipping\Rest\Response\Type\Order\Attributes\Fee[] $fees
+     */
+    public function setFees(array $fees)
+    {
+        $this->fees = $fees;
+    }
+
+    /**
+     * @return \Temando\Shipping\Rest\Response\Type\Generic\MonetaryValue
+     */
+    public function getTotalPaid()
+    {
+        return $this->totalPaid;
+    }
+
+    /**
+     * @param \Temando\Shipping\Rest\Response\Type\Generic\MonetaryValue $totalPaid
+     */
+    public function setTotalPaid(\Temando\Shipping\Rest\Response\Type\Generic\MonetaryValue $totalPaid)
+    {
+        $this->totalPaid = $totalPaid;
+    }
+
+    /**
+     * @return \Temando\Shipping\Rest\Response\Type\Generic\Package[]
+     */
+    public function getPackages()
+    {
+        return $this->packages;
+    }
+
+    /**
+     * @param \Temando\Shipping\Rest\Response\Type\Generic\Package[] $packages
+     */
+    public function setPackages(array $packages)
+    {
+        $this->packages = $packages;
+    }
+
+    /**
+     * @return string
+     */
+    public function getOriginId()
+    {
+        return $this->originId;
+    }
+
+    /**
+     * @param string $originId
+     */
+    public function setOriginId($originId)
+    {
+        $this->originId = $originId;
+    }
+
+    /**
+     * @return string
+     */
+    public function getStatus()
+    {
+        return $this->status;
+    }
+
+    /**
+     * @param string $status
+     */
+    public function setStatus($status)
+    {
+        $this->status = $status;
     }
 }

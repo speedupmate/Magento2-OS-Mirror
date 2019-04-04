@@ -2,13 +2,15 @@
 /**
  * Refer to LICENSE.txt distributed with the Temando Shipping module for notice of license
  */
-
 namespace Temando\Shipping\Setup;
 
 use Magento\Framework\DB\Adapter\AdapterInterface;
 use Magento\Framework\DB\Ddl\Table;
 use Magento\Framework\Setup\SchemaSetupInterface;
 use Temando\Shipping\Api\Data\Checkout\AddressInterface;
+use Temando\Shipping\Api\Data\CollectionPoint\OrderCollectionPointInterface;
+use Temando\Shipping\Api\Data\CollectionPoint\QuoteCollectionPointInterface;
+use Temando\Shipping\Api\Data\CollectionPoint\SearchRequestInterface;
 use Temando\Shipping\Api\Data\Order\OrderReferenceInterface;
 use Temando\Shipping\Api\Data\Shipment\ShipmentReferenceInterface;
 
@@ -23,20 +25,26 @@ use Temando\Shipping\Api\Data\Shipment\ShipmentReferenceInterface;
  */
 class SetupSchema
 {
-    const TABLE_SHIPMENT         = 'temando_shipment';
-    const TABLE_ORDER            = 'temando_order';
+    const CHECKOUT_CONNECTION_NAME = 'checkout';
+    const SALES_CONNECTION_NAME = 'sales';
+
+    const TABLE_SHIPMENT = 'temando_shipment';
+    const TABLE_ORDER = 'temando_order';
     const TABLE_CHECKOUT_ADDRESS = 'temando_checkout_address';
+    const TABLE_COLLECTION_POINT_SEARCH = 'temando_collection_point_search';
+    const TABLE_QUOTE_COLLECTION_POINT = 'temando_quote_collection_point';
+    const TABLE_ORDER_COLLECTION_POINT = 'temando_order_collection_point';
 
     /**
-     * @param SchemaSetupInterface $installer
+     * @param SchemaSetupInterface|\Magento\Framework\Module\Setup $installer
      *
      * @return void
      * @throws \Zend_Db_Exception
      */
     public function createShipmentTable(SchemaSetupInterface $installer)
     {
-        $table = $installer->getConnection()->newTable(
-            $installer->getTable(self::TABLE_SHIPMENT)
+        $table = $installer->getConnection(self::SALES_CONNECTION_NAME)->newTable(
+            $installer->getTable(self::TABLE_SHIPMENT, self::SALES_CONNECTION_NAME)
         );
 
         $table->addColumn(
@@ -95,7 +103,7 @@ class SetupSchema
                 'entity_id'
             ),
             ShipmentReferenceInterface::SHIPMENT_ID,
-            $installer->getTable('sales_shipment'),
+            $installer->getTable('sales_shipment', self::SALES_CONNECTION_NAME),
             'entity_id',
             Table::ACTION_CASCADE
         );
@@ -114,19 +122,19 @@ class SetupSchema
             'Temando Shipment'
         );
 
-        $installer->getConnection()->createTable($table);
+        $installer->getConnection(self::SALES_CONNECTION_NAME)->createTable($table);
     }
 
     /**
-     * @param SchemaSetupInterface $installer
+     * @param SchemaSetupInterface|\Magento\Framework\Module\Setup $installer
      *
      * @return void
      * @throws \Zend_Db_Exception
      */
     public function createOrderTable(SchemaSetupInterface $installer)
     {
-        $table = $installer->getConnection()->newTable(
-            $installer->getTable(self::TABLE_ORDER)
+        $table = $installer->getConnection(self::SALES_CONNECTION_NAME)->newTable(
+            $installer->getTable(self::TABLE_ORDER, self::SALES_CONNECTION_NAME)
         );
 
         $table->addColumn(
@@ -161,7 +169,7 @@ class SetupSchema
                 'entity_id'
             ),
             OrderReferenceInterface::ORDER_ID,
-            $installer->getTable('sales_order'),
+            $installer->getTable('sales_order', self::SALES_CONNECTION_NAME),
             'entity_id',
             Table::ACTION_CASCADE
         );
@@ -170,19 +178,19 @@ class SetupSchema
             'Temando Order'
         );
 
-        $installer->getConnection()->createTable($table);
+        $installer->getConnection(self::SALES_CONNECTION_NAME)->createTable($table);
     }
 
     /**
-     * @param SchemaSetupInterface $installer
+     * @param SchemaSetupInterface|\Magento\Framework\Module\Setup $installer
      *
      * @return void
      * @throws \Zend_Db_Exception
      */
     public function createAddressTable(SchemaSetupInterface $installer)
     {
-        $table = $installer->getConnection()->newTable(
-            $installer->getTable(self::TABLE_CHECKOUT_ADDRESS)
+        $table = $installer->getConnection(self::CHECKOUT_CONNECTION_NAME)->newTable(
+            $installer->getTable(self::TABLE_CHECKOUT_ADDRESS, self::CHECKOUT_CONNECTION_NAME)
         );
 
         $table->addColumn(
@@ -217,7 +225,7 @@ class SetupSchema
                 'address_id'
             ),
             AddressInterface::SHIPPING_ADDRESS_ID,
-            $installer->getTable('quote_address'),
+            $installer->getTable('quote_address', self::CHECKOUT_CONNECTION_NAME),
             'address_id',
             Table::ACTION_CASCADE
         );
@@ -226,18 +234,18 @@ class SetupSchema
             'Temando Checkout Address'
         );
 
-        $installer->getConnection()->createTable($table);
+        $installer->getConnection(self::CHECKOUT_CONNECTION_NAME)->createTable($table);
     }
 
     /**
-     * @param SchemaSetupInterface $installer
+     * @param SchemaSetupInterface|\Magento\Framework\Module\Setup $installer
      *
      * @return void
      */
     public function setShipmentOriginLocationNullable(SchemaSetupInterface $installer)
     {
-        $tableName = $installer->getTable(self::TABLE_SHIPMENT);
-        $installer->getConnection()->modifyColumn(
+        $tableName = $installer->getTable(self::TABLE_SHIPMENT, self::SALES_CONNECTION_NAME);
+        $installer->getConnection(self::SALES_CONNECTION_NAME)->modifyColumn(
             $tableName,
             ShipmentReferenceInterface::EXT_LOCATION_ID,
             [
@@ -246,5 +254,295 @@ class SetupSchema
                 'nullable' => true,
             ]
         );
+    }
+
+    /**
+     * @param SchemaSetupInterface|\Magento\Framework\Module\Setup $installer
+     *
+     * @return void
+     * @throws \Zend_Db_Exception
+     */
+    public function createCollectionPointSearchTable(SchemaSetupInterface $installer)
+    {
+        $table = $installer->getConnection(self::CHECKOUT_CONNECTION_NAME)->newTable(
+            $installer->getTable(self::TABLE_COLLECTION_POINT_SEARCH, self::CHECKOUT_CONNECTION_NAME)
+        );
+
+        $table->addColumn(
+            SearchRequestInterface::SHIPPING_ADDRESS_ID,
+            Table::TYPE_INTEGER,
+            10,
+            ['unsigned' => true, 'nullable' => false, 'primary' => true],
+            'Entity Id'
+        );
+
+        $table->addColumn(
+            SearchRequestInterface::COUNTRY_ID,
+            Table::TYPE_TEXT,
+            2,
+            ['nullable' => false],
+            'Country Code'
+        );
+
+        $table->addColumn(
+            SearchRequestInterface::POSTCODE,
+            Table::TYPE_TEXT,
+            255,
+            ['nullable' => false],
+            'Zip/Postal Code'
+        );
+
+        $table->addForeignKey(
+            $installer->getFkName(
+                self::TABLE_COLLECTION_POINT_SEARCH,
+                SearchRequestInterface::SHIPPING_ADDRESS_ID,
+                'quote_address',
+                'address_id'
+            ),
+            SearchRequestInterface::SHIPPING_ADDRESS_ID,
+            $installer->getTable('quote_address', self::CHECKOUT_CONNECTION_NAME),
+            'address_id',
+            Table::ACTION_CASCADE
+        );
+
+        $countryTable = $installer->getTable('directory_country', self::CHECKOUT_CONNECTION_NAME);
+        if ($installer->tableExists($countryTable, self::CHECKOUT_CONNECTION_NAME)) {
+            $table->addForeignKey(
+                $installer->getFkName(
+                    self::TABLE_COLLECTION_POINT_SEARCH,
+                    SearchRequestInterface::COUNTRY_ID,
+                    'directory_country',
+                    'country_id'
+                ),
+                SearchRequestInterface::COUNTRY_ID,
+                $countryTable,
+                'country_id',
+                Table::ACTION_NO_ACTION
+            );
+        }
+
+        $table->setComment('Collection Point Search');
+
+        $installer->getConnection(self::CHECKOUT_CONNECTION_NAME)->createTable($table);
+    }
+
+    /**
+     * @param SchemaSetupInterface|\Magento\Framework\Module\Setup $installer
+     *
+     * @return void
+     * @throws \Zend_Db_Exception
+     */
+    public function createQuoteCollectionPointTable(SchemaSetupInterface $installer)
+    {
+        $table = $installer->getConnection(self::CHECKOUT_CONNECTION_NAME)->newTable(
+            $installer->getTable(self::TABLE_QUOTE_COLLECTION_POINT, self::CHECKOUT_CONNECTION_NAME)
+        );
+
+        $table->addColumn(
+            QuoteCollectionPointInterface::ENTITY_ID,
+            Table::TYPE_INTEGER,
+            null,
+            ['identity' => true, 'unsigned' => true, 'nullable' => false, 'primary' => true],
+            'Entity Id'
+        );
+
+        $table->addColumn(
+            QuoteCollectionPointInterface::RECIPIENT_ADDRESS_ID,
+            Table::TYPE_INTEGER,
+            null,
+            ['unsigned' => true, 'nullable' => false],
+            'Quote Address Id'
+        );
+
+        $table->addColumn(
+            QuoteCollectionPointInterface::COLLECTION_POINT_ID,
+            Table::TYPE_TEXT,
+            64,
+            ['nullable' => false],
+            'Collection Point Id'
+        );
+
+        $table->addColumn(
+            QuoteCollectionPointInterface::NAME,
+            Table::TYPE_TEXT,
+            255,
+            [],
+            'Name'
+        );
+
+        $table->addColumn(
+            QuoteCollectionPointInterface::COUNTRY,
+            Table::TYPE_TEXT,
+            2,
+            ['nullable' => false],
+            'Country Code'
+        );
+
+        $table->addColumn(
+            QuoteCollectionPointInterface::REGION,
+            Table::TYPE_TEXT,
+            255,
+            ['nullable' => false],
+            'Region'
+        );
+
+        $table->addColumn(
+            QuoteCollectionPointInterface::POSTCODE,
+            Table::TYPE_TEXT,
+            255,
+            ['nullable' => false],
+            'Zip/Postal Code'
+        );
+
+        $table->addColumn(
+            QuoteCollectionPointInterface::CITY,
+            Table::TYPE_TEXT,
+            255,
+            ['nullable' => false],
+            'City'
+        );
+
+        $table->addColumn(
+            QuoteCollectionPointInterface::STREET,
+            Table::TYPE_TEXT,
+            null,
+            ['nullable' => false],
+            'Street'
+        );
+
+        $table->addColumn(
+            QuoteCollectionPointInterface::OPENING_HOURS,
+            Table::TYPE_TEXT,
+            null,
+            ['nullable' => false],
+            'Opening Hours'
+        );
+
+        $table->addColumn(
+            QuoteCollectionPointInterface::SHIPPING_EXPERIENCES,
+            Table::TYPE_TEXT,
+            null,
+            ['nullable' => false],
+            'Shipping Experiences'
+        );
+
+        $table->addColumn(
+            QuoteCollectionPointInterface::SELECTED,
+            Table::TYPE_SMALLINT,
+            null,
+            ['unsigned' => true, 'nullable' => false, 'default' => 0],
+            'Is Selected'
+        );
+
+        $table->addForeignKey(
+            $installer->getFkName(
+                self::TABLE_QUOTE_COLLECTION_POINT,
+                QuoteCollectionPointInterface::RECIPIENT_ADDRESS_ID,
+                self::TABLE_COLLECTION_POINT_SEARCH,
+                SearchRequestInterface::SHIPPING_ADDRESS_ID
+            ),
+            QuoteCollectionPointInterface::RECIPIENT_ADDRESS_ID,
+            $installer->getTable(self::TABLE_COLLECTION_POINT_SEARCH, self::CHECKOUT_CONNECTION_NAME),
+            SearchRequestInterface::SHIPPING_ADDRESS_ID,
+            Table::ACTION_CASCADE
+        );
+
+        $table->setComment('Quote Collection Point Entity');
+
+        $installer->getConnection(self::CHECKOUT_CONNECTION_NAME)->createTable($table);
+    }
+
+    /**
+     * @param SchemaSetupInterface|\Magento\Framework\Module\Setup $installer
+     *
+     * @return void
+     * @throws \Zend_Db_Exception
+     */
+    public function createOrderCollectionPointTable(SchemaSetupInterface $installer)
+    {
+        $table = $installer->getConnection(self::SALES_CONNECTION_NAME)->newTable(
+            $installer->getTable(self::TABLE_ORDER_COLLECTION_POINT, self::SALES_CONNECTION_NAME)
+        );
+
+        $table->addColumn(
+            OrderCollectionPointInterface::RECIPIENT_ADDRESS_ID,
+            Table::TYPE_INTEGER,
+            null,
+            ['unsigned' => true, 'nullable' => false, 'primary' => true],
+            'Entity Id'
+        );
+
+        $table->addColumn(
+            OrderCollectionPointInterface::COLLECTION_POINT_ID,
+            Table::TYPE_TEXT,
+            64,
+            ['nullable' => false],
+            'Collection Point Id'
+        );
+
+        $table->addColumn(
+            OrderCollectionPointInterface::NAME,
+            Table::TYPE_TEXT,
+            255,
+            [],
+            'Name'
+        );
+
+        $table->addColumn(
+            OrderCollectionPointInterface::COUNTRY,
+            Table::TYPE_TEXT,
+            2,
+            ['nullable' => false],
+            'Country Code'
+        );
+
+        $table->addColumn(
+            OrderCollectionPointInterface::REGION,
+            Table::TYPE_TEXT,
+            255,
+            ['nullable' => false],
+            'Region'
+        );
+
+        $table->addColumn(
+            OrderCollectionPointInterface::POSTCODE,
+            Table::TYPE_TEXT,
+            255,
+            ['nullable' => false],
+            'Zip/Postal Code'
+        );
+
+        $table->addColumn(
+            OrderCollectionPointInterface::CITY,
+            Table::TYPE_TEXT,
+            255,
+            ['nullable' => false],
+            'City'
+        );
+
+        $table->addColumn(
+            OrderCollectionPointInterface::STREET,
+            Table::TYPE_TEXT,
+            null,
+            ['nullable' => false],
+            'Street'
+        );
+
+        $table->addForeignKey(
+            $installer->getFkName(
+                self::TABLE_QUOTE_COLLECTION_POINT,
+                OrderCollectionPointInterface::RECIPIENT_ADDRESS_ID,
+                'sales_order_address',
+                'entity_id'
+            ),
+            OrderCollectionPointInterface::RECIPIENT_ADDRESS_ID,
+            $installer->getTable('sales_order_address', self::SALES_CONNECTION_NAME),
+            'entity_id',
+            Table::ACTION_CASCADE
+        );
+
+        $table->setComment('Order Collection Point Entity');
+
+        $installer->getConnection(self::SALES_CONNECTION_NAME)->createTable($table);
     }
 }

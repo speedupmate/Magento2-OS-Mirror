@@ -88,7 +88,9 @@ class Items extends AbstractLine
     private function getItem($item)
     {
         if ($item instanceof InvoiceItem || $item instanceof CreditMemoItem) {
-            return $item->getOrderItem();
+            $orderItem =  $item->getOrderItem();
+            $orderItem->setCurrentInvoiceRefundItemQty($item->getQty());
+            return $orderItem;
         }
 
         return $item;
@@ -143,7 +145,7 @@ class Items extends AbstractLine
             'type'          => $item->getIsVirtual() ? self::ITEM_TYPE_VIRTUAL : self::ITEM_TYPE_PHYSICAL,
             'reference'     => substr($item->getSku(), 0, 64),
             'name'          => $item->getName(),
-            'quantity'      => ceil($item->getQty() * $qtyMultiplier),
+            'quantity'      => ceil($this->getItemQty($item) * $qtyMultiplier),
             'discount_rate' => 0,
             'product_url'   => $productUrl,
             'image_url'     => $imageUrl
@@ -186,6 +188,21 @@ class Items extends AbstractLine
         }
         $baseUrl = $product->getStore()->getBaseUrl(UrlInterface::URL_TYPE_MEDIA);
         return $baseUrl . 'catalog/product' . $product->getSmallImage();
+    }
+
+    /**
+     * @param QuoteItem|InvoiceItem|CreditMemoItem $item
+     * @return int
+     */
+    private function getItemQty($item)
+    {
+        $methods = ['getQty', 'getCurrentInvoiceRefundItemQty', 'getQtyOrdered'];
+        foreach ($methods as $method) {
+            if ($item->$method() !== null) {
+                return $item->$method();
+            }
+        }
+        return 0;
     }
 
     /**

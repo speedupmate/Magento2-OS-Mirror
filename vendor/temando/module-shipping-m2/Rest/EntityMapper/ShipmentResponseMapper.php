@@ -4,26 +4,25 @@
  */
 namespace Temando\Shipping\Rest\EntityMapper;
 
-use Temando\Shipping\Model\DocumentationCollection;
-use Temando\Shipping\Model\DocumentationCollectionFactory;
+use Temando\Shipping\Model\DocumentationInterface;
 use Temando\Shipping\Model\Shipment\CapabilityInterface;
 use Temando\Shipping\Model\Shipment\CapabilityInterfaceFactory;
 use Temando\Shipping\Model\Shipment\ExportDeclarationInterface;
 use Temando\Shipping\Model\Shipment\ExportDeclarationInterfaceFactory;
 use Temando\Shipping\Model\Shipment\FulfillmentInterface;
 use Temando\Shipping\Model\Shipment\FulfillmentInterfaceFactory;
+use Temando\Shipping\Model\Shipment\LocationInterface;
+use Temando\Shipping\Model\Shipment\LocationInterfaceFactory;
+use Temando\Shipping\Model\Shipment\PackageInterface;
+use Temando\Shipping\Model\Shipment\ShipmentItemInterface;
+use Temando\Shipping\Model\Shipment\ShipmentItemInterfaceFactory;
 use Temando\Shipping\Model\ShipmentInterface;
 use Temando\Shipping\Model\ShipmentInterfaceFactory;
-use Temando\Shipping\Model\Shipment\PackageCollection;
-use Temando\Shipping\Model\Shipment\PackageCollectionFactory;
-use Temando\Shipping\Model\Shipment\ShipmentOriginInterface;
-use Temando\Shipping\Model\Shipment\ShipmentOriginInterfaceFactory;
-use Temando\Shipping\Model\Shipment\ShipmentDestinationInterface;
-use Temando\Shipping\Model\Shipment\ShipmentDestinationInterfaceFactory;
-use Temando\Shipping\Rest\Response\Type\Shipment\Attributes\Destination;
+use Temando\Shipping\Rest\Response\Type\Generic\Documentation;
+use Temando\Shipping\Rest\Response\Type\Generic\Item;
+use Temando\Shipping\Rest\Response\Type\Generic\Location;
+use Temando\Shipping\Rest\Response\Type\Generic\Package;
 use Temando\Shipping\Rest\Response\Type\Shipment\Attributes\Fulfill;
-use Temando\Shipping\Rest\Response\Type\Shipment\Attributes\Origin;
-use Temando\Shipping\Rest\Response\Type\Shipment\Attributes\Package;
 use Temando\Shipping\Rest\Response\Type\ShipmentResponseType;
 
 /**
@@ -43,14 +42,9 @@ class ShipmentResponseMapper
     private $shipmentFactory;
 
     /**
-     * @var ShipmentOriginInterfaceFactory
+     * @var LocationInterfaceFactory
      */
-    private $originFactory;
-
-    /**
-     * @var ShipmentDestinationInterfaceFactory
-     */
-    private $destinationFactory;
+    private $locationFactory;
 
     /**
      * @var FulfillmentInterfaceFactory
@@ -58,24 +52,19 @@ class ShipmentResponseMapper
     private $fulfillmentFactory;
 
     /**
+     * @var ShipmentItemInterfaceFactory
+     */
+    private $shipmentItemFactory;
+
+    /**
      * @var ExportDeclarationInterfaceFactory
      */
     private $exportDeclarationFactory;
 
     /**
-     * @var PackageCollectionFactory
-     */
-    private $packageCollectionFactory;
-
-    /**
      * @var PackageResponseMapper
      */
     private $packageMapper;
-
-    /**
-     * @var DocumentationCollectionFactory
-     */
-    private $documentationCollectionFactory;
 
     /**
      * @var DocumentationResponseMapper
@@ -90,110 +79,93 @@ class ShipmentResponseMapper
     /**
      * ShipmentResponseMapper constructor.
      * @param ShipmentInterfaceFactory $shipmentFactory
-     * @param ShipmentOriginInterfaceFactory $originFactory
-     * @param ShipmentDestinationInterfaceFactory $destinationFactory
+     * @param LocationInterfaceFactory $locationFactory
      * @param FulfillmentInterfaceFactory $fulfillmentFactory
-     * @param PackageCollectionFactory $packageCollectionFactory
+     * @param ShipmentItemInterfaceFactory $shipmentItemFactory
      * @param ExportDeclarationInterfaceFactory $exportDeclarationFactory,
      * @param PackageResponseMapper $packageMapper
-     * @param DocumentationCollectionFactory $documentationCollectionFactory
      * @param DocumentationResponseMapper $documentationMapper
      * @param CapabilityInterfaceFactory $capabilityFactory
      */
     public function __construct(
         ShipmentInterfaceFactory $shipmentFactory,
-        ShipmentOriginInterfaceFactory $originFactory,
-        ShipmentDestinationInterfaceFactory $destinationFactory,
+        LocationInterfaceFactory $locationFactory,
         FulfillmentInterfaceFactory $fulfillmentFactory,
-        PackageCollectionFactory $packageCollectionFactory,
+        ShipmentItemInterfaceFactory $shipmentItemFactory,
         ExportDeclarationInterfaceFactory $exportDeclarationFactory,
         PackageResponseMapper $packageMapper,
-        DocumentationCollectionFactory $documentationCollectionFactory,
         DocumentationResponseMapper $documentationMapper,
         CapabilityInterfaceFactory $capabilityFactory
     ) {
         $this->shipmentFactory = $shipmentFactory;
-        $this->originFactory = $originFactory;
-        $this->destinationFactory = $destinationFactory;
+        $this->locationFactory = $locationFactory;
         $this->fulfillmentFactory = $fulfillmentFactory;
-        $this->packageCollectionFactory = $packageCollectionFactory;
+        $this->shipmentItemFactory = $shipmentItemFactory;
         $this->exportDeclarationFactory = $exportDeclarationFactory;
         $this->packageMapper = $packageMapper;
-        $this->documentationCollectionFactory = $documentationCollectionFactory;
         $this->documentationMapper = $documentationMapper;
         $this->capabilityFactory = $capabilityFactory;
     }
 
     /**
-     * @param Origin $origin
-     * @return ShipmentOriginInterface
+     * @param Location $apiLocation
+     * @return LocationInterface
      */
-    private function mapOriginLocation(Origin $origin)
+    private function mapLocation(Location $apiLocation)
     {
-        $originLocation = $this->originFactory->create(['data' => [
-            ShipmentOriginInterface::COMPANY => $origin->getContact()->getOrganisationName(),
-            ShipmentOriginInterface::PERSON_FIRST_NAME => $origin->getContact()->getPersonFirstName(),
-            ShipmentOriginInterface::PERSON_LAST_NAME => $origin->getContact()->getPersonLastName(),
-            ShipmentOriginInterface::EMAIL => $origin->getContact()->getEmail(),
-            ShipmentOriginInterface::PHONE_NUMBER => $origin->getContact()->getPhoneNumber(),
-            ShipmentOriginInterface::STREET => $origin->getAddress()->getLines(),
-            ShipmentOriginInterface::CITY => $origin->getAddress()->getLocality(),
-            ShipmentOriginInterface::POSTAL_CODE => $origin->getAddress()->getPostalCode(),
-            ShipmentOriginInterface::REGION_CODE => $origin->getAddress()->getAdministrativeArea(),
-            ShipmentOriginInterface::COUNTRY_CODE => $origin->getAddress()->getCountryCode(),
+        $location = $this->locationFactory->create(['data' => [
+            LocationInterface::COMPANY => $apiLocation->getContact()->getOrganisationName(),
+            LocationInterface::PERSON_FIRST_NAME => $apiLocation->getContact()->getPersonFirstName(),
+            LocationInterface::PERSON_LAST_NAME => $apiLocation->getContact()->getPersonLastName(),
+            LocationInterface::EMAIL => $apiLocation->getContact()->getEmail(),
+            LocationInterface::PHONE_NUMBER => $apiLocation->getContact()->getPhoneNumber(),
+            LocationInterface::STREET => $apiLocation->getAddress()->getLines(),
+            LocationInterface::CITY => $apiLocation->getAddress()->getLocality(),
+            LocationInterface::POSTAL_CODE => $apiLocation->getAddress()->getPostalCode(),
+            LocationInterface::REGION_CODE => $apiLocation->getAddress()->getAdministrativeArea(),
+            LocationInterface::COUNTRY_CODE => $apiLocation->getAddress()->getCountryCode(),
+            LocationInterface::TYPE => $apiLocation->getAddress()->getType(),
         ]]);
 
-        return $originLocation;
+        return $location;
     }
 
     /**
-     * @param Destination $destination
-     * @return ShipmentDestinationInterface
+     * @param Item[] $apiItems
+     * @return ShipmentItemInterface[]
      */
-    private function mapDestinationLocation(Destination $destination)
+    private function mapItems(array $apiItems)
     {
-        $destinationLocation = $this->destinationFactory->create(['data' => [
-            ShipmentDestinationInterface::COMPANY => $destination->getContact()->getOrganisationName(),
-            ShipmentDestinationInterface::PERSON_FIRST_NAME => $destination->getContact()->getPersonFirstName(),
-            ShipmentDestinationInterface::PERSON_LAST_NAME => $destination->getContact()->getPersonLastName(),
-            ShipmentDestinationInterface::EMAIL => $destination->getContact()->getEmail(),
-            ShipmentDestinationInterface::PHONE_NUMBER => $destination->getContact()->getPhoneNumber(),
-            ShipmentDestinationInterface::STREET => $destination->getAddress()->getLines(),
-            ShipmentDestinationInterface::CITY => $destination->getAddress()->getLocality(),
-            ShipmentDestinationInterface::POSTAL_CODE => $destination->getAddress()->getPostalCode(),
-            ShipmentDestinationInterface::REGION_CODE => $destination->getAddress()->getAdministrativeArea(),
-            ShipmentDestinationInterface::COUNTRY_CODE => $destination->getAddress()->getCountryCode(),
-            ShipmentDestinationInterface::TYPE => $destination->getAddress()->getType(),
-        ]]);
+        $shipmentItems = array_map(function (Item $apiItem) {
+            return $this->shipmentItemFactory->create(['data' => [
+                ShipmentItemInterface::QTY => $apiItem->getQuantity(),
+                ShipmentItemInterface::SKU => $apiItem->getProduct()->getSku(),
+            ]]);
+        }, $apiItems);
 
-        return $destinationLocation;
+        return $shipmentItems;
     }
 
     /**
      * @param Package[] $apiPackages
-     * @return PackageCollection
+     * @return PackageInterface[]
      */
     private function mapPackages(array $apiPackages)
     {
-        $packageCollection = $this->packageCollectionFactory->create();
-
         // map collected packages
-        foreach ($apiPackages as $apiPackage) {
-            $package = $this->packageMapper->map($apiPackage);
-            $packageCollection->offsetSet($package->getPackageId(), $package);
-        }
+        $packages = array_map(function (Package $apiPackage) {
+            return $this->packageMapper->map($apiPackage);
+        }, $apiPackages);
 
-        return $packageCollection;
+        return $packages;
     }
 
     /**
      * @param ShipmentResponseType $apiShipment
-     * @return DocumentationCollection
+     * @return DocumentationInterface[]
      */
     private function mapDocumentation(ShipmentResponseType $apiShipment)
     {
-        $documentationCollection = $this->documentationCollectionFactory->create();
-
         // collect documentation from shipment and packages
         $apiDocs = $apiShipment->getAttributes()->getDocumentation();
         foreach ($apiShipment->getAttributes()->getPackages() as $package) {
@@ -203,12 +175,11 @@ class ShipmentResponseMapper
         }
 
         // map collected documentation
-        foreach ($apiDocs as $apiDoc) {
-            $documentation = $this->documentationMapper->map($apiDoc);
-            $documentationCollection->offsetSet($documentation->getDocumentationId(), $documentation);
-        }
+        $documentation = array_map(function (Documentation $apiDoc) {
+            return $this->documentationMapper->map($apiDoc);
+        }, $apiDocs);
 
-        return $documentationCollection;
+        return $documentation;
     }
 
     /**
@@ -258,7 +229,7 @@ class ShipmentResponseMapper
 
         $exportDeclaration->setData(
             ExportDeclarationInterface::IS_DUTIABLE,
-            $apiShipment->getAttributes()->isDutiable()
+            $apiShipment->getAttributes()->getIsDutiable()
         );
 
         $declaredValue = sprintf(
@@ -374,18 +345,27 @@ class ShipmentResponseMapper
         $exportDeclaration   = $this->mapExportDeclaration($apiShipment);
 
         $shipmentFulfillment = $this->mapFulfillment($apiShipment->getAttributes()->getFulfill());
-        $originLocation      = $this->mapOriginLocation($apiShipment->getAttributes()->getOrigin());
-        $destinationLocation = $this->mapDestinationLocation($apiShipment->getAttributes()->getDestination());
+        $origin              = $this->mapLocation($apiShipment->getAttributes()->getOrigin());
+        $destination         = $this->mapLocation($apiShipment->getAttributes()->getDestination());
+        $items               = $this->mapItems($apiShipment->getAttributes()->getItems());
         $packages            = $this->mapPackages($apiShipment->getAttributes()->getPackages());
         $capabilities        = $this->mapCapabilities($apiShipment->getAttributes()->getCapabilities());
+
+        if (!$apiShipment->getAttributes()->getFinalRecipient()) {
+            $finalRecipient = null;
+        } else {
+            $finalRecipient = $this->mapLocation($apiShipment->getAttributes()->getFinalRecipient());
+        }
 
         $shipment = $this->shipmentFactory->create(['data' => [
             ShipmentInterface::SHIPMENT_ID => $shipmentId,
             ShipmentInterface::ORDER_ID => $shipmentOrderId,
             ShipmentInterface::ORIGIN_ID => $shipmentOriginId,
-            ShipmentInterface::ORIGIN_LOCATION => $originLocation,
-            ShipmentInterface::DESTINATION_LOCATION => $destinationLocation,
+            ShipmentInterface::ORIGIN_LOCATION => $origin,
+            ShipmentInterface::DESTINATION_LOCATION => $destination,
+            ShipmentInterface::FINAL_RECIPIENT_LOCATION => $finalRecipient,
             ShipmentInterface::FULFILLMENT => $shipmentFulfillment,
+            ShipmentInterface::ITEMS => $items,
             ShipmentInterface::PACKAGES => $packages,
             ShipmentInterface::DOCUMENTATION => $documentation,
             ShipmentInterface::IS_PAPERLESS => $isPaperless,

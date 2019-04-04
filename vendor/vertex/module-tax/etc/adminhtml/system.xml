@@ -20,12 +20,11 @@
                     <comment><![CDATA[API credentials status]]></comment>
                 </field>
                 <field id="api_url" translate="label" type="text" sortOrder="20" showInDefault="1" showInWebsite="1" showInStore="0">
-                    <label>Vertex Calculation API Url.</label>
+                    <label>Vertex Calculation API Url</label>
                     <validate>required-entry</validate>
                     <depends>
                         <field id="enable_vertex">1</field>
                     </depends>
-                    <comment><![CDATA[API credentials status]]></comment>
                 </field>
                 <field id="address_api_url" translate="label" type="text" sortOrder="30" showInDefault="1" showInWebsite="1" showInStore="0">
                     <label>Vertex Address Validation API Url</label>
@@ -33,7 +32,6 @@
                     <depends>
                         <field id="enable_vertex">1</field>
                     </depends>
-                    <comment><![CDATA[Vertex Address Validation API Url.]]></comment>
                 </field>
                 <field id="trustedId" translate="label" type="text" sortOrder="40" showInDefault="1" showInWebsite="1" showInStore="0">
                     <label>Vertex Trusted Id</label>
@@ -52,6 +50,7 @@
                     <comment><![CDATA[Please select when tax should be invoiced to Vertex]]></comment>
                 </field>
                 <field id="invoice_order_status" translate="label" type="select" sortOrder="60" showInDefault="1" showInWebsite="1" showInStore="0">
+                    <validate>required-entry</validate>
                     <label>Invoice When Order Status</label>
                     <depends>
                         <field id="enable_vertex">1</field>
@@ -67,29 +66,12 @@
                         <field id="enable_vertex">1</field>
                     </depends>
                 </field>
-
                 <field id="valadtion_function" translate="label" type="text" sortOrder="62" showInDefault="1" showInWebsite="1" showInStore="0">
                     <validate>required-entry</validate>
                     <label>Vertex Validation Function</label>
                     <depends>
                         <field id="enable_vertex">1</field>
                     </depends>
-                </field>
-                <field id="allow_cart_request" translate="label" type="select" sortOrder="70" showInDefault="1" showInWebsite="1" showInStore="0">
-                    <label>Allow tax quote request at shopping cart page</label>
-                    <depends>
-                        <field id="enable_vertex">1</field>
-                    </depends>
-                    <source_model>Magento\Config\Model\Config\Source\Yesno</source_model>
-                    <comment><![CDATA[Allowing quote request on cart page may affect number of requests.]]></comment>
-                </field>
-                <field id="show_manual_button" translate="label" type="select" sortOrder="80" showInDefault="1" showInWebsite="0" showInStore="0">
-                    <label>Show Manual Invoice Button</label>
-                    <depends>
-                        <field id="enable_vertex">1</field>
-                    </depends>
-                    <source_model>Magento\Config\Model\Config\Source\Yesno</source_model>
-                    <comment><![CDATA[Enabeling this option may affect usual invoice workflow. Please use it only for debug/development purposes.]]></comment>
                 </field>
             </group>
             <group id="vertex_seller_info" translate="label" sortOrder="3" showInDefault="1" showInWebsite="1" showInStore="1">
@@ -142,16 +124,16 @@
             <group id="classes">
                 <label>Vertex Tax Classes</label>
                 <comment><![CDATA[<p class="message message-notification">You can manage customer and product tax classes at Sales->Tax menu</p>]]></comment>
-                <field id="shipping_tax_class" translate="label" type="select" sortOrder="10" showInDefault="1" showInWebsite="1" showInStore="1" canRestore="1">
+                <field id="shipping_tax_class" translate="label" type="select" sortOrder="10" showInDefault="1" showInWebsite="1" showInStore="1">
                     <label>Tax Class for Shipping</label>
                     <source_model>Magento\Tax\Model\TaxClass\Source\Product</source_model>
                 </field>
-                <field id="default_product_tax_class" translate="label" type="select" sortOrder="20" showInDefault="1" showInWebsite="1" showInStore="1" canRestore="1">
+                <field id="default_product_tax_class" translate="label" type="select" sortOrder="20" showInDefault="1" showInWebsite="1" showInStore="1">
                     <label>Default Tax Class for Product</label>
                     <source_model>Magento\Tax\Model\TaxClass\Source\Product</source_model>
                     <backend_model>Magento\Tax\Model\Config\TaxClass</backend_model>
                 </field>
-                <field id="default_customer_tax_class" translate="label" type="select" sortOrder="30" showInDefault="1" showInWebsite="1" showInStore="1" canRestore="1">
+                <field id="default_customer_tax_class" translate="label" type="select" sortOrder="30" showInDefault="1" showInWebsite="1" showInStore="1">
                     <label>Default Tax Class for Customer</label>
                     <source_model>Magento\Tax\Model\TaxClass\Source\Customer</source_model>
                 </field>

@@ -5,7 +5,6 @@
 namespace Temando\Shipping\Model\ResourceModel\Order;
 
 use Magento\Framework\Api\SearchCriteriaBuilder;
-use Magento\Framework\EntityManager\EntityManager;
 use Magento\Framework\Exception\CouldNotSaveException;
 use Magento\Framework\Exception\NoSuchEntityException;
 use Magento\Framework\Session\SessionManagerInterface;
@@ -146,19 +145,17 @@ class OrderRepositoryTest extends \PHPUnit\Framework\TestCase
             OrderReferenceInterface::EXT_ORDER_ID => $extOrderId,
         ]]);
 
-        $entityManagerMock = $this->getMockBuilder(EntityManager::class)
+        $resourceModelMock = $this->getMockBuilder(OrderReference::class)
             ->setMethods(['load', 'save', 'delete'])
             ->disableOriginalConstructor()
             ->getMock();
-        $entityManagerMock->expects($this->once())
+        $resourceModelMock->expects($this->once())
             ->method('save')
-            ->willReturn($orderReference);
-        $resourceModel = Bootstrap::getObjectManager()->create(OrderReference::class, [
-            'entityManager' => $entityManagerMock,
-        ]);
+            ->willReturnSelf();
+
         /** @var OrderRepositoryInterface $orderRepository */
         $orderRepository = Bootstrap::getObjectManager()->create(OrderRepositoryInterface::class, [
-            'resource' => $resourceModel,
+            'resource' => $resourceModelMock,
         ]);
 
         $orderRepository->saveReference($orderReference);
@@ -171,7 +168,7 @@ class OrderRepositoryTest extends \PHPUnit\Framework\TestCase
     {
         $orderId = 303;
         $extOrderId = 'xxx';
-        $message = 'Error Foo!';
+        $message = 'Unable to save order reference.';
 
         $this->expectException(CouldNotSaveException::class);
         $this->expectExceptionMessage($message);
@@ -181,19 +178,16 @@ class OrderRepositoryTest extends \PHPUnit\Framework\TestCase
             OrderReferenceInterface::EXT_ORDER_ID => $extOrderId,
         ]]);
 
-        $entityManagerMock = $this->getMockBuilder(EntityManager::class)
+        $resourceModelMock = $this->getMockBuilder(OrderReference::class)
             ->setMethods(['load', 'save', 'delete'])
             ->disableOriginalConstructor()
             ->getMock();
-        $entityManagerMock->expects($this->once())
+        $resourceModelMock->expects($this->once())
             ->method('save')
-            ->willThrowException(new \LogicException($message));
-        $resourceModel = Bootstrap::getObjectManager()->create(OrderReference::class, [
-            'entityManager' => $entityManagerMock,
-        ]);
+            ->willThrowException(new \Exception($message));
         /** @var OrderRepositoryInterface $orderRepository */
         $orderRepository = Bootstrap::getObjectManager()->create(OrderRepositoryInterface::class, [
-            'resource' => $resourceModel,
+            'resource' => $resourceModelMock,
         ]);
 
         $orderRepository->saveReference($orderReference);

@@ -13,6 +13,8 @@ use Vertex\Tax\Model\Config;
  */
 class Seller
 {
+    private $cache = [];
+
     /** @var Config */
     private $config;
 
@@ -42,22 +44,33 @@ class Seller
      */
     public function getFormattedSellerData($store = null)
     {
-        $data = [];
+        $cacheId = "_{$store}";
 
-        $address = $this->addressFormatter->getFormattedAddressData(
-            [
-                $this->config->getCompanyStreet1($store),
-                $this->config->getCompanyStreet2($store)
-            ],
-            $this->config->getCompanyCity($store),
-            $this->config->getCompanyRegionId($store),
-            $this->config->getCompanyPostalCode($store),
-            $this->config->getCompanyCountry($store)
-        );
+        if (empty($this->cache[$cacheId])) {
+            $data = [];
 
-        $data['Company'] = $this->config->getCompanyCode();
-        $data['PhysicalOrigin'] = $address;
+            $address = $this->addressFormatter->getFormattedAddressData(
+                [
+                    $this->config->getCompanyStreet1($store),
+                    $this->config->getCompanyStreet2($store)
+                ],
+                $this->config->getCompanyCity($store),
+                $this->config->getCompanyRegionId($store),
+                $this->config->getCompanyPostalCode($store),
+                $this->config->getCompanyCountry($store)
+            );
 
-        return $data;
+            $data['Company'] = $this->config->getCompanyCode();
+            $data['PhysicalOrigin'] = $address;
+
+            $this->cache[$cacheId] = $data;
+        }
+
+        /**
+         * This return a forced copy of the cached data, otherwise when this data reaches the SoapClient
+         * for XML request body generation, it may result in a node reference to another node with the
+         * same data. Reference nodes are not supported by Vertex and will result in a service error.
+         */
+        return array_merge([], $this->cache[$cacheId]);
     }
 }

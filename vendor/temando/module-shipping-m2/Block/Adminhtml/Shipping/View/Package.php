@@ -8,7 +8,6 @@ namespace Temando\Shipping\Block\Adminhtml\Shipping\View;
 use Magento\Backend\Block\Template as BackendTemplate;
 use Magento\Backend\Block\Template\Context;
 use Temando\Shipping\Model\ResourceModel\Rma\RmaAccess;
-use Temando\Shipping\Model\Shipment\PackageCollection;
 use Temando\Shipping\Model\Shipment\PackageInterface;
 use Temando\Shipping\Model\Shipment\ShipmentProviderInterface;
 use Temando\Shipping\Model\ShipmentInterface;
@@ -23,6 +22,8 @@ use Temando\Shipping\Model\ShipmentInterface;
  * @link     http://www.temando.com/
  *
  * @api
+ * @deprecated since 1.1.3 | Block data is provided by view model
+ * @see \Temando\Shipping\ViewModel\Shipment\ShipmentDetails
  */
 class Package extends BackendTemplate
 {
@@ -77,7 +78,7 @@ class Package extends BackendTemplate
     }
 
     /**
-     * @return PackageCollection|PackageInterface[]
+     * @return PackageInterface[]
      */
     public function getPackages()
     {

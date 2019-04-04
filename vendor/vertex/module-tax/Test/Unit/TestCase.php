@@ -32,8 +32,9 @@ class TestCase extends \PHPUnit\Framework\TestCase
         return $this->objectManager->getCollectionMock($className, $data);
     }
 
-    public function invokeInaccessibleMethod(&$object, $methodName, ...$parameters)
+    public function invokeInaccessibleMethod(&$object, $methodName)
     {
+        $parameters = array_slice(func_get_args(), 2);
         $reflection = new \ReflectionMethod(get_class($object), $methodName);
         $reflection->setAccessible(true);
 

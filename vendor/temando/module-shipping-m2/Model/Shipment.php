@@ -5,7 +5,6 @@
 namespace Temando\Shipping\Model;
 
 use Magento\Framework\DataObject;
-use Temando\Shipping\Model\Shipment\ShipmentOriginInterface;
 
 /**
  * Temando Shipment Entity
@@ -45,7 +44,7 @@ class Shipment extends DataObject implements ShipmentInterface
     }
 
     /**
-     * @return ShipmentOriginInterface
+     * @return \Temando\Shipping\Model\Shipment\Location
      */
     public function getOriginLocation()
     {
@@ -53,11 +52,19 @@ class Shipment extends DataObject implements ShipmentInterface
     }
 
     /**
-     * @return \Temando\Shipping\Model\Shipment\ShipmentDestinationInterface
+     * @return \Temando\Shipping\Model\Shipment\Location
      */
     public function getDestinationLocation()
     {
         return $this->getData(ShipmentInterface::DESTINATION_LOCATION);
+    }
+
+    /**
+     * @return \Temando\Shipping\Model\Shipment\Location
+     */
+    public function getFinalRecipientLocation()
+    {
+        return $this->getData(ShipmentInterface::FINAL_RECIPIENT_LOCATION);
     }
 
     /**
@@ -66,6 +73,14 @@ class Shipment extends DataObject implements ShipmentInterface
     public function getFulfillment()
     {
         return $this->getData(ShipmentInterface::FULFILLMENT);
+    }
+
+    /**
+     * @return \Temando\Shipping\Model\Shipment\ShipmentItemInterface[]
+     */
+    public function getItems()
+    {
+        return $this->getData(ShipmentInterface::ITEMS);
     }
 
     /**

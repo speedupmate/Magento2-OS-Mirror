@@ -11,8 +11,13 @@
                 <arguments>
                     <argument name="template" xsi:type="string">Temando_Shipping::components/dispatch/view.phtml</argument>
                 </arguments>
-                <block class="Temando\Shipping\Block\Adminhtml\Documentation" name="documentation_listing"
-                       template="Temando_Shipping::documentation.phtml"/>
+
+                <block class="Magento\Backend\Block\Template" name="documentation_listing"
+                       template="Temando_Shipping::shipment/documentation.phtml">
+                    <arguments>
+                        <argument name="viewModel" xsi:type="object">Temando\Shipping\ViewModel\Shipment\ShipmentDetails</argument>
+                    </arguments>
+                </block>
             </block>
         </referenceContainer>
     </body>

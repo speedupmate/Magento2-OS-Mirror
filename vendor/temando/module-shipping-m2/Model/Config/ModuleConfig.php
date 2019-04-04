@@ -42,6 +42,9 @@ class ModuleConfig implements ModuleConfigInterface, WsConfigInterface
 
     const CONFIG_XML_PATH_TEMANDO_RETURNS_ACTIVE = 'carriers/temando/rma_enabled';
 
+    const CONFIG_XML_PATH_COLLECTION_POINTS_ENABLED = 'carriers/temando/collectionpoints_enabled';
+    const CONFIG_XML_PATH_COLLECTION_POINTS_COUNTRIES = 'carriers/temando/collectionpoints_countries';
+
     /**
      * @var DataObjectFactory
      */
@@ -358,7 +361,7 @@ class ModuleConfig implements ModuleConfigInterface, WsConfigInterface
     }
 
     /**
-     * Check if RMA Feature is enabled.
+     * Check if RMA feature is enabled.
      *
      * @return bool
      */
@@ -386,6 +389,28 @@ class ModuleConfig implements ModuleConfigInterface, WsConfigInterface
     public function saveCheckoutFieldsDefinition($fieldsDefinition)
     {
         $this->configAccessor->saveConfigValue(self::CONFIG_XML_PATH_CHECKOUT_FIELDS, $fieldsDefinition);
+    }
+
+    /**
+     * Check if collection points feature is enabled in config.
+     *
+     * @param int $storeId
+     *
+     * @return bool
+     */
+    public function isCollectionPointsEnabled($storeId = null)
+    {
+        return (bool) $this->configAccessor->getConfigValue(self::CONFIG_XML_PATH_COLLECTION_POINTS_ENABLED, $storeId);
+    }
+
+    /**
+     * Obtain country codes enabled for collection point deliveries.
+     *
+     * @return string[]
+     */
+    public function getCollectionPointDeliveryCountries()
+    {
+        return (array) $this->configAccessor->getConfigValue(self::CONFIG_XML_PATH_COLLECTION_POINTS_COUNTRIES);
     }
 
     /**

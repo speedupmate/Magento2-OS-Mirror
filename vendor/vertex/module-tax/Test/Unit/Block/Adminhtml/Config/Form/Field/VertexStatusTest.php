@@ -6,7 +6,7 @@ use Magento\Backend\Block\Template\Context;
 use Magento\Framework\App\Request\Http;
 use Magento\Framework\Data\Form\Element\AbstractElement;
 use Vertex\Tax\Model\Config;
-use Vertex\Tax\Model\CredentialChecker;
+use Vertex\Tax\Model\ConfigurationValidator;
 use Vertex\Tax\Test\Unit\TestCase;
 
 class VertexStatusTest extends TestCase
@@ -29,8 +29,8 @@ class VertexStatusTest extends TestCase
     /** @var \PHPUnit_Framework_MockObject_MockObject|Http */
     private $httpMock;
 
-    /** @var \PHPUnit_Framework_MockObject_MockObject|CredentialChecker */
-    private $credentialCheckerMock;
+    /** @var \PHPUnit_Framework_MockObject_MockObject|ConfigurationValidator */
+    private $configurationValidatorMock;
 
     protected function setUp()
     {
@@ -41,7 +41,7 @@ class VertexStatusTest extends TestCase
         $this->abstractElementMock = $this->createMock(AbstractElement::class);
         $this->httpMock = $this->createPartialMock(Http::class, ['getParam']);
         $this->blockMock = $this->createPartialMock(VertexStatus::class, ['getRequest']);
-        $this->credentialCheckerMock = $this->createPartialMock(CredentialChecker::class, ['validate']);
+        $this->configurationValidatorMock = $this->createPartialMock(ConfigurationValidator::class, ['execute']);
 
         $this->contextMock->expects($this->any())
             ->method('getRequest')
@@ -52,7 +52,7 @@ class VertexStatusTest extends TestCase
             [
                 'context' => $this->contextMock,
                 'config' => $this->configMock,
-                'credentialChecker' => $this->credentialCheckerMock,
+                'configurationValidator' => $this->configurationValidatorMock,
             ]
         );
     }
@@ -72,12 +72,12 @@ class VertexStatusTest extends TestCase
             ->method('isVertexActive')
             ->willReturn(true);
 
-        $credentialResult = $this->getObject(CredentialChecker\Result::class)
+        $credentialResult = $this->getObject(ConfigurationValidator\Result::class)
             ->setValid(false)
             ->setMessage('Invalid')
             ->setArguments([]);
 
-        $this->credentialCheckerMock->method('validate')
+        $this->configurationValidatorMock->method('execute')
             ->willReturn($credentialResult);
 
         $actual = $this->invokeInaccessibleMethod($this->block, '_getElementHtml', $this->abstractElementMock);
@@ -92,10 +92,10 @@ class VertexStatusTest extends TestCase
             ->method('isVertexActive')
             ->willReturn(true);
 
-        $credentialResult = $this->getObject(CredentialChecker\Result::class)
+        $credentialResult = $this->getObject(ConfigurationValidator\Result::class)
             ->setValid(true);
 
-        $this->credentialCheckerMock->method('validate')
+        $this->configurationValidatorMock->method('execute')
             ->willReturn($credentialResult);
 
         $actual = $this->invokeInaccessibleMethod($this->block, '_getElementHtml', $this->abstractElementMock);

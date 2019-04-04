@@ -83,6 +83,23 @@ class ShipmentReference extends AbstractModel implements ShipmentReferenceInterf
     /**
      * @return string
      */
+    public function getExtReturnShipmentId()
+    {
+        return $this->getData(ShipmentReferenceInterface::EXT_RETURN_SHIPMENT_ID);
+    }
+
+    /**
+     * @param string $extReturnShipmentId
+     * @return void
+     */
+    public function setExtReturnShipmentId($extReturnShipmentId)
+    {
+        $this->setData(ShipmentReferenceInterface::EXT_RETURN_SHIPMENT_ID, $extReturnShipmentId);
+    }
+
+    /**
+     * @return string
+     */
     public function getExtLocationId()
     {
         return $this->getData(ShipmentReferenceInterface::EXT_LOCATION_ID);

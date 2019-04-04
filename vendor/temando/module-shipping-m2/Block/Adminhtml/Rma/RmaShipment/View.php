@@ -6,6 +6,7 @@ namespace Temando\Shipping\Block\Adminhtml\Rma\RmaShipment;
 
 use Magento\Backend\Block\Widget\Container;
 use Magento\Backend\Block\Widget\Context;
+use Magento\Rma\Api\Data\RmaInterface;
 use Temando\Shipping\Model\ResourceModel\Rma\RmaAccess;
 
 /**
@@ -39,11 +40,21 @@ class View extends Container
     }
 
     /**
-     * @return \Magento\Rma\Api\Data\RmaInterface|null
+     * @param RmaInterface $rma
+     * @return string
      */
-    public function getRma()
+    private function getBackUrl(RmaInterface $rma)
     {
-        return $this->rmaAccess->getCurrentRma();
+        if (!$rma->getEntityId()) {
+            $backUrl = $this->getUrl(
+                'adminhtml/order_shipment/view',
+                ['shipment_id' => $this->getRequest()->getParam('shipment_id')]
+            );
+        } else {
+            $backUrl = $this->getUrl('adminhtml/rma/edit', ['id' => $rma->getEntityId()]);
+        }
+
+        return $backUrl;
     }
 
     /**
@@ -56,26 +67,38 @@ class View extends Container
             return parent::_prepareLayout();
         }
 
-        $rmaEditUrl =  $this->getUrl('adminhtml/rma/edit', ['id' => $rma->getEntityId()]);
+        $backUrl = $this->getBackUrl($rma);
         $dispatchCreateUrl = $this->getUrl('temando/rma_shipment/dispatch', [
             'rma_id' => $rma->getEntityId(),
             'ext_shipment_id' => $this->rmaAccess->getCurrentRmaShipment()->getShipmentId()
         ]);
 
-        $this->buttonList->remove('back');
-        $this->buttonList->remove('save');
-
-        $this->buttonList->add('back', [
+        $this->addButton('back', [
             'label' => __('Back'),
             'class' => 'back',
-            'onclick' => sprintf("setLocation('%s')", $rmaEditUrl)
+            'onclick' => sprintf("setLocation('%s')", $backUrl)
         ]);
-        $this->buttonList->add('temando_dispatch_return_shipment', [
+        $this->addButton('temando_dispatch_return_shipment', [
             'label' => __('Dispatch Shipment'),
             'class' => 'primary',
             'onclick' => sprintf("setLocation('%s')", $dispatchCreateUrl)
         ]);
 
         return parent::_prepareLayout();
+    }
+
+    /**
+     * Prepare html output
+     *
+     * @return string
+     */
+    protected function _toHtml()
+    {
+        $html = parent::_toHtml();
+
+        // append all child blocks
+        $html.= $this->getChildHtml();
+
+        return $html;
     }
 }

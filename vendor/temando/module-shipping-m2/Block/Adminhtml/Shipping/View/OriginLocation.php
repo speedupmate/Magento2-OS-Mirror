@@ -19,6 +19,8 @@ use Temando\Shipping\Model\Shipment\ShipmentProviderInterface;
  * @link     http://www.temando.com/
  *
  * @api
+ * @deprecated since 1.0.5 | Block data is provided by view model
+ * @see \Temando\Shipping\ViewModel\Order\Location
  */
 class OriginLocation extends BackendTemplate
 {

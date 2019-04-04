@@ -7,8 +7,10 @@ define([
     'uiComponent',
     'ko',
     'temandoCheckoutFieldsDefinition',
-    'Magento_Checkout/js/model/quote'
-], function (_, Component, ko, fieldsDefinition, quote) {
+    'Magento_Checkout/js/model/quote',
+    'temandoDeliveryOptions',
+    'Temando_Shipping/js/action/save-service-selection',
+], function (_, Component, ko, fieldsDefinition, quote, deliveryOptions, saveServiceSelection) {
     'use strict';
 
     return Component.extend({
@@ -16,6 +18,7 @@ define([
             template: 'Temando_Shipping/checkout/shipping/checkout-fields',
             fields: []
         },
+        checkoutFieldsVisible: deliveryOptions.isToAddressSelected,
 
         /**
          *
@@ -36,9 +39,9 @@ define([
                     field.value.subscribe(function (fieldValue) {
                         // on value change, update section data and trigger rate request
                         fieldsDefinition.updateFieldValue(fieldDefinition.id, fieldValue);
-                        quote.shippingAddress.valueHasMutated();
-                    });
 
+                        saveServiceSelection(this.fields);
+                    }, this);
                     // push field definition to component property for template rendering
                     this.fields.push(field);
                 }, this);

@@ -5,7 +5,7 @@
 namespace Temando\Shipping\Ui\Component\Listing\Column;
 
 use Magento\Ui\Component\Listing\Columns\Column;
-use Temando\Shipping\Model\Shipment\ShipmentDestinationInterface;
+use Temando\Shipping\Model\Shipment\LocationInterface;
 use Temando\Shipping\Model\ShipmentInterface;
 
 /**
@@ -31,7 +31,7 @@ class ShippingName extends Column
             $fieldName = $this->getData('name');
             foreach ($dataSource['data']['items'] as & $item) {
                 if (isset($item[$key])) {
-                    /** @var ShipmentDestinationInterface $destinationLocation */
+                    /** @var LocationInterface $destinationLocation */
                     $destinationLocation = $item[$key];
                     $item[$fieldName] = sprintf(
                         '%s %s',

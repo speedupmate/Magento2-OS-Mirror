@@ -89,11 +89,21 @@ interface ShipmentRepositoryInterface
     /**
      * Load local reference to external shipment entity by Temando shipment ID.
      *
-     * @param int $extShipmentId
+     * @param string $extShipmentId
      * @return \Temando\Shipping\Api\Data\Shipment\ShipmentReferenceInterface
      * @throws \Magento\Framework\Exception\LocalizedException
      */
     public function getReferenceByExtShipmentId($extShipmentId);
+
+    /**
+     * Load local reference to external shipment entity by Temando return shipment ID.
+     *
+     * @param string $extShipmentId
+     *
+     * @return \Temando\Shipping\Api\Data\Shipment\ShipmentReferenceInterface
+     * @throws \Magento\Framework\Exception\LocalizedException
+     */
+    public function getReferenceByExtReturnShipmentId($extShipmentId);
 
     /**
      * Load local reference to external shipment entity by tracking number.
@@ -103,4 +113,12 @@ interface ShipmentRepositoryInterface
      * @throws \Magento\Framework\Exception\LocalizedException
      */
     public function getReferenceByTrackingNumber($trackingNumber);
+
+    /**
+     * List shipment references that match specified search criteria.
+     *
+     * @param \Magento\Framework\Api\SearchCriteriaInterface $searchCriteria
+     * @return \Temando\Shipping\Model\ResourceModel\Shipment\ShipmentReferenceCollection
+     */
+    public function getList(\Magento\Framework\Api\SearchCriteriaInterface $searchCriteria);
 }

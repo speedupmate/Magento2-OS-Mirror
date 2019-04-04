@@ -8,6 +8,8 @@ namespace Vertex\Tax\Model\Request;
 
 use Magento\Directory\Api\CountryInformationAcquirerInterface;
 use Magento\Directory\Api\Data\CountryInformationInterface;
+use Magento\Directory\Api\Data\CountryInformationInterfaceFactory;
+use Magento\Framework\Exception\NoSuchEntityException;
 use Vertex\Tax\Model\ZipCodeFixer;
 
 /**
@@ -18,18 +20,24 @@ class Address
     /** @var CountryInformationAcquirerInterface */
     private $countryInformationAcquirer;
 
+    /** @var CountryInformationInterfaceFactory */
+    private $countryInformationFactory;
+
     /** @var ZipCodeFixer */
     private $zipCodeFixer;
 
     /**
      * @param CountryInformationAcquirerInterface $countryInformationAcquirer
+     * @param CountryInformationInterfaceFactory $countryInformationFactory
      * @param ZipCodeFixer $zipCodeFixer
      */
     public function __construct(
         CountryInformationAcquirerInterface $countryInformationAcquirer,
+        CountryInformationInterfaceFactory $countryInformationFactory,
         ZipCodeFixer $zipCodeFixer
     ) {
         $this->countryInformationAcquirer = $countryInformationAcquirer;
+        $this->countryInformationFactory = $countryInformationFactory;
         $this->zipCodeFixer = $zipCodeFixer;
     }
 
@@ -61,12 +69,12 @@ class Address
         }
 
         $data = [
-            'StreetAddress1' => $street1,
-            'StreetAddress2' => $street2,
-            'City' => $city,
-            'MainDivision' => $companyState,
-            'PostalCode' => $this->zipCodeFixer->fix($postalCode),
-            'Country' => $countryName
+            'StreetAddress1' => $street1 ?: '',
+            'StreetAddress2' => $street2 ?: '',
+            'City' => $city ?: '',
+            'MainDivision' => $companyState ?: '',
+            'PostalCode' => $this->zipCodeFixer->fix($postalCode) ?: '',
+            'Country' => $countryName ?: ''
         ];
 
         return $data;
@@ -103,10 +111,13 @@ class Address
      *
      * @param string $countryId Two letter country code
      * @return CountryInformationInterface
-     * @throws \Magento\Framework\Exception\NoSuchEntityException
      */
     private function getCountryInformation($countryId)
     {
-        return $this->countryInformationAcquirer->getCountryInfo($countryId);
+        try {
+            return $this->countryInformationAcquirer->getCountryInfo($countryId);
+        } catch (NoSuchEntityException $error) {
+            return $this->countryInformationFactory->create();
+        }
     }
 }

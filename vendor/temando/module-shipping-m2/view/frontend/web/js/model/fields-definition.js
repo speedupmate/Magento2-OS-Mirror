@@ -20,6 +20,7 @@ define([
                     field.value = field.defaultValue;
                 }
             });
+
             return sectionData().fields;
         },
 

@@ -10,7 +10,7 @@ namespace Temando\Shipping\Rest\Request\Type;
  * @license  http://opensource.org/licenses/osl-3.0.php Open Software License (OSL 3.0)
  * @link     http://www.temando.com/
  */
-class ExtensibleTypeAttribute
+class ExtensibleTypeAttribute implements EmptyFilterableInterface
 {
     /**
      * @var string
@@ -71,5 +71,19 @@ class ExtensibleTypeAttribute
     public function setDataPath(array $dataPath)
     {
         $this->dataPath = $dataPath;
+    }
+
+    /**
+     * Check if any properties are set.
+     *
+     * @return bool
+     */
+    public function isEmpty()
+    {
+        $properties = [
+            'value' => $this->value,
+        ];
+        $properties = AttributeFilter::notEmpty($properties);
+        return empty($properties);
     }
 }

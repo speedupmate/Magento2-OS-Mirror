@@ -6,6 +6,9 @@ namespace Temando\Shipping\Model\ResourceModel\Webservice;
 
 use Magento\Framework\Api\Filter;
 use Magento\Framework\Api\FilterBuilder;
+use Magento\Framework\Api\Search\AggregationInterface;
+use Magento\Framework\Api\Search\DocumentInterface;
+use Magento\Framework\Api\Search\SearchResultInterface;
 use Magento\Framework\Api\SearchCriteriaBuilder;
 use Magento\Framework\Api\SearchCriteriaInterface;
 use Magento\Framework\Data\Collection as DataCollection;
@@ -23,7 +26,7 @@ use Magento\Framework\View\Element\UiComponent\DataProvider\Document;
  * @license  http://opensource.org/licenses/osl-3.0.php Open Software License (OSL 3.0)
  * @link     http://www.temando.com/
  */
-abstract class Collection extends DataCollection
+abstract class Collection extends DataCollection implements SearchResultInterface
 {
     /**
      * @var string
@@ -49,6 +52,21 @@ abstract class Collection extends DataCollection
      * @var Filter[]
      */
     private $filters = [];
+
+    /**
+     * @var int
+     */
+    private $totalCount;
+
+    /**
+     * @var AggregationInterface
+     */
+    private $aggregations;
+
+    /**
+     * @var SearchCriteriaInterface
+     */
+    private $searchCriteria;
 
     /**
      * Collection constructor.
@@ -168,6 +186,88 @@ abstract class Collection extends DataCollection
         }
 
         $this->_setIsLoaded();
+        return $this;
+    }
+
+    /**
+     * Set items list.
+     *
+     * @param DocumentInterface[] $items
+     * @return $this
+     */
+    public function setItems(array $items = null)
+    {
+        if ($items) {
+            foreach ($items as $item) {
+                $this->addItem($item);
+            }
+            unset($this->totalCount);
+        }
+        return $this;
+    }
+
+    /**
+     * @return AggregationInterface
+     */
+    public function getAggregations()
+    {
+        return $this->aggregations;
+    }
+
+    /**
+     * @param AggregationInterface $aggregations
+     * @return $this
+     */
+    public function setAggregations($aggregations)
+    {
+        $this->aggregations = $aggregations;
+        return $this;
+    }
+
+    /**
+     * Get search criteria.
+     *
+     * @return SearchCriteriaInterface|null
+     */
+    public function getSearchCriteria()
+    {
+        return $this->searchCriteria;
+    }
+
+    /**
+     * Set search criteria.
+     *
+     * @param SearchCriteriaInterface $searchCriteria
+     * @return $this
+     */
+    public function setSearchCriteria(SearchCriteriaInterface $searchCriteria)
+    {
+        $this->searchCriteria = $searchCriteria;
+        return $this;
+    }
+
+    /**
+     * Get total count.
+     *
+     * @return int
+     */
+    public function getTotalCount()
+    {
+        if (!$this->totalCount) {
+            $this->totalCount = $this->getSize();
+        }
+        return $this->totalCount;
+    }
+
+    /**
+     * Set total count.
+     *
+     * @param int $totalCount
+     * @return $this
+     */
+    public function setTotalCount($totalCount)
+    {
+        $this->totalCount = $totalCount;
         return $this;
     }
 }

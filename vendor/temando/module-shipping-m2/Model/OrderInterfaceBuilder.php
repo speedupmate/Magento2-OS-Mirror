@@ -9,6 +9,9 @@ use Magento\Framework\Api\AbstractSimpleObjectBuilder;
 use Magento\Framework\Api\ObjectFactory;
 use Magento\Framework\Exception\LocalizedException;
 use Magento\Quote\Model\Quote\Address\RateRequest;
+use Magento\Sales\Model\Order;
+use Temando\Shipping\Api\Data\CollectionPoint\QuoteCollectionPointInterface;
+use Temando\Shipping\Api\Data\CollectionPoint\SearchRequestInterface;
 use Temando\Shipping\Model\Config\ModuleConfigInterface;
 use Temando\Shipping\Model\Order\CheckoutFieldContainerInterface;
 use Temando\Shipping\Model\Order\CheckoutFieldContainerInterfaceBuilder;
@@ -60,11 +63,6 @@ class OrderInterfaceBuilder extends AbstractSimpleObjectBuilder
     private $config;
 
     /**
-     * @var \Magento\Framework\Api\AttributeValue[]
-     */
-    private $checkoutFields = [];
-
-    /**
      * OrderInterfaceBuilder constructor.
      * @param ObjectFactory $objectFactory
      * @param Extractor $rateRequestExtractor
@@ -91,6 +89,30 @@ class OrderInterfaceBuilder extends AbstractSimpleObjectBuilder
         $this->config = $moduleConfig;
 
         parent::__construct($objectFactory);
+    }
+
+    /**
+     * Map order state code to platform order status.
+     * Valid values: "awaiting payment" "confirmed" "processing" "fulfilled" "cancelled" "archived" "refunded" "closed"
+     *
+     * @param string $state
+     * @return string
+     */
+    private function mapOrderState($state)
+    {
+        $map = [
+            Order::STATE_NEW => OrderInterface::STATUS_CONFIRMED,
+            Order::STATE_PENDING_PAYMENT => OrderInterface::STATUS_AWAITING_PAYMENT,
+            Order::STATE_PROCESSING => OrderInterface::STATUS_PROCESSING,
+            Order::STATE_COMPLETE => OrderInterface::STATUS_CLOSED,
+            Order::STATE_CLOSED => OrderInterface::STATUS_REFUNDED,
+            Order::STATE_CANCELED => OrderInterface::STATUS_CANCELLED,
+            Order::STATE_HOLDED => OrderInterface::STATUS_ARCHIVED,
+            Order::STATE_PAYMENT_REVIEW => OrderInterface::STATUS_AWAITING_PAYMENT,
+            '--' => OrderInterface::STATUS_FULFILLED // shipments created: no corresponding order state available
+        ];
+
+        return isset($map[$state]) ? $map[$state] : '';
     }
 
     /**
@@ -154,6 +176,7 @@ class OrderInterfaceBuilder extends AbstractSimpleObjectBuilder
         $this->_set(OrderInterface::CREATED_AT, $createdAt);
         $this->_set(OrderInterface::ORDERED_AT, $orderedAt);
         $this->_set(OrderInterface::LAST_MODIFIED_AT, $updatedAt);
+        $this->_set(OrderInterface::STATUS, '');
         $this->_set(OrderInterface::BILLING, $billingAddress);
         $this->_set(OrderInterface::RECIPIENT, $recipient);
         $this->_set(OrderInterface::ORDER_ITEMS, $orderItems);
@@ -207,6 +230,7 @@ class OrderInterfaceBuilder extends AbstractSimpleObjectBuilder
         $this->_set(OrderInterface::CREATED_AT, $order->getCreatedAt());
         $this->_set(OrderInterface::ORDERED_AT, $order->getCreatedAt());
         $this->_set(OrderInterface::LAST_MODIFIED_AT, $updatedAt);
+        $this->_set(OrderInterface::STATUS, $this->mapOrderState($order->getState()));
         $this->_set(OrderInterface::BILLING, $billingAddress);
         $this->_set(OrderInterface::RECIPIENT, $recipient);
         $this->_set(OrderInterface::ORDER_ITEMS, $orderItems);
@@ -224,11 +248,20 @@ class OrderInterfaceBuilder extends AbstractSimpleObjectBuilder
     }
 
     /**
-     * @param \Magento\Framework\Api\AttributeValue[] $checkoutFields
+     * @param SearchRequestInterface $searchRequest
      * @return void
      */
-    public function setCheckoutFields(array $checkoutFields)
+    public function setCollectionPointSearchRequest(SearchRequestInterface $searchRequest)
     {
-        $this->checkoutFields = $checkoutFields;
+        $this->_set(OrderInterface::COLLECTION_POINT_SEARCH_REQUEST, $searchRequest);
+    }
+
+    /**
+     * @param QuoteCollectionPointInterface $collectionPoint
+     * @return void
+     */
+    public function setCollectionPoint(QuoteCollectionPointInterface $collectionPoint)
+    {
+        $this->_set(OrderInterface::COLLECTION_POINT, $collectionPoint);
     }
 }

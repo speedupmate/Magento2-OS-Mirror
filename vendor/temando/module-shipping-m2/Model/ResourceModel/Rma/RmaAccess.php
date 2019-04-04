@@ -107,6 +107,20 @@ class RmaAccess
     }
 
     /**
+     * Wrapper around RMA factory which is not available in CE and thus cannot be injected.
+     *
+     * @see \Magento\Rma\Api\Data\RmaInterfaceFactory::create
+     *
+     * @param mixed[] $data
+     * @return RmaInterface
+     */
+    public function create($data = [])
+    {
+        $rma = $this->objectManager->create(RmaInterface::class, $data);
+        return $rma;
+    }
+
+    /**
      * Wrapper around RMA repository which is not available in CE and thus cannot be injected.
      *
      * @see \Magento\Rma\Api\RmaRepositoryInterface::get

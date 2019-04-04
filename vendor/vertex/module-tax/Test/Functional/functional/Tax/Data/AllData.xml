@@ -59,16 +59,4 @@
     <entity name="VertexConfigDisabledDropdown" type="vertex_config_field_enable">
         <data key="value">0</data>
     </entity>
-    <entity name="VertexConfigManualInvoiceOn" type="vertex_config_state">
-        <required-entity type="vertex_config_field_manualInvoiceButton">VertexConfigManualInvoiceButtonOn</required-entity>
-    </entity>
-    <entity name="VertexConfigManualInvoiceButtonOn" type="vertex_config_field_manualInvoiceButton">
-        <data key="value">1</data>
-    </entity>
-    <entity name="VertexConfigManualInvoiceOff" type="vertex_config_state">
-        <required-entity type="vertex_config_field_manualInvoiceButton">VertexConfigManualInvoiceButtonOff</required-entity>
-    </entity>
-    <entity name="VertexConfigManualInvoiceButtonOff" type="vertex_config_field_manualInvoiceButton">
-        <data key="value">0</data>
-    </entity>
 </config>

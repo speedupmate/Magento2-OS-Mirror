@@ -50,7 +50,6 @@ class RequestLogger
      * Log a Request
      *
      * @param string $type
-     * @param string|int $objectId
      * @param string $requestXml
      * @param string $responseXml
      * @param int|array $totalTax
@@ -58,7 +57,7 @@ class RequestLogger
      * @return void
      * @throws \Magento\Framework\Exception\CouldNotSaveException
      */
-    public function log($type, $objectId, $requestXml, $responseXml, $totalTax = 0, $taxAreaId = 0)
+    public function log($type, $requestXml, $responseXml, $totalTax = 0, $taxAreaId = 0)
     {
         if (is_array($totalTax)) {
             $totalTax = $totalTax['_'];
@@ -68,9 +67,6 @@ class RequestLogger
         $timestamp = $this->dateTime->date('Y-m-d H:i:s');
         $logEntry->setType($type);
         $logEntry->setDate($timestamp);
-        if (strpos($type, 'invoice') === 0) {
-            $logEntry->setOrderId((int)$objectId);
-        }
 
         $requestXml = $this->formatXml($requestXml);
         $responseXml = $this->formatXml($responseXml);

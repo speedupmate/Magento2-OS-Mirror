@@ -11,6 +11,7 @@ use Magento\Framework\Api\ObjectFactory;
 use Magento\Framework\Exception\LocalizedException;
 use Magento\Quote\Model\Quote\Address\RateRequest;
 use Temando\Shipping\Model\Config\ModuleConfigInterface;
+use Temando\Shipping\Setup\SetupData;
 
 /**
  * Temando Order Item Builder
@@ -65,6 +66,9 @@ class OrderItemInterfaceBuilder extends AbstractSimpleObjectBuilder
      */
     public function setQuoteItem(ItemInterface $quoteItem)
     {
+        $weightUom = $this->config->getWeightUnit($quoteItem->getQuote()->getStoreId());
+        $dimensionsUom = ($weightUom === 'kgs') ? 'cm' : 'in';
+
         /** @var \Magento\Catalog\Model\ResourceModel\Category\Collection $categoryCollection */
         $categoryCollection = $quoteItem->getProduct()->getCategoryCollection();
         $categoryCollection->addNameToResult();
@@ -79,11 +83,11 @@ class OrderItemInterfaceBuilder extends AbstractSimpleObjectBuilder
         $this->_set(OrderItemInterface::NAME, $quoteItem->getData('name'));
         $this->_set(OrderItemInterface::DESCRIPTION, $quoteItem->getData('description'));
         $this->_set(OrderItemInterface::CATEGORIES, $categoryNames);
-        $this->_set(OrderItemInterface::DIMENSIONS_UOM, '');
-        $this->_set(OrderItemInterface::LENGTH, null);
-        $this->_set(OrderItemInterface::WIDTH, null);
-        $this->_set(OrderItemInterface::HEIGHT, null);
-        $this->_set(OrderItemInterface::WEIGHT_UOM, $this->config->getWeightUnit($quoteItem->getQuote()->getStoreId()));
+        $this->_set(OrderItemInterface::DIMENSIONS_UOM, $dimensionsUom);
+        $this->_set(OrderItemInterface::LENGTH, $quoteItem->getProduct()->getData(SetupData::ATTRIBUTE_CODE_LENGTH));
+        $this->_set(OrderItemInterface::WIDTH, $quoteItem->getProduct()->getData(SetupData::ATTRIBUTE_CODE_WIDTH));
+        $this->_set(OrderItemInterface::HEIGHT, $quoteItem->getProduct()->getData(SetupData::ATTRIBUTE_CODE_HEIGHT));
+        $this->_set(OrderItemInterface::WEIGHT_UOM, $weightUom);
         $this->_set(OrderItemInterface::WEIGHT, $quoteItem->getData('weight'));
         $this->_set(OrderItemInterface::AMOUNT, $itemAmount);
         $this->_set(OrderItemInterface::IS_FRAGILE, null);
@@ -114,6 +118,9 @@ class OrderItemInterfaceBuilder extends AbstractSimpleObjectBuilder
      */
     public function setOrderItem(\Magento\Sales\Api\Data\OrderItemInterface $orderItem)
     {
+        $weightUom = $this->config->getWeightUnit($orderItem->getStoreId());
+        $dimensionsUom = ($weightUom === 'kgs') ? 'cm' : 'in';
+
         /** @var \Magento\Sales\Model\Order\Item $orderItem */
         /** @var \Magento\Catalog\Model\ResourceModel\Category\Collection $categoryCollection */
         $categoryCollection = $orderItem->getProduct()->getCategoryCollection();
@@ -129,11 +136,11 @@ class OrderItemInterfaceBuilder extends AbstractSimpleObjectBuilder
         $this->_set(OrderItemInterface::NAME, $orderItem->getName());
         $this->_set(OrderItemInterface::DESCRIPTION, $orderItem->getDescription());
         $this->_set(OrderItemInterface::CATEGORIES, $categoryNames);
-        $this->_set(OrderItemInterface::DIMENSIONS_UOM, '');
-        $this->_set(OrderItemInterface::LENGTH, null);
-        $this->_set(OrderItemInterface::WIDTH, null);
-        $this->_set(OrderItemInterface::HEIGHT, null);
-        $this->_set(OrderItemInterface::WEIGHT_UOM, $this->config->getWeightUnit($orderItem->getStoreId()));
+        $this->_set(OrderItemInterface::DIMENSIONS_UOM, $dimensionsUom);
+        $this->_set(OrderItemInterface::LENGTH, $orderItem->getProduct()->getData(SetupData::ATTRIBUTE_CODE_LENGTH));
+        $this->_set(OrderItemInterface::WIDTH, $orderItem->getProduct()->getData(SetupData::ATTRIBUTE_CODE_WIDTH));
+        $this->_set(OrderItemInterface::HEIGHT, $orderItem->getProduct()->getData(SetupData::ATTRIBUTE_CODE_HEIGHT));
+        $this->_set(OrderItemInterface::WEIGHT_UOM, $weightUom);
         $this->_set(OrderItemInterface::WEIGHT, $orderItem->getWeight());
         $this->_set(OrderItemInterface::AMOUNT, $itemAmount);
         $this->_set(OrderItemInterface::IS_FRAGILE, null);

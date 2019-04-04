@@ -21,6 +21,16 @@ interface OrderInterface
     const LAST_MODIFIED_AT = 'last_modified_at';
     const ORDERED_AT = 'ordered_at';
 
+    const STATUS = 'status';
+    const STATUS_AWAITING_PAYMENT = 'awaiting payment';
+    const STATUS_CONFIRMED = 'confirmed';
+    const STATUS_PROCESSING = 'processing';
+    const STATUS_FULFILLED = 'fulfilled';
+    const STATUS_CANCELLED = 'cancelled';
+    const STATUS_ARCHIVED = 'archived';
+    const STATUS_REFUNDED = 'refunded';
+    const STATUS_CLOSED = 'closed';
+
     const BILLING = 'billing';
     const RECIPIENT = 'recipient';
     const ORDER_ITEMS = 'order_items';
@@ -33,6 +43,9 @@ interface OrderInterface
     const SOURCE_INCREMENT_ID = 'source_increment_id';
 
     const CHECKOUT_FIELDS = 'checkout_fields';
+
+    const COLLECTION_POINT = 'collection_point';
+    const COLLECTION_POINT_SEARCH_REQUEST = 'collection_point_search_request';
 
     const SELECTED_EXPERIENCE_CODE = 'experience_code';
     const SELECTED_EXPERIENCE_CURRENCY = 'experience_currency';
@@ -59,6 +72,11 @@ interface OrderInterface
      * @return string
      */
     public function getOrderedAt();
+
+    /**
+     * @return string
+     */
+    public function getStatus();
 
     /**
      * @return \Temando\Shipping\Model\Order\OrderBillingInterface
@@ -104,6 +122,16 @@ interface OrderInterface
      * @return \Temando\Shipping\Model\Checkout\Attribute\CheckoutFieldInterface[]
      */
     public function getCheckoutFields();
+
+    /**
+     * @return \Temando\Shipping\Api\Data\CollectionPoint\QuoteCollectionPointInterface
+     */
+    public function getCollectionPoint();
+
+    /**
+     * @return \Temando\Shipping\Api\Data\CollectionPoint\SearchRequestInterface
+     */
+    public function getCollectionPointSearchRequest();
 
     /**
      * @return string

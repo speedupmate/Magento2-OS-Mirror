@@ -6,12 +6,11 @@ namespace Temando\Shipping\Observer;
 
 use Magento\Framework\View\Layout;
 use Magento\TestFramework\Helper\Bootstrap;
-use Temando\Shipping\Model\ShipmentInterface;
+use Temando\Shipping\Model\Shipment\LocationInterface;
 use Temando\Shipping\Model\Shipment\PackageInterface;
 use Temando\Shipping\Model\Shipment\PackageItemInterface;
-use Temando\Shipping\Model\Shipment\ShipmentDestinationInterface;
-use Temando\Shipping\Model\Shipment\ShipmentOriginInterface;
 use Temando\Shipping\Model\Shipment\ShipmentProvider;
+use Temando\Shipping\Model\ShipmentInterface;
 
 /**
  * PrepareShipmentViewObserverTest
@@ -59,11 +58,11 @@ class PrepareShipmentViewObserverTest extends \PHPUnit\Framework\TestCase
      */
     private function getShipment($originCountryId = 'US', $destinationCountryId = 'US')
     {
-        $origin = Bootstrap::getObjectManager()->create(ShipmentOriginInterface::class, ['data' => [
-            ShipmentOriginInterface::COUNTRY_CODE => $originCountryId,
+        $origin = Bootstrap::getObjectManager()->create(LocationInterface::class, ['data' => [
+            LocationInterface::COUNTRY_CODE => $originCountryId,
         ]]);
-        $destination = Bootstrap::getObjectManager()->create(ShipmentDestinationInterface::class, ['data' => [
-            ShipmentDestinationInterface::COUNTRY_CODE => $destinationCountryId,
+        $destination = Bootstrap::getObjectManager()->create(LocationInterface::class, ['data' => [
+            LocationInterface::COUNTRY_CODE => $destinationCountryId,
         ]]);
         $packageItem = Bootstrap::getObjectManager()->create(PackageItemInterface::class, ['data' => [
             PackageItemInterface::SKU => 'foo-sku',
@@ -180,15 +179,26 @@ class PrepareShipmentViewObserverTest extends \PHPUnit\Framework\TestCase
             ->expects($this->never())
             ->method('setTemplate');
 
+        $orderInfoMock = $this->getMockBuilder(\Magento\Sales\Block\Adminhtml\Order\View\Info::class)
+            ->disableOriginalConstructor()
+            ->setMethods(['setTemplate'])
+            ->getMock();
+
+        $valueMap = [
+            ['form', $formMock],
+            ['order_info' , $orderInfoMock],
+        ];
+
         $layoutMock = $this->getMockBuilder(Layout::class)
             ->setMethods(['getBlock'])
             ->disableOriginalConstructor()
             ->getMock();
+
         $layoutMock
-            ->expects($this->once())
+            ->expects($this->exactly(2))
             ->method('getBlock')
-            ->with('form')
-            ->willReturn($formMock);
+            ->with($this->logicalOr('form', 'order_info'))
+            ->willReturnMap($valueMap);
 
         $config = [
             'instance' => PrepareShipmentViewObserver::class,
@@ -223,15 +233,25 @@ class PrepareShipmentViewObserverTest extends \PHPUnit\Framework\TestCase
             ->expects($this->once())
             ->method('setTemplate');
 
+        $orderInfoMock = $this->getMockBuilder(\Magento\Sales\Block\Adminhtml\Order\View\Info::class)
+            ->disableOriginalConstructor()
+            ->setMethods(['setTemplate'])
+            ->getMock();
+
+        $valueMap = [
+            ['form', $formMock],
+            ['order_info' , $orderInfoMock],
+        ];
+
         $layoutMock = $this->getMockBuilder(Layout::class)
             ->setMethods(['getBlock'])
             ->disableOriginalConstructor()
             ->getMock();
         $layoutMock
-            ->expects($this->once())
+            ->expects($this->exactly(2))
             ->method('getBlock')
-            ->with('form')
-            ->willReturn($formMock);
+            ->with($this->logicalOr('form', 'order_info'))
+            ->willReturnMap($valueMap);
 
         $config = [
             'instance' => PrepareShipmentViewObserver::class,
@@ -274,8 +294,14 @@ class PrepareShipmentViewObserverTest extends \PHPUnit\Framework\TestCase
             ->expects($this->once())
             ->method('setTemplate');
 
+        $orderInfoMock = $this->getMockBuilder(\Magento\Sales\Block\Adminhtml\Order\View\Info::class)
+            ->disableOriginalConstructor()
+            ->setMethods(['setTemplate'])
+            ->getMock();
+
         $valueMap = [
             ['form', $formMock],
+            ['order_info' , $orderInfoMock],
             ['shipment_items', $itemsMock],
         ];
 
@@ -284,9 +310,9 @@ class PrepareShipmentViewObserverTest extends \PHPUnit\Framework\TestCase
             ->disableOriginalConstructor()
             ->getMock();
         $layoutMock
-            ->expects($this->exactly(2))
+            ->expects($this->exactly(3))
             ->method('getBlock')
-            ->with($this->logicalOr('form', 'shipment_items'))
+            ->with($this->logicalOr('form', 'order_info', 'shipment_items'))
             ->willReturnMap($valueMap);
 
         $config = [

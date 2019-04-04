@@ -15,10 +15,53 @@
  */
 namespace Amazon\Login\Controller\Login;
 
-use Amazon\Core\Api\Data\AmazonCustomerInterface;
+use Magento\Framework\App\Action\Action;
+use Amazon\Core\Helper\Data as AmazonCoreHelper;
+use Amazon\Login\Model\Validator\AccessTokenRequestValidator;
+use Magento\Customer\Model\Url;
+use Magento\Framework\App\Action\Context;
 
-class Guest extends \Amazon\Login\Controller\Login
+/**
+ * Class Guest
+ * @package Amazon\Login\Controller\Login
+ */
+class Guest extends Action
 {
+
+    /**
+     * @var AmazonCoreHelper
+     */
+    protected $amazonCoreHelper;
+
+    /**
+     * @var Url
+     */
+    protected $customerUrl;
+
+    /**
+     * @var AccessTokenRequestValidator
+     */
+    protected $accessTokenRequestValidator;
+
+    /**
+     * Guest constructor.
+     * @param Context $context
+     * @param AmazonCoreHelper $amazonCoreHelper
+     * @param Url $customerUrl
+     * @param AccessTokenRequestValidator $accessTokenRequestValidator
+     */
+    public function __construct(
+        Context $context,
+        AmazonCoreHelper $amazonCoreHelper,
+        Url $customerUrl,
+        AccessTokenRequestValidator $accessTokenRequestValidator
+    ) {
+        $this->amazonCoreHelper            = $amazonCoreHelper;
+        $this->customerUrl                 = $customerUrl;
+        $this->accessTokenRequestValidator = $accessTokenRequestValidator;
+        parent::__construct($context);
+    }
+
     /**
      * {@inheritdoc}
      */
@@ -28,20 +71,23 @@ class Guest extends \Amazon\Login\Controller\Login
             return $this->getRedirectLogin();
         }
 
-        $amazonCustomer = $this->getAmazonCustomer();
-        if ($amazonCustomer) {
-            $this->storeUserInfoToSession($amazonCustomer);
-        }
-
-        return $this->getRedirectAccount();
+        return $this->_redirect('checkout');
     }
 
     /**
-     * @param AmazonCustomerInterface $amazonCustomer
-     * @return void
+     * @return string
      */
-    protected function storeUserInfoToSession(AmazonCustomerInterface $amazonCustomer)
+    protected function getRedirectLogin()
     {
-        $this->customerSession->setAmazonCustomer($amazonCustomer);
+        return $this->_redirect($this->customerUrl->getLoginUrl());
+    }
+
+    /**
+     * @return bool
+     * @throws \Zend_Validate_Exception
+     */
+    protected function isValidToken()
+    {
+        return $this->accessTokenRequestValidator->isValid($this->getRequest());
     }
 }

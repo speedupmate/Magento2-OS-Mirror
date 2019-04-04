@@ -3,8 +3,8 @@
     <!-- Additional attributes pushed to the salesShipOrderV1 M2 API -->
     <extension_attributes for="Magento\Sales\Api\Data\ShipmentCreationArgumentsInterface">
         <attribute code="shipping_label" type="string" />
-        <attribute code="ext_return_shipment_id" type="string" />
         <attribute code="ext_shipment_id" type="string" />
+        <attribute code="ext_return_shipment_id" type="string" />
         <attribute code="ext_location_id" type="string" />
         <attribute code="ext_tracking_url" type="string" />
         <attribute code="ext_tracking_reference" type="string" />
@@ -17,6 +17,7 @@
     <!-- Additional attributes for the shipment view page -->
     <extension_attributes for="Magento\Sales\Api\Data\ShipmentInterface">
         <attribute code="ext_shipment_id" type="string" />
+        <attribute code="ext_return_shipment_id" type="string" />
         <attribute code="ext_location_id" type="string" />
         <attribute code="ext_tracking_url" type="string" />
         <attribute code="ext_tracking_reference" type="string" />

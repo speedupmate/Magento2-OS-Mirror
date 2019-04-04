@@ -25,7 +25,7 @@
                 <giftwrap_order_code><![CDATA[order-gift-wrapping]]></giftwrap_order_code>
                 <giftwrap_item_code><![CDATA[giftwrap-]]></giftwrap_item_code>
                 <printed_giftcard_code><![CDATA[printed-giftcard]]></printed_giftcard_code>
-                <reward_points_code><![CDATA[reward-points]]>]</reward_points_code>
+                <reward_points_code><![CDATA[reward-points]]></reward_points_code>
             </classes>
         </tax>
     </default>

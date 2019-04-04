@@ -4,6 +4,8 @@ namespace Vertex\Tax\Test\Unit\Block\Adminhtml\Config\Form\Field;
 
 use Magento\Backend\Block\Template\Context;
 use Magento\Framework\App\Config\ScopeConfigInterface;
+use Magento\Framework\App\Request\Http;
+use Magento\Framework\App\RequestInterface;
 use Magento\Framework\Data\Form\Element\AbstractElement;
 use Magento\Framework\Escaper;
 use Magento\OfflineShipping\Model\Carrier\Flatrate;
@@ -33,6 +35,7 @@ class ShippingCodesTest extends TestCase
     /** @var \PHPUnit_Framework_MockObject_MockObject|Flatrate */
     private $flatRateMock;
 
+    /** @var \PHPUnit_Framework_MockObject_MockObject|Carrier */
     private $uspsMock;
 
     /** @var \PHPUnit_Framework_MockObject_MockObject|Escaper */
@@ -41,10 +44,13 @@ class ShippingCodesTest extends TestCase
     /** @var \PHPUnit_Framework_MockObject_MockObject|ScopeConfigInterface */
     private $scopeConfigInterfaceMock;
 
+    /** @var \PHPUnit_Framework_MockObject_MockObject|RequestInterface */
+    private $requestMock;
+
     protected function setUp()
     {
         parent::setUp();
-        $this->contextMock = $this->createPartialMock(Context::class, ['getScopeConfig', 'getEscaper']);
+        $this->contextMock = $this->createPartialMock(Context::class, ['getScopeConfig', 'getEscaper', 'getRequest']);
         $this->configMock = $this->createPartialMock(Config::class, ['getActiveCarriers']);
         $this->abstractElementMock = $this->createMock(AbstractElement::class);
         $this->tableRateMock = $this->createPartialMock(Tablerate::class, ['getAllowedMethods']);
@@ -52,6 +58,7 @@ class ShippingCodesTest extends TestCase
         $this->scopeConfigInterfaceMock = $this->createMock(ScopeConfigInterface::class);
         $this->uspsMock = $this->createMock(Carrier::class);
         $this->escaperMock = $this->createMock(Escaper::class);
+        $this->requestMock = $this->createPartialMock(Http::class, ['getParam']);
         $this->escaperMock->method('escapeHtml')
             ->willReturnCallback(
                 function ($html) {
@@ -60,13 +67,21 @@ class ShippingCodesTest extends TestCase
             );
         $this->contextMock->method('getEscaper')
             ->willReturn($this->escaperMock);
+        $this->contextMock->method('getScopeConfig')
+            ->willReturn($this->scopeConfigInterfaceMock);
+        $this->contextMock->method('getRequest')
+            ->willReturn($this->requestMock);
 
-        $this->blockMock = new ShippingCodes(
-            $this->contextMock,
-            $this->configMock,
-            $this->scopeConfigInterfaceMock,
-            []
+        $this->blockMock = $this->getObject(
+            ShippingCodes::class,
+            [
+                'context' => $this->contextMock,
+                'shippingConfig' => $this->configMock,
+            ]
         );
+
+        $this->requestMock->method('getParam')
+            ->willReturn(null);
     }
 
     public function testGetElementHtml()

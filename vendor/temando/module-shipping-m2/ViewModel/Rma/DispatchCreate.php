@@ -6,6 +6,7 @@ namespace Temando\Shipping\ViewModel\Rma;
 
 use Magento\Framework\UrlInterface;
 use Magento\Framework\View\Element\Block\ArgumentInterface;
+use Temando\Shipping\Model\ResourceModel\Repository\ShipmentRepositoryInterface;
 use Temando\Shipping\Model\ResourceModel\Rma\RmaAccess;
 use Temando\Shipping\ViewModel\DataProvider\ShippingApiAccess;
 use Temando\Shipping\ViewModel\DataProvider\ShippingApiAccessInterface;
@@ -33,6 +34,11 @@ class DispatchCreate implements ArgumentInterface, PageActionsInterface, Shippin
     private $rmaAccess;
 
     /**
+     * @var ShipmentRepositoryInterface
+     */
+    private $shipmentRepository;
+
+    /**
      * @var UrlInterface
      */
     private $urlBuilder;
@@ -41,15 +47,18 @@ class DispatchCreate implements ArgumentInterface, PageActionsInterface, Shippin
      * DispatchCreate constructor.
      * @param ShippingApiAccess $apiAccess
      * @param RmaAccess $rmaAccess
+     * @param ShipmentRepositoryInterface $shipmentRepository
      * @param UrlInterface $urlBuilder
      */
     public function __construct(
         ShippingApiAccess $apiAccess,
         RmaAccess $rmaAccess,
+        ShipmentRepositoryInterface $shipmentRepository,
         UrlInterface $urlBuilder
     ) {
         $this->apiAccess = $apiAccess;
         $this->rmaAccess = $rmaAccess;
+        $this->shipmentRepository = $shipmentRepository;
         $this->urlBuilder = $urlBuilder;
     }
 
@@ -100,12 +109,20 @@ class DispatchCreate implements ArgumentInterface, PageActionsInterface, Shippin
      */
     public function getRmaShipmentPageUrl(): string
     {
-        $rma = $this->rmaAccess->getCurrentRma();
+        $rmaShipmentId = $this->getRmaShipmentId();
+        $routeParams = ['ext_shipment_id' => $rmaShipmentId];
 
-        return $this->urlBuilder->getUrl('temando/rma_shipment/view', [
-            'rma_id' => $rma->getEntityId(),
-            'ext_shipment_id' => $this->getRmaShipmentId(),
-        ]);
+        $rma = $this->rmaAccess->getCurrentRma();
+        if (!$rma->getEntityId()) {
+            // forward-fulfillment return shipment
+            $shipment = $this->shipmentRepository->getReferenceByExtReturnShipmentId($rmaShipmentId);
+            $routeParams['shipment_id'] = $shipment->getShipmentId();
+        } else {
+            // ad-hoc return shipment
+            $routeParams['rma_id'] = $rma->getEntityId();
+        }
+
+        return $this->urlBuilder->getUrl('temando/rma_shipment/view', $routeParams);
     }
 
     /**

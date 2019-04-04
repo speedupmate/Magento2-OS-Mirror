@@ -6,6 +6,7 @@
 namespace Temando\Shipping\Model\ResourceModel\Repository;
 
 use Magento\Framework\Api\SearchCriteriaInterface;
+use Magento\Framework\Exception\CouldNotDeleteException;
 use Magento\Framework\Exception\CouldNotSaveException;
 use Temando\Shipping\Model\ShipmentInterface;
 
@@ -20,21 +21,16 @@ use Temando\Shipping\Model\ShipmentInterface;
 interface RmaShipmentRepositoryInterface
 {
     /**
-     * Query all external shipment IDs based on given search criteria.
-     *
-     * @param SearchCriteriaInterface $criteria
-     *
-     * @return int[]
-     */
-    public function getShipmentIds(SearchCriteriaInterface $criteria);
-
-    /**
-     * Load RMA shipments from platform based on given search criteria.
-     *
      * @param SearchCriteriaInterface $criteria
      * @return ShipmentInterface[]
      */
-    public function getShipments(SearchCriteriaInterface $criteria);
+    public function getAddedShipments(SearchCriteriaInterface $criteria);
+
+    /**
+     * @param SearchCriteriaInterface $criteria
+     * @return ShipmentInterface[]
+     */
+    public function getAvailableShipments(SearchCriteriaInterface $criteria);
 
     /**
      * Save external shipment IDs to be associated with core RMA entity.
@@ -45,4 +41,14 @@ interface RmaShipmentRepositoryInterface
      * @throws CouldNotSaveException
      */
     public function saveShipmentIds($rmaId, array $shipmentIds);
+
+    /**
+     * Revoke assignment of external shipment IDs with core RMA entity.
+     *
+     * @param int $rmaId
+     * @param string[] $shipmentIds
+     * @return int Number of saved shipments
+     * @throws CouldNotDeleteException
+     */
+    public function deleteShipmentIds($rmaId, array $shipmentIds);
 }

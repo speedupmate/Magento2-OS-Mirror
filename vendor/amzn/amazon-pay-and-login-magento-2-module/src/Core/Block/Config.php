@@ -21,9 +21,6 @@ use Magento\Customer\Model\Url;
 use Magento\Framework\View\Element\Template;
 use Magento\Framework\View\Element\Template\Context;
 
-/**
- * @api
- */
 class Config extends Template
 {
     /**
@@ -41,6 +38,13 @@ class Config extends Template
      */
     private $categoryExclusionHelper;
 
+    /**
+     * Config constructor.
+     * @param Context $context
+     * @param Data $coreHelper
+     * @param Url $url
+     * @param CategoryExclusion $categoryExclusionHelper
+     */
     public function __construct(
         Context $context,
         Data $coreHelper,
@@ -104,7 +108,7 @@ class Config extends Template
      */
     public function isExtensionEnabled()
     {
-        return $this->coreHelper->isEnabled();
+        return ($this->coreHelper->isPwaEnabled() || $this->coreHelper->isLwaEnabled());
     }
 
     /**

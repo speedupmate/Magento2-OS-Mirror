@@ -7,6 +7,7 @@
 namespace Vertex\Tax\Model\TaxQuote;
 
 use Vertex\Tax\Api\ClientInterface;
+use Vertex\Tax\Model\TaxRegistry;
 
 /**
  * Tax Quotation Request Service
@@ -21,21 +22,22 @@ class TaxQuoteRequest
     /** @var CacheKeyGenerator */
     private $cacheKeyGenerator;
 
-    /**
-     * Cache to hold the rates
-     *
-     * @var array
-     */
-    private $requestCache = [];
+    /** @var TaxRegistry */
+    private $taxRegistry;
 
     /**
      * @param ClientInterface $vertex
      * @param CacheKeyGenerator $cacheKeyGenerator
+     * @param TaxRegistry $taxRegistry
      */
-    public function __construct(ClientInterface $vertex, CacheKeyGenerator $cacheKeyGenerator)
-    {
+    public function __construct(
+        ClientInterface $vertex,
+        CacheKeyGenerator $cacheKeyGenerator,
+        TaxRegistry $taxRegistry
+    ) {
         $this->vertex = $vertex;
         $this->cacheKeyGenerator = $cacheKeyGenerator;
+        $this->taxRegistry = $taxRegistry;
     }
 
     /**
@@ -44,15 +46,18 @@ class TaxQuoteRequest
      * @param array $request
      * @return array|bool
      */
-    public function taxQuote($request)
+    public function taxQuote(array $request)
     {
         $cacheKey = $this->cacheKeyGenerator->generateCacheKey($request);
+        $response = $this->taxRegistry->lookup($cacheKey);
 
-        if (!isset($this->requestCache[$cacheKey])) {
+        if (!$response) {
             $response = $this->vertex->sendApiRequest($request, static::REQUEST_TYPE);
-            $this->requestCache[$cacheKey] = $response;
+
+            $this->taxRegistry->unregister($cacheKey);
+            $this->taxRegistry->register($cacheKey, $response);
         }
 
-        return $this->requestCache[$cacheKey];
+        return $response;
     }
 }

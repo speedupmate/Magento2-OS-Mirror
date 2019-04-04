@@ -4,10 +4,7 @@
  */
 namespace Temando\Shipping\Model\ResourceModel\Shipment;
 
-use Magento\Framework\EntityManager\EntityManager;
-use Magento\Framework\Model\AbstractModel;
-use Magento\Framework\Model\ResourceModel\Db\AbstractDb;
-use Magento\Framework\Model\ResourceModel\Db\Context;
+use Magento\Framework\Model\ResourceModel\Db\VersionControl\AbstractDb;
 use Temando\Shipping\Api\Data\Shipment\ShipmentReferenceInterface;
 use Temando\Shipping\Setup\SetupSchema;
 
@@ -22,26 +19,6 @@ use Temando\Shipping\Setup\SetupSchema;
 class ShipmentReference extends AbstractDb
 {
     /**
-     * @var EntityManager
-     */
-    private $entityManager;
-
-    /**
-     * Shipment constructor.
-     * @param Context $context
-     * @param EntityManager $entityManager
-     * @param null $connectionName
-     */
-    public function __construct(
-        Context $context,
-        EntityManager $entityManager,
-        $connectionName = null
-    ) {
-        $this->entityManager = $entityManager;
-        parent::__construct($context, $connectionName);
-    }
-
-    /**
      * Init main table and primary key
      * @return void
      */
@@ -51,31 +28,8 @@ class ShipmentReference extends AbstractDb
     }
 
     /**
-     * @param AbstractModel $object
-     * @param int $value
-     * @param null $field
-     * @return $this
-     */
-    public function load(AbstractModel $object, $value, $field = null)
-    {
-        $this->entityManager->load($object, $value);
-        return $this;
-    }
-
-    /**
-     * @param AbstractModel $object
-     * @return $this
-     * @throws \Exception
-     */
-    public function save(AbstractModel $object)
-    {
-        $this->entityManager->save($object);
-        return $this;
-    }
-
-    /**
      * @param int $shipmentId
-     * @return string
+     * @return int
      */
     public function getIdByShipmentId($shipmentId)
     {
@@ -93,9 +47,8 @@ class ShipmentReference extends AbstractDb
     }
 
     /**
-     * @param int $shipmentId
-     *
-     * @return string
+     * @param string $shipmentId
+     * @return int
      */
     public function getIdByExtShipmentId($shipmentId)
     {
@@ -113,9 +66,26 @@ class ShipmentReference extends AbstractDb
     }
 
     /**
+     * @param string $returnShipmentId
+     * @return int
+     */
+    public function getIdByExtReturnShipmentId($returnShipmentId)
+    {
+        $connection = $this->getConnection();
+        $table = $this->getMainTable();
+
+        $select = $connection->select()
+            ->from($table, ShipmentReferenceInterface::ENTITY_ID)
+            ->where('ext_return_shipment_id = :ext_return_shipment_id');
+
+        $bind = [':ext_return_shipment_id' => (string)$returnShipmentId];
+
+        return $connection->fetchOne($select, $bind);
+    }
+
+    /**
      * @param string[] $extShipmentIds
-     *
-     * @return string[]
+     * @return int[]
      */
     public function getShipmentIdsByExtShipmentIds(array $extShipmentIds)
     {

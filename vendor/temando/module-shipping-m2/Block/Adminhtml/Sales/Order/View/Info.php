@@ -5,13 +5,16 @@
 namespace Temando\Shipping\Block\Adminhtml\Sales\Order\View;
 
 use Magento\Framework\Exception\NoSuchEntityException;
-use Magento\Sales\Block\Adminhtml\Order\View\Info as SalesOrderInfo;
 use Magento\Sales\Api\Data\OrderAddressInterfaceFactory;
-use Temando\Shipping\Model\Shipment\ShipmentProviderInterface;
+use Magento\Sales\Block\Adminhtml\Order\View\Info as SalesOrderInfo;
 use Temando\Shipping\Model\ResourceModel\Order\OrderRepository;
+use Temando\Shipping\Model\Shipment\ShipmentProviderInterface;
 
 /**
  * Temando Shipment Info Layout Block
+ *
+ * @deprecated since 1.2.0 | Block data is provided by view model
+ * @see \Temando\Shipping\ViewModel\Shipment\Location
  *
  * @package  Temando\Shipping\Block
  * @author   Benjamin Heuer <benjamin.heuer@netresearch.de>
@@ -101,6 +104,7 @@ class Info extends SalesOrderInfo
                 $this->extShipment = $this->_coreRegistry->registry('ext_shipment');
             }
         }
+
         return $this->extShipment;
     }
 

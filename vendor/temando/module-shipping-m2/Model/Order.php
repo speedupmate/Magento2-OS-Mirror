@@ -52,6 +52,14 @@ class Order extends DataObject implements OrderInterface
     }
 
     /**
+     * @return string
+     */
+    public function getStatus()
+    {
+        return $this->getData(OrderInterface::STATUS);
+    }
+
+    /**
      * @return \Temando\Shipping\Model\Order\OrderBillingInterface
      */
     public function getBilling()
@@ -121,6 +129,22 @@ class Order extends DataObject implements OrderInterface
     public function getCheckoutFields()
     {
         return $this->getData(OrderInterface::CHECKOUT_FIELDS);
+    }
+
+    /**
+     * @return \Temando\Shipping\Api\Data\CollectionPoint\QuoteCollectionPointInterface
+     */
+    public function getCollectionPoint()
+    {
+        return $this->getData(OrderInterface::COLLECTION_POINT);
+    }
+
+    /**
+     * @return \Temando\Shipping\Api\Data\CollectionPoint\SearchRequestInterface
+     */
+    public function getCollectionPointSearchRequest()
+    {
+        return $this->getData(OrderInterface::COLLECTION_POINT_SEARCH_REQUEST);
     }
 
     /**

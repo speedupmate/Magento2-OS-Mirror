@@ -6,7 +6,7 @@
 
 namespace Vertex\Tax\Model\Request;
 
-use Magento\Quote\Model\Quote\Address;
+use Magento\Quote\Model\Quote\Address as QuoteAddress;
 
 /**
  * Delivery Term Formatter for Vertex API Calls
@@ -20,7 +20,7 @@ class DeliveryTerm
      * @param Address $taxAddress
      * @return array
      */
-    public function addDeliveryTerm($data, Address $taxAddress)
+    public function addDeliveryTerm($data, QuoteAddress $taxAddress)
     {
         if ($taxAddress->getCountryId() === 'CA') {
             $data['deliveryTerm'] = 'SUP';

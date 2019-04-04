@@ -6,10 +6,10 @@ namespace Temando\Shipping\Observer;
 
 use Magento\Framework\Event\Observer;
 use Magento\Framework\Event\ObserverInterface;
-use Temando\Shipping\Model\Shipment\PackageCollection;
-use Temando\Shipping\Model\Shipment\PackageInterface;
 use Temando\Shipping\Model\Shipment\ShipmentProviderInterface;
-use Temando\Shipping\Model\Shipping\Carrier;
+use Temando\Shipping\ViewModel\Order\OrderDetails;
+use Temando\Shipping\ViewModel\Shipment\Location;
+use Temando\Shipping\ViewModel\Shipment\ShipmentDetails;
 
 /**
  * Change shipment view template for temando shipments.
@@ -27,18 +27,51 @@ class PrepareShipmentViewObserver implements ObserverInterface
     private $shipmentProvider;
 
     /**
+     * @var Location
+     */
+    private $locationViewModel;
+
+    /**
+     * @var OrderDetails
+     */
+    private $orderDetailsViewModel;
+
+    /**
+     * @var ShipmentDetails
+     */
+    private $shipmentDetailsViewModel;
+
+    /**
      * PrepareShipmentViewObserver constructor.
      * @param ShipmentProviderInterface $shipmentProvider
+     * @param Location $locationViewModel
+     * @param OrderDetails $orderDetailsViewModel
+     * @param ShipmentDetails $shipmentDetailsViewModel
      */
-    public function __construct(ShipmentProviderInterface $shipmentProvider)
-    {
+    public function __construct(
+        ShipmentProviderInterface $shipmentProvider,
+        Location $locationViewModel,
+        OrderDetails $orderDetailsViewModel,
+        ShipmentDetails $shipmentDetailsViewModel
+    ) {
         $this->shipmentProvider = $shipmentProvider;
+        $this->locationViewModel = $locationViewModel;
+        $this->orderDetailsViewModel = $orderDetailsViewModel;
+        $this->shipmentDetailsViewModel = $shipmentDetailsViewModel;
     }
 
     /**
-     * Temando provides additional shipment details compared to the default
-     * carriers: origin location and documentation. Apply a custom template that
-     * includes child blocks with these data items.
+     * Temando provides additional shipment details compared to the default carriers:
+     * - external order reference
+     * - external shipment reference
+     * - origin location
+     * - delivery location
+     * - final recipient location
+     * - add-ons
+     * - documentation
+     * - export details
+     * Apply a custom template that includes child blocks with these data items.
+     *
      * - event: layout_generate_blocks_after
      *
      * Templates will only be changed if a shipment was loaded from the API.
@@ -66,7 +99,17 @@ class PrepareShipmentViewObserver implements ObserverInterface
 
         $formBlock = $layout->getBlock('form');
         if ($formBlock instanceof \Magento\Shipping\Block\Adminhtml\View\Form) {
+            // set template to render documentation, export details, add-ons
             $formBlock->setTemplate('Temando_Shipping::shipping/view/form.phtml');
+        }
+
+        $infoBlock = $layout->getBlock('order_info');
+        if ($infoBlock instanceof \Magento\Sales\Block\Adminhtml\Order\View\Info) {
+            // set template to render external entity references and addresses from platform
+            $infoBlock->setTemplate('Temando_Shipping::sales/order/shipment/view/info.phtml');
+            $infoBlock->setData('locationViewModel', $this->locationViewModel);
+            $infoBlock->setData('orderDetailsViewModel', $this->orderDetailsViewModel);
+            $infoBlock->setData('shipmentDetailsViewModel', $this->shipmentDetailsViewModel);
         }
 
         $originCountry = $shipment->getOriginLocation()->getCountryCode();
@@ -78,20 +121,9 @@ class PrepareShipmentViewObserver implements ObserverInterface
 
         $itemsBlock = $layout->getBlock('shipment_items');
         if ($itemsBlock instanceof \Magento\Shipping\Block\Adminhtml\View\Items) {
-            $itemsBlock->setTemplate('Temando_Shipping::shipping/view/form/items.phtml');
-
-            $packages = $shipment->getPackages();
-            if ($packages instanceof PackageCollection) {
-                $packages = $packages->getArrayCopy();
-            }
-
-            // if one day packages should be displayed separately, set package collection to the block
-            $items = array_reduce($packages, function (array $items, PackageInterface $package) {
-                $items = array_merge($items, $package->getItems());
-                return $items;
-            }, []);
-
-            $itemsBlock->setData('items', $items);
+            // set template to render international package details
+            $itemsBlock->setTemplate('Temando_Shipping::shipment/package_items.phtml');
+            $itemsBlock->setData('viewModel', $this->shipmentDetailsViewModel);
         }
     }
 }

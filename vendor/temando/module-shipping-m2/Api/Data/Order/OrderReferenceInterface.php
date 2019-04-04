@@ -23,6 +23,7 @@ interface OrderReferenceInterface
     const ENTITY_ID = 'entity_id';
     const ORDER_ID = 'order_id';
     const EXT_ORDER_ID = 'ext_order_id';
+    const COLLECTION_POINT_ID = 'collection_point_id';
     const SHIPPING_EXPERIENCES = 'shipping_experiences';
 
     /**
@@ -59,11 +60,13 @@ interface OrderReferenceInterface
     public function setExtOrderId($extOrderId);
 
     /**
+     * @deprecated since 1.2.0 | never populated, never used.
      * @return \Temando\Shipping\Api\Data\Order\ShippingExperienceInterface[]
      */
     public function getShippingExperiences();
 
     /**
+     * @deprecated since 1.2.0 | never populated, never used.
      * @param \Temando\Shipping\Api\Data\Order\ShippingExperienceInterface[] $shippingExperiences
      * @return void
      */

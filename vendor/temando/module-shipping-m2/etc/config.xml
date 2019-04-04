@@ -7,6 +7,8 @@
                 <title>Magento Shipping</title>
                 <sallowspecific>0</sallowspecific>
                 <active_rma>0</active_rma>
+                <collectionpoints_enabled>0</collectionpoints_enabled>
+                <collectionpoints_countries>US</collectionpoints_countries>
                 <specificerrmsg>This shipping method is not available. To use this shipping method, please contact us.</specificerrmsg>
                 <model>Temando\Shipping\Model\Shipping\Carrier</model>
                 <register_account_url>https://account.magento.com/shipping/onboarding/start</register_account_url>

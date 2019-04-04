@@ -82,6 +82,10 @@ class DispatchRepository implements DispatchRepositoryInterface
      */
     public function getById($dispatchId)
     {
+        if (!$dispatchId) {
+            throw new LocalizedException(__('An error occurred while loading data.'));
+        }
+
         try {
             $request = $this->completionRequestFactory->create(['entityId' => $dispatchId]);
             $apiCompletion = $this->apiAdapter->getCompletion($request);

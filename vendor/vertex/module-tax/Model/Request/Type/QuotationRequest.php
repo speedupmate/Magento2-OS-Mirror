@@ -7,7 +7,7 @@
 namespace Vertex\Tax\Model\Request\Type;
 
 use Magento\Framework\Stdlib\DateTime\DateTime;
-use Magento\Quote\Model\Quote\Address;
+use Magento\Quote\Api\Data\AddressInterface;
 use Vertex\Tax\Model\ModuleManager;
 use Vertex\Tax\Model\Request;
 use Vertex\Tax\Model\Request\LineItem;
@@ -61,24 +61,22 @@ class QuotationRequest
     /**
      * Create a properly formatted Quote Request for the Vertex API
      *
-     * @param Address $taxAddress
+     * @param AddressInterface $taxAddress
      * @return array
      * @throws \Magento\Framework\Exception\LocalizedException
      * @throws \Magento\Framework\Exception\NoSuchEntityException
      */
-    public function getFormattedRequestData(Address $taxAddress)
+    public function getFormattedRequestData(AddressInterface $taxAddress)
     {
         $date = $this->dateTime->date('Y-m-d');
         $taxLineItems = [];
-
         $taxLineItems = array_merge($taxLineItems, $this->getFormattedItemData($taxAddress));
-
         $taxLineItems[] = $this->lineItemShippingFormatter->getFormattedShippingLineItemData($taxAddress);
-
         $taxLineItems = array_merge($taxLineItems, $this->getFormattedOrderGiftWrapData($taxAddress));
         $taxLineItems = array_merge($taxLineItems, $this->getFormattedOrderPrintCardData($taxAddress));
 
         $request = $this->requestHeaderFormatter->getFormattedHeaderData();
+
         $request[static::REQUEST_TYPE] = [
             'documentDate' => $date,
             'postingDate' => $date,
@@ -92,12 +90,12 @@ class QuotationRequest
     /**
      * Create properly formatted line item data for a Quote Request
      *
-     * @param $taxAddress
+     * @param AddressInterface $taxAddress
      * @return array
      * @throws \Magento\Framework\Exception\LocalizedException
      * @throws \Magento\Framework\Exception\NoSuchEntityException
      */
-    private function getFormattedItemData($taxAddress)
+    private function getFormattedItemData(AddressInterface $taxAddress)
     {
         $giftWrappingEnabled = $this->moduleManager->isEnabled('Magento_GiftWrapping');
 
@@ -131,12 +129,12 @@ class QuotationRequest
     /**
      * Create properly formatted line item data of Order-level Giftwrapping for a Quote Request
      *
-     * @param Address $taxAddress
+     * @param AddressInterface $taxAddress
      * @return array
      * @throws \Magento\Framework\Exception\LocalizedException
      * @throws \Magento\Framework\Exception\NoSuchEntityException
      */
-    private function getFormattedOrderGiftWrapData($taxAddress)
+    private function getFormattedOrderGiftWrapData(AddressInterface $taxAddress)
     {
         if (!$taxAddress->getData('gw_id') || !$this->moduleManager->isEnabled('Magento_GiftWrapping')) {
             return [];
@@ -148,12 +146,12 @@ class QuotationRequest
     /**
      * Create properly formatted line item data of Order-level Printed Cards for a Quote Request
      *
-     * @param Address $taxAddress
+     * @param AddressInterface $taxAddress
      * @return array
      * @throws \Magento\Framework\Exception\LocalizedException
      * @throws \Magento\Framework\Exception\NoSuchEntityException
      */
-    private function getFormattedOrderPrintCardData($taxAddress)
+    private function getFormattedOrderPrintCardData(AddressInterface $taxAddress)
     {
         if (!$taxAddress->getData('gw_add_card') || !$this->moduleManager->isEnabled('Magento_GiftWrapping')) {
             return [];

@@ -37,12 +37,12 @@ class Attributes
     private $type;
 
     /**
-     * @var \Temando\Shipping\Rest\Response\Type\Generic\Weight
+     * @var \Temando\Shipping\Rest\Response\Type\Generic\Value
      */
     private $maximumWeight;
 
     /**
-     * @var \Temando\Shipping\Rest\Response\Type\Generic\Weight
+     * @var \Temando\Shipping\Rest\Response\Type\Generic\Value
      */
     private $tareWeight;
 
@@ -115,7 +115,7 @@ class Attributes
     }
 
     /**
-     * @return \Temando\Shipping\Rest\Response\Type\Generic\Weight
+     * @return \Temando\Shipping\Rest\Response\Type\Generic\Value
      */
     public function getMaximumWeight()
     {
@@ -123,7 +123,7 @@ class Attributes
     }
 
     /**
-     * @param \Temando\Shipping\Rest\Response\Type\Generic\Weight $maximumWeight
+     * @param \Temando\Shipping\Rest\Response\Type\Generic\Value $maximumWeight
      * @return void
      */
     public function setMaximumWeight($maximumWeight)
@@ -132,7 +132,7 @@ class Attributes
     }
 
     /**
-     * @return \Temando\Shipping\Rest\Response\Type\Generic\Weight
+     * @return \Temando\Shipping\Rest\Response\Type\Generic\Value
      */
     public function getTareWeight()
     {
@@ -140,7 +140,7 @@ class Attributes
     }
 
     /**
-     * @param \Temando\Shipping\Rest\Response\Type\Generic\Weight $tareWeight
+     * @param \Temando\Shipping\Rest\Response\Type\Generic\Value $tareWeight
      * @return void
      */
     public function setTareWeight($tareWeight)

@@ -54,7 +54,7 @@ class SendRequestTest extends TestCase
             ApiClient::class,
             ['config' => $configMock]
         );
-        $result = $this->invokeInaccessibleMethod($vertex, 'performSoapCall', $soapClientMock, 'calculate', '');
+        $result = $this->invokeInaccessibleMethod($vertex, 'performSoapCall', $soapClientMock, 'quote', '');
 
         $this->assertEquals($calculationReturn, $result);
     }
@@ -113,6 +113,6 @@ class SendRequestTest extends TestCase
                 'config' => $configMock,
             ]
         );
-        $this->invokeInaccessibleMethod($vertex, 'performSoapCall', $soapMock, 'calculate', '');
+        $this->invokeInaccessibleMethod($vertex, 'performSoapCall', $soapMock, 'quote', '');
     }
 }

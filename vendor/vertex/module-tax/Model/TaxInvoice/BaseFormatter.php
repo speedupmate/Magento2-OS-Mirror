@@ -72,16 +72,14 @@ class BaseFormatter
             $countryName = '';
         }
 
-        $companyState = '';
-        if (is_int($regionId) && $country !== null) {
+        $companyState = null;
+        if ($country !== null) {
             foreach ($country->getAvailableRegions() as $region) {
                 if ($region->getId() == $regionId) {
                     $companyState = $region->getCode();
                     break;
                 }
             }
-        } else {
-            $companyState = $regionId;
         }
 
         $data['location_code'] = $this->config->getLocationCode($store);
@@ -114,7 +112,9 @@ class BaseFormatter
         $data['customer_postcode'] = $address->getPostcode();
 
         try {
-            $country = $this->countryInfoAcquirer->getCountryInfo($this->config->getCompanyCountry());
+            $country = $this->countryInfoAcquirer->getCountryInfo(
+                $this->config->getCompanyCountry($address->getOrder()->getStoreId())
+            );
             $countryName = $country->getThreeLetterAbbreviation();
         } catch (NoSuchEntityException $exception) {
             $countryName = '';

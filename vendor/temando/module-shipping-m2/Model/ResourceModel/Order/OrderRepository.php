@@ -16,7 +16,8 @@ use Temando\Shipping\Rest\EntityMapper\OrderResponseMapper;
 use Temando\Shipping\Rest\Exception\AdapterException;
 use Temando\Shipping\Rest\Request\OrderRequestInterfaceFactory;
 use Temando\Shipping\Rest\Request\Type\OrderRequestTypeInterface;
-use Temando\Shipping\Rest\Response\UpdateOrder;
+use Temando\Shipping\Webservice\OrderActionLocator;
+use Temando\Shipping\Webservice\Response\Type\OrderResponseTypeInterface;
 
 /**
  * Temando Order Repository
@@ -47,7 +48,7 @@ class OrderRepository implements OrderRepositoryInterface
     /**
      * @var OrderResponseMapper
      */
-    private $orderReferenceMapper;
+    private $orderResponseMapper;
 
     /**
      * @var OrderReference
@@ -60,28 +61,36 @@ class OrderRepository implements OrderRepositoryInterface
     private $orderReferenceFactory;
 
     /**
+     * @var OrderActionLocator
+     */
+    private $orderActionLocator;
+
+    /**
      * OrderRepository constructor.
      * @param OrderApiInterface $apiAdapter
      * @param OrderRequestInterfaceFactory $requestFactory
      * @param OrderRequestTypeBuilder $requestBuilder
-     * @param OrderResponseMapper $orderReferenceMapper
+     * @param OrderResponseMapper $orderResponseMapper
      * @param OrderReference $resource
      * @param OrderReferenceInterfaceFactory $orderReferenceFactory
+     * @param OrderActionLocator $orderActionLocator
      */
     public function __construct(
         OrderApiInterface $apiAdapter,
         OrderRequestInterfaceFactory $requestFactory,
         OrderRequestTypeBuilder $requestBuilder,
-        OrderResponseMapper $orderReferenceMapper,
+        OrderResponseMapper $orderResponseMapper,
         OrderReference $resource,
-        OrderReferenceInterfaceFactory $orderReferenceFactory
+        OrderReferenceInterfaceFactory $orderReferenceFactory,
+        OrderActionLocator $orderActionLocator
     ) {
         $this->apiAdapter = $apiAdapter;
         $this->requestFactory = $requestFactory;
         $this->requestBuilder = $requestBuilder;
-        $this->orderReferenceMapper = $orderReferenceMapper;
+        $this->orderResponseMapper = $orderResponseMapper;
         $this->resource = $resource;
         $this->orderReferenceFactory = $orderReferenceFactory;
+        $this->orderActionLocator = $orderActionLocator;
     }
 
     /**
@@ -104,7 +113,7 @@ class OrderRepository implements OrderRepositoryInterface
 
     /**
      * @param OrderRequestTypeInterface $orderType
-     * @return UpdateOrder
+     * @return OrderResponseTypeInterface
      * @throws CouldNotSaveException
      */
     private function create(OrderRequestTypeInterface $orderType)
@@ -116,15 +125,55 @@ class OrderRepository implements OrderRepositoryInterface
         try {
             $createdOrder = $this->apiAdapter->createOrder($orderRequest);
         } catch (AdapterException $e) {
-            throw new CouldNotSaveException(__($e->getMessage()), $e);
+            throw new CouldNotSaveException(__('Unable to save order.'), $e);
         }
 
-        return $createdOrder;
+        return $this->orderResponseMapper->mapCreatedOrder($createdOrder);
     }
 
     /**
      * @param OrderRequestTypeInterface $orderType
-     * @return UpdateOrder
+     * @return OrderResponseTypeInterface
+     * @throws CouldNotSaveException
+     */
+    private function quoteCollectionPoints(OrderRequestTypeInterface $orderType)
+    {
+        $orderRequest = $this->requestFactory->create([
+            'order' => $orderType,
+        ]);
+
+        try {
+            $quotedOrder = $this->apiAdapter->getCollectionPoints($orderRequest);
+        } catch (AdapterException $e) {
+            throw new CouldNotSaveException(__('Unable to get quotes.'), $e);
+        }
+
+        return $this->orderResponseMapper->mapCollectionPoints($quotedOrder);
+    }
+
+    /**
+     * @param OrderRequestTypeInterface $orderType
+     * @return OrderResponseTypeInterface
+     * @throws CouldNotSaveException
+     */
+    private function allocate(OrderRequestTypeInterface $orderType)
+    {
+        $orderRequest = $this->requestFactory->create([
+            'order' => $orderType,
+        ]);
+
+        try {
+            $allocatedOrder = $this->apiAdapter->allocateOrder($orderRequest);
+        } catch (AdapterException $e) {
+            throw new CouldNotSaveException(__('Unable to allocate shipments.'), $e);
+        }
+
+        return $this->orderResponseMapper->mapAllocatedOrder($allocatedOrder);
+    }
+
+    /**
+     * @param OrderRequestTypeInterface $orderType
+     * @return OrderResponseTypeInterface
      * @throws CouldNotSaveException
      */
     private function update(OrderRequestTypeInterface $orderType)
@@ -137,47 +186,54 @@ class OrderRepository implements OrderRepositoryInterface
         try {
             $updatedOrder = $this->apiAdapter->updateOrder($orderRequest);
         } catch (AdapterException $e) {
-            throw new CouldNotSaveException(__($e->getMessage()), $e);
+            throw new CouldNotSaveException(__('Unable to save order.'), $e);
         }
 
-        return $updatedOrder;
+        return $this->orderResponseMapper->mapUpdatedOrder($updatedOrder);
     }
 
     /**
      * @param OrderInterface $order
-     * @param OrderReferenceInterface $orderReference
-     * @return OrderReferenceInterface
+     * @return OrderResponseTypeInterface
      * @throws CouldNotSaveException
      */
-    public function save(OrderInterface $order, OrderReferenceInterface $orderReference)
+    public function save(OrderInterface $order)
     {
-        // local extension attribute identifier
-        $orderReferenceId = $orderReference->getEntityId();
-        // remote order entity identifier
-        $platformOrderId = $orderReference->getExtOrderId();
-        // local order entity identifier
-        $salesOrderId = $orderReference->getOrderId();
-
         // build order request type
         $orderType = $this->requestBuilder->build($order);
 
-        if (!$platformOrderId) {
-            $orderResponse = $this->create($orderType);
-        } else {
-            $orderResponse = $this->update($orderType);
+        $apiAction = $this->orderActionLocator->getOrderAction($order);
+        switch ($apiAction) {
+            case OrderActionLocator::ACTION_QUALIFY:
+            case OrderActionLocator::ACTION_PERSIST:
+                $orderResponse = $this->create($orderType);
+                break;
+            case OrderActionLocator::ACTION_ALLOCATE:
+                $orderResponse = $this->allocate($orderType);
+                break;
+            case OrderActionLocator::ACTION_QUOTE_COLLECTION_POINTS:
+                $orderResponse = $this->quoteCollectionPoints($orderType);
+                break;
+            case OrderActionLocator::ACTION_UPDATE:
+                $orderResponse = $this->update($orderType);
+                break;
+            default:
+                throw new CouldNotSaveException(__('Cannot save order: no applicable API action found.'));
         }
 
-        // create or update local order reference
-        $orderReference = $this->orderReferenceMapper->map($orderResponse);
-        $orderReference->setEntityId($orderReferenceId);
-        $orderReference->setOrderId($salesOrderId);
+        if ($order->getSourceId() && !$order->getOrderId()) {
+            // persist order reference if
+            // - local order entity exists
+            // - remote order entity does not yet exist
+            $orderReference = $this->orderReferenceFactory->create(['data' => [
+                OrderReferenceInterface::EXT_ORDER_ID => $orderResponse->getExtOrderId(),
+                OrderReferenceInterface::ORDER_ID => $order->getSourceId(),
+            ]]);
 
-        if (!$orderReference->getOrderId()) {
-            // no local reference key available yet
-            return $orderReference;
+            $this->saveReference($orderReference);
         }
 
-        return $this->saveReference($orderReference);
+        return $orderResponse;
     }
 
     /**
@@ -191,7 +247,7 @@ class OrderRepository implements OrderRepositoryInterface
             /** @var \Temando\Shipping\Model\Order\OrderReference $orderReference */
             $this->resource->save($orderReference);
         } catch (\Exception $exception) {
-            throw new CouldNotSaveException(__($exception->getMessage()));
+            throw new CouldNotSaveException(__('Unable to save order reference.'), $exception);
         }
 
         return $orderReference;

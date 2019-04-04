@@ -6,7 +6,7 @@ namespace Temando\Shipping\Block\Checkout;
 
 use Magento\Checkout\Block\Checkout\LayoutProcessorInterface;
 use Magento\Store\Model\StoreManagerInterface;
-use Temando\Shipping\Model\Config\ModuleConfig;
+use Temando\Shipping\Model\Config\ModuleConfigInterface;
 
 /**
  * Checkout LayoutProcessor
@@ -21,9 +21,9 @@ use Temando\Shipping\Model\Config\ModuleConfig;
 class LayoutProcessor implements LayoutProcessorInterface
 {
     /**
-     * @var ModuleConfig
+     * @var ModuleConfigInterface
      */
-    private $moduleConfig;
+    private $config;
 
     /**
      * @var StoreManagerInterface
@@ -33,27 +33,37 @@ class LayoutProcessor implements LayoutProcessorInterface
     /**
      * LayoutProcessor constructor.
      *
-     * @param ModuleConfig          $moduleConfig
+     * @param ModuleConfigInterface $moduleConfig
      * @param StoreManagerInterface $storeManager
      */
-    public function __construct(ModuleConfig $moduleConfig, StoreManagerInterface $storeManager)
+    public function __construct(ModuleConfigInterface $moduleConfig, StoreManagerInterface $storeManager)
     {
-        $this->moduleConfig = $moduleConfig;
+        $this->config = $moduleConfig;
         $this->storeManager = $storeManager;
     }
 
     /**
      * Process js Layout, unset delivery option for collection points based on config.
      *
-     * @param array $jsLayout
-     * @return array
+     * @param mixed[] $jsLayout
+     * @return mixed[]
      */
     public function process($jsLayout)
     {
-        if (!$this->moduleConfig->isEnabled($this->storeManager->getStore()->getId())) {
+        $storeId = $this->storeManager->getStore()->getId();
+        $isCheckoutEnabled = $this->config->isEnabled($storeId);
+        $isCollectionPointsEnabled = $this->config->isCollectionPointsEnabled($storeId);
+
+        if (!$isCheckoutEnabled) {
             $shippingStep = &$jsLayout['components']['checkout']['children']['steps']['children']['shipping-step'];
             unset($shippingStep['children']['shippingAddress']['children']['checkoutFields']);
+            // @codingStandardsIgnoreLine
             unset($shippingStep['children']['step-config']['children']['shipping-rates-validation']['children']['temando-rates-validation']);
+        }
+
+        if (!$isCheckoutEnabled || !$isCollectionPointsEnabled) {
+            $shippingStep = &$jsLayout['components']['checkout']['children']['steps']['children']['shipping-step'];
+            unset($shippingStep['children']['shippingAddress']['children']['deliveryOptions']);
         }
 
         return $jsLayout;

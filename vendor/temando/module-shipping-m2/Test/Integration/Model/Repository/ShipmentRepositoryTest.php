@@ -6,7 +6,6 @@ namespace Temando\Shipping\Model\ResourceModel\Shipment;
 
 use Magento\Framework\Session\SessionManagerInterface;
 use Magento\TestFramework\Helper\Bootstrap;
-use Temando\Shipping\Model\DocumentationCollection;
 use Temando\Shipping\Model\ResourceModel\Repository\ShipmentRepositoryInterface;
 use Temando\Shipping\Model\ShipmentInterface;
 use Temando\Shipping\Rest\AuthenticationInterface;
@@ -96,11 +95,9 @@ class ShipmentRepositoryTest extends \PHPUnit\Framework\TestCase
         $this->assertInstanceOf(ShipmentInterface::class, $shipment);
         $this->assertEquals($shipmentId, $shipment->getShipmentId());
 
-        /** @var DocumentationCollection $documentation */
         $documentation = $shipment->getDocumentation();
-        $this->assertInstanceOf(DocumentationCollection::class, $documentation);
+        $this->assertInternalType('array', $documentation);
         $this->assertNotEmpty($documentation);
-        $this->assertNotEmpty($documentation->getArrayCopy());
         $this->assertCount(2, $documentation);
     }
 }

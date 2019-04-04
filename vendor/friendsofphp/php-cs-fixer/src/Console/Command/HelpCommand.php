@@ -17,6 +17,8 @@ use PhpCsFixer\Fixer\ConfigurableFixerInterface;
 use PhpCsFixer\Fixer\ConfigurationDefinitionFixerInterface;
 use PhpCsFixer\Fixer\DefinedFixerInterface;
 use PhpCsFixer\Fixer\FixerInterface;
+use PhpCsFixer\FixerConfiguration\AliasedFixerOption;
+use PhpCsFixer\FixerConfiguration\AllowedValueSubset;
 use PhpCsFixer\FixerConfiguration\FixerOptionInterface;
 use PhpCsFixer\FixerFactory;
 use PhpCsFixer\Preg;
@@ -325,6 +327,14 @@ EOF
             });
 
             usort($allowed, function ($valueA, $valueB) {
+                if ($valueA instanceof AllowedValueSubset) {
+                    return -1;
+                }
+
+                if ($valueB instanceof AllowedValueSubset) {
+                    return 1;
+                }
+
                 return strcasecmp(
                     HelpCommand::toString($valueA),
                     HelpCommand::toString($valueB)
@@ -488,14 +498,23 @@ EOF
                         $allowed = self::getDisplayableAllowedValues($option);
                         if (null !== $allowed) {
                             foreach ($allowed as &$value) {
-                                $value = self::toString($value);
+                                if ($value instanceof AllowedValueSubset) {
+                                    $value = 'a subset of <comment>'.self::toString($value->getAllowedValues()).'</comment>';
+                                } else {
+                                    $value = '<comment>'.self::toString($value).'</comment>';
+                                }
                             }
                         } else {
-                            $allowed = $option->getAllowedTypes();
+                            $allowed = array_map(
+                                function ($type) {
+                                    return '<comment>'.$type.'</comment>';
+                                },
+                                $option->getAllowedTypes()
+                            );
                         }
 
                         if (null !== $allowed) {
-                            $line .= ' (<comment>'.implode('</comment>, <comment>', $allowed).'</comment>)';
+                            $line .= ' ('.implode(', ', $allowed).')';
                         }
 
                         $line .= ': '.Preg::replace(
@@ -507,6 +526,10 @@ EOF
                             $line .= 'defaults to <comment>'.self::toString($option->getDefault()).'</comment>';
                         } else {
                             $line .= 'required';
+                        }
+
+                        if ($option instanceof AliasedFixerOption) {
+                            $line .= '; DEPRECATED alias: <comment>'.$option->getAlias().'</comment>';
                         }
 
                         foreach (self::wordwrap($line, 72) as $index => $line) {

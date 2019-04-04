@@ -4,20 +4,16 @@
  */
 namespace Temando\Shipping\Rest\EntityMapper;
 
-use Magento\Directory\Helper\Data;
-use Magento\Framework\Exception\LocalizedException;
-use Magento\Framework\Locale\ResolverInterface;
-use Magento\Store\Model\StoreManagerInterface;
 use Psr\Log\LoggerInterface;
-use Temando\Shipping\Api\Data\Order\OrderReferenceInterface;
 use Temando\Shipping\Api\Data\Order\OrderReferenceInterfaceFactory;
-use Temando\Shipping\Api\Data\Order\ShippingExperienceInterface;
 use Temando\Shipping\Api\Data\Order\ShippingExperienceInterfaceFactory;
-use Temando\Shipping\Rest\Response\Type\Order\Included\Attributes\Experience;
-use Temando\Shipping\Rest\Response\Type\Order\Included\Attributes\Experience\Cost;
-use Temando\Shipping\Rest\Response\Type\Order\Included\Attributes\Experience\Description;
+use Temando\Shipping\Rest\Response\AllocateOrderInterface;
+use Temando\Shipping\Rest\Response\CreateOrderInterface;
+use Temando\Shipping\Rest\Response\GetCollectionPointsInterface;
 use Temando\Shipping\Rest\Response\Type\OrderIncludedResponseType;
-use Temando\Shipping\Rest\Response\UpdateOrder;
+use Temando\Shipping\Rest\Response\UpdateOrderInterface;
+use Temando\Shipping\Webservice\Response\Type\OrderResponseTypeInterface;
+use Temando\Shipping\Webservice\Response\Type\OrderResponseTypeInterfaceFactory;
 
 /**
  * Map API data to application data object
@@ -41,19 +37,24 @@ class OrderResponseMapper
     private $shippingExperienceFactory;
 
     /**
-     * @var ResolverInterface
+     * @var OrderResponseTypeInterfaceFactory
      */
-    private $localeResolver;
+    private $orderResponseFactory;
 
     /**
-     * @var Data
+     * @var ShippingExperiencesMapper
      */
-    private $directoryHelper;
+    private $shippingExperiencesMapper;
 
     /**
-     * @var StoreManagerInterface
+     * @var OrderAllocationResponseMapper
      */
-    private $storeManager;
+    private $allocationMapper;
+
+    /**
+     * @var CollectionPointsResponseMapper
+     */
+    private $collectionPointsMapper;
 
     /**
      * @var LoggerInterface
@@ -64,131 +65,105 @@ class OrderResponseMapper
      * OrderResponseMapper constructor.
      * @param OrderReferenceInterfaceFactory $orderReferenceFactory
      * @param ShippingExperienceInterfaceFactory $shippingExperienceFactory
-     * @param ResolverInterface $localeResolver
-     * @param Data $directoryHelper
-     * @param StoreManagerInterface $storeManager
+     * @param OrderResponseTypeInterfaceFactory $orderResponseFactory
+     * @param ShippingExperiencesMapper $shippingExperiencesMapper
+     * @param OrderAllocationResponseMapper $allocationMapper
+     * @param CollectionPointsResponseMapper $collectionPointsMapper
      * @param LoggerInterface $logger
      */
     public function __construct(
         OrderReferenceInterfaceFactory $orderReferenceFactory,
         ShippingExperienceInterfaceFactory $shippingExperienceFactory,
-        ResolverInterface $localeResolver,
-        Data $directoryHelper,
-        StoreManagerInterface $storeManager,
+        OrderResponseTypeInterfaceFactory $orderResponseFactory,
+        ShippingExperiencesMapper $shippingExperiencesMapper,
+        OrderAllocationResponseMapper $allocationMapper,
+        CollectionPointsResponseMapper $collectionPointsMapper,
         LoggerInterface $logger
     ) {
         $this->orderReferenceFactory = $orderReferenceFactory;
         $this->shippingExperienceFactory = $shippingExperienceFactory;
-        $this->localeResolver = $localeResolver;
-        $this->directoryHelper = $directoryHelper;
-        $this->storeManager = $storeManager;
+        $this->orderResponseFactory = $orderResponseFactory;
+        $this->shippingExperiencesMapper =$shippingExperiencesMapper;
+        $this->allocationMapper = $allocationMapper;
+        $this->collectionPointsMapper = $collectionPointsMapper;
         $this->logger = $logger;
     }
 
     /**
-     * @param Description[] $descriptions
-     * @return string
+     * @param CreateOrderInterface $apiOrder
+     * @return OrderResponseTypeInterface
      */
-    private function getLocalizedDescription(array $descriptions)
+    public function mapCreatedOrder(CreateOrderInterface $apiOrder)
     {
-        $descriptionFilter = function ($descriptions, $locale) {
-            /** @var Description $description */
-            foreach ($descriptions as $description) {
-                if ($description->getLocale() === $locale) {
-                    return $description;
-                }
-            }
+        $extOrderId = $apiOrder->getData()->getId();
 
-            return null;
-        };
-
-        // try locale exact match first
-        $locale = $this->localeResolver->getLocale();
-        $fallbacks = [$locale, substr($locale, 0, 2), 'en'];
-
-        do {
-            $lang = array_shift($fallbacks);
-            $localizedDescription = $descriptionFilter($descriptions, $lang);
-        } while (!empty($fallbacks) && !$localizedDescription);
-
-        return ($localizedDescription ? $localizedDescription->getText() : '');
-    }
-
-    /**
-     * @param Cost[] $cost
-     *
-     * @return float
-     * @throws LocalizedException
-     */
-    private function extractShippingCost(array $cost)
-    {
-        /** @var \Magento\Store\Model\Store $currentStore */
-        $currentStore = $this->storeManager->getStore();
-        $baseCurrency = $currentStore->getBaseCurrencyCode();
-
-        $warningTemplate = "%1 is not a valid shipping method currency. Use %2 when configuring rates.";
-
-        $applicableCosts = array_filter($cost, function (Cost $item) use ($baseCurrency, $warningTemplate) {
-            if ($item->getCurrency() !== $baseCurrency) {
-                $message = __($warningTemplate, $item->getCurrency(), $baseCurrency);
-                $this->logger->warning($message->render());
-
-                return false;
-            }
-
-            return true;
-        });
-
-        if (empty($applicableCosts)) {
-            throw new LocalizedException(__('No applicable shipping cost found in webservice response.'));
-        }
-
-        // return first available cost
-        $item = current($applicableCosts);
-        return $item->getAmount();
-    }
-
-    /**
-     * @param UpdateOrder $apiOrder
-     *
-     * @return OrderReferenceInterface
-     * @throws LocalizedException
-     */
-    public function map(UpdateOrder $apiOrder)
-    {
         /** @var OrderIncludedResponseType[] $included */
-        $included = array_filter($apiOrder->getIncluded(), function (OrderIncludedResponseType $element) {
+        $apiIncluded = array_filter($apiOrder->getIncluded(), function (OrderIncludedResponseType $element) {
             return ($element->getType() == 'orderQualification');
         });
+        /** @var \Temando\Shipping\Rest\Response\Type\CollectionPoints\Included\Attributes[] $sets */
+        $apiExperiences = array_reduce($apiIncluded, function ($experiences, OrderIncludedResponseType $apiIncluded) {
+            return array_merge($experiences, $apiIncluded->getAttributes()->getExperiences());
+        }, []);
+        $shippingExperiences = $this->shippingExperiencesMapper->map($apiExperiences);
 
-        /** @var ShippingExperienceInterface[] $shippingExperiences */
-        $apiExperiences = $included[0]->getAttributes()->getExperiences();
-        $shippingExperiences = [];
-
-        foreach ($apiExperiences as $apiExperience) {
-            try {
-                $cost = $this->extractShippingCost($apiExperience->getCost());
-            } catch (LocalizedException $e) {
-                $this->logger->error($e->getMessage(), ['exception' => $e]);
-                continue;
-            }
-
-            $description = $this->getLocalizedDescription($apiExperience->getDescription());
-            $shippingExperience = $this->shippingExperienceFactory->create([
-                ShippingExperienceInterface::LABEL => $description,
-                ShippingExperienceInterface::CODE => $apiExperience->getCode(),
-                ShippingExperienceInterface::COST => $cost,
-            ]);
-
-            $shippingExperiences[]= $shippingExperience;
-        }
-
-        /** @var \Temando\Shipping\Model\Order\OrderReference $orderReference */
-        $orderReference = $this->orderReferenceFactory->create(['data' => [
-            OrderReferenceInterface::EXT_ORDER_ID => $apiOrder->getData()->getId(),
-            OrderReferenceInterface::SHIPPING_EXPERIENCES => $shippingExperiences,
+        $orderResponse = $this->orderResponseFactory->create(['data' => [
+            OrderResponseTypeInterface::EXT_ORDER_ID => $extOrderId,
+            OrderResponseTypeInterface::SHIPPING_EXPERIENCES => $shippingExperiences,
         ]]);
 
-        return $orderReference;
+        return $orderResponse;
+    }
+
+    /**
+     * @param UpdateOrderInterface $apiOrder
+     * @return OrderResponseTypeInterface
+     */
+    public function mapUpdatedOrder(UpdateOrderInterface $apiOrder)
+    {
+        $extOrderId = $apiOrder->getData()->getId();
+
+        $orderResponse = $this->orderResponseFactory->create(['data' => [
+            OrderResponseTypeInterface::EXT_ORDER_ID => $extOrderId,
+        ]]);
+
+        return $orderResponse;
+    }
+
+    /**
+     * @param AllocateOrderInterface $apiOrder
+     * @return OrderResponseTypeInterface
+     */
+    public function mapAllocatedOrder(AllocateOrderInterface $apiOrder)
+    {
+        $extOrderId = $apiOrder->getData()->getId();
+        $errors = $this->allocationMapper->mapErrors($apiOrder->getIncluded());
+        $shipments = $this->allocationMapper->mapShipments($apiOrder->getIncluded());
+
+        $orderResponse = $this->orderResponseFactory->create(['data' => [
+            OrderResponseTypeInterface::EXT_ORDER_ID => $extOrderId,
+            OrderResponseTypeInterface::ERRORS => $errors,
+            OrderResponseTypeInterface::SHIPMENTS => $shipments,
+        ]]);
+
+        return $orderResponse;
+    }
+
+    /**
+     * @param GetCollectionPointsInterface $apiOrder
+     * @return OrderResponseTypeInterface
+     */
+    public function mapCollectionPoints(GetCollectionPointsInterface $apiOrder)
+    {
+        $extOrderId = $apiOrder->getData()->getId();
+        $collectionPoints = $this->collectionPointsMapper->map($apiOrder->getIncluded());
+
+        $orderResponse = $this->orderResponseFactory->create(['data' => [
+            OrderResponseTypeInterface::EXT_ORDER_ID => $extOrderId,
+            OrderResponseTypeInterface::COLLECTION_POINTS => $collectionPoints,
+            OrderResponseTypeInterface::SHIPPING_EXPERIENCES => [],
+        ]]);
+
+        return $orderResponse;
     }
 }

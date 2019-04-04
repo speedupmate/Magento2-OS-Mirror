@@ -35,21 +35,21 @@ class Dimensions implements \JsonSerializable, EmptyFilterableInterface
     /**
      * @var string
      */
-    private $unitOfMeasurement;
+    private $unit;
 
     /**
      * Dimensions constructor.
      * @param float $length
      * @param float $width
      * @param float $height
-     * @param string $unitOfMeasurement
+     * @param string $unit
      */
-    public function __construct($length, $width, $height, $unitOfMeasurement)
+    public function __construct($length, $width, $height, $unit)
     {
         $this->length = $length;
         $this->width = $width;
         $this->height = $height;
-        $this->unitOfMeasurement = $unitOfMeasurement;
+        $this->unit = $unit;
     }
 
     /**
@@ -57,7 +57,12 @@ class Dimensions implements \JsonSerializable, EmptyFilterableInterface
      */
     public function jsonSerialize()
     {
-        return get_object_vars($this);
+        return [
+            'length' => floatval($this->length),
+            'width' => floatval($this->width),
+            'height' => floatval($this->height),
+            'unit' => $this->unit,
+        ];
     }
 
     /**

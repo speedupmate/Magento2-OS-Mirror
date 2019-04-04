@@ -59,7 +59,7 @@ class TaxAreaRequestTest extends TestCase
 
         $vertexMock = $this->createMock(ApiClient::class);
         $vertexMock->expects($this->once())
-            ->method('sendApiRequest')
+            ->method('performRequest')
             ->with(
                 $this->callback(
                     function ($requestData) use ($address) {

@@ -15,12 +15,12 @@ namespace Temando\Shipping\Rest\Response\Type\Order\Included;
 class Attributes
 {
     /**
-     * @var \Temando\Shipping\Rest\Response\Type\Order\Included\Attributes\Experience[]
+     * @var \Temando\Shipping\Rest\Response\Type\Generic\Experience[]
      */
     private $experiences = [];
 
     /**
-     * @return \Temando\Shipping\Rest\Response\Type\Order\Included\Attributes\Experience[]
+     * @return \Temando\Shipping\Rest\Response\Type\Generic\Experience[]
      */
     public function getExperiences()
     {
@@ -28,7 +28,7 @@ class Attributes
     }
 
     /**
-     * @param \Temando\Shipping\Rest\Response\Type\Order\Included\Attributes\Experience[] $experiences
+     * @param \Temando\Shipping\Rest\Response\Type\Generic\Experience[] $experiences
      * @return void
      */
     public function setExperiences($experiences)

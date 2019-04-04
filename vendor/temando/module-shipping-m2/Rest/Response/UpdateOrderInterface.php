@@ -5,7 +5,7 @@
 namespace Temando\Shipping\Rest\Response;
 
 /**
- * Temando API Order Operation
+ * Temando API Update Order Operation
  *
  * @package  Temando\Shipping\Rest
  * @author   Christoph Aßmann <christoph.assmann@netresearch.de>

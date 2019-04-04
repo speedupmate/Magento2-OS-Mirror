@@ -7,11 +7,11 @@ namespace Temando\Shipping\Api\Quote;
 use Magento\Quote\Api\Data\AddressExtensionInterface;
 
 /**
+ * @deprecated since 1.2.0
  * Interface ShippingMethodManagementInterface
  *
  * Allow additional data (extension attributes) to be passed into the shipping
  * estimation process.
- *
  * @api
  */
 interface ShippingMethodManagementInterface

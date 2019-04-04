@@ -94,7 +94,7 @@ class Attributes
     }
 
     /**
-     * @param \string[] $integrationServiceIds
+     * @param string[] $integrationServiceIds
      * @return void
      */
     public function setIntegrationServiceIds(array $integrationServiceIds)

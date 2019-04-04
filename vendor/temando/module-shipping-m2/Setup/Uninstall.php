@@ -2,8 +2,12 @@
 /**
  * Refer to LICENSE.txt distributed with the Temando Shipping module for notice of license
  */
+
 namespace Temando\Shipping\Setup;
 
+use Magento\Catalog\Model\Product;
+use Magento\Eav\Setup\EavSetupFactory;
+use Magento\Framework\App\ResourceConnection;
 use Magento\Framework\Setup\ModuleContextInterface;
 use Magento\Framework\Setup\SchemaSetupInterface;
 use Magento\Framework\Setup\UninstallInterface;
@@ -19,22 +23,49 @@ use Magento\Framework\Setup\UninstallInterface;
 class Uninstall implements UninstallInterface
 {
     /**
+     * @var EavSetupFactory
+     */
+    private $eavSetupFactory;
+
+    /**
+     * Uninstall constructor.
+     * @param EavSetupFactory $eavSetupFactory
+     */
+    public function __construct(EavSetupFactory $eavSetupFactory)
+    {
+        $this->eavSetupFactory = $eavSetupFactory;
+    }
+
+    /**
      * Remove data that was created during module installation.
      *
-     * @param SchemaSetupInterface $setup
+     * @param SchemaSetupInterface|\Magento\Framework\Module\Setup $setup
      * @param ModuleContextInterface $context
+     *
      * @return void
      */
     public function uninstall(SchemaSetupInterface $setup, ModuleContextInterface $context)
     {
         $uninstaller = $setup;
 
-        $configTable = $uninstaller->getTable('core_config_data');
+        $defaultConnection = $uninstaller->getConnection(ResourceConnection::DEFAULT_CONNECTION);
+        $checkoutConnection = $uninstaller->getConnection(SetupSchema::CHECKOUT_CONNECTION_NAME);
+        $salesConnection = $uninstaller->getConnection(SetupSchema::SALES_CONNECTION_NAME);
 
-        $uninstaller->getConnection()->dropTable(SetupSchema::TABLE_SHIPMENT);
-        $uninstaller->getConnection()->dropTable(SetupSchema::TABLE_ORDER);
-        $uninstaller->getConnection()->dropTable(SetupSchema::TABLE_CHECKOUT_ADDRESS);
-        $uninstaller->getConnection()->dropTable(RmaSetupSchema::TABLE_RMA_SHIPMENT);
-        $uninstaller->getConnection()->delete($configTable, "`path` LIKE 'carriers/temando/%'");
+        $salesConnection->dropTable(SetupSchema::TABLE_ORDER);
+        $checkoutConnection->dropTable(SetupSchema::TABLE_QUOTE_COLLECTION_POINT);
+        $checkoutConnection->dropTable(SetupSchema::TABLE_COLLECTION_POINT_SEARCH);
+        $checkoutConnection->dropTable(SetupSchema::TABLE_CHECKOUT_ADDRESS);
+        $salesConnection->dropTable(SetupSchema::TABLE_SHIPMENT);
+        $defaultConnection->dropTable(RmaSetupSchema::TABLE_RMA_SHIPMENT);
+        $checkoutConnection->dropTable(SetupSchema::TABLE_COLLECTION_POINT_SEARCH);
+
+        $configTable = $uninstaller->getTable('core_config_data');
+        $defaultConnection->delete($configTable, "`path` LIKE 'carriers/temando/%'");
+
+        $eavSetup = $this->eavSetupFactory->create();
+        $eavSetup->removeAttribute(Product::ENTITY, SetupData::ATTRIBUTE_CODE_HEIGHT);
+        $eavSetup->removeAttribute(Product::ENTITY, SetupData::ATTRIBUTE_CODE_WIDTH);
+        $eavSetup->removeAttribute(Product::ENTITY, SetupData::ATTRIBUTE_CODE_LENGTH);
     }
 }

@@ -80,6 +80,8 @@ class Config
 
     const CONFIG_XML_PATH_VERTEX_SHOW_POPUP = 'tax/vertex_settings/show_taxrequest_popup';
 
+    const CONFIG_XML_PATH_ALGORITHM = 'tax/calculation/algorithm';
+
     const CONFIG_XML_PATH_TAX_APPLY_ON = 'tax/calculation/apply_tax_on';
     const VALUE_APPLY_ON_ORIGINAL_ONLY = 1;
     const VALUE_APPLY_ON_CUSTOM = 0;
@@ -91,8 +93,12 @@ class Config
     const MAX_CHAR_PRODUCT_CODE_ALLOWED = 40;
 
     /**
-     * @var ScopeConfigInterface
+     * @var string
+     * @deprecated This will be removed in the near future as we stop using a calculation method to determine if enabled
      */
+    const CALC_UNIT_VERTEX = 'VERTEX_UNIT_BASE_CALCULATION';
+
+    /** @var ScopeConfigInterface */
     private $scopeConfig;
 
     /**
@@ -106,12 +112,13 @@ class Config
     /**
      * Determine if Vertex has been enabled
      *
-     * @param string|null $store
+     * @param string|null $scopeId
+     * @param string $scope
      * @return bool
      */
-    public function isVertexActive($store = null)
+    public function isVertexActive($scopeId = null, $scope = ScopeInterface::SCOPE_STORE)
     {
-        if ($this->getConfigValue(self::CONFIG_XML_PATH_ENABLE_VERTEX, $store)) {
+        if ($this->getConfigValue(self::CONFIG_XML_PATH_ENABLE_VERTEX, $scopeId, $scope)) {
             return true;
         }
 
@@ -122,303 +129,314 @@ class Config
      * Retrieve the Location Code
      *
      * @param string|null $store
+     * @param string $scope
      * @return float|null
      */
-    public function getLocationCode($store = null)
+    public function getLocationCode($store = null, $scope = ScopeInterface::SCOPE_STORE)
     {
-        return $this->getConfigValue(self::CONFIG_XML_PATH_VERTEX_LOCATION_CODE, $store);
+        return $this->getConfigValue(self::CONFIG_XML_PATH_VERTEX_LOCATION_CODE, $store, $scope);
     }
 
     /**
      * Retrieve the Company Code
      *
      * @param string|null $store
+     * @param string $scope
      * @return float|null
      */
-    public function getCompanyCode($store = null)
+    public function getCompanyCode($store = null, $scope = ScopeInterface::SCOPE_STORE)
     {
-        return $this->getConfigValue(self::CONFIG_XML_PATH_VERTEX_COMPANY_CODE, $store);
+        return $this->getConfigValue(self::CONFIG_XML_PATH_VERTEX_COMPANY_CODE, $store, $scope);
     }
 
     /**
      * Get Line 1 of the Company Street Address
      *
      * @param string|null $store
+     * @param string $scope
      * @return float|null
      */
-    public function getCompanyStreet1($store = null)
+    public function getCompanyStreet1($store = null, $scope = ScopeInterface::SCOPE_STORE)
     {
-        return $this->getConfigValue(self::CONFIG_XML_PATH_VERTEX_STREET1, $store);
+        return $this->getConfigValue(self::CONFIG_XML_PATH_VERTEX_STREET1, $store, $scope);
     }
 
     /**
      * Get Line 2 of the Company Street Address
      *
      * @param string|null $store
+     * @param string $scope
      * @return float|null
      */
-    public function getCompanyStreet2($store = null)
+    public function getCompanyStreet2($store = null, $scope = ScopeInterface::SCOPE_STORE)
     {
-        return $this->getConfigValue(self::CONFIG_XML_PATH_VERTEX_STREET2, $store);
+        return $this->getConfigValue(self::CONFIG_XML_PATH_VERTEX_STREET2, $store, $scope);
     }
 
     /**
      * Get the City of the Company Address
      *
      * @param string|null $store
+     * @param string $scope
      * @return float|null
      */
-    public function getCompanyCity($store = null)
+    public function getCompanyCity($store = null, $scope = ScopeInterface::SCOPE_STORE)
     {
-        return $this->getConfigValue(self::CONFIG_XML_PATH_VERTEX_CITY, $store);
+        return $this->getConfigValue(self::CONFIG_XML_PATH_VERTEX_CITY, $store, $scope);
     }
 
     /**
      * Get the Country of the Company Address
      *
      * @param string|null $store
+     * @param string $scope
      * @return bool|float|null
      */
-    public function getCompanyCountry($store = null)
+    public function getCompanyCountry($store = null, $scope = ScopeInterface::SCOPE_STORE)
     {
-        return ('null' !== $this->getConfigValue(self::CONFIG_XML_PATH_VERTEX_COUNTRY, $store) ? $this->getConfigValue(
-            self::CONFIG_XML_PATH_VERTEX_COUNTRY,
-            $store
-        ) : false);
+        $country = $this->getConfigValue(self::CONFIG_XML_PATH_VERTEX_COUNTRY, $store, $scope);
+        return $country !== null ? $country : false;
     }
 
     /**
      * Get the Region ID of the Company Address
      *
      * @param string|null $store
+     * @param string $scope
      * @return bool|float|null
      */
-    public function getCompanyRegionId($store = null)
+    public function getCompanyRegionId($store = null, $scope = ScopeInterface::SCOPE_STORE)
     {
-        return ('null' !== $this->getConfigValue(self::CONFIG_XML_PATH_VERTEX_REGION, $store) ? $this->getConfigValue(
-            self::CONFIG_XML_PATH_VERTEX_REGION,
-            $store
-        ) : false);
+        $region = $this->getConfigValue(self::CONFIG_XML_PATH_VERTEX_REGION, $store, $scope);
+        return $region !== null ? $region : false;
     }
 
     /**
      * Get the Postal Code of the Company Address
      *
      * @param string|null $store
+     * @param string $scope
      * @return float|null
      */
-    public function getCompanyPostalCode($store = null)
+    public function getCompanyPostalCode($store = null, $scope = ScopeInterface::SCOPE_STORE)
     {
-        return $this->getConfigValue(self::CONFIG_XML_PATH_VERTEX_POSTAL_CODE, $store);
+        return $this->getConfigValue(self::CONFIG_XML_PATH_VERTEX_POSTAL_CODE, $store, $scope);
     }
-
     /**
+
      * Get the Tax Class ID to be used for Shipping
      *
      * @param string|null $store
+     * @param string $scope
      * @return float|null
      */
-    public function getShippingTaxClassId($store = null)
+    public function getShippingTaxClassId($store = null, $scope = ScopeInterface::SCOPE_STORE)
     {
-        return $this->getConfigValue(self::CONFIG_XML_PATH_SHIPPING_TAX_CLASS, $store);
+        return $this->getConfigValue(self::CONFIG_XML_PATH_SHIPPING_TAX_CLASS, $store, $scope);
     }
 
     /**
      * Get the Trusted ID for the Vertex Integration
      *
      * @param string|null $store
+     * @param string $scope
      * @return float|null
      */
-    public function getTrustedId($store = null)
+    public function getTrustedId($store = null, $scope = ScopeInterface::SCOPE_STORE)
     {
-        return $this->getConfigValue(self::CONFIG_XML_PATH_VERTEX_API_TRUSTED_ID, $store);
+        return $this->getConfigValue(self::CONFIG_XML_PATH_VERTEX_API_TRUSTED_ID, $store, $scope);
     }
 
     /**
      * Get the URL of the Quotation and Invoicing API Endpoint
      *
      * @param string|null $store
+     * @param string $scope
      * @return float|null
      */
-    public function getVertexHost($store = null)
+    public function getVertexHost($store = null, $scope = ScopeInterface::SCOPE_STORE)
     {
-        return $this->getConfigValue(self::VERTEX_API_HOST, $store);
+        return $this->getConfigValue(self::VERTEX_API_HOST, $store, $scope);
     }
 
     /**
      * Get the URL of the Tax Area Lookup API Endpoint
      *
      * @param string|null $store
+     * @param string $scope
      * @return float|null
      */
-    public function getVertexAddressHost($store = null)
+    public function getVertexAddressHost($store = null, $scope = ScopeInterface::SCOPE_STORE)
     {
-        return $this->getConfigValue(self::VERTEX_ADDRESS_API_HOST, $store);
+        return $this->getConfigValue(self::VERTEX_ADDRESS_API_HOST, $store, $scope);
     }
 
     /**
      * Get the Default Customer Code
      *
      * @param string|null $store
+     * @param string $scope
      * @return float|null
      */
-    public function getDefaultCustomerCode($store = null)
+    public function getDefaultCustomerCode($store = null, $scope = ScopeInterface::SCOPE_STORE)
     {
-        return $this->getConfigValue(self::CONFIG_XML_PATH_DEFAULT_CUSTOMER_CODE, $store);
+        return $this->getConfigValue(self::CONFIG_XML_PATH_DEFAULT_CUSTOMER_CODE, $store, $scope);
     }
 
     /**
      * Get the code for a creditmemo adjustment fee
      *
      * @param string|null $store
+     * @param string $scope
      * @return float|null
      */
-    public function getCreditmemoAdjustmentFeeCode($store = null)
+    public function getCreditmemoAdjustmentFeeCode($store = null, $scope = ScopeInterface::SCOPE_STORE)
     {
-        return $this->getConfigValue(self::VERTEX_CREDITMEMO_ADJUSTMENT_NEGATIVE_CODE, $store);
+        return $this->getConfigValue(self::VERTEX_CREDITMEMO_ADJUSTMENT_NEGATIVE_CODE, $store, $scope);
     }
 
     /**
      * Get the Tax class for a creditmemo adjustment fee
      *
      * @param string|null $store
+     * @param string $scope
      * @return float|null
      */
-    public function getCreditmemoAdjustmentFeeClass($store = null)
+    public function getCreditmemoAdjustmentFeeClass($store = null, $scope = ScopeInterface::SCOPE_STORE)
     {
-        return $this->getConfigValue(self::VERTEX_CREDITMEMO_ADJUSTMENT_CLASS, $store);
+        return $this->getConfigValue(self::VERTEX_CREDITMEMO_ADJUSTMENT_CLASS, $store, $scope);
     }
 
     /**
      * Get the positive adjustment code for a creditmemo
      *
      * @param string|null $store
+     * @param string $scope
      * @return float|null
      */
-    public function getCreditmemoAdjustmentPositiveCode($store = null)
+    public function getCreditmemoAdjustmentPositiveCode($store = null, $scope = ScopeInterface::SCOPE_STORE)
     {
-        return $this->getConfigValue(self::VERTEX_CREDITMEMO_ADJUSTMENT_POSITIVE_CODE, $store);
+        return $this->getConfigValue(self::VERTEX_CREDITMEMO_ADJUSTMENT_POSITIVE_CODE, $store, $scope);
     }
 
     /**
      * Get the tax class for a positive adjustment on a creditmemo
      *
      * @param string|null $store
+     * @param string $scope
      * @return float|null
      */
-    public function getCreditmemoAdjustmentPositiveClass($store = null)
+    public function getCreditmemoAdjustmentPositiveClass($store = null, $scope = ScopeInterface::SCOPE_STORE)
     {
-        return $this->getConfigValue(self::VERTEX_CREDITMEMO_ADJUSTMENT_CLASS, $store);
-    }
-
-    /**
-     * Retrieve whether or not we can call the Vertex API from the Cart
-     *
-     * @param string|null $store
-     * @return float|null
-     */
-    public function allowCartQuote($store = null)
-    {
-        return $this->getConfigValue(self::CONFIG_XML_PATH_VERTEX_ALLOW_CART_QUOTE, $store);
+        return $this->getConfigValue(self::VERTEX_CREDITMEMO_ADJUSTMENT_CLASS, $store, $scope);
     }
 
     /**
      * Get the Tax Class for Order-level Giftwrapping
      *
      * @param string|null $store
+     * @param string $scope
      * @return float|null
      */
-    public function getGiftWrappingOrderClass($store = null)
+    public function getGiftWrappingOrderClass($store = null, $scope = ScopeInterface::SCOPE_STORE)
     {
-        return $this->getConfigValue(self::VERTEX_GIFTWRAP_ORDER_CLASS, $store);
+        return $this->getConfigValue(self::VERTEX_GIFTWRAP_ORDER_CLASS, $store, $scope);
     }
 
     /**
      * Get the code for Order-level Giftwrapping
      *
      * @param string|null $store
+     * @param string $scope
      * @return float|null
      */
-    public function getGiftWrappingOrderCode($store = null)
+    public function getGiftWrappingOrderCode($store = null, $scope = ScopeInterface::SCOPE_STORE)
     {
-        return $this->getConfigValue(self::VERTEX_GIFTWRAP_ORDER_CODE, $store);
+        return $this->getConfigValue(self::VERTEX_GIFTWRAP_ORDER_CODE, $store, $scope);
     }
 
     /**
      * Get the Tax Class for Item-level Giftwrapping
      *
      * @param string|null $store
+     * @param string $scope
      * @return float|null
      */
-    public function getGiftWrappingItemClass($store = null)
+    public function getGiftWrappingItemClass($store = null, $scope = ScopeInterface::SCOPE_STORE)
     {
-        return $this->getConfigValue(self::VERTEX_GIFTWRAP_ITEM_CLASS, $store);
+        return $this->getConfigValue(self::VERTEX_GIFTWRAP_ITEM_CLASS, $store, $scope);
     }
 
     /**
      * Get the code prefix for Item-level Giftwrapping
      *
      * @param string|null $store
+     * @param string $scope
      * @return float|null
      */
-    public function getGiftWrappingItemCodePrefix($store = null)
+    public function getGiftWrappingItemCodePrefix($store = null, $scope = ScopeInterface::SCOPE_STORE)
     {
-        return $this->getConfigValue(self::VERTEX_GIFTWRAP_ITEM_CODE_PREFIX, $store);
+        return $this->getConfigValue(self::VERTEX_GIFTWRAP_ITEM_CODE_PREFIX, $store, $scope);
     }
 
     /**
      * Get the Tax Class for a Printed Gift Card
      *
      * @param string|null $store
+     * @param string $scope
      * @return float|null
      */
-    public function getPrintedGiftcardClass($store = null)
+    public function getPrintedGiftcardClass($store = null, $scope = ScopeInterface::SCOPE_STORE)
     {
-        return $this->getConfigValue(self::VERTEX_PRINTED_GIFTCARD_CLASS, $store);
+        return $this->getConfigValue(self::VERTEX_PRINTED_GIFTCARD_CLASS, $store, $scope);
     }
 
     /**
      * Get the Tax Calculation function
      *
      * @param string|null $store
+     * @param string $scope
      * @return float|null
      */
-    public function getCalculationFunction($store = null)
+    public function getCalculationFunction($store = null, $scope = ScopeInterface::SCOPE_STORE)
     {
-        return $this->getConfigValue(self::VERTEX_CALCULATION_FUNCTION, $store);
+        return $this->getConfigValue(self::VERTEX_CALCULATION_FUNCTION, $store, $scope);
     }
 
     /**
      * Get the Address Validation function
      *
      * @param string|null $store
+     * @param string $scope
      * @return float|null
      */
-    public function getValidationFunction($store = null)
+    public function getValidationFunction($store = null, $scope = ScopeInterface::SCOPE_STORE)
     {
-        return $this->getConfigValue(self::VERTEX_VALIDATION_FUNCTION, $store);
+        return $this->getConfigValue(self::VERTEX_VALIDATION_FUNCTION, $store, $scope);
     }
 
     /**
      * Get the code for a Printed Gift Card
      *
      * @param string|null $store
+     * @param string $scope
      * @return float|null
      */
-    public function getPrintedGiftcardCode($store = null)
+    public function getPrintedGiftcardCode($store = null, $scope = ScopeInterface::SCOPE_STORE)
     {
-        return $this->getConfigValue(self::VERTEX_PRINTED_GIFTCARD_CODE, $store);
+        return $this->getConfigValue(self::VERTEX_PRINTED_GIFTCARD_CODE, $store, $scope);
     }
 
     /**
      * Determine if we commit to the Tax Log during Invoice Creation or not
      *
      * @param string|null $store
+     * @param string $scope
      * @return bool
      */
-    public function requestByInvoiceCreation($store = null)
+    public function requestByInvoiceCreation($store = null, $scope = ScopeInterface::SCOPE_STORE)
     {
-        $vertexInvoiceEvent = $this->getConfigValue(self::CONFIG_XML_PATH_VERTEX_INVOICE_ORDER, $store);
+        $vertexInvoiceEvent = $this->getConfigValue(self::CONFIG_XML_PATH_VERTEX_INVOICE_ORDER, $store, $scope);
 
         return $vertexInvoiceEvent === 'invoice_created';
     }
@@ -427,11 +445,12 @@ class Config
      * Determine if we commit to the Tax Log during an Order Status change or not
      *
      * @param string|null $store
+     * @param string $scope
      * @return bool
      */
-    public function requestByOrderStatus($store = null)
+    public function requestByOrderStatus($store = null, $scope = ScopeInterface::SCOPE_STORE)
     {
-        $vertexInvoiceEvent = $this->getConfigValue(self::CONFIG_XML_PATH_VERTEX_INVOICE_ORDER, $store);
+        $vertexInvoiceEvent = $this->getConfigValue(self::CONFIG_XML_PATH_VERTEX_INVOICE_ORDER, $store, $scope);
 
         return $vertexInvoiceEvent === 'order_status';
     }
@@ -440,59 +459,68 @@ class Config
      * Grab the Order Status during which we should commit to the Tax Log
      *
      * @param string|null $store
+     * @param string $scope
      * @return string
      */
-    public function invoiceOrderStatus($store = null)
+    public function invoiceOrderStatus($store = null, $scope = ScopeInterface::SCOPE_STORE)
     {
-        return $this->getConfigValue(self::CONFIG_XML_PATH_VERTEX_INVOICE_ORDER_STATUS, $store);
-    }
-
-    /**
-     * Determine if we should show the Manual Invoice Button
-     *
-     * @return bool
-     */
-    public function shouldShowManualButton()
-    {
-        return (bool)$this->getConfigValue(self::CONFIG_XML_PATH_VERTEX_SHOW_MANUAL_BUTTON);
+        return $this->getConfigValue(self::CONFIG_XML_PATH_VERTEX_INVOICE_ORDER_STATUS, $store, $scope);
     }
 
     /**
      * Retrieve which price we should be applying tax to
      *
+     * @param null $store
+     * @param string $scope
      * @return string
      */
-    public function getApplyTaxOn($store = null)
+    public function getApplyTaxOn($store = null, $scope = ScopeInterface::SCOPE_STORE)
     {
-        return $this->getConfigValue(self::CONFIG_XML_PATH_TAX_APPLY_ON, $store);
+        return $this->getConfigValue(self::CONFIG_XML_PATH_TAX_APPLY_ON, $store, $scope);
     }
 
     /**
      * Retrieve a value from the configuration within a scope
      *
      * @param string $value
-     * @param string|null $store
+     * @param string|null $scopeId
+     * @param string|null $scope
      * @return mixed
      */
-    public function getConfigValue($value, $store = null)
+    public function getConfigValue($value, $scopeId = null, $scope = ScopeInterface::SCOPE_STORE)
     {
-        $value = $this->scopeConfig->getValue($value, ScopeInterface::SCOPE_STORE, $store);
-
-        return $value;
+        return $this->scopeConfig->getValue($value, $scope, $scopeId);
     }
 
     /**
      * Retrieve the price of a Printed Gift Card
      *
      * @param string|null $store
+     * @param string $scope
      * @return mixed
      */
-    public function getPrintedCardPrice($store = null)
+    public function getPrintedCardPrice($store = null, $scope = ScopeInterface::SCOPE_STORE)
     {
-        return $this->scopeConfig->getValue(
+        return $this->getConfigValue(
             self::CONFIG_XML_PATH_PRINTED_CARD_PRICE,
-            ScopeInterface::SCOPE_STORE,
-            $store
+            $store,
+            $scope
         );
+    }
+
+    /**
+     * Determine whether the Vertex tax calculation algorithm is selected.
+     *
+     * @param string|null $store
+     * @param string $scope
+     * @return bool
+     */
+    public function useVertexAlgorithm($store = null, $scope = ScopeInterface::SCOPE_STORE)
+    {
+        return $this->getConfigValue(
+            self::CONFIG_XML_PATH_ALGORITHM,
+            $store,
+            $scope
+        ) === self::CALC_UNIT_VERTEX;
     }
 }

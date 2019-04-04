@@ -58,11 +58,10 @@ class UpgradeData implements UpgradeDataInterface
      */
     private function deleteCustomAttribute()
     {
-        $attributes = $this->eavConfig->getEntityAttributes(Customer::ENTITY);
-        if (!isset($attributes['customer_code'])) {
+        $attribute = $this->getEntityAttribute(Customer::ENTITY, 'customer_code');
+        if (!$attribute) {
             return;
         }
-        $attribute = $attributes['customer_code'];
         $this->attributeRepository->delete($attribute);
     }
 
@@ -74,12 +73,11 @@ class UpgradeData implements UpgradeDataInterface
     private function migrateCustomAttributeToExtensionAttribute(ModuleDataSetupInterface $setup)
     {
         $db = $setup->getConnection();
-        $attributes = $this->eavConfig->getEntityAttributes(Customer::ENTITY);
-        if (!isset($attributes['customer_code'])) {
+        $attribute = $this->getEntityAttribute(Customer::ENTITY, 'customer_code');
+        if (!$attribute) {
             return;
         }
 
-        $attribute = $attributes['customer_code'];
         $select = $db->select()
             ->from($setup->getTable('customer_entity_varchar'), ['entity_id', 'value'])
             ->where('attribute_id = ?', $attribute->getId());
@@ -102,5 +100,32 @@ class UpgradeData implements UpgradeDataInterface
             $setup->getTable('vertex_customer_code'),
             $results
         );
+    }
+
+    /**
+     * Retrieve an entity attribute
+     *
+     * @param string $entity
+     * @param string $attributeCode
+     * @return \Magento\Eav\Model\Entity\Attribute\AbstractAttribute|void
+     * @throws LocalizedException
+     */
+    private function getEntityAttribute($entity, $attributeCode)
+    {
+        if (method_exists($this->eavConfig, 'getEntityAttributes')) {
+            $attributes = $this->eavConfig->getEntityAttributes($entity);
+            if (!isset($attributes[$attributeCode])) {
+                return;
+            }
+
+            return $attributes[$attributeCode];
+        }
+
+        $attributeCodes = $this->eavConfig->getEntityAttributeCodes($entity);
+        if (!in_array($attributeCode, $attributeCodes)) {
+            return;
+        }
+
+        return $this->eavConfig->getAttribute($entity, $attributeCode);
     }
 }

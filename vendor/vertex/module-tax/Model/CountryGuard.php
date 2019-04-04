@@ -16,7 +16,7 @@ class CountryGuard
     const USA_ISO2 = 'US';
     const CAN_ISO2 = 'CA';
 
-    const SERVICEABLE_COUNTRIES = [
+    private $serviceableCountries = [
         self::USA_ISO2,
         self::CAN_ISO2
     ];
@@ -46,6 +46,6 @@ class CountryGuard
      */
     public function isCountryIdServiceableByVertex($countryId)
     {
-        return in_array($countryId, static::SERVICEABLE_COUNTRIES, false);
+        return in_array($countryId, $this->serviceableCountries, false);
     }
 }

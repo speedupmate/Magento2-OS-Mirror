@@ -6,7 +6,6 @@ namespace Temando\Shipping\ViewModel\Rma\RmaShipment;
 
 use Magento\Framework\View\Element\Block\ArgumentInterface;
 use Temando\Shipping\Model\ResourceModel\Rma\RmaAccess;
-use Temando\Shipping\Model\Shipment\PackageCollection;
 use Temando\Shipping\Model\Shipment\PackageInterface;
 
 /**
@@ -39,9 +38,6 @@ class Items implements ArgumentInterface
     public function getRmaShipmentItems()
     {
         $packages = $this->rmaAccess->getCurrentRmaShipment()->getPackages();
-        if ($packages instanceof PackageCollection) {
-            $packages = $packages->getArrayCopy();
-        }
 
         $collectPackageItems = function (array $packageItems, PackageInterface $package) {
             return array_merge($packageItems, $package->getItems());

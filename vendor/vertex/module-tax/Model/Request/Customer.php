@@ -9,7 +9,7 @@ namespace Vertex\Tax\Model\Request;
 use Magento\Customer\Api\CustomerRepositoryInterface;
 use Magento\Customer\Api\GroupManagementInterface as CustomerGroupManagement;
 use Magento\Customer\Api\GroupRepositoryInterface as CustomerGroupRepository;
-use Magento\Quote\Model\Quote\Address;
+use Magento\Quote\Api\Data\AddressInterface;
 use Vertex\Tax\Model\Config;
 use Vertex\Tax\Model\Repository\TaxClassNameRepository;
 use Vertex\Tax\Model\Request\Address as AddressFormatter;
@@ -64,12 +64,12 @@ class Customer
     /**
      * Create a properly formatted array of Customer Data for a Vertex API
      *
-     * @param Address $taxAddress
+     * @param AddressInterface $taxAddress
      * @return array
      * @throws \Magento\Framework\Exception\LocalizedException
      * @throws \Magento\Framework\Exception\NoSuchEntityException
      */
-    public function getFormattedCustomerData(Address $taxAddress)
+    public function getFormattedCustomerData(AddressInterface $taxAddress)
     {
         $data = [];
         $street = $taxAddress->getStreet();
@@ -84,7 +84,7 @@ class Customer
             $taxAddress->getCountryId()
         );
 
-        $data['CustomerCode']['_'] = $this->getCustomerCodeById($customerId);
+        $data['CustomerCode']['_'] = $this->getCustomerCodeById($customerId, $taxAddress->getQuote()->getStoreId());
 
         if ($customerId) {
             $customerData = $this->customerRepository->getById($customerId);
@@ -103,11 +103,12 @@ class Customer
      * Retrieve a Customer's Custom Code given their ID
      *
      * @param int $customerId
+     * @param string|null $store
      * @return string
      * @throws \Magento\Framework\Exception\LocalizedException
      * @throws \Magento\Framework\Exception\NoSuchEntityException
      */
-    public function getCustomerCodeById($customerId = 0)
+    public function getCustomerCodeById($customerId = 0, $store = null)
     {
         $customerCode = '';
         if ($customerId) {
@@ -119,7 +120,7 @@ class Customer
         }
 
         if (empty($customerCode)) {
-            $customerCode = $this->config->getDefaultCustomerCode();
+            $customerCode = $this->config->getDefaultCustomerCode($store);
         }
 
         return $customerCode;

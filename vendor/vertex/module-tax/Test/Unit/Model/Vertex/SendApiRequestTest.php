@@ -29,7 +29,6 @@ class SendApiRequestTest extends TestCase
     const OBJECT_ID = '3.14';
     const STORE_ID = '4.18';
 
-    const REQUEST = [];
     const REQUEST_XML = '<request />';
     const RESPONSE_XML = '<response />';
     const TYPE = 'some_type';
@@ -45,6 +44,8 @@ class SendApiRequestTest extends TestCase
     private $mockConfig;
     private $dateTimeFactory;
     private $storeManagerMock;
+
+    private $defaultRequest = [];
 
     protected function setUp()
     {
@@ -129,7 +130,7 @@ class SendApiRequestTest extends TestCase
                 'objectConverter' => $this->getObject(ObjectConverter::class),
             ]
         );
-        $vertex->sendApiRequest(static::REQUEST, static::TYPE_LOOKUP, static::ORDER);
+        $vertex->sendApiRequest($this->defaultRequest, static::TYPE_LOOKUP, static::ORDER);
     }
 
     public function testNonSoapExceptionDuringRequestLogs()
@@ -169,7 +170,7 @@ class SendApiRequestTest extends TestCase
             ]
         );
 
-        $vertex->sendApiRequest(static::REQUEST, static::TYPE_LOOKUP, static::ORDER);
+        $vertex->sendApiRequest($this->defaultRequest, static::TYPE_LOOKUP, static::ORDER);
     }
 
     public function testErrorLoggingIsLogged()
@@ -213,6 +214,6 @@ class SendApiRequestTest extends TestCase
                 'logger' => $loggerMock,
             ]
         );
-        $vertex->sendApiRequest(static::REQUEST, static::TYPE_LOOKUP, static::ORDER);
+        $vertex->sendApiRequest($this->defaultRequest, static::TYPE_LOOKUP, static::ORDER);
     }
 }

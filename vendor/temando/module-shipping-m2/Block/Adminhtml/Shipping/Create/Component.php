@@ -29,8 +29,8 @@ use Temando\Shipping\Webservice\Config\WsConfigInterface;
  * @link     http://www.temando.com/
  *
  * @api
- * @deprecated since 1.0.5 | Specific Block class will now handled by abstract block
- * @see \Temando\Shipping\Block\Adminhtml\ComponentContainer
+ * @deprecated since 1.0.5 | Block data is provided by view model
+ * @see \Temando\Shipping\ViewModel\Order\OrderShip
  */
 class Component extends AbstractComponent
 {

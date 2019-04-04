@@ -53,7 +53,7 @@ class Attribute
      * @param mixed $value
      * @return void
      */
-    public function setCurrency($value)
+    public function satValue($value)
     {
         $this->value = $value;
     }

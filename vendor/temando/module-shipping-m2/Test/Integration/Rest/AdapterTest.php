@@ -13,6 +13,7 @@ use Temando\Shipping\Rest\Request\ItemRequestInterface;
 use Temando\Shipping\Rest\Request\ListRequestInterface;
 use Temando\Shipping\Rest\Request\OrderRequestInterface;
 use Temando\Shipping\Rest\Request\Type\OrderRequestType;
+use Temando\Shipping\Rest\Response\CreateOrderInterface;
 use Temando\Shipping\Rest\Response\Type\CarrierIntegrationResponseType;
 use Temando\Shipping\Rest\Response\Type\CompletionResponseType;
 use Temando\Shipping\Rest\Response\Type\ContainerResponseType;
@@ -404,7 +405,7 @@ class AdapterTest extends \PHPUnit\Framework\TestCase
         $packages = $shipment->getAttributes()->getPackages();
         $this->assertNotEmpty($packages);
         $this->assertContainsOnlyInstancesOf(
-            \Temando\Shipping\Rest\Response\Type\Shipment\Attributes\Package::class,
+            \Temando\Shipping\Rest\Response\Type\Generic\Package::class,
             $packages
         );
         foreach ($packages as $package) {
@@ -446,14 +447,14 @@ class AdapterTest extends \PHPUnit\Framework\TestCase
         $request =  $this->objectManager->create(OrderRequestInterface::class, [
             'order' => $orderType,
         ]);
-        /** @var RestAdapter $adapter */
-        $adapter = $this->objectManager->create(RestAdapter::class, [
+        /** @var OrderAdapter $adapter */
+        $adapter = $this->objectManager->create(OrderAdapter::class, [
             'auth' => $this->auth,
             'restClient' => $this->restClient,
         ]);
         $order = $adapter->createOrder($request);
 
-        $this->assertInstanceOf(UpdateOrderResponse::class, $order);
+        $this->assertInstanceOf(CreateOrderInterface::class, $order);
         $this->assertNotEmpty($order->getData()->getId());
         $this->assertNotEmpty($order->getData()->getAttributes()->getSource()->getReference());
 
@@ -504,8 +505,8 @@ class AdapterTest extends \PHPUnit\Framework\TestCase
             'orderId' => '00000000-0000-0000-0000-000000000000',
             'order' => $orderType,
         ]);
-        /** @var RestAdapter $adapter */
-        $adapter = $this->objectManager->create(RestAdapter::class, [
+        /** @var OrderAdapter $adapter */
+        $adapter = $this->objectManager->create(OrderAdapter::class, [
             'auth' => $this->auth,
             'restClient' => $this->restClient,
         ]);

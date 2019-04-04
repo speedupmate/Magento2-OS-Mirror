@@ -7,7 +7,6 @@
 <?php /** @var Magento\Shipping\Block\Adminhtml\View\Form $block */ ?>
 <?php $_order = $block->getShipment()->getOrder() ?>
 <?= $block->getChildHtml('order_info') ?>
-<?= $block->getChildHtml('origin_location') ?>
 <section class="admin__page-section order-shipment-billing-shipping">
     <div class="admin__page-section-title">
         <span class="title"><?= $block->escapeHtml(__('Payment &amp; Shipping Method')) ?></span>
@@ -98,19 +97,8 @@
     </div>
 </section>
 
-<section class="admin__page-section">
-    <div class="admin__page-section-title">
-        <span class="title"><?= $block->escapeHtml(__('Documentation')) ?></span>
-    </div>
-    <?= /* @noEscape */ $block->getChildHtml('documentation_listing') ?>
-</section>
-
-<section class="admin__page-section">
-    <div class="admin__page-section-title">
-        <span class="title"><?= $block->escapeHtml(__('Packages')) ?></span>
-    </div>
-    <?= /* @noEscape */ $block->getChildHtml('package_listing') ?>
-</section>
+<?= /* @noEscape */ $block->getChildHtml('documentation_listing') ?>
+<?= /* @noEscape */ $block->getChildHtml('package_listing') ?>
 
 <section class="admin__page-section">
     <div class="admin__page-section-title">

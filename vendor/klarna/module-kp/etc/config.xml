@@ -42,12 +42,5 @@
                 <!-- End variables for virtual type -->
             </klarna_kp>
         </payment>
-        <dev>
-            <js>
-                <minify_exclude>
-                    klarnacdn.net
-                </minify_exclude>
-            </js>
-        </dev>
     </default>
 </config>

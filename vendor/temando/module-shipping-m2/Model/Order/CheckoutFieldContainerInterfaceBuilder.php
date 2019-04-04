@@ -62,30 +62,6 @@ class CheckoutFieldContainerInterfaceBuilder extends AbstractSimpleObjectBuilder
     }
 
     /**
-     * @param string[][] $checkoutAttributes
-     * @return CheckoutFieldInterface[]
-     */
-    private function getCheckoutFieldsFromArray(array $checkoutAttributes)
-    {
-        $availableFields = $this->schema->getFields();
-
-        $checkoutFields = array_map(function (array $checkoutAttribute) use ($availableFields) {
-            /** @var \Temando\Shipping\Model\Checkout\Schema\CheckoutField $fieldDefinition */
-            $fieldDefinition = $availableFields[$checkoutAttribute['attribute_code']];
-
-            $checkoutField = $this->fieldFactory->create(['data' => [
-                CheckoutFieldInterface::FIELD_ID => $checkoutAttribute['attribute_code'],
-                CheckoutFieldInterface::VALUE => $checkoutAttribute['value'],
-                CheckoutFieldInterface::ORDER_PATH => $fieldDefinition->getOrderPath(),
-            ]]);
-
-            return $checkoutField;
-        }, $checkoutAttributes);
-
-        return $checkoutFields;
-    }
-
-    /**
      * @param \Magento\Framework\Api\AttributeInterface[] $checkoutAttributes
      * @return CheckoutFieldInterface[]
      */
@@ -93,6 +69,13 @@ class CheckoutFieldContainerInterfaceBuilder extends AbstractSimpleObjectBuilder
     {
         $availableFields = $this->schema->getFields();
 
+        // remove all checkout attributes that are not/no longer in configured fields.
+        $fnRemoveUnavailableFields = function (AttributeInterface $checkoutAttribute) use ($availableFields) {
+            return in_array($checkoutAttribute->getAttributeCode(), array_keys($availableFields));
+        };
+        $checkoutAttributes = array_filter($checkoutAttributes, $fnRemoveUnavailableFields);
+
+        // convert checkout attributes to checkout fields (add data path)
         $checkoutFields = array_map(function (AttributeInterface $checkoutAttribute) use ($availableFields) {
             /** @var \Temando\Shipping\Model\Checkout\Schema\CheckoutField $fieldDefinition */
             $fieldDefinition = $availableFields[$checkoutAttribute->getAttributeCode()];
@@ -120,7 +103,6 @@ class CheckoutFieldContainerInterfaceBuilder extends AbstractSimpleObjectBuilder
      *
      * @param RateRequest $rateRequest
      * @return void
-     * @throws LocalizedException
      */
     public function setRateRequest(RateRequest $rateRequest)
     {
@@ -129,8 +111,6 @@ class CheckoutFieldContainerInterfaceBuilder extends AbstractSimpleObjectBuilder
             $extensionAttributes = $shippingAddress->getExtensionAttributes();
             if ($extensionAttributes instanceof AddressExtensionInterface) {
                 $checkoutFields = $this->getCheckoutFieldsFromAttributes($extensionAttributes->getCheckoutFields());
-            } elseif (is_array($extensionAttributes) && isset($extensionAttributes['checkout_fields'])) {
-                $checkoutFields = $this->getCheckoutFieldsFromArray($extensionAttributes['checkout_fields']);
             } else {
                 $checkoutFields = [];
             }
@@ -145,7 +125,6 @@ class CheckoutFieldContainerInterfaceBuilder extends AbstractSimpleObjectBuilder
     /**
      * @param \Magento\Sales\Api\Data\OrderInterface|\Magento\Sales\Model\Order $order
      * @return void
-     * @throws LocalizedException
      */
     public function setOrder(OrderInterface $order)
     {
@@ -154,8 +133,6 @@ class CheckoutFieldContainerInterfaceBuilder extends AbstractSimpleObjectBuilder
         $extensionAttributes = $shippingAddress->getExtensionAttributes();
         if ($extensionAttributes instanceof OrderAddressExtensionInterface) {
             $checkoutFields = $this->getCheckoutFieldsFromAttributes($extensionAttributes->getCheckoutFields());
-        } elseif (is_array($extensionAttributes) && isset($extensionAttributes['checkout_fields'])) {
-            $checkoutFields = $this->getCheckoutFieldsFromArray($extensionAttributes['checkout_fields']);
         } else {
             $checkoutFields = [];
         }

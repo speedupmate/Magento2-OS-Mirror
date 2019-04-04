@@ -28,13 +28,14 @@ class Header
     /**
      * Create properly formatted header data for a Vertex API call
      *
+     * @param string|null $store
      * @return array
      */
-    public function getFormattedHeaderData()
+    public function getFormattedHeaderData($store = null)
     {
         $data = [];
         $data['Login'] = [
-            'TrustedId' => $this->config->getTrustedId()
+            'TrustedId' => $this->config->getTrustedId($store)
         ];
 
         return $data;

@@ -132,18 +132,42 @@
     }
 }
 
-.admin__page-section-item-content .temando-rma-button-text,
-.admin__page-section-item-content #get-shipping-method-and-rates {
-    float: left;
-    margin-bottom: 10px;
+.admin__page-section-item-title {
+    &.order-shipping-origin-address {
+        margin-top: 2rem;
+    }
 }
 
-.temando-rma-button-text {
-    font-size: 11px;
-    color: #aeb3b7;
-    margin: 0 10px 10px;
-    width: 50%;
-    display: block;
+.admin__page-section-item-content {
+    &.order-shipping-secondary-address {
+        .subtitle {
+            display: block;
+            margin-top: 1rem;
+        }
+    }
+
+    .subtitle {
+        font-weight: @font-weight__semibold;
+    }
+
+    #get-shipping-method-and-rates {
+        float: left;
+        margin-bottom: 10px;
+    }
+
+    .temando-rma-button-text {
+        display: block;
+        float: left;
+        margin: 0 10px 10px;
+
+        font-size: 11px;
+        color: #aeb3b7;
+        width: 50%;
+    }
+
+    .admin__control-table-wrapper {
+        clear: both;
+    }
 }
 
 @media all and (max-width: 479px) {
@@ -151,10 +175,3 @@
         width: 100%;
     }
 }
-
-.admin__page-section-item-content .get-psl,
-.admin__page-section-item-content .admin__control-table-wrapper {
-    clear: both;
-}
-
-

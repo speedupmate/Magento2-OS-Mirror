@@ -31,6 +31,7 @@ interface RmaAccessInterface
     public function getRma(): RmaInterface;
 
     /**
+     * @deprecated since 1.2.0 | no longer available
      * @return ShipmentInterface
      */
     public function getRmaShipment(): ShipmentInterface;

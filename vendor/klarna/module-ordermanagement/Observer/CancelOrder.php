@@ -38,7 +38,7 @@ class CancelOrder implements ObserverInterface
     /**
      * @var Ordermanagement
      */
-    private $om;
+    private $orderManagement;
 
     /**
      * @var KlarnaConfig
@@ -76,7 +76,7 @@ class CancelOrder implements ObserverInterface
      */
     public function __construct(
         LoggerInterface $log,
-        Ordermanagement $om,
+        Ordermanagement $orderManagement,
         KlarnaConfig $helper,
         Factory $omFactory,
         OrderRepositoryInterface $orderRepository,
@@ -84,7 +84,7 @@ class CancelOrder implements ObserverInterface
         \Magento\Sales\Api\OrderRepositoryInterface $mageOrderRepository
     ) {
         $this->log = $log;
-        $this->om = $om;
+        $this->orderManagement = $orderManagement;
         $this->helper = $helper;
         $this->omFactory = $omFactory;
         $this->orderRepository = $orderRepository;
@@ -99,16 +99,16 @@ class CancelOrder implements ObserverInterface
      */
     public function execute(Observer $observer)
     {
-        $checkoutId = $observer->getKlarnaOrderId();
+        $checkout_id = $observer->getKlarnaOrderId();
 
         $store = $this->getStore($observer);
 
-        if ($checkoutId === null) {
+        if ($checkout_id === null) {
             return;
         }
 
-        $kOrder = $this->orderRepository->getByKlarnaOrderId($checkoutId);
-        if (!$kOrder->getId() && !$this->helper->isDelayedPushNotification($store)) {
+        $korder = $this->orderRepository->getByKlarnaOrderId($checkout_id);
+        if (!$korder->getId() && !$this->helper->isDelayedPushNotification($store)) {
             // If no order exists and API does not have a delay before the push notices,
             // don't cancel.  It's likely the push happened too quickly.  See
             // LogOrderPushNotification observer
@@ -116,7 +116,7 @@ class CancelOrder implements ObserverInterface
             return;
         }
 
-        $this->cancelOrderWithKlarna($observer->getMethodCode(), $observer->getReason(), $checkoutId, $store);
+        $this->cancelOrderWithKlarna($observer->getMethodCode(), $observer->getReason(), $checkout_id, $store);
         $this->cancelOrderWithMagento($observer->getOrder(), $observer->getQuote());
     }
 
@@ -148,14 +148,14 @@ class CancelOrder implements ObserverInterface
     private function cancelOrderWithKlarna($methodCode, $reason, $checkoutId, StoreInterface $store = null)
     {
         try {
-            $om = $this->getOmApi($methodCode, $store);
-            $order = $om->getPlacedKlarnaOrder($checkoutId);
+            $this->getOmApi($methodCode, $store);
+            $order = $this->orderManagement->getPlacedKlarnaOrder($checkoutId);
             $klarnaId = $order->getReservation();
             if (!$klarnaId) {
                 $klarnaId = $checkoutId;
             }
             if ($order->getStatus() !== 'CANCELED') {
-                $om->cancel($klarnaId);
+                $this->orderManagement->cancel($klarnaId);
                 $this->log->debug('Canceled order with Klarna - ' . $reason);
             }
         } catch (\Exception $e) {
@@ -173,26 +173,26 @@ class CancelOrder implements ObserverInterface
      */
     private function getOmApi($methodCode, StoreInterface $store = null)
     {
-        $omClass = $this->helper->getOrderMangagementClass($store);
+        $om_class = $this->helper->getOrderMangagementClass($store);
         /** @var ApiInterface $om */
-        $this->om = $this->omFactory->create($omClass);
-        $this->om->resetForStore($store, $methodCode);
-        return $this->om;
+        $this->orderManagement = $this->omFactory->create($om_class);
+        $this->orderManagement->resetForStore($store, $methodCode);
+        return $this->orderManagement;
     }
 
     /**
      * @param OrderInterface $mageOrder
      * @param Quote          $quote
      */
-    private function cancelOrderWithMagento(OrderInterface $mageOrder, Quote $quote)
+    private function cancelOrderWithMagento(OrderInterface $mageOrder = null, Quote $quote = null)
     {
         try {
+            $debug_message = 'Magento order object not available to cancel';
             if ($mageOrder) {
                 $mageOrder->cancel();
-                $this->log->debug('Canceled order in Magento');
-            } else {
-                $this->log->debug('Magento order object not available to cancel');
+                $debug_message = 'Canceled order in Magento';
             }
+            $this->log->debug($debug_message);
             if ($quote) {
                 $quote->setReservedOrderId(null);
                 $quote->setIsActive(1);

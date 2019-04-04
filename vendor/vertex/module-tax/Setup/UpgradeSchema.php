@@ -75,6 +75,10 @@ class UpgradeSchema implements UpgradeSchemaInterface
             $this->migrateInvoiceSentData($setup);
             $this->deleteInvoiceSentColumnFromInvoiceTable($setup);
         }
+
+        if (version_compare($context->getVersion(), '100.2.0') < 0) {
+            $this->createOrderInvoiceStatusTable($setup);
+        }
     }
 
     /**
@@ -220,5 +224,42 @@ class UpgradeSchema implements UpgradeSchemaInterface
         if ($setup->getConnection()->tableColumnExists($table, 'vertex_invoice_sent')) {
             $setup->getConnection()->dropColumn($table, 'vertex_invoice_sent');
         }
+    }
+
+    /**
+     * Create a table holding a boolean flag for whether or not a Vertex Invoice has been sent for the order
+     *
+     * @param SchemaSetupInterface $setup
+     */
+    private function createOrderInvoiceStatusTable(SchemaSetupInterface $setup)
+    {
+        $tableName = $setup->getTable('vertex_order_invoice_status');
+
+        $table = $setup->getConnection()
+            ->newTable($tableName)
+            ->addColumn(
+                'order_id',
+                Table::TYPE_INTEGER,
+                null,
+                [
+                    'primary' => true,
+                    'nullable' => false,
+                    'unsigned' => true,
+                ],
+                'Order ID'
+            )
+            ->addColumn(
+                'sent_to_vertex',
+                Table::TYPE_BOOLEAN,
+                null,
+                [
+                    'nullable' => false,
+                    'default' => 0,
+                ],
+                'Invoice has been logged in Vertex'
+            );
+
+        $setup->getConnection()
+            ->createTable($table);
     }
 }

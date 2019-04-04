@@ -124,10 +124,11 @@ class ItemFormatter
         $useOriginalPrice = $this->config->getApplyTaxOn($item->getStoreId()) == Config::VALUE_APPLY_ON_ORIGINAL_ONLY;
 
         if ($type === 'invoiced') {
+            $qty = $this->determineItemQty($item, $originalEntityItem, $type);
             $rowTotal = $useOriginalPrice
-                ? ($item->getBaseOriginalPrice() * $originalEntityItem->getQty())
-                : $originalEntityItem->getBaseRowTotal();
-            return $rowTotal - $originalEntityItem->getBaseDiscountAmount();
+                ? ($item->getBaseOriginalPrice() * $qty)
+                : $item->getBaseRowTotal();
+            return $rowTotal - $item->getBaseDiscountAmount();
         }
 
         $byInvoiceCreation = $this->config->requestByInvoiceCreation($item->getStoreId());

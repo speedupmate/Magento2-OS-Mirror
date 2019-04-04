@@ -93,21 +93,21 @@ class Solve extends Container
     }
 
     /**
-     * @return void
+     * Add Back Button.
+     *
+     * @return \Magento\Framework\View\Element\AbstractBlock
      */
-    protected function _construct()
+    protected function _prepareLayout()
     {
-        parent::_construct();
+        $buttonData = [
+            'label' => __('Back'),
+            'onclick' => 'setLocation(\'' . $this->getBackUrl() . '\')',
+            'class' => 'back',
+        ];
 
-        $this->addButton(
-            'back',
-            [
-                'label' => __('Back'),
-                'onclick' => 'setLocation(\'' . $this->getBackUrl() . '\')',
-                'class' => 'back'
-            ],
-            -1
-        );
+        $this->addButton('back', $buttonData, -1);
+
+        return parent::_prepareLayout();
     }
 
     /**

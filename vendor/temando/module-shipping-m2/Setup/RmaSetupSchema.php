@@ -7,6 +7,7 @@ namespace Temando\Shipping\Setup;
 
 use Magento\Framework\DB\Ddl\Table;
 use Magento\Framework\Setup\SchemaSetupInterface;
+use Temando\Shipping\Api\Data\Shipment\ShipmentReferenceInterface;
 use Temando\Shipping\Model\Config\ModuleConfigInterface;
 use Temando\Shipping\Model\ResourceModel\Rma\RmaShipment;
 
@@ -87,5 +88,24 @@ class RmaSetupSchema
         );
 
         $installer->getConnection()->createTable($table);
+    }
+
+    /**
+     * @param SchemaSetupInterface|\Magento\Framework\Module\Setup $installer
+     * @return void
+     */
+    public function addReturnShipmentIdColumn(SchemaSetupInterface $installer)
+    {
+        $tableName = $installer->getTable(SetupSchema::TABLE_SHIPMENT, SetupSchema::SALES_CONNECTION_NAME);
+        $installer->getConnection(SetupSchema::SALES_CONNECTION_NAME)->addColumn(
+            $tableName,
+            ShipmentReferenceInterface::EXT_RETURN_SHIPMENT_ID,
+            [
+                'type'     => \Magento\Framework\DB\Ddl\Table::TYPE_TEXT,
+                'length'   => 64,
+                'nullable' => true,
+                'comment'  => 'External Return Shipment Id'
+            ]
+        );
     }
 }

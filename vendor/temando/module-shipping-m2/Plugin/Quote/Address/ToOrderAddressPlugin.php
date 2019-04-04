@@ -68,7 +68,7 @@ class ToOrderAddressPlugin
      * fields must be transmitted to the API. There is no need to persist them
      * to data storage though.
      *
-     * @see \Temando\Shipping\Observer\ManifestOrderObserver::execute
+     * @see \Temando\Shipping\Plugin\Sales\OrderRepositoryPlugin::afterSave
      *
      * @param ToOrderAddress $subject
      * @param OrderAddressInterface $orderAddress

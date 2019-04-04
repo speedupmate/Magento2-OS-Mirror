@@ -167,11 +167,11 @@ class Popup implements ArgumentInterface
     }
 
     /**
+     * @param string[] $trackEventsData
      * @return string
      */
-    public function getTrackingStatus()
+    public function getTrackingStatus(array $trackEventsData)
     {
-        $trackEventsData = $this->getTrackingProgressInfo();
         if (empty($trackEventsData)) {
             return $this->getShipment()->getStatus();
         }

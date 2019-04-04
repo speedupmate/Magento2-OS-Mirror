@@ -16,6 +16,6 @@ PHP version 7
 
 @category  Temando
 @package   Temando\Shipping
-@copyright © 2017 Temando Pty Ltd. All Rights Reserved.
+@copyright © 2018 Temando Pty Ltd. All Rights Reserved.
 @license   http://opensource.org/licenses/osl-3.0.php Open Software License (OSL 3.0)
 @link      http://temando.com

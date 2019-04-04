@@ -106,7 +106,7 @@ class EventRepository implements EventRepositoryInterface
 
             $streamEvents = array_filter($streamEvents, $eventFilter);
         } catch (AdapterException $e) {
-            throw new LocalizedException(__($e->getMessage()), $e);
+            throw new LocalizedException(__('Unable to load stream events.'), $e);
         }
 
         return $streamEvents;
@@ -128,7 +128,7 @@ class EventRepository implements EventRepositoryInterface
             ]);
             $this->apiAdapter->deleteStreamEvent($request);
         } catch (AdapterException $e) {
-            throw new CouldNotDeleteException(__($e->getMessage()), $e);
+            throw new CouldNotDeleteException(__('Unable to delete stream event.'), $e);
         }
     }
 }

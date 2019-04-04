@@ -17,11 +17,11 @@ use Magento\Shipping\Model\Rate\ResultFactory;
 use Magento\Shipping\Model\Tracking\Result\StatusFactory;
 use Psr\Log\LoggerInterface;
 use Psr\Log\LogLevel;
-use Temando\Shipping\Model\OrderInterfaceBuilder;
-use Temando\Shipping\Api\Data\Order\OrderReferenceInterfaceFactory;
-use Temando\Shipping\Model\Shipment\TrackEventInterface;
 use Temando\Shipping\Model\ResourceModel\Repository\OrderRepositoryInterface;
 use Temando\Shipping\Model\ResourceModel\Repository\ShipmentRepositoryInterface;
+use Temando\Shipping\Model\Shipment\TrackEventInterface;
+use Temando\Shipping\Model\Shipping\RateRequest\RequestDataInitializer;
+use Temando\Shipping\Webservice\Processor\OrderOperationProcessorPool;
 
 /**
  * Temando Shipping Carrier
@@ -65,14 +65,14 @@ class Carrier extends AbstractCarrier implements CarrierInterface
     private $orderRepository;
 
     /**
-     * @var OrderInterfaceBuilder
+     * @var RequestDataInitializer
      */
-    private $orderBuilder;
+    private $requestDataInitializer;
 
     /**
-     * @var OrderReferenceInterfaceFactory
+     * @var OrderOperationProcessorPool
      */
-    private $orderReferenceFactory;
+    private $processorPool;
 
     /**
      * Carrier constructor.
@@ -85,8 +85,8 @@ class Carrier extends AbstractCarrier implements CarrierInterface
      * @param ManagerInterface $messageManager
      * @param ShipmentRepositoryInterface $shipmentRepository
      * @param OrderRepositoryInterface $orderRepository
-     * @param OrderInterfaceBuilder $orderBuilder
-     * @param OrderReferenceInterfaceFactory $orderReferenceFactory
+     * @param RequestDataInitializer $ratesRequestDataInitializer
+     * @param OrderOperationProcessorPool $processorPool
      * @param mixed[] $data
      */
     public function __construct(
@@ -99,8 +99,8 @@ class Carrier extends AbstractCarrier implements CarrierInterface
         ManagerInterface $messageManager,
         ShipmentRepositoryInterface $shipmentRepository,
         OrderRepositoryInterface $orderRepository,
-        OrderInterfaceBuilder $orderBuilder,
-        OrderReferenceInterfaceFactory $orderReferenceFactory,
+        RequestDataInitializer $ratesRequestDataInitializer,
+        OrderOperationProcessorPool $processorPool,
         array $data = []
     ) {
         $this->trackStatusFactory = $trackStatusFactory;
@@ -109,8 +109,8 @@ class Carrier extends AbstractCarrier implements CarrierInterface
         $this->messageManager = $messageManager;
         $this->shipmentRepository = $shipmentRepository;
         $this->orderRepository = $orderRepository;
-        $this->orderBuilder = $orderBuilder;
-        $this->orderReferenceFactory = $orderReferenceFactory;
+        $this->requestDataInitializer = $ratesRequestDataInitializer;
+        $this->processorPool = $processorPool;
 
         parent::__construct($scopeConfig, $rateErrorFactory, $logger, $data);
     }
@@ -143,18 +143,12 @@ class Carrier extends AbstractCarrier implements CarrierInterface
         }
 
         try {
-            // init empty reference to remote order entity
-            $orderReference = $this->orderReferenceFactory->create();
-
-            // create remote order entity from rate request
-            /** @var \Temando\Shipping\Model\OrderInterface $order */
-            $this->orderBuilder->setRateRequest($rateRequest);
-            $order = $this->orderBuilder->create();
-
-            // save order at Temando platform
-            $orderReference = $this->orderRepository->save($order, $orderReference);
+            // create request data from rate request
+            $order = $this->requestDataInitializer->getQuotingData($rateRequest);
+            // send order to Temando platform, will respond with shipping options
+            $saveResult = $this->orderRepository->save($order);
             // read applicable shipping options from response
-            $shippingOptions = $orderReference->getShippingExperiences();
+            $shippingOptions = $this->processorPool->processRatesResponse($rateRequest, $order, $saveResult);
         } catch (LocalizedException $e) {
             $this->_logger->log(LogLevel::WARNING, $e->getMessage(), ['exception' => $e]);
             $shippingOptions = [];

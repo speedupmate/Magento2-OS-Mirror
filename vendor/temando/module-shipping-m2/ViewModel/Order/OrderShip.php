@@ -13,6 +13,7 @@ use Magento\Framework\View\Element\Block\ArgumentInterface;
 use Magento\Sales\Api\Data\OrderInterface;
 use Magento\Store\Model\ScopeInterface;
 use Psr\Log\LoggerInterface;
+use Temando\Shipping\Model\ResourceModel\Repository\OrderCollectionPointRepositoryInterface;
 use Temando\Shipping\Model\ResourceModel\Repository\OrderRepositoryInterface;
 use Temando\Shipping\Model\Shipment\ShipmentProviderInterface;
 use Temando\Shipping\ViewModel\CoreApiInterface;
@@ -69,6 +70,11 @@ class OrderShip implements ArgumentInterface, CoreApiInterface, OrderShipInterfa
     private $shipmentProvider;
 
     /**
+     * @var OrderCollectionPointRepositoryInterface
+     */
+    private $collectionPointRepository;
+
+    /**
      * @var LoggerInterface
      */
     private $logger;
@@ -82,6 +88,7 @@ class OrderShip implements ArgumentInterface, CoreApiInterface, OrderShipInterfa
      * @param Json $serializer
      * @param OrderRepositoryInterface $orderRepository
      * @param ShipmentProviderInterface $shipmentProvider
+     * @param OrderCollectionPointRepositoryInterface $collectionPointRepository
      * @param LoggerInterface $logger
      */
     public function __construct(
@@ -92,6 +99,7 @@ class OrderShip implements ArgumentInterface, CoreApiInterface, OrderShipInterfa
         Json $serializer,
         OrderRepositoryInterface $orderRepository,
         ShipmentProviderInterface $shipmentProvider,
+        OrderCollectionPointRepositoryInterface $collectionPointRepository,
         LoggerInterface $logger
     ) {
         $this->coreApiAccess = $coreApiAccess;
@@ -101,6 +109,7 @@ class OrderShip implements ArgumentInterface, CoreApiInterface, OrderShipInterfa
         $this->serializer = $serializer;
         $this->orderRepository = $orderRepository;
         $this->shipmentProvider = $shipmentProvider;
+        $this->collectionPointRepository = $collectionPointRepository;
         $this->logger = $logger;
     }
 
@@ -246,7 +255,48 @@ class OrderShip implements ArgumentInterface, CoreApiInterface, OrderShipInterfa
         $orderData['items'] = $orderItems;
         $orderData['addresses'] = $orderAddresses;
 
+        try {
+            $collectionPoint = $this->collectionPointRepository->get($orderData['shipping_address_id']);
+            $orderData['final_recipient_address_id'] = $orderData['shipping_address_id'];
+            $orderData['shipping_address_id'] = $collectionPoint->getCollectionPointId();
+            $orderData['addresses'][$collectionPoint->getCollectionPointId()] = [
+                'entity_id' => $collectionPoint->getCollectionPointId(),
+                'postcode' => $collectionPoint->getPostcode(),
+                'street' => implode("\n", $collectionPoint->getStreet()),
+                'city' => $collectionPoint->getCity(),
+                'country_id' => $collectionPoint->getCountry(),
+                'address_type' => 'collection_point',
+                'company' => $collectionPoint->getName(),
+                'region' => $collectionPoint->getRegion(),
+            ];
+        } catch (LocalizedException $exception) {
+            $orderData['final_recipient_address_id'] = $orderData['shipping_address_id'];
+        }
+
         return $this->serializer->serialize($orderData);
+    }
+
+    /**
+     * Obtain a JSON representation of relevant order metadata for usage in the
+     * OrderShip UI component.
+     *
+     * @return string
+     */
+    public function getOrderMeta(): string
+    {
+        $order = $this->getOrder();
+        $shippingAddressId = $order->getShippingAddress()->getId();
+
+        try {
+            $collectionPoint = $this->collectionPointRepository->get($shippingAddressId);
+            $isCollectionPoint = (bool) $collectionPoint->getRecipientAddressId();
+        } catch (LocalizedException $e) {
+            $isCollectionPoint = false;
+        }
+
+        $orderMeta = ['isCollectionPoint' => $isCollectionPoint];
+
+        return $this->serializer->serialize($orderMeta);
     }
 
     /**
@@ -327,7 +377,7 @@ class OrderShip implements ArgumentInterface, CoreApiInterface, OrderShipInterfa
     /**
      * @return string
      */
-    public function getConfigUrl()
+    public function getConfigUrl(): string
     {
         return $this->urlBuilder->getUrl('adminhtml/system_config/edit', [
             'section' => 'carriers',
@@ -341,7 +391,7 @@ class OrderShip implements ArgumentInterface, CoreApiInterface, OrderShipInterfa
      *
      * @return bool
      */
-    public function hasSalesShipment()
+    public function hasSalesShipment(): bool
     {
         /** @var \Magento\Sales\Model\Order\Shipment $shipment */
         return (bool) $this->shipmentProvider->getSalesShipment();

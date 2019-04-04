@@ -9,6 +9,7 @@ namespace Vertex\Tax\Model;
 use Magento\Framework\Exception\CouldNotSaveException;
 use Magento\Framework\Exception\LocalizedException;
 use Magento\Framework\Message\ManagerInterface;
+use Magento\Framework\Phrase;
 use Magento\Framework\Stdlib\DateTime\DateTime;
 use Magento\Sales\Api\OrderStatusHistoryRepositoryInterface;
 use Magento\Sales\Model\Order;
@@ -17,8 +18,12 @@ use Magento\Sales\Model\Order\Creditmemo\Item as CreditmemoItem;
 use Magento\Sales\Model\Order\Invoice;
 use Magento\Sales\Model\Order\Invoice\Item as InvoiceItem;
 use Magento\Sales\Model\Order\Item as OrderItem;
+use Magento\Store\Model\ScopeInterface;
 use Psr\Log\LoggerInterface;
 use Vertex\Tax\Api\ClientInterface;
+use Vertex\Tax\Exception\ApiRequestException;
+use Vertex\Tax\Exception\ApiRequestException\AuthenticationException;
+use Vertex\Tax\Exception\ApiRequestException\ConnectionFailureException;
 use Vertex\Tax\Model\Request\Customer;
 use Vertex\Tax\Model\TaxInvoice\BaseFormatter;
 use Vertex\Tax\Model\TaxInvoice\ItemFormatter;
@@ -107,7 +112,22 @@ class TaxInvoice
         try {
             /** @var RequestItem $requestItem */
             $requestItem = $this->requestItemFactory->create();
-            $companyAddressInfo = $this->baseFormatter->addFormattedSellerData([]);
+            $order = $entityItem;
+            $typeId = 'ordered';
+
+            if ($entityItem instanceof Invoice || $entityItem instanceof Creditmemo) {
+                $order = $entityItem->getOrder();
+                $typeId = 'invoiced';
+            }
+
+            $requestItem->setDocumentNumber($order->getIncrementId());
+            $requestItem->setDocumentDate(
+                $this->dateTime->date('Y-m-d', $this->dateTime->timestamp($order->getCreatedAt()))
+            );
+            $requestItem->setPostingDate($this->dateTime->date('Y-m-d'));
+
+            $companyAddressInfo = $this->baseFormatter->addFormattedSellerData([], $order->getStoreId());
+
             $requestItem->setLocationCode($companyAddressInfo['location_code']);
             $requestItem->setTransactionType($companyAddressInfo['transaction_type']);
             $requestItem->setCompanyId($companyAddressInfo['company_id']);
@@ -118,17 +138,6 @@ class TaxInvoice
             $requestItem->setCompanyPostcode($companyAddressInfo['company_postcode']);
             $requestItem->setCompanyCountry($companyAddressInfo['company_country']);
             $requestItem->setTrustedId($companyAddressInfo['trusted_id']);
-            $order = $entityItem;
-            $typeId = 'ordered';
-            if ($entityItem instanceof Invoice || $entityItem instanceof Creditmemo) {
-                $order = $entityItem->getOrder();
-                $typeId = 'invoiced';
-            }
-            $requestItem->setDocumentNumber($order->getIncrementId());
-            $requestItem->setDocumentDate(
-                $this->dateTime->date('Y-m-d', $this->dateTime->timestamp($order->getCreatedAt()))
-            );
-            $requestItem->setPostingDate($this->dateTime->date('Y-m-d'));
 
             $customerClass = $this->customerFormatter->taxClassNameByCustomerGroupId($order->getCustomerGroupId());
             $customerCode = $this->customerFormatter->getCustomerCodeById($order->getCustomerId());
@@ -182,12 +191,24 @@ class TaxInvoice
      */
     public function sendInvoiceRequest($data, Order $order)
     {
-        $response = $this->vertex->sendApiRequest($data, static::REQUEST_TYPE, $order);
-        if (!$response) {
-            $this->messageManager->addErrorMessage(
-                __('Could not submit invoice to Vertex.  Error has been logged.')->render()
-            );
-            return false;
+        if ($this->vertex instanceof ApiClient) {
+            try {
+                $response = $this->vertex->performRequest(
+                    $data,
+                    static::REQUEST_TYPE,
+                    ScopeInterface::SCOPE_STORE,
+                    $order->getStoreId()
+                );
+            } catch (ApiRequestException $e) {
+                $this->addErrorMessage(__('Could not submit invoice to Vertex.'), $e);
+                return false;
+            }
+        } else {
+            $response = $this->vertex->sendApiRequest($data, static::REQUEST_TYPE, $order);
+            if (!$response) {
+                $this->addErrorMessage(__('Could not submit invoice to Vertex.'));
+                return false;
+            }
         }
         if (is_array($response['TotalTax'])) {
             $totalTax = $response['TotalTax']['_'];
@@ -217,12 +238,24 @@ class TaxInvoice
      */
     public function sendRefundRequest($data, Order $order)
     {
-        $response = $this->vertex->sendApiRequest($data, static::REQUEST_TYPE_REFUND, $order);
-        if (!$response) {
-            $this->messageManager->addErrorMessage(
-                __('Could not submit refund to Vertex.  Error has been logged.')->render()
-            );
-            return false;
+        if ($this->vertex instanceof ApiClient) {
+            try {
+                $response = $this->vertex->performRequest(
+                    $data,
+                    static::REQUEST_TYPE_REFUND,
+                    ScopeInterface::SCOPE_STORE,
+                    $order->getStoreId()
+                );
+            } catch (ApiRequestException $e) {
+                $this->addErrorMessage(__('Could not submit refund to Vertex.'), $e);
+                return false;
+            }
+        } else {
+            $response = $this->vertex->sendApiRequest($data, static::REQUEST_TYPE_REFUND, $order);
+            if (!$response) {
+                $this->addErrorMessage(__('Could not submit refund to Vertex.'));
+                return false;
+            }
         }
         if (is_array($response['TotalTax'])) {
             $totalTax = $response['TotalTax']['_'];
@@ -246,6 +279,35 @@ class TaxInvoice
         return true;
     }
 
+    private function addErrorMessage(Phrase $friendlyPhrase, $exception = null)
+    {
+        $friendlyMessage = $friendlyPhrase->render();
+        $errorMessage = null;
+
+        $exceptionClass = get_class($exception);
+
+        switch ($exceptionClass) {
+            case AuthenticationException::class:
+                $errorMessage = __(
+                    '%1 Please verify your configured Company Code and Trusted ID are correct.',
+                    $friendlyMessage
+                );
+                break;
+            case ConnectionFailureException::class:
+                $errorMessage = __(
+                    '%1 Vertex could not be reached. Please verify your configuration.',
+                    $friendlyMessage
+                );
+                break;
+            case ApiRequestException::class:
+            default:
+                $errorMessage = __('%1 Error has been logged.', $friendlyMessage);
+                break;
+        }
+
+        $this->messageManager->addErrorMessage($errorMessage);
+    }
+
     /**
      * Determine which address taxes should be calculated for
      *
@@ -264,13 +326,16 @@ class TaxInvoice
      * @param mixed ...$items
      * @return array
      */
-    private function addIfNotEmpty(array $array, ...$items)
+    private function addIfNotEmpty(array $array)
     {
+        $items = array_slice(func_get_args(), 1);
+
         foreach ($items as $item) {
             if (!empty($item)) {
                 $array[] = $item;
             }
         }
+
         return $array;
     }
 }

@@ -7,10 +7,11 @@
 namespace Vertex\Tax\Observer;
 
 use Vertex\Tax\Model\Calculation\VertexCalculator;
-use Magento\Framework\Registry;
+use Vertex\Tax\Model\TaxRegistry;
 use Magento\Framework\Event\Observer;
 use Magento\Framework\Event\ObserverInterface;
 use Magento\Framework\Message\ManagerInterface;
+use Vertex\Tax\Model\ErrorMessageDisplayState;
 
 /**
  * Retrieve tax calculation service errors.
@@ -22,19 +23,25 @@ class QuoteCollectTotalsAfterObserver implements ObserverInterface
     /** @var ManagerInterface */
     private $messageManager;
 
-    /** @var Registry */
-    private $registry;
+    /** @var TaxRegistry */
+    private $taxRegistry;
+
+    /** @var ErrorMessageDisplayState */
+    private $messageDisplayState;
 
     /**
-     * @param Registry $registry
+     * @param TaxRegistry $taxRegistry
      * @param ManagerInterface $messageManager
+     * @param ErrorMessageDisplayState $messageDisplayState
      */
     public function __construct(
-        Registry $registry,
-        ManagerInterface $messageManager
+        TaxRegistry $taxRegistry,
+        ManagerInterface $messageManager,
+        ErrorMessageDisplayState $messageDisplayState
     ) {
         $this->messageManager = $messageManager;
-        $this->registry = $registry;
+        $this->taxRegistry = $taxRegistry;
+        $this->messageDisplayState = $messageDisplayState;
     }
 
     /**
@@ -44,7 +51,7 @@ class QuoteCollectTotalsAfterObserver implements ObserverInterface
      */
     private function getError()
     {
-        return $this->registry->registry(VertexCalculator::VERTEX_CALCULATION_ERROR);
+        return $this->taxRegistry->lookup(TaxRegistry::KEY_ERROR_GENERIC);
     }
 
     /**
@@ -58,7 +65,7 @@ class QuoteCollectTotalsAfterObserver implements ObserverInterface
     {
         $error = $this->getError();
 
-        if ($error !== null) {
+        if ($error !== null && $this->messageDisplayState->isEnabled()) {
             $this->messageManager->addWarningMessage($error);
         }
     }

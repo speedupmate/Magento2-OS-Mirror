@@ -30,9 +30,14 @@ interface OrderRequestTypeInterface extends ExtensibleTypeInterface
     public function setId($id);
 
     /**
-     * Check if the current request transmit a placed order
+     * Indicates if the order was placed and can be persisted at Temando platform.
      *
      * @return bool
      */
-    public function isRealOrderRequest();
+    public function canPersist();
+
+    /**
+     * @return string
+     */
+    public function getSelectedExperienceCode();
 }

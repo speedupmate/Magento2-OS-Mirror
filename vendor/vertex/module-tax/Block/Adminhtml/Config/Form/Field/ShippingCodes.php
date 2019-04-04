@@ -11,6 +11,7 @@ use Magento\Config\Block\System\Config\Form\Field;
 use Magento\Framework\App\Config\ScopeConfigInterface;
 use Magento\Framework\Data\Form\Element\AbstractElement;
 use Magento\Shipping\Model\Config;
+use Magento\Store\Api\GroupRepositoryInterface;
 use Magento\Store\Model\ScopeInterface;
 
 /**
@@ -24,22 +25,48 @@ class ShippingCodes extends Field
     /** @var ScopeConfigInterface */
     private $scopeConfig;
 
+    /** @var GroupRepositoryInterface */
+    private $groupRepository;
+
     /**
      * @param Context $context
      * @param Config $shippingConfig
-     * @param ScopeConfigInterface $scopeConfig
-     * @param array $data
+     * @param GroupRepositoryInterface $groupRepository
      */
     public function __construct(
         Context $context,
         Config $shippingConfig,
-        ScopeConfigInterface $scopeConfig,
+        GroupRepositoryInterface $groupRepository,
         array $data = []
     ) {
         $this->shippingConfig = $shippingConfig;
-        $this->scopeConfig = $scopeConfig;
+        $this->scopeConfig = $context->getScopeConfig();
+        $this->groupRepository = $groupRepository;
 
         parent::__construct($context, $data);
+    }
+
+    /**
+     * Retrieve the ID of the store
+     *
+     * @return int
+     */
+    private function getStoreId()
+    {
+        $storeId = (int) $this->getRequest()->getParam('store', 0);
+        $websiteId = (int) $this->getRequest()->getParam('website', 0);
+
+        if ($storeId === 0 && $websiteId > 0) {
+            try {
+                $groupId = $this->_storeManager->getWebsite($websiteId)->getDefaultGroupId();
+                $group = $this->groupRepository->get($groupId);
+                return $group->getDefaultStoreId();
+            } catch (\Exception $e) {
+                return 0;
+            }
+        }
+
+        return $storeId;
     }
 
     /**
@@ -47,11 +74,13 @@ class ShippingCodes extends Field
      */
     public function getElementHtml()
     {
+        $storeId = $this->getStoreId();
+
         $html = '<table cellspacing="0" class="data-grid"><thead>';
         $html .= '<tr><th class="data-grid-th">Shipping Method</th><th class="data-grid-th">Product Code</th></tr>';
         $html .= '</thead><tbody>';
         $allowedMethods = ['ups', 'usps', 'fedex', 'dhl'];
-        $methods = $this->shippingConfig->getActiveCarriers();
+        $methods = $this->shippingConfig->getActiveCarriers($storeId);
 
         foreach ($methods as $carrierCode => $carrier) {
             $methodOptions = [];
@@ -59,7 +88,8 @@ class ShippingCodes extends Field
             if ($carrierMethods = $carrier->getAllowedMethods()) {
                 $title = $this->scopeConfig->getValue(
                     "carriers/$carrierCode/title",
-                    ScopeInterface::SCOPE_STORE
+                    ScopeInterface::SCOPE_STORE,
+                    $storeId
                 );
 
                 if (!$title) {

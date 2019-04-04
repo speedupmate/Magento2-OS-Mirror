@@ -6,12 +6,14 @@
 
 namespace Vertex\Tax\Model\Plugin;
 
+use Vertex\Tax\Model\Config;
 use Magento\Tax\Model\System\Config\Source\Algorithm;
 
 /**
  * Adds Vertex to the Tax Calculation algorithms
  *
  * @see Algorithm
+ * @deprecated Vertex will be removed as a calculation method in the future, as this is incompatible with fallbacks
  */
 class AlgorithmPlugin
 {
@@ -30,7 +32,7 @@ class AlgorithmPlugin
     public function afterToOptionArray(Algorithm $subject, $options)
     {
         $option = [
-            'value' => CalculatorFactoryPlugin::CALC_UNIT_VERTEX,
+            'value' => Config::CALC_UNIT_VERTEX,
             'label' => __('Vertex'),
         ];
 

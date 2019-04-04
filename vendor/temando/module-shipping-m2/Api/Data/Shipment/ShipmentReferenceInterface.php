@@ -21,6 +21,7 @@ interface ShipmentReferenceInterface
     const ENTITY_ID              = 'entity_id';
     const SHIPMENT_ID            = 'shipment_id';
     const EXT_SHIPMENT_ID        = 'ext_shipment_id';
+    const EXT_RETURN_SHIPMENT_ID = 'ext_return_shipment_id';
     const EXT_LOCATION_ID        = 'ext_location_id';
     const EXT_TRACKING_URL       = 'ext_tracking_url';
     const EXT_TRACKING_REFERENCE = 'ext_tracking_reference';
@@ -57,6 +58,17 @@ interface ShipmentReferenceInterface
      * @return void
      */
     public function setExtShipmentId($extShipmentId);
+
+    /**
+     * @return string
+     */
+    public function getExtReturnShipmentId();
+
+    /**
+     * @param string $extReturnShipmentId
+     * @return void
+     */
+    public function setExtReturnShipmentId($extReturnShipmentId);
 
     /**
      * @return string

@@ -24,9 +24,10 @@ interface OrderRequestInterface
     /**
      * Obtain query/post parameters.
      *
+     * @param string $actionType
      * @return string[]
      */
-    public function getRequestParams();
+    public function getRequestParams($actionType);
 
     /**
      * Obtain raw post data.

@@ -6,8 +6,7 @@ namespace Temando\Shipping\Model;
 
 use Magento\TestFramework\Helper\Bootstrap;
 use Temando\Shipping\Model\Shipment\FulfillmentInterface;
-use Temando\Shipping\Model\Shipment\ShipmentDestinationInterface;
-use Temando\Shipping\Model\Shipment\ShipmentOriginInterface;
+use Temando\Shipping\Model\Shipment\LocationInterface;
 
 /**
  * Temando Shipment Model Test
@@ -65,31 +64,31 @@ class ShipmentModelTest extends \PHPUnit\Framework\TestCase
         ];
         $isPaperless = true;
 
-        /** @var Shipment\ShipmentOrigin $originLocation */
-        $originLocation = Bootstrap::getObjectManager()->create(Shipment\ShipmentOrigin::class, ['data' => [
-            ShipmentOriginInterface::COMPANY => $originLocationData['company'],
-            ShipmentOriginInterface::PERSON_FIRST_NAME => $originLocationData['person_first_name'],
-            ShipmentOriginInterface::PERSON_LAST_NAME => $originLocationData['person_last_name'],
-            ShipmentOriginInterface::EMAIL => $originLocationData['email'],
-            ShipmentOriginInterface::PHONE_NUMBER => $originLocationData['phone_number'],
-            ShipmentOriginInterface::STREET => $originLocationData['street'],
-            ShipmentOriginInterface::CITY => $originLocationData['city'],
-            ShipmentOriginInterface::POSTAL_CODE => $originLocationData['postal_code'],
-            ShipmentOriginInterface::REGION_CODE => $originLocationData['region_code'],
-            ShipmentOriginInterface::COUNTRY_CODE => $originLocationData['country_code'],
+        /** @var Shipment\Location $originLocation */
+        $originLocation = Bootstrap::getObjectManager()->create(Shipment\Location::class, ['data' => [
+            LocationInterface::COMPANY => $originLocationData['company'],
+            LocationInterface::PERSON_FIRST_NAME => $originLocationData['person_first_name'],
+            LocationInterface::PERSON_LAST_NAME => $originLocationData['person_last_name'],
+            LocationInterface::EMAIL => $originLocationData['email'],
+            LocationInterface::PHONE_NUMBER => $originLocationData['phone_number'],
+            LocationInterface::STREET => $originLocationData['street'],
+            LocationInterface::CITY => $originLocationData['city'],
+            LocationInterface::POSTAL_CODE => $originLocationData['postal_code'],
+            LocationInterface::REGION_CODE => $originLocationData['region_code'],
+            LocationInterface::COUNTRY_CODE => $originLocationData['country_code'],
         ]]);
 
-        $destinationLocation = Bootstrap::getObjectManager()->create(Shipment\ShipmentDestination::class, ['data' => [
-            ShipmentDestinationInterface::COMPANY => $destinationLocationData['company'],
-            ShipmentDestinationInterface::PERSON_FIRST_NAME => $destinationLocationData['person_first_name'],
-            ShipmentDestinationInterface::PERSON_LAST_NAME => $destinationLocationData['person_last_name'],
-            ShipmentDestinationInterface::EMAIL => $destinationLocationData['email'],
-            ShipmentDestinationInterface::PHONE_NUMBER => $destinationLocationData['phone_number'],
-            ShipmentDestinationInterface::STREET => $destinationLocationData['street'],
-            ShipmentDestinationInterface::CITY => $destinationLocationData['city'],
-            ShipmentDestinationInterface::POSTAL_CODE => $destinationLocationData['postal_code'],
-            ShipmentDestinationInterface::REGION_CODE => $destinationLocationData['region_code'],
-            ShipmentDestinationInterface::COUNTRY_CODE => $destinationLocationData['country_code'],
+        $destinationLocation = Bootstrap::getObjectManager()->create(Shipment\Location::class, ['data' => [
+            LocationInterface::COMPANY => $destinationLocationData['company'],
+            LocationInterface::PERSON_FIRST_NAME => $destinationLocationData['person_first_name'],
+            LocationInterface::PERSON_LAST_NAME => $destinationLocationData['person_last_name'],
+            LocationInterface::EMAIL => $destinationLocationData['email'],
+            LocationInterface::PHONE_NUMBER => $destinationLocationData['phone_number'],
+            LocationInterface::STREET => $destinationLocationData['street'],
+            LocationInterface::CITY => $destinationLocationData['city'],
+            LocationInterface::POSTAL_CODE => $destinationLocationData['postal_code'],
+            LocationInterface::REGION_CODE => $destinationLocationData['region_code'],
+            LocationInterface::COUNTRY_CODE => $destinationLocationData['country_code'],
         ]]);
 
         $fulfillment = Bootstrap::getObjectManager()->create(Shipment\Fulfillment::class, ['data' => [
@@ -106,11 +105,7 @@ class ShipmentModelTest extends \PHPUnit\Framework\TestCase
             DocumentationInterface::MIME_TYPE => $documentationData['mime_type'],
             DocumentationInterface::URL => $documentationData['url'],
         ]]);
-        /**
-         * @var DocumentationCollection $documentationCollection
-         */
-        $documentationCollection = Bootstrap::getObjectManager()->create(DocumentationCollection::class);
-        $documentationCollection->offsetSet($documentationData['documentation_id'], $documentation);
+        $documentation = [$documentation];
 
         /** @var Shipment $shipment */
         $shipment = Bootstrap::getObjectManager()->create(Shipment::class, ['data' => [
@@ -118,7 +113,7 @@ class ShipmentModelTest extends \PHPUnit\Framework\TestCase
             ShipmentInterface::ORIGIN_LOCATION => $originLocation,
             ShipmentInterface::DESTINATION_LOCATION => $destinationLocation,
             ShipmentInterface::FULFILLMENT => $fulfillment,
-            ShipmentInterface::DOCUMENTATION => $documentationCollection,
+            ShipmentInterface::DOCUMENTATION => $documentation,
             ShipmentInterface::IS_PAPERLESS => $isPaperless,
         ]]);
 
@@ -152,7 +147,7 @@ class ShipmentModelTest extends \PHPUnit\Framework\TestCase
         $this->assertEquals($fulfillmentData['service_name'], $shipment->getFulfillment()->getServiceName());
         $this->assertEquals($fulfillmentData['tracking_reference'], $shipment->getFulfillment()->getTrackingReference());
 
-        $this->assertSame($documentation, $shipment->getDocumentation()->offsetGet($documentation->getDocumentationId()));
+        $this->assertSame($documentation, $shipment->getDocumentation());
 
         $this->assertEquals($isPaperless, $shipment->isPaperless());
     }
@@ -165,10 +160,10 @@ class ShipmentModelTest extends \PHPUnit\Framework\TestCase
         $shipmentId = '00000000-5000-0005-0000-000000000000';
         $orderId = '1234567899876543210';
         $originId = '897654321123456789';
-        /** @var Shipment\ShipmentOrigin $originLocation */
-        $originLocation = Bootstrap::getObjectManager()->create(Shipment\ShipmentOrigin::class);
-        /** @var Shipment\ShipmentDestination $destinationLocation */
-        $destinationLocation = Bootstrap::getObjectManager()->create(Shipment\ShipmentDestination::class);
+        /** @var Shipment\Location $originLocation */
+        $originLocation = Bootstrap::getObjectManager()->create(Shipment\Location::class);
+        /** @var Shipment\Location $destinationLocation */
+        $destinationLocation = Bootstrap::getObjectManager()->create(Shipment\Location::class);
         $fulfillment = Bootstrap::getObjectManager()->create(FulfillmentInterface::class);
         $packages = ['pack'];
         $documentation = ['doc'];

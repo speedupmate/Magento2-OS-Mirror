@@ -13,24 +13,24 @@ class ShipmentOriginTest extends TestCase
 {
     /** @var ObjectManager $objectManager */
     private $objectManager;
-    /** @var ShipmentOrigin $shipmentOrigin */
+    /** @var Location $shipmentOrigin */
     private $shipmentOrigin;
 
     public function setUp()
     {
         parent::setUp();
         $this->objectManager = Bootstrap::getObjectManager();
-        $this->shipmentOrigin = $this->objectManager->create(ShipmentOrigin::class);
-        $this->shipmentOrigin->setData(ShipmentOriginInterface::CITY, 'CITY');
-        $this->shipmentOrigin->setData(ShipmentOriginInterface::COMPANY, 'COMPANY');
-        $this->shipmentOrigin->setData(ShipmentOriginInterface::COUNTRY_CODE, 'COUNTRY_CODE');
-        $this->shipmentOrigin->setData(ShipmentOriginInterface::EMAIL, 'EMAIL');
-        $this->shipmentOrigin->setData(ShipmentOriginInterface::PERSON_FIRST_NAME, 'PERSON_FIRST_NAME');
-        $this->shipmentOrigin->setData(ShipmentOriginInterface::PERSON_LAST_NAME, 'PERSON_LAST_NAME');
-        $this->shipmentOrigin->setData(ShipmentOriginInterface::PHONE_NUMBER, 'PHONE_NUMBER');
-        $this->shipmentOrigin->setData(ShipmentOriginInterface::POSTAL_CODE, 'POSTAL_CODE');
-        $this->shipmentOrigin->setData(ShipmentOriginInterface::REGION_CODE, 'REGION_CODE');
-        $this->shipmentOrigin->setData(ShipmentOriginInterface::STREET, 'STREET');
+        $this->shipmentOrigin = $this->objectManager->create(Location::class);
+        $this->shipmentOrigin->setData(LocationInterface::CITY, 'CITY');
+        $this->shipmentOrigin->setData(LocationInterface::COMPANY, 'COMPANY');
+        $this->shipmentOrigin->setData(LocationInterface::COUNTRY_CODE, 'COUNTRY_CODE');
+        $this->shipmentOrigin->setData(LocationInterface::EMAIL, 'EMAIL');
+        $this->shipmentOrigin->setData(LocationInterface::PERSON_FIRST_NAME, 'PERSON_FIRST_NAME');
+        $this->shipmentOrigin->setData(LocationInterface::PERSON_LAST_NAME, 'PERSON_LAST_NAME');
+        $this->shipmentOrigin->setData(LocationInterface::PHONE_NUMBER, 'PHONE_NUMBER');
+        $this->shipmentOrigin->setData(LocationInterface::POSTAL_CODE, 'POSTAL_CODE');
+        $this->shipmentOrigin->setData(LocationInterface::REGION_CODE, 'REGION_CODE');
+        $this->shipmentOrigin->setData(LocationInterface::STREET, 'STREET');
     }
 
     /**

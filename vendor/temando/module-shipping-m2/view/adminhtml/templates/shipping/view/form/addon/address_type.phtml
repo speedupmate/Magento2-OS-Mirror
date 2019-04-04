@@ -3,14 +3,13 @@
  * Refer to LICENSE.txt distributed with the Temando Shipping module for notice of license
  */
 ?>
-
 <?php /** @var \Magento\Backend\Block\Template $block */ ?>
-<?php $addressType = $block->getData('addressType'); ?>
+<?php $addressType = $block->getData('address_type'); ?>
 <?php if ($addressType) : ?>
     <tr>
-        <th><?= $block->escapeHtml('Address Type') ?></th>
+        <th><?= $block->escapeHtml(__('Address Type')) ?></th>
         <td>
-            <?= $block->escapeHtml($addressType) ?>
+            <?= $block->escapeHtml(ucfirst($addressType)) ?>
         </td>
     </tr>
 <?php endif; ?>

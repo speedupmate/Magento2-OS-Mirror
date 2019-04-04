@@ -180,11 +180,29 @@ class Payments implements CreditApiInterface
             $sessionId
         );
         if ($response->getResponseCode() === 204) {
-            $data = $response->toArray();
-            $data['session_id'] = $sessionId;
-            return $this->responseFactory->create(['data' => $data]);
+            return $this->readSession($sessionId);
         }
         return $response;
+    }
+
+    /**
+     * @param string           $sessionId
+     * @param RequestInterface $request
+     * @return ResponseInterface
+     * @throws KlarnaApiException
+     * @throws \Klarna\Core\Exception
+     */
+    public function readSession($sessionId)
+    {
+        $resp = $this->processRequest(
+            '/payments/' . self::API_VERSION . '/sessions/' . $sessionId,
+            null,
+            ServiceInterface::GET,
+            $sessionId
+        );
+        $response = $resp->toArray();
+        $response['session_id'] = $sessionId;
+        return $this->responseFactory->create(['data' => $response]);
     }
 
     /**

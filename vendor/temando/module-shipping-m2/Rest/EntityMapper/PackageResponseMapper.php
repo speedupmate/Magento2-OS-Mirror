@@ -8,7 +8,7 @@ use Temando\Shipping\Model\Shipment\PackageInterface;
 use Temando\Shipping\Model\Shipment\PackageInterfaceFactory;
 use Temando\Shipping\Model\Shipment\PackageItemInterface;
 use Temando\Shipping\Model\Shipment\PackageItemInterfaceFactory;
-use Temando\Shipping\Rest\Response\Type\Shipment\Attributes\Package;
+use Temando\Shipping\Rest\Response\Type\Generic\Package;
 
 /**
  * Map API data to application data object
@@ -44,7 +44,7 @@ class PackageResponseMapper
     }
 
     /**
-     * @param \Temando\Shipping\Rest\Response\Type\Shipment\Attributes\Package\Item[] $apiPackageItems
+     * @param \Temando\Shipping\Rest\Response\Type\Generic\Item[] $apiPackageItems
      * @return PackageItemInterface[]
      */
     public function mapItems(array $apiPackageItems)
@@ -90,7 +90,7 @@ class PackageResponseMapper
                 $packageItemData[PackageItemInterface::WEIGHT] = sprintf(
                     '%s %s',
                     $weight->getValue(),
-                    $weight->getUnitOfMeasurement()
+                    $weight->getUnit()
                 );
             }
 
@@ -118,8 +118,8 @@ class PackageResponseMapper
      */
     public function map(Package $apiPackage)
     {
-        $dimensions      = $apiPackage->getDimensions();
-        $grossWeight     = $apiPackage->getGrossWeight();
+        $dimensions = $apiPackage->getDimensions();
+        $grossWeight = $apiPackage->getGrossWeight();
 
         $items = $this->mapItems($apiPackage->getItems());
 
@@ -130,7 +130,7 @@ class PackageResponseMapper
             PackageInterface::WEIGHT => sprintf(
                 '%s %s',
                 $grossWeight->getValue(),
-                $grossWeight->getUnitOfMeasurement()
+                $grossWeight->getUnit()
             ),
             PackageInterface::WIDTH => sprintf('%s %s', $dimensions->getWidth(), $dimensions->getUnit()),
             PackageInterface::LENGTH => sprintf('%s %s', $dimensions->getLength(), $dimensions->getUnit()),

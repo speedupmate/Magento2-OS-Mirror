@@ -19,6 +19,11 @@ use Temando\Shipping\Model\Shipment\ShipmentProviderInterface;
  * @license  http://opensource.org/licenses/osl-3.0.php Open Software License (OSL 3.0)
  * @link     http://www.temando.com/
  *
+ * @deprecated since 1.1.3 | Block data is provided by view model
+ * @see \Temando\Shipping\ViewModel\Order\CustomerDetails
+ * @see \Temando\Shipping\ViewModel\Order\OrderDetails
+ * @see \Temando\Shipping\ViewModel\Rma\RmaView
+ *
  * @method \Magento\Sales\Api\Data\OrderInterface getOrder()
  * @method void setOrder() setOrder(\Magento\Sales\Api\Data\OrderInterface $order)
  */

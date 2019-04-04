@@ -14,6 +14,9 @@ use Temando\Shipping\Model\ShipmentInterface;
 /**
  * Temando AddOn Listing Layout Block
  *
+ * @deprecated since 1.2.0 | Block data is provided by view model
+ * @see \Temando\Shipping\ViewModel\Shipment\AddOns
+ *
  * @package  Temando\Shipping\Block
  * @author   Sebastian Ertner <sebastian.ertner@netresearch.de>
  * @license  http://opensource.org/licenses/osl-3.0.php Open Software License (OSL 3.0)
@@ -45,7 +48,6 @@ class AddOns extends BackendTemplate
 
     /**
      * @return DataObject[]
-     * @deprecated since 1.0.5 | Will be replaced by ViewModel TODO
      */
     public function getCapabilities()
     {
@@ -67,7 +69,6 @@ class AddOns extends BackendTemplate
     /**
      * @param DataObject $capability
      *
-     * @deprecated since 1.0.5 | Will be replaced by ViewModel TODO
      * @return string
      */
     public function renderCapability(DataObject $capability)

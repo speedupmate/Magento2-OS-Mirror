@@ -96,7 +96,11 @@ class Notification extends Action
      */
     public function execute()
     {
-        $this->checkIsPost();
+        if (!$this->getRequest()->isPost()) {
+            $resultPage = $this->resultJsonFactory->create();
+            $resultPage->setHttpResponseCode(404);
+            return $resultPage;
+        }
 
         $checkoutId = $this->getRequest()->getParam('id');
 
@@ -153,20 +157,6 @@ class Notification extends Action
         $resultPage->setHttpResponseCode(200);
         $resultPage->setData([]);
         return $resultPage;
-    }
-
-    /**
-     * @throws WebException
-     */
-    private function checkIsPost()
-    {
-        if (!$this->getRequest()->isPost()) {
-            throw new WebException(
-                __('Nope'),
-                WebException::HTTP_METHOD_NOT_ALLOWED,
-                WebException::HTTP_METHOD_NOT_ALLOWED
-            );
-        }
     }
 
     /**

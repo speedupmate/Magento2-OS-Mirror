@@ -34,6 +34,13 @@ interface CreditApiInterface
     public function updateSession($sessionId, RequestInterface $request);
 
     /**
+     * @param string           $sessionId
+     * @param RequestInterface $request
+     * @return ResponseInterface
+     */
+    public function readSession($sessionId);
+
+    /**
      * @param string           $authorizationToken
      * @param RequestInterface $request
      * @param null             $klarnaId

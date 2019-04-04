@@ -81,35 +81,4 @@ class DocumentationModelTest extends \PHPUnit\Framework\TestCase
         $documentation->setData(Documentation::URL, $url);
         $this->assertEquals($url, $documentation->getUrl());
     }
-
-    /**
-     * @test
-     */
-    public function documentationCollectionTest()
-    {
-        $documentationIdOne = '1234';
-        $documentationIdTwo = '5678';
-
-        /** @var Documentation $documentationOne */
-        $documentationOne = Bootstrap::getObjectManager()->create(Documentation::class, ['data' => [
-            DocumentationInterface::DOCUMENTATION_ID => $documentationIdOne,
-        ]]);
-
-        /** @var Documentation $documentationTwo */
-        $documentationTwo = Bootstrap::getObjectManager()->create(Documentation::class, ['data' => [
-            DocumentationInterface::DOCUMENTATION_ID => $documentationIdTwo,
-        ]]);
-
-        /** @var DocumentationCollection $collection */
-        $collection = Bootstrap::getObjectManager()->create(DocumentationCollection::class);
-        $collection->offsetSet($documentationIdOne, $documentationOne);
-        $collection->offsetSet($documentationIdTwo, $documentationTwo);
-
-        $this->assertSame($collection[$documentationIdOne], $documentationOne);
-        $this->assertSame($collection[$documentationIdTwo], $documentationTwo);
-        $serializedCollection = json_encode($collection);
-        $this->assertSame($collection->serialize(), $serializedCollection);
-        $unserializedCollection = json_decode($serializedCollection, true);
-        $this->assertSame($collection->unserialize($serializedCollection), $unserializedCollection);
-    }
 }

@@ -6,8 +6,12 @@
 
 namespace Vertex\Tax\Model\TaxArea;
 
+use Magento\Store\Model\ScopeInterface;
 use Magento\Store\Model\StoreManagerInterface;
 use Vertex\Tax\Api\ClientInterface;
+use Vertex\Tax\Exception\ApiRequestException;
+use Vertex\Tax\Exception\ApiRequestException\ConnectionFailureException;
+use Vertex\Tax\Model\ApiClient;
 use Vertex\Tax\Model\Config;
 
 /**
@@ -58,13 +62,14 @@ class TaxAreaRequest
      * Create a properly formatted Tax Area Request
      *
      * @param array $address
+     * @param string|null $store
      * @return array
      */
-    private function getFormattedRequest(array $address)
+    private function getFormattedRequest(array $address, $store = null)
     {
         $request = [
             'Login' => [
-                'TrustedId' => $this->config->getTrustedId()
+                'TrustedId' => $this->config->getTrustedId($store)
             ],
             'TaxAreaRequest' => [
                 'TaxAreaLookup' => [
@@ -80,18 +85,30 @@ class TaxAreaRequest
      * Lookup the Tax Area for an Address
      *
      * @param array $address
+     * @param string|null $store
      * @return bool|TaxAreaResponse
+     * @throws ConnectionFailureException
+     * @throws ApiRequestException
      */
-    public function taxAreaLookup(array $address)
+    public function taxAreaLookup(array $address, $store = null)
     {
         $cacheKey = $this->getRequestCacheKey($address);
 
         if (!isset($this->requestCache[$cacheKey])) {
-            $requestData = $this->getFormattedRequest($address);
-            $apiResponse = $this->vertex->sendApiRequest($requestData, static::REQUEST_TYPE);
+            $requestData = $this->getFormattedRequest($address, $store);
 
-            if (!$apiResponse) {
-                return false;
+            if ($this->vertex instanceof ApiClient) {
+                $apiResponse = $this->vertex->performRequest(
+                    $requestData,
+                    static::REQUEST_TYPE,
+                    ScopeInterface::SCOPE_STORE,
+                    $store
+                );
+            } else {
+                $apiResponse = $this->vertex->sendApiRequest($requestData, static::REQUEST_TYPE);
+                if (!$apiResponse) {
+                    throw new ApiRequestException(__('Unknown error encountered during API Request'));
+                }
             }
 
             /** @var TaxAreaResponse $response */

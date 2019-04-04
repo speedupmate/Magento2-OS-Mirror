@@ -42,32 +42,29 @@ class Edit extends Container
     }
 
     /**
-     * Add action buttons
-     * @return void
+     * Add action buttons.
+     *
+     * @return \Magento\Framework\View\Element\AbstractBlock
      */
-    protected function _construct()
+    protected function _prepareLayout()
     {
-        $this->addButton(
-            'back',
-            [
-                'label' => __('Back'),
-                'onclick' => 'setLocation(\'' . $this->getBackUrl() . '\')',
-                'class' => 'back'
-            ],
-            -1
-        );
+        $buttonData = [
+            'label' => __('Back'),
+            'onclick' => 'setLocation(\'' . $this->getBackUrl() . '\')',
+            'class' => 'back'
+        ];
 
-        $this->addButton(
-            'save',
-            [
-                'label' => __('Save'),
-                'class' => 'save primary',
-                'onclick' => 'document.getElementById("sync_form").submit();',
-            ],
-            1
-        );
+        $this->addButton('back', $buttonData, -1);
 
-        parent::_construct();
+        $buttonData = [
+            'label' => __('Save'),
+            'class' => 'save primary',
+            'onclick' => 'document.getElementById("sync_form").submit();',
+        ];
+
+        $this->addButton('save', $buttonData, -1);
+
+        return parent::_prepareLayout();
     }
 
     /**

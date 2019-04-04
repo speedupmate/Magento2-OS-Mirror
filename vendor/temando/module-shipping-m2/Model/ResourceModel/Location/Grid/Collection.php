@@ -4,84 +4,62 @@
  */
 namespace Temando\Shipping\Model\ResourceModel\Location\Grid;
 
-use Magento\Framework\Api\ExtensibleDataInterface;
+use Magento\Framework\Api\FilterBuilder;
+use Magento\Framework\Api\SearchCriteriaBuilder;
 use Magento\Framework\Api\SearchCriteriaInterface;
-use Magento\Framework\Api\Search\AggregationInterface;
-use Magento\Framework\Api\Search\SearchResultInterface;
-use Temando\Shipping\Model\ResourceModel\Location\Collection as LocationCollection;
+use Magento\Framework\Data\Collection\EntityFactoryInterface;
+use Magento\Framework\Message\ManagerInterface;
+use Temando\Shipping\Model\LocationInterface;
+use Temando\Shipping\Model\ResourceModel\Repository\LocationRepositoryInterface;
+use Temando\Shipping\Model\ResourceModel\Webservice\Collection as ApiCollection;
 
 /**
- * Temando Location Grid Collection
+ * Temando Location Resource Collection
  *
  * @package  Temando\Shipping\Model
  * @author   Christoph Aßmann <christoph.assmann@netresearch.de>
+ * @author   Sebastian Ertner <sebastian.ertner@netresearch.de>
  * @license  http://opensource.org/licenses/osl-3.0.php Open Software License (OSL 3.0)
  * @link     http://www.temando.com/
  */
-class Collection extends LocationCollection implements SearchResultInterface
+class Collection extends ApiCollection
 {
     /**
-     * @var AggregationInterface
+     * @var LocationRepositoryInterface
      */
-    private $aggregations;
+    private $locationRepository;
 
     /**
-     * @param ExtensibleDataInterface[] $items
-     * @return $this
+     * Collection constructor.
+     * @param EntityFactoryInterface $entityFactory
+     * @param ManagerInterface $messageManager
+     * @param LocationRepositoryInterface $locationRepository
+     * @param FilterBuilder $filterBuilder
+     * @param SearchCriteriaBuilder $searchCriteriaBuilder
      */
-    public function setItems(array $items = null)
-    {
-        return $this;
+    public function __construct(
+        EntityFactoryInterface $entityFactory,
+        ManagerInterface $messageManager,
+        FilterBuilder $filterBuilder,
+        SearchCriteriaBuilder $searchCriteriaBuilder,
+        LocationRepositoryInterface $locationRepository
+    ) {
+        $this->locationRepository = $locationRepository;
+
+        parent::__construct($entityFactory, $messageManager, $filterBuilder, $searchCriteriaBuilder);
     }
 
     /**
-     * @return AggregationInterface
+     * @param SearchCriteriaInterface $criteria
+     * @return LocationInterface[]
      */
-    public function getAggregations()
+    public function fetchData(SearchCriteriaInterface $criteria)
     {
-        return $this->aggregations;
-    }
+        $locations = $this->locationRepository->getList(
+            $criteria->getCurrentPage(),
+            $criteria->getPageSize()
+        );
 
-    /**
-     * @param AggregationInterface $aggregations
-     * @return void
-     */
-    public function setAggregations($aggregations)
-    {
-        $this->aggregations = $aggregations;
-    }
-
-    /**
-     * @return \Magento\Framework\Api\SearchCriteriaInterface|null
-     */
-    public function getSearchCriteria()
-    {
-        return null;
-    }
-
-    /**
-     * @param SearchCriteriaInterface $searchCriteria
-     * @return $this
-     */
-    public function setSearchCriteria(SearchCriteriaInterface $searchCriteria)
-    {
-        return $this;
-    }
-
-    /**
-     * @return int
-     */
-    public function getTotalCount()
-    {
-        return $this->getSize();
-    }
-
-    /**
-     * @param int $totalCount
-     * @return $this
-     */
-    public function setTotalCount($totalCount)
-    {
-        return $this;
+        return $locations;
     }
 }

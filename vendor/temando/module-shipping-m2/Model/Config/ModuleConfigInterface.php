@@ -136,7 +136,7 @@ interface ModuleConfigInterface
     public function saveCheckoutFieldsDefinition($fieldsDefinition);
 
     /**
-     * Check if RMA Feature is enabled.
+     * Check if RMA feature is enabled.
      *
      * @return bool
      */
@@ -148,4 +148,20 @@ interface ModuleConfigInterface
      * @return bool
      */
     public function isRmaAvailable();
+
+    /**
+     * Check if collection points feature is enabled in config.
+     *
+     * @param int $storeId
+     *
+     * @return bool
+     */
+    public function isCollectionPointsEnabled($storeId = null);
+
+    /**
+     * Obtain country codes enabled for collection point deliveries.
+     *
+     * @return string[]
+     */
+    public function getCollectionPointDeliveryCountries();
 }

@@ -110,7 +110,7 @@ class PackagingRepository implements PackagingRepositoryInterface
             $this->apiAdapter->deleteContainer($request);
         } catch (AdapterException $e) {
             $this->logger->critical($e->getMessage(), ['exception' => $e]);
-            throw new CouldNotDeleteException(__($e->getMessage()), $e);
+            throw new CouldNotDeleteException(__('Unable to delete packaging.'), $e);
         }
     }
 }

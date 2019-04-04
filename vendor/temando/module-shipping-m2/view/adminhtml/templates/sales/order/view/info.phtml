@@ -4,7 +4,7 @@
  */
 
 /**
- * @var \Temando\Shipping\Block\Adminhtml\Sales\Order\View\Info $block
+ * @var \Magento\Sales\Block\Adminhtml\Order\View\Info $block
  */
 
 $order = $block->getOrder();
@@ -21,8 +21,12 @@ $orderStoreDate = $block->formatDate(
     true,
     $block->getTimezoneForStore($order->getStore())
 );
+
+/** @var \Temando\Shipping\ViewModel\Order\Location $locationViewModel */
+$viewModel = $block->getData('locationViewModel');
+/** @var \Temando\Shipping\ViewModel\Order\OrderDetails $orderDetailsViewModel */
+$orderDetailsViewModel = $block->getData('orderDetailsViewModel');
 ?>
-<?php // @codingStandardsIgnoreStart ?>
 
 <section class="admin__page-section order-view-account-information">
     <div class="admin__page-section-title">
@@ -39,92 +43,102 @@ $orderStoreDate = $block->formatDate(
             <div class="admin__page-section-item-title">
                 <span class="title">
                     <?php if ($block->getNoUseOrderLink()) : ?>
-                        <?= $block->escapeHtml(__('Order # %1', $order->getRealOrderId())) ?> (<span><?= $block->escapeHtml($confirmationEmailStatusMessage) ?></span>)
+                        <?= $block->escapeHtml(__('Order # %1', $order->getRealOrderId())) ?>
+                        (<span><?= $block->escapeHtml($confirmationEmailStatusMessage) ?></span>)
                     <?php else : ?>
-                        <a href="<?= $block->escapeHtml($block->getViewUrl($order->getId())) ?>"><?= $block->escapeHtml(__('Order # %1', $order->getRealOrderId())) ?></a>
+                        <a href="<?= $block->escapeHtml($block->getViewUrl($order->getId())) ?>">
+                            <?= $block->escapeHtml(__('Order # %1', $order->getRealOrderId())) ?>
+                        </a>
                         <span>(<?= $block->escapeHtml($confirmationEmailStatusMessage) ?>)</span>
                     <?php endif; ?>
                 </span>
             </div>
             <div class="admin__page-section-item-content">
                 <table class="admin__table-secondary order-information-table">
-                <tr>
-                    <th><?= $block->escapeHtml(__('Order Date')) ?></th>
-                    <td><?= $block->escapeHtml($orderAdminDate) ?></td>
-                </tr>
-                <?php if ($orderAdminDate != $orderStoreDate) : ?>
                     <tr>
-                        <th><?= $block->escapeHtml(__('Order Date (%1)', $block->getTimezoneForStore($order->getStore()))) ?></th>
-                        <td><?= $block->escapeHtml($orderStoreDate) ?></td>
+                        <th><?= $block->escapeHtml(__('Order Date')) ?></th>
+                        <td><?= $block->escapeHtml($orderAdminDate) ?></td>
                     </tr>
-                <?php endif;?>
-                <tr>
-                    <th><?= $block->escapeHtml(__('Order Status')) ?></th>
-                    <td><span id="order_status"><?= $block->escapeHtml($order->getStatusLabel()) ?></span></td>
-                </tr>
-                <?= /* @noEscape */ $block->getChildHtml() ?>
-                <?php if ($block->isSingleStoreMode() == false) : ?>
+
+                    <?php if ($orderAdminDate != $orderStoreDate) : ?>
+                        <tr>
+                            <?php // @codingStandardsIgnoreLine ?>
+                            <th><?= $block->escapeHtml(__('Order Date (%1)', $block->getTimezoneForStore($order->getStore()))) ?></th>
+                            <td><?= $block->escapeHtml($orderStoreDate) ?></td>
+                        </tr>
+                    <?php endif;?>
                     <tr>
-                        <th><?= $block->escapeHtml(__('Purchased From')) ?></th>
-                        <td><?= $block->escapeHtml($block->getOrderStoreName(), ['br']) ?></td>
+                        <th><?= $block->escapeHtml(__('Order Status')) ?></th>
+                        <td><span id="order_status"><?= $block->escapeHtml($order->getStatusLabel()) ?></span></td>
                     </tr>
-                <?php endif; ?>
-                <?php if ($order->getRelationChildId()) : ?>
-                    <tr>
-                        <th><?= $block->escapeHtml(__('Link to the New Order')) ?></th>
-                        <td>
-                            <a href="<?= $block->escapeUrl($block->getViewUrl($order->getRelationChildId())) ?>">
-                                <?= $block->escapeHtml($order->getRelationChildRealId()) ?>
-                            </a>
-                        </td>
-                    </tr>
-                <?php endif; ?>
-                <?php if ($order->getRelationParentId()) : ?>
-                    <tr>
-                        <th><?= $block->escapeHtml(__('Link to the Previous Order')) ?></th>
-                        <td>
-                            <a href="<?= $block->escapeUrl($block->getViewUrl($order->getRelationParentId())) ?>">
-                                <?= $block->escapeHtml($order->getRelationParentRealId()) ?>
-                            </a>
-                        </td>
-                    </tr>
-                <?php endif; ?>
-                <?php if ($order->getRemoteIp() && $block->shouldDisplayCustomerIp()) : ?>
-                    <tr>
-                        <th><?= $block->escapeHtml(__('Placed from IP')) ?></th>
-                        <td>
-                            <?= $block->escapeHtml($order->getRemoteIp()); ?>
-                            <?php if ($order->getXForwardedFor()) : ?>
-                                (<?= $block->escapeHtml($order->getXForwardedFor()) ?>)
-                            <?php endif; ?>
-                        </td>
-                    </tr>
-                <?php endif; ?>
-                <?php if ($order->getGlobalCurrencyCode() != $order->getBaseCurrencyCode()) : ?>
-                    <tr>
-                        <th><?= $block->escapeHtml(__('%1 / %2 rate:', $order->getGlobalCurrencyCode(), $order->getBaseCurrencyCode())) ?></th>
-                        <td><?= $block->escapeHtml($order->getBaseToGlobalRate()) ?></td>
-                    </tr>
-                <?php endif; ?>
-                <?php if ($order->getBaseCurrencyCode() != $order->getOrderCurrencyCode()) : ?>
-                    <tr>
-                        <th><?= $block->escapeHtml(__('%1 / %2 rate:', $order->getOrderCurrencyCode(), $order->getBaseCurrencyCode())) ?></th>
-                        <td><?= $block->escapeHtml($order->getBaseToOrderRate()) ?></td>
-                    </tr>
-                <?php endif; ?>
-                <?php if ($extOrderId = $block->getExtOrderId()) : ?>
-                    <tr>
-                        <th><?= $block->escapeHtml(__('Magento Shipping Order ID')) ?></th>
-                        <td><?= $block->escapeHtml($extOrderId) ?></td>
-                    </tr>
-                <?php endif; ?>
-                <?php if ($block->hasExtShipment()) : ?>
-                    <tr>
-                        <th><?= $block->escapeHtml(__('Magento Shipping Shipment ID')) ?></th>
-                        <td><?= $block->escapeHtml($block->getExtShipmentId()) ?></td>
-                    </tr>
-                <?php endif; ?>
-            </table>
+
+                    <?= /* @noEscape */ $block->getChildHtml() ?>
+
+                    <?php if ($block->isSingleStoreMode() == false) : ?>
+                        <tr>
+                            <th><?= $block->escapeHtml(__('Purchased From')) ?></th>
+                            <td><?= $block->escapeHtml($block->getOrderStoreName(), ['br']) ?></td>
+                        </tr>
+                    <?php endif; ?>
+
+                    <?php if ($order->getRelationChildId()) : ?>
+                        <tr>
+                            <th><?= $block->escapeHtml(__('Link to the New Order')) ?></th>
+                            <td>
+                                <a href="<?= $block->escapeUrl($block->getViewUrl($order->getRelationChildId())) ?>">
+                                    <?= $block->escapeHtml($order->getRelationChildRealId()) ?>
+                                </a>
+                            </td>
+                        </tr>
+                    <?php endif; ?>
+
+                    <?php if ($order->getRelationParentId()) : ?>
+                        <tr>
+                            <th><?= $block->escapeHtml(__('Link to the Previous Order')) ?></th>
+                            <td>
+                                <a href="<?= $block->escapeUrl($block->getViewUrl($order->getRelationParentId())) ?>">
+                                    <?= $block->escapeHtml($order->getRelationParentRealId()) ?>
+                                </a>
+                            </td>
+                        </tr>
+                    <?php endif; ?>
+
+                    <?php if ($order->getRemoteIp() && $block->shouldDisplayCustomerIp()) : ?>
+                        <tr>
+                            <th><?= $block->escapeHtml(__('Placed from IP')) ?></th>
+                            <td>
+                                <?= $block->escapeHtml($order->getRemoteIp()); ?>
+                                <?php if ($order->getXForwardedFor()) : ?>
+                                    (<?= $block->escapeHtml($order->getXForwardedFor()) ?>)
+                                <?php endif; ?>
+                            </td>
+                        </tr>
+                    <?php endif; ?>
+
+                    <?php if ($order->getGlobalCurrencyCode() != $order->getBaseCurrencyCode()) : ?>
+                        <tr>
+                            <?php // @codingStandardsIgnoreLine ?>
+                            <th><?= $block->escapeHtml(__('%1 / %2 rate:', $order->getGlobalCurrencyCode(), $order->getBaseCurrencyCode())) ?></th>
+                            <td><?= $block->escapeHtml($order->getBaseToGlobalRate()) ?></td>
+                        </tr>
+                    <?php endif; ?>
+
+                    <?php if ($order->getBaseCurrencyCode() != $order->getOrderCurrencyCode()) : ?>
+                        <tr>
+                            <?php // @codingStandardsIgnoreLine ?>
+                            <th><?= $block->escapeHtml(__('%1 / %2 rate:', $order->getOrderCurrencyCode(), $order->getBaseCurrencyCode())) ?></th>
+                            <td><?= $block->escapeHtml($order->getBaseToOrderRate()) ?></td>
+                        </tr>
+                    <?php endif; ?>
+
+                    <?php $extOrderId = $orderDetailsViewModel->getExtOrderId($order); ?>
+                    <?php if ($extOrderId) : ?>
+                        <tr>
+                            <th><?= $block->escapeHtml(__('Magento Shipping Order ID')) ?></th>
+                            <td><?= $block->escapeHtml($extOrderId) ?></td>
+                        </tr>
+                    <?php endif; ?>
+                </table>
             </div>
         </div>
 
@@ -156,7 +170,11 @@ $orderStoreDate = $block->formatDate(
                     </tr>
                     <tr>
                         <th><?= $block->escapeHtml(__('Email')) ?></th>
-                        <td><a href="mailto:<?= $block->escapeHtml($order->getCustomerEmail()) ?>"><?= $block->escapeHtml($order->getCustomerEmail()) ?></a></td>
+                        <td>
+                            <a href="mailto:<?= $block->escapeHtml($order->getCustomerEmail()) ?>">
+                                <?= $block->escapeHtml($order->getCustomerEmail()) ?>
+                            </a>
+                        </td>
                     </tr>
                     <?php if ($groupName = $block->getCustomerGroupName()) : ?>
                         <tr>
@@ -188,21 +206,47 @@ $orderStoreDate = $block->formatDate(
                 <span class="title"><?= $block->escapeHtml(__('Billing Address')) ?></span>
                 <div class="actions"><?= /* @noEscape */ $block->getAddressEditLink($order->getBillingAddress()); ?></div>
             </div>
-            <address class="admin__page-section-item-content"><?= /* @noEscape */ $block->getFormattedAddress($order->getBillingAddress()); ?></address>
+            <address class="admin__page-section-item-content">
+                <?= /* @noEscape */ $block->getFormattedAddress($order->getBillingAddress()); ?>
+            </address>
         </div>
-        <?php if (!$block->getOrder()->getIsVirtual()) : ?>
+
+        <?php if (!$order->getIsVirtual()) : ?>
             <div class="admin__page-section-item order-shipping-address">
-                <?php /* Shipping Address */ ?>
-                <div class="admin__page-section-item-title">
-                    <span class="title"><?= $block->escapeHtml(__('Shipping Address'))  ?></span>
-                    <?php if (!$block->hasExtShipment()) : ?>
+                <?php
+                    /* Shipping Address */
+                    $deliveryLocationAddressHtml = $viewModel->getCollectionPointAddressHtml($order);
+                ?>
+
+                <?php if (!$deliveryLocationAddressHtml) : ?>
+                    <?php // render original shipping address ?>
+                    <div class="admin__page-section-item-title">
+                        <span class="title"><?= $block->escapeHtml(__('Shipping Address')) ?></span>
                         <div class="actions"><?= /* @noEscape */ $block->getAddressEditLink($order->getShippingAddress()); ?></div>
-                    <?php endif;?>
-                </div>
-                <?php if ($block->hasExtShipment()) : ?>
-                    <address class="admin__page-section-item-content"><?= /* @noEscape */ $block->getFormattedDestinationAddress() ?></address>
+                    </div>
+
+                    <address class="admin__page-section-item-content">
+                        <?= /* @noEscape */ $block->getFormattedAddress($order->getShippingAddress()); ?>
+                    </address>
                 <?php else : ?>
-                    <address class="admin__page-section-item-content"><?= /* @noEscape */ $block->getFormattedAddress($order->getShippingAddress()) ?></address>
+                    <?php // render delivery point and destination address ?>
+                    <div class="admin__page-section-item-title">
+                        <span class="title"><?= $block->escapeHtml(__('Shipping Address'))  ?></span>
+                    </div>
+
+                    <div class="admin__page-section-item-content order-shipping-primary-address">
+                        <span class="subtitle"><?= $block->escapeHtml(__('Collection Point')) ?></span>
+                    </div>
+                    <address class="admin__page-section-item-content order-shipping-primary-address">
+                        <?= /* @noEscape */ $deliveryLocationAddressHtml; ?>
+                    </address>
+
+                    <div class="admin__page-section-item-content order-shipping-secondary-address">
+                        <span class="subtitle"><?= $block->escapeHtml(__('Recipient Address')) ?></span>
+                    </div>
+                    <address class="admin__page-section-item-content order-shipping-secondary-address">
+                        <?= /* @noEscape */ $block->getFormattedAddress($order->getShippingAddress()); ?>
+                    </address>
                 <?php endif; ?>
             </div>
         <?php endif; ?>

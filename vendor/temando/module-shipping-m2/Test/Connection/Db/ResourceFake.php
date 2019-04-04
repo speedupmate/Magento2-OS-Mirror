@@ -39,7 +39,6 @@ final class ResourceFake extends AbstractDb
      */
     protected function _construct()
     {
-        // TODO: Implement _construct() method.
     }
 
     /**

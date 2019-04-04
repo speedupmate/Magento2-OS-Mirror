@@ -6,6 +6,7 @@ namespace Temando\Shipping\ViewModel\Rma;
 
 use Magento\Directory\Helper\Data as DirectoryHelper;
 use Magento\Framework\App\Config\ScopeConfigInterface;
+use Magento\Framework\Exception\LocalizedException;
 use Magento\Framework\Exception\NoSuchEntityException;
 use Magento\Framework\Serialize\Serializer\Json;
 use Magento\Framework\UrlInterface;
@@ -13,9 +14,11 @@ use Magento\Framework\View\Element\Block\ArgumentInterface;
 use Magento\Rma\Api\Data\RmaInterface;
 use Magento\Sales\Api\Data\OrderInterface;
 use Magento\Store\Model\ScopeInterface;
+use Temando\Shipping\Model\ResourceModel\Repository\OrderCollectionPointRepositoryInterface;
 use Temando\Shipping\Model\ResourceModel\Repository\OrderRepositoryInterface;
 use Temando\Shipping\Model\ResourceModel\Rma\RmaAccess;
 use Temando\Shipping\Model\ShipmentInterface;
+use Temando\Shipping\ViewModel\CoreApiInterface;
 use Temando\Shipping\ViewModel\DataProvider\CoreApiAccess;
 use Temando\Shipping\ViewModel\DataProvider\CoreApiAccessInterface;
 use Temando\Shipping\ViewModel\DataProvider\ShippingApiAccess;
@@ -23,7 +26,6 @@ use Temando\Shipping\ViewModel\DataProvider\ShippingApiAccessInterface;
 use Temando\Shipping\ViewModel\PageActionsInterface;
 use Temando\Shipping\ViewModel\ReturnShipInterface;
 use Temando\Shipping\ViewModel\RmaAccessInterface;
-use Temando\Shipping\ViewModel\CoreApiInterface;
 use Temando\Shipping\ViewModel\ShippingApiInterface;
 
 /**
@@ -78,6 +80,11 @@ class ReturnShip implements
     private $rmaAccess;
 
     /**
+     * @var OrderCollectionPointRepositoryInterface
+     */
+    private $collectionPointRepository;
+
+    /**
      * ReturnShip constructor.
      *
      * @param CoreApiAccess $coreApiAccess
@@ -87,6 +94,7 @@ class ReturnShip implements
      * @param Json $serializer
      * @param OrderRepositoryInterface $orderRepository
      * @param RmaAccess $rmaAccess
+     * @param OrderCollectionPointRepositoryInterface $collectionPointRepository
      */
     public function __construct(
         CoreApiAccess $coreApiAccess,
@@ -95,7 +103,8 @@ class ReturnShip implements
         ScopeConfigInterface $scopeConfig,
         Json $serializer,
         OrderRepositoryInterface $orderRepository,
-        RmaAccess $rmaAccess
+        RmaAccess $rmaAccess,
+        OrderCollectionPointRepositoryInterface $collectionPointRepository
     ) {
         $this->coreApiAccess = $coreApiAccess;
         $this->shippingApiAccess = $shippingApiAccess;
@@ -104,6 +113,7 @@ class ReturnShip implements
         $this->serializer = $serializer;
         $this->orderRepository = $orderRepository;
         $this->rmaAccess = $rmaAccess;
+        $this->collectionPointRepository = $collectionPointRepository;
     }
 
     /**
@@ -206,7 +216,7 @@ class ReturnShip implements
     }
 
     /**
-     * @return OrderInterface
+     * @return OrderInterface|\Magento\Sales\Model\Order
      */
     public function getOrder(): OrderInterface
     {
@@ -280,7 +290,48 @@ class ReturnShip implements
         $returnData['addresses'] = $orderAddresses;
         $returnData['items'] = $returnItems;
 
+        try {
+            $collectionPoint = $this->collectionPointRepository->get($returnData['shipping_address_id']);
+            $returnData['final_recipient_address_id'] = $returnData['shipping_address_id'];
+            $returnData['shipping_address_id'] = $collectionPoint->getCollectionPointId();
+            $returnData['addresses'][$collectionPoint->getCollectionPointId()] = [
+                'entity_id' => $collectionPoint->getCollectionPointId(),
+                'postcode' => $collectionPoint->getPostcode(),
+                'street' => implode("\n", $collectionPoint->getStreet()),
+                'city' => $collectionPoint->getCity(),
+                'country_id' => $collectionPoint->getCountry(),
+                'address_type' => 'collection_point',
+                'company' => $collectionPoint->getName(),
+                'region' => $collectionPoint->getRegion(),
+            ];
+        } catch (LocalizedException $exception) {
+            $returnData['final_recipient_address_id'] = $returnData['shipping_address_id'];
+        }
+
         return $this->serializer->serialize($returnData);
+    }
+
+    /**
+     * Obtain a JSON representation of relevant order metadata for usage in the
+     * OrderShip UI component.
+     *
+     * @return string
+     */
+    public function getOrderMeta(): string
+    {
+        $order = $this->getOrder();
+        $shippingAddressId = $order->getShippingAddress()->getId();
+
+        try {
+            $collectionPoint = $this->collectionPointRepository->get($shippingAddressId);
+            $isCollectionPoint = (bool) $collectionPoint->getRecipientAddressId();
+        } catch (LocalizedException $e) {
+            $isCollectionPoint = false;
+        }
+
+        $orderMeta = ['isCollectionPoint' => $isCollectionPoint];
+
+        return $this->serializer->serialize($orderMeta);
     }
 
     /**

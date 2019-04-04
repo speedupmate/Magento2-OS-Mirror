@@ -150,7 +150,7 @@ class CarrierRepository implements CarrierRepositoryInterface
             $this->apiAdapter->deleteCarrierConfiguration($request);
         } catch (AdapterException $e) {
             $this->logger->critical($e->getMessage(), ['exception' => $e]);
-            throw new CouldNotDeleteException(__($e->getMessage()), $e);
+            throw new CouldNotDeleteException(__('Unable to delete carrier.'), $e);
         }
     }
 }

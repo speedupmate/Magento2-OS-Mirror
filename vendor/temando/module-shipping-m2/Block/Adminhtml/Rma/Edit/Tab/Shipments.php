@@ -50,7 +50,7 @@ class Shipments extends Widget implements TabInterface
      */
     public function getHeaderText()
     {
-        return __('Added Shipments');
+        return __('Return Shipments');
     }
 
     /**
@@ -64,7 +64,7 @@ class Shipments extends Widget implements TabInterface
     }
 
     /**
-     * Prepare title for tab
+     * Prepare tab title
      *
      * @return string
      */
@@ -74,7 +74,7 @@ class Shipments extends Widget implements TabInterface
     }
 
     /**
-     * Returns status flag about this tab can be showen or not
+     * Can show tab in tabs
      *
      * @return true
      */

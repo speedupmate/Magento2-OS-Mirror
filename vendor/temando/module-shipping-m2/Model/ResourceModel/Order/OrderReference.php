@@ -4,10 +4,7 @@
  */
 namespace Temando\Shipping\Model\ResourceModel\Order;
 
-use Magento\Framework\EntityManager\EntityManager;
-use Magento\Framework\Model\AbstractModel;
-use Magento\Framework\Model\ResourceModel\Db\AbstractDb;
-use Magento\Framework\Model\ResourceModel\Db\Context;
+use Magento\Framework\Model\ResourceModel\Db\VersionControl\AbstractDb;
 use Temando\Shipping\Api\Data\Order\OrderReferenceInterface;
 use Temando\Shipping\Setup\SetupSchema;
 
@@ -22,56 +19,12 @@ use Temando\Shipping\Setup\SetupSchema;
 class OrderReference extends AbstractDb
 {
     /**
-     * @var EntityManager
-     */
-    private $entityManager;
-
-    /**
-     * OrderReference constructor.
-     * @param Context $context
-     * @param EntityManager $entityManager
-     * @param null $connectionName
-     */
-    public function __construct(
-        Context $context,
-        EntityManager $entityManager,
-        $connectionName = null
-    ) {
-        $this->entityManager = $entityManager;
-
-        parent::__construct($context, $connectionName);
-    }
-
-    /**
      * Init main table and primary key
      * @return void
      */
     protected function _construct()
     {
         $this->_init(SetupSchema::TABLE_ORDER, OrderReferenceInterface::ENTITY_ID);
-    }
-
-    /**
-     * @param AbstractModel $object
-     * @param int $value
-     * @param null $field
-     * @return $this
-     */
-    public function load(AbstractModel $object, $value, $field = null)
-    {
-        $this->entityManager->load($object, $value);
-        return $this;
-    }
-
-    /**
-     * @param AbstractModel $object
-     * @return $this
-     * @throws \Exception
-     */
-    public function save(AbstractModel $object)
-    {
-        $this->entityManager->save($object);
-        return $this;
     }
 
     /**

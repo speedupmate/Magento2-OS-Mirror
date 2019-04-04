@@ -114,7 +114,7 @@ class LocationRepository implements LocationRepositoryInterface
             $this->apiAdapter->deleteLocation($request);
         } catch (AdapterException $e) {
             $this->logger->critical($e->getMessage(), ['exception' => $e]);
-            throw new CouldNotDeleteException(__($e->getMessage()), $e);
+            throw new CouldNotDeleteException(__('Unable to delete location.'), $e);
         }
     }
 }

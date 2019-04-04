@@ -5,10 +5,12 @@
 namespace Temando\Shipping\Rest\Request\Type;
 
 use Temando\Shipping\Rest\Request\Type\Generic\MonetaryValue;
+use Temando\Shipping\Rest\Request\Type\Order\CollectionPointSearch;
 use Temando\Shipping\Rest\Request\Type\Order\Customer;
 use Temando\Shipping\Rest\Request\Type\Order\Experience;
 use Temando\Shipping\Rest\Request\Type\Order\OrderItem;
 use Temando\Shipping\Rest\Request\Type\Order\Recipient;
+use Temando\Shipping\Rest\Request\Type\Order\ShipmentDetails;
 
 /**
  * Temando API Order
@@ -96,6 +98,16 @@ class OrderRequestType implements OrderRequestTypeInterface, \JsonSerializable
     private $selectedExperience;
 
     /**
+     * @var CollectionPointSearch
+     */
+    private $collectionPointSearch;
+
+    /**
+     * @var ShipmentDetails
+     */
+    private $shipmentDetails;
+
+    /**
      * OrderRequestType constructor.
      * @param string $id
      * @param string $createdAt
@@ -109,6 +121,8 @@ class OrderRequestType implements OrderRequestTypeInterface, \JsonSerializable
      * @param OrderItem[] $items
      * @param string[] $aliases
      * @param Experience $selectedExperience
+     * @param CollectionPointSearch $collectionPointSearch
+     * @param ShipmentDetails $shipmentDetails
      */
     public function __construct(
         $id,
@@ -122,7 +136,9 @@ class OrderRequestType implements OrderRequestTypeInterface, \JsonSerializable
         Recipient $recipient,
         array $items,
         array $aliases = [],
-        Experience $selectedExperience = null
+        Experience $selectedExperience = null,
+        CollectionPointSearch $collectionPointSearch = null,
+        ShipmentDetails $shipmentDetails = null
     ) {
         $this->type = 'order';
         $this->id = $id;
@@ -137,6 +153,8 @@ class OrderRequestType implements OrderRequestTypeInterface, \JsonSerializable
         $this->items = $items;
         $this->aliases = $aliases;
         $this->selectedExperience = $selectedExperience;
+        $this->collectionPointSearch = $collectionPointSearch;
+        $this->shipmentDetails = $shipmentDetails;
     }
 
     /**
@@ -161,13 +179,21 @@ class OrderRequestType implements OrderRequestTypeInterface, \JsonSerializable
     }
 
     /**
-     * Check if the current request transmit a placed order
+     * Indicates if the order was placed and can be persisted at Temando platform.
      *
      * @return bool
      */
-    public function isRealOrderRequest()
+    public function canPersist()
     {
         return (!empty($this->aliases['magento']) && !empty($this->aliases['magentoincrement']));
+    }
+
+    /**
+     * @return string
+     */
+    public function getSelectedExperienceCode()
+    {
+        return $this->selectedExperience->getCode();
     }
 
     /**
@@ -200,13 +226,15 @@ class OrderRequestType implements OrderRequestTypeInterface, \JsonSerializable
                     ],
                     'customer' => $this->customer,
                     'deliverTo' => $this->recipient,
+                    'shipmentDetails' => $this->shipmentDetails,
                     'items' => $this->items,
                     'total' => $this->total,
                     'selectedExperience' => $this->selectedExperience
                 ],
             ],
             'meta' => [
-                'aliases' => $this->aliases
+                'aliases' => $this->aliases,
+                'collectionPointSearch' => $this->collectionPointSearch,
             ],
         ];
 

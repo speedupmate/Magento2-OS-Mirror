@@ -5,6 +5,7 @@
 namespace Temando\Shipping\Rest\Request\Type\Order;
 
 use Temando\Shipping\Rest\Request\Type\AttributeFilter;
+use Temando\Shipping\Rest\Request\Type\EmptyFilterableInterface;
 use Temando\Shipping\Rest\Request\Type\ExtensibleTypeAttribute;
 use Temando\Shipping\Rest\Request\Type\ExtensibleTypeInterface;
 use Temando\Shipping\Rest\Request\Type\ExtensibleTypeProcessor;
@@ -17,7 +18,7 @@ use Temando\Shipping\Rest\Request\Type\ExtensibleTypeProcessor;
  * @license  http://opensource.org/licenses/osl-3.0.php Open Software License (OSL 3.0)
  * @link     http://www.temando.com/
  */
-class Recipient implements ExtensibleTypeInterface, \JsonSerializable
+class Recipient implements ExtensibleTypeInterface, EmptyFilterableInterface, \JsonSerializable
 {
     /**
      * @var string
@@ -100,6 +101,11 @@ class Recipient implements ExtensibleTypeInterface, \JsonSerializable
     private $latitude = null;
 
     /**
+     * @var string
+     */
+    private $collectionPointId;
+
+    /**
      * @var ExtensibleTypeAttribute[]
      */
     private $additionalAttributes = [];
@@ -122,6 +128,7 @@ class Recipient implements ExtensibleTypeInterface, \JsonSerializable
      * @param string $dependentLocality
      * @param float $longitude
      * @param float $latitude
+     * @param string $collectionPointId
      */
     public function __construct(
         $organisationName,
@@ -139,7 +146,8 @@ class Recipient implements ExtensibleTypeInterface, \JsonSerializable
         $locality,
         $dependentLocality = '',
         $longitude = null,
-        $latitude = null
+        $latitude = null,
+        $collectionPointId = ''
     ) {
         $this->organisationName = $organisationName;
         $this->lastname = $lastname;
@@ -157,6 +165,7 @@ class Recipient implements ExtensibleTypeInterface, \JsonSerializable
         $this->dependentLocality = $dependentLocality;
         $this->longitude = $longitude;
         $this->latitude = $latitude;
+        $this->collectionPointId = $collectionPointId;
     }
 
     /**
@@ -176,6 +185,16 @@ class Recipient implements ExtensibleTypeInterface, \JsonSerializable
     public function jsonSerialize()
     {
         $recipient = [
+            'contact' => [
+                'organisationName' => $this->organisationName,
+                'personFirstName' => $this->firstname,
+                'personLastName' => $this->lastname,
+                'email' => $this->email,
+                'phoneNumber' => $this->phoneNumber,
+                'faxNumber' => $this->faxNumber,
+                'nationalIdentificationNumber' => $this->nationalId,
+                'taxIdentificationNumber' => $this->taxId,
+            ],
             'address' => [
                 'lines' => $this->street,
                 'countryCode' => $this->countryCode,
@@ -186,23 +205,34 @@ class Recipient implements ExtensibleTypeInterface, \JsonSerializable
                 'longitude' => $this->longitude,
                 'latitude' => $this->latitude,
             ],
-            'contact' => [
-                'organisationName' => $this->organisationName,
-                'personFirstName' => $this->firstname,
-                'personLastName' => $this->lastname,
-                'email' => $this->email,
-                'phoneNumber' => $this->phoneNumber,
-                'faxNumber' => $this->faxNumber,
-                'nationalIdentificationNumber' => $this->nationalId,
-                'taxIdentificationNumber' => $this->taxId,
-            ]
+            'options' => [],
+            'customAttributes' => [],
         ];
 
-        foreach ($this->additionalAttributes as $additionalAttribute) {
-            $recipient = ExtensibleTypeProcessor::addAttribute($recipient, $additionalAttribute);
+        if ($this->collectionPointId) {
+            $recipient['options']['collectionPoint'] = true;
+            $recipient['customAttributes']['collectionPointId'] = $this->collectionPointId;
+        } else {
+            // add dynamic request attributes only for regular shipping addresses
+            foreach ($this->additionalAttributes as $additionalAttribute) {
+                $recipient = ExtensibleTypeProcessor::addAttribute($recipient, $additionalAttribute);
+            }
         }
+
         $recipient = AttributeFilter::notEmpty($recipient);
 
         return $recipient;
+    }
+
+    /**
+     * Check if any properties are set.
+     *
+     * @return bool
+     */
+    public function isEmpty()
+    {
+        $properties = get_object_vars($this);
+        $properties = AttributeFilter::notEmpty($properties);
+        return empty($properties);
     }
 }

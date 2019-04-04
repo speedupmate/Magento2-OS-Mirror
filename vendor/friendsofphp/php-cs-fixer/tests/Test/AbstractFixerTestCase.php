@@ -14,15 +14,12 @@ namespace PhpCsFixer\Tests\Test;
 
 use PhpCsFixer\Fixer\ConfigurableFixerInterface;
 use PhpCsFixer\Fixer\FixerInterface;
-use PhpCsFixer\FixerFactory;
+use PhpCsFixer\Linter\CachingLinter;
 use PhpCsFixer\Linter\Linter;
 use PhpCsFixer\Linter\LinterInterface;
-use PhpCsFixer\RuleSet;
-use PhpCsFixer\Tests\Test\Constraint\SameStringsConstraint;
 use PhpCsFixer\Tests\TestCase;
 use PhpCsFixer\Tokenizer\Token;
 use PhpCsFixer\Tokenizer\Tokens;
-use PhpCsFixer\Utils;
 use Prophecy\Argument;
 
 /**
@@ -42,11 +39,6 @@ abstract class AbstractFixerTestCase extends TestCase
      */
     protected $fixer;
 
-    /**
-     * @var null|string
-     */
-    private $fixerClassName;
-
     protected function setUp()
     {
         parent::setUp();
@@ -55,36 +47,22 @@ abstract class AbstractFixerTestCase extends TestCase
         $this->fixer = $this->createFixer();
     }
 
+    protected function tearDown()
+    {
+        parent::tearDown();
+
+        $this->linter = null;
+        $this->fixer = null;
+    }
+
     /**
      * @return FixerInterface
      */
     protected function createFixer()
     {
-        $fixerClassName = $this->getFixerClassName();
+        $fixerClassName = preg_replace('/^(PhpCsFixer)\\\\Tests(\\\\.+)Test$/', '$1$2', get_called_class());
 
         return new $fixerClassName();
-    }
-
-    /**
-     * Create fixer factory with all needed fixers registered.
-     *
-     * @return FixerFactory
-     */
-    protected function createFixerFactory()
-    {
-        return FixerFactory::create()->registerBuiltInFixers();
-    }
-
-    /**
-     * @return string
-     */
-    protected function getFixerName()
-    {
-        $reflection = new \ReflectionClass($this);
-
-        $name = preg_replace('/FixerTest$/', '', $reflection->getShortName());
-
-        return Utils::camelCaseToUnderscore($name);
     }
 
     /**
@@ -141,7 +119,7 @@ abstract class AbstractFixerTestCase extends TestCase
 
             $this->assertThat(
                 $tokens->generateCode(),
-                new SameStringsConstraint($expected),
+                self::createIsIdenticalStringConstraint($expected),
                 'Code build on input code must match expected code.'
             );
             $this->assertTrue($tokens->isChanged(), 'Tokens collection built on input code must be marked as changed after fixing.');
@@ -173,7 +151,7 @@ abstract class AbstractFixerTestCase extends TestCase
 
         $this->assertThat(
             $tokens->generateCode(),
-            new SameStringsConstraint($expected),
+            self::createIsIdenticalStringConstraint($expected),
             'Code build on expected code must not change.'
         );
         $this->assertFalse($tokens->isChanged(), 'Tokens collection built on expected code must not be marked as changed after fixing.');
@@ -230,7 +208,7 @@ abstract class AbstractFixerTestCase extends TestCase
 
                 $linter = $linterProphecy->reveal();
             } else {
-                $linter = new Linter();
+                $linter = new CachingLinter(new Linter());
             }
         }
 
@@ -238,29 +216,24 @@ abstract class AbstractFixerTestCase extends TestCase
     }
 
     /**
-     * @return string
+     * @todo Remove me when this class will end up in dedicated package.
+     *
+     * @param string $expected
      */
-    private function getFixerClassName()
+    private static function createIsIdenticalStringConstraint($expected)
     {
-        if (null !== $this->fixerClassName) {
-            return $this->fixerClassName;
+        $candidates = array_filter(array(
+            'PhpCsFixer\PhpunitConstraintIsIdenticalString\Constraint\IsIdenticalString',
+            'PHPUnit\Framework\Constraint\IsIdentical',
+            'PHPUnit_Framework_Constraint_IsIdentical',
+        ), function ($className) { return class_exists($className); });
+
+        if (empty($candidates)) {
+            throw new \RuntimeException('PHPUnit not installed?!');
         }
 
-        try {
-            $fixers = $this->createFixerFactory()
-                ->useRuleSet(new RuleSet(array($this->getFixerName() => true)))
-                ->getFixers()
-            ;
-        } catch (\UnexpectedValueException $e) {
-            throw new \UnexpectedValueException('Cannot determine fixer class, perhaps you forget to override `getFixerName` or `createFixerFactory` method?', 0, $e);
-        }
+        $candidate = array_shift($candidates);
 
-        if (1 !== count($fixers)) {
-            throw new \UnexpectedValueException(sprintf('Determine fixer class should result in one fixer, got "%d". Perhaps you configured the fixer to "false" ?', count($fixers)));
-        }
-
-        $this->fixerClassName = get_class($fixers[0]);
-
-        return $this->fixerClassName;
+        return new $candidate($expected);
     }
 }

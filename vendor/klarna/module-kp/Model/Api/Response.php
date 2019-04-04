@@ -59,7 +59,7 @@ class Response implements ResponseInterface
     /**
      * @var array
      */
-    private $payment_method_categories;
+    private $payment_method_categories = [];
 
     /**
      * Response constructor.

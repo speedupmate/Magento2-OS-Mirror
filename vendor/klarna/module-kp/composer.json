@@ -2,7 +2,7 @@
     "name": "klarna/module-kp",
     "type": "magento2-module",
     "description": "Klarna Payments Magento 2 Extension",
-    "version": "5.1.3",
+    "version": "5.2.3",
     "license": "Apache-2.0",
     "authors": [
         {

@@ -35,9 +35,9 @@ class Contact
     private $email;
 
     /**
-     * @var string[]
+     * @var string
      */
-    private $phoneNumbers = [];
+    private $phoneNumber;
 
     /**
      * @var string
@@ -123,20 +123,20 @@ class Contact
     }
 
     /**
-     * @return string[]
+     * @return string
      */
-    public function getPhoneNumbers()
+    public function getPhoneNumber()
     {
-        return $this->phoneNumbers;
+        return $this->phoneNumber;
     }
 
     /**
-     * @param string[] $phoneNumbers
+     * @param string $phoneNumber
      * @return void
      */
-    public function setPhoneNumbers(array $phoneNumbers)
+    public function setPhoneNumber($phoneNumber)
     {
-        $this->phoneNumbers = $phoneNumbers;
+        $this->phoneNumber = $phoneNumber;
     }
 
     /**

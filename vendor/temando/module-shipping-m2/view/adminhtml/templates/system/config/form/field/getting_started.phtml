@@ -3,10 +3,10 @@
  * Refer to LICENSE.txt distributed with the Temando Shipping module for notice of license
  */
 ?>
-<?php // @codingStandardsIgnoreFile ?>
 <?php /** @var \Temando\Shipping\Block\Adminhtml\System\Config\Form\Field\GettingStarted $block */ ?>
 <p class="getting-started">
     <span class="tooltip"><span class="help"><span></span></span></span>
+    <?php // @codingStandardsIgnoreLine ?>
     <span class="hint"><?= $block->escapeHtml(__('Once you have activated Magento Shipping, configure these sections to get up and running:')) ?></span>
 </p>
 
@@ -29,6 +29,8 @@
     <li>
         <?= $block->escapeHtml(__('Shipping Experiences via %1 portal', $block->getShippingPortalUrl())) ?>
         <a class="button action-default <?= /* @noEscape */ ($block->isMerchantRegistered() ? "" : "disabled"); ?>"
-           href="<?= $block->escapeUrl($block->getShippingPortalUrl()) ?>"><?= $block->escapeHtml(__('Configure')) ?></a>
+           href="<?= $block->escapeUrl($block->getShippingPortalUrl()) ?>">
+            <?= $block->escapeHtml(__('Configure')) ?>
+        </a>
     </li>
 </ol>

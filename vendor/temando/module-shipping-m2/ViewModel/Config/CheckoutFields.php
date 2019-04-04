@@ -8,13 +8,10 @@ use Magento\Framework\App\RequestInterface;
 use Magento\Framework\UrlInterface;
 use Magento\Framework\View\Element\Block\ArgumentInterface;
 use Temando\Shipping\Model\Config\ModuleConfigInterface;
-use Temando\Shipping\ViewModel\CoreApiInterface;
-use Temando\Shipping\ViewModel\DataProvider\CoreApiAccess;
-use Temando\Shipping\ViewModel\DataProvider\CoreApiAccessInterface;
-use Temando\Shipping\ViewModel\PageActionsInterface;
-use Temando\Shipping\ViewModel\ShippingApiInterface;
 use Temando\Shipping\ViewModel\DataProvider\ShippingApiAccess;
 use Temando\Shipping\ViewModel\DataProvider\ShippingApiAccessInterface;
+use Temando\Shipping\ViewModel\PageActionsInterface;
+use Temando\Shipping\ViewModel\ShippingApiInterface;
 
 /**
  * View model for checkout fields JS component.

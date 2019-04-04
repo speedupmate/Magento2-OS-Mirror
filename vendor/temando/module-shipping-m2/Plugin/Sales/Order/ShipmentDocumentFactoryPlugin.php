@@ -105,6 +105,12 @@ class ShipmentDocumentFactoryPlugin
             $shipment->getExtensionAttributes()->setExtShipmentId($extShipmentId);
         }
 
+        // shift external return shipment id to shipment
+        $extReturnShipmentId = $arguments->getExtensionAttributes()->getExtReturnShipmentId();
+        if ($extReturnShipmentId) {
+            $shipment->getExtensionAttributes()->setExtReturnShipmentId($extReturnShipmentId);
+        }
+
         // shift external location id to shipment
         $extLocationId = $arguments->getExtensionAttributes()->getExtLocationId();
         if ($extLocationId) {

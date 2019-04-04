@@ -25,7 +25,7 @@ interface AddressRepositoryInterface
      *
      * @param string $addressId
      * @return \Temando\Shipping\Api\Data\Checkout\AddressInterface
-     * @throws \Magento\Framework\Exception\LocalizedException
+     * @throws \Magento\Framework\Exception\NoSuchEntityException
      */
     public function getById($addressId);
 
@@ -34,7 +34,7 @@ interface AddressRepositoryInterface
      *
      * @param string $quoteAddressId
      * @return \Temando\Shipping\Api\Data\Checkout\AddressInterface
-     * @throws \Magento\Framework\Exception\LocalizedException
+     * @throws \Magento\Framework\Exception\NoSuchEntityException
      */
     public function getByQuoteAddressId($quoteAddressId);
 
@@ -43,7 +43,25 @@ interface AddressRepositoryInterface
      *
      * @param \Temando\Shipping\Api\Data\Checkout\AddressInterface $address
      * @return \Temando\Shipping\Api\Data\Checkout\AddressInterface
-     * @throws \Magento\Framework\Exception\LocalizedException
+     * @throws \Magento\Framework\Exception\CouldNotSaveException
      */
     public function save(\Temando\Shipping\Api\Data\Checkout\AddressInterface $address);
+
+    /**
+     * Delete by quote address id.
+     *
+     * @param string $addressId
+     * @return bool true on success
+     * @throws \Magento\Framework\Exception\CouldNotDeleteException
+     */
+    public function deleteByShippingAddressId($addressId);
+
+    /**
+     * Delete entity.
+     *
+     * @param \Temando\Shipping\Api\Data\Checkout\AddressInterface $address
+     * @return bool true on success
+     * @throws \Magento\Framework\Exception\CouldNotDeleteException
+     */
+    public function delete(\Temando\Shipping\Api\Data\Checkout\AddressInterface $address);
 }

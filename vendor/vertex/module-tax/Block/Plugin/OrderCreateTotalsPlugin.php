@@ -7,9 +7,9 @@
 namespace Vertex\Tax\Block\Plugin;
 
 use Vertex\Tax\Model\Calculation\VertexCalculator;
+use Vertex\Tax\Model\TaxRegistry;
 use Magento\Sales\Block\Adminhtml\Order\Create\Totals;
 use Magento\Framework\Message\ManagerInterface;
-use Magento\Framework\Registry;
 use Magento\Framework\View\Element\BlockInterface;
 
 /**
@@ -23,20 +23,20 @@ class OrderCreateTotalsPlugin
     /** @var ManagerInterface */
     private $messageManager;
 
-    /** @var Registry */
-    private $registry;
+    /** @var TaxRegistry */
+    private $taxRegistry;
 
     /** @var boolean A state flag to ensure that errors are only dispatched once. */
     private $hasNotified = false;
 
     /**
      * @param ManagerInterface $messageManager
-     * @param Registry         $registry
+     * @param TaxRegistry         $taxRegistry
      */
-    public function __construct(ManagerInterface $messageManager, Registry $registry)
+    public function __construct(ManagerInterface $messageManager, TaxRegistry $taxRegistry)
     {
         $this->messageManager = $messageManager;
-        $this->registry = $registry;
+        $this->taxRegistry = $taxRegistry;
     }
 
     /**
@@ -44,10 +44,10 @@ class OrderCreateTotalsPlugin
      *
      * @param  Totals $subject
      * @return void
-     * @throws \Magento\Framework\Exception\LocalizedException
      */
     private function updateMessageBlock(Totals $context)
     {
+        /** @var \Magento\Sales\Block\Adminhtml\Order\Create\Messages|bool $block */
         $block = $context->getLayout()->getBlock('message');
 
         if ($block instanceof BlockInterface) {
@@ -65,7 +65,7 @@ class OrderCreateTotalsPlugin
     public function afterGetTotals(Totals $subject, array $results)
     {
         if (!$this->hasNotified) {
-            $error = $this->registry->registry(VertexCalculator::VERTEX_CALCULATION_ERROR);
+            $error = $this->taxRegistry->lookup(TaxRegistry::KEY_ERROR_GENERIC);
 
             if (!empty($error)) {
                 $this->updateMessageBlock($subject);

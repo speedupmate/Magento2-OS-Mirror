@@ -12,6 +12,7 @@ use Magento\Framework\Exception\CouldNotSaveException;
 use Magento\Framework\Exception\NoSuchEntityException;
 use Vertex\Tax\Model\Data\CustomerCode;
 use Vertex\Tax\Model\Data\CustomerCodeFactory;
+use Vertex\Tax\Model\Registry\CustomerCodeRegistry;
 use Vertex\Tax\Model\ResourceModel\CustomerCode as ResourceModel;
 
 /**
@@ -25,14 +26,22 @@ class CustomerCodeRepository
     /** @var CustomerCodeFactory */
     private $factory;
 
+    /** @var CustomerCodeRegistry */
+    private $registry;
+
     /**
      * @param ResourceModel $resourceModel
      * @param CustomerCodeFactory $factory
+     * @param CustomerCodeRegistry $registry
      */
-    public function __construct(ResourceModel $resourceModel, CustomerCodeFactory $factory)
-    {
+    public function __construct(
+        ResourceModel $resourceModel,
+        CustomerCodeFactory $factory,
+        CustomerCodeRegistry $registry
+    ) {
         $this->resourceModel = $resourceModel;
         $this->factory = $factory;
+        $this->registry = $registry;
     }
 
     /**
@@ -45,8 +54,15 @@ class CustomerCodeRepository
      */
     public function save(CustomerCode $customerCode)
     {
+        // Exit early if code is already in the registry
+        $registered = $this->registry->get($customerCode->getCustomerId());
+        if ($registered === $customerCode->getCustomerCode()) {
+            return $this;
+        }
+
         try {
             $this->resourceModel->save($customerCode);
+            $this->registry->set($customerCode->getCustomerId(), $customerCode->getCustomerCode());
         } catch (AlreadyExistsException $e) {
             throw $e;
         } catch (\Exception $originalException) {
@@ -64,12 +80,7 @@ class CustomerCodeRepository
      */
     public function delete(CustomerCode $customerCode)
     {
-        try {
-            $this->resourceModel->delete($customerCode);
-        } catch (\Exception $originalException) {
-            throw new CouldNotDeleteException(__('Unable to delete Customer Code'), $originalException);
-        }
-        return $this;
+        return $this->deleteByCustomerId($customerCode->getCustomerId());
     }
 
     /**
@@ -86,6 +97,7 @@ class CustomerCodeRepository
         $customerCode->setId($customerId);
         try {
             $this->resourceModel->delete($customerCode);
+            $this->registry->delete($customerId);
         } catch (\Exception $originalException) {
             throw new CouldNotDeleteException(__('Unable to delete Customer Code'), $originalException);
         }
@@ -103,10 +115,23 @@ class CustomerCodeRepository
     {
         /** @var CustomerCode $customerCode */
         $customerCode = $this->factory->create();
-        $this->resourceModel->load($customerCode, $customerId);
-        if (!$customerCode->getId()) {
+
+        $registered = $this->registry->get($customerId);
+        if ($registered === null) {
             throw NoSuchEntityException::singleField('customerId', $customerId);
         }
+        if ($registered !== false) {
+            $customerCode->setCustomerId($customerId);
+            $customerCode->setCustomerCode($registered);
+            return $customerCode;
+        }
+
+        $this->resourceModel->load($customerCode, $customerId);
+        if (!$customerCode->getId()) {
+            $this->registry->set($customerId, null);
+            throw NoSuchEntityException::singleField('customerId', $customerId);
+        }
+        $this->registry->set($customerCode->getCustomerId(), $customerCode->getCustomerCode());
         return $customerCode;
     }
 
@@ -118,6 +143,29 @@ class CustomerCodeRepository
      */
     public function getListByCustomerIds(array $customerIds)
     {
-        return $this->resourceModel->getArrayByCustomerIds($customerIds);
+        $unregisteredIds = [];
+        $registryCustomerCodes = [];
+        foreach ($customerIds as $customerId) {
+            $registered = $this->registry->get($customerId);
+            if ($registered === false) {
+                $unregisteredIds[] = $customerId;
+            } else {
+                $customerCode = $this->factory->create();
+                $customerCode->setCustomerId($customerId);
+                $customerCode->setCustomerCode($registered);
+                $registryCustomerCodes[$customerId] = $customerCode;
+            }
+        }
+
+        $dbCustomerCodes = [];
+        if (!empty($unregisteredIds)) {
+            $dbCustomerCodes = $this->resourceModel->getArrayByCustomerIds($unregisteredIds);
+        }
+
+        foreach ($dbCustomerCodes as $dbCustomerCode) {
+            $this->registry->set($dbCustomerCode->getCustomerId(), $dbCustomerCode->getCustomerCode());
+        }
+
+        return array_replace($dbCustomerCodes, $registryCustomerCodes);
     }
 }

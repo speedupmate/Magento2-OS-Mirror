@@ -2,7 +2,6 @@
 /**
  * Refer to LICENSE.txt distributed with the Temando Shipping module for notice of license
  */
-
 namespace Temando\Shipping\Setup;
 
 use Magento\Framework\Setup\ModuleContextInterface;
@@ -10,7 +9,7 @@ use Magento\Framework\Setup\SchemaSetupInterface;
 use Magento\Framework\Setup\UpgradeSchemaInterface;
 
 /**
- * Init module config data
+ * Init module schema
  *
  * @package  Temando\Shipping\Setup
  * @author   Christoph Aßmann <christoph.assmann@netresearch.de>
@@ -69,6 +68,13 @@ class UpgradeSchema implements UpgradeSchemaInterface
 
         if (version_compare($moduleVersion, '1.1.0', '<')) {
             $this->rmaInstaller->createRmaShipmentTable($setup);
+        }
+
+        if (version_compare($moduleVersion, '1.2.0', '<')) {
+            $this->rmaInstaller->addReturnShipmentIdColumn($setup);
+            $this->installer->createCollectionPointSearchTable($setup);
+            $this->installer->createQuoteCollectionPointTable($setup);
+            $this->installer->createOrderCollectionPointTable($setup);
         }
     }
 }

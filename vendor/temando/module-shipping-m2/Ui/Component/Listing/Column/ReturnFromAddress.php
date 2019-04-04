@@ -9,7 +9,7 @@ use Magento\Framework\Escaper;
 use Magento\Framework\View\Element\UiComponent\ContextInterface;
 use Magento\Framework\View\Element\UiComponentFactory;
 use Magento\Ui\Component\Listing\Columns\Column;
-use Temando\Shipping\Model\Shipment\ShipmentOriginInterface;
+use Temando\Shipping\Model\Shipment\LocationInterface;
 use Temando\Shipping\Model\ShipmentInterface;
 
 /**
@@ -39,8 +39,8 @@ class ReturnFromAddress extends Column
      * @param UiComponentFactory $uiComponentFactory
      * @param Escaper $escaper
      * @param Region $region
-     * @param array $components
-     * @param array $data
+     * @param mixed[] $components
+     * @param mixed[]  $data
      */
     public function __construct(
         ContextInterface $context,
@@ -67,7 +67,7 @@ class ReturnFromAddress extends Column
         if (isset($dataSource['data']['items'])) {
             foreach ($dataSource['data']['items'] as & $item) {
                 if (isset($item[$key])) {
-                    /** @var ShipmentOriginInterface $originLocation */
+                    /** @var LocationInterface $originLocation */
                     $originLocation = $item[$key];
                     $address = sprintf(
                         '%s %s %s %s',
@@ -89,10 +89,10 @@ class ReturnFromAddress extends Column
     /**
      * Get street as string
      *
-     * @param ShipmentOriginInterface $originLocation
+     * @param LocationInterface $originLocation
      * @return string
      */
-    private function getStreet(ShipmentOriginInterface $originLocation)
+    private function getStreet(LocationInterface $originLocation)
     {
         $street = '';
         foreach ($originLocation->getStreet() as $streetLine) {
@@ -105,10 +105,10 @@ class ReturnFromAddress extends Column
     /**
      * Get Region Name.
      *
-     * @param ShipmentOriginInterface $originLocation
+     * @param LocationInterface $originLocation
      * @return string
      */
-    private function getRegionName(ShipmentOriginInterface $originLocation)
+    private function getRegionName(LocationInterface $originLocation)
     {
         $region = $this->region->loadByCode(
             $originLocation->getRegionCode(),

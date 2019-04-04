@@ -26,11 +26,10 @@ interface OrderRepositoryInterface
 {
     /**
      * @param \Temando\Shipping\Model\OrderInterface $order
-     * @param \Temando\Shipping\Api\Data\Order\OrderReferenceInterface $orderReference
-     * @return \Temando\Shipping\Api\Data\Order\OrderReferenceInterface
+     * @return \Temando\Shipping\Webservice\Response\Type\OrderResponseTypeInterface
      * @throws \Magento\Framework\Exception\CouldNotSaveException
      */
-    public function save(OrderInterface $order, OrderReferenceInterface $orderReference);
+    public function save(OrderInterface $order);
 
     /**
      * @param \Temando\Shipping\Api\Data\Order\OrderReferenceInterface $orderReference

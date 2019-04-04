@@ -79,7 +79,7 @@ class Save extends Action
                 $this->messageManager->addSuccessMessage(__('Settings saved successfully, stream removed.'));
             }
         } catch (LocalizedException $e) {
-            $this->messageManager->addExceptionMessage($e, __($e->getMessage()));
+            $this->messageManager->addExceptionMessage($e);
             $resultRedirect->setPath('temando/settings_advanced/edit');
             return $resultRedirect;
         }

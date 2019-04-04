@@ -1,4 +1,14 @@
 
+5.2.3 / 2018-05-30
+==================
+
+ * PI-289 Remove exclusion as we now generate a 'min' file
+
+5.2.0 / 2018-05-14
+==================
+
+  * PPI-357 Retrieve payment_method_categories array on update_session
+
 5.1.3 / 2018-04-20
 ==================
 

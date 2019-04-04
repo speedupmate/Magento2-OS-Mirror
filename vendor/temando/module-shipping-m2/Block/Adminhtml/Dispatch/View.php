@@ -55,7 +55,7 @@ class View extends Container
     /**
      * Add Back Button.
      *
-     * @return \Magento\Backend\Block\Widget\Container
+     * @return \Magento\Framework\View\Element\AbstractBlock
      */
     protected function _prepareLayout()
     {
@@ -66,7 +66,7 @@ class View extends Container
             'sort_order' => 10
         ];
 
-        $this->buttonList->add('back', $buttonData);
+        $this->addButton('back', $buttonData);
 
         return parent::_prepareLayout();
     }

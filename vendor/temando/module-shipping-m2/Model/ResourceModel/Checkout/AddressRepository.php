@@ -4,6 +4,7 @@
  */
 namespace Temando\Shipping\Model\ResourceModel\Checkout;
 
+use Magento\Framework\Exception\CouldNotDeleteException;
 use Magento\Framework\Exception\CouldNotSaveException;
 use Magento\Framework\Exception\NoSuchEntityException;
 use Temando\Shipping\Api\Data\Checkout\AddressInterface;
@@ -85,8 +86,42 @@ class AddressRepository implements AddressRepositoryInterface
             /** @var \Temando\Shipping\Model\Checkout\Address $address */
             $this->resource->save($address);
         } catch (\Exception $exception) {
-            throw new CouldNotSaveException(__($exception->getMessage()));
+            throw new CouldNotSaveException(__('Unable to save shipping services.'), $exception);
         }
         return $address;
+    }
+
+    /**
+     * @param string $addressId
+     * @return bool true on success
+     * @throws CouldNotDeleteException
+     */
+    public function deleteByShippingAddressId($addressId)
+    {
+        $addressId = $this->resource->getIdByQuoteAddressId($addressId);
+        /** @var \Temando\Shipping\Model\Checkout\Address $address */
+        $address = $this->addressFactory->create(['data' => [
+            AddressInterface::ENTITY_ID => $addressId
+        ]]);
+
+        return $this->delete($address);
+    }
+
+    /**
+     * @param AddressInterface $address
+     * @return bool true on success
+     * @throws CouldNotDeleteException
+     */
+    public function delete(AddressInterface $address)
+    {
+        try {
+            /** @var \Temando\Shipping\Model\Checkout\Address $address */
+            $this->resource->delete($address);
+        } catch (\Exception $exception) {
+            $msg = __('Shipping services for address "%1" could not be deleted.', $address->getEntityId());
+            throw new CouldNotDeleteException($msg);
+        }
+
+        return true;
     }
 }

@@ -12,9 +12,6 @@
                     <object key="trustedId" dataType="vertex_config_field_trustedId">
                         <field key="value">string</field>
                     </object>
-                    <object key="show_manual_button" dataType="vertex_config_field_manualInvoiceButton">
-                        <field key="value">boolean</field>
-                    </object>
                 </object>
             </object>
             <object key="vertex_seller_info" dataType="vertex_config_state">

@@ -4,6 +4,7 @@
  */
 namespace Temando\Shipping\Rest\EntityMapper;
 
+use Temando\Shipping\Api\Data\CollectionPoint\QuoteCollectionPointInterface;
 use Temando\Shipping\Model\Checkout\Attribute\CheckoutFieldInterface;
 use Temando\Shipping\Model\Order\OrderBillingInterface;
 use Temando\Shipping\Model\Order\OrderItemInterface;
@@ -16,6 +17,7 @@ use Temando\Shipping\Rest\Request\Type\Generic\MonetaryValueFactory;
 use Temando\Shipping\Rest\Request\Type\Generic\WeightFactory;
 use Temando\Shipping\Rest\Request\Type\Order\Customer;
 use Temando\Shipping\Rest\Request\Type\Order\CustomerFactory;
+use Temando\Shipping\Rest\Request\Type\Order\CollectionPointSearchFactory;
 use Temando\Shipping\Rest\Request\Type\Order\ExperienceFactory;
 use Temando\Shipping\Rest\Request\Type\Order\Experience\DescriptionFactory;
 use Temando\Shipping\Rest\Request\Type\Order\OrderItem;
@@ -23,6 +25,8 @@ use Temando\Shipping\Rest\Request\Type\Order\OrderItemFactory;
 use Temando\Shipping\Rest\Request\Type\Order\OrderItem\ClassificationCodesFactory;
 use Temando\Shipping\Rest\Request\Type\Order\Recipient;
 use Temando\Shipping\Rest\Request\Type\Order\RecipientFactory;
+use Temando\Shipping\Rest\Request\Type\Order\ShipmentDetails;
+use Temando\Shipping\Rest\Request\Type\Order\ShipmentDetailsFactory;
 use Temando\Shipping\Rest\Request\Type\OrderRequestTypeInterface;
 use Temando\Shipping\Rest\Request\Type\OrderRequestTypeInterfaceFactory;
 
@@ -51,6 +55,11 @@ class OrderRequestTypeBuilder
      * @var RecipientFactory
      */
     private $recipientFactory;
+
+    /**
+     * @var ShipmentDetailsFactory
+     */
+    private $shipmentDetailsFactory;
 
     /**
      * @var OrderItemFactory
@@ -88,6 +97,11 @@ class OrderRequestTypeBuilder
     private $descriptionFactory;
 
     /**
+     * @var CollectionPointSearchFactory
+     */
+    private $collectionPointSearchFactory;
+
+    /**
      * @var ExtensibleTypeAttributeFactory
      */
     private $attributeFactory;
@@ -97,6 +111,7 @@ class OrderRequestTypeBuilder
      * @param OrderRequestTypeInterfaceFactory $requestTypeFactory
      * @param CustomerFactory $customerFactory
      * @param RecipientFactory $recipientFactory
+     * @param ShipmentDetailsFactory $shipmentDetailsFactory
      * @param OrderItemFactory $orderItemFactory
      * @param ClassificationCodesFactory $classificationCodesFactory
      * @param DimensionsFactory $dimensionsFactory
@@ -105,11 +120,13 @@ class OrderRequestTypeBuilder
      * @param ExperienceFactory $experienceFactory
      * @param DescriptionFactory $descriptionFactory
      * @param ExtensibleTypeAttributeFactory $attributeFactory
+     * @param CollectionPointSearchFactory $collectionPointSearchFactory
      */
     public function __construct(
         OrderRequestTypeInterfaceFactory $requestTypeFactory,
         CustomerFactory $customerFactory,
         RecipientFactory $recipientFactory,
+        ShipmentDetailsFactory $shipmentDetailsFactory,
         OrderItemFactory $orderItemFactory,
         ClassificationCodesFactory $classificationCodesFactory,
         DimensionsFactory $dimensionsFactory,
@@ -117,11 +134,13 @@ class OrderRequestTypeBuilder
         WeightFactory $weightFactory,
         ExperienceFactory $experienceFactory,
         DescriptionFactory $descriptionFactory,
-        ExtensibleTypeAttributeFactory $attributeFactory
+        ExtensibleTypeAttributeFactory $attributeFactory,
+        CollectionPointSearchFactory $collectionPointSearchFactory
     ) {
         $this->requestTypeFactory = $requestTypeFactory;
         $this->customerFactory = $customerFactory;
         $this->recipientFactory = $recipientFactory;
+        $this->shipmentDetailsFactory = $shipmentDetailsFactory;
         $this->orderItemFactory = $orderItemFactory;
         $this->classificationCodesFactory = $classificationCodesFactory;
         $this->dimensionsFactory = $dimensionsFactory;
@@ -130,6 +149,7 @@ class OrderRequestTypeBuilder
         $this->experienceFactory = $experienceFactory;
         $this->descriptionFactory = $descriptionFactory;
         $this->attributeFactory = $attributeFactory;
+        $this->collectionPointSearchFactory = $collectionPointSearchFactory;
     }
 
     /**
@@ -163,27 +183,105 @@ class OrderRequestTypeBuilder
      * Build recipient request type from order shipping address entity.
      *
      * @param OrderRecipientInterface $recipient
+     * @param QuoteCollectionPointInterface $collectionPoint
      * @return Recipient
      */
-    private function getRecipientType(OrderRecipientInterface $recipient)
-    {
-        $recipientType = $this->recipientFactory->create([
-            'organisationName' => $recipient->getCompany(),
-            'lastname' => $recipient->getLastname(),
-            'firstname' => $recipient->getFirstname(),
-            'email' => $recipient->getEmail(),
-            'phoneNumber' => $recipient->getPhone(),
-            'faxNumber' => $recipient->getFax(),
-            'nationalId' => $recipient->getNationalId(),
-            'taxId' => $recipient->getTaxId(),
-            'street' => $recipient->getStreet(),
-            'countryCode' => $recipient->getCountryCode(),
-            'administrativeArea' => $recipient->getRegion(),
-            'postalCode' => $recipient->getPostalCode(),
-            'locality' => $recipient->getCity(),
-        ]);
+    private function getRecipientType(
+        OrderRecipientInterface $recipient,
+        QuoteCollectionPointInterface $collectionPoint
+    ) {
+        if ($collectionPoint->getCollectionPointId()) {
+            // collection point recipient
+            $recipientType = $this->recipientFactory->create([
+                'organisationName' => $collectionPoint->getName(),
+                'lastname' => '',
+                'firstname' => '',
+                'email' => '',
+                'phoneNumber' => '',
+                'faxNumber' => '',
+                'nationalId' => '',
+                'taxId' => '',
+                'street' => (array) $collectionPoint->getStreet(),
+                'countryCode' => $collectionPoint->getCountry(),
+                'administrativeArea' => $collectionPoint->getRegion(),
+                'postalCode' => $collectionPoint->getPostcode(),
+                'locality' => $collectionPoint->getCity(),
+                'collectionPointId' => $collectionPoint->getCollectionPointId(),
+            ]);
+        } else {
+            // regular recipient
+            $recipientType = $this->recipientFactory->create([
+                'organisationName' => $recipient->getCompany(),
+                'lastname' => $recipient->getLastname(),
+                'firstname' => $recipient->getFirstname(),
+                'email' => $recipient->getEmail(),
+                'phoneNumber' => $recipient->getPhone(),
+                'faxNumber' => $recipient->getFax(),
+                'nationalId' => $recipient->getNationalId(),
+                'taxId' => $recipient->getTaxId(),
+                'street' => (array) $recipient->getStreet(),
+                'countryCode' => $recipient->getCountryCode(),
+                'administrativeArea' => $recipient->getRegion(),
+                'postalCode' => $recipient->getPostalCode(),
+                'locality' => $recipient->getCity(),
+            ]);
+        }
 
         return $recipientType;
+    }
+
+    /**
+     * Build shipment details request type from order shipping address entity.
+     *
+     * @param OrderRecipientInterface $recipient
+     * @param QuoteCollectionPointInterface $collectionPoint
+     * @return ShipmentDetails
+     */
+    private function getShipmentDetailsType(
+        OrderRecipientInterface $recipient,
+        QuoteCollectionPointInterface $collectionPoint
+    ) {
+        if (!$collectionPoint->getCollectionPointId()) {
+            // no final recipient required for regular shipments
+            $finalRecipientType = $this->recipientFactory->create([
+                'organisationName' => '',
+                'lastname' => '',
+                'firstname' => '',
+                'email' => '',
+                'phoneNumber' => '',
+                'faxNumber' => '',
+                'nationalId' => '',
+                'taxId' => '',
+                'street' => (array) '',
+                'countryCode' => '',
+                'administrativeArea' => '',
+                'postalCode' => '',
+                'locality' => '',
+            ]);
+        } else {
+            $finalRecipientType = $this->recipientFactory->create([
+                'organisationName' => $recipient->getCompany(),
+                'lastname' => $recipient->getLastname(),
+                'firstname' => $recipient->getFirstname(),
+                'email' => $recipient->getEmail(),
+                'phoneNumber' => $recipient->getPhone(),
+                'faxNumber' => $recipient->getFax(),
+                'nationalId' => $recipient->getNationalId(),
+                'taxId' => $recipient->getTaxId(),
+                'street' => (array) $recipient->getStreet(),
+                'countryCode' => $recipient->getCountryCode(),
+                'administrativeArea' => $recipient->getRegion(),
+                'postalCode' => $recipient->getPostalCode(),
+                'locality' => $recipient->getCity(),
+            ]);
+        }
+
+        $shipmentDetailsType = $this->shipmentDetailsFactory->create([
+            'finalRecipient' => $finalRecipientType,
+            'collectionPointId' => $collectionPoint->getCollectionPointId(),
+        ]);
+
+        return $shipmentDetailsType;
     }
 
     /**
@@ -237,7 +335,7 @@ class OrderRequestTypeBuilder
                     'length' => $orderItem->getLength(),
                     'width' => $orderItem->getWidth(),
                     'height' => $orderItem->getHeight(),
-                    'unitOfMeasurement' => $orderItem->getDimensionsUom(),
+                    'unit' => $orderItem->getDimensionsUom(),
                 ]),
                 'monetaryValue' => $this->monetaryValueFactory->create([
                     'amount' => $orderItem->getAmount(),
@@ -283,7 +381,8 @@ class OrderRequestTypeBuilder
                 'currency' => $order->getCurrency(),
             ]),
             'customer' => $this->getCustomerType($order->getBilling()),
-            'recipient' => $this->getRecipientType($order->getRecipient()),
+            'recipient' => $this->getRecipientType($order->getRecipient(), $order->getCollectionPoint()),
+            'shipmentDetails' => $this->getShipmentDetailsType($order->getRecipient(), $order->getCollectionPoint()),
             'items' => $this->getItemTypes($order->getOrderItems()),
             'aliases' => [
                 'magento' => $order->getSourceId(),
@@ -300,7 +399,16 @@ class OrderRequestTypeBuilder
                     'text' => $order->getExperienceDescription(),
                 ]),
             ]),
+            'collectionPointSearch' => $this->collectionPointSearchFactory->create([
+                'postalCode' => $order->getCollectionPointSearchRequest()->getPostcode(),
+                'countryCode' => $order->getCollectionPointSearchRequest()->getCountryId(),
+            ]),
         ];
+
+        if ($order->getCollectionPoint()->getCollectionPointId()) {
+            // no search if collection point was already selected
+            unset($requestTypeData['collectionPointSearch']);
+        }
 
         $orderType = $this->requestTypeFactory->create($requestTypeData);
 

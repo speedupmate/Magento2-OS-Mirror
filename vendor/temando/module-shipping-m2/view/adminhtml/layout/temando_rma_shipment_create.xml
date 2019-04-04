@@ -10,12 +10,34 @@
     </head>
     <body>
         <referenceContainer name="content">
-            <block class="Temando\Shipping\Block\Adminhtml\Rma\RmaShipment\View\Info" name="rma_account_info" template="Temando_Shipping::rma/view/info.phtml">
+            <!-- RMA/Order/Account Information -->
+            <block class="Magento\Backend\Block\Template" name="rma_shipment_info"
+                   template="Temando_Shipping::rma/view/info.phtml">
                 <arguments>
-                    <argument name="viewModel" xsi:type="object">Temando\Shipping\ViewModel\Rma\RmaView</argument>
+                    <argument name="title" xsi:type="string">RMA &amp; Account Information</argument>
                 </arguments>
+
+                <!-- RMA/Order Information: placeholder, see appropriate handles for template -->
+                <block class="Magento\Backend\Block\Template" name="rma_shipment_parent_info">
+                    <arguments>
+                        <argument name="template" xsi:type="string">Temando_Shipping::rma/view/info/rma_info.phtml</argument>
+                        <argument name="orderViewModel" xsi:type="object">Temando\Shipping\ViewModel\Order\OrderDetails</argument>
+                        <argument name="rmaViewModel" xsi:type="object">Temando\Shipping\ViewModel\Rma\RmaView</argument>
+                    </arguments>
+                </block>
+
+                <!-- Account Information -->
+                <block class="Magento\Backend\Block\Template" name="rma_shipment_customer_info"
+                       template="Temando_Shipping::rma/view/info/customer.phtml">
+                    <arguments>
+                        <argument name="rmaViewModel" xsi:type="object">Temando\Shipping\ViewModel\Rma\RmaView</argument>
+                        <argument name="customerViewModel" xsi:type="object">Temando\Shipping\ViewModel\Order\CustomerDetails</argument>
+                    </arguments>
+                </block>
+
                 <container name="extra_customer_info"/>
             </block>
+
             <block class="Temando\Shipping\Block\Adminhtml\ComponentContainer" name="admin.temando.rma.shipment.create">
                 <arguments>
                     <argument name="template" xsi:type="string">Temando_Shipping::components/shipment/returns/create.phtml</argument>
@@ -39,6 +61,7 @@
                 </arguments>
             </block>
         </referenceContainer>
+
         <referenceBlock name="page.actions.toolbar">
             <block class="Magento\Backend\Block\Template" name="admin.temando.location.head-action" before="-">
                 <arguments>

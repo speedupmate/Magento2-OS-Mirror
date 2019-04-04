@@ -23,7 +23,9 @@ interface ShipmentInterface
     const ORIGIN_ID = 'origin_id';
     const ORIGIN_LOCATION = 'origin_location';
     const DESTINATION_LOCATION = 'destination_location';
+    const FINAL_RECIPIENT_LOCATION = 'final_recipient_location';
     const FULFILLMENT = 'fulfill';
+    const ITEMS = 'items';
     const PACKAGES = 'packages';
     const DOCUMENTATION = 'documentation';
     const IS_PAPERLESS = 'is_paperless';
@@ -48,19 +50,29 @@ interface ShipmentInterface
     public function getOriginId();
 
     /**
-     * @return \Temando\Shipping\Model\Shipment\ShipmentOriginInterface
+     * @return \Temando\Shipping\Model\Shipment\Location
      */
     public function getOriginLocation();
 
     /**
-     * @return \Temando\Shipping\Model\Shipment\ShipmentDestinationInterface
+     * @return \Temando\Shipping\Model\Shipment\Location
      */
     public function getDestinationLocation();
+
+    /**
+     * @return \Temando\Shipping\Model\Shipment\Location
+     */
+    public function getFinalRecipientLocation();
 
     /**
      * @return \Temando\Shipping\Model\Shipment\FulfillmentInterface
      */
     public function getFulfillment();
+
+    /**
+     * @return \Temando\Shipping\Model\Shipment\ShipmentItemInterface[]
+     */
+    public function getItems();
 
     /**
      * @return \Temando\Shipping\Model\Shipment\PackageInterface[]

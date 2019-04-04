@@ -4,11 +4,14 @@
  */
 namespace Temando\Shipping\Model\ResourceModel\Packaging\Grid;
 
-use Magento\Framework\Api\ExtensibleDataInterface;
+use Magento\Framework\Api\FilterBuilder;
+use Magento\Framework\Api\SearchCriteriaBuilder;
 use Magento\Framework\Api\SearchCriteriaInterface;
-use Magento\Framework\Api\Search\AggregationInterface;
-use Magento\Framework\Api\Search\SearchResultInterface;
-use Temando\Shipping\Model\ResourceModel\Packaging\Collection as PackagingCollection;
+use Magento\Framework\Data\Collection\EntityFactoryInterface;
+use Magento\Framework\Message\ManagerInterface;
+use Temando\Shipping\Model\PackagingInterface;
+use Temando\Shipping\Model\ResourceModel\Repository\PackagingRepositoryInterface;
+use Temando\Shipping\Model\ResourceModel\Webservice\Collection as ApiCollection;
 
 /**
  * Temando Packaging Resource Collection
@@ -18,70 +21,45 @@ use Temando\Shipping\Model\ResourceModel\Packaging\Collection as PackagingCollec
  * @license  http://opensource.org/licenses/osl-3.0.php Open Software License (OSL 3.0)
  * @link     http://www.temando.com/
  */
-class Collection extends PackagingCollection implements SearchResultInterface
+class Collection extends ApiCollection
 {
     /**
-     * @var AggregationInterface
+     * @var PackagingRepositoryInterface
      */
-    private $aggregations;
+    private $packagingRepository;
 
     /**
-     * @param ExtensibleDataInterface[] $items
-     * @return $this
+     * Collection constructor.
+     *
+     * @param EntityFactoryInterface $entityFactory
+     * @param ManagerInterface $messageManager
+     * @param PackagingRepositoryInterface $packagingRepository
+     * @param FilterBuilder $filterBuilder
+     * @param SearchCriteriaBuilder $searchCriteriaBuilder
      */
-    public function setItems(array $items = null)
-    {
-        return $this;
+    public function __construct(
+        EntityFactoryInterface $entityFactory,
+        ManagerInterface $messageManager,
+        FilterBuilder $filterBuilder,
+        SearchCriteriaBuilder $searchCriteriaBuilder,
+        PackagingRepositoryInterface $packagingRepository
+    ) {
+        $this->packagingRepository = $packagingRepository;
+
+        parent::__construct($entityFactory, $messageManager, $filterBuilder, $searchCriteriaBuilder);
     }
 
     /**
-     * @return AggregationInterface
+     * @param SearchCriteriaInterface $criteria
+     * @return PackagingInterface[]
      */
-    public function getAggregations()
+    public function fetchData(SearchCriteriaInterface $criteria)
     {
-        return $this->aggregations;
-    }
+        $containers = $this->packagingRepository->getList(
+            $criteria->getCurrentPage(),
+            $criteria->getPageSize()
+        );
 
-    /**
-     * @param AggregationInterface $aggregations
-     * @return void
-     */
-    public function setAggregations($aggregations)
-    {
-        $this->aggregations = $aggregations;
-    }
-
-    /**
-     * @return \Magento\Framework\Api\SearchCriteriaInterface|null
-     */
-    public function getSearchCriteria()
-    {
-        return null;
-    }
-
-    /**
-     * @param SearchCriteriaInterface $searchCriteria
-     * @return $this
-     */
-    public function setSearchCriteria(SearchCriteriaInterface $searchCriteria)
-    {
-        return $this;
-    }
-
-    /**
-     * @return int
-     */
-    public function getTotalCount()
-    {
-        return $this->getSize();
-    }
-
-    /**
-     * @param int $totalCount
-     * @return $this
-     */
-    public function setTotalCount($totalCount)
-    {
-        return $this;
+        return $containers;
     }
 }

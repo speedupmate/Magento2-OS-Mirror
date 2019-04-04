@@ -2,10 +2,10 @@
     "name": "magento/magento2-base",
     "description": "Magento 2 Base (Community Edition)",
     "type": "magento2-component",
-    "version": "2.2.4",
+    "version": "2.2.5",
     "require": {
         "magento/magento-composer-installer": "*",
-        "php": "7.0.2|7.0.4|~7.0.6|~7.1.0",
+        "php": "~7.0.13|~7.1.0",
         "zendframework/zend-stdlib": "^2.7.7",
         "zendframework/zend-code": "~3.1.0",
         "zendframework/zend-server": "^2.6.1",
@@ -332,6 +332,10 @@
             [
                 "lib/.htaccess",
                 "lib/.htaccess"
+            ],
+            [
+                "lib/internal/GnuFreeFont",
+                "lib/internal/GnuFreeFont"
             ],
             [
                 "lib/internal/LinLibertineFont",

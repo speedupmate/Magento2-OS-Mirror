@@ -4,68 +4,33 @@
  */
 namespace Temando\Shipping\Model\Quote;
 
-use Magento\Quote\Api\CartRepositoryInterface;
-use Magento\Quote\Api\ShipmentEstimationInterface;
 use Magento\Quote\Api\Data\AddressExtensionInterface;
-use Magento\Quote\Api\Data\AddressInterfaceFactory;
-use Magento\Quote\Api\Data\AddressExtensionInterfaceFactory;
-use Magento\Customer\Api\AddressRepositoryInterface;
 use Temando\Shipping\Api\Quote\ShippingMethodManagementInterface;
 
+/**
+ * @deprecated since 1.2.0
+ * ShippingMethodManagement
+ *
+ * @package  Temando\Shipping\Model
+ * @author   Sebastian Ertner <sebastian.ertner@netresearch.de>
+ * @license  http://opensource.org/licenses/osl-3.0.php Open Software License (OSL 3.0)
+ * @link     http://www.temando.com/
+ */
 class ShippingMethodManagement implements ShippingMethodManagementInterface
 {
     /**
-     * Quote repository.
-     *
-     * @var CartRepositoryInterface
+     * @var \Magento\Quote\Api\ShippingMethodManagementInterface
      */
-    private $quoteRepository;
-
-    /**
-     * Customer Address repository
-     *
-     * @var AddressRepositoryInterface
-     */
-    private $customerAddressRepository;
-
-    /**
-     * @var AddressInterfaceFactory
-     */
-    private $quoteAddressFactory;
-
-    /**
-     * @var AddressExtensionInterfaceFactory
-     */
-    private $quoteAddressExtensionFactory;
-
-    /**
-     * Original shipping method management.
-     *
-     * @var ShipmentEstimationInterface
-     */
-    private $shipmentEstimator;
+    private $shippingMethodManagement;
 
     /**
      * ShippingMethodManagement
      *
-     * @param CartRepositoryInterface $quoteRepository
-     * @param AddressRepositoryInterface $addressRepository
-     * @param AddressInterfaceFactory $quoteAddressFactory
-     * @param AddressExtensionInterfaceFactory $quoteAddressExtensionFactory
-     * @param ShipmentEstimationInterface $shipmentEstimator
+     * @param \Magento\Quote\Api\ShippingMethodManagementInterface $shippingMethodManagement
      */
-    public function __construct(
-        CartRepositoryInterface $quoteRepository,
-        AddressRepositoryInterface $addressRepository,
-        AddressInterfaceFactory $quoteAddressFactory,
-        AddressExtensionInterfaceFactory $quoteAddressExtensionFactory,
-        ShipmentEstimationInterface $shipmentEstimator
-    ) {
-        $this->quoteRepository = $quoteRepository;
-        $this->customerAddressRepository = $addressRepository;
-        $this->quoteAddressFactory = $quoteAddressFactory;
-        $this->quoteAddressExtensionFactory = $quoteAddressExtensionFactory;
-        $this->shipmentEstimator = $shipmentEstimator;
+    public function __construct(\Magento\Quote\Api\ShippingMethodManagementInterface $shippingMethodManagement)
+    {
+        $this->shippingMethodManagement = $shippingMethodManagement;
     }
 
     /**
@@ -80,24 +45,6 @@ class ShippingMethodManagement implements ShippingMethodManagementInterface
      */
     public function estimateByAddressId($cartId, $addressId, AddressExtensionInterface $extensionAttributes = null)
     {
-        $customerAddress = $this->customerAddressRepository->getById($addressId);
-
-        /** @var \Magento\Quote\Model\Quote\Address $quoteAddress */
-        $quoteAddress = $this->quoteAddressFactory->create();
-        $quoteAddress->importCustomerAddressData($customerAddress);
-
-        if (empty($extensionAttributes)) {
-            return $this->shipmentEstimator->estimateByExtendedAddress($cartId, $quoteAddress);
-        }
-
-        $estimationExtensionAttributes = $quoteAddress->getExtensionAttributes();
-        if (empty($estimationExtensionAttributes)) {
-            $estimationExtensionAttributes = $this->quoteAddressExtensionFactory->create();
-        }
-
-        $estimationExtensionAttributes->setCheckoutFields($extensionAttributes->getCheckoutFields());
-        $quoteAddress->setExtensionAttributes($estimationExtensionAttributes);
-
-        return $this->shipmentEstimator->estimateByExtendedAddress($cartId, $quoteAddress);
+        return $this->shippingMethodManagement->estimateByAddressId($cartId, $addressId);
     }
 }

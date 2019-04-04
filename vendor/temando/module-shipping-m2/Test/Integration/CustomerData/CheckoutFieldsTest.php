@@ -37,7 +37,7 @@ class CheckoutFieldsTest extends \PHPUnit\Framework\TestCase
 
     /**
      * @test
-     * @magentoConfigFixture default/carriers/temando/active 1
+     * @magentoConfigFixture default_store carriers/temando/active 1
      * @magentoConfigFixture default/carriers/temando/additional_checkout_fields [{"id":"signature","label":"Signature","fieldType":"checkbox","orderPath":"#/address/type"}]
      */
     public function sectionDataIsNotEmptyWhenShippingIsEnabledInCheckout()
@@ -53,7 +53,7 @@ class CheckoutFieldsTest extends \PHPUnit\Framework\TestCase
 
     /**
      * @test
-     * @magentoConfigFixture default/carriers/temando/active 1
+     * @magentoConfigFixture default_store carriers/temando/active 1
      * @magentoConfigFixture default/carriers/temando/additional_checkout_fields [{"id":"signature","label":"Signature","fieldType":"checkbox","orderPath":"#/address/type","defaultValue": true}]
      */
     public function checkboxTypeIsPrepared()
@@ -78,7 +78,7 @@ class CheckoutFieldsTest extends \PHPUnit\Framework\TestCase
 
     /**
      * @test
-     * @magentoConfigFixture default/carriers/temando/active 1
+     * @magentoConfigFixture default_store carriers/temando/active 1
      * @magentoConfigFixture default/carriers/temando/additional_checkout_fields [{"id": "text","label": "Text","orderPath": "#/address/text","fieldType": "inputText","defaultValue": "Default"}]
      */
     public function textTypeIsPrepared()
@@ -103,7 +103,7 @@ class CheckoutFieldsTest extends \PHPUnit\Framework\TestCase
 
     /**
      * @test
-     * @magentoConfigFixture default/carriers/temando/active 1
+     * @magentoConfigFixture default_store carriers/temando/active 1
      * @magentoConfigFixture default/carriers/temando/additional_checkout_fields [{"id": "select","label": "Select","orderPath": "#/address/select","fieldType": "select","defaultValue": "Two","options": [{"name": "One","value": "one"},{"name": "Two","value": "two"}]}]
      */
     public function selectTypeIsPrepared()

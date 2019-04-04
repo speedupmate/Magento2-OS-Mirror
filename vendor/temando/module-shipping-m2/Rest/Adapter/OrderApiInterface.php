@@ -5,9 +5,12 @@
 
 namespace Temando\Shipping\Rest\Adapter;
 
-use Temando\Shipping\Rest\Request\OrderRequestInterface;
-use Temando\Shipping\Rest\Response\UpdateOrder;
 use Temando\Shipping\Rest\Exception\AdapterException;
+use Temando\Shipping\Rest\Request\OrderRequestInterface;
+use Temando\Shipping\Rest\Response\AllocateOrderInterface;
+use Temando\Shipping\Rest\Response\CreateOrderInterface;
+use Temando\Shipping\Rest\Response\GetCollectionPointsInterface;
+use Temando\Shipping\Rest\Response\UpdateOrderInterface;
 
 /**
  * The Temando Order API interface defines the supported subset of operations
@@ -21,18 +24,45 @@ use Temando\Shipping\Rest\Exception\AdapterException;
  */
 interface OrderApiInterface
 {
+    const ACTION_CREATE = 'create';
+    const ACTION_GET_COLLECTION_POINTS = 'get_collection_points';
+    const ACTION_ALLOCATE = 'allocate';
+    const ACTION_UPDATE = 'update';
+
     /**
-     * @param OrderRequestInterface $request
+     * Create order at the platform and retrieve applicable shipping options.
      *
-     * @return UpdateOrder
+     * For quoting only (if the order is not yet complete/placed) set additional request parameter `persist=false`.
+     *
+     * @param OrderRequestInterface $request
+     * @return CreateOrderInterface
      * @throws AdapterException
      */
     public function createOrder(OrderRequestInterface $request);
 
     /**
-     * @param OrderRequestInterface $request
+     * Create order at the platform and retrieve applicable collection points.
      *
-     * @return UpdateOrder
+     * @param OrderRequestInterface $request
+     * @return GetCollectionPointsInterface
+     * @throws AdapterException
+     */
+    public function getCollectionPoints(OrderRequestInterface $request);
+
+    /**
+     * Manifest order and retrieve allocated shipments.
+     *
+     * @param OrderRequestInterface $request
+     * @return AllocateOrderInterface
+     * @throws AdapterException
+     */
+    public function allocateOrder(OrderRequestInterface $request);
+
+    /**
+     * Update order.
+     *
+     * @param OrderRequestInterface $request
+     * @return UpdateOrderInterface
      * @throws AdapterException
      */
     public function updateOrder(OrderRequestInterface $request);

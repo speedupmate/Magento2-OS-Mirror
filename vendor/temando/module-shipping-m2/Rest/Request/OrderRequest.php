@@ -4,6 +4,7 @@
  */
 namespace Temando\Shipping\Rest\Request;
 
+use Temando\Shipping\Rest\Adapter\OrderApiInterface;
 use Temando\Shipping\Rest\Request\Type\OrderRequestTypeInterface;
 
 /**
@@ -28,7 +29,7 @@ class OrderRequest implements OrderRequestInterface
     private $orderId;
 
     /**
-     * UpdateOrder constructor.
+     * OrderRequest constructor.
      *
      * @param OrderRequestTypeInterface $order
      * @param string $orderId
@@ -54,25 +55,27 @@ class OrderRequest implements OrderRequestInterface
     }
 
     /**
-     * @return mixed[]
+     * @param string $actionType
+     * @return string[]
      */
-    public function getRequestParams()
+    public function getRequestParams($actionType)
     {
-        if ($this->orderId) {
-            return [];
+        $requestParams = [];
+        if (!$this->order->canPersist()) {
+            $requestParams['persist'] = 'false';
         }
 
-        // Persist only the final Temando order transmission
-        if ($this->order->isRealOrderRequest()) {
-            return [
-                'action' => 'orderQualification',
-            ];
+        if ($actionType === OrderApiInterface::ACTION_CREATE) {
+            $requestParams['action'] = 'orderQualification';
+        } elseif ($actionType === OrderApiInterface::ACTION_GET_COLLECTION_POINTS) {
+            $requestParams['action'] = 'quoteCollectionPoints';
+            $requestParams['experience'] = 'default';
+        } elseif ($actionType === OrderApiInterface::ACTION_ALLOCATE) {
+            $requestParams['action'] = 'allocate';
+            $requestParams['experience'] = $this->order->getSelectedExperienceCode();
         }
 
-        return [
-            'action'  => 'orderQualification',
-            'persist' => 'false',
-        ];
+        return $requestParams;
     }
 
     /**

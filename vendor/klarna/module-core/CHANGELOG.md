@@ -1,4 +1,24 @@
 
+4.2.3 / 2018-05-22
+==================
+
+  * Dummy release to bypass Marketplace submission block because of out of order release
+
+4.2.1 / 2018-05-18
+==================
+
+  * PPI-413 Remove isConfigFlag method in favor of direct calling ConfigHelper
+  * PPI-410 Fix issue invoicing v2 orders
+
+4.2.0 / 2018-05-14
+==================
+
+  * Restrict to Magento 2.2 or later
+  * PPI-410 Fix qty on v2 invoice items
+  * PPI-349 Add cancellation_terms URL (for DE/AT)
+  * PI-198 Fix issue with tax on gift wrap applied on order level
+  * PPI-394 Move method to KCO module
+
 4.1.5 / 2018-04-27
 ==================
 
