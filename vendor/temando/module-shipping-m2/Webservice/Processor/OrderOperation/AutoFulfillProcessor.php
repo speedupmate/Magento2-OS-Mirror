@@ -8,7 +8,7 @@ use Magento\Framework\Exception\LocalizedException;
 use Magento\Sales\Api\Data\OrderInterface as SalesOrderInterface;
 use Temando\Shipping\Model\Order\AutoProcessing\AutoFulfillInterface;
 use Temando\Shipping\Model\OrderInterface;
-use Temando\Shipping\Webservice\Response\Type\OrderResponseTypeInterface;
+use Temando\Shipping\Webservice\Response\Type\OrderResponseType;
 
 /**
  * Temando Auto Fulfillment Processor.
@@ -39,14 +39,14 @@ class AutoFulfillProcessor implements SaveProcessorInterface
     /**
      * @param SalesOrderInterface $salesOrder
      * @param OrderInterface $requestType
-     * @param OrderResponseTypeInterface $responseType
+     * @param OrderResponseType $responseType
      * @return void
      * @throws LocalizedException
      */
     public function postProcess(
         SalesOrderInterface $salesOrder,
         OrderInterface $requestType,
-        OrderResponseTypeInterface $responseType
+        OrderResponseType $responseType
     ) {
         // create shipments for created order
         $this->autoFulfill->createShipments($salesOrder, $responseType);

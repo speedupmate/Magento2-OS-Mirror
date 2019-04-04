@@ -16,8 +16,6 @@
 
 namespace Amazon\Payment\Gateway\Http\Client;
 
-use Amazon\Core\Exception\AmazonServiceUnavailableException;
-
 /**
  * Class SettlementClient
  * Amazon Pay capture client
@@ -47,7 +45,6 @@ class SettlementClient extends AbstractClient
                 'amazon_order_reference_id' => $data['amazon_order_reference_id'],
                 'amount' => $data['capture_amount'],
                 'currency_code' => $data['currency_code'],
-                'seller_order_id' => $data['seller_order_id'],
                 'store_name' => $data['store_name'],
                 'custom_information' => $data['custom_information'],
                 'platform_id' => $data['platform_id']

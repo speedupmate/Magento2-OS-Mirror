@@ -4,7 +4,8 @@
  */
 namespace Temando\Shipping\Webservice\Response\Type;
 
-use Magento\Framework\DataObject;
+use Temando\Shipping\Model\Shipment\ShipmentErrorInterface;
+use Temando\Shipping\Model\ShipmentInterface;
 
 /**
  * Temando Order Save Result
@@ -14,53 +15,57 @@ use Magento\Framework\DataObject;
  * @license https://opensource.org/licenses/osl-3.0.php Open Software License (OSL 3.0)
  * @link    https://www.temando.com/
  */
-class OrderResponseType extends DataObject implements OrderResponseTypeInterface
+class OrderResponseType
 {
     /**
-     * @return string
+     * @var string
      */
-    public function getExtOrderId()
+    private $orderId;
+
+    /**
+     * @var ShipmentErrorInterface[]
+     */
+    private $errors;
+
+    /**
+     * @var ShipmentInterface[]
+     */
+    private $shipments;
+
+    /**
+     * OrderResponseType constructor.
+     * @param string $orderId
+     * @param ShipmentErrorInterface[] $errors
+     * @param ShipmentInterface[] $shipments
+     */
+    public function __construct(
+        $orderId,
+        array $errors = [],
+        array $shipments = []
+    ) {
+        $this->orderId = $orderId;
+        $this->errors = $errors;
+        $this->shipments = $shipments;
+    }
+
+    public function getOrderId()
     {
-        return $this->getData(self::EXT_ORDER_ID);
+        return $this->orderId;
     }
 
     /**
-     * @return \Temando\Shipping\Api\Data\Order\ShippingExperienceInterface[]
-     */
-    public function getShippingExperiences()
-    {
-        return $this->getData(self::SHIPPING_EXPERIENCES);
-    }
-
-    /**
-     * @return \Temando\Shipping\Model\Shipment\AllocationErrorInterface[]
+     * @return ShipmentErrorInterface[]
      */
     public function getErrors()
     {
-        return $this->getData(self::ERRORS);
+        return $this->errors;
     }
 
     /**
-     * @return \Temando\Shipping\Model\ShipmentInterface[]
+     * @return ShipmentInterface[]
      */
     public function getShipments()
     {
-        return $this->getData(self::SHIPMENTS);
-    }
-
-    /**
-     * @return \Temando\Shipping\Api\Data\Delivery\QuoteCollectionPointInterface[]
-     */
-    public function getCollectionPoints()
-    {
-        return $this->getData(self::COLLECTION_POINTS);
-    }
-
-    /**
-     * @return \Temando\Shipping\Api\Data\Delivery\QuotePickupLocationInterface[]
-     */
-    public function getPickupLocations()
-    {
-        return $this->getData(self::PICKUP_LOCATIONS);
+        return $this->shipments;
     }
 }

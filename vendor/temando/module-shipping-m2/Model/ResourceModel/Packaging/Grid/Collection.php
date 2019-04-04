@@ -33,9 +33,9 @@ class Collection extends ApiCollection
      *
      * @param EntityFactoryInterface $entityFactory
      * @param ManagerInterface $messageManager
-     * @param PackagingRepositoryInterface $packagingRepository
      * @param FilterBuilder $filterBuilder
      * @param SearchCriteriaBuilder $searchCriteriaBuilder
+     * @param PackagingRepositoryInterface $packagingRepository
      */
     public function __construct(
         EntityFactoryInterface $entityFactory,

@@ -139,6 +139,13 @@ interface ResponseInterface
     public function getTransactionType();
 
     /**
+     * Retrieve the CurrencyCode
+     *
+     * @return string
+     */
+    public function getCurrencyCode();
+
+    /**
      * Set the Customer
      *
      * @param CustomerInterface $customer
@@ -248,4 +255,12 @@ interface ResponseInterface
      * @return RequestInterface
      */
     public function setTransactionType($transactionType);
+
+    /**
+     * Set the CurrencyCode
+     *
+     * @param string $currencyCode
+     * @return ResponseInterface
+     */
+    public function setCurrencyCode($currencyCode);
 }

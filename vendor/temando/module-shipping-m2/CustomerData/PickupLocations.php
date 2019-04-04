@@ -11,8 +11,9 @@ use Magento\Framework\Exception\NoSuchEntityException;
 use Magento\Framework\Session\SessionManagerInterface;
 use Magento\Store\Model\StoreManagerInterface;
 use Temando\Shipping\Api\Data\Delivery\QuotePickupLocationInterface;
+use Temando\Shipping\Api\Delivery\CartPickupLocationManagementInterface;
 use Temando\Shipping\Model\Config\ModuleConfigInterface;
-use Temando\Shipping\Model\Delivery\CartPickupLocationManagement;
+use Temando\Shipping\Model\Delivery\DistanceConverter;
 use Temando\Shipping\Model\Delivery\OpeningHoursFormatter;
 use Temando\Shipping\Model\Delivery\QuotePickupLocation;
 use Temando\Shipping\Model\ResourceModel\Repository\PickupLocationSearchRepositoryInterface;
@@ -28,6 +29,11 @@ use Temando\Shipping\Model\ResourceModel\Repository\PickupLocationSearchReposito
 class PickupLocations implements SectionSourceInterface
 {
     /**
+     * @var StoreManagerInterface
+     */
+    private $storeManager;
+
+    /**
      * @var ModuleConfigInterface
      */
     private $moduleConfig;
@@ -38,7 +44,17 @@ class PickupLocations implements SectionSourceInterface
     private $checkoutSession;
 
     /**
-     * @var CartPickupLocationManagement
+     * @var HydratorInterface
+     */
+    private $hydrator;
+
+    /**
+     * @var PickupLocationSearchRepositoryInterface
+     */
+    private $searchRequestRepository;
+
+    /**
+     * @var CartPickupLocationManagementInterface
      */
     private $cartPickupLocationManagement;
 
@@ -48,50 +64,43 @@ class PickupLocations implements SectionSourceInterface
     private $openingHoursFormatter;
 
     /**
-     * @var PickupLocationSearchRepositoryInterface
+     * @var DistanceConverter
      */
-    private $searchRequestRepository;
-
-    /**
-     * @var StoreManagerInterface
-     */
-    private $storeManager;
-
-    /**
-     * @var HydratorInterface
-     */
-    private $hydrator;
+    private $distanceConverter;
 
     /**
      * PickupLocations constructor.
+     * @param StoreManagerInterface $storeManager
      * @param ModuleConfigInterface $moduleConfig
      * @param SessionManagerInterface $checkoutSession
-     * @param CartPickupLocationManagement $cartPickupLocationManagement
-     * @param OpeningHoursFormatter $openingHoursFormatter
-     * @param PickupLocationSearchRepositoryInterface $searchRequestRepository
-     * @param StoreManagerInterface $storeManager
      * @param HydratorInterface $hydrator
+     * @param PickupLocationSearchRepositoryInterface $searchRequestRepository
+     * @param CartPickupLocationManagementInterface $cartPickupLocationManagement
+     * @param OpeningHoursFormatter $openingHoursFormatter
+     * @param DistanceConverter $distanceConverter
      */
     public function __construct(
+        StoreManagerInterface $storeManager,
         ModuleConfigInterface $moduleConfig,
         SessionManagerInterface $checkoutSession,
-        CartPickupLocationManagement $cartPickupLocationManagement,
-        OpeningHoursFormatter $openingHoursFormatter,
+        HydratorInterface $hydrator,
         PickupLocationSearchRepositoryInterface $searchRequestRepository,
-        StoreManagerInterface $storeManager,
-        HydratorInterface $hydrator
+        CartPickupLocationManagementInterface $cartPickupLocationManagement,
+        OpeningHoursFormatter $openingHoursFormatter,
+        DistanceConverter $distanceConverter
     ) {
+        $this->storeManager = $storeManager;
         $this->moduleConfig = $moduleConfig;
+        $this->checkoutSession = $checkoutSession;
+        $this->hydrator = $hydrator;
+        $this->searchRequestRepository = $searchRequestRepository;
         $this->cartPickupLocationManagement = $cartPickupLocationManagement;
         $this->openingHoursFormatter = $openingHoursFormatter;
-        $this->checkoutSession = $checkoutSession;
-        $this->searchRequestRepository = $searchRequestRepository;
-        $this->storeManager = $storeManager;
-        $this->hydrator = $hydrator;
+        $this->distanceConverter = $distanceConverter;
     }
 
     /**
-     * Obtain collection points data for display in checkout, shipping method step.
+     * Obtain pickup locations data for display in checkout, shipping method step.
      *
      * @return string[]
      */
@@ -123,12 +132,15 @@ class PickupLocations implements SectionSourceInterface
         }
 
         // map pickup locations to data array with formatted/localized opening hours
-        $pickupLocations = array_map(function (QuotePickupLocationInterface $pickupLocation) {
+        $pickupLocations = array_map(function (QuotePickupLocationInterface $pickupLocation) use ($storeId) {
             /** @var QuotePickupLocation $pickupLocation */
             $pickupLocationData = $pickupLocation->toArray();
 
             $openingHours = $this->openingHoursFormatter->format($pickupLocation->getOpeningHours());
             $pickupLocationData[QuotePickupLocationInterface::OPENING_HOURS] = $openingHours;
+
+            $distance = $this->distanceConverter->format($pickupLocation->getDistance(), $storeId);
+            $pickupLocationData[QuotePickupLocationInterface::DISTANCE] = $distance;
 
             return $pickupLocationData;
         }, $pickupLocations);

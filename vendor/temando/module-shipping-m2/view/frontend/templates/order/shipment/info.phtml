@@ -14,7 +14,7 @@
         <strong><?= $block->escapeHtml(__('Order Information')); ?></strong>
     </div>
     <div class="block-content">
-        <?php if (!$_order->getIsVirtual()): ?>
+        <?php if (!$_order->getIsVirtual()) : ?>
             <div class="box box-order-shipping-address">
                 <strong class="box-title"><span><?= $block->escapeHtml(__('Shipping Address')) ?></span></strong>
                 <?php
@@ -63,9 +63,9 @@
                     <span><?= $block->escapeHtml(__('Shipping Method')) ?></span>
                 </strong>
                 <div class="box-content">
-                <?php if ($_order->getShippingDescription()): ?>
+                <?php if ($_order->getShippingDescription()) : ?>
                     <?= $block->escapeHtml($_order->getShippingDescription()) ?>
-                <?php else: ?>
+                <?php else : ?>
                     <?= $block->escapeHtml(__('No shipping information available')) ?>
                 <?php endif; ?>
                 </div>

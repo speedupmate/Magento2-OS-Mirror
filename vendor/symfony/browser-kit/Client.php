@@ -31,7 +31,7 @@ abstract class Client
 {
     protected $history;
     protected $cookieJar;
-    protected $server = array();
+    protected $server = [];
     protected $internalRequest;
     protected $request;
     protected $internalResponse;
@@ -40,10 +40,11 @@ abstract class Client
     protected $insulated = false;
     protected $redirect;
     protected $followRedirects = true;
+    protected $followMetaRefresh = false;
 
     private $maxRedirects = -1;
     private $redirectCount = 0;
-    private $redirects = array();
+    private $redirects = [];
     private $isMainRequest = true;
 
     /**
@@ -51,7 +52,7 @@ abstract class Client
      * @param History   $history   A History instance to store the browser history
      * @param CookieJar $cookieJar A CookieJar instance to store the cookies
      */
-    public function __construct(array $server = array(), History $history = null, CookieJar $cookieJar = null)
+    public function __construct(array $server = [], History $history = null, CookieJar $cookieJar = null)
     {
         $this->setServerParameters($server);
         $this->history = $history ?: new History();
@@ -66,6 +67,14 @@ abstract class Client
     public function followRedirects($followRedirect = true)
     {
         $this->followRedirects = (bool) $followRedirect;
+    }
+
+    /**
+     * Sets whether to automatically follow meta refresh redirects or not.
+     */
+    public function followMetaRefresh(bool $followMetaRefresh = true)
+    {
+        $this->followMetaRefresh = $followMetaRefresh;
     }
 
     /**
@@ -109,7 +118,7 @@ abstract class Client
     public function insulate($insulated = true)
     {
         if ($insulated && !class_exists('Symfony\\Component\\Process\\Process')) {
-            throw new \RuntimeException('Unable to isolate requests as the Symfony Process Component is not installed.');
+            throw new \LogicException('Unable to isolate requests as the Symfony Process Component is not installed.');
         }
 
         $this->insulated = (bool) $insulated;
@@ -122,9 +131,9 @@ abstract class Client
      */
     public function setServerParameters(array $server)
     {
-        $this->server = array_merge(array(
+        $this->server = array_merge([
             'HTTP_USER_AGENT' => 'Symfony BrowserKit',
-        ), $server);
+        ], $server);
     }
 
     /**
@@ -151,7 +160,7 @@ abstract class Client
         return isset($this->server[$key]) ? $this->server[$key] : $default;
     }
 
-    public function xmlHttpRequest(string $method, string $uri, array $parameters = array(), array $files = array(), array $server = array(), string $content = null, bool $changeHistory = true): Crawler
+    public function xmlHttpRequest(string $method, string $uri, array $parameters = [], array $files = [], array $server = [], string $content = null, bool $changeHistory = true): Crawler
     {
         $this->setServerParameter('HTTP_X_REQUESTED_WITH', 'XMLHttpRequest');
 
@@ -282,6 +291,20 @@ abstract class Client
     }
 
     /**
+     * Clicks the first link (or clickable image) that contains the given text.
+     *
+     * @param string $linkText The text of the link or the alt attribute of the clickable image
+     */
+    public function clickLink(string $linkText): Crawler
+    {
+        if (null === $this->crawler) {
+            throw new BadMethodCallException(sprintf('The "request()" method must be called before "%s()".', __METHOD__));
+        }
+
+        return $this->click($this->crawler->selectLink($linkText)->link());
+    }
+
+    /**
      * Submits a form.
      *
      * @param Form  $form             A Form instance
@@ -290,12 +313,37 @@ abstract class Client
      *
      * @return Crawler
      */
-    public function submit(Form $form, array $values = array()/*, array $serverParameters = array()*/)
+    public function submit(Form $form, array $values = []/*, array $serverParameters = []*/)
     {
+        if (\func_num_args() < 3 && __CLASS__ !== \get_class($this) && __CLASS__ !== (new \ReflectionMethod($this, __FUNCTION__))->getDeclaringClass()->getName() && !$this instanceof \PHPUnit\Framework\MockObject\MockObject && !$this instanceof \Prophecy\Prophecy\ProphecySubjectInterface) {
+            @trigger_error(sprintf('The "%s()" method will have a new "array $serverParameters = []" argument in version 5.0, not defining it is deprecated since Symfony 4.2.', __METHOD__), E_USER_DEPRECATED);
+        }
+
         $form->setValues($values);
-        $serverParameters = 2 < \func_num_args() ? func_get_arg(2) : array();
+        $serverParameters = 2 < \func_num_args() ? func_get_arg(2) : [];
 
         return $this->request($form->getMethod(), $form->getUri(), $form->getPhpValues(), $form->getPhpFiles(), $serverParameters);
+    }
+
+    /**
+     * Finds the first form that contains a button with the given content and
+     * uses it to submit the given form field values.
+     *
+     * @param string $button           The text content, id, value or name of the form <button> or <input type="submit">
+     * @param array  $fieldValues      Use this syntax: ['my_form[name]' => '...', 'my_form[email]' => '...']
+     * @param string $method           The HTTP method used to submit the form
+     * @param array  $serverParameters These values override the ones stored in $_SERVER (HTTP headers must include a HTTP_ prefix as PHP does)
+     */
+    public function submitForm(string $button, array $fieldValues = [], string $method = 'POST', array $serverParameters = []): Crawler
+    {
+        if (null === $this->crawler) {
+            throw new BadMethodCallException(sprintf('The "request()" method must be called before "%s()".', __METHOD__));
+        }
+
+        $buttonNode = $this->crawler->selectButton($button);
+        $form = $buttonNode->form($fieldValues, $method);
+
+        return $this->submit($form, [], $serverParameters);
     }
 
     /**
@@ -311,7 +359,7 @@ abstract class Client
      *
      * @return Crawler
      */
-    public function request(string $method, string $uri, array $parameters = array(), array $files = array(), array $server = array(), string $content = null, bool $changeHistory = true)
+    public function request(string $method, string $uri, array $parameters = [], array $files = [], array $server = [], string $content = null, bool $changeHistory = true)
     {
         if ($this->isMainRequest) {
             $this->redirectCount = 0;
@@ -375,7 +423,16 @@ abstract class Client
             return $this->crawler = $this->followRedirect();
         }
 
-        return $this->crawler = $this->createCrawlerFromContent($this->internalRequest->getUri(), $this->internalResponse->getContent(), $this->internalResponse->getHeader('Content-Type'));
+        $this->crawler = $this->createCrawlerFromContent($this->internalRequest->getUri(), $this->internalResponse->getContent(), $this->internalResponse->getHeader('Content-Type'));
+
+        // Check for meta refresh redirect
+        if ($this->followMetaRefresh && null !== $redirect = $this->getMetaRefreshUrl()) {
+            $this->redirect = $redirect;
+            $this->redirects[serialize($this->history->current())] = true;
+            $this->crawler = $this->followRedirect();
+        }
+
+        return $this->crawler;
     }
 
     /**
@@ -398,7 +455,7 @@ abstract class Client
         if (file_exists($deprecationsFile)) {
             $deprecations = file_get_contents($deprecationsFile);
             unlink($deprecationsFile);
-            foreach ($deprecations ? unserialize($deprecations) : array() as $deprecation) {
+            foreach ($deprecations ? unserialize($deprecations) : [] as $deprecation) {
                 if ($deprecation[0]) {
                     @trigger_error($deprecation[1], E_USER_DEPRECATED);
                 } else {
@@ -491,7 +548,7 @@ abstract class Client
     {
         do {
             $request = $this->history->back();
-        } while (array_key_exists(serialize($request), $this->redirects));
+        } while (\array_key_exists(serialize($request), $this->redirects));
 
         return $this->requestFromRequest($request, false);
     }
@@ -505,7 +562,7 @@ abstract class Client
     {
         do {
             $request = $this->history->forward();
-        } while (array_key_exists(serialize($request), $this->redirects));
+        } while (\array_key_exists(serialize($request), $this->redirects));
 
         return $this->requestFromRequest($request, false);
     }
@@ -542,9 +599,9 @@ abstract class Client
 
         $request = $this->internalRequest;
 
-        if (\in_array($this->internalResponse->getStatus(), array(301, 302, 303))) {
+        if (\in_array($this->internalResponse->getStatus(), [301, 302, 303])) {
             $method = 'GET';
-            $files = array();
+            $files = [];
             $content = null;
         } else {
             $method = $request->getMethod();
@@ -554,7 +611,7 @@ abstract class Client
 
         if ('GET' === strtoupper($method)) {
             // Don't forward parameters for GET request as it should reach the redirection URI
-            $parameters = array();
+            $parameters = [];
         } else {
             $parameters = $request->getParameters();
         }
@@ -569,6 +626,21 @@ abstract class Client
         $this->isMainRequest = true;
 
         return $response;
+    }
+
+    /**
+     * @see https://dev.w3.org/html5/spec-preview/the-meta-element.html#attr-meta-http-equiv-refresh
+     */
+    private function getMetaRefreshUrl(): ?string
+    {
+        $metaRefresh = $this->getCrawler()->filter('head meta[http-equiv="refresh"]');
+        foreach ($metaRefresh->extract(['content']) as $content) {
+            if (preg_match('/^\s*0\s*;\s*URL\s*=\s*(?|\'([^\']++)|"([^"]++)|([^\'"].*))/i', $content, $m)) {
+                return str_replace("\t\r\n", '', rtrim($m[1]));
+            }
+        }
+
+        return null;
     }
 
     /**

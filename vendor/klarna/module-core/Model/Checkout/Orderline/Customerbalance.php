@@ -18,6 +18,11 @@ use Klarna\Core\Api\BuilderInterface;
 class Customerbalance extends AbstractLine
 {
     /**
+     * Checkout item type
+     */
+    const ITEM_TYPE_CUSTOMERBALANCE = 'store_credit';
+
+    /**
      * {@inheritdoc}
      */
     public function collect(BuilderInterface $checkout)
@@ -65,7 +70,7 @@ class Customerbalance extends AbstractLine
     {
         if ($checkout->getCustomerbalanceTotalAmount()) {
             $checkout->addOrderLine([
-                'type'             => Discount::ITEM_TYPE_DISCOUNT,
+                'type'             => self::ITEM_TYPE_CUSTOMERBALANCE,
                 'reference'        => $checkout->getCustomerbalanceReference(),
                 'name'             => $checkout->getCustomerbalanceTitle(),
                 'quantity'         => 1,

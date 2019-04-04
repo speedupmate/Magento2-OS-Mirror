@@ -6,45 +6,44 @@ define([
     'underscore',
     'uiComponent',
     'ko',
+    'Temando_Shipping/js/model/collection-points',
     'Temando_Shipping/js/action/save-search-request',
-    'Temando_Shipping/js/action/select-search-result',
-    'Temando_Shipping/js/model/collection-points'
-], function (_, Component, ko, searchAction, selectSearchResult, collectionPoints) {
+    'Temando_Shipping/js/action/select-search-result'
+], function (_, Component, ko, collectionPoints, searchAction, selectCollectionPointAction) {
     'use strict';
 
-    var selectedCollectionPoint = ko.observable(false);
-    var readSelected = function () {
-        if (selectedCollectionPoint()) {
-            return selectedCollectionPoint();
-        } else {
-            var selected = collectionPoints.getCollectionPoints().find(function (element) {
-                return element.selected;
-            });
+    var selectedCollectionPoint = ko.observable(false),
+        initializeZipCode =  collectionPoints.getSearchRequestPostCode(),
+        initializeCountryCode = collectionPoints.getSearchRequestCountryCode(),
+        readSelected = function () {
+            if (selectedCollectionPoint()) {
+                return selectedCollectionPoint();
+            } else {
+                var selected = collectionPoints.getCollectionPoints().find(function (element) {
+                    return element.selected;
+                });
 
-            return selected ? selected.entity_id : false;
-        }
-    };
-
-    var initializeZipCode =  collectionPoints.getSearchRequestPostCode();
-    var initializeCountryCode = collectionPoints.getSearchRequestCountryCode();
+                return selected ? selected.collection_point_id : false;
+            }
+        },
+        writeSelected = function (value) {
+            selectCollectionPointAction(value);
+            collectionPoints.selectCollectionPoint(value);
+        };
 
     return Component.extend({
         defaults: {
-            template: 'Temando_Shipping/checkout/shipping/delivery-options',
-            listens: {
-                'selectedCollectionPoint': 'onCollectionPointSelect'
-            }
+            template: 'Temando_Shipping/checkout/shipping/delivery-options'
         },
-
-        zipCodeError: ko.observable(''),
-        zipValue: ko.observable(initializeZipCode),
-        countryValue: ko.observable(initializeCountryCode),
         selectedCollectionPoint: selectedCollectionPoint,
         selected: ko.pureComputed({
             read: readSelected,
-            write: selectedCollectionPoint,
+            write: writeSelected,
             owner: this
         }),
+        zipCodeError: ko.observable(''),
+        zipValue: ko.observable(initializeZipCode),
+        countryValue: ko.observable(initializeCountryCode),
 
         getCountryData: function () {
             var result = [];
@@ -57,11 +56,6 @@ define([
             });
 
             return result;
-        },
-
-        onCollectionPointSelect: function (value) {
-            selectSearchResult(value);
-            collectionPoints.selectCollectionPoint(value);
         },
 
         getCollectionPoints: function () {

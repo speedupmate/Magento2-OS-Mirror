@@ -33,13 +33,15 @@ class PickupComposite
     }
 
     /**
+     * Extract order from collection.
+     *
      * @param int $orderId
      * @return OrderInterface|null
      */
-    private function getOrder($orderId)
+    private function getOrder(int $orderId): ?OrderInterface
     {
         foreach ($this->orderSearchResult->getItems() as $order) {
-            if ($order->getEntityId() === $orderId) {
+            if ((int)$order->getEntityId() === $orderId) {
                 return $order;
             }
         }
@@ -54,8 +56,12 @@ class PickupComposite
      * @param int $orderId
      * @return PickupInterface
      */
-    public function aggregate(PickupInterface $pickup, $orderId)
+    public function aggregate(PickupInterface $pickup, ?int $orderId): PickupInterface
     {
+        if (!$orderId) {
+            return $pickup;
+        }
+
         $order = $this->getOrder($orderId);
         if (!$order) {
             return $pickup;
@@ -75,7 +81,7 @@ class PickupComposite
             'sales_order_increment_id' => $order->getIncrementId(),
             'ordered_at_date' => $order->getCreatedAt(),
             'customer_name' => implode(' ', $customerName),
-            'pickup_location' => $pickup->getPickupLocation()->getName(),
+            'origin_location' => $pickup->getPickupLocation()->getName(),
         ]);
 
         return $pickup;

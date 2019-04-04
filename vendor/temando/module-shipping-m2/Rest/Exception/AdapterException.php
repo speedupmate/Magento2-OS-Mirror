@@ -36,7 +36,8 @@ class AdapterException extends RestException
     public static function errorResponse(Errors $errors, \Exception $cause = null)
     {
         $messages = array_map(function (Error $error) {
-            return sprintf('%s: %s', $error->getCode(), $error->getTitle());
+            $message = $error->getDetail() ?: $error->getTitle();
+            return sprintf('%s: %s', $error->getCode(), $message);
         }, $errors->getErrors());
 
         $messages = implode(', ', $messages);

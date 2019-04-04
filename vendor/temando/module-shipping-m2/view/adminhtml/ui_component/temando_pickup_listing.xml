@@ -75,8 +75,24 @@
                 </sizesConfig>
             </settings>
         </paging>
+        <massaction name="listing_massaction">
+            <action name="print_packing_slips">
+                <settings>
+                    <url path="*/*/massPrint"/>
+                    <type>print_packing_slips</type>
+                    <label translate="true">Print Packing Slips</label>
+                </settings>
+            </action>
+        </massaction>
     </listingToolbar>
     <columns name="temando_pickup_columns">
+        <selectionsColumn name="ids" sortOrder="5">
+            <settings>
+                <indexField>pickup_id</indexField>
+                <resizeEnabled>false</resizeEnabled>
+                <resizeDefaultWidth>55</resizeDefaultWidth>
+            </settings>
+        </selectionsColumn>
         <column name="sales_order_increment_id" sortOrder="10">
             <settings>
                 <label translate="true">Order #</label>
@@ -99,7 +115,7 @@
                 <label translate="true">Customer Name</label>
             </settings>
         </column>
-        <column name="pickup_location" sortOrder="50">
+        <column name="origin_location" sortOrder="50">
             <settings>
                 <label translate="true">Origin Location</label>
                 <filter>select</filter>
@@ -114,11 +130,11 @@
                 <label translate="true">Ready for Pickup Date</label>
             </settings>
         </column>
-        <column name="state" sortOrder="70">
+        <column name="state" sortOrder="70" component="Magento_Ui/js/grid/columns/select">
             <settings>
                 <label translate="true">Status</label>
                 <filter>select</filter>
-                <options class="Temando\Shipping\Model\Pickup\Filter\StateOptionSource"/>
+                <options class="Temando\Shipping\Ui\Component\Listing\Column\PickupState\Options"/>
                 <editor>
                     <editorType>select</editorType>
                 </editor>

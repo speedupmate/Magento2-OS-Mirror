@@ -34,6 +34,7 @@ interface ShipmentInterface
     const STATUS = 'status';
     const CAPABILITIES = 'capabilities';
     const CREATED_AT = 'created_at';
+    const IS_CANCELABLE = 'is_cancelable';
 
     /**
      * @return string
@@ -114,4 +115,9 @@ interface ShipmentInterface
      * @return string
      */
     public function getCreatedAt();
+
+    /**
+     * @return bool
+     */
+    public function isCancelable();
 }

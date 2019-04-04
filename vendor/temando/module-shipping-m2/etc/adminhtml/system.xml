@@ -26,6 +26,7 @@
                 </field>
                 <field id="session_endpoint" translate="label" type="text" sortOrder="5" showInDefault="1" showInWebsite="0" showInStore="0">
                     <label>API Endpoint</label>
+                    <validate>validate-url</validate>
                     <backend_model>Temando\Shipping\Model\Config\Backend\TrimmedValue</backend_model>
                 </field>
                 <field id="account_id" translate="label" type="text" sortOrder="10" showInDefault="1" showInWebsite="0" showInStore="0">
@@ -81,7 +82,7 @@
                 </field>
                 <field id="getting_started" type="note" translate="label" sortOrder="301" showInDefault="1" showInWebsite="0" showInStore="0">
                     <frontend_model>Temando\Shipping\Block\Adminhtml\System\Config\Form\Field\GettingStarted</frontend_model>
-               </field>
+                </field>
                 <field id="checkout_view_settings" translate="label" type="button" sortOrder="210" showInDefault="1" showInWebsite="1" showInStore="0">
                     <label>Checkout View Settings</label>
                     <frontend_model>Temando\Shipping\Block\Adminhtml\System\Config\Form\Field\CheckoutViewSettingsButton</frontend_model>
@@ -93,6 +94,18 @@
             </group>
         </section>
         <section id="sales_email">
+            <group id="shipment">
+                <field id="cancel_template" translate="label comment" type="select" sortOrder="7" showInDefault="1" showInWebsite="1" showInStore="1" canRestore="1">
+                    <label>Magento Shipping Cancellation Email Template</label>
+                    <comment>Email template chosen based on theme fallback when "Default" option is selected.</comment>
+                    <source_model>Magento\Config\Model\Config\Source\Email\Template</source_model>
+                </field>
+                <field id="cancel_guest_template" translate="label comment" type="select" sortOrder="8" showInDefault="1" showInWebsite="1" showInStore="1" canRestore="1">
+                    <label>Magento Shipping Cancellation Email Template for Guest</label>
+                    <comment>Email template chosen based on theme fallback when "Default" option is selected.</comment>
+                    <source_model>Magento\Config\Model\Config\Source\Email\Template</source_model>
+                </field>
+            </group>
             <group id="temando_pickup" translate="label" type="text" sortOrder="9" showInDefault="1" showInWebsite="1" showInStore="1">
                 <label>Magento Shipping Pickup</label>
                 <field id="enabled" translate="label" type="select" sortOrder="10" showInDefault="1" showInWebsite="1" showInStore="1" canRestore="1">

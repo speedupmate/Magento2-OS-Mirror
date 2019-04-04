@@ -21,4 +21,7 @@
         <!-- add layout handles: rma -->
         <observer name="temando_sales_add_rma_shipments_tab" instance="Temando\Shipping\Observer\AdminLayout\AddRmaShipmentsTabObserver"/>
     </event>
+    <event name="core_collection_abstract_load_before">
+        <observer name="temando_add_shipment_grid_status_field" instance="Temando\Shipping\Observer\ShipmentCollectionLoadObserver"/>
+    </event>
 </config>

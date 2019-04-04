@@ -48,6 +48,7 @@ class UpgradeSchema implements UpgradeSchemaInterface
 
         $this->upgradeOneOneZeoToTwoTwoOne($setup, $context, $connection);
         $this->upgradeTwoThreeSixToTwoFiveFour($setup, $context);
+        $this->upgradeTwoFiveFourToThreeZeroThree($setup, $context);
 
         $setup->endSetup();
     }
@@ -271,19 +272,22 @@ class UpgradeSchema implements UpgradeSchemaInterface
         SchemaSetupInterface $setup,
         \Magento\Framework\DB\Adapter\AdapterInterface $connection
     ) {
-        $connection->addForeignKey(
-            $setup->getFkName(
-                Schema::EMAIL_ORDER_TABLE,
+        //Only add foreign key if table exist in default connection
+        if ($connection->isTableExists($setup->getTable('sales_order'))) {
+            $connection->addForeignKey(
+                $setup->getFkName(
+                    Schema::EMAIL_ORDER_TABLE,
+                    'order_id',
+                    'sales_order',
+                    'entity_id'
+                ),
+                $setup->getTable(Schema::EMAIL_ORDER_TABLE),
                 'order_id',
-                'sales_order',
-                'entity_id'
-            ),
-            $setup->getTable(Schema::EMAIL_ORDER_TABLE),
-            'order_id',
-            $setup->getTable('sales_order'),
-            'entity_id',
-            \Magento\Framework\DB\Ddl\Table::ACTION_CASCADE
-        );
+                $setup->getTable('sales_order'),
+                'entity_id',
+                \Magento\Framework\DB\Ddl\Table::ACTION_CASCADE
+            );
+        }
     }
 
     /**
@@ -451,6 +455,30 @@ class UpgradeSchema implements UpgradeSchemaInterface
 
         if (version_compare($context->getVersion(), '2.5.4', '<')) {
             $this->modifyWishlistTable($setup);
+        }
+    }
+
+    /**
+     * @param SchemaSetupInterface $setup
+     * @param ModuleContextInterface $context
+     */
+    private function upgradeTwoFiveFourToThreeZeroThree(
+        SchemaSetupInterface $setup,
+        ModuleContextInterface $context
+    ) {
+        if (version_compare($context->getVersion(), '3.0.3', '<')) {
+            $definition = [
+                'type' => \Magento\Framework\DB\Ddl\Table::TYPE_TEXT,
+                'size' => 255,
+                'nullable' => false,
+                'default' => '',
+                'comment' => 'Contact Status'
+            ];
+            $setup->getConnection()->addColumn(
+                $setup->getTable(Schema::EMAIL_ABANDONED_CART_TABLE),
+                'status',
+                $definition
+            );
         }
     }
 }

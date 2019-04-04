@@ -48,12 +48,12 @@ define([
             return this.getSearchRequest().postcode || '';
         },
 
-        selectCollectionPoint: function (entityId) {
+        selectCollectionPoint: function (collectionPointId) {
             var collectionPoints = this.getCollectionPoints();
             var searchRequest = this.getSearchRequest();
 
             _.each(collectionPoints, function (collectionPoint) {
-                collectionPoint.selected = (collectionPoint.entity_id === entityId);
+                collectionPoint.selected = (collectionPoint.collection_point_id === collectionPointId);
             });
 
             customerData.set(cacheKey, {

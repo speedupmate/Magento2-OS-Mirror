@@ -5,6 +5,7 @@
 namespace Temando\Shipping\Rest\Response\DataObject;
 
 use Temando\Shipping\Rest\Response\Fields\ShipmentAttributes;
+use Temando\Shipping\Rest\Response\Meta\ShipmentMeta;
 
 /**
  * Temando API Location Resource Object
@@ -25,6 +26,11 @@ class Shipment extends AbstractResource
      * @var \Temando\Shipping\Rest\Response\Fields\LocationAttributes[]
      */
     private $locations;
+
+    /**
+     * @var \Temando\Shipping\Rest\Response\Meta\ShipmentMeta
+     */
+    private $meta;
 
     /**
      * @return \Temando\Shipping\Rest\Response\Fields\ShipmentAttributes
@@ -58,5 +64,22 @@ class Shipment extends AbstractResource
     public function setLocations(array $locations)
     {
         $this->locations = $locations;
+    }
+
+    /**
+     * @return \Temando\Shipping\Rest\Response\Meta\ShipmentMeta
+     */
+    public function getMeta()
+    {
+        return $this->meta;
+    }
+
+    /**
+     * @param \Temando\Shipping\Rest\Response\Meta\ShipmentMeta $meta
+     * @return void
+     */
+    public function setMeta(ShipmentMeta $meta)
+    {
+        $this->meta = $meta;
     }
 }

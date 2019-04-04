@@ -24,6 +24,7 @@ interface QuoteCollectionPointInterface
     const POSTCODE = 'postcode';
     const CITY = 'city';
     const STREET = 'street';
+    const DISTANCE = 'distance';
     const OPENING_HOURS = 'opening_hours';
     const SHIPPING_EXPERIENCES = 'shipping_experiences';
     const SELECTED = 'selected';
@@ -72,6 +73,11 @@ interface QuoteCollectionPointInterface
      * @return string[]
      */
     public function getStreet();
+
+    /**
+     * @return int
+     */
+    public function getDistance();
 
     /**
      * @return string[][]

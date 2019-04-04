@@ -20,7 +20,6 @@ use Magento\Payment\Gateway\Response\HandlerInterface;
 use Magento\Payment\Model\Method\Logger;
 use Amazon\Payment\Gateway\Helper\SubjectReader;
 use Amazon\Core\Helper\Data;
-use Magento\Payment\Gateway\Data\PaymentDataObjectInterface;
 use Magento\Sales\Api\OrderRepositoryInterface;
 use Magento\Quote\Api\CartRepositoryInterface;
 
@@ -82,14 +81,11 @@ class SettlementHandler implements HandlerInterface
     public function handle(array $handlingSubject, array $response)
     {
         $paymentDO = $this->subjectReader->readPayment($handlingSubject);
-
         $payment = $paymentDO->getPayment();
 
         // if reauthorized, treat as end of auth + capture process
         if ($response['reauthorized']) {
-
             if ($response['status']) {
-
                 $orderDO = $paymentDO->getOrder();
                 $order = $this->orderRepository->get($orderDO->getId());
 
@@ -101,11 +97,9 @@ class SettlementHandler implements HandlerInterface
                 $quoteLink = $this->subjectReader->getQuoteLink($quote->getId());
                 $quoteLink->setConfirmed(true)->save();
             }
-        }
-        else {
+        } else {
             // finish capture
             $payment->setTransactionId($response['transaction_id']);
         }
     }
-
 }

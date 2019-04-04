@@ -56,12 +56,12 @@ class MultishippingSavePlugin
     /**
      * MultishippingSavePlugin constructor.
      *
-     * @param RequestInterface           $request
+     * @param RequestInterface $request
      * @param AddressRepositoryInterface $addressRepository
-     * @param AddressInterfaceFactory    $addressFactory
-     * @param CheckoutFieldsSchema       $schema
-     * @param AttributeInterfaceFactory  $attributeFactory
-     * @param ModuleConfigInterface      $moduleConfig
+     * @param AddressInterfaceFactory $addressFactory
+     * @param CheckoutFieldsSchema $schema
+     * @param AttributeInterfaceFactory $attributeFactory
+     * @param ModuleConfigInterface $moduleConfig
      */
     public function __construct(
         RequestInterface $request,
@@ -71,12 +71,12 @@ class MultishippingSavePlugin
         AttributeInterfaceFactory $attributeFactory,
         ModuleConfigInterface $moduleConfig
     ) {
-        $this->request           = $request;
+        $this->request = $request;
         $this->addressRepository = $addressRepository;
-        $this->addressFactory    = $addressFactory;
-        $this->schema            = $schema;
-        $this->attributeFactory  = $attributeFactory;
-        $this->moduleConfig      = $moduleConfig;
+        $this->addressFactory = $addressFactory;
+        $this->schema = $schema;
+        $this->attributeFactory = $attributeFactory;
+        $this->moduleConfig = $moduleConfig;
     }
 
     /**
@@ -153,6 +153,7 @@ class MultishippingSavePlugin
      * @param Multishipping $subject
      *
      * @return Multishipping
+     * @throws LocalizedException
      */
     public function afterSave(Multishipping $subject)
     {
@@ -166,6 +167,9 @@ class MultishippingSavePlugin
         if (empty($ship)) {
             return $subject;
         }
+
+        /** @var \Magento\Quote\Model\Quote\Address[] $recollectAddresses */
+        $recollectAddresses = [];
 
         // keep user input in session, prefill fields in case of error or when going back.
         $subject->getCheckoutSession()->setData('checkoutFieldSelection', $ship);
@@ -198,10 +202,14 @@ class MultishippingSavePlugin
                 $address->setServiceSelection($checkoutFields);
                 $this->addressRepository->save($address);
 
-                // re-collect rates with checkout field selection
-                $shippingAddress->setCollectShippingRates(true);
-                $shippingAddress->collectShippingRates();
+                $recollectAddresses[$shippingAddress->getId()] = $shippingAddress;
             }
+        }
+
+        // re-collect rates with checkout field selection
+        foreach ($recollectAddresses as $shippingAddress) {
+            $shippingAddress->setCollectShippingRates(true);
+            $shippingAddress->collectShippingRates();
         }
 
         return $subject;

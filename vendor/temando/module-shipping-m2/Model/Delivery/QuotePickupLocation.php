@@ -104,6 +104,14 @@ class QuotePickupLocation extends AbstractModel implements QuotePickupLocationIn
     }
 
     /**
+     * @return int Distance in meters
+     */
+    public function getDistance()
+    {
+        return $this->getData(QuotePickupLocationInterface::DISTANCE);
+    }
+
+    /**
      * @return string[][]
      */
     public function getOpeningHours()

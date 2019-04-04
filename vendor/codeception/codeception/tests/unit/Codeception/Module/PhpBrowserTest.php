@@ -608,7 +608,7 @@ class PhpBrowserTest extends TestsForBrowsers
     }
 
     /**
-     * @expectedException PHPUnit_Framework_AssertionFailedError
+     * @expectedException PHPUnit\Framework\AssertionFailedError
      */
     public function testClickingOnButtonOutsideFormDoesNotCauseFatalError()
     {
@@ -690,5 +690,41 @@ HTML
         $this->module->amOnPage('/user-agent');
         $response = $this->module->grabPageSource();
         $this->assertEquals('Codeception User Agent Test 1.0', $response, 'Incorrect user agent');
+    }
+
+    public function testIfStatusCodeIsWithin2xxRange()
+    {
+        $this->module->amOnPage('https://httpstat.us/200');
+        $this->module->seeResponseCodeIsSuccessful();
+
+        $this->module->amOnPage('https://httpstat.us/299');
+        $this->module->seeResponseCodeIsSuccessful();
+    }
+
+    public function testIfStatusCodeIsWithin3xxRange()
+    {
+        $this->module->amOnPage('https://httpstat.us/300');
+        $this->module->seeResponseCodeIsRedirection();
+
+        $this->module->amOnPage('https://httpstat.us/399');
+        $this->module->seeResponseCodeIsRedirection();
+    }
+
+    public function testIfStatusCodeIsWithin4xxRange()
+    {
+        $this->module->amOnPage('https://httpstat.us/400');
+        $this->module->seeResponseCodeIsClientError();
+
+        $this->module->amOnPage('https://httpstat.us/499');
+        $this->module->seeResponseCodeIsClientError();
+    }
+
+    public function testIfStatusCodeIsWithin5xxRange()
+    {
+        $this->module->amOnPage('https://httpstat.us/500');
+        $this->module->seeResponseCodeIsServerError();
+
+        $this->module->amOnPage('https://httpstat.us/599');
+        $this->module->seeResponseCodeIsServerError();
     }
 }

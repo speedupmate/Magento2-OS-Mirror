@@ -8,8 +8,11 @@
 namespace Vertex\Tax\Test\Integration\Builder;
 
 use Magento\Catalog\Api\Data\ProductInterface;
+use Magento\Framework\DataObject;
 use Magento\Quote\Api\CartManagementInterface;
+use Magento\Quote\Api\CartManagementInterfaceFactory;
 use Magento\Quote\Api\CartRepositoryInterface;
+use Magento\Quote\Api\CartRepositoryInterfaceFactory;
 use Magento\Quote\Api\Data\CartItemInterface;
 use Magento\Quote\Api\Data\CartItemInterfaceFactory;
 
@@ -21,28 +24,28 @@ class CartBuilder
     /** @var CartItemInterfaceFactory */
     private $cartItemFactory;
 
-    /** @var CartManagementInterface */
-    private $cartManager;
+    /** @var CartManagementInterfaceFactory */
+    private $cartManagerFactory;
 
-    /** @var CartRepositoryInterface */
-    private $cartRepository;
+    /** @var CartRepositoryInterfaceFactory */
+    private $cartRepositoryFactory;
 
     /** @var CartItemInterface[] */
     private $items = [];
 
     /**
      * @param CartItemInterfaceFactory $cartItemFactory
-     * @param CartManagementInterface $cartManager
-     * @param CartRepositoryInterface $cartRepository
+     * @param CartManagementInterfaceFactory $cartManagerFactory
+     * @param CartRepositoryInterfaceFactory $cartRepositoryFactory
      */
     public function __construct(
         CartItemInterfaceFactory $cartItemFactory,
-        CartManagementInterface $cartManager,
-        CartRepositoryInterface $cartRepository
+        CartManagementInterfaceFactory $cartManagerFactory,
+        CartRepositoryInterfaceFactory $cartRepositoryFactory
     ) {
         $this->cartItemFactory = $cartItemFactory;
-        $this->cartManager = $cartManager;
-        $this->cartRepository = $cartRepository;
+        $this->cartManagerFactory = $cartManagerFactory;
+        $this->cartRepositoryFactory = $cartRepositoryFactory;
     }
 
     /**
@@ -77,10 +80,20 @@ class CartBuilder
      */
     public function create($customerId)
     {
-        $cartId = $this->cartManager->createEmptyCartForCustomer($customerId);
-        $cart = $this->cartRepository->get($cartId);
+        /** @var CartManagementInterface $cartManager */
+        $cartManager = $this->cartManagerFactory->create();
+
+        /** @var CartRepositoryInterface $cartRepository */
+        $cartRepository = $this->cartRepositoryFactory->create();
+
+        $cartManager->createEmptyCartForCustomer($customerId);
+        $cart = $cartManager->getCartForCustomer($customerId);
         $cart->setItems($this->items);
-        $this->cartRepository->save($cart);
+        $cartRepository->save($cart);
+
+        if ($cart instanceof DataObject) {
+            $cart->setData('totals_collected_flag', false);
+        }
 
         return $cart;
     }

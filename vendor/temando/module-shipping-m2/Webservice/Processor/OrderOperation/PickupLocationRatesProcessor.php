@@ -12,7 +12,7 @@ use Temando\Shipping\Api\Data\Order\ShippingExperienceInterfaceFactory;
 use Temando\Shipping\Model\OrderInterface;
 use Temando\Shipping\Model\ResourceModel\Delivery\PickupLocationSearchResult;
 use Temando\Shipping\Model\ResourceModel\Repository\QuotePickupLocationRepositoryInterface;
-use Temando\Shipping\Webservice\Response\Type\OrderResponseTypeInterface;
+use Temando\Shipping\Webservice\Response\Type\QualificationResponseType;
 
 /**
  * Temando Pickup Location Rates Processor.
@@ -62,13 +62,13 @@ class PickupLocationRatesProcessor implements RatesProcessorInterface
      *
      * @param RateRequest $rateRequest
      * @param OrderInterface $requestType
-     * @param OrderResponseTypeInterface $responseType
+     * @param QualificationResponseType $responseType
      * @return ShippingExperienceInterface[]
      */
     public function postProcess(
         RateRequest $rateRequest,
         OrderInterface $requestType,
-        OrderResponseTypeInterface $responseType
+        QualificationResponseType $responseType
     ) {
         $pickupLocation = $requestType->getPickupLocation();
         if ($pickupLocation === null) {

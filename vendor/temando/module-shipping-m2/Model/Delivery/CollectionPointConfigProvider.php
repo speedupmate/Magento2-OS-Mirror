@@ -6,6 +6,7 @@ namespace Temando\Shipping\Model\Delivery;
 
 use Magento\Checkout\Model\ConfigProviderInterface;
 use Magento\Directory\Model\ResourceModel\Country\CollectionFactory;
+use Magento\Framework\Exception\NoSuchEntityException;
 use Magento\Store\Model\StoreManagerInterface;
 use Temando\Shipping\Model\Config\ModuleConfigInterface;
 
@@ -57,7 +58,12 @@ class CollectionPointConfigProvider implements ConfigProviderInterface
      */
     public function getConfig()
     {
-        $storeId = $this->storeManager->getStore()->getId();
+        try {
+            $storeId = $this->storeManager->getStore()->getId();
+        } catch (NoSuchEntityException $exception) {
+            $storeId = null;
+        }
+
         if (!$this->moduleConfig->isEnabled($storeId) || !$this->moduleConfig->isCollectionPointsEnabled($storeId)) {
             return ['countries' => []];
         }

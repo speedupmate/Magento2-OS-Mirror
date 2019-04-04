@@ -6,6 +6,7 @@ namespace Temando\Shipping\ViewModel\Batch;
 
 use Magento\Directory\Helper\Data as DirectoryHelper;
 use Magento\Framework\App\Config\ScopeConfigInterface;
+use Magento\Framework\Exception\NoSuchEntityException;
 use Magento\Framework\Serialize\Serializer\Json;
 use Magento\Framework\UrlInterface;
 use Magento\Framework\View\Element\Block\ArgumentInterface;
@@ -151,20 +152,26 @@ class BatchNew implements ArgumentInterface, CoreApiInterface, ShippingApiInterf
 
         $orders = $this->batchProvider->getOrders();
         foreach ($orders as $order) {
-            $storeCode = $this->storeManager->getStore($order->getStoreId())->getCode();
-
-            if (!isset($weightUnits[$storeCode])) {
-                $weightUnit = $this->scopeConfig->getValue(
-                    DirectoryHelper::XML_PATH_WEIGHT_UNIT,
-                    ScopeInterface::SCOPE_STORE,
-                    $storeCode
-                );
-                $weightUnits[$storeCode] = $weightUnit;
-            }
-
             $data[$order->getEntityId()] = [];
             $data[$order->getEntityId()]['id'] = $order->getEntityId();
-            $data[$order->getEntityId()]['weight_unit'] = $weightUnits[$storeCode];
+
+            try {
+                $storeCode = $this->storeManager->getStore($order->getStoreId())->getCode();
+
+                if (!isset($weightUnits[$storeCode])) {
+                    $weightUnit = $this->scopeConfig->getValue(
+                        DirectoryHelper::XML_PATH_WEIGHT_UNIT,
+                        ScopeInterface::SCOPE_STORE,
+                        $storeCode
+                    );
+                    $weightUnits[$storeCode] = $weightUnit;
+                }
+
+                $data[$order->getEntityId()]['weight_unit'] = $weightUnits[$storeCode];
+            } catch (NoSuchEntityException $exception) {
+                $weightUnit = $this->scopeConfig->getValue(DirectoryHelper::XML_PATH_WEIGHT_UNIT);
+                $data[$order->getEntityId()]['weight_unit'] = $weightUnit;
+            }
         }
 
         return $this->serializer->serialize($data);

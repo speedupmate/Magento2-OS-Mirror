@@ -4,8 +4,6 @@
  */
 namespace Temando\Shipping\Rest\Response\Document;
 
-use Temando\Shipping\Rest\Response\DataObject\Order;
-
 /**
  * Temando API Qualify Order Document
  *
@@ -17,34 +15,40 @@ use Temando\Shipping\Rest\Response\DataObject\Order;
 class QualifyOrder implements QualifyOrderInterface
 {
     /**
-     * @var \Temando\Shipping\Rest\Response\DataObject\Order
-     */
-    private $order;
-
-    /**
      * @var \Temando\Shipping\Rest\Response\DataObject\OrderQualification[]
      */
-    private $included;
+    private $data = [];
 
     /**
-     * @return \Temando\Shipping\Rest\Response\DataObject\Order
+     * @var \Temando\Shipping\Rest\Response\DataObject\CollectionPoint[]
+     */
+    private $included = [];
+
+    /**
+     * Obtain response entity
+     *
+     * @return \Temando\Shipping\Rest\Response\DataObject\OrderQualification[]
      */
     public function getData()
     {
-        return $this->order;
+        return $this->data;
     }
 
     /**
-     * @param \Temando\Shipping\Rest\Response\DataObject\Order $order
+     * Set response entity
+     *
+     * @param \Temando\Shipping\Rest\Response\DataObject\OrderQualification[] $experiences
      * @return void
      */
-    public function setData(Order $order)
+    public function setData(array $experiences)
     {
-        $this->order = $order;
+        $this->data = $experiences;
     }
 
     /**
-     * @return \Temando\Shipping\Rest\Response\DataObject\OrderQualification[]
+     * Obtain included collection points.
+     *
+     * @return \Temando\Shipping\Rest\Response\DataObject\CollectionPoint[]
      */
     public function getIncluded()
     {
@@ -52,7 +56,10 @@ class QualifyOrder implements QualifyOrderInterface
     }
 
     /**
-     * @param \Temando\Shipping\Rest\Response\DataObject\OrderQualification[] $included
+     * Set included collection points.
+     *
+     * @param \Temando\Shipping\Rest\Response\DataObject\CollectionPoint[] $included
+     *
      * @return void
      */
     public function setIncluded(array $included)

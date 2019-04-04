@@ -51,11 +51,11 @@ class NewAction extends AbstractRegisteredAction
     private $batchProvider;
 
     /**
-     * @param Context                $context
-     * @param ModuleConfigInterface  $config
+     * @param Context $context
+     * @param ModuleConfigInterface $config
      * @param BatchProviderInterface $batchProvider
      * @param OrderCollectionFactory $collectionFactory
-     * @param Filter                 $massActionFilter
+     * @param Filter $massActionFilter
      */
     public function __construct(
         Context $context,
@@ -64,10 +64,11 @@ class NewAction extends AbstractRegisteredAction
         OrderCollectionFactory $collectionFactory,
         Filter $massActionFilter
     ) {
-        $this->batchProvider     = $batchProvider;
+        $this->batchProvider = $batchProvider;
         $this->collectionFactory = $collectionFactory;
-        $this->massActionFilter  = $massActionFilter;
-        $this->config            = $config;
+        $this->massActionFilter = $massActionFilter;
+        $this->config = $config;
+
         parent::__construct($context, $config);
     }
 

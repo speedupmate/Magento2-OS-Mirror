@@ -5,6 +5,7 @@
 
 namespace Temando\Shipping\Model\ResourceModel\Rma;
 
+use Magento\Framework\Exception\LocalizedException;
 use Magento\Framework\Model\AbstractModel;
 use Magento\Framework\Model\ResourceModel\Db\AbstractDb;
 use Temando\Shipping\Setup\RmaSetupSchema;
@@ -34,10 +35,11 @@ class RmaShipment extends AbstractDb
 
     /**
      * @param AbstractModel $object
-     * @param int           $value
-     * @param null          $field
+     * @param int $value
+     * @param string|null $field
      *
      * @return $this
+     * @throws LocalizedException
      */
     public function load(AbstractModel $object, $value, $field = null)
     {
@@ -87,21 +89,26 @@ class RmaShipment extends AbstractDb
      */
     public function getShipmentIds($rmaId)
     {
-        $connection = $this->getConnection();
-        $table = $this->getMainTable();
+        try {
+            $connection = $this->getConnection();
+            $table = $this->getMainTable();
 
-        $select = $connection
-            ->select()
-            ->from($table, self::RMA_SHIPMENT_ID)
-            ->where(self::RMA_ID . ' = ?', $rmaId);
+            $select = $connection
+                ->select()
+                ->from($table, self::RMA_SHIPMENT_ID)
+                ->where(self::RMA_ID . ' = ?', $rmaId);
 
-        return $connection->fetchCol($select);
+            return $connection->fetchCol($select);
+        } catch (\Exception $exception) {
+            return [];
+        }
     }
 
     /**
      * @param int $rmaId
      * @param string[] $shipmentIds
      * @return int Number of saved entries
+     * @throws \Exception
      */
     public function saveShipmentIds($rmaId, array $shipmentIds)
     {
@@ -122,6 +129,7 @@ class RmaShipment extends AbstractDb
      * @param int $rmaId
      * @param string[] $shipmentIds
      * @return int Number of dropped entries
+     * @throws \Exception
      */
     public function deleteShipmentIds($rmaId, array $shipmentIds)
     {

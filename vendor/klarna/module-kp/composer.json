@@ -2,7 +2,7 @@
     "name": "klarna/module-kp",
     "type": "magento2-module",
     "description": "Klarna Payments Magento 2 Extension",
-    "version": "6.0.0",
+    "version": "6.1.0",
     "license": "Apache-2.0",
     "authors": [
         {
@@ -39,7 +39,7 @@
         "klarna/module-enterprise": "*"
     },
     "require-dev": {
-        "friendsofphp/php-cs-fixer": "~2.1.1",
+        "friendsofphp/php-cs-fixer": "~2.10.1",
         "jakub-onderka/php-console-highlighter": "^0.3.2",
         "jakub-onderka/php-parallel-lint": "^0.9.2",
         "lusitanian/oauth": "~0.8.10",
@@ -47,9 +47,9 @@
         "pdepend/pdepend": "^2.5",
         "phploc/phploc": "^4.0",
         "phpmd/phpmd": "@stable",
-        "phpro/grumphp": "^0.12.1",
+        "phpro/grumphp": "^0.14",
         "phpunit/phpunit": "~6.2.0",
-        "sebastian/phpcpd": "2.0.4",
+        "sebastian/phpcpd": "~3.0",
         "squizlabs/php_codesniffer": "^3.2",
         "theseer/phpdox": "^0.10.1",
         "magento/framework": "^101.0.0",

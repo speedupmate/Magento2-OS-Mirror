@@ -1,0 +1,24 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!--
+/**
+ * This file is part of the Klarna KP module
+ *
+ * (c) Klarna Bank AB (publ)
+ *
+ * For the full copyright and license information, please view the NOTICE
+ * and LICENSE files that were distributed with this source code.
+ */
+-->
+<actionGroups xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+              xsi:noNamespaceSchemaLocation="../../../../../../../dev/tests/acceptance/vendor/magento/magento2-functional-testing-framework/src/Magento/FunctionalTestingFramework/Test/etc/actionGroupSchema.xsd">
+
+    <!--Sign out-->
+    <actionGroup name="KpSignOut">
+        <click selector="{{KpSignOutSection.admin}}" stepKey="clickToAdminProfile"/>
+        <click selector="{{KpSignOutSection.logout}}" stepKey="clickToLogOut"/>
+        <waitForPageLoad stepKey="waitForPageLoad" />
+        <see userInput="You have logged out." stepKey="seeSuccessMessage" />
+        <waitForElementVisible selector="//*[@data-ui-id='messages-message-success']" stepKey="waitForSuccessMessageLoggedOut" time="5"/>
+    </actionGroup>
+
+</actionGroups>

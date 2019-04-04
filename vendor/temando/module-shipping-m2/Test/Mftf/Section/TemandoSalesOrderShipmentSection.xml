@@ -1,0 +1,25 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<sections xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+          xsi:noNamespaceSchemaLocation="urn:magento:mftf:Page/etc/SectionObject.xsd">
+    <section name="TemandoSalesOrderSection">
+        <element name="SelectAStore" type="text" selector="//span[@class='title' and contains(., 'Please select a store')]" />
+        <element name="CustomStoreLabel" type="text" selector="//label[contains(., '{{storeName}}')]" parameterized="true" />
+        <element name="shippingMethods" type="text" selector="#order-shipping-method-choose" />
+        <element name="standardShippingOption" type="text" selector=".admin__field-label" />
+        <element name="buttonShip" type="button" selector="button#order_ship" />
+    </section>
+    <section name="TemandoShipmentSection">
+        <element name="customerReference" type="input" selector="input#customerReference" />
+        <element name="originLocation" type="select" selector="select#originLocation" />
+        <element name="packageType" type="select" selector="//select[contains(@id, 'packageType')]" />
+        <element name="packageWeight" type="input" selector="//input[contains(@id, 'weight')]" />
+        <element name="getQuotes" type="button" selector="//button[contains(., 'Get Quotes')]" />
+        <element name="useCustomerExperience" type="checkbox" selector="input#useCustomerExperience" />
+        <element name="bookShipment" type="button" selector="//button[contains(., 'Book Shipment')]" />
+    </section>
+    <section name="TemandoCheckoutSection">
+        <element name="ShippingMethodsTable" type="text" selector="table.table-checkout-shipping-method" />
+        <element name="ShippingMethodLabel" type="text" selector="//td[contains(., '{{ShippingLabel}}')]" parameterized="true" />
+    </section>
+</sections>

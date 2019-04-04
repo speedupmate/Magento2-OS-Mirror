@@ -72,6 +72,8 @@ class OrderCollectionPointRepository implements OrderCollectionPointRepositoryIn
     }
 
     /**
+     * Save collection point.
+     *
      * @param OrderCollectionPointInterface $collectionPoint
      * @return OrderCollectionPointInterface
      * @throws CouldNotSaveException

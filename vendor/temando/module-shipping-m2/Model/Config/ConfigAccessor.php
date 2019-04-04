@@ -8,16 +8,18 @@ namespace Temando\Shipping\Model\Config;
 use Magento\Framework\App\Config\ConfigTypeInterface;
 use Magento\Framework\App\Config\ScopeConfigInterface;
 use Magento\Framework\App\Config\Storage\WriterInterface;
+use Magento\Framework\Exception\NoSuchEntityException;
 use Magento\Store\Model\ScopeInterface;
 use Magento\Store\Model\StoreManagerInterface;
+use Psr\Log\LoggerInterface;
 
 /**
  * Config Accessor
  *
- * @package  Temando\Shipping\Model
- * @author   Benjamin Heuer <benjamin.heuer@netresearch.de>
- * @license  http://opensource.org/licenses/osl-3.0.php Open Software License (OSL 3.0)
- * @link     http://www.temando.com/
+ * @package Temando\Shipping\Model
+ * @author  Benjamin Heuer <benjamin.heuer@netresearch.de>
+ * @license https://opensource.org/licenses/osl-3.0.php Open Software License (OSL 3.0)
+ * @link    https://www.temando.com/
  */
 class ConfigAccessor
 {
@@ -42,22 +44,30 @@ class ConfigAccessor
     private $systemConfigType;
 
     /**
+     * @var LoggerInterface
+     */
+    private $logger;
+
+    /**
      * ConfigAccessor constructor.
      * @param StoreManagerInterface $storeManager
      * @param ScopeConfigInterface $scopeConfig
      * @param WriterInterface $configWriter
      * @param ConfigTypeInterface $systemConfigType
+     * @param LoggerInterface $logger
      */
     public function __construct(
         StoreManagerInterface $storeManager,
         ScopeConfigInterface $scopeConfig,
         WriterInterface $configWriter,
-        ConfigTypeInterface $systemConfigType
+        ConfigTypeInterface $systemConfigType,
+        LoggerInterface $logger
     ) {
-        $this->storeManager     = $storeManager;
-        $this->scopeConfig      = $scopeConfig;
-        $this->configWriter     = $configWriter;
+        $this->storeManager = $storeManager;
+        $this->scopeConfig = $scopeConfig;
+        $this->configWriter = $configWriter;
         $this->systemConfigType = $systemConfigType;
+        $this->logger = $logger;
     }
 
     /**
@@ -71,9 +81,15 @@ class ConfigAccessor
     public function saveConfigValue($path, $value, $scopeId = 0)
     {
         $scope = ScopeConfigInterface::SCOPE_TYPE_DEFAULT;
+
         if ($scopeId) {
-            $scope = ScopeInterface::SCOPE_STORES;
-            $scopeId = $this->storeManager->getStore($scopeId)->getId();
+            try {
+                $scope = ScopeInterface::SCOPE_STORES;
+                $scopeId = $this->storeManager->getStore($scopeId)->getId();
+            } catch (NoSuchEntityException $exception) {
+                $this->logger->warning(__('No store found for scope ID %1', $scopeId), ['exception' => $exception]);
+                return;
+            }
         }
 
         $this->configWriter->save($path, $value, $scope, $scopeId);
@@ -90,9 +106,15 @@ class ConfigAccessor
     public function deleteConfigValue($path, $scopeId = 0)
     {
         $scope = ScopeConfigInterface::SCOPE_TYPE_DEFAULT;
+
         if ($scopeId) {
-            $scope = ScopeInterface::SCOPE_STORES;
-            $scopeId = $this->storeManager->getStore($scopeId)->getId();
+            try {
+                $scope = ScopeInterface::SCOPE_STORES;
+                $scopeId = $this->storeManager->getStore($scopeId)->getId();
+            } catch (NoSuchEntityException $exception) {
+                $this->logger->warning(__('No store found for scope ID %1', $scopeId), ['exception' => $exception]);
+                return;
+            }
         }
 
         $this->configWriter->delete($path, $scope, $scopeId);

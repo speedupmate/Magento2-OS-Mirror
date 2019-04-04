@@ -182,7 +182,7 @@ class CompletionAttributes
     }
 
     /**
-     * @param Attributes\CustomAttributes $customAttributes
+     * @param \Temando\Shipping\Rest\Response\Fields\Completion\CustomAttributes $customAttributes
      * @return void
      */
     public function setCustomAttributes($customAttributes)

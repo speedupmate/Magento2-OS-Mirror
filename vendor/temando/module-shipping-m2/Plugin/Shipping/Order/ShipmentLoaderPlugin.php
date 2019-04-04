@@ -11,7 +11,7 @@ use Magento\Framework\Exception\NoSuchEntityException;
 use Magento\Framework\Message\ManagerInterface;
 use Magento\Sales\Api\Data\OrderInterface;
 use Magento\Shipping\Controller\Adminhtml\Order\ShipmentLoader;
-use Temando\Shipping\Model\ResourceModel\Repository\ShipmentRepositoryInterface;
+use Temando\Shipping\Model\Sales\Service\ShipmentService;
 use Temando\Shipping\Model\Shipment\ShipmentProviderInterface;
 use Temando\Shipping\Model\Shipping\Carrier;
 
@@ -27,14 +27,19 @@ use Temando\Shipping\Model\Shipping\Carrier;
 class ShipmentLoaderPlugin
 {
     /**
+     * @var RequestInterface
+     */
+    private $request;
+
+    /**
      * @var ShipmentProviderInterface
      */
     private $shipmentProvider;
 
     /**
-     * @var RequestInterface
+     * @var ShipmentService
      */
-    private $request;
+    private $shipmentService;
 
     /**
      * @var ManagerInterface
@@ -42,28 +47,23 @@ class ShipmentLoaderPlugin
     private $messageManager;
 
     /**
-     * @var ShipmentRepositoryInterface
-     */
-    private $shipmentRepository;
-
-    /**
      * ShipmentLoaderPlugin constructor.
      *
-     * @param ShipmentProviderInterface $shipmentProvider
      * @param RequestInterface $request
+     * @param ShipmentProviderInterface $shipmentProvider
+     * @param ShipmentService $shipmentService
      * @param ManagerInterface $messageManager
-     * @param ShipmentRepositoryInterface $shipmentRepository
      */
     public function __construct(
-        ShipmentProviderInterface $shipmentProvider,
         RequestInterface $request,
-        ManagerInterface $messageManager,
-        ShipmentRepositoryInterface $shipmentRepository
+        ShipmentProviderInterface $shipmentProvider,
+        ShipmentService $shipmentService,
+        ManagerInterface $messageManager
     ) {
-        $this->shipmentProvider   = $shipmentProvider;
-        $this->request            = $request;
-        $this->messageManager     = $messageManager;
-        $this->shipmentRepository = $shipmentRepository;
+        $this->request = $request;
+        $this->shipmentProvider = $shipmentProvider;
+        $this->shipmentService = $shipmentService;
+        $this->messageManager = $messageManager;
     }
 
     /**
@@ -101,7 +101,7 @@ class ShipmentLoaderPlugin
 
         try {
             $shipmentReferenceId = $salesShipment->getExtensionAttributes()->getExtShipmentId();
-            $shipment = $this->shipmentRepository->getById($shipmentReferenceId);
+            $shipment = $this->shipmentService->read($shipmentReferenceId, (int) $salesShipment->getEntityId());
             $this->shipmentProvider->setShipment($shipment);
         } catch (NoSuchEntityException $e) {
             $this->messageManager->addErrorMessage($e->getMessage());

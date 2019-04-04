@@ -10,7 +10,7 @@ use Magento\Customer\Model\Metadata\CustomerMetadata;
 use Magento\Customer\Model\Metadata\ElementFactory;
 use Magento\Eav\Model\AttributeDataFactory;
 use Magento\Framework\Escaper;
-use Magento\Framework\Exception\NoSuchEntityException;
+use Magento\Framework\Exception\LocalizedException;
 use Magento\Framework\UrlInterface;
 use Magento\Framework\View\Element\Block\ArgumentInterface;
 use Magento\Sales\Api\Data\OrderInterface;
@@ -124,7 +124,7 @@ class CustomerDetails implements ArgumentInterface
         try {
             $customerGroup = $this->customerGroupRepository->getById($customerGroupId);
             return $customerGroup->getCode();
-        } catch (NoSuchEntityException $e) {
+        } catch (LocalizedException $e) {
             return '';
         }
     }

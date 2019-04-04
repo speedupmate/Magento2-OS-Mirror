@@ -191,6 +191,7 @@ class QuotingDataInitializer
      *
      * @param RateRequest $rateRequest
      * @return \Temando\Shipping\Model\OrderInterface
+     * @throws LocalizedException
      */
     public function getOrder(RateRequest $rateRequest)
     {

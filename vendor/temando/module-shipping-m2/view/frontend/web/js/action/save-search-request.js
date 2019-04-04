@@ -34,9 +34,14 @@ define([
             JSON.stringify(payload)
         ).success(
             function (response) {
-                cacheService.invalidateCacheForAddress(quote.shippingAddress());
-
-                quote.shippingAddress.valueHasMutated();
+                if (quote.shippingAddress()) {
+                    // if a shipping address was selected, clear shipping rates cache
+                    cacheService.invalidateCacheForAddress(quote.shippingAddress());
+                    quote.shippingAddress.valueHasMutated();
+                } else {
+                    // otherwise stop spinner, no new rates to display
+                    shippingService.isLoading(false);
+                }
 
                 var subscription = shippingService.getShippingRates().subscribe(function() {
                     shippingService.isLoading(true);

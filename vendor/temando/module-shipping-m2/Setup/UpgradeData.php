@@ -25,19 +25,25 @@ class UpgradeData implements UpgradeDataInterface
     private $installer;
 
     /**
+     * @var BookmarkCleaner
+     */
+    private $bookmarkCleaner;
+
+    /**
      * UpgradeData constructor.
      * @param SetupData $installer
+     * @param BookmarkCleaner $bookmarkCleaner
      */
-    public function __construct(SetupData $installer)
+    public function __construct(SetupData $installer, BookmarkCleaner $bookmarkCleaner)
     {
         $this->installer = $installer;
+        $this->bookmarkCleaner = $bookmarkCleaner;
     }
 
     /**
      * @param ModuleDataSetupInterface $setup
      * @param ModuleContextInterface $context
-     * @throws \Magento\Framework\Exception\AlreadyExistsException
-     * @throws \Magento\Framework\Exception\FileSystemException
+     * @throws \Magento\Framework\Exception\LocalizedException
      */
     public function upgrade(ModuleDataSetupInterface $setup, ModuleContextInterface $context)
     {
@@ -51,6 +57,11 @@ class UpgradeData implements UpgradeDataInterface
         if (version_compare($moduleVersion, '1.4.0', '<')) {
             $this->installer->addPickupOrderEmailTemplate();
             $this->installer->addPickupOrderGuestEmailTemplate();
+        }
+
+        if (version_compare($moduleVersion, '1.5.0', '<')) {
+            $this->bookmarkCleaner->resetPickupGrid();
+            $this->bookmarkCleaner->resetOrderPickupGrid();
         }
     }
 }

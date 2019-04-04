@@ -18,4 +18,18 @@
     <type name="Magento\Multishipping\Controller\Checkout\OverviewPost">
         <plugin name="vertex_multishipping_errors_on" type="Vertex\Tax\Model\Plugin\MultishippingErrorMessageSupport" />
     </type>
+    <type name="Magento\Checkout\Block\Onepage">
+        <arguments>
+            <argument name="layoutProcessors" xsi:type="array">
+                <item name="reorderTaxMessage" xsi:type="object">Vertex\Tax\Block\Checkout\SortTaxMessageProcessor</item>
+            </argument>
+        </arguments>
+    </type>
+    <type name="Magento\Checkout\Block\Cart\Totals">
+        <arguments>
+            <argument name="layoutProcessors" xsi:type="array">
+                <item name="reorderTaxMessage" xsi:type="object">Vertex\Tax\Block\Checkout\SortTaxMessageProcessor</item>
+            </argument>
+        </arguments>
+    </type>
 </config>

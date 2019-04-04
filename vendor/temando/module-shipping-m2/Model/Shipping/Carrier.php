@@ -11,6 +11,7 @@ use Magento\Framework\Message\ManagerInterface;
 use Magento\Quote\Model\Quote\Address\RateRequest;
 use Magento\Quote\Model\Quote\Address\RateResult\ErrorFactory;
 use Magento\Quote\Model\Quote\Address\RateResult\MethodFactory;
+use Magento\Sales\Api\Data\ShipmentTrackInterface;
 use Magento\Shipping\Model\Carrier\AbstractCarrier;
 use Magento\Shipping\Model\Carrier\CarrierInterface;
 use Magento\Shipping\Model\Rate\ResultFactory;
@@ -18,20 +19,21 @@ use Magento\Shipping\Model\Tracking\Result\StatusFactory;
 use Psr\Log\LoggerInterface;
 use Psr\Log\LogLevel;
 use Temando\Shipping\Model\Checkout\RateRequest\QuotingDataInitializer;
-use Temando\Shipping\Model\ResourceModel\Repository\OrderRepositoryInterface;
+use Temando\Shipping\Model\ExperienceInterface;
+use Temando\Shipping\Model\ResourceModel\Repository\ExperienceRepositoryInterface;
 use Temando\Shipping\Model\ResourceModel\Repository\ShipmentReferenceRepositoryInterface;
 use Temando\Shipping\Model\ResourceModel\Repository\ShipmentRepositoryInterface;
-use Temando\Shipping\Model\Shipment\TrackEventInterface;
-use Temando\Shipping\Webservice\Processor\OrderOperationProcessorPool;
+use Temando\Shipping\Model\Shipping\RateResult\FreeShipping;
+use Temando\Shipping\Webservice\Processor\OrderQualificationProcessorPool;
 
 /**
  * Temando Shipping Carrier
  *
- * @package  Temando\Shipping\Model
- * @author   Christoph Aßmann <christoph.assmann@netresearch.de>
- * @author   Sebastian Ertner <sebastian.ertner@netresearch.de>
- * @license  http://opensource.org/licenses/osl-3.0.php Open Software License (OSL 3.0)
- * @link     http://www.temando.com/
+ * @package Temando\Shipping\Model
+ * @author  Christoph Aßmann <christoph.assmann@netresearch.de>
+ * @author  Sebastian Ertner <sebastian.ertner@netresearch.de>
+ * @license https://opensource.org/licenses/osl-3.0.php Open Software License (OSL 3.0)
+ * @link    https://www.temando.com/
  */
 class Carrier extends AbstractCarrier implements CarrierInterface
 {
@@ -66,9 +68,9 @@ class Carrier extends AbstractCarrier implements CarrierInterface
     private $shipmentReferenceRepository;
 
     /**
-     * @var OrderRepositoryInterface
+     * @var ExperienceRepositoryInterface
      */
-    private $orderRepository;
+    private $experienceRepository;
 
     /**
      * @var QuotingDataInitializer
@@ -76,9 +78,14 @@ class Carrier extends AbstractCarrier implements CarrierInterface
     private $quotingDataInitializer;
 
     /**
-     * @var OrderOperationProcessorPool
+     * @var OrderQualificationProcessorPool
      */
     private $processorPool;
+
+    /**
+     * @var FreeShipping
+     */
+    private $freeShipping;
 
     /**
      * Carrier constructor.
@@ -91,9 +98,10 @@ class Carrier extends AbstractCarrier implements CarrierInterface
      * @param ManagerInterface $messageManager
      * @param ShipmentRepositoryInterface $shipmentRepository
      * @param ShipmentReferenceRepositoryInterface $shipmentReferenceRepository
-     * @param OrderRepositoryInterface $orderRepository
+     * @param ExperienceRepositoryInterface $experienceRepository
      * @param QuotingDataInitializer $quotingDataInitializer
-     * @param OrderOperationProcessorPool $processorPool
+     * @param OrderQualificationProcessorPool $processorPool
+     * @param FreeShipping $freeShipping
      * @param mixed[] $data
      */
     public function __construct(
@@ -106,9 +114,10 @@ class Carrier extends AbstractCarrier implements CarrierInterface
         ManagerInterface $messageManager,
         ShipmentRepositoryInterface $shipmentRepository,
         ShipmentReferenceRepositoryInterface $shipmentReferenceRepository,
-        OrderRepositoryInterface $orderRepository,
+        ExperienceRepositoryInterface $experienceRepository,
         QuotingDataInitializer $quotingDataInitializer,
-        OrderOperationProcessorPool $processorPool,
+        OrderQualificationProcessorPool $processorPool,
+        FreeShipping $freeShipping,
         array $data = []
     ) {
         $this->trackStatusFactory = $trackStatusFactory;
@@ -117,9 +126,10 @@ class Carrier extends AbstractCarrier implements CarrierInterface
         $this->messageManager = $messageManager;
         $this->shipmentRepository = $shipmentRepository;
         $this->shipmentReferenceRepository = $shipmentReferenceRepository;
-        $this->orderRepository = $orderRepository;
+        $this->experienceRepository = $experienceRepository;
         $this->quotingDataInitializer = $quotingDataInitializer;
         $this->processorPool = $processorPool;
+        $this->freeShipping = $freeShipping;
 
         parent::__construct($scopeConfig, $rateErrorFactory, $logger, $data);
     }
@@ -155,9 +165,9 @@ class Carrier extends AbstractCarrier implements CarrierInterface
             // create request data from rate request
             $order = $this->quotingDataInitializer->getOrder($rateRequest);
             // send order to Temando platform, will respond with shipping options
-            $saveResult = $this->orderRepository->save($order);
-            // read applicable shipping options from response
-            $shippingOptions = $this->processorPool->processRatesResponse($rateRequest, $order, $saveResult);
+            $qualifications = $this->experienceRepository->getExperiencesForOrder($order);
+            // extract applicable shipping options from order qualifications
+            $shippingOptions = $this->processorPool->processRatesResponse($rateRequest, $order, $qualifications);
         } catch (LocalizedException $e) {
             $this->_logger->log(LogLevel::WARNING, $e->getMessage(), ['exception' => $e]);
             $shippingOptions = [];
@@ -187,19 +197,36 @@ class Carrier extends AbstractCarrier implements CarrierInterface
                 'error_message' => $this->getConfigData('specificerrmsg'),
             ]]);
             $result->append($error);
+        } else {
+            $this->freeShipping->apply($rateRequest, $result);
         }
 
         return $result;
     }
 
     /**
-     * The Temando shipping carrier does not introduce static/generic/offline methods.
+     * Obtain shipping experiences configured at the merchant account for usage
+     * in cart price rule conditions.
      *
-     * @return mixed[]
+     * @return string[]
      */
     public function getAllowedMethods()
     {
-        return [];
+        $experiences = array_reduce(
+            $this->experienceRepository->getExperiences(),
+            function (array $carry, ExperienceInterface $experience) {
+                if ($experience->getStatus() !== ExperienceInterface::STATUS_DISABLED) {
+                    $carry[$experience->getExperienceId()] = $experience->getName();
+                }
+
+                return $carry;
+            },
+            []
+        );
+
+        asort($experiences);
+
+        return $experiences;
     }
 
     /**
@@ -223,37 +250,55 @@ class Carrier extends AbstractCarrier implements CarrierInterface
     {
         /** @var \Magento\Shipping\Model\Tracking\Result\Status $tracking */
         $tracking = $this->trackStatusFactory->create();
-
-        try {
-            $shipmentTrack = $this->shipmentReferenceRepository->getShipmentTrack($this->_code, $trackingNumber);
-            $carrierTitle = $shipmentTrack->getTitle() ? $shipmentTrack->getTitle() : $this->getConfigData('title');
-        } catch (LocalizedException $exception) {
-            $carrierTitle = $this->getConfigData('title');
-        }
-
         $tracking->setCarrier($this->_code);
-        $tracking->setCarrierTitle($carrierTitle);
         $tracking->setTracking($trackingNumber);
 
         try {
-            $trackEvents = $this->shipmentRepository->getTrackingByNumber($trackingNumber);
-            $trackEventsData = array_map(function (TrackEventInterface $trackEvent) {
-                return $trackEvent->getEventData();
-            }, $trackEvents);
+            $shipmentTrack = $this->shipmentReferenceRepository->getShipmentTrack($this->_code, $trackingNumber);
 
-            $tracking->setStatus(isset($trackEventsData[0]) ? $trackEventsData[0]['activity'] : '');
-            $tracking->setProgressdetail($trackEventsData);
-        } catch (LocalizedException $e) {
-            $this->messageManager->addErrorMessage($e->getMessage());
-        }
+            $carrierTitle = $shipmentTrack->getTitle() ? $shipmentTrack->getTitle() : $this->getConfigData('title');
+            $trackingUrl = $this->getTrackingUrl($shipmentTrack);
 
-        try {
-            $shipmentReference = $this->shipmentReferenceRepository->getByTrackingNumber($trackingNumber);
-            $tracking->setUrl($shipmentReference->getExtTrackingUrl());
-        } catch (NoSuchEntityException $e) {
-            $this->messageManager->addErrorMessage($e->getMessage());
+            $tracking->setCarrierTitle($carrierTitle);
+            $tracking->setUrl($trackingUrl);
+        } catch (LocalizedException $exception) {
+            $this->messageManager->addErrorMessage($exception->getMessage());
+
+            $tracking->setCarrierTitle($this->getConfigData('title'));
+            $tracking->setUrl('');
         }
 
         return $tracking;
+    }
+
+    /**
+     * Extract tracking URL from platform shipment. If possible, read url from package level.
+     *
+     * @param ShipmentTrackInterface $shipmentTrack
+     * @return string
+     * @throws NoSuchEntityException
+     * @throws LocalizedException
+     */
+    private function getTrackingUrl(ShipmentTrackInterface $shipmentTrack)
+    {
+        $shipmentId = $shipmentTrack->getParentId();
+        $shipmentReference = $this->shipmentReferenceRepository->getByShipmentId($shipmentId);
+        $shipment = $this->shipmentRepository->getById($shipmentReference->getExtShipmentId());
+
+        // read tracking url from booking fulfillment
+        $trackingUrl = $shipment->getFulfillment()->getTrackingUrl();
+
+        // check if there is a matching tracking url in the packages
+        foreach ($shipment->getPackages() as $package) {
+            if (!$package->getTrackingUrl()) {
+                continue;
+            }
+
+            if ($package->getTrackingReference() === $shipmentTrack->getTrackNumber()) {
+                $trackingUrl = $package->getTrackingUrl();
+            }
+        }
+
+        return (string) $trackingUrl;
     }
 }

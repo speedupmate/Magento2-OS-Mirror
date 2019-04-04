@@ -21,6 +21,10 @@
             </temando>
         </carriers>
         <sales_email>
+            <shipment>
+                <cancel_template>sales_email_shipment_cancel_template</cancel_template>
+                <cancel_guest_template>sales_email_shipment_cancel_guest_template</cancel_guest_template>
+            </shipment>
             <temando_pickup>
                 <enabled>1</enabled>
                 <ready_template>sales_email_temando_pickup_ready_template</ready_template>

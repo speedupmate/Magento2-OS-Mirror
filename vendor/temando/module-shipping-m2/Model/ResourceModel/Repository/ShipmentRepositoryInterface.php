@@ -4,6 +4,10 @@
  */
 namespace Temando\Shipping\Model\ResourceModel\Repository;
 
+use Magento\Framework\Exception\CouldNotDeleteException;
+use Magento\Framework\Exception\LocalizedException;
+use Temando\Shipping\Model\ShipmentInterface;
+
 /**
  * Temando Shipment Repository Interface.
  *
@@ -25,26 +29,17 @@ interface ShipmentRepositoryInterface
      * Load external shipment entity from platform.
      *
      * @param string $shipmentId
-     * @return \Temando\Shipping\Model\ShipmentInterface
-     * @throws \Magento\Framework\Exception\LocalizedException
+     * @return ShipmentInterface
+     * @throws LocalizedException
      */
-    public function getById($shipmentId);
+    public function getById(string $shipmentId): ShipmentInterface;
 
     /**
-     * Load external tracking info from platform using external shipment id.
+     * Cancel external shipment at the platform.
      *
      * @param string $shipmentId
-     * @return \Temando\Shipping\Model\Shipment\TrackEventInterface[]
-     * @throws \Magento\Framework\Exception\LocalizedException
+     * @return ShipmentInterface
+     * @throws CouldNotDeleteException
      */
-    public function getTrackingById($shipmentId);
-
-    /**
-     * Load external tracking info from platform using tracking number.
-     *
-     * @param string $trackingNumber
-     * @return \Temando\Shipping\Model\Shipment\TrackEventInterface[]
-     * @throws \Magento\Framework\Exception\LocalizedException
-     */
-    public function getTrackingByNumber($trackingNumber);
+    public function cancel(string $shipmentId): ShipmentInterface;
 }

@@ -36,7 +36,7 @@ class CustomerCode extends AbstractDb
     }
 
     /**
-     * {@inheritdoc}
+     * @inheritdoc
      *
      * MEQP2 Warning: Protected method.  Needed to override AbstractDb's _construct
      */

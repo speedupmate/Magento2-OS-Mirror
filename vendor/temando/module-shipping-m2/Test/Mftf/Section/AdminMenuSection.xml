@@ -1,0 +1,13 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<sections xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+          xsi:noNamespaceSchemaLocation="urn:magento:mftf:Page/etc/SectionObject.xsd">
+    <section name="TemandoAdminMenuSection">
+        <element name="StoresMenuItem" type="text" selector="#menu-magento-backend-stores a"/>
+
+        <element name="CarriersMenuItemLink" type="text" selector="#menu-magento-backend-stores .submenu li.item-carriers a" />
+        <element name="LocationsMenuItemLink" type="text" selector="#menu-magento-backend-stores .submenu li.item-locations a" />
+        <element name="PackagingMenuItemLink" type="text" selector="#menu-magento-backend-stores .submenu li.item-packaging a" />
+        <element name="ExperiencesMenuItemLink" type="text" selector="#menu-magento-backend-stores .submenu li.item-experiences a" />
+    </section>
+</sections>

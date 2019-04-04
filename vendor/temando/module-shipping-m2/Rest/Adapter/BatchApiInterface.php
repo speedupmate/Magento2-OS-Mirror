@@ -21,8 +21,9 @@ use Temando\Shipping\Rest\Response\DataObject\Batch;
 interface BatchApiInterface
 {
     /**
-     * @param ItemRequestInterface $request
+     * Read a batch from the platform.
      *
+     * @param ItemRequestInterface $request
      * @return Batch
      * @throws AdapterException
      */

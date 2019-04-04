@@ -1,0 +1,10 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<sections xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+          xsi:noNamespaceSchemaLocation="urn:magento:mftf:Page/etc/SectionObject.xsd">
+    <section name="TemandoShippingPortalSection">
+        <element name="shippingPortalUrl" type="text" selector="#carriers_temando_shipping_portal_url" />
+        <element name="aConfigurationPortalLink" selector="#carriers_temando_activation a.shipping_portal__link" type="text" />
+        <element name="aConfigureShippingExperiences" selector=".getting-started-actions a[href*='experience']" type="text" />
+    </section>
+</sections>

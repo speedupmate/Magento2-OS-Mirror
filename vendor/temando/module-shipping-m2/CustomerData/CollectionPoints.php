@@ -13,6 +13,7 @@ use Magento\Store\Model\StoreManagerInterface;
 use Temando\Shipping\Api\Data\Delivery\QuoteCollectionPointInterface;
 use Temando\Shipping\Api\Delivery\CartCollectionPointManagementInterface;
 use Temando\Shipping\Model\Config\ModuleConfigInterface;
+use Temando\Shipping\Model\Delivery\DistanceConverter;
 use Temando\Shipping\Model\Delivery\OpeningHoursFormatter;
 use Temando\Shipping\Model\Delivery\QuoteCollectionPoint;
 use Temando\Shipping\Model\ResourceModel\Repository\CollectionPointSearchRepositoryInterface;
@@ -28,6 +29,11 @@ use Temando\Shipping\Model\ResourceModel\Repository\CollectionPointSearchReposit
 class CollectionPoints implements SectionSourceInterface
 {
     /**
+     * @var StoreManagerInterface
+     */
+    private $storeManager;
+
+    /**
      * @var ModuleConfigInterface
      */
     private $moduleConfig;
@@ -36,6 +42,16 @@ class CollectionPoints implements SectionSourceInterface
      * @var SessionManagerInterface|\Magento\Checkout\Model\Session
      */
     private $checkoutSession;
+
+    /**
+     * @var HydratorInterface
+     */
+    private $hydrator;
+
+    /**
+     * @var CollectionPointSearchRepositoryInterface
+     */
+    private $searchRequestRepository;
 
     /**
      * @var CartCollectionPointManagementInterface
@@ -48,46 +64,39 @@ class CollectionPoints implements SectionSourceInterface
     private $openingHoursFormatter;
 
     /**
-     * @var CollectionPointSearchRepositoryInterface
+     * @var DistanceConverter
      */
-    private $searchRequestRepository;
-
-    /**
-     * @var StoreManagerInterface
-     */
-    private $storeManager;
-
-    /**
-     * @var HydratorInterface
-     */
-    private $hydrator;
+    private $distanceConverter;
 
     /**
      * CollectionPoints constructor.
+     * @param StoreManagerInterface $storeManager
      * @param ModuleConfigInterface $moduleConfig
      * @param SessionManagerInterface $checkoutSession
+     * @param HydratorInterface $hydrator
+     * @param CollectionPointSearchRepositoryInterface $searchRequestRepository
      * @param CartCollectionPointManagementInterface $cartCollectionPointManagement
      * @param OpeningHoursFormatter $openingHoursFormatter
-     * @param CollectionPointSearchRepositoryInterface $searchRequestRepository
-     * @param StoreManagerInterface $storeManager
-     * @param HydratorInterface $hydrator
+     * @param DistanceConverter $distanceConverter
      */
     public function __construct(
+        StoreManagerInterface $storeManager,
         ModuleConfigInterface $moduleConfig,
         SessionManagerInterface $checkoutSession,
+        HydratorInterface $hydrator,
+        CollectionPointSearchRepositoryInterface $searchRequestRepository,
         CartCollectionPointManagementInterface $cartCollectionPointManagement,
         OpeningHoursFormatter $openingHoursFormatter,
-        CollectionPointSearchRepositoryInterface $searchRequestRepository,
-        StoreManagerInterface $storeManager,
-        HydratorInterface $hydrator
+        DistanceConverter $distanceConverter
     ) {
+        $this->storeManager = $storeManager;
         $this->moduleConfig = $moduleConfig;
         $this->checkoutSession = $checkoutSession;
+        $this->hydrator = $hydrator;
+        $this->searchRequestRepository = $searchRequestRepository;
         $this->cartCollectionPointManagement = $cartCollectionPointManagement;
         $this->openingHoursFormatter = $openingHoursFormatter;
-        $this->searchRequestRepository = $searchRequestRepository;
-        $this->storeManager = $storeManager;
-        $this->hydrator = $hydrator;
+        $this->distanceConverter = $distanceConverter;
     }
 
     /**
@@ -133,12 +142,15 @@ class CollectionPoints implements SectionSourceInterface
         $collectionPoints = $this->cartCollectionPointManagement->getCollectionPoints($quote->getId());
 
         // map collection points to data array with formatted/localized opening hours
-        $collectionPoints = array_map(function (QuoteCollectionPointInterface $collectionPoint) {
+        $collectionPoints = array_map(function (QuoteCollectionPointInterface $collectionPoint) use ($storeId) {
             /** @var QuoteCollectionPoint $collectionPoint */
             $collectionPointData = $collectionPoint->toArray();
 
             $openingHours = $this->openingHoursFormatter->format($collectionPoint->getOpeningHours());
             $collectionPointData[QuoteCollectionPointInterface::OPENING_HOURS] = $openingHours;
+
+            $distance = $this->distanceConverter->format($collectionPoint->getDistance(), $storeId, '%1$s%2$s', 2);
+            $collectionPointData[QuoteCollectionPointInterface::DISTANCE] = $distance;
 
             return $collectionPointData;
         }, $collectionPoints);

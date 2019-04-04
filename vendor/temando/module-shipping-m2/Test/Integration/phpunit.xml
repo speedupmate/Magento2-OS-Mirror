@@ -36,7 +36,7 @@
     <logging>
         <log type="coverage-html" target="../../build/reports/integration/coverage/html"/>
         <log type="coverage-clover" target="../../build/reports/integration/coverage/clover.xml"/>
-        <log type="junit" target="../../build/reports/integration/coverage/junit.xml" logIncompleteSkipped="false"/>
+        <log type="junit" target="../../build/reports/integration/coverage/junit.xml"/>
     </logging>
     <listeners>
         <listener class="Magento\TestFramework\Event\PhpUnit"/>

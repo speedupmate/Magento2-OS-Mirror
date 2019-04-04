@@ -4,6 +4,7 @@
  */
 namespace Temando\Shipping\Plugin\Sales\Order;
 
+use Magento\Framework\Exception\CouldNotSaveException;
 use Magento\Framework\Exception\LocalizedException;
 use Magento\Sales\Api\Data\ShipmentExtensionFactory;
 use Magento\Sales\Api\Data\ShipmentInterface;
@@ -102,6 +103,7 @@ class ShipmentRepositoryPlugin
      * @param callable $proceed
      * @param ShipmentInterface|\Magento\Sales\Model\Order\Shipment $shipment
      * @return ShipmentInterface
+     * @throws CouldNotSaveException
      */
     public function aroundSave(
         ShipmentRepositoryInterface $subject,

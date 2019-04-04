@@ -12,7 +12,7 @@ use Magento\Framework\Api\SearchCriteriaBuilderFactory;
 use Magento\Framework\Exception\InputException;
 use Magento\Framework\Exception\NoSuchEntityException;
 use Magento\Tax\Api\TaxClassRepositoryInterface;
-use Psr\Log\LoggerInterface;
+use Vertex\Tax\Model\ExceptionLogger;
 
 /**
  * Repository of Tax Class Names
@@ -25,7 +25,7 @@ class TaxClassNameRepository
     /** @var GroupRepositoryInterface */
     private $customerGroupRepository;
 
-    /** @var LoggerInterface */
+    /** @var ExceptionLogger */
     private $logger;
 
     /** @var TaxClassRepositoryInterface */
@@ -33,13 +33,13 @@ class TaxClassNameRepository
 
     /**
      * @param TaxClassRepositoryInterface $repository
-     * @param LoggerInterface $logger
+     * @param ExceptionLogger $logger
      * @param SearchCriteriaBuilderFactory $criteriaBuilderFactory
      * @param GroupRepositoryInterface $customerGroupRepository
      */
     public function __construct(
         TaxClassRepositoryInterface $repository,
-        LoggerInterface $logger,
+        ExceptionLogger $logger,
         SearchCriteriaBuilderFactory $criteriaBuilderFactory,
         GroupRepositoryInterface $customerGroupRepository
     ) {
@@ -60,7 +60,7 @@ class TaxClassNameRepository
         try {
             $classId = $this->customerGroupRepository->getById($customerGroupId)->getTaxClassId();
         } catch (\Exception $e) {
-            $this->logger->warning($e->getMessage() . PHP_EOL . $e->getTraceAsString());
+            $this->logger->warning($e);
             $classId = 0;
         }
         return $this->getById($classId);
@@ -82,7 +82,7 @@ class TaxClassNameRepository
             return $this->repository->get($taxClassId)
                 ->getClassName();
         } catch (NoSuchEntityException $exception) {
-            $this->logger->critical($exception->getMessage() . PHP_EOL . $exception->getTraceAsString());
+            $this->logger->critical($exception);
             return 'None';
         }
     }
@@ -105,7 +105,7 @@ class TaxClassNameRepository
         try {
             $list = $this->repository->getList($criteria);
         } catch (InputException $exception) {
-            $this->logger->critical($exception->getMessage() . PHP_EOL . $exception->getTraceAsString());
+            $this->logger->critical($exception);
         }
         $result = [];
         foreach ($list->getItems() as $item) {

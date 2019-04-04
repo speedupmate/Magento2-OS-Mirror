@@ -7,6 +7,7 @@ namespace Temando\Shipping\Model\Delivery;
 
 use Magento\Framework\App\ScopeResolverInterface;
 use Magento\Framework\Locale\ResolverInterface;
+use Magento\Framework\Serialize\SerializerInterface;
 use Magento\Framework\Stdlib\DateTime\TimezoneInterface;
 use Temando\Shipping\Model\Config\ConfigAccessor;
 
@@ -26,11 +27,6 @@ class OpeningHoursFormatter
     private $scopeResolver;
 
     /**
-     * @var TimezoneInterface
-     */
-    private $date;
-
-    /**
      * @var ResolverInterface
      */
     private $localeResolver;
@@ -38,26 +34,52 @@ class OpeningHoursFormatter
     /**
      * @var ConfigAccessor
      */
-    private $scopeConfig;
+    private $config;
+
+    /**
+     * @var TimezoneInterface
+     */
+    private $date;
+
+    /**
+     * @var SerializerInterface
+     */
+    private $serializer;
 
     /**
      * OpeningHoursFormatter constructor.
      *
      * @param ScopeResolverInterface $scopeResolver
-     * @param TimezoneInterface      $date
-     * @param ResolverInterface      $localeResolver
-     * @param ConfigAccessor         $scopeConfig
+     * @param ResolverInterface $localeResolver
+     * @param ConfigAccessor $config
+     * @param TimezoneInterface $date
+     * @param SerializerInterface $serializer
      */
     public function __construct(
         ScopeResolverInterface $scopeResolver,
-        TimezoneInterface $date,
         ResolverInterface $localeResolver,
-        ConfigAccessor $scopeConfig
+        ConfigAccessor $config,
+        TimezoneInterface $date,
+        SerializerInterface $serializer
     ) {
-        $this->scopeResolver  = $scopeResolver;
-        $this->date           = $date;
+        $this->scopeResolver = $scopeResolver;
         $this->localeResolver = $localeResolver;
-        $this->scopeConfig    = $scopeConfig;
+        $this->config = $config;
+        $this->date = $date;
+        $this->serializer = $serializer;
+    }
+
+    /**
+     * Return first day of the week
+     *
+     * @return int
+     */
+    private function getFirstDay()
+    {
+        return (int)$this->config->getConfigValue(
+            'general/locale/firstday',
+            $this->scopeResolver->getScope()->getId()
+        );
     }
 
     /**
@@ -71,15 +93,41 @@ class OpeningHoursFormatter
      */
     private function formatGeneralOpenings(array $openingHours, string $locale): array
     {
-        // summarize days with the same opening hours
+        $firstDay = $this->getFirstDay();
+
+        // sort opening hours by day
+        $fnDaySort = function ($dayA, $dayB) use ($firstDay, $locale) {
+            $dayA = (int)$this->date->date($dayA, $locale, false, false)->format('w');
+            $dayB = (int)$this->date->date($dayB, $locale, false, false)->format('w');
+
+            if ($dayA < $firstDay) {
+                $dayA = $firstDay + 7;
+            }
+
+            if ($dayB < $firstDay) {
+                $dayB = $firstDay + 7;
+            }
+
+            return $dayA > $dayB;
+        };
+
+        // sort one day's opening hours by start time
+        $fnTimeSort = function ($rangeA, $rangeB) {
+            return $rangeA['from'] > $rangeB['from'];
+        };
+
+        uksort($openingHours, $fnDaySort);
+
+        // aggregate days with the same opening hours
         $hoursMap = [];
-        foreach ($openingHours as $day => $hours) {
-            $key = crc32($hours['from'] . '#' . $hours['to']);
+        foreach ($openingHours as $day => $ranges) {
+            usort($ranges, $fnTimeSort);
+            $key = crc32($this->serializer->serialize($ranges));
+
             if (!isset($hoursMap[$key])) {
                 $hoursMap[$key] = [
                     'days' => [],
-                    'from' => $hours['from'],
-                    'to'   => $hours['to'],
+                    'ranges' => $ranges,
                 ];
             }
 
@@ -91,28 +139,33 @@ class OpeningHoursFormatter
         $generalOpenings = [];
         foreach ($hoursMap as $key => $details) {
             $days = implode(', ', $details['days']);
+            $times = [];
 
-            $dateOpens = $this->date->date($details['from'], $locale, false, true);
-            $dateCloses = $this->date->date($details['to'], $locale, false, true);
+            foreach ($details['ranges'] as $range) {
+                $dateOpens = $this->date->date($range['from'], $locale, false, true);
+                $dateCloses = $this->date->date($range['to'], $locale, false, true);
 
-            $timeOpens = $this->date->formatDateTime(
-                $dateOpens,
-                \IntlDateFormatter::NONE,
-                \IntlDateFormatter::SHORT,
-                $locale,
-                'UTC'
-            );
-            $timeCloses = $this->date->formatDateTime(
-                $dateCloses,
-                \IntlDateFormatter::NONE,
-                \IntlDateFormatter::SHORT,
-                $locale,
-                'UTC'
-            );
+                $timeOpens = $this->date->formatDateTime(
+                    $dateOpens,
+                    \IntlDateFormatter::NONE,
+                    \IntlDateFormatter::SHORT,
+                    $locale,
+                    'UTC'
+                );
+                $timeCloses = $this->date->formatDateTime(
+                    $dateCloses,
+                    \IntlDateFormatter::NONE,
+                    \IntlDateFormatter::SHORT,
+                    $locale,
+                    'UTC'
+                );
+
+                $times[]= sprintf('%s - %s', $timeOpens, $timeCloses);
+            }
 
             $generalOpenings[] = [
                 'days' => $days,
-                'times' => sprintf('%s - %s', $timeOpens, $timeCloses),
+                'times' => implode(', ', $times),
             ];
         }
 
@@ -135,6 +188,13 @@ class OpeningHoursFormatter
     {
         $formattedSpecifics = [];
         $today = $this->date->date();
+
+        $fnDateSort = function ($dateA, $dateB) {
+            $dateA = preg_filter('/[^\d]/', '', $dateA['from']);
+            $dateB = preg_filter('/[^\d]/', '', $dateB['from']);
+            return $dateA > $dateB;
+        };
+        usort($openingHours, $fnDateSort);
 
         foreach ($openingHours as $opening) {
             $dateFrom = $this->date->date($opening['from'], $locale, false, true);

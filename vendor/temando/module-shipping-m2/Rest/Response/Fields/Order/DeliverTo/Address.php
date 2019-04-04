@@ -207,7 +207,7 @@ class Address
      * @param float $latitude
      * @return void
      */
-    public function setLatitude(float $latitude)
+    public function setLatitude($latitude)
     {
         $this->latitude = $latitude;
     }

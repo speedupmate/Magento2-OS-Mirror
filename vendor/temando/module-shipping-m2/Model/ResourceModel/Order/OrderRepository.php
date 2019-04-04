@@ -14,10 +14,9 @@ use Temando\Shipping\Rest\Adapter\OrderApiInterface;
 use Temando\Shipping\Rest\EntityMapper\OrderRequestTypeBuilder;
 use Temando\Shipping\Rest\EntityMapper\OrderResponseMapper;
 use Temando\Shipping\Rest\Exception\AdapterException;
-use Temando\Shipping\Rest\Request\OrderRequestInterfaceFactory;
+use Temando\Shipping\Rest\Request\OrderRequestFactory;
 use Temando\Shipping\Rest\Request\Type\OrderRequestTypeInterface;
-use Temando\Shipping\Webservice\OrderActionLocator;
-use Temando\Shipping\Webservice\Response\Type\OrderResponseTypeInterface;
+use Temando\Shipping\Webservice\Response\Type\OrderResponseType;
 
 /**
  * Temando Order Repository
@@ -36,7 +35,7 @@ class OrderRepository implements OrderRepositoryInterface
     private $apiAdapter;
 
     /**
-     * @var OrderRequestInterfaceFactory
+     * @var OrderRequestFactory
      */
     private $requestFactory;
 
@@ -61,28 +60,21 @@ class OrderRepository implements OrderRepositoryInterface
     private $orderReferenceFactory;
 
     /**
-     * @var OrderActionLocator
-     */
-    private $orderActionLocator;
-
-    /**
      * OrderRepository constructor.
      * @param OrderApiInterface $apiAdapter
-     * @param OrderRequestInterfaceFactory $requestFactory
+     * @param OrderRequestFactory $requestFactory
      * @param OrderRequestTypeBuilder $requestBuilder
      * @param OrderResponseMapper $orderResponseMapper
      * @param OrderReference $resource
      * @param OrderReferenceInterfaceFactory $orderReferenceFactory
-     * @param OrderActionLocator $orderActionLocator
      */
     public function __construct(
         OrderApiInterface $apiAdapter,
-        OrderRequestInterfaceFactory $requestFactory,
+        OrderRequestFactory $requestFactory,
         OrderRequestTypeBuilder $requestBuilder,
         OrderResponseMapper $orderResponseMapper,
         OrderReference $resource,
-        OrderReferenceInterfaceFactory $orderReferenceFactory,
-        OrderActionLocator $orderActionLocator
+        OrderReferenceInterfaceFactory $orderReferenceFactory
     ) {
         $this->apiAdapter = $apiAdapter;
         $this->requestFactory = $requestFactory;
@@ -90,7 +82,6 @@ class OrderRepository implements OrderRepositoryInterface
         $this->orderResponseMapper = $orderResponseMapper;
         $this->resource = $resource;
         $this->orderReferenceFactory = $orderReferenceFactory;
-        $this->orderActionLocator = $orderActionLocator;
     }
 
     /**
@@ -112,16 +103,17 @@ class OrderRepository implements OrderRepositoryInterface
     }
 
     /**
-     * Create a regular order at the platform for QUOTING or MANIFESTATION.
+     * Create a regular order at the platform.
      *
      * @param OrderRequestTypeInterface $orderType
-     * @return OrderResponseTypeInterface
+     * @return OrderResponseType
      * @throws CouldNotSaveException
      */
-    private function createOrder(OrderRequestTypeInterface $orderType)
+    private function create(OrderRequestTypeInterface $orderType)
     {
         $orderRequest = $this->requestFactory->create([
             'order' => $orderType,
+            'action' => OrderApiInterface::ACTION_CREATE,
         ]);
 
         try {
@@ -130,88 +122,67 @@ class OrderRepository implements OrderRepositoryInterface
             throw new CouldNotSaveException(__('Unable to save order.'), $e);
         }
 
-        return $this->orderResponseMapper->mapCreatedOrder($createdOrder);
+        return $this->orderResponseMapper->map($createdOrder);
     }
 
     /**
-     * Create a pickup order at the platform for QUOTING or MANIFESTATION.
+     * Create a regular order at the platform and allocate pickup fulfillments.
      *
      * @param OrderRequestTypeInterface $orderType
-     * @return OrderResponseTypeInterface
+     * @return OrderResponseType
      * @throws CouldNotSaveException
      */
-    private function createPickupOrder(OrderRequestTypeInterface $orderType)
+    private function allocatePickup(OrderRequestTypeInterface $orderType)
     {
         $orderRequest = $this->requestFactory->create([
             'order' => $orderType,
+            'action' => OrderApiInterface::ACTION_ALLOCATE_PICKUP,
         ]);
 
         try {
-            $quotedOrder = $this->apiAdapter->createPickupOrder($orderRequest);
+            $createdOrder = $this->apiAdapter->createOrder($orderRequest);
         } catch (AdapterException $e) {
-            throw new CouldNotSaveException(__('Unable to get quotes.'), $e);
+            throw new CouldNotSaveException(__('Unable to save order.'), $e);
         }
 
-        return $this->orderResponseMapper->mapPickupLocations($quotedOrder);
+        return $this->orderResponseMapper->map($createdOrder);
     }
 
     /**
-     * Create a collection point order at the platform for QUOTING.
-     * Response includes applicable collection points for that order.
+     * Create a regular order at the platform and allocate shipments.
      *
      * @param OrderRequestTypeInterface $orderType
-     * @return OrderResponseTypeInterface
+     * @return OrderResponseType
      * @throws CouldNotSaveException
      */
-    private function quoteCollectionPoints(OrderRequestTypeInterface $orderType)
+    private function allocateShipment(OrderRequestTypeInterface $orderType)
     {
         $orderRequest = $this->requestFactory->create([
             'order' => $orderType,
+            'action' => OrderApiInterface::ACTION_ALLOCATE_SHIPMENT,
         ]);
 
         try {
-            $quotedOrder = $this->apiAdapter->getCollectionPoints($orderRequest);
-        } catch (AdapterException $e) {
-            throw new CouldNotSaveException(__('Unable to get quotes.'), $e);
-        }
-
-        return $this->orderResponseMapper->mapCollectionPoints($quotedOrder);
-    }
-
-    /**
-     * Create a regular or collection point order at the platform for MANIFESTATION.
-     * In addition to a regular manifestation, the response includes allocated shipments.
-     *
-     * @param OrderRequestTypeInterface $orderType
-     * @return OrderResponseTypeInterface
-     * @throws CouldNotSaveException
-     */
-    private function allocate(OrderRequestTypeInterface $orderType)
-    {
-        $orderRequest = $this->requestFactory->create([
-            'order' => $orderType,
-        ]);
-
-        try {
-            $allocatedOrder = $this->apiAdapter->allocateOrder($orderRequest);
+            $allocatedOrder = $this->apiAdapter->createOrder($orderRequest);
         } catch (AdapterException $e) {
             throw new CouldNotSaveException(__('Unable to allocate shipments.'), $e);
         }
 
-        return $this->orderResponseMapper->mapAllocatedOrder($allocatedOrder);
+        return $this->orderResponseMapper->map($allocatedOrder);
     }
 
     /**
-     * Update a manifested order at the platform.
+     * Update a previously created order at the platform.
      *
      * @param OrderRequestTypeInterface $orderType
-     * @return OrderResponseTypeInterface
+     * @return OrderResponseType
      * @throws CouldNotSaveException
      */
     private function update(OrderRequestTypeInterface $orderType)
     {
         $orderRequest = $this->requestFactory->create([
             'order' => $orderType,
+            'action' => OrderApiInterface::ACTION_UPDATE,
         ]);
 
         try {
@@ -220,12 +191,12 @@ class OrderRepository implements OrderRepositoryInterface
             throw new CouldNotSaveException(__('Unable to save order.'), $e);
         }
 
-        return $this->orderResponseMapper->mapUpdatedOrder($updatedOrder);
+        return $this->orderResponseMapper->map($updatedOrder);
     }
 
     /**
      * @param OrderInterface $order
-     * @return OrderResponseTypeInterface
+     * @return OrderResponseType
      * @throws CouldNotSaveException
      */
     public function save(OrderInterface $order)
@@ -233,30 +204,22 @@ class OrderRepository implements OrderRepositoryInterface
         // build order request type
         $orderType = $this->requestBuilder->build($order);
 
-        $apiAction = $this->orderActionLocator->getOrderAction($order);
-        switch ($apiAction) {
-            case OrderActionLocator::ACTION_NONE:
-                $orderResponse = $this->orderResponseMapper->createEmptyResponse();
-                break;
-            case OrderActionLocator::ACTION_QUALIFY:
-            case OrderActionLocator::ACTION_PERSIST:
-                $orderResponse = $this->createOrder($orderType);
-                break;
-            case OrderActionLocator::ACTION_QUALIFY_PICKUP:
-            case OrderActionLocator::ACTION_PERSIST_PICKUP:
-                $orderResponse = $this->createPickupOrder($orderType);
-                break;
-            case OrderActionLocator::ACTION_QUALIFY_COLLECTION_POINTS:
-                $orderResponse = $this->quoteCollectionPoints($orderType);
-                break;
-            case OrderActionLocator::ACTION_ALLOCATE:
-                $orderResponse = $this->allocate($orderType);
-                break;
-            case OrderActionLocator::ACTION_UPDATE:
-                $orderResponse = $this->update($orderType);
-                break;
-            default:
-                throw new CouldNotSaveException(__('Cannot save order: no applicable API action found.'));
+        // may be replaced by config setting in the future.
+        $isOrderAllocationEnabled = true;
+        $isPaymentPending = ($order->getStatus() === OrderInterface::STATUS_AWAITING_PAYMENT);
+        $isUpdate = $order->getOrderId() && $order->getSourceId();
+
+        $pickup = $order->getPickupLocation();
+        $isPickupOrder = !empty($pickup) && !empty($pickup->getPickupLocationId());
+
+        if ($isUpdate) {
+            $orderResponse = $this->update($orderType);
+        } elseif ($isPickupOrder) {
+            $orderResponse = $this->allocatePickup($orderType);
+        } elseif ($isOrderAllocationEnabled && !$isPaymentPending) {
+            $orderResponse = $this->allocateShipment($orderType);
+        } else {
+            $orderResponse = $this->create($orderType);
         }
 
         if ($order->getSourceId() && !$order->getOrderId()) {
@@ -264,7 +227,7 @@ class OrderRepository implements OrderRepositoryInterface
             // - local order entity exists
             // - remote order entity does not yet exist
             $orderReference = $this->orderReferenceFactory->create(['data' => [
-                OrderReferenceInterface::EXT_ORDER_ID => $orderResponse->getExtOrderId(),
+                OrderReferenceInterface::EXT_ORDER_ID => $orderResponse->getOrderId(),
                 OrderReferenceInterface::ORDER_ID => $order->getSourceId(),
             ]]);
 

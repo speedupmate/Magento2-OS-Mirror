@@ -26,6 +26,8 @@ interface OrderCollectionPointRepositoryInterface
     public function get($addressId);
 
     /**
+     * Save collection point.
+     *
      * @param OrderCollectionPointInterface $collectionPoint
      * @return OrderCollectionPointInterface
      * @throws CouldNotSaveException

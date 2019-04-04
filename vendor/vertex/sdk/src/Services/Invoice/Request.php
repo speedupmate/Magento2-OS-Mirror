@@ -10,7 +10,7 @@ namespace Vertex\Services\Invoice;
 use Vertex\Services\Quote\Request as QuoteRequest;
 
 /**
- * Default implementation of {@see RequestInterface}
+ * {@inheritDoc}
  */
 class Request extends QuoteRequest implements RequestInterface
 {

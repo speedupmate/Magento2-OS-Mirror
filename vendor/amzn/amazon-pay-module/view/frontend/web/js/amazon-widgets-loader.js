@@ -13,15 +13,10 @@
  * permissions and limitations under the License.
  */
 
-var registry = require('uiRegistry');
-
-if (registry.get('amazonPayment') !== undefined) {
-    var amazonPayment = registry.get('amazonPayment');
-
-    define([amazonPayment.widgetUrl], function () {
-        'use strict';
-
-        //after amazon widgets file as loaded
-
+define(['uiRegistry'], function(registry) {
+    'use strict';
+    registry.get('amazonPayment', function (amazonPayment) {
+        // Load external Widgets.js
+        require([amazonPayment.widgetUrl]);
     });
-}
+});

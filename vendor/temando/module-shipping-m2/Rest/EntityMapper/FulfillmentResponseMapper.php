@@ -171,7 +171,7 @@ class FulfillmentResponseMapper implements PointerAwareInterface
         $pathMap = [
             PickupInterface::CREATED_AT => '/createdAt',
             PickupInterface::READY_AT => '/readyAt',
-            PickupInterface::PICKUP_LOCATION => '/pickUpLocation',
+            PickupInterface::LOCATION_ID => '/pickUpLocation',
             PickupInterface::ORDER_ID => '/order',
             PickupInterface::STATE => '/state',
         ];

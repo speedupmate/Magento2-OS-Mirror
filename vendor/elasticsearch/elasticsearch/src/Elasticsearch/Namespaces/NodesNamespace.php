@@ -109,23 +109,21 @@ class NodesNamespace extends AbstractNamespace
     }
 
     /**
-     * $params['node_id'] = (list) A comma-separated list of node IDs or names to perform the operation on; use `_local` to perform the operation on the node you're connected to, leave empty to perform the operation on all nodes
-     *        ['delay']   = (time) Set the delay for the operation (default: 1s)
-     *        ['exit']    = (boolean) Exit the JVM as well (default: true)
+     * $params['node_id']   = (list) A comma-separated list of node IDs or names to limit the returned information; use `_local` to return information from the node you're connecting to, leave empty to get information from all nodes
      *
-     * @param $params array Associative array of parameters
+     * @param array $params Associative array of parameters
      *
      * @return array
      */
-    public function shutdown($params = array())
+    public function reloadSecureSettings($params = array())
     {
         $nodeID = $this->extractArgument($params, 'node_id');
 
         /** @var callback $endpointBuilder */
         $endpointBuilder = $this->endpoints;
 
-        /** @var \Elasticsearch\Endpoints\Cluster\Nodes\Shutdown $endpoint */
-        $endpoint = $endpointBuilder('Cluster\Nodes\Shutdown');
+        /** @var \Elasticsearch\Endpoints\Cluster\Nodes\ReloadSecureSettings $endpoint */
+        $endpoint = $endpointBuilder('Cluster\Nodes\ReloadSecureSettings');
         $endpoint->setNodeID($nodeID);
         $endpoint->setParams($params);
 

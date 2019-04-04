@@ -7,7 +7,7 @@ namespace Temando\Shipping\Webservice\Processor\OrderOperation;
 use Magento\Quote\Model\Quote\Address\RateRequest;
 use Temando\Shipping\Api\Data\Order\ShippingExperienceInterface;
 use Temando\Shipping\Model\OrderInterface;
-use Temando\Shipping\Webservice\Response\Type\OrderResponseTypeInterface;
+use Temando\Shipping\Webservice\Response\Type\QualificationResponseType;
 
 /**
  * Temando Rates Processor.
@@ -24,22 +24,20 @@ class RatesProcessor implements RatesProcessorInterface
      *
      * @param RateRequest $rateRequest
      * @param OrderInterface $requestType
-     * @param OrderResponseTypeInterface $responseType
+     * @param QualificationResponseType $responseType
      * @return ShippingExperienceInterface[]
      */
     public function postProcess(
         RateRequest $rateRequest,
         OrderInterface $requestType,
-        OrderResponseTypeInterface $responseType
+        QualificationResponseType $responseType
     ) {
-        if ($requestType->getCollectionPoint() || $requestType->getPickupLocation()) {
+        if ($requestType->getCollectionPointSearchRequest() || $requestType->getPickupLocationSearchRequest()) {
             // ignore default recipient address experiences
             return [];
         }
 
         // experiences for default addresses
-        $experiences = $responseType->getShippingExperiences();
-
-        return $experiences;
+        return $responseType->getShippingExperiences();
     }
 }

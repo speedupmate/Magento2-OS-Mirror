@@ -37,6 +37,8 @@ define(
                     $container: null,
                     pollInterval: 1500,
                     $form: null,
+                    apSimplePathSelector: '#amazon_simplepath',
+                    apSimplePathBackSelector: '#amazon_simplepath_back',
                 },
 
                 /**
@@ -46,7 +48,7 @@ define(
                 initObservable: function () {
                     var self = this;
 
-                    self.$amazonSimplepath = $('#amazon_simplepath');
+                    self.$amazonSimplepath = $(self.apSimplePathSelector);
                     self.$amazonFields = $('#payment_' + self.getCountry() + '_' + self.selector + ' .form-list');
                     self.$amazonCredentialsHeader = $('#payment_' + self.getCountry() + '_' + self.selector
                         + '_credentials-head');
@@ -54,9 +56,18 @@ define(
                         + '_credentials_credentials_json');
                     self.$amazonMerchantId = $('#payment_' + self.getCountry() + '_' + self.selector
                         + '_credentials_merchant_id').val();
-                    self.$amazonSpBack = $('#amazon_simplepath_back');
-                    self.$container = $('#amazon_simplepath');
+                    self.$amazonSpBack = $(self.apSimplePathBackSelector);
+                    self.$container = $(self.apSimplePathSelector);
 
+                    if (this.isMultiCurrencyRegion) {
+                        $('#row_payment_' + self.getCountry() + '_amazon_payment_advanced_sales_options_multicurrency').show();
+                        $('#row_payment_other_amazon_payment_advanced_sales_options_multicurrency').show();
+                    }
+                    else {
+                        $('#row_payment_' + self.getCountry() + '_amazon_payment_advanced_sales_options_multicurrency').hide();
+                        $('#row_payment_other_amazon_payment_advanced_sales_options_multicurrency').hide();
+                    }
+                    
                     if (self.$amazonMerchantId) {
                         self.hideAmazonConfig();
                     }

@@ -82,7 +82,7 @@ class ShipmentResponseMapper
      * @param LocationInterfaceFactory $locationFactory
      * @param FulfillmentInterfaceFactory $fulfillmentFactory
      * @param ShipmentItemInterfaceFactory $shipmentItemFactory
-     * @param ExportDeclarationInterfaceFactory $exportDeclarationFactory,
+     * @param ExportDeclarationInterfaceFactory $exportDeclarationFactory
      * @param PackageResponseMapper $packageMapper
      * @param DocumentationResponseMapper $documentationMapper
      * @param CapabilityInterfaceFactory $capabilityFactory
@@ -108,11 +108,36 @@ class ShipmentResponseMapper
     }
 
     /**
-     * @param LocationAttributes $apiLocation
-     * @return LocationInterface
+     * @param Fulfill|null $apiFulfillment
+     * @return FulfillmentInterface|null
      */
-    private function mapLocation(LocationAttributes $apiLocation)
+    private function mapFulfillment(?Fulfill $apiFulfillment): ?FulfillmentInterface
     {
+        if (!$apiFulfillment) {
+            return null;
+        }
+
+        $booking = $apiFulfillment->getCarrierBooking();
+        $fulfillment = $this->fulfillmentFactory->create(['data' => [
+            FulfillmentInterface::TRACKING_REFERENCE => $booking->getTrackingReference(),
+            FulfillmentInterface::TRACKING_URL => $booking->getTrackingUrl(),
+            FulfillmentInterface::SERVICE_NAME => $booking->getServiceName(),
+            FulfillmentInterface::CARRIER_NAME => $booking->getCarrierName(),
+        ]]);
+
+        return $fulfillment;
+    }
+
+    /**
+     * @param LocationAttributes|null $apiLocation
+     * @return LocationInterface|null
+     */
+    private function mapLocation(?LocationAttributes $apiLocation): ?LocationInterface
+    {
+        if (!$apiLocation) {
+            return null;
+        }
+
         $contact = $apiLocation->getContact();
         $location = $this->locationFactory->create(['data' => [
             LocationInterface::NAME => '',
@@ -133,40 +158,10 @@ class ShipmentResponseMapper
     }
 
     /**
-     * @param Item[] $apiItems
-     * @return ShipmentItemInterface[]
-     */
-    private function mapItems(array $apiItems)
-    {
-        $shipmentItems = array_map(function (Item $apiItem) {
-            return $this->shipmentItemFactory->create(['data' => [
-                ShipmentItemInterface::QTY => $apiItem->getQuantity(),
-                ShipmentItemInterface::SKU => $apiItem->getProduct()->getSku(),
-            ]]);
-        }, $apiItems);
-
-        return $shipmentItems;
-    }
-
-    /**
-     * @param Package[] $apiPackages
-     * @return PackageInterface[]
-     */
-    private function mapPackages(array $apiPackages)
-    {
-        // map collected packages
-        $packages = array_map(function (Package $apiPackage) {
-            return $this->packageMapper->map($apiPackage);
-        }, $apiPackages);
-
-        return $packages;
-    }
-
-    /**
      * @param Shipment $apiShipment
      * @return DocumentationInterface[]
      */
-    private function mapDocumentation(Shipment $apiShipment)
+    private function mapDocumentation(Shipment $apiShipment): array
     {
         // collect documentation from shipment and packages
         $apiDocs = $apiShipment->getAttributes()->getDocumentation();
@@ -185,41 +180,10 @@ class ShipmentResponseMapper
     }
 
     /**
-     * @param Fulfill | null $apiFulfillment
-     *
-     * @return FulfillmentInterface
-     */
-    private function mapFulfillment($apiFulfillment)
-    {
-        /** @var \Temando\Shipping\Model\Shipment\Fulfillment $fulfillment */
-        $fulfillment = $this->fulfillmentFactory->create();
-
-        if ($apiFulfillment) {
-            $fulfillment->setData(
-                FulfillmentInterface::TRACKING_REFERENCE,
-                $apiFulfillment->getCarrierBooking()->getTrackingReference()
-            );
-
-            $fulfillment->setData(
-                FulfillmentInterface::SERVICE_NAME,
-                $apiFulfillment->getCarrierBooking()->getServiceName()
-            );
-
-            $fulfillment->setData(
-                FulfillmentInterface::CARRIER_NAME,
-                $apiFulfillment->getCarrierBooking()->getCarrierName()
-            );
-        }
-
-        return $fulfillment;
-    }
-
-    /**
      * @param Shipment $apiShipment
-     *
      * @return ExportDeclarationInterface
      */
-    private function mapExportDeclaration(Shipment $apiShipment)
+    private function mapExportDeclaration(Shipment $apiShipment): ?ExportDeclarationInterface
     {
         $apiDeclaration = $apiShipment->getAttributes()->getExportDeclaration();
         if (!$apiDeclaration) {
@@ -234,15 +198,13 @@ class ShipmentResponseMapper
             $apiShipment->getAttributes()->getIsDutiable()
         );
 
-        $declaredValue = sprintf(
-            '%s %s',
-            $apiDeclaration->getDeclaredValue()->getAmount(),
-            $apiDeclaration->getDeclaredValue()->getCurrency()
-        );
-        $exportDeclaration->setData(
-            ExportDeclarationInterface::DECLARED_VALUE,
-            $declaredValue
-        );
+        $apiDeclaredValue = $apiDeclaration->getDeclaredValue();
+        if ($apiDeclaredValue) {
+            $exportDeclaration->setData(
+                ExportDeclarationInterface::DECLARED_VALUE,
+                "{$apiDeclaredValue->getAmount()} {$apiDeclaredValue->getCurrency()}"
+            );
+        }
 
         $exportDeclaration->setData(
             ExportDeclarationInterface::EXPORT_CATEGORY,
@@ -306,11 +268,40 @@ class ShipmentResponseMapper
     }
 
     /**
+     * @param Item[] $apiItems
+     * @return ShipmentItemInterface[]
+     */
+    private function mapItems(array $apiItems): array
+    {
+        $shipmentItems = array_map(function (Item $apiItem) {
+            return $this->shipmentItemFactory->create(['data' => [
+                ShipmentItemInterface::QTY => $apiItem->getQuantity(),
+                ShipmentItemInterface::SKU => $apiItem->getProduct()->getSku(),
+            ]]);
+        }, $apiItems);
+
+        return $shipmentItems;
+    }
+
+    /**
+     * @param Package[] $apiPackages
+     * @return PackageInterface[]
+     */
+    private function mapPackages(array $apiPackages): array
+    {
+        // map collected packages
+        $packages = array_map(function (Package $apiPackage) {
+            return $this->packageMapper->map($apiPackage);
+        }, $apiPackages);
+
+        return $packages;
+    }
+
+    /**
      * @param mixed[][] $apiCapabilities
-     *
      * @return CapabilityInterface[]
      */
-    public function mapCapabilities(array $apiCapabilities)
+    public function mapCapabilities(array $apiCapabilities): array
     {
         $capabilities = [];
 
@@ -343,22 +334,18 @@ class ShipmentResponseMapper
         $isPaperless         = $apiShipment->getAttributes()->getIsPaperless();
         $status              = $apiShipment->getAttributes()->getStatus();
         $createdAt           = $apiShipment->getAttributes()->getCreatedAt();
+        $isCancelable        = $apiShipment->getMeta() ? $apiShipment->getMeta()->getIsCancelable() : false;
 
         $documentation       = $this->mapDocumentation($apiShipment);
         $exportDeclaration   = $this->mapExportDeclaration($apiShipment);
 
-        $shipmentFulfillment = $this->mapFulfillment($apiShipment->getAttributes()->getFulfill());
         $origin              = $this->mapLocation($apiShipment->getAttributes()->getOrigin());
         $destination         = $this->mapLocation($apiShipment->getAttributes()->getDestination());
+        $finalRecipient      = $this->mapLocation($apiShipment->getAttributes()->getFinalRecipient());
+        $shipmentFulfillment = $this->mapFulfillment($apiShipment->getAttributes()->getFulfill());
         $items               = $this->mapItems($apiShipment->getAttributes()->getItems());
         $packages            = $this->mapPackages($apiShipment->getAttributes()->getPackages());
         $capabilities        = $this->mapCapabilities($apiShipment->getAttributes()->getCapabilities());
-
-        if (!$apiShipment->getAttributes()->getFinalRecipient()) {
-            $finalRecipient = null;
-        } else {
-            $finalRecipient = $this->mapLocation($apiShipment->getAttributes()->getFinalRecipient());
-        }
 
         $shipment = $this->shipmentFactory->create(['data' => [
             ShipmentInterface::SHIPMENT_ID => $shipmentId,
@@ -377,6 +364,7 @@ class ShipmentResponseMapper
             ShipmentInterface::STATUS => $status,
             ShipmentInterface::CAPABILITIES => $capabilities,
             ShipmentInterface::CREATED_AT => $createdAt,
+            ShipmentInterface::IS_CANCELABLE => $isCancelable,
         ]]);
 
         return $shipment;

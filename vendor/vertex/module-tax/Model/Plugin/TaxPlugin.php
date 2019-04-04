@@ -61,8 +61,9 @@ class TaxPlugin
         $items = call_user_func_array($super, $arguments);
 
         $store = $address->getQuote()->getStore();
+        $storeId = $store->getStoreId();
 
-        if (!$this->config->isVertexActive($store)) {
+        if (!$this->config->isVertexActive($storeId) || !$this->config->isTaxCalculationEnabled($storeId)) {
             return $items;
         }
 

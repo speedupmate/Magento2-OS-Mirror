@@ -50,7 +50,7 @@ class MapperFactory
                 ],
                 'Vertex\Data\CustomerInterface' => [
                     '60' => 'Vertex\Mapper\Api60\CustomerMapper',
-                    '70' => 'Vertex\Mapper\Api60\CustomerMapper',
+                    '70' => 'Vertex\Mapper\Api70\CustomerMapper',
                 ],
                 'Vertex\Data\JurisdictionInterface' => [
                     '60' => 'Vertex\Mapper\Api60\JurisdictionMapper',
@@ -58,7 +58,7 @@ class MapperFactory
                 ],
                 'Vertex\Data\LineItemInterface' => [
                     '60' => 'Vertex\Mapper\Api60\LineItemMapper',
-                    '70' => 'Vertex\Mapper\Api60\LineItemMapper',
+                    '70' => 'Vertex\Mapper\Api70\LineItemMapper',
                 ],
                 'Vertex\Data\LoginInterface' => [
                     '60' => 'Vertex\Mapper\Api60\LoginMapper',
@@ -76,13 +76,17 @@ class MapperFactory
                     '60' => 'Vertex\Mapper\Api60\TaxMapper',
                     '70' => 'Vertex\Mapper\Api60\TaxMapper',
                 ],
+                'Vertex\Data\TaxRegistrationInterface' => [
+                    '60' => 'Vertex\Mapper\Api60\TaxRegistrationMapper',
+                    '70' => 'Vertex\Mapper\Api70\TaxRegistrationMapper',
+                ],
                 'Vertex\Services\Invoice\RequestInterface' => [
                     '60' => 'Vertex\Mapper\Api60\InvoiceRequestMapper',
-                    '70' => 'Vertex\Mapper\Api60\InvoiceRequestMapper',
+                    '70' => 'Vertex\Mapper\Api70\InvoiceRequestMapper',
                 ],
                 'Vertex\Services\Invoice\ResponseInterface' => [
                     '60' => 'Vertex\Mapper\Api60\InvoiceResponseMapper',
-                    '70' => 'Vertex\Mapper\Api60\InvoiceResponseMapper',
+                    '70' => 'Vertex\Mapper\Api70\InvoiceResponseMapper',
                 ],
                 'Vertex\Services\TaxAreaLookup\RequestInterface' => [
                     '60' => 'Vertex\Mapper\Api60\TaxAreaLookupRequestMapper',
@@ -94,11 +98,11 @@ class MapperFactory
                 ],
                 'Vertex\Services\Quote\RequestInterface' => [
                     '60' => 'Vertex\Mapper\Api60\QuoteRequestMapper',
-                    '70' => 'Vertex\Mapper\Api60\QuoteRequestMapper',
+                    '70' => 'Vertex\Mapper\Api70\QuoteRequestMapper',
                 ],
                 'Vertex\Services\Quote\ResponseInterface' => [
                     '60' => 'Vertex\Mapper\Api60\QuoteResponseMapper',
-                    '70' => 'Vertex\Mapper\Api60\QuoteResponseMapper',
+                    '70' => 'Vertex\Mapper\Api70\QuoteResponseMapper',
                 ],
             ];
         }

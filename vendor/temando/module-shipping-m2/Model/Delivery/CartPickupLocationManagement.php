@@ -7,11 +7,15 @@ namespace Temando\Shipping\Model\Delivery;
 use Magento\Framework\Exception\CouldNotSaveException;
 use Magento\Framework\Exception\NoSuchEntityException;
 use Magento\Quote\Model\ShippingAddressManagementInterface;
+use Temando\Shipping\Api\Checkout\CartPickupLocationManagementInterface as CheckoutCartPickupLocationManagement;
 use Temando\Shipping\Api\Data\Delivery\QuotePickupLocationInterface;
 use Temando\Shipping\Api\Delivery\CartPickupLocationManagementInterface;
 
 /**
  * Manage Pickup Location Searches
+ *
+ * @deprecated since 1.5.1
+ * @see \Temando\Shipping\Model\Checkout\Delivery\CartPickupLocationManagement
  *
  * @package Temando\Shipping\Model
  * @author  Sebastian Ertner <benjamin.heuer@netresearch.de>
@@ -20,6 +24,11 @@ use Temando\Shipping\Api\Delivery\CartPickupLocationManagementInterface;
  */
 class CartPickupLocationManagement implements CartPickupLocationManagementInterface
 {
+    /**
+     * @var CheckoutCartPickupLocationManagement
+     */
+    private $cartPickupLocationManagement;
+
     /**
      * @var ShippingAddressManagementInterface
      */
@@ -33,13 +42,16 @@ class CartPickupLocationManagement implements CartPickupLocationManagementInterf
     /**
      * CartPickupLocationManagement constructor.
      *
+     * @param CheckoutCartPickupLocationManagement $cartPickupLocationManagement
      * @param ShippingAddressManagementInterface $addressManagement
      * @param PickupLocationManagement $pickupLocationManagement
      */
     public function __construct(
+        CheckoutCartPickupLocationManagement $cartPickupLocationManagement,
         ShippingAddressManagementInterface $addressManagement,
         PickupLocationManagement $pickupLocationManagement
     ) {
+        $this->cartPickupLocationManagement = $cartPickupLocationManagement;
         $this->addressManagement = $addressManagement;
         $this->pickupLocationManagement = $pickupLocationManagement;
     }
@@ -47,13 +59,10 @@ class CartPickupLocationManagement implements CartPickupLocationManagementInterf
     /**
      * @param int $cartId
      * @return QuotePickupLocationInterface[]
-     * @throws NoSuchEntityException
      */
     public function getPickupLocations($cartId)
     {
-        $shippingAddress = $this->addressManagement->get($cartId);
-
-        return $this->pickupLocationManagement->getPickupLocations($shippingAddress->getId());
+        return $this->cartPickupLocationManagement->getPickupLocations($cartId);
     }
 
     /**

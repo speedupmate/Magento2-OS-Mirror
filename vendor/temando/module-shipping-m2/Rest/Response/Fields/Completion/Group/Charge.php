@@ -29,7 +29,7 @@ class Charge
     /**
      * @return string
      */
-    public function getDescription(): string
+    public function getDescription()
     {
         return $this->description;
     }
@@ -38,7 +38,7 @@ class Charge
      * @param string $description
      * @return void
      */
-    public function setDescription(string $description)
+    public function setDescription($description)
     {
         $this->description = $description;
     }

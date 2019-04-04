@@ -9,7 +9,7 @@ use Magento\Sales\Api\Data\OrderInterface;
 use Magento\Sales\Api\Data\OrderStatusHistoryInterface;
 use Magento\Sales\Api\Data\OrderStatusHistoryInterfaceFactory;
 use Magento\Sales\Api\OrderStatusHistoryRepositoryInterface;
-use Temando\Shipping\Model\Shipment\AllocationErrorInterface;
+use Temando\Shipping\Model\Shipment\ShipmentErrorInterface;
 
 /**
  * Temando Order Fulfillment Comments History Updater.
@@ -69,7 +69,7 @@ class OrderStatusHistoryUpdater
 
     /**
      * @param OrderInterface $order
-     * @param AllocationErrorInterface[] $errors
+     * @param ShipmentErrorInterface[] $errors
      * @return void
      */
     public function addErrors(OrderInterface $order, array $errors)

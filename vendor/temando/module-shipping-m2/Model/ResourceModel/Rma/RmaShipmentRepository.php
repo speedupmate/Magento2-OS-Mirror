@@ -11,6 +11,7 @@ use Magento\Framework\Api\SearchCriteriaBuilder;
 use Magento\Framework\Api\SearchCriteriaInterface;
 use Magento\Framework\Exception\CouldNotDeleteException;
 use Magento\Framework\Exception\CouldNotSaveException;
+use Magento\Framework\Exception\LocalizedException;
 use Magento\Rma\Api\Data\RmaInterface;
 use Magento\Sales\Api\ShipmentRepositoryInterface as SalesShipmentRepositoryInterface;
 use Temando\Shipping\Api\Data\Shipment\ShipmentReferenceInterface;
@@ -204,7 +205,11 @@ class RmaShipmentRepository implements RmaShipmentRepositoryInterface
         $rmaId = $this->extractRmaId($criteria);
         $shipmentIds = $this->resource->getShipmentIds($rmaId);
         foreach ($shipmentIds as $shipmentId) {
-            $shipments[] = $this->shipmentRepository->getById($shipmentId);
+            try {
+                $shipments[] = $this->shipmentRepository->getById($shipmentId);
+            } catch (LocalizedException $exception) {
+                continue;
+            }
         }
 
         return $shipments;

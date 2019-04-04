@@ -100,6 +100,7 @@ class CollectionPointSearchResult extends AbstractCollection implements Collecti
      *
      * @param QuoteCollectionPointInterface[] $items
      * @return $this
+     * @throws \Exception
      */
     public function setItems(array $items = null)
     {
@@ -133,6 +134,9 @@ class CollectionPointSearchResult extends AbstractCollection implements Collecti
                 $item->setData(QuoteCollectionPointInterface::OPENING_HOURS, $openingHours);
             }
 
+            // cast values for type safety
+            $distance = $item->getDistance() ? (int) $item->getDistance() : null;
+            $item->setData(QuoteCollectionPointInterface::DISTANCE, $distance);
             $item->setData(QuoteCollectionPointInterface::SELECTED, (bool) $item->isSelected());
         }
 

@@ -8,7 +8,7 @@
 namespace Vertex\Data;
 
 /**
- * Default implementation of {@see CustomerInterface}
+ * {@inheritDoc}
  */
 class Customer implements CustomerInterface
 {
@@ -26,6 +26,9 @@ class Customer implements CustomerInterface
 
     /** @var string */
     private $taxClass;
+
+    /** @var TaxRegistrationInterface */
+    private $taxRegistrations = [];
 
     /**
      * @inheritdoc
@@ -57,6 +60,14 @@ class Customer implements CustomerInterface
     public function getTaxClass()
     {
         return $this->taxClass;
+    }
+
+    /**
+     * @inheritDoc
+     */
+    public function getTaxRegistrations()
+    {
+        return $this->taxRegistrations;
     }
 
     /**
@@ -109,6 +120,15 @@ class Customer implements CustomerInterface
     public function setTaxClass($taxClass)
     {
         $this->taxClass = $taxClass;
+        return $this;
+    }
+
+    /**
+     * @inheritDoc
+     */
+    public function setTaxRegistrations(array $registrations)
+    {
+        $this->taxRegistrations = $registrations;
         return $this;
     }
 }

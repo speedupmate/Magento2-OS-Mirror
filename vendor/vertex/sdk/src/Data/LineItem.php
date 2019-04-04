@@ -8,10 +8,19 @@
 namespace Vertex\Data;
 
 /**
- * Default implementation of {@see LineItemInterface}
+ * {@inheritDoc}
+ *
+ * @SuppressWarnings(PHPMD.TooManyFields)
  */
 class LineItem implements LineItemInterface
 {
+
+    /** @var string */
+    private $commodityCode;
+
+    /** @var string */
+    private $commodityCodeType;
+
     /** @var CustomerInterface */
     private $customer;
 
@@ -42,6 +51,9 @@ class LineItem implements LineItemInterface
     /** @var SellerInterface */
     private $seller;
 
+    /** @var bool */
+    private $taxIncludedIndicator;
+
     /** @var TaxInterface[] */
     private $taxes = [];
 
@@ -50,6 +62,22 @@ class LineItem implements LineItemInterface
 
     /** @var float */
     private $unitPrice;
+
+    /**
+     * @inheritdoc
+     */
+    public function getCommodityCode()
+    {
+        return $this->commodityCode;
+    }
+
+    /**
+     * @inheritdoc
+     */
+    public function getCommodityCodeType()
+    {
+        return $this->commodityCodeType;
+    }
 
     /**
      * @inheritdoc
@@ -158,6 +186,32 @@ class LineItem implements LineItemInterface
     /**
      * @inheritdoc
      */
+    public function isTaxIncluded()
+    {
+        return $this->taxIncludedIndicator;
+    }
+
+    /**
+     * @inheritdoc
+     */
+    public function setCommodityCode($code)
+    {
+        $this->commodityCode = $code;
+        return $this;
+    }
+
+    /**
+     * @inheritdoc
+     */
+    public function setCommodityCodeType($type)
+    {
+        $this->commodityCodeType = $type;
+        return $this;
+    }
+
+    /**
+     * @inheritdoc
+     */
     public function setCustomer(CustomerInterface $customer)
     {
         $this->customer = $customer;
@@ -247,6 +301,15 @@ class LineItem implements LineItemInterface
     public function setSeller(SellerInterface $seller)
     {
         $this->seller = $seller;
+        return $this;
+    }
+
+    /**
+     * @inheritdoc
+     */
+    public function setTaxIncluded($isTaxIncluded)
+    {
+        $this->taxIncludedIndicator = $isTaxIncluded;
         return $this;
     }
 

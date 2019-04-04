@@ -135,6 +135,8 @@ class QuoteCollectionPointRepository implements QuoteCollectionPointRepositoryIn
     }
 
     /**
+     * Save collection point.
+     *
      * @param QuoteCollectionPointInterface $collectionPoint
      * @return QuoteCollectionPointInterface
      * @throws CouldNotSaveException
@@ -152,6 +154,8 @@ class QuoteCollectionPointRepository implements QuoteCollectionPointRepositoryIn
     }
 
     /**
+     * Delete collection point.
+     *
      * @param QuoteCollectionPointInterface $collectionPoint
      * @return bool
      * @throws CouldNotDeleteException
@@ -178,6 +182,11 @@ class QuoteCollectionPointRepository implements QuoteCollectionPointRepositoryIn
     {
         /** @var CollectionPointSearchResult $searchResult */
         $searchResult = $this->collectionPointSearchResultFactory->create();
+        $searchResult->addExpressionFieldToSelect(
+            'sort_distance',
+            'COALESCE({{sd}}, POW(2, 32))',
+            ['sd' => QuoteCollectionPointInterface::DISTANCE]
+        );
 
         $this->collectionProcessor->process($criteria, $searchResult);
         $searchResult->setSearchCriteria($criteria);

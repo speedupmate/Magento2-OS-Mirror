@@ -1,0 +1,22 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<entities xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+          xsi:noNamespaceSchemaLocation="urn:magento:mftf:DataGenerator/etc/dataProfileSchema.xsd">
+    <entity name="TemandoShippingMethodLabels" type="configurations">
+        <data key="standard">Standard Shipping</data>
+    </entity>
+    <entity name="TemandoLocationLabels" type="configurations">
+        <data key="US">US Store</data>
+        <data key="AU">AU Store</data>
+        <data key="UK">UK Store</data>
+    </entity>
+    <entity name="TemandoPackageLabels" type="configurations">
+        <data key="SmallBox">Small Box</data>
+        <data key="MediumBox">Medium Box</data>
+        <data key="LargeBox">Large Box</data>
+    </entity>
+    <entity name="TemandoQuoteResponses">
+        <data key="NoEligibleQuotes">No eligible quotes for current selection.</data>
+        <data key="APIError">Something went wrong.</data>
+    </entity>
+</entities>

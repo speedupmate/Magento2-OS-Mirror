@@ -97,7 +97,6 @@ class OrderBillingInterfaceBuilder extends AbstractSimpleObjectBuilder
     /**
      * @param \Magento\Sales\Api\Data\OrderInterface|\Magento\Sales\Model\Order $order
      * @return void
-     * @throws LocalizedException
      */
     public function setOrder(OrderInterface $order)
     {

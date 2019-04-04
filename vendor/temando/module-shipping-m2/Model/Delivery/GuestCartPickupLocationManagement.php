@@ -9,9 +9,13 @@ use Magento\Framework\Exception\NoSuchEntityException;
 use Magento\Quote\Model\GuestCart\GuestShippingAddressManagementInterface;
 use Temando\Shipping\Api\Data\Delivery\QuotePickupLocationInterface;
 use Temando\Shipping\Api\Delivery\GuestCartPickupLocationManagementInterface;
+use Temando\Shipping\Api\Checkout\GuestCartPickupLocationManagementInterface as CheckoutGuestCartPickupLocationManagement;
 
 /**
  * Manage Pickup Location Searches
+ *
+ * @deprecated since 1.5.1
+ * @see \Temando\Shipping\Model\Checkout\Delivery\GuestCartPickupLocationManagement
  *
  * @package Temando\Shipping\Model
  * @author  Sebastian Ertner <sebastian.ertner@netresearch.de>
@@ -20,6 +24,11 @@ use Temando\Shipping\Api\Delivery\GuestCartPickupLocationManagementInterface;
  */
 class GuestCartPickupLocationManagement implements GuestCartPickupLocationManagementInterface
 {
+    /**
+     * @var CheckoutGuestCartPickupLocationManagement
+     */
+    private $guestCartPickupLocationManagement;
+
     /**
      * @var GuestShippingAddressManagementInterface
      */
@@ -33,13 +42,16 @@ class GuestCartPickupLocationManagement implements GuestCartPickupLocationManage
     /**
      * GuestCartPickupLocationManagement constructor.
      *
+     * @param CheckoutGuestCartPickupLocationManagement $guestCartPickupLocationManagement
      * @param GuestShippingAddressManagementInterface $addressManagement
      * @param PickupLocationManagement $pickupLocationManagement
      */
     public function __construct(
+        CheckoutGuestCartPickupLocationManagement $guestCartPickupLocationManagement,
         GuestShippingAddressManagementInterface $addressManagement,
         PickupLocationManagement $pickupLocationManagement
     ) {
+        $this->guestCartPickupLocationManagement = $guestCartPickupLocationManagement;
         $this->addressManagement = $addressManagement;
         $this->pickupLocationManagement = $pickupLocationManagement;
     }
@@ -51,9 +63,7 @@ class GuestCartPickupLocationManagement implements GuestCartPickupLocationManage
      */
     public function getPickupLocations($cartId)
     {
-        $shippingAddress = $this->addressManagement->get($cartId);
-
-        return $this->pickupLocationManagement->getPickupLocations($shippingAddress->getId());
+        return $this->guestCartPickupLocationManagement->getPickupLocations($cartId);
     }
 
     /**

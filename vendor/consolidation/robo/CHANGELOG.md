@@ -1,5 +1,20 @@
 # Changelog
 
+### 1.4.0 - 1.4.3 1/2/2019
+
+* BUGFIX: Back out 1.3.5, which contained breaking changes. Create a 1.x branch for continuation of compatible versions, and move breaking code to 2.x development (on master branch).
+
+### 1.3.4 12/20/2018
+
+* Allow for aborting completions or rollbacks by James Sansbury (#815)
+* BUGFIX: Allow commands to declare '@param InputInterface' to satisfy code style checks
+
+### 1.3.3 12/13/2018
+
+* Add StdinHandler to the standard Robo DI container (#814)
+* BUGFIX: Add test to ensure rollback order is in reverse by James Sansbury (#812)
+* BUGFIX: Fix the main Robo script entrypoint to work as a phar. (#811)
+
 ### 1.3.2 11/21/2018
 
 * Update to Composer Test Scenarios 3 (#803)

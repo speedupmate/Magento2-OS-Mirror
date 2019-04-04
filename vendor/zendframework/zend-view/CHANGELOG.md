@@ -2,6 +2,34 @@
 
 All notable changes to this project will be documented in this file, in reverse chronological order by release.
 
+## 2.10.1 - 2018-12-06
+
+### Added
+
+- [#173](https://github.com/zendframework/zend-view/pull/173) adds support for PHP 7.3.
+
+### Changed
+
+- Nothing.
+
+### Deprecated
+
+- Nothing.
+
+### Removed
+
+- Nothing.
+
+### Fixed
+
+- [#170](https://github.com/zendframework/zend-view/pull/170) ensures that variables referenced in `compact()` operations are properly
+  initialized, fixing an error that occures in PHP 7.3.
+
+- [#169](https://github.com/zendframework/zend-view/pull/169) adds zendframework/zend-json as a required dependency, as it is referenced
+  in multiple locations within the package.
+
+- [#156](https://github.com/zendframework/zend-view/pull/156) adds missing `@method` annotations to the `HeadMeta` helper.
+
 ## 2.10.0 - 2018-01-17
 
 ### Added

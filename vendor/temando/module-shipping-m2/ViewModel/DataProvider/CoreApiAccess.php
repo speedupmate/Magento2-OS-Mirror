@@ -44,8 +44,8 @@ class CoreApiAccess implements CoreApiAccessInterface
      * ApiAccess constructor.
      * @param StorageInterface $session
      * @param Config $securityConfig
-     * @param DateTime $dateTime
      * @param Token $token
+     * @param DateTime $dateTime
      */
     public function __construct(
         StorageInterface $session,
@@ -67,12 +67,17 @@ class CoreApiAccess implements CoreApiAccessInterface
     public function getAccessToken(): string
     {
         $adminId = $this->session->getUser()->getId();
-        $token   = $this->token->loadByAdminId($adminId)->getToken();
-        if (!$token) {
-            $token = $this->token->createAdminToken($adminId)->getToken();
-        } else {
-            $this->token->setCreatedAt($this->dateTime->gmtDate());
-            $this->token->save();
+
+        try {
+            $token = $this->token->loadByAdminId($adminId)->getToken();
+            if (!$token) {
+                $token = $this->token->createAdminToken($adminId)->getToken();
+            } else {
+                $this->token->setCreatedAt($this->dateTime->gmtDate());
+                $this->token->save();
+            }
+        } catch (\Exception $exception) {
+            return '';
         }
 
         return (string) $token;

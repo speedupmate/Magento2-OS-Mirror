@@ -34,7 +34,7 @@
     <li>
         <?= $block->escapeHtml(__('Shipping Experiences via %1 portal', $block->getShippingPortalUrl())) ?>
         <a class="button action-default <?= /* @noEscape */ ($block->isMerchantRegistered() ? "" : "disabled"); ?>"
-           href="<?= $block->escapeUrl($block->getShippingPortalUrl()) ?>">
+           href="<?= $block->escapeUrl($block->getExperienceRedirectUrl()) ?>">
             <?= $block->escapeHtml(__('Configure')) ?>
         </a>
     </li>

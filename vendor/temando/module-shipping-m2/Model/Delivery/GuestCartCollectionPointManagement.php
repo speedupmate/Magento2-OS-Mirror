@@ -10,9 +10,13 @@ use Magento\Framework\Exception\NoSuchEntityException;
 use Magento\Quote\Model\GuestCart\GuestShippingAddressManagementInterface;
 use Temando\Shipping\Api\Data\Delivery\CollectionPointSearchRequestInterface;
 use Temando\Shipping\Api\Delivery\GuestCartCollectionPointManagementInterface;
+use Temando\Shipping\Api\Checkout\GuestCartCollectionPointManagementInterface as CheckoutGuestCartCollectionPointManagement;
 
 /**
  * Manage Collection Point Searches
+ *
+ * @deprecated since 1.5.1
+ * @see \Temando\Shipping\Model\Checkout\Delivery\GuestCartCollectionPointManagement
  *
  * @package Temando\Shipping\Model
  * @author  Benjamin Heuer <benjamin.heuer@netresearch.de>
@@ -22,6 +26,11 @@ use Temando\Shipping\Api\Delivery\GuestCartCollectionPointManagementInterface;
  */
 class GuestCartCollectionPointManagement implements GuestCartCollectionPointManagementInterface
 {
+    /**
+     * @var CheckoutGuestCartCollectionPointManagement
+     */
+    private $guestCartCollectionPointManagement;
+
     /**
      * @var GuestShippingAddressManagementInterface
      */
@@ -35,13 +44,16 @@ class GuestCartCollectionPointManagement implements GuestCartCollectionPointMana
     /**
      * GuestCartCollectionPointManagement constructor.
      *
+     * @param CheckoutGuestCartCollectionPointManagement $guestCartCollectionPointManagement
      * @param GuestShippingAddressManagementInterface $addressManagement
      * @param CollectionPointManagement $collectionPointManagement
      */
     public function __construct(
+        CheckoutGuestCartCollectionPointManagement $guestCartCollectionPointManagement,
         GuestShippingAddressManagementInterface $addressManagement,
         CollectionPointManagement $collectionPointManagement
     ) {
+        $this->guestCartCollectionPointManagement = $guestCartCollectionPointManagement;
         $this->addressManagement = $addressManagement;
         $this->collectionPointManagement = $collectionPointManagement;
     }
@@ -51,51 +63,45 @@ class GuestCartCollectionPointManagement implements GuestCartCollectionPointMana
      * @param string $countryId
      * @param string $postcode
      * @return CollectionPointSearchRequestInterface
-     * @throws NoSuchEntityException
      * @throws CouldNotSaveException
      */
     public function saveSearchRequest($cartId, $countryId, $postcode)
     {
-        $shippingAddress = $this->addressManagement->get($cartId);
-
-        return $this->collectionPointManagement->saveSearchRequest($shippingAddress->getId(), $countryId, $postcode);
+        return $this->guestCartCollectionPointManagement->saveSearchRequest($cartId, $countryId, $postcode);
     }
 
     /**
      * @param string $cartId
      * @return bool
-     * @throws NoSuchEntityException
      * @throws CouldNotDeleteException
      */
     public function deleteSearchRequest($cartId)
     {
-        $shippingAddress = $this->addressManagement->get($cartId);
-
-        return $this->collectionPointManagement->deleteSearchRequest($shippingAddress->getId());
+        return $this->guestCartCollectionPointManagement->deleteSearchRequest($cartId);
     }
 
     /**
      * @param string $cartId
      * @return \Temando\Shipping\Api\Data\Delivery\QuoteCollectionPointInterface[]
-     * @throws NoSuchEntityException
      */
     public function getCollectionPoints($cartId)
     {
-        $shippingAddress = $this->addressManagement->get($cartId);
-
-        return $this->collectionPointManagement->getCollectionPoints($shippingAddress->getId());
+        return $this->guestCartCollectionPointManagement->getCollectionPoints($cartId);
     }
 
     /**
      * @param string $cartId
      * @param int $entityId
      * @return bool
-     * @throws NoSuchEntityException
      * @throws CouldNotSaveException
      */
     public function selectCollectionPoint($cartId, $entityId)
     {
-        $shippingAddress = $this->addressManagement->get($cartId);
+        try {
+            $shippingAddress = $this->addressManagement->get($cartId);
+        } catch (NoSuchEntityException $exception) {
+            throw new CouldNotSaveException(__('Unable to load shipping address for specified quote.'));
+        }
 
         return $this->collectionPointManagement->selectCollectionPoint($shippingAddress->getId(), $entityId);
     }

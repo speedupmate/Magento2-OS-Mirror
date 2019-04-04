@@ -26,7 +26,6 @@ use Magento\Sales\Model\Order\Pdf\ItemsFactory;
 use Magento\Sales\Model\Order\Pdf\Total\Factory;
 use Magento\Store\Model\StoreManagerInterface;
 use Temando\Shipping\Model\Location\OrderAddressFactory;
-use Temando\Shipping\Model\Pickup\Pdf\PickupItemRendererFactory;
 use Temando\Shipping\Model\Pickup\PickupManagementFactory;
 use Temando\Shipping\Model\PickupInterface;
 
@@ -49,6 +48,11 @@ class PickupPdf extends AbstractPdf
      * @var ResolverInterface
      */
     private $localeResolver;
+
+    /**
+     * @var BarcodeLayout
+     */
+    private $barcodeLayout;
 
     /**
      * @var PickupItemRendererFactory
@@ -83,12 +87,12 @@ class PickupPdf extends AbstractPdf
      * @param Renderer $addressRenderer
      * @param StoreManagerInterface $storeManager
      * @param ResolverInterface $localeResolver
+     * @param BarcodeLayout $barcodeLayout
      * @param PickupItemRendererFactory $itemRendererFactory
      * @param DataObjectFactory $dataObjectFactory
      * @param PickupManagementFactory $pickupManagementFactory
      * @param OrderAddressFactory $orderAddressFactory
-     * @param array $data
-     *
+     * @param mixed[] $data
      */
     public function __construct(
         Data $paymentData,
@@ -103,6 +107,7 @@ class PickupPdf extends AbstractPdf
         Renderer $addressRenderer,
         StoreManagerInterface $storeManager,
         ResolverInterface $localeResolver,
+        BarcodeLayout $barcodeLayout,
         PickupItemRendererFactory $itemRendererFactory,
         DataObjectFactory $dataObjectFactory,
         PickupManagementFactory $pickupManagementFactory,
@@ -111,6 +116,7 @@ class PickupPdf extends AbstractPdf
     ) {
         $this->storeManager = $storeManager;
         $this->localeResolver = $localeResolver;
+        $this->barcodeLayout = $barcodeLayout;
         $this->itemRendererFactory = $itemRendererFactory;
         $this->dataObjectFactory = $dataObjectFactory;
         $this->pickupManagementFactory = $pickupManagementFactory;
@@ -220,6 +226,39 @@ class PickupPdf extends AbstractPdf
     }
 
     /**
+     * Draw a pickup ID barcode.
+     *
+     * The Code128 gets drawn into the order info section of the packing slip.
+     * Size and position can be adjusted using the layout data object.
+     *
+     * @see BarcodeLayout
+     *
+     * @param \Zend_Pdf $pdf
+     * @param string $pickupId
+     * @throws \Zend\Barcode\Exception\ExceptionInterface
+     */
+    private function drawBarcode(\Zend_Pdf $pdf, $pickupId)
+    {
+        /** @var BarcodeRenderer $renderer */
+        $renderer = \Zend\Barcode\Barcode::factory(
+            'code128',
+            BarcodeRenderer::class,
+            [
+                'text' => sprintf('PID%s', $pickupId),
+                'font' => $this->_rootDirectory->getAbsolutePath('lib/internal/GnuFreeFont/FreeSerif.ttf'),
+            ],
+            [
+                'topOffset' => $this->barcodeLayout->getOffsetTop(),
+                'leftOffset' => $this->barcodeLayout->getOffsetLeft(),
+                'moduleSize' => $this->barcodeLayout->getModuleSize(),
+            ]
+        );
+
+        $renderer->setResource($pdf);
+        $renderer->draw();
+    }
+
+    /**
      * Retrieve renderer model
      *
      * @param  string $type
@@ -246,8 +285,6 @@ class PickupPdf extends AbstractPdf
 
     /**
      * Return PDF document
-     *
-     * @param DataObject $pickupData
      *
      * @return \Zend_Pdf
      * @throws LocalizedException
@@ -297,7 +334,14 @@ class PickupPdf extends AbstractPdf
             $this->_drawItem($item, $page, $order);
             $page = end($pdf->pages);
         }
-        $this->_afterGetPdf();
+
+        try {
+            $this->drawBarcode($this->_getPdf(), $pickupData->getData('pickup_id'));
+            $this->_afterGetPdf();
+        } catch (\Zend\Barcode\Exception\ExceptionInterface $exception) {
+            $this->_afterGetPdf();
+        }
+
         if ($pickupData->getData('store_id')) {
             $this->localeResolver->revert();
         }

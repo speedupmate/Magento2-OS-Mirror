@@ -40,12 +40,12 @@ define([
             return false;
         },
 
-        selectPickupLocation: function (entityId) {
+        selectPickupLocation: function (pickupLocationId) {
             var pickupLocations = this.getPickupLocations();
             var searchRequest = this.getSearchRequest();
 
             _.each(pickupLocations, function (pickupLocation) {
-                pickupLocation.selected = (pickupLocation.entity_id === entityId);
+                pickupLocation.selected = (pickupLocation.pickup_location_id === pickupLocationId);
             });
 
             customerData.set(cacheKey, {

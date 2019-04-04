@@ -53,7 +53,7 @@ class GettingStarted extends Field
      * @param AbstractElement $element
      * @return string
      */
-    public function render(AbstractElement $element)
+    public function render(AbstractElement $element): string
     {
         $html = sprintf(
             '<td colspan="%d" id="%s">%s</td>',
@@ -71,7 +71,7 @@ class GettingStarted extends Field
      * @param AbstractElement $element
      * @return string
      */
-    protected function _renderValue(AbstractElement $element)
+    protected function _renderValue(AbstractElement $element): string
     {
         return $this->_toHtml();
     }
@@ -79,7 +79,7 @@ class GettingStarted extends Field
     /**
      * @return bool
      */
-    public function isMerchantRegistered()
+    public function isMerchantRegistered(): bool
     {
         return $this->moduleConfig->isRegistered();
     }
@@ -87,7 +87,7 @@ class GettingStarted extends Field
     /**
      * @return string
      */
-    public function getLocationsUrl()
+    public function getLocationsUrl(): string
     {
         return $this->_urlBuilder->getUrl('temando/configuration_location/index');
     }
@@ -95,7 +95,7 @@ class GettingStarted extends Field
     /**
      * @return string
      */
-    public function getCarriersUrl()
+    public function getCarriersUrl(): string
     {
         return $this->_urlBuilder->getUrl('temando/configuration_carrier/index');
     }
@@ -103,7 +103,7 @@ class GettingStarted extends Field
     /**
      * @return string
      */
-    public function getPackagesUrl()
+    public function getPackagesUrl(): string
     {
         return $this->_urlBuilder->getUrl('temando/configuration_packaging/index');
     }
@@ -111,8 +111,18 @@ class GettingStarted extends Field
     /**
      * @return string
      */
-    public function getShippingPortalUrl()
+    public function getShippingPortalUrl(): string
     {
         return $this->moduleConfig->getShippingPortalUrl();
+    }
+
+    /**
+     * Obtain the URL to redirect the user into the Shipping Portal experiences.
+     *
+     * @return string
+     */
+    public function getExperienceRedirectUrl(): string
+    {
+        return $this->_urlBuilder->getUrl('temando/configuration_portal/experience');
     }
 }

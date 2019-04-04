@@ -34,7 +34,9 @@ class InventoryConfiguratorFactory
     public function createConfigurator(string $projectDir): InventoryConfiguratorInterface
     {
         $deploymentConfig = $this->getDeploymentConfig($projectDir);
-        if ($this->isModulesConfigured($deploymentConfig)) {
+        if ($this->isModulesConfigured($deploymentConfig)
+            && !$this->isInventoryAlreadyEnabled($deploymentConfig)
+        ) {
             $deploymentConfigWriter = $this->createDeploymentConfigWriter($projectDir);
             return new DisabledInventoryConfiguration(
                 $deploymentConfig,
@@ -122,5 +124,16 @@ class InventoryConfiguratorFactory
     {
         $configFilePool = new ConfigFilePool();
         return $configFilePool;
+    }
+
+    private function isInventoryAlreadyEnabled(DeploymentConfig $deploymentConfig): bool
+    {
+        $modulesConfig = $deploymentConfig->get('modules');
+        foreach ($modulesConfig as $module => $enabled) {
+            if ($enabled && strpos($module, 'Magento_Inventory') !== false) {
+                return true;
+            }
+        }
+        return false;
     }
 }

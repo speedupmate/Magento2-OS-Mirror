@@ -75,7 +75,7 @@ class FulfillmentAdapter implements FulfillmentApiInterface
      * OrderAdapter constructor.
      * @param WsConfigInterface $config
      * @param RequestHeadersInterface $requestHeaders
-     * @param AuthenticationInterface $auth,
+     * @param AuthenticationInterface $auth
      * @param RestClientInterface $restClient
      * @param ParserInterface $responseParser
      * @param LoggerInterface $logger

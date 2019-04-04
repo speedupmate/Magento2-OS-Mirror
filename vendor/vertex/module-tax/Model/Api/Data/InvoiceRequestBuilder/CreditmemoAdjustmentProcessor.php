@@ -51,7 +51,7 @@ class CreditmemoAdjustmentProcessor implements CreditmemoProcessorInterface
         $adjustmentPositive = $creditmemo->getBaseAdjustmentPositive(); // additional refund
         $adjustmentNegative = $creditmemo->getBaseAdjustmentNegative(); // fee
 
-        if ($adjustmentPositive >= 0) {
+        if ($adjustmentPositive > 0) {
             $lineItem = $this->lineItemFactory->create();
             $lineItem->setUnitPrice(-1 * $adjustmentPositive);
             $lineItem->setExtendedPrice(-1 * $adjustmentPositive);
@@ -66,7 +66,7 @@ class CreditmemoAdjustmentProcessor implements CreditmemoProcessorInterface
             $lineItems[] = $lineItem;
         }
 
-        if ($adjustmentNegative >= 0) {
+        if ($adjustmentNegative > 0) {
             $lineItem = $this->lineItemFactory->create();
             $lineItem->setUnitPrice($adjustmentNegative);
             $lineItem->setExtendedPrice($adjustmentNegative);

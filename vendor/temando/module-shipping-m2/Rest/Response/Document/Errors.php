@@ -32,7 +32,7 @@ class Errors implements ErrorsInterface
     /**
      * Set error entities
      *
-     * @param $errors \Temando\Shipping\Rest\Response\DataObject\Error[]
+     * @param \Temando\Shipping\Rest\Response\DataObject\Error[] $errors
      * @return void
      */
     public function setErrors(array $errors)

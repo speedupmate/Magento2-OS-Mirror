@@ -4,13 +4,16 @@
  */
 namespace Temando\Shipping\Model\Config\Backend\Active;
 
+use Zend\Validator\Callback as CallbackValidator;
+use Zend\Validator\Uri as UriValidator;
+
 /**
  * Validator functions for merchant account credentials.
  *
- * @package  Temando\Shipping\Model
- * @author   Christoph Aßmann <christoph.assmann@netresearch.de>
- * @license  http://opensource.org/licenses/osl-3.0.php Open Software License (OSL 3.0)
- * @link     http://www.temando.com/
+ * @package Temando\Shipping\Model
+ * @author  Christoph Aßmann <christoph.assmann@netresearch.de>
+ * @license https://opensource.org/licenses/osl-3.0.php Open Software License (OSL 3.0)
+ * @link    https://www.temando.com/
  */
 class CredentialsValidator
 {
@@ -32,7 +35,7 @@ class CredentialsValidator
     /**
      * Check if credentials are available in config.
      *
-     * @return \Zend_Validate_Callback
+     * @return CallbackValidator
      */
     public function getInputValidator()
     {
@@ -57,9 +60,33 @@ class CredentialsValidator
             return true;
         };
 
-        $validator = new \Zend_Validate_Callback($callback);
         $message = __('Please set API credentials before enabling Magento Shipping.');
-        $validator->setMessage($message);
+        $validator = new CallbackValidator($callback);
+        $validator->setMessage($message, CallbackValidator::INVALID_VALUE);
+
+        return $validator;
+    }
+
+    /**
+     * Check if API endpoint URI scheme is either "http" or "https" if given.
+     *
+     * @return CallbackValidator
+     */
+    public function getUriEndpointValidator()
+    {
+        $callback = function (\Magento\Framework\App\Config\Value $field, UriValidator $uriValidator) {
+            // read session endpoint from current save operation
+            $sessionUrl = $field->getFieldsetDataValue('session_endpoint');
+
+            return (empty($sessionUrl) || $uriValidator->isValid($sessionUrl));
+        };
+
+        $uriValidator = new UriValidator(['uriHandler' => \Zend\Uri\Http::class]);
+        $message = __('Please enter a valid URL. Protocol (http://, https://) is required.');
+
+        $validator = new CallbackValidator($callback);
+        $validator->setCallbackOptions([$uriValidator]);
+        $validator->setMessage($message, CallbackValidator::INVALID_VALUE);
 
         return $validator;
     }
@@ -67,7 +94,7 @@ class CredentialsValidator
     /**
      * Check if credentials are valid.
      *
-     * @return \Zend_Validate_Callback
+     * @return CallbackValidator
      */
     public function getAuthenticationValidator()
     {
@@ -93,9 +120,9 @@ class CredentialsValidator
             }
         };
 
-        $validator = new \Zend_Validate_Callback($callback);
         $message = __('Magento Shipping authentication failed. Please check your credentials.');
-        $validator->setMessage($message);
+        $validator = new CallbackValidator($callback);
+        $validator->setMessage($message, CallbackValidator::INVALID_VALUE);
 
         return $validator;
     }

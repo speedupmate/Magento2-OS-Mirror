@@ -4,7 +4,7 @@
  */
 namespace Temando\Shipping\Block\Adminhtml\Sales\Order\View;
 
-use Magento\Framework\Exception\NoSuchEntityException;
+use Magento\Framework\Exception\LocalizedException;
 use Magento\Sales\Api\Data\OrderAddressInterfaceFactory;
 use Magento\Sales\Block\Adminhtml\Order\View\Info as SalesOrderInfo;
 use Temando\Shipping\Model\ResourceModel\Order\OrderRepository;
@@ -56,7 +56,7 @@ class Info extends SalesOrderInfo
      * @param \Magento\Customer\Model\Metadata\ElementFactory $elementFactory
      * @param \Magento\Sales\Model\Order\Address\Renderer $addressRenderer
      * @param ShipmentProviderInterface $shipmentProvider
-     * @param OrderAddressInterfaceFactory $addressFactory,
+     * @param OrderAddressInterfaceFactory $addressFactory
      * @param OrderRepository $orderRepository
      * @param mixed[] $data
      */
@@ -144,7 +144,7 @@ class Info extends SalesOrderInfo
             $orderReference = $this->orderRepository->getReferenceByOrderId($this->getOrder()->getId());
 
             return $orderReference->getExtOrderId();
-        } catch (NoSuchEntityException $noSuchEntityException) {
+        } catch (LocalizedException $exception) {
             return '';
         }
     }

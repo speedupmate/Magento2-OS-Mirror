@@ -100,6 +100,7 @@ class PickupLocationSearchResult extends AbstractCollection implements PickupLoc
      *
      * @param QuotePickupLocationInterface[] $items
      * @return $this
+     * @throws \Exception
      */
     public function setItems(array $items = null)
     {
@@ -133,6 +134,9 @@ class PickupLocationSearchResult extends AbstractCollection implements PickupLoc
                 $item->setData(QuotePickupLocationInterface::OPENING_HOURS, $openingHours);
             }
 
+            // cast values for type safety
+            $distance = $item->getDistance() ? (int) $item->getDistance() : null;
+            $item->setData(QuotePickupLocationInterface::DISTANCE, $distance);
             $item->setData(QuotePickupLocationInterface::SELECTED, (bool) $item->isSelected());
         }
 

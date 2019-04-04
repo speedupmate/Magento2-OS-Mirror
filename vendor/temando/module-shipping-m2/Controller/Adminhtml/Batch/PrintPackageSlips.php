@@ -7,7 +7,6 @@ namespace Temando\Shipping\Controller\Adminhtml\Batch;
 use Magento\Framework\App\Filesystem\DirectoryList;
 use Magento\Framework\App\ResponseInterface;
 use Magento\Framework\Controller\Result\Redirect;
-use Magento\Framework\Controller\ResultFactory;
 use Magento\Sales\Controller\Adminhtml\Order\Pdfshipments;
 
 /**
@@ -26,6 +25,8 @@ class PrintPackageSlips extends Pdfshipments
     const ADMIN_RESOURCE = 'Temando_Shipping::batches';
 
     /**
+     * Check ACL.
+     *
      * @return bool
      */
     protected function _isAllowed()
@@ -38,24 +39,22 @@ class PrintPackageSlips extends Pdfshipments
     }
 
     /**
+     * Execute action.
+     *
      * @return ResponseInterface|Redirect
      */
     public function execute()
     {
-        try {
-            $orderIds = $this->getRequest()->getParam('order_ids');
-            $orderIds = explode(',', $orderIds);
-            return $this->packageSlipsMassAction($orderIds);
-        } catch (\Exception $e) {
-            $this->messageManager->addErrorMessage($e->getMessage());
-            /** @var \Magento\Backend\Model\View\Result\Redirect $resultRedirect */
-            $resultRedirect = $this->resultFactory->create(ResultFactory::TYPE_REDIRECT);
-            return $resultRedirect->setPath($this->redirectUrl);
-        }
+        $orderIds = $this->getRequest()->getParam('order_ids');
+        $orderIds = explode(',', $orderIds);
+
+        return $this->packageSlipsMassAction($orderIds);
     }
 
     /**
-     * @param array $orderIds
+     * Prepare download response.
+     *
+     * @param int[] $orderIds
      * @return ResponseInterface|Redirect
      */
     private function packageSlipsMassAction(array $orderIds)
@@ -69,12 +68,14 @@ class PrintPackageSlips extends Pdfshipments
         }
 
         try {
-            $response      = $this->fileFactory->create(
-                sprintf(
-                    'packingslip-%s-%s.pdf',
-                    $this->getRequest()->getParam('batch_id'),
-                    $this->dateTime->date('Y-m-d_H-i-s')
-                ),
+            $fileName = sprintf(
+                'packingslip-%s-%s.pdf',
+                $this->getRequest()->getParam('batch_id'),
+                $this->dateTime->date('Y-m-d_H-i-s')
+            );
+
+            $response = $this->fileFactory->create(
+                $fileName,
                 $this->pdfShipment->getPdf($shipmentsCollection->getItems())->render(),
                 DirectoryList::VAR_DIR,
                 'application/pdf'

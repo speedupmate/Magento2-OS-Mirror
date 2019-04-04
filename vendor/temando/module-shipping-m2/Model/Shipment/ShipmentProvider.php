@@ -6,7 +6,7 @@
 namespace Temando\Shipping\Model\Shipment;
 
 use Magento\Sales\Api\Data\ShipmentInterface as SalesShipmentInterface;
-use Temando\Shipping\Model\ShipmentInterface as ShipmentInterface;
+use Temando\Shipping\Model\ShipmentInterface;
 
 /**
  * Temando Shipment Provider
@@ -14,10 +14,10 @@ use Temando\Shipping\Model\ShipmentInterface as ShipmentInterface;
  * Provide a shipment entity fetched from the platform for re-use in the current
  * request cycle.
  *
- * @package  Temando\Shipping\Model
- * @author   Benjamin Heuer <benjamin.heuer@netresearch.de>
- * @license  http://opensource.org/licenses/osl-3.0.php Open Software License (OSL 3.0)
- * @link     http://www.temando.com/
+ * @package Temando\Shipping\Model
+ * @author  Benjamin Heuer <benjamin.heuer@netresearch.de>
+ * @license https://opensource.org/licenses/osl-3.0.php Open Software License (OSL 3.0)
+ * @link    https://www.temando.com/
  */
 class ShipmentProvider implements ShipmentProviderInterface
 {
@@ -34,7 +34,7 @@ class ShipmentProvider implements ShipmentProviderInterface
     /**
      * @return ShipmentInterface
      */
-    public function getShipment()
+    public function getShipment(): ?ShipmentInterface
     {
         return $this->shipment;
     }
@@ -44,7 +44,7 @@ class ShipmentProvider implements ShipmentProviderInterface
      *
      * @return void
      */
-    public function setShipment(ShipmentInterface $shipment)
+    public function setShipment(ShipmentInterface $shipment): void
     {
         $this->shipment = $shipment;
     }
@@ -52,7 +52,7 @@ class ShipmentProvider implements ShipmentProviderInterface
     /**
      * @return SalesShipmentInterface
      */
-    public function getSalesShipment()
+    public function getSalesShipment(): ?SalesShipmentInterface
     {
         return $this->salesShipment;
     }
@@ -62,7 +62,7 @@ class ShipmentProvider implements ShipmentProviderInterface
      *
      * @return void
      */
-    public function setSalesShipment(SalesShipmentInterface $shipment)
+    public function setSalesShipment(SalesShipmentInterface $shipment): void
     {
         $this->salesShipment = $shipment;
     }

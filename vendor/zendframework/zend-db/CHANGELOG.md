@@ -2,7 +2,49 @@
 
 All notable changes to this project will be documented in this file, in reverse chronological order by release.
 
-## 2.9.3 - TBD
+## 2.10.0 - 2019-02-25
+
+### Added
+
+- [#157](https://github.com/zendframework/zend-db/pull/157) added support of
+  `Zend\Db\Sql\TableIdentifier` in DDL
+- [#345](https://github.com/zendframework/zend-db/pull/345) allow usage with
+ zend-hydrator v3
+- [#346](https://github.com/zendframework/zend-db/pull/346) adds support for PHP
+ 7.3
+
+### Changed
+
+- Nothing.
+
+### Deprecated
+
+- Nothing.
+
+### Removed
+
+- Nothing.
+
+### Fixed
+
+- [#303](https://github.com/zendframework/zend-db/pull/303) fixes #295 issue:
+ handle empty array as datasource at `AbstractResultSet::initialize()` at PHP
+  7.2
+- [#313](https://github.com/zendframework/zend-db/pull/313) test
+ `AbstractResultSet::current()` to return null on empty array
+- [#329](https://github.com/zendframework/zend-db/pull/329) fixes Exception
+ thrown when calling `prepareStatementForSqlObject` on a Select with a
+ sub-Select that has limit and/or offset set
+- [#337](https://github.com/zendframework/zend-db/pull/337) fixes #330 current
+  NULL for mysqli
+- [#338](https://github.com/zendframework/zend-db/pull/338) restore missing use
+ `ResultSet` in `AbstractTableGateway`
+- [#341](https://github.com/zendframework/zend-db/pull/341) fixes undefined
+ variable bug in MetadataFeature
+- [#357](https://github.com/zendframework/zend-db/pull/357) fixes named params
+ in subquery - limit and offset (issue #355)
+
+## 2.9.3 - 2018-04-09
 
 ### Added
 
@@ -22,7 +64,19 @@ All notable changes to this project will be documented in this file, in reverse 
 
 ### Fixed
 
-- [#295](https://github.com/zendframework/zend-db/pull/295) fix error when datasource passed to `AbstractResultSet::initialize()` is empty array at php 7.2 environment.
+- [#295](https://github.com/zendframework/zend-db/pull/295) fix error when
+  datasource passed to `AbstractResultSet::initialize()` is empty array at
+  php 7.2 environment
+
+- [#300](https://github.com/zendframework/zend-db/pull/300) Fix error for nested
+  queries inside field parameters
+
+- [#301](https://github.com/zendframework/zend-db/pull/301) fix for issue with
+  set fields that exists in different tables in one query
+
+- [#304](https://github.com/zendframework/zend-db/pull/304) fix PDO bind
+  parameter name to use field name with extended charset (PDO only supports
+  alphanumeric and underscore for placeholder/parameter names).
 
 ## 2.9.2 - 2017-12-11
 

@@ -82,6 +82,8 @@ class PrintAction extends Action
     }
 
     /**
+     * Execute action.
+     *
      * @return ResponseInterface|Redirect
      */
     public function execute()
@@ -89,15 +91,20 @@ class PrintAction extends Action
         $pickupId = $this->getRequest()->getParam('pickup_id');
         $orderId = $this->getRequest()->getParam('sales_order_id');
         try {
-            return $this->createPackagingSlip($pickupId, $orderId);
+            $downloadResponse = $this->createPackagingSlip($pickupId, $orderId);
+            return $downloadResponse;
         } catch (\Exception $e) {
             $this->messageManager->addErrorMessage(__('There was an error creating package slip pdf.'));
 
-            return $this->resultRedirectFactory->create()->setPath($this->_redirect->getRefererUrl());
+            $redirect = $this->resultRedirectFactory->create();
+            $redirect->setPath($this->_redirect->getRefererUrl());
+            return $redirect;
         }
     }
 
     /**
+     * Prepare download response.
+     *
      * @param string $pickupId
      * @param string $orderId
      *

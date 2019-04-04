@@ -16,15 +16,15 @@ define([
 
         var url, urlParams, serviceUrl;
         if (customer.isLoggedIn()) {
-            url = '/carts/mine/pickup-location/select';
+            url = '/carts/mine/checkout-pickup-location/select';
             urlParams = {};
         } else {
-            url = '/guest-carts/:cartId/pickup-location/select';
+            url = '/guest-carts/:cartId/checkout-pickup-location/select';
             urlParams = {
                 cartId: quote.getQuoteId()
             };
         }
-        var payload = {entityId: selectedValue};
+        var payload = {pickupLocationId: selectedValue};
         serviceUrl = urlBuilder.createUrl(url, urlParams);
 
         shippingService.isLoading(true);
@@ -34,8 +34,14 @@ define([
             JSON.stringify(payload)
         ).success(
             function (response) {
-                cacheService.invalidateCacheForAddress(quote.shippingAddress());
-                quote.shippingAddress.valueHasMutated();
+                if (quote.shippingAddress()) {
+                    // if a shipping address was selected, clear shipping rates cache
+                    cacheService.invalidateCacheForAddress(quote.shippingAddress());
+                    quote.shippingAddress.valueHasMutated();
+                } else {
+                    // otherwise stop spinner, no new rates to display
+                    shippingService.isLoading(false);
+                }
             }
         ).fail(
             function () {

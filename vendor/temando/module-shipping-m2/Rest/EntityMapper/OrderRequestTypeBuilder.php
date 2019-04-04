@@ -16,7 +16,6 @@ use Temando\Shipping\Rest\Request\Type\ExtensibleTypeAttributeFactory;
 use Temando\Shipping\Rest\Request\Type\Generic\DimensionsFactory;
 use Temando\Shipping\Rest\Request\Type\Generic\MonetaryValueFactory;
 use Temando\Shipping\Rest\Request\Type\Generic\WeightFactory;
-use Temando\Shipping\Rest\Request\Type\Order\CollectionPointSearchFactory;
 use Temando\Shipping\Rest\Request\Type\Order\Customer;
 use Temando\Shipping\Rest\Request\Type\Order\CustomerFactory;
 use Temando\Shipping\Rest\Request\Type\Order\Experience\DescriptionFactory;
@@ -98,11 +97,6 @@ class OrderRequestTypeBuilder
     private $descriptionFactory;
 
     /**
-     * @var CollectionPointSearchFactory
-     */
-    private $collectionPointSearchFactory;
-
-    /**
      * @var ExtensibleTypeAttributeFactory
      */
     private $attributeFactory;
@@ -126,7 +120,6 @@ class OrderRequestTypeBuilder
      * @param ExperienceFactory $experienceFactory
      * @param DescriptionFactory $descriptionFactory
      * @param ExtensibleTypeAttributeFactory $attributeFactory
-     * @param CollectionPointSearchFactory $collectionPointSearchFactory
      * @param OrderPickupLocationRepositoryInterface $orderPickUpLocation
      */
     public function __construct(
@@ -142,7 +135,6 @@ class OrderRequestTypeBuilder
         ExperienceFactory $experienceFactory,
         DescriptionFactory $descriptionFactory,
         ExtensibleTypeAttributeFactory $attributeFactory,
-        CollectionPointSearchFactory $collectionPointSearchFactory,
         OrderPickupLocationRepositoryInterface $orderPickUpLocation
     ) {
         $this->requestTypeFactory = $requestTypeFactory;
@@ -157,7 +149,6 @@ class OrderRequestTypeBuilder
         $this->experienceFactory = $experienceFactory;
         $this->descriptionFactory = $descriptionFactory;
         $this->attributeFactory = $attributeFactory;
-        $this->collectionPointSearchFactory = $collectionPointSearchFactory;
         $this->orderPickUpLocation = $orderPickUpLocation;
     }
 
@@ -393,7 +384,6 @@ class OrderRequestTypeBuilder
      *
      * @param OrderInterface $order
      * @return OrderRequestTypeInterface
-     * @throws \Exception
      */
     public function build(OrderInterface $order)
     {
@@ -429,14 +419,6 @@ class OrderRequestTypeBuilder
                 'pickUpLocationId' => $this->getPickUpLocationId($order),
             ]),
         ];
-
-        if ($order->getCollectionPointSearchRequest() && !$order->getCollectionPoint()) {
-            // add search request if no collection point was selected yet
-            $requestTypeData['collectionPointSearch'] = $this->collectionPointSearchFactory->create([
-                'postalCode' => $order->getCollectionPointSearchRequest()->getPostcode(),
-                'countryCode' => $order->getCollectionPointSearchRequest()->getCountryId(),
-            ]);
-        }
 
         $orderType = $this->requestTypeFactory->create($requestTypeData);
 

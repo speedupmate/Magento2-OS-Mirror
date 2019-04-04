@@ -4,6 +4,7 @@
  */
 namespace Temando\Shipping\Plugin\Sales;
 
+use Magento\Framework\Exception\LocalizedException;
 use Magento\Framework\Exception\NoSuchEntityException;
 use Magento\Sales\Api\Data\OrderInterface;
 use Magento\Sales\Api\OrderRepositoryInterface as SalesOrderRepositoryInterface;
@@ -106,7 +107,7 @@ class OrderRepositoryPlugin
 
         try {
             $orderReference = $this->orderRepository->getReferenceByOrderId($salesOrder->getId());
-        } catch (NoSuchEntityException $e) {
+        } catch (NoSuchEntityException $exception) {
             $orderReference = $this->orderReferenceFactory->create(['data' => [
                 OrderReferenceInterface::ORDER_ID => $salesOrder->getId(),
             ]]);
@@ -124,9 +125,9 @@ class OrderRepositoryPlugin
             $saveResult = $this->orderRepository->save($order);
 
             $this->processorPool->processSaveResponse($salesOrder, $order, $saveResult);
-        } catch (\Exception $e) {
+        } catch (LocalizedException $exception) {
             // nothing we can do here, just don't interrupt order process
-            $this->logger->critical($e->getMessage(), ['exception' => $e]);
+            $this->logger->critical($exception->getLogMessage(), ['exception' => $exception]);
         }
 
         return $salesOrder;

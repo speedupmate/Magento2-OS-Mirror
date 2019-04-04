@@ -126,7 +126,7 @@ final class RestResponseProvider
     /**
      * @return string[]
      */
-    public static function createOrderResponseProvider()
+    public static function manifestOrderResponseProvider()
     {
         $driver = new Filesystem();
         return [

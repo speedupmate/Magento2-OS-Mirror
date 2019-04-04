@@ -106,18 +106,20 @@ class CreditmemoProcessor
 
         $customer = $this->customerBuilder->buildFromOrderAddress(
             $address,
-            $address->getCustomerId(),
+            $order->getCustomerId(),
             $order->getCustomerGroupId(),
             $scopeCode
         );
 
         /** @var RequestInterface $request */
         $request = $this->requestFactory->create();
+        $request->setShouldReturnAssistedParameters(true);
         $request->setDocumentNumber($order->getIncrementId());
         $request->setDocumentDate($this->dateTimeFactory->create());
         $request->setTransactionType(RequestInterface::TRANSACTION_TYPE_SALE);
         $request->setSeller($seller);
         $request->setCustomer($customer);
+        $request->setCurrencyCode($creditmemo->getBaseCurrencyCode());
         $this->deliveryTerm->addIfApplicable($request);
 
         if ($this->config->getLocationCode($scopeCode)) {

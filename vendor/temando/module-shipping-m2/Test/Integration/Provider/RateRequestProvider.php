@@ -13,8 +13,9 @@ use Magento\TestFramework\Helper\Bootstrap;
 use Temando\Shipping\Api\Data\Order\OrderReferenceInterface;
 use Temando\Shipping\Api\Data\Order\ShippingExperienceInterface;
 use Temando\Shipping\Api\Data\Order\ShippingExperienceInterfaceFactory;
-use Temando\Shipping\Webservice\Response\Type\OrderResponseTypeInterface;
-use Temando\Shipping\Webservice\Response\Type\OrderResponseTypeInterfaceFactory;
+use Temando\Shipping\Webservice\Response\Type\OrderResponseType;
+use Temando\Shipping\Webservice\Response\Type\QualificationResponseType;
+use Temando\Shipping\Webservice\Response\Type\QualificationResponseTypeFactory;
 
 class RateRequestProvider
 {
@@ -100,7 +101,7 @@ class RateRequestProvider
     }
 
     /**
-     * @return RateRequest|OrderResponseTypeInterface[][]
+     * @return RateRequest|OrderResponseType[][]
      */
     public static function getRateRequestWithShippingExperience()
     {
@@ -110,8 +111,8 @@ class RateRequestProvider
         $quoteItemFactory = Bootstrap::getObjectManager()->get(ItemFactory::class);
         /** @var AddressFactory $quoteAddressFactory */
         $quoteAddressFactory = Bootstrap::getObjectManager()->get(AddressFactory::class);
-        /** @var OrderResponseTypeInterface $orderResponseTypeFactory */
-        $orderResponseTypeFactory = Bootstrap::getObjectManager()->get(OrderResponseTypeInterfaceFactory::class);
+        /** @var QualificationResponseTypeFactory $qualificationResponseTypeFactory */
+        $qualificationResponseTypeFactory = Bootstrap::getObjectManager()->get(QualificationResponseTypeFactory::class);
         /** @var ShippingExperienceInterfaceFactory $shippingExperienceFactory */
         $shippingExperienceFactory = Bootstrap::getObjectManager()->get(ShippingExperienceInterfaceFactory::class);
 
@@ -170,18 +171,15 @@ class RateRequestProvider
             ShippingExperienceInterface::COST => '9.09',
             ShippingExperienceInterface::LABEL => 'Foo Bar',
         ]);
-        /** @var OrderResponseTypeInterfaceFactory $orderResponseTypeFactory */
-        $orderResponseType = $orderResponseTypeFactory->create(['data' => [
-            OrderReferenceInterface::ENTITY_ID => '1234-abcd',
-            OrderReferenceInterface::EXT_ORDER_ID => '5678-efgh',
-            OrderReferenceInterface::ORDER_ID => 42,
+        /** @var QualificationResponseType $qualificationResponseType */
+        $qualificationResponseType = $qualificationResponseTypeFactory->create(['data' => [
             OrderReferenceInterface::SHIPPING_EXPERIENCES => [$shippingExperience],
         ]]);
 
         return [
             'request_1' => [
                 $rateRequest,
-                $orderResponseType,
+                $qualificationResponseType,
             ]
         ];
     }

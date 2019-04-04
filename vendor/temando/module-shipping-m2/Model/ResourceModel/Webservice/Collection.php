@@ -13,7 +13,6 @@ use Magento\Framework\Api\SearchCriteriaBuilder;
 use Magento\Framework\Api\SearchCriteriaInterface;
 use Magento\Framework\Data\Collection as DataCollection;
 use Magento\Framework\Data\Collection\EntityFactoryInterface;
-use Magento\Framework\Exception\LocalizedException;
 use Magento\Framework\Message\ManagerInterface;
 use Magento\Framework\View\Element\UiComponent\DataProvider\Document;
 
@@ -141,10 +140,12 @@ abstract class Collection extends DataCollection implements SearchResultInterfac
      */
     private function sliceItems()
     {
-        $offset = $this->_pageSize * ($this->_curPage -1);
-        $limit = $this->_pageSize;
+        if ($this->_pageSize !== false) {
+            $offset = $this->_pageSize * ($this->_curPage - 1);
+            $limit = $this->_pageSize;
 
-        $this->_items = array_slice($this->_items, $offset, $limit);
+            $this->_items = array_slice($this->_items, $offset, $limit);
+        }
     }
 
     /**
@@ -181,7 +182,7 @@ abstract class Collection extends DataCollection implements SearchResultInterfac
             $this->_totalRecords = count($this->_items);
             $this->sortItems();
             $this->sliceItems();
-        } catch (LocalizedException $e) {
+        } catch (\Exception $e) {
             $this->messageManager->addExceptionMessage($e, 'An error occurred while requesting API listing.');
         }
 
@@ -194,6 +195,7 @@ abstract class Collection extends DataCollection implements SearchResultInterfac
      *
      * @param DocumentInterface[] $items
      * @return $this
+     * @throws \Exception
      */
     public function setItems(array $items = null)
     {

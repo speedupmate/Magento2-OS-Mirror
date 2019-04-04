@@ -26,7 +26,7 @@ interface OrderRepositoryInterface
 {
     /**
      * @param \Temando\Shipping\Model\OrderInterface $order
-     * @return \Temando\Shipping\Webservice\Response\Type\OrderResponseTypeInterface
+     * @return \Temando\Shipping\Webservice\Response\Type\OrderResponseType
      * @throws \Magento\Framework\Exception\CouldNotSaveException
      */
     public function save(OrderInterface $order);

@@ -12,7 +12,6 @@ use Magento\Framework\Phrase;
 use Magento\Sales\Api\OrderStatusHistoryRepositoryInterface;
 use Magento\Sales\Model\Order;
 use Magento\Store\Model\ScopeInterface;
-use Psr\Log\LoggerInterface;
 use Vertex\Exception\ApiException;
 use Vertex\Services\Invoice\RequestInterface;
 use Vertex\Tax\Api\InvoiceInterface;
@@ -28,7 +27,7 @@ class TaxInvoice
     /** @var InvoiceInterface */
     private $invoice;
 
-    /** @var LoggerInterface */
+    /** @var ExceptionLogger */
     private $logger;
 
     /** @var ManagerInterface */
@@ -38,13 +37,13 @@ class TaxInvoice
     private $orderStatusRepository;
 
     /**
-     * @param LoggerInterface $logger
+     * @param ExceptionLogger $logger
      * @param ManagerInterface $messageManager
      * @param OrderStatusHistoryRepositoryInterface $orderStatusRepository
      * @param InvoiceInterface $invoice
      */
     public function __construct(
-        LoggerInterface $logger,
+        ExceptionLogger $logger,
         ManagerInterface $messageManager,
         OrderStatusHistoryRepositoryInterface $orderStatusRepository,
         InvoiceInterface $invoice
@@ -60,15 +59,16 @@ class TaxInvoice
      *
      * @param RequestInterface $request
      * @param Order $order
-     * @return bool
+     * @return null|\Vertex\Services\Invoice\ResponseInterface
      */
     public function sendInvoiceRequest(RequestInterface $request, Order $order)
     {
         try {
             $response = $this->invoice->record($request, $order->getStoreId(), ScopeInterface::SCOPE_STORE);
         } catch (\Exception $e) {
+            $this->logger->error($e);
             $this->addErrorMessage(__('Could not submit invoice to Vertex.'), $e);
-            return false;
+            return null;
         }
 
         $totalTax = $response->getTotalTax();
@@ -80,11 +80,9 @@ class TaxInvoice
             $this->orderStatusRepository->save($comment);
         } catch (\Exception $originalException) {
             $exception = new \Exception('Could not save Vertex invoice comment', 0, $originalException);
-            $this->logger->critical(
-                $exception->getMessage() . PHP_EOL . $exception->getTraceAsString()
-            );
+            $this->logger->critical($exception);
         }
-        return true;
+        return $response;
     }
 
     /**
@@ -92,7 +90,7 @@ class TaxInvoice
      *
      * @param RequestInterface $request
      * @param Order|null $order
-     * @return bool
+     * @return null|\Vertex\Services\Invoice\ResponseInterface
      */
     public function sendRefundRequest(RequestInterface $request, Order $order)
     {
@@ -100,7 +98,7 @@ class TaxInvoice
             $response = $this->invoice->record($request, $order->getStoreId(), ScopeInterface::SCOPE_STORE);
         } catch (\Exception $e) {
             $this->addErrorMessage(__('Could not submit refund to Vertex.'), $e);
-            return false;
+            return null;
         }
 
         $totalTax = $response->getTotalTax();
@@ -115,11 +113,10 @@ class TaxInvoice
                 __('Could not save Vertex invoice refund comment'),
                 $originalException
             );
-            $this->logger->critical(
-                $exception->getMessage() . PHP_EOL . $exception->getTraceAsString()
-            );
+            $this->logger->critical($exception);
         }
-        return true;
+
+        return $response;
     }
 
     private function addErrorMessage(Phrase $friendlyPhrase, $exception = null)
@@ -127,7 +124,7 @@ class TaxInvoice
         $friendlyMessage = $friendlyPhrase->render();
         $errorMessage = null;
 
-        $exceptionClass = get_class($exception);
+        $exceptionClass = $exception !== null ? get_class($exception) : null;
 
         switch ($exceptionClass) {
             case ApiException\AuthenticationException::class:

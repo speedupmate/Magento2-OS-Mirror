@@ -25,7 +25,7 @@ class GetBatch implements GetBatchInterface
     /**
      * @var \Temando\Shipping\Rest\Response\DataObject\Shipment[]
      */
-    private $included;
+    private $included = [];
 
     /**
      * Obtain response entity

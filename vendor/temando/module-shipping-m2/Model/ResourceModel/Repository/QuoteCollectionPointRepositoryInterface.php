@@ -38,6 +38,8 @@ interface QuoteCollectionPointRepositoryInterface
     public function getSelected($addressId);
 
     /**
+     * Save collection point.
+     *
      * @param QuoteCollectionPointInterface $collectionPoint
      * @return QuoteCollectionPointInterface
      * @throws CouldNotSaveException
@@ -45,6 +47,8 @@ interface QuoteCollectionPointRepositoryInterface
     public function save(QuoteCollectionPointInterface $collectionPoint);
 
     /**
+     * Delete collection point.
+     *
      * @param QuoteCollectionPointInterface $collectionPoint
      * @return bool
      * @throws CouldNotDeleteException

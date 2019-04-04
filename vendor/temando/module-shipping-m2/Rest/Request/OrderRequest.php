@@ -16,7 +16,7 @@ use Temando\Shipping\Rest\Request\Type\OrderRequestTypeInterface;
  * @license  http://opensource.org/licenses/osl-3.0.php Open Software License (OSL 3.0)
  * @link     http://www.temando.com/
  */
-class OrderRequest implements OrderRequestInterface
+class OrderRequest
 {
     /**
      * @var OrderRequestTypeInterface
@@ -24,13 +24,22 @@ class OrderRequest implements OrderRequestInterface
     private $order;
 
     /**
+     * @var string
+     */
+    private $action;
+
+    /**
      * OrderRequest constructor.
      *
      * @param OrderRequestTypeInterface $order
+     * @param string $action
      */
-    public function __construct(OrderRequestTypeInterface $order)
-    {
+    public function __construct(
+        OrderRequestTypeInterface $order,
+        $action = OrderApiInterface::ACTION_CREATE
+    ) {
         $this->order = $order;
+        $this->action = $action;
     }
 
     /**
@@ -38,39 +47,37 @@ class OrderRequest implements OrderRequestInterface
      */
     public function getPathParams()
     {
+        // create
         if (!$this->order->getId()) {
             return [];
         }
 
+        // update
         return [
             $this->order->getId(),
         ];
     }
 
     /**
-     * @param string $actionType
      * @return string[]
      */
-    public function getRequestParams($actionType)
+    public function getRequestParams()
     {
-        $requestParams = [];
-        if (!$this->order->canPersist()) {
-            $requestParams['persist'] = 'false';
+        switch ($this->action) {
+            case OrderApiInterface::ACTION_ALLOCATE_PICKUP:
+            case OrderApiInterface::ACTION_ALLOCATE_SHIPMENT:
+                // create with shipment / pickup fulfillment
+                return [
+                    'action' => $this->action,
+                    'experience' => $this->order->getSelectedExperienceCode()
+                ];
+            case OrderApiInterface::ACTION_CREATE:
+                // regular create
+                return ['experience' => $this->order->getSelectedExperienceCode()];
+            default:
+                // update
+                return [];
         }
-
-        if ($actionType === OrderApiInterface::ACTION_CREATE) {
-            $requestParams['action'] = 'orderQualification';
-        } elseif ($actionType === OrderApiInterface::ACTION_GET_COLLECTION_POINTS) {
-            $requestParams['action'] = 'quoteCollectionPoints';
-            $requestParams['experience'] = 'default';
-        } elseif ($actionType === OrderApiInterface::ACTION_CREATE_PICKUP_ORDER) {
-            $requestParams['action'] = 'orderQualificationClickAndCollect';
-        } elseif ($actionType === OrderApiInterface::ACTION_ALLOCATE) {
-            $requestParams['action'] = 'allocate';
-            $requestParams['experience'] = $this->order->getSelectedExperienceCode();
-        }
-
-        return $requestParams;
     }
 
     /**

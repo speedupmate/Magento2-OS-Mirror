@@ -1,0 +1,87 @@
+<actionGroups xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+              xsi:noNamespaceSchemaLocation="urn:magento:mftf:Test/etc/actionGroupSchema.xsd">
+    <!-- Navigate to new order -->
+    <actionGroup name="TemandoNavigateToNewOrderExistingCustomerCustomStoreView">
+        <amOnPage url="{{AdminOrdersPage.url}}" stepKey="navigateToOrderIndexPage"/>
+        <waitForPageLoad stepKey="waitForIndexPageLoad"/>
+        <see selector="{{AdminHeaderSection.pageTitle}}" userInput="Orders" stepKey="seeIndexPageTitle"/>
+        <click selector="{{AdminOrdersGridSection.createNewOrder}}" stepKey="clickCreateNewOrder"/>
+        <waitForPageLoad stepKey="waitForCustomerGridLoad"/>
+        <fillField userInput="$$simpleuscustomer.email$$" selector="{{AdminOrderCustomersGridSection.emailInput}}" stepKey="filterEmail"/>
+        <click selector="{{AdminOrderCustomersGridSection.apply}}" stepKey="applyFilter"/>
+        <waitForPageLoad stepKey="waitForFilteredCustomerGridLoad"/>
+        <click selector="{{AdminOrderCustomersGridSection.firstRow}}" stepKey="clickOnCustomer"/>
+        <waitForPageLoad stepKey="waitForCreateOrderPageLoad" />
+        <seeElement stepKey="seeSelectAStore" selector="{{TemandoSalesOrderSection.SelectAStore}}" />
+        <conditionalClick selector="{{TemandoSalesOrderSection.CustomStoreLabel(customStore.name)}}"
+                          dependentSelector="{{TemandoSalesOrderSection.SelectAStore}}"
+                          visible="true"
+                          stepKey="clickStoreView" />
+        <waitForPageLoad stepKey="waitForNewOrderPage" />
+    </actionGroup>
+    <!-- Select standard shipping -->
+    <actionGroup name="AdminOrderSelectStandardShipping">
+        <click selector="{{AdminOrderFormPaymentSection.header}}" stepKey="unfocus"/>
+        <waitForPageLoad stepKey="waitForJavascriptToFinish"/>
+        <click selector="{{AdminOrderFormPaymentSection.getShippingMethods}}" stepKey="clickShippingMethods"/>
+        <waitForElementVisible selector="{{TemandoSalesOrderSection.shippingMethods}}" stepKey="waitForShippingOptions"/>
+        <see stepKey="seeMagentoShippingItems" userInput="Magento Shipping" />
+        <selectOption selector="{{TemandoSalesOrderSection.standardShippingOption}}" userInput="Standard Shipping" stepKey="selectStandardShipping" />
+        <waitForLoadingMaskToDisappear stepKey="waitForStandardShippingSelection" />
+    </actionGroup>
+    <!-- Verify the order was placed -->
+    <actionGroup name="TemandoVerifyOrderWasPlaced">
+        <arguments>
+            <argument name="orderId" type="string" />
+        </arguments>
+        <fillField selector="{{AdminOrdersGridSection.search}}" userInput="{{orderId}}" stepKey="fillOrderNum"/>
+        <click selector="{{AdminOrdersGridSection.submitSearch}}" stepKey="submitSearchOrderNum"/>
+        <waitForLoadingMaskToDisappear stepKey="waitForLoadingMaskToDisappearOnSearch"/>
+        <click selector="{{AdminOrdersGridSection.firstRow}}" stepKey="clickOrderRow"/>
+        <waitForPageLoad stepKey="waitForOrderToLoad" />
+        <see stepKey="seeShippingOrderId" userInput="Magento Shipping Order ID" />
+    </actionGroup>
+    <!-- Lick the stamp and send it -->
+    <actionGroup name="TemandoShipOrder">
+        <arguments>
+            <argument name="orderId" type="string" />
+            <argument name="originLocation" type="string" defaultValue="{{TemandoLocationLabels.US}}" />
+            <argument name="packageType" type="string" defaultValue="{{TemandoPackageLabels.SmallBox}}" />
+            <argument name="packageWeight" type="string" defaultValue="1" />
+        </arguments>
+
+        <click stepKey="clickShipOrder" selector="{{TemandoSalesOrderSection.buttonShip}}" />
+        <seeInCurrentUrl stepKey="seeShipmentPageUrl" url="{{AdminShipmentNewPage.url}}" />
+        <waitForPageLoad stepKey="waitForNewShipmentPage" />
+        <waitForLoadingMaskToDisappear stepKey="waitForShipmentForm" />
+
+        <scrollTo stepKey="scrollToShipmentReference" selector="{{TemandoShipmentSection.customerReference}}" y="-85" />
+        <seeInField stepKey="seeCustomerReference" selector="{{TemandoShipmentSection.customerReference}}" userInput="{{orderId}}" />
+
+        <waitForElementVisible selector="{{TemandoShipmentSection.originLocation}}" stepKey="waitForOriginLocations" />
+        <seeOptionIsSelected selector="{{TemandoShipmentSection.originLocation}}" userInput="{{TemandoLocationLabels.US}}" stepKey="seeDefaultLocationSelected" />
+        <selectOption selector="{{TemandoShipmentSection.originLocation}}" userInput="{{originLocation}}" stepKey="selectOriginLocation" />
+
+        <waitForElementVisible selector="{{TemandoShipmentSection.packageType}}" stepKey="waitForPackages" />
+        <selectOption selector="{{TemandoShipmentSection.packageType}}" userInput="{{packageType}}" stepKey="selectPackageType" />
+
+        <fillField stepKey="fillPackageWeight" selector="{{TemandoShipmentSection.packageWeight}}" userInput="{{packageWeight}}" />
+
+        <scrollTo stepKey="scrollToGetQuotes" selector="{{TemandoShipmentSection.getQuotes}}" y="-85" />
+        <seeCheckboxIsChecked selector="{{TemandoShipmentSection.useCustomerExperience}}" stepKey="seeCustomersChoiceIsSelected" />
+        <click stepKey="clickGetQuotes" selector="{{TemandoShipmentSection.getQuotes}}" />
+        <waitForLoadingMaskToDisappear stepKey="waitForQuotes" />
+
+        <dontSee stepKey="dontSeeNoQuotes" userInput="{{TemandoQuoteResponses.NoEligibleQuotes}}" />
+        <dontSee stepKey="dontSeeError" userInput="{{TemandoQuoteResponses.APIError}}" />
+
+        <click stepKey="clickBookShipment" selector="{{TemandoShipmentSection.bookShipment}}" />
+        <waitForLoadingMaskToDisappear stepKey="waitForBookShipment" />
+
+        <seeInCurrentUrl stepKey="onViewShipmentPage" url="{{TemandoViewShipmentPage.url}}" />
+        <waitForPageLoad stepKey="waitForViewShipment" />
+        <see stepKey="seeMagentoOrderId" userInput="Order # {{orderId}}" />
+        <see stepKey="seeTemandoOrderId" userInput="Magento Shipping Order ID" />
+        <see stepKey="seeTemandoShipmentId" userInput="Magento Shipping Shipment ID" />
+    </actionGroup>
+</actionGroups>

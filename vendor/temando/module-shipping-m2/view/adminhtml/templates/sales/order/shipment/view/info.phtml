@@ -125,6 +125,7 @@ $order = $block->getOrder();
                         $extOrderId = $orderDetailsViewModel->getExtOrderId($order);
                         $extShipmentId = $shipmentDetailsViewModel->getExtShipmentId();
                         $extShipmentReference = $shipmentDetailsViewModel->getCustomerReference();
+                        $extShipmentStatus = $shipmentDetailsViewModel->getStatus();
                     ?>
                     <?php if ($extOrderId) : ?>
                         <tr>
@@ -144,6 +145,13 @@ $order = $block->getOrder();
                         <tr>
                             <th><?= $block->escapeHtml(__('Shipment Reference')) ?></th>
                             <td><?= $block->escapeHtml($extShipmentReference) ?></td>
+                        </tr>
+                    <?php endif; ?>
+
+                    <?php if ($shipmentDetailsViewModel->showStatus()) : ?>
+                        <tr>
+                            <th><?= $block->escapeHtml(__('Shipment Status')) ?></th>
+                            <td><?= $block->escapeHtml($extShipmentStatus) ?></td>
                         </tr>
                     <?php endif; ?>
                 </table>
@@ -231,9 +239,9 @@ $order = $block->getOrder();
         <?php if (!$order->getIsVirtual()) : ?>
             <div class="admin__page-section-item order-shipping-address">
                 <?php
-                    /* Shipping Address */
-                    $destinationAddressHtml = $locationViewModel->getShipToAddressHtml();
-                    $finalRecipientAddressHtml = $locationViewModel->getFinalRecipientAddressHtml();
+                /* Shipping Address */
+                $destinationAddressHtml = $locationViewModel->getShipToAddressHtml();
+                $finalRecipientAddressHtml = $locationViewModel->getFinalRecipientAddressHtml();
                 ?>
 
                 <?php if (!$destinationAddressHtml && !$finalRecipientAddressHtml) : ?>

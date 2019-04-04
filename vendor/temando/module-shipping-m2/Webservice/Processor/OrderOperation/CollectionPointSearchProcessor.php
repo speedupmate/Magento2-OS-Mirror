@@ -4,16 +4,15 @@
  */
 namespace Temando\Shipping\Webservice\Processor\OrderOperation;
 
-use Magento\Framework\Exception\CouldNotSaveException;
+use Magento\Framework\Exception\LocalizedException;
 use Magento\Quote\Model\Quote\Address\RateRequest;
 use Temando\Shipping\Api\Data\Delivery\CollectionPointSearchResultInterfaceFactory;
 use Temando\Shipping\Api\Data\Delivery\QuoteCollectionPointInterface;
 use Temando\Shipping\Api\Data\Order\ShippingExperienceInterface;
-use Temando\Shipping\Model\Checkout\RateRequest\Extractor;
 use Temando\Shipping\Model\Delivery\QuoteCollectionPoint;
 use Temando\Shipping\Model\OrderInterface;
 use Temando\Shipping\Model\ResourceModel\Delivery\CollectionPointSearchResult;
-use Temando\Shipping\Webservice\Response\Type\OrderResponseTypeInterface;
+use Temando\Shipping\Webservice\Response\Type\QualificationResponseType;
 
 /**
  * Temando Collection Point Search Processor.
@@ -46,14 +45,14 @@ class CollectionPointSearchProcessor implements RatesProcessorInterface
      *
      * @param RateRequest $rateRequest
      * @param OrderInterface $requestType
-     * @param OrderResponseTypeInterface $responseType
+     * @param QualificationResponseType $responseType
      * @return ShippingExperienceInterface[]
-     * @throws CouldNotSaveException
+     * @throws LocalizedException
      */
     public function postProcess(
         RateRequest $rateRequest,
         OrderInterface $requestType,
-        OrderResponseTypeInterface $responseType
+        QualificationResponseType $responseType
     ) {
         $searchRequest = $requestType->getCollectionPointSearchRequest();
         $collectionPoint = $requestType->getCollectionPoint();
@@ -75,7 +74,7 @@ class CollectionPointSearchProcessor implements RatesProcessorInterface
 
         // persist collection points for a given search request
         $shippingAddressId = $searchRequest->getShippingAddressId();
-        $collectionPoints = (array) $responseType->getCollectionPoints();
+        $collectionPoints = $responseType->getCollectionPoints();
 
         /** @var QuoteCollectionPoint $collectionPoint */
         foreach ($collectionPoints as $collectionPoint) {

@@ -40,11 +40,11 @@ class PickupCollectedButton extends Button
     private $pickupUrl;
 
     /**
-     * @param Context                 $context
+     * @param Context $context
      * @param PickupProviderInterface $pickupProvider
      * @param PickupManagementFactory $pickupManagementFactory
-     * @param PickupUrl               $pickupUrl
-     * @param mixed[]                 $data
+     * @param PickupUrl $pickupUrl
+     * @param mixed[] $data
      */
     public function __construct(
         Context $context,

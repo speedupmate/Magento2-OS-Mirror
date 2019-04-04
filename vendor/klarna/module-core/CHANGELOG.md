@@ -1,8 +1,27 @@
 
+5.1.0 / 2018-12-06
+==================
+
+  * Allowing ramsey version 3.6.1.
+  * PPI-254 Change types for the specific order line items
+  * PPI-583 Cleanup install/upgrade scripts
+  * MAGE-128 Added a try-catch block around checking customer default addresses
+  * MAGE-147 Fix error with virtual products
+
 5.0.0 / 2018-11-12
 ==================
 
   * Artificially increment major version to stop code from updating on 2.2.4/2.2.5
+
+4.5.8 / 2018-11-07
+==================
+
+  * PI-509 Ensure company name is sent to Klarna API
+
+4.5.7 / 2018-11-01
+==================
+
+  * PPI-592 Remove merchant portal link in confirmation email
 
 4.5.6 / 2018-10-22
 ==================

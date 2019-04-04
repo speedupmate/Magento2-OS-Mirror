@@ -38,10 +38,10 @@ class Package extends BackendTemplate
     private $rmaAccess;
 
     /**
-     * @param Context                   $context
+     * @param Context $context
      * @param ShipmentProviderInterface $shipmentProvider
-     * @param RmaAccess                 $rmaAccess
-     * @param mixed[]                   $data
+     * @param RmaAccess $rmaAccess
+     * @param mixed[] $data
      */
     public function __construct(
         Context $context,

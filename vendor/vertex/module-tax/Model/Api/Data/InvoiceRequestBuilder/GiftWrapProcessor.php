@@ -81,7 +81,7 @@ class GiftWrapProcessor
                 continue;
             }
 
-            if ($orderItem->getExtensionAttributes() !== null &&
+            if ($orderItem->getExtensionAttributes() === null ||
                 !$orderItem->getExtensionAttributes() instanceof OrderItemExtensionInterface) {
                 continue;
             }

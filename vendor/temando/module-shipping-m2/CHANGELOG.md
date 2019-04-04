@@ -1,3 +1,25 @@
+## [1.5.1] - 2019-02-15
+### Fixed
+
+- Display rates for selected collection point or pickup location in checkout
+
+## [1.5.0] - 2019-01-18
+### Added
+
+- Provide access to *Experience Portal* from module configuration
+- Cancel shipments
+- Print pickup packing slips with barcode
+
+### Changed
+
+- Separate order qualification ("collect rates") from order creation at the platform
+
+### Fixed
+
+- Handle missing declared export value gracefully
+- Prevent infinite loop during totals re-collect
+- Allow multiple sets of opening hours per day for Click & Collect locations
+
 ## [1.4.6] - 2018-11-06
 ### Fixed
 
@@ -36,6 +58,30 @@
 ### Added
 
 - Click & Collect: Enable customers to collect items from a pickup location
+
+## [1.3.10] - 2019-02-11
+### Fixed
+
+- Read error details from platform response
+- Show experiences configuration link in admin menu
+
+## [1.3.9] - 2019-01-18
+### Fixed
+
+- Allow tracking URLs on package level
+- Support free shipping via cart price rules
+- Validate API URL protocol in module configuration
+
+## [1.3.8] - 2018-12-19
+### Fixed
+
+- Batch Processing
+  - Replace invocation of M2 REST API during batch creation
+  - Improve error highlighting during batch creation
+  - Show info message on batch view page if no documentation is available
+- Event Synchronization
+  - Fix item quantities when the same SKU was shipped in separate packages
+  - Keep events in the queue for distributed event consumption
 
 ## [1.3.7] - 2018-10-17
 ### Fixed
@@ -282,7 +328,7 @@
 ### Changed
 
 - Update support link in module configuration
-- Dispay activation notice in config area
+- Display activation notice in config area
 
 ### Fixed
 

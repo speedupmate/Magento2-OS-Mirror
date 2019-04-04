@@ -8,6 +8,9 @@ use Magento\Framework\Exception\CouldNotSaveException;
 
 /**
  * @api
+ * @deprecated since 1.5.1
+ * @see \Temando\Shipping\Api\Checkout\GuestCartPickupLocationManagementInterface
+ *
  * @package Temando\Shipping\Api
  * @author  Sebastian Ertner <sebastian.ertner@netresearch.de>
  * @license https://opensource.org/licenses/osl-3.0.php Open Software License (OSL 3.0)

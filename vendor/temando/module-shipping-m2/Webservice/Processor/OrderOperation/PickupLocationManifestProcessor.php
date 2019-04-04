@@ -12,7 +12,7 @@ use Temando\Shipping\Api\Data\Delivery\OrderPickupLocationInterfaceFactory;
 use Temando\Shipping\Api\Data\Delivery\QuotePickupLocationInterface;
 use Temando\Shipping\Model\OrderInterface;
 use Temando\Shipping\Model\ResourceModel\Repository\OrderPickupLocationRepositoryInterface;
-use Temando\Shipping\Webservice\Response\Type\OrderResponseTypeInterface;
+use Temando\Shipping\Webservice\Response\Type\OrderResponseType;
 
 /**
  * Temando Pickup Location Manifestation Processor.
@@ -62,14 +62,14 @@ class PickupLocationManifestProcessor implements SaveProcessorInterface
      *
      * @param SalesOrderInterface|\Magento\Sales\Model\Order $salesOrder
      * @param OrderInterface $requestType
-     * @param OrderResponseTypeInterface $responseType
+     * @param OrderResponseType $responseType
      * @return void
      * @throws LocalizedException
      */
     public function postProcess(
         SalesOrderInterface $salesOrder,
         OrderInterface $requestType,
-        OrderResponseTypeInterface $responseType
+        OrderResponseType $responseType
     ) {
         /** @var \Temando\Shipping\Model\Delivery\QuotePickupLocation $pickupLocation */
         $quotePickupLocation = $requestType->getPickupLocation();

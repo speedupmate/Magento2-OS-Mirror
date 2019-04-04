@@ -58,19 +58,27 @@ class FilterConverter
     private $filterListFactory;
 
     /**
+     * @var string[]
+     */
+    private $fieldMap;
+
+    /**
      * Converter constructor.
      * @param PointerAwareInterface $entityMapper
      * @param PointerFilterFactory $filterFactory
      * @param PointerFilterListFactory $filterListFactory
+     * @param string[] $fieldMap
      */
     public function __construct(
         PointerAwareInterface $entityMapper,
         PointerFilterFactory $filterFactory,
-        PointerFilterListFactory $filterListFactory
+        PointerFilterListFactory $filterListFactory,
+        array $fieldMap = []
     ) {
         $this->entityMapper = $entityMapper;
         $this->filterFactory = $filterFactory;
         $this->filterListFactory = $filterListFactory;
+        $this->fieldMap = $fieldMap;
     }
 
     /**
@@ -92,6 +100,21 @@ class FilterConverter
     }
 
     /**
+     * Map a search index to a real filterable field
+     *
+     * @param string $field
+     * @return string
+     */
+    private function mapFilterField($field)
+    {
+        if (!isset($this->fieldMap[$field])) {
+            return $field;
+        }
+
+        return $this->fieldMap[$field];
+    }
+
+    /**
      * Convert a Magento filter into a platform JSON pointer filter.
      *
      * Filter conditions to expect from search criteria are documented as code comment:
@@ -105,7 +128,8 @@ class FilterConverter
      */
     public function convertFilter(Filter $filter, \Closure $filterCallback = null)
     {
-        $path = $this->entityMapper->getPath($filter->getField());
+        $property = $this->mapFilterField($filter->getField());
+        $path = $this->entityMapper->getPath($property);
         $operator = $this->mapCondition($filter->getConditionType());
         $value = $filterCallback ? $filterCallback($filter->getValue()) : $filter->getValue();
 
@@ -142,8 +166,9 @@ class FilterConverter
 
             // Logical disjunction is not supported by the API.
             $filter = current($filters);
-            $filterCallback = isset($filterCallbacks[$filter->getField()])
-                ? $filterCallbacks[$filter->getField()]
+            $property = $this->mapFilterField($filter->getField());
+            $filterCallback = isset($filterCallbacks[$property])
+                ? $filterCallbacks[$property]
                 : null;
 
             $apiFilters[]= $this->convertFilter($filter, $filterCallback);

@@ -18,6 +18,11 @@ use Klarna\Core\Api\BuilderInterface;
 class Giftcard extends AbstractLine
 {
     /**
+     * Checkout item type
+     */
+    const ITEM_TYPE_GIFTCARD = 'gift_card';
+
+    /**
      * {@inheritdoc}
      */
     public function collect(BuilderInterface $checkout)
@@ -55,7 +60,7 @@ class Giftcard extends AbstractLine
     {
         if ($checkout->getGiftcardaccountTotalAmount()) {
             $checkout->addOrderLine([
-                'type'             => Discount::ITEM_TYPE_DISCOUNT,
+                'type'             => self::ITEM_TYPE_GIFTCARD,
                 'reference'        => $checkout->getGiftcardaccountReference(),
                 'name'             => $checkout->getGiftcardaccountTitle(),
                 'quantity'         => 1,

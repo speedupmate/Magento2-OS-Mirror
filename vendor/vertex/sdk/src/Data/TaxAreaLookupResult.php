@@ -8,7 +8,7 @@
 namespace Vertex\Data;
 
 /**
- * Default implementation of {@see TaxAreaLookupResultInterface}
+ * {@inheritDoc}
  */
 class TaxAreaLookupResult implements TaxAreaLookupResultInterface
 {

@@ -16,17 +16,22 @@
 define([
     'jquery',
     'ko',
+    'mage/url',
     'amazonPaymentConfig',
     'amazonWidgetsLoader',
     'bluebird',
     'jquery/jquery-storageapi'
-], function ($, ko, amazonPaymentConfig) {
+], function ($, ko, url, amazonPaymentConfig) {
     'use strict';
 
     var clientId = amazonPaymentConfig.getValue('clientId'),
         amazonDefined = ko.observable(false),
         amazonLoginError = ko.observable(false),
-        accessToken = ko.observable(null);
+        accessToken = ko.observable(null),
+        // Match region config to amazon.Login.Region
+        regions = {'us': 'NA', 'de': 'EU', 'uk': 'EU', 'jp': 'APAC'},
+        sandboxMode,
+        region;
 
     if (typeof amazon === 'undefined') {
         /**
@@ -35,11 +40,22 @@ define([
         window.onAmazonLoginReady = function () {
             setClientId(clientId);  //eslint-disable-line no-use-before-define
             doLogoutOnFlagCookie(); //eslint-disable-line no-use-before-define
+
+            sandboxMode = amazonPaymentConfig.getValue('isSandboxEnabled', false);
+            amazon.Login.setSandboxMode(sandboxMode); //eslint-disable-line no-undef
+
+            region = regions[amazonPaymentConfig.getValue('region')];
+            amazon.Login.setRegion(region); //eslint-disable-line no-undef
         };
     } else {
         setClientId(clientId);  //eslint-disable-line no-use-before-define
         doLogoutOnFlagCookie(); //eslint-disable-line no-use-before-define
     }
+
+    // Widgets.js ready callback
+    window.onAmazonPaymentsReady = function() {
+        $(window).trigger('OffAmazonPayments');
+    };
 
     /**
      * Set Client ID
@@ -54,16 +70,21 @@ define([
      * Log user out of amazon
      */
     function amazonLogout() {
-        if (amazonDefined()) {
-            amazon.Login.logout(); //eslint-disable-line no-undef
-        } else {
-            var logout = amazonDefined.subscribe(function (defined) { //eslint-disable-line vars-on-top
-                if (defined) {
-                    amazon.Login.logout(); // eslint-disable-line no-undef
-                    logout.dispose(); //remove subscribe
-                }
-            });
-        }
+        $.ajax({
+            url: url.build('amazon/logout'),
+            context: this
+        }).always(function () {
+            if (amazonDefined()) {
+                amazon.Login.logout(); //eslint-disable-line no-undef
+            } else {
+                var logout = amazonDefined.subscribe(function (defined) { //eslint-disable-line vars-on-top
+                    if (defined) {
+                        amazon.Login.logout(); // eslint-disable-line no-undef
+                        logout.dispose(); //remove subscribe
+                    }
+                });
+            }
+        });
     }
 
     /**

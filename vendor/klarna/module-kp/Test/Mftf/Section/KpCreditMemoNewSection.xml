@@ -1,0 +1,20 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!--
+/**
+ * This file is part of the Klarna KP module
+ *
+ * (c) Klarna Bank AB (publ)
+ *
+ * For the full copyright and license information, please view the NOTICE
+ * and LICENSE files that were distributed with this source code.
+ */
+-->
+
+<sections xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+          xsi:noNamespaceSchemaLocation="urn:magento:mftf:Page/etc/SectionObject.xsd">
+    <section name="KpCreditMemoNewSection">
+        <element name="submitCreditMemo" type="button" selector=".action-default.scalable.save.submit-button.refund.primary"/>
+        <element name="returnQuantity" type="input" selector=".input-text.admin__control-text.qty-input"/>
+        <element name="updateQtyButton" type="button" selector=".action-default.scalable.update-button.secondary"/>
+    </section>
+</sections>

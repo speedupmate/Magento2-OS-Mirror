@@ -10,9 +10,9 @@ use Magento\Framework\Exception\NoSuchEntityException;
 use Magento\Sales\Api\Data\OrderInterface;
 use Magento\Sales\Api\Data\ShipmentCreationArgumentsExtensionInterfaceFactory;
 use Magento\Sales\Api\Data\ShipmentCreationArgumentsInterfaceFactory;
+use Magento\Sales\Api\Data\ShipmentItemCreationInterface;
 use Magento\Sales\Api\Data\ShipmentItemCreationInterfaceFactory;
 use Magento\Sales\Api\Data\ShipmentTrackCreationInterfaceFactory;
-use Magento\Sales\Api\Data\ShipmentTrackInterfaceFactory;
 use Magento\Sales\Api\OrderRepositoryInterface;
 use Magento\Sales\Api\ShipmentRepositoryInterface as SalesShipmentRepositoryInterface;
 use Magento\Sales\Api\ShipOrderInterface;
@@ -20,9 +20,9 @@ use Temando\Shipping\Model\DocumentationInterface;
 use Temando\Shipping\Model\ResourceModel\Order\OrderReference as OrderReferenceResource;
 use Temando\Shipping\Model\ResourceModel\Repository\ShipmentReferenceRepositoryInterface;
 use Temando\Shipping\Model\ResourceModel\Repository\ShipmentRepositoryInterface;
+use Temando\Shipping\Model\Sales\Service\ShipmentService;
 use Temando\Shipping\Model\Shipment\PackageInterface;
 use Temando\Shipping\Model\Shipment\PackageItemInterface;
-use Temando\Shipping\Model\ShipmentInterface;
 use Temando\Shipping\Model\Shipping\Carrier;
 use Temando\Shipping\Model\StreamEventInterface;
 use Temando\Shipping\Sync\Exception\EventException;
@@ -79,9 +79,9 @@ class ShipmentProcessor implements EntityProcessorInterface
     private $trackCreationFactory;
 
     /**
-     * @var ShipmentTrackInterfaceFactory
+     * @var ShipmentService
      */
-    private $trackUpdateFactory;
+    private $shipmentService;
 
     /**
      * @var ShipmentCreationArgumentsInterfaceFactory
@@ -103,7 +103,7 @@ class ShipmentProcessor implements EntityProcessorInterface
      * @param OrderReferenceResource $orderReferenceResource
      * @param ShipmentItemCreationInterfaceFactory $itemCreationFactory
      * @param ShipmentTrackCreationInterfaceFactory $trackCreationFactory
-     * @param ShipmentTrackInterfaceFactory $trackUpdateFactory
+     * @param ShipmentService $shipmentService
      * @param ShipmentCreationArgumentsInterfaceFactory $shipmentCreationArgumentsFactory
      * @param ShipmentCreationArgumentsExtensionInterfaceFactory $shipmentCreationArgumentsExtensionFactory
      */
@@ -116,7 +116,7 @@ class ShipmentProcessor implements EntityProcessorInterface
         OrderReferenceResource $orderReferenceResource,
         ShipmentItemCreationInterfaceFactory $itemCreationFactory,
         ShipmentTrackCreationInterfaceFactory $trackCreationFactory,
-        ShipmentTrackInterfaceFactory $trackUpdateFactory,
+        ShipmentService $shipmentService,
         ShipmentCreationArgumentsInterfaceFactory $shipmentCreationArgumentsFactory,
         ShipmentCreationArgumentsExtensionInterfaceFactory $shipmentCreationArgumentsExtensionFactory
     ) {
@@ -128,23 +128,9 @@ class ShipmentProcessor implements EntityProcessorInterface
         $this->orderReferenceResource = $orderReferenceResource;
         $this->itemCreationFactory = $itemCreationFactory;
         $this->trackCreationFactory = $trackCreationFactory;
-        $this->trackUpdateFactory = $trackUpdateFactory;
+        $this->shipmentService = $shipmentService;
         $this->shipmentCreationArgumentsFactory = $shipmentCreationArgumentsFactory;
         $this->shipmentCreationArgumentsExtensionFactory = $shipmentCreationArgumentsExtensionFactory;
-    }
-
-    /**
-     * @param string $extShipmentId
-     * @return bool
-     */
-    private function isShipmentNew($extShipmentId)
-    {
-        try {
-            $this->shipmentReferenceRepository->getByExtShipmentId($extShipmentId);
-            return false;
-        } catch (NoSuchEntityException $e) {
-            return true;
-        }
     }
 
     /**
@@ -164,25 +150,6 @@ class ShipmentProcessor implements EntityProcessorInterface
     }
 
     /**
-     * @param string $extShipmentId
-     * @return ShipmentInterface
-     * @throws EventProcessorException
-     */
-    private function loadExternalShipment($extShipmentId)
-    {
-        try {
-            // load external shipment
-            return $this->shipmentRepository->getById($extShipmentId);
-        } catch (LocalizedException $e) {
-            throw EventProcessorException::processingFailed(
-                StreamEventInterface::ENTITY_TYPE_SHIPMENT,
-                $extShipmentId,
-                $e
-            );
-        }
-    }
-
-    /**
      * Create new shipment
      *
      * @param string $extShipmentId
@@ -190,9 +157,18 @@ class ShipmentProcessor implements EntityProcessorInterface
      * @throws EventException
      * @throws EventProcessorException
      */
-    private function create($extShipmentId)
+    private function create(string $extShipmentId): int
     {
-        $shipment = $this->loadExternalShipment($extShipmentId);
+        try {
+            // load external shipment
+            $shipment = $this->shipmentRepository->getById($extShipmentId);
+        } catch (LocalizedException $e) {
+            throw EventProcessorException::processingFailed(
+                StreamEventInterface::ENTITY_TYPE_SHIPMENT,
+                $extShipmentId,
+                $e
+            );
+        }
 
         // skip shipment event if no fulfillment with tracking number is available
         $fulfillment = $shipment->getFulfillment();
@@ -208,15 +184,14 @@ class ShipmentProcessor implements EntityProcessorInterface
         // find local order id for external order
         $orderId = $this->orderReferenceResource->getOrderIdByExtOrderId($shipment->getOrderId());
         if (!$orderId) {
-            throw EventException::operationSkipped(
+            throw EventProcessorException::processingFailed(
                 StreamEventInterface::ENTITY_TYPE_SHIPMENT,
-                StreamEventInterface::EVENT_TYPE_CREATE,
-                $extShipmentId,
-                "No order found for entity ID {$shipment->getOrderId()}."
+                $extShipmentId
             );
         }
 
         // items
+        /** @var ShipmentItemCreationInterface[] $creationItems */
         $creationItems = [];
         $packages = $shipment->getPackages() ?: [];
 
@@ -227,13 +202,22 @@ class ShipmentProcessor implements EntityProcessorInterface
         }, []);
 
         $salesOrder = $this->salesOrderRepository->get($orderId);
-        foreach ($fulfilledItems as $fulfilledItem) {
-            $orderItemId = $this->getOrderItemIdBySku($salesOrder, $fulfilledItem->getSku());
 
-            $creationItem = $this->itemCreationFactory->create();
-            $creationItem->setQty($fulfilledItem->getQty());
-            $creationItem->setOrderItemId($orderItemId);
-            $creationItems[]= $creationItem;
+        foreach ($fulfilledItems as $fulfilledItem) {
+            if (!isset($creationItems[$fulfilledItem->getSku()])) {
+                // add new creation item
+                $orderItemId = $this->getOrderItemIdBySku($salesOrder, $fulfilledItem->getSku());
+
+                $creationItem = $this->itemCreationFactory->create();
+                $creationItem->setQty($fulfilledItem->getQty());
+                $creationItem->setOrderItemId($orderItemId);
+
+                $creationItems[$fulfilledItem->getSku()] = $creationItem;
+            } else {
+                // increase qty of existing creation item
+                $creationItem = $creationItems[$fulfilledItem->getSku()];
+                $creationItem->setQty($fulfilledItem->getQty() + $creationItem->getQty());
+            }
         }
 
         // tracking
@@ -275,58 +259,46 @@ class ShipmentProcessor implements EntityProcessorInterface
             );
         }
 
-        return $shipmentId;
+        return (int) $shipmentId;
     }
 
     /**
-     * Update existing shipment, i.e. add tracking information
+     * Update existing shipment, i.e. add tracking information, update status
      *
      * @param string $extShipmentId
-     * @return int Processed entity ID.
+     * @return int
      * @throws EventException
+     * @throws EventProcessorException
      */
-    private function modify($extShipmentId)
+    private function modify(string $extShipmentId): int
     {
-        if ($this->isShipmentNew($extShipmentId)) {
+        try {
+            $shipmentReference = $this->shipmentReferenceRepository->getByExtShipmentId($extShipmentId);
+        } catch (NoSuchEntityException $e) {
             return $this->create($extShipmentId);
         }
 
-        $shipment = $this->loadExternalShipment($extShipmentId);
-
-        // skip shipment event if no fulfillment with tracking number is available
-        $fulfillment = $shipment->getFulfillment();
-        if (!$fulfillment || !$fulfillment->getTrackingReference()) {
+        try {
+            // read shipment from platform, trigger post-process operations
+            $this->shipmentService->read($extShipmentId, (int) $shipmentReference->getShipmentId());
+        } catch (NoSuchEntityException $exception) {
+            // shipment does not exist at platform, skip
             throw EventException::operationSkipped(
                 StreamEventInterface::ENTITY_TYPE_SHIPMENT,
-                StreamEventInterface::EVENT_TYPE_CREATE,
+                StreamEventInterface::EVENT_TYPE_MODIFY,
                 $extShipmentId,
-                'No fulfillment information available.'
+                $exception->getMessage()
+            );
+        } catch (LocalizedException $exception) {
+            // processing local shipment failed, try again later
+            throw EventProcessorException::processingFailed(
+                StreamEventInterface::ENTITY_TYPE_SHIPMENT,
+                $extShipmentId,
+                $exception
             );
         }
 
-        $shipmentReference = $this->shipmentReferenceRepository->getByExtShipmentId($extShipmentId);
-        $salesShipmentId = $shipmentReference->getShipmentId();
-
-        /** @var \Magento\Sales\Model\Order\Shipment $salesShipment */
-        $salesShipment = $this->salesShipmentRepository->get($salesShipmentId);
-        $tracks = $salesShipment->getTracksCollection();
-        foreach ($tracks as $track) {
-            if ($track->getTrackNumber() === $fulfillment->getTrackingReference()) {
-                // tracking number already exists, nothing to do.
-                return $salesShipmentId;
-            }
-        }
-
-        /** @var \Magento\Sales\Model\Order\Shipment\Track $tracking */
-        $tracking = $this->trackUpdateFactory->create();
-        $tracking->setCarrierCode(Carrier::CODE);
-        $tracking->setTitle($fulfillment->getServiceName());
-        $tracking->setTrackNumber($fulfillment->getTrackingReference());
-
-        $salesShipment->addTrack($tracking);
-        $this->salesShipmentRepository->save($salesShipment);
-
-        return $salesShipmentId;
+        return (int) $shipmentReference->getShipmentId();
     }
 
     /**
@@ -336,7 +308,7 @@ class ShipmentProcessor implements EntityProcessorInterface
      * @throws EventException
      * @throws EventProcessorException
      */
-    public function execute($operation, $extShipmentId)
+    public function execute(string $operation, string $extShipmentId): int
     {
         if ($operation == StreamEventInterface::EVENT_TYPE_MODIFY) {
             return $this->modify($extShipmentId);

@@ -12,7 +12,7 @@ namespace Temando\Shipping\Rest\Request;
  * @license  http://opensource.org/licenses/osl-3.0.php Open Software License (OSL 3.0)
  * @link     http://www.temando.com/
  */
-class StreamEventItemRequest implements StreamEventItemRequestInterface
+class StreamEventItemRequest
 {
     /**
      * @var string

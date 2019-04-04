@@ -1,0 +1,38 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<actionGroups xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+              xsi:noNamespaceSchemaLocation="urn:magento:mftf:Test/etc/actionGroupSchema.xsd">
+    <!-- Add simple product to cart -->
+    <actionGroup name="TemandoAddSimpleProductToCart">
+        <amOnPage url="{{StorefrontCategoryPage.url($$simplecategory.name$$)}}" stepKey="onCategoryPage" />
+        <waitForPageLoad stepKey="waitForCategoryPage" />
+        <moveMouseOver selector="{{StorefrontCategoryMainSection.ProductItemInfo}}" stepKey="hoverProduct" />
+        <click selector="{{StorefrontCategoryMainSection.AddToCartBtn}}" stepKey="addToCart" />
+        <waitForElementVisible selector="{{StorefrontCategoryMainSection.SuccessMsg}}" time="30" stepKey="waitForProductAdded" />
+        <see selector="{{StorefrontCategoryMainSection.SuccessMsg}}" userInput="You added $$simpleproduct.name$$ to your shopping cart." stepKey="seeAddedToCartMessage" />
+        <see selector="{{StorefrontMinicartSection.quantity}}" userInput="1" stepKey="seeCartQuantity" />
+    </actionGroup>
+    <!-- Enter shipping details at checkout -->
+    <actionGroup name="TemandoCompleteShippingDetails">
+        <fillField selector="{{CheckoutShippingSection.email}}" userInput="{{CustomerEntityOne.email}}" stepKey="enterEmail"/>
+        <fillField selector="{{CheckoutShippingSection.firstName}}" userInput="{{CustomerEntityOne.firstname}}" stepKey="enterFirstName"/>
+        <fillField selector="{{CheckoutShippingSection.lastName}}" userInput="{{CustomerEntityOne.lastname}}" stepKey="enterLastName"/>
+        <fillField selector="{{CheckoutShippingSection.street}}" userInput="{{CustomerAddressSimple.street[0]}}" stepKey="enterStreet"/>
+        <fillField selector="{{CheckoutShippingSection.city}}" userInput="{{CustomerAddressSimple.city}}" stepKey="enterCity"/>
+        <selectOption selector="{{CheckoutShippingSection.region}}" userInput="{{CustomerAddressSimple.state}}" stepKey="selectRegion"/>
+        <fillField selector="{{CheckoutShippingSection.postcode}}" userInput="{{CustomerAddressSimple.postcode}}" stepKey="enterPostcode"/>
+        <fillField selector="{{CheckoutShippingSection.telephone}}" userInput="{{CustomerAddressSimple.telephone}}" stepKey="enterTelephone"/>
+        <waitForLoadingMaskToDisappear stepKey="waitForLoadingMask"/>
+    </actionGroup>
+    <!-- Select a shipping method at checkout -->
+    <actionGroup name="TemandoSelectShippingMethod">
+        <arguments>
+            <argument name="shippingMethod" type="string" />
+        </arguments>
+        <scrollTo stepKey="scrollToShippingMethods" selector="{{TemandoCheckoutSection.ShippingMethodsTable}}" />
+        <seeElement stepKey="seeStandardShipping" selector="{{TemandoCheckoutSection.ShippingMethodLabel(shippingMethod)}}" />
+        <grabTextFrom selector="{{TemandoCheckoutSection.ShippingMethodLabel(shippingMethod)}}" stepKey="shippingLabel" />
+        <click selector="{{CheckoutShippingMethodsSection.checkShippingMethodByName('{$shippingLabel}')}}" stepKey="selectStandardShipping" />
+        <waitForLoadingMaskToDisappear stepKey="waitForStandardShipping" />
+    </actionGroup>
+</actionGroups>

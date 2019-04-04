@@ -838,7 +838,7 @@ class SetupSchema
 
         $table->addForeignKey(
             $installer->getFkName(
-                self::TABLE_QUOTE_PICKUP_LOCATION,
+                self::TABLE_ORDER_PICKUP_LOCATION,
                 OrderPickupLocationInterface::RECIPIENT_ADDRESS_ID,
                 'sales_order_address',
                 'entity_id'
@@ -852,5 +852,42 @@ class SetupSchema
         $table->setComment('Order Pickup Location Entity');
 
         $installer->getConnection(self::SALES_CONNECTION_NAME)->createTable($table);
+    }
+
+    /**
+     * Add distance property to delivery location tables.
+     *
+     * @param SchemaSetupInterface|\Magento\Framework\Module\Setup $installer
+     * @return void
+     */
+    public function addDeliveryLocationDistanceColumn(SchemaSetupInterface $installer)
+    {
+        $tableName = $installer->getTable(self::TABLE_QUOTE_COLLECTION_POINT, self::CHECKOUT_CONNECTION_NAME);
+        $installer
+            ->getConnection(self::CHECKOUT_CONNECTION_NAME)
+            ->addColumn(
+                $tableName,
+                QuoteCollectionPointInterface::DISTANCE,
+                [
+                    'type' => Table::TYPE_INTEGER,
+                    'unsigned' => true,
+                    'nullable' => true,
+                    'comment' => 'Distance in Meters'
+                ]
+            );
+
+        $tableName = $installer->getTable(self::TABLE_QUOTE_PICKUP_LOCATION, self::CHECKOUT_CONNECTION_NAME);
+        $installer
+            ->getConnection(self::CHECKOUT_CONNECTION_NAME)
+            ->addColumn(
+                $tableName,
+                QuotePickupLocationInterface::DISTANCE,
+                [
+                    'type' => Table::TYPE_INTEGER,
+                    'unsigned' => true,
+                    'nullable' => true,
+                    'comment' => 'Distance in Meters'
+                ]
+            );
     }
 }

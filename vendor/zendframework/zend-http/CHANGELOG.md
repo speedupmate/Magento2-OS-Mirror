@@ -2,6 +2,61 @@
 
 All notable changes to this project will be documented in this file, in reverse chronological order by release.
 
+## 2.8.4 - 2019-02-07
+
+### Added
+
+- Nothing.
+
+### Changed
+
+- Nothing.
+
+### Deprecated
+
+- Nothing.
+
+### Removed
+
+- Nothing.
+
+### Fixed
+
+- [#168](https://github.com/zendframework/zend-http/pull/168) fixes a problem when validating the connection timeout for the `Curl` and
+  `Socket` client adapters; it now correctly identifies both integer and string
+  integer values.
+
+## 2.8.3 - 2019-01-08
+
+### Added
+
+- Nothing.
+
+### Changed
+
+- Nothing.
+
+### Deprecated
+
+- Nothing.
+
+### Removed
+
+- Nothing.
+
+### Fixed
+
+- [#165](https://github.com/zendframework/zend-http/pull/165) fixes detection of the base URL when operating under a CLI environment.
+
+- [#149](https://github.com/zendframework/zend-http/pull/149) provides fixes to `Client::setUri()` to ensure its status as a relative
+  or absolute URI is correctly memoized.
+
+- [#162](https://github.com/zendframework/zend-http/pull/162) fixes a typo in an exception message raised within `Cookies::fromString()`.
+
+- [#121](https://github.com/zendframework/zend-http/pull/121) adds detection for non-numeric connection timeout values as well as
+  integer casting to ensure the timeout is set properly in both the Curl and
+  Socket adapters.
+
 ## 2.8.2 - 2018-08-13
 
 ### Added

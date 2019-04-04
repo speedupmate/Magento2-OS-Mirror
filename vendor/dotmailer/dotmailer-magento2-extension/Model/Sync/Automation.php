@@ -18,6 +18,9 @@ class Automation
     const AUTOMATION_STATUS_PENDING = 'pending';
     const ORDER_STATUS_AUTOMATION = 'order_automation_';
     const AUTOMATION_TYPE_CUSTOMER_FIRST_ORDER = 'first_order_automation';
+    const CONTACT_STATUS_PENDING = "PendingOptIn";
+    const CONTACT_STATUS_CONFIRMED = "Confirmed";
+    const CONTACT_STATUS_EXPIRED = "Expired";
 
     /**
      * @var array
@@ -50,11 +53,6 @@ class Automation
     private $typeId;
 
     /**
-     * @var int
-     */
-    private $websiteId;
-
-    /**
      * @var string
      */
     private $storeName;
@@ -78,11 +76,6 @@ class Automation
      * @var \Dotdigitalgroup\Email\Helper\Data
      */
     private $helper;
-    
-    /**
-     * @var \Magento\Store\Model\StoreManagerInterface
-     */
-    private $storeManager;
 
     /**
      * @var \Magento\Framework\App\ResourceConnection
@@ -90,9 +83,9 @@ class Automation
     private $resource;
 
     /**
-     * @var \Magento\Framework\Stdlib\DateTime\TimezoneInterface
+     * @var \Magento\Framework\Stdlib\DateTime
      */
-    private $localeDate;
+    private $dateTime;
 
     /**
      * @var \Dotdigitalgroup\Email\Model\ResourceModel\Automation\CollectionFactory
@@ -110,39 +103,45 @@ class Automation
     private $orderFactory;
 
     /**
-     * @var \Dotdigitalgroup\Email\Model\Config\Json
+     * @var \Dotdigitalgroup\Email\Model\DateIntervalFactory
      */
-    private $serializer;
+    private $dateIntervalFactory;
+
+    /**
+     * @var \Magento\Framework\Stdlib\DateTime\TimezoneInterface
+     */
+    private $timeZone;
 
     /**
      * Automation constructor.
+     *
      * @param \Dotdigitalgroup\Email\Model\ResourceModel\Automation\CollectionFactory $automationFactory
      * @param \Magento\Framework\App\ResourceConnection $resource
      * @param \Dotdigitalgroup\Email\Helper\Data $helper
-     * @param \Dotdigitalgroup\Email\Model\Config\Json $serializer
-     * @param \Magento\Framework\Stdlib\DateTime\TimezoneInterface $localeDate
-     * @param \Magento\Store\Model\StoreManagerInterface $storeManagerInterface
+     * @param \Magento\Framework\Stdlib\DateTime $dateTime
      * @param \Magento\Sales\Model\OrderFactory $orderFactory
      * @param \Dotdigitalgroup\Email\Model\ResourceModel\Automation $automationResource
+     * @param \Dotdigitalgroup\Email\Model\DateIntervalFactory $dateIntervalFactory,
+     * @param \Magento\Framework\Stdlib\DateTime\TimezoneInterface $timeZone
      */
     public function __construct(
         \Dotdigitalgroup\Email\Model\ResourceModel\Automation\CollectionFactory $automationFactory,
         \Magento\Framework\App\ResourceConnection $resource,
         \Dotdigitalgroup\Email\Helper\Data $helper,
-        \Dotdigitalgroup\Email\Model\Config\Json $serializer,
-        \Magento\Framework\Stdlib\DateTime\TimezoneInterface $localeDate,
-        \Magento\Store\Model\StoreManagerInterface $storeManagerInterface,
+        \Magento\Framework\Stdlib\DateTime $dateTime,
         \Magento\Sales\Model\OrderFactory $orderFactory,
-        \Dotdigitalgroup\Email\Model\ResourceModel\Automation $automationResource
+        \Dotdigitalgroup\Email\Model\ResourceModel\Automation $automationResource,
+        \Dotdigitalgroup\Email\Model\DateIntervalFactory $dateIntervalFactory,
+        \Magento\Framework\Stdlib\DateTime\TimezoneInterface $timeZone
     ) {
-        $this->serializer = $serializer;
         $this->automationFactory = $automationFactory;
         $this->helper            = $helper;
-        $this->storeManager      = $storeManagerInterface;
         $this->resource          = $resource;
-        $this->localeDate        = $localeDate;
+        $this->dateTime          = $dateTime;
         $this->orderFactory      = $orderFactory;
         $this->automationResource = $automationResource;
+        $this->dateIntervalFactory = $dateIntervalFactory;
+        $this->timeZone = $timeZone;
     }
 
     /**
@@ -154,6 +153,7 @@ class Automation
      */
     public function sync()
     {
+        $this->checkStatusForPendingContacts();
         $this->setupAutomationTypes();
 
         //send the campaign by each types
@@ -167,57 +167,126 @@ class Automation
                 $type = $automation->getAutomationType();
                 $email = $automation->getEmail();
                 $this->typeId = $automation->getTypeId();
-                $this->websiteId = $automation->getWebsiteId();
+                $websiteId = $automation->getWebsiteId();
                 $this->storeName = $automation->getStoreName();
                 $typeDouble = $type;
                 //Set type to generic automation status if type contains constant value
                 if (strpos($typeDouble, self::ORDER_STATUS_AUTOMATION) !== false) {
                     $typeDouble = self::ORDER_STATUS_AUTOMATION;
                 }
-                $contactId = $this->helper->getContactId(
-                    $email,
-                    $this->websiteId
-                );
+                $contact = $this->helper->getContact($email, $websiteId);
                 //contact id is valid, can update datafields
-                if ($contactId) {
+                if ($contact && isset($contact->id)) {
+                    if ($contact->status === self::CONTACT_STATUS_PENDING) {
+                        $automation->setEnrolmentStatus(self::CONTACT_STATUS_PENDING);
+                        $this->automationResource->save($automation);
+                        continue;
+                    }
+
                     //need to update datafields
                     $this->updateDatafieldsByType(
                         $typeDouble,
-                        $email
+                        $email,
+                        $websiteId
                     );
-                    $contacts[$automation->getWebsiteId()]['contacts'][$automation->getId()] = $contactId;
+                    $contacts[$automation->getWebsiteId()]['contacts'][$automation->getId()] = $contact->id;
                 } else {
                     // the contact is suppressed or the request failed
                     $automation->setEnrolmentStatus('Suppressed');
                     $this->automationResource->save($automation);
                 }
             }
-            foreach ($contacts as $websiteId => $websiteContacts) {
-                if (isset($websiteContacts['contacts'])) {
-                    $this->programId = $websiteContacts['programId'];
-                    $contactsArray = $websiteContacts['contacts'];
+            $this->sendAutomationEnrolements($contacts, $type);
+        }
+    }
 
-                    //only for subscribed contacts
-                    $this->sendSubscribedContactsToAutomation($contactsArray, $websiteId);
+    /**
+     * check automation entries for pending contacts
+     */
+    private function checkStatusForPendingContacts()
+    {
+        $updatedAt = $this->dateTime->formatDate(true);
 
-                    //update contacts with the new status, and log the error message if fails
-                    $contactIds = array_keys($contactsArray);
-                    $updatedAt = $this->localeDate->date(
-                        null,
-                        null,
-                        false
-                    )->format('Y-m-d H:i:s');
-                    $this->automationResource
-                        ->updateStatus(
-                            $contactIds,
-                            $this->programStatus,
-                            $this->programMessage,
-                            $updatedAt,
-                            $type
-                        );
+        if ($this->isItTimeToCheckPendingContact()) {
+            $collection = $this->automationFactory->create()
+                ->getCollectionByPendingStatus();
+            $idsToUpdateStatus = [];
+            $idsToUpdateDate = [];
+
+            foreach ($collection as $item) {
+                $contact = $this->helper->getContact($item->getEmail(), $item->getWebsiteId());
+                if (isset($contact->id) && $contact->status !== self::CONTACT_STATUS_PENDING) {
+                    //add to array for update status
+                    $idsToUpdateStatus[] = $item->getId();
+                } else {
+                    //add to array for update date
+                    $idsToUpdateDate[] = $item->getId();
                 }
             }
+
+            if (! empty($idsToUpdateStatus)) {
+                $this->automationResource
+                    ->update(
+                        $idsToUpdateStatus,
+                        $updatedAt,
+                        self::CONTACT_STATUS_CONFIRMED
+                    );
+            }
+
+            if (! empty($idsToUpdateDate)) {
+                $this->automationResource
+                    ->update(
+                        $idsToUpdateDate,
+                        $updatedAt
+                    );
+            }
         }
+
+        //Get pending with 24 house delay and expire it
+        $collection = $this->automationFactory->create()
+            ->getCollectionByPendingStatus($this->getDateTimeForExpiration());
+        $ids = $collection->getColumnValues('id');
+        if (! empty($ids)) {
+            $this->automationResource
+                ->update(
+                    $ids,
+                    $updatedAt,
+                    self::CONTACT_STATUS_EXPIRED
+                );
+        }
+    }
+
+    /**
+     * @return string
+     */
+    private function getDateTimeForExpiration()
+    {
+        $hours = (int) $this->helper->getWebsiteConfig(
+            \Dotdigitalgroup\Email\Helper\Config::XML_PATH_CONNECTOR_AC_AUTOMATION_EXPIRE_TIME
+        );
+        $interval = $this->dateIntervalFactory->create(
+            ['interval_spec' => sprintf('PT%sH', $hours)]
+        );
+        $dateTime = $this->timeZone->date();
+        $dateTime->sub($interval);
+        return $dateTime->format('Y-m-d H:i:s');
+    }
+
+    /**
+     * @return boolean
+     */
+    private function isItTimeToCheckPendingContact()
+    {
+        $dateTimeFromDb = $this->automationFactory->create()->getLastPendingStatusCheckTime();
+        if (! $dateTimeFromDb) {
+            return false;
+        }
+
+        $lastCheckTime = $this->timeZone->date($dateTimeFromDb);
+        $interval = $this->dateIntervalFactory->create(['interval_spec' => 'PT30M']);
+        $lastCheckTime->add($interval);
+        $now = $this->timeZone->date();
+        return ($now->format('Y-m-d H:i:s') > $lastCheckTime->format('Y-m-d H:i:s'));
     }
 
     /**
@@ -225,20 +294,22 @@ class Automation
      *
      * @param string $type
      * @param string $email
+     * @param int $websiteId
      *
      * @return null
+     * @throws \Magento\Framework\Exception\LocalizedException
      */
-    public function updateDatafieldsByType($type, $email)
+    private function updateDatafieldsByType($type, $email, $websiteId)
     {
         switch ($type) {
             case self::AUTOMATION_TYPE_NEW_ORDER:
             case self::AUTOMATION_TYPE_NEW_GUEST_ORDER:
             case self::ORDER_STATUS_AUTOMATION:
             case self::AUTOMATION_TYPE_CUSTOMER_FIRST_ORDER:
-                $this->_updateNewOrderDatafields();
+                $this->updateNewOrderDatafields($websiteId);
                 break;
             default:
-                $this->_updateDefaultDatafields($email);
+                $this->updateDefaultDatafields($email, $websiteId);
                 break;
         }
     }
@@ -247,23 +318,28 @@ class Automation
      * Update config datafield.
      *
      * @param string $email
+     * @param int $websiteId
      *
      * @return null
+     * @throws \Magento\Framework\Exception\LocalizedException
      */
-    public function _updateDefaultDatafields($email)
+    private function updateDefaultDatafields($email, $websiteId)
     {
-        $website = $this->storeManager->getWebsite($this->websiteId);
+        $website = $this->helper->storeManager->getWebsite($websiteId);
         $this->helper->updateDataFields($email, $website, $this->storeName);
     }
 
     /**
      * Update new order default datafields.
      *
+     * @param int $websiteId
+     *
      * @return null
+     * @throws \Magento\Framework\Exception\LocalizedException
      */
-    public function _updateNewOrderDatafields()
+    private function updateNewOrderDatafields($websiteId)
     {
-        $website = $this->storeManager->getWebsite($this->websiteId);
+        $website = $this->helper->storeManager->getWebsite($websiteId);
         $orderModel = $this->orderFactory->create()
             ->loadByIncrementId($this->typeId);
 
@@ -337,16 +413,18 @@ class Automation
      * Program check if is valid and active.
      *
      * @param int $programId
+     * @param int $websiteId
      *
      * @return bool
+     * @throws \Exception
      */
-    public function _checkCampignEnrolmentActive($programId)
+    private function checkCampignEnrolmentActive($programId, $websiteId)
     {
         //program is not set
         if (!$programId) {
             return false;
         }
-        $client = $this->helper->getWebsiteApiClient($this->websiteId);
+        $client = $this->helper->getWebsiteApiClient($websiteId);
         $program = $client->getProgramById($programId);
         //program status
         if (isset($program->status)) {
@@ -366,8 +444,9 @@ class Automation
      * @param int $websiteId
      *
      * @return mixed
+     * @throws \Exception
      */
-    public function sendContactsToAutomation($contacts, $websiteId)
+    private function sendContactsToAutomation($contacts, $websiteId)
     {
         $client = $this->helper->getWebsiteApiClient($websiteId);
         $data = [
@@ -401,7 +480,7 @@ class Automation
      * @param string $type
      * @param string $config
      *
-     * @return mixed
+     * @return array
      */
     private function buildFirstDimensionOfContactsArray($type, $config)
     {
@@ -409,7 +488,9 @@ class Automation
         $websites = $this->helper->getWebsites(true);
         foreach ($websites as $website) {
             if (strpos($type, self::ORDER_STATUS_AUTOMATION) !== false) {
-                $configValue = $this->serializer->unserialize($this->helper->getWebsiteConfig($config, $website));
+                $configValue = $this->helper->serializer->unserialize(
+                    $this->helper->getWebsiteConfig($config, $website)
+                );
 
                 if (is_array($configValue) && !empty($configValue)) {
                     foreach ($configValue as $one) {
@@ -428,15 +509,16 @@ class Automation
     }
 
     /**
-     * @param array  $contactsArray
-     * @param int  $websiteId
+     * @param array $contactsArray
+     * @param int $websiteId
      *
      * @return null
+     * @throws \Exception
      */
     private function sendSubscribedContactsToAutomation($contactsArray, $websiteId)
     {
         if (!empty($contactsArray) &&
-            $this->_checkCampignEnrolmentActive($this->programId)
+            $this->checkCampignEnrolmentActive($this->programId, $websiteId)
         ) {
             $result = $this->sendContactsToAutomation(
                 array_values($contactsArray),
@@ -452,6 +534,35 @@ class Automation
             == 'Error: ERROR_PROGRAM_NOT_ACTIVE '
         ) {
             $this->programStatus = 'Deactivated';
+        }
+    }
+
+    /**
+     * @param $contacts
+     * @param $type
+     */
+    private function sendAutomationEnrolements($contacts, $type)
+    {
+        foreach ($contacts as $websiteId => $websiteContacts) {
+            if (isset($websiteContacts['contacts'])) {
+                $this->programId = $websiteContacts['programId'];
+                $contactsArray = $websiteContacts['contacts'];
+
+                //only for subscribed contacts
+                $this->sendSubscribedContactsToAutomation($contactsArray, $websiteId);
+
+                //update contacts with the new status, and log the error message if fails
+                $contactIds = array_keys($contactsArray);
+                $updatedAt = $this->dateTime->formatDate(true);
+                $this->automationResource
+                    ->updateStatus(
+                        $contactIds,
+                        $this->programStatus,
+                        $this->programMessage,
+                        $updatedAt,
+                        $type
+                    );
+            }
         }
     }
 }

@@ -12,7 +12,7 @@ use Temando\Shipping\Api\Data\Delivery\OrderCollectionPointInterfaceFactory;
 use Temando\Shipping\Api\Data\Delivery\QuoteCollectionPointInterface;
 use Temando\Shipping\Model\OrderInterface;
 use Temando\Shipping\Model\ResourceModel\Repository\OrderCollectionPointRepositoryInterface;
-use Temando\Shipping\Webservice\Response\Type\OrderResponseTypeInterface;
+use Temando\Shipping\Webservice\Response\Type\OrderResponseType;
 
 /**
  * Temando Collection Point Manifestation Processor.
@@ -62,14 +62,14 @@ class CollectionPointManifestProcessor implements SaveProcessorInterface
      *
      * @param SalesOrderInterface|\Magento\Sales\Model\Order $salesOrder
      * @param OrderInterface $requestType
-     * @param OrderResponseTypeInterface $responseType
+     * @param OrderResponseType $responseType
      * @return void
      * @throws LocalizedException
      */
     public function postProcess(
         SalesOrderInterface $salesOrder,
         OrderInterface $requestType,
-        OrderResponseTypeInterface $responseType
+        OrderResponseType $responseType
     ) {
         $quoteCollectionPoint = $requestType->getCollectionPoint();
         if ($quoteCollectionPoint instanceof QuoteCollectionPointInterface) {

@@ -15,6 +15,20 @@ namespace Vertex\Data;
 interface LineItemInterface
 {
     /**
+     * Retrieve the commodity code
+     *
+     * @return string
+     */
+    public function getCommodityCode();
+
+    /**
+     * Retrieve the commodity code type
+     *
+     * @return string
+     */
+    public function getCommodityCodeType();
+
+    /**
      * Retrieve the Customer
      *
      * @return CustomerInterface|null
@@ -119,6 +133,29 @@ interface LineItemInterface
     public function getUnitPrice();
 
     /**
+     * Retrieve if the tax is included
+     *
+     * @return bool|null
+     */
+    public function isTaxIncluded();
+
+    /**
+     * Set the commodity code
+     *
+     * @param string $code
+     * @return LineItemInterface
+     */
+    public function setCommodityCode($code);
+
+    /**
+     * Set the commodity code type
+     *
+     * @param string $type
+     * @return LineItemInterface
+     */
+    public function setCommodityCodeType($type);
+
+    /**
      * Set the Customer
      *
      * @param CustomerInterface $customer
@@ -210,6 +247,14 @@ interface LineItemInterface
      * @return LineItemInterface
      */
     public function setSeller(SellerInterface $seller);
+
+    /**
+     * Set if tax is included
+     *
+     * @param bool
+     * @return LineItemInterface
+     */
+    public function setTaxIncluded($isIncluded);
 
     /**
      * Set the Taxes on the line item

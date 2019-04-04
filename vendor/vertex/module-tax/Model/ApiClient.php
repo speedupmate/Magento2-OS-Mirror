@@ -25,7 +25,7 @@ class ApiClient implements ClientInterface
     /** @var Config */
     private $config;
 
-    /** @var LoggerInterface */
+    /** @var ExceptionLogger */
     private $logger;
 
     /** @var ObjectConverter */
@@ -41,7 +41,7 @@ class ApiClient implements ClientInterface
     private $storeManager;
 
     /**
-     * @param LoggerInterface $logger
+     * @param ExceptionLogger $logger
      * @param Config $config
      * @param StoreManagerInterface $storeManager
      * @param SoapClientFactory $soapClientFactory
@@ -49,7 +49,7 @@ class ApiClient implements ClientInterface
      * @param ObjectConverter $objectConverter
      */
     public function __construct(
-        LoggerInterface $logger,
+        ExceptionLogger $logger,
         Config $config,
         StoreManagerInterface $storeManager,
         SoapClientFactory $soapClientFactory,
@@ -194,7 +194,7 @@ class ApiClient implements ClientInterface
      */
     private function logException($exception, $type, \SoapClient $client = null)
     {
-        $this->logger->critical($exception->getMessage() . PHP_EOL . $exception->getTraceAsString());
+        $this->logger->critical($exception);
         $this->logRequest(
             $type,
             $client !== null ? $client->__getLastRequest() : '',
@@ -220,9 +220,7 @@ class ApiClient implements ClientInterface
         } catch (\Exception $originalException) {
             // Logging Exception
             $exception = new \Exception('Failed to log Vertex Request', 0, $originalException);
-            $this->logger->critical(
-                $exception->getMessage() . PHP_EOL . $exception->getTraceAsString()
-            );
+            $this->logger->critical($exception);
         }
     }
 

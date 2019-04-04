@@ -7,9 +7,9 @@ namespace Temando\Shipping\Rest\Adapter;
 
 use Temando\Shipping\Rest\Exception\AdapterException;
 use Temando\Shipping\Rest\Request\ItemRequestInterface;
+use Temando\Shipping\Rest\Request\ListRequestInterface;
 use Temando\Shipping\Rest\Request\StreamCreateRequestInterface;
-use Temando\Shipping\Rest\Request\StreamEventItemRequestInterface;
-use Temando\Shipping\Rest\Request\StreamEventListRequestInterface;
+use Temando\Shipping\Rest\Request\StreamEventItemRequest;
 use Temando\Shipping\Rest\Response\DataObject\StreamEvent;
 
 /**
@@ -39,18 +39,18 @@ interface EventStreamApiInterface
     public function deleteStream(ItemRequestInterface $request);
 
     /**
-     * @param StreamEventListRequestInterface $request
+     * @param ListRequestInterface $request
      *
      * @return StreamEvent[]
      * @throws AdapterException
      */
-    public function getStreamEvents(StreamEventListRequestInterface $request);
+    public function getStreamEvents(ListRequestInterface $request);
 
     /**
-     * @param StreamEventItemRequestInterface $request
+     * @param StreamEventItemRequest $request
      *
      * @return void
      * @throws AdapterException
      */
-    public function deleteStreamEvent(StreamEventItemRequestInterface $request);
+    public function deleteStreamEvent(StreamEventItemRequest $request);
 }

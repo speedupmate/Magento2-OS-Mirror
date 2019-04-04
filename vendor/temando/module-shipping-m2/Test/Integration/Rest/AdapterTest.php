@@ -10,7 +10,7 @@ use Temando\Shipping\Rest\Adapter as RestAdapter;
 use Temando\Shipping\Rest\Request\AuthRequestInterface;
 use Temando\Shipping\Rest\Request\ItemRequestInterface;
 use Temando\Shipping\Rest\Request\ListRequestInterface;
-use Temando\Shipping\Rest\Request\OrderRequestInterface;
+use Temando\Shipping\Rest\Request\OrderRequest;
 use Temando\Shipping\Rest\Request\Type\OrderRequestType;
 use Temando\Shipping\Rest\Response\DataObject\CarrierIntegration;
 use Temando\Shipping\Rest\Response\DataObject\Completion;
@@ -18,7 +18,7 @@ use Temando\Shipping\Rest\Response\DataObject\Container;
 use Temando\Shipping\Rest\Response\DataObject\Location;
 use Temando\Shipping\Rest\Response\DataObject\Session;
 use Temando\Shipping\Rest\Response\DataObject\Shipment;
-use Temando\Shipping\Rest\Response\Document\QualifyOrderInterface;
+use Temando\Shipping\Rest\Response\Document\SaveOrderInterface;
 use Temando\Shipping\Test\Integration\Provider\RestResponseProvider;
 use Temando\Shipping\Webservice\Filter\CollectionFilter;
 use Temando\Shipping\Webservice\HttpClient;
@@ -124,16 +124,16 @@ class AdapterTest extends \PHPUnit\Framework\TestCase
      * Delegate provisioning of test data to separate class
      * @return string[]
      */
-    public function createOrderResponseProvider()
+    public function manifestOrderResponseProvider()
     {
-        return RestResponseProvider::createOrderResponseProvider();
+        return RestResponseProvider::manifestOrderResponseProvider();
     }
 
     /**
      * Delegate provisioning of test data to separate class
      * @return string[]
      */
-    public function manifestOrderResponseProvider()
+    public function updateOrderResponseProvider()
     {
         return RestResponseProvider::updateOrderResponseProvider();
     }
@@ -377,8 +377,8 @@ class AdapterTest extends \PHPUnit\Framework\TestCase
         $request =  $this->objectManager->create(ItemRequestInterface::class, [
             'entityId' => $shipmentId,
         ]);
-        /** @var RestAdapter $adapter */
-        $adapter = $this->objectManager->create(RestAdapter::class, [
+        /** @var ShipmentAdapter $adapter */
+        $adapter = $this->objectManager->create(ShipmentAdapter::class, [
             'auth' => $this->auth,
             'restClient' => $this->restClient,
         ]);
@@ -427,63 +427,6 @@ class AdapterTest extends \PHPUnit\Framework\TestCase
 
     /**
      * @test
-     * @dataProvider createOrderResponseProvider
-     * @magentoConfigFixture default/carriers/temando/session_endpoint https://auth.temando.io/v1/
-     * @magentoConfigFixture default/carriers/temando/sovereign_endpoint https://foo.temando.io/v1/
-     * @param string $jsonResponse
-     */
-    public function createOrder($jsonResponse)
-    {
-        $this->httpClient
-            ->expects($this->once())
-            ->method('send')
-            ->willReturn($jsonResponse);
-
-        $orderType = $this->getMockBuilder(OrderRequestType::class)
-            ->disableOriginalConstructor()
-            ->getMock();
-        /** @var OrderRequestInterface $request */
-        $request =  $this->objectManager->create(OrderRequestInterface::class, [
-            'order' => $orderType,
-        ]);
-        /** @var OrderAdapter $adapter */
-        $adapter = $this->objectManager->create(OrderAdapter::class, [
-            'auth' => $this->auth,
-            'restClient' => $this->restClient,
-        ]);
-        $order = $adapter->createOrder($request);
-
-        $this->assertInstanceOf(QualifyOrderInterface::class, $order);
-        $this->assertNotEmpty($order->getData()->getId());
-        $this->assertNotEmpty($order->getData()->getAttributes()->getSource()->getReference());
-
-        foreach ($order->getIncluded() as $orderQualification) {
-            $shippingExperiences = $orderQualification->getAttributes()->getExperiences();
-            $this->assertInternalType('array', $shippingExperiences);
-            $this->assertNotEmpty($shippingExperiences);
-            foreach ($shippingExperiences as $shippingExperience) {
-                $this->assertInternalType('string', $shippingExperience->getCode());
-                $this->assertNotEmpty($shippingExperience->getCode());
-
-                $this->assertInternalType('array', $shippingExperience->getCost());
-                $this->assertNotEmpty($shippingExperience->getCost());
-                foreach ($shippingExperience->getCost() as $localizedCost) {
-                    $this->assertNotEmpty($localizedCost->getAmount());
-                    $this->assertNotEmpty($localizedCost->getCurrency());
-                }
-
-                $this->assertInternalType('array', $shippingExperience->getDescription());
-                $this->assertNotEmpty($shippingExperience->getDescription());
-                foreach ($shippingExperience->getDescription() as $localizedDescription) {
-                    $this->assertNotEmpty($localizedDescription->getLocale());
-                    $this->assertNotEmpty($localizedDescription->getText());
-                }
-            }
-        }
-    }
-
-    /**
-     * @test
      * @dataProvider manifestOrderResponseProvider
      * @magentoConfigFixture default/carriers/temando/session_endpoint https://auth.temando.io/v1/
      * @magentoConfigFixture default/carriers/temando/sovereign_endpoint https://foo.temando.io/v1/
@@ -498,14 +441,47 @@ class AdapterTest extends \PHPUnit\Framework\TestCase
 
         $orderType = $this->getMockBuilder(OrderRequestType::class)
             ->disableOriginalConstructor()
+            ->getMock();
+        /** @var OrderRequest $request */
+        $request =  $this->objectManager->create(OrderRequest::class, [
+            'order' => $orderType,
+        ]);
+        /** @var OrderAdapter $adapter */
+        $adapter = $this->objectManager->create(OrderAdapter::class, [
+            'auth' => $this->auth,
+            'restClient' => $this->restClient,
+        ]);
+        $order = $adapter->createOrder($request);
+
+        $this->assertInstanceOf(SaveOrderInterface::class, $order);
+        $this->assertNotEmpty($order->getData()->getId());
+        $this->assertNotEmpty($order->getData()->getAttributes()->getSource()->getReference());
+    }
+
+    /**
+     * @test
+     * @dataProvider updateOrderResponseProvider
+     * @magentoConfigFixture default/carriers/temando/session_endpoint https://auth.temando.io/v1/
+     * @magentoConfigFixture default/carriers/temando/sovereign_endpoint https://foo.temando.io/v1/
+     * @param string $jsonResponse
+     */
+    public function updateOrder($jsonResponse)
+    {
+        $this->httpClient
+            ->expects($this->once())
+            ->method('send')
+            ->willReturn($jsonResponse);
+
+        $orderType = $this->getMockBuilder(OrderRequestType::class)
+            ->disableOriginalConstructor()
             ->setMethods(['getId'])
             ->getMock();
         $orderType->expects($this->any())
             ->method('getId')
             ->willReturn('00000000-0000-0000-0000-000000000000');
 
-        /** @var OrderRequestInterface $request */
-        $request =  $this->objectManager->create(OrderRequestInterface::class, [
+        /** @var OrderRequest $request */
+        $request =  $this->objectManager->create(OrderRequest::class, [
             'order' => $orderType,
         ]);
         /** @var OrderAdapter $adapter */
@@ -515,7 +491,7 @@ class AdapterTest extends \PHPUnit\Framework\TestCase
         ]);
         $order = $adapter->updateOrder($request);
 
-        $this->assertInstanceOf(QualifyOrderInterface::class, $order);
+        $this->assertInstanceOf(SaveOrderInterface::class, $order);
         $this->assertNotEmpty($order->getData()->getId());
         $this->assertNotEmpty($order->getData()->getAttributes()->getSource()->getReference());
     }

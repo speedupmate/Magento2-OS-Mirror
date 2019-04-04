@@ -6,17 +6,16 @@
 namespace Temando\Shipping\ViewModel\Rma\RmaShipment\Tracking;
 
 use Magento\Framework\App\Config\ScopeConfigInterface;
-use Magento\Framework\Exception\LocalizedException;
 use Magento\Framework\Stdlib\DateTime\DateTimeFormatterInterface;
 use Magento\Framework\Stdlib\DateTime\TimezoneInterface;
 use Magento\Framework\UrlInterface;
 use Magento\Framework\View\Element\Block\ArgumentInterface;
+use Magento\Store\Model\ScopeInterface;
 use Temando\Shipping\Model\ResourceModel\Repository\ShipmentRepositoryInterface;
 use Temando\Shipping\Model\ResourceModel\Rma\RmaAccess;
-use Temando\Shipping\Model\Shipment;
+use Temando\Shipping\Model\Shipment\FulfillmentInterface;
 use Temando\Shipping\Model\ShipmentInterface;
 use Temando\Shipping\Model\Shipping\Carrier;
-use Temando\Shipping\Model\Shipment\TrackEventInterface;
 
 /**
  * View model for tracking popup.
@@ -109,7 +108,7 @@ class Popup implements ArgumentInterface
     }
 
     /**
-     * Get carrier name from fulfillment.
+     * Get carrier name from configuration.
      *
      * @return string
      */
@@ -125,38 +124,26 @@ class Popup implements ArgumentInterface
      */
     public function getTrackingNumber()
     {
-        /** @var Shipment $shipment */
         $shipment = $this->getShipment();
-        $trackingId = $shipment->getFulfillment()->getTrackingReference();
-
-        return $trackingId;
-    }
-
-    /**
-     * Get tracking progress info
-     *
-     * @return string[]
-     */
-    public function getTrackingProgressInfo()
-    {
-        try {
-            $trackEvents = $this->shipmentRepository->getTrackingById($this->getShipment()->getShipmentId());
-            $trackEventsData = array_map(function (TrackEventInterface $trackEvent) {
-                return $trackEvent->getEventData();
-            }, $trackEvents);
-        } catch (LocalizedException $e) {
-            $trackEventsData = [];
+        if (!$shipment->getFulfillment() instanceof FulfillmentInterface) {
+            return '';
         }
 
-        return $trackEventsData;
+        return $shipment->getFulfillment()->getTrackingReference();
     }
 
     /**
+     * Get carrier name from fulfillment.
+     *
      * @return string
      */
     public function getCarrierTitle()
     {
         $shipment = $this->getShipment();
+        if (!$shipment->getFulfillment() instanceof FulfillmentInterface) {
+            return $this->getCarrierName();
+        }
+
         $carrierTitle = sprintf(
             '%s - %s',
             $shipment->getFulfillment()->getCarrierName(),
@@ -167,16 +154,30 @@ class Popup implements ArgumentInterface
     }
 
     /**
-     * @param string[] $trackEventsData
+     * Get tracking url from package or fulfillment.
+     *
      * @return string
      */
-    public function getTrackingStatus(array $trackEventsData)
+    public function getTrackingUrl()
     {
-        if (empty($trackEventsData)) {
-            return $this->getShipment()->getStatus();
+        $shipment = $this->getShipment();
+        $trackingNumber = $this->getTrackingNumber();
+
+        // read tracking url from booking fulfillment
+        $trackingUrl = $shipment->getFulfillment()->getTrackingUrl();
+
+        // check if there is a matching tracking url in the packages
+        foreach ($shipment->getPackages() as $package) {
+            if (!$package->getTrackingUrl()) {
+                continue;
+            }
+
+            if ($package->getTrackingReference() === $trackingNumber) {
+                $trackingUrl = $package->getTrackingUrl();
+            }
         }
 
-        return $trackEventsData[0]['activity'];
+        return (string) $trackingUrl;
     }
 
     /**
@@ -228,11 +229,9 @@ class Popup implements ArgumentInterface
     public function getCopyright()
     {
         if (!$this->copyright) {
-            $this->copyright = $this->scopeConfig->getValue(
-                'design/footer/copyright',
-                \Magento\Store\Model\ScopeInterface::SCOPE_STORE
-            );
+            $this->copyright = $this->scopeConfig->getValue('design/footer/copyright', ScopeInterface::SCOPE_STORE);
         }
+
         return __($this->copyright);
     }
 }

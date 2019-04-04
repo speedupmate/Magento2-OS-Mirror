@@ -8,7 +8,7 @@ use Magento\Framework\Exception\LocalizedException;
 use Magento\Quote\Model\Quote\Address\RateRequest;
 use Temando\Shipping\Api\Data\Order\ShippingExperienceInterface;
 use Temando\Shipping\Model\OrderInterface;
-use Temando\Shipping\Webservice\Response\Type\OrderResponseTypeInterface;
+use Temando\Shipping\Webservice\Response\Type\QualificationResponseType;
 
 /**
  * Temando Rates Response Processor Interface
@@ -23,13 +23,13 @@ interface RatesProcessorInterface
     /**
      * @param RateRequest $rateRequest
      * @param OrderInterface $requestType
-     * @param OrderResponseTypeInterface $responseType
+     * @param QualificationResponseType $responseType
      * @return ShippingExperienceInterface[]
      * @throws LocalizedException
      */
     public function postProcess(
         RateRequest $rateRequest,
         OrderInterface $requestType,
-        OrderResponseTypeInterface $responseType
+        QualificationResponseType $responseType
     );
 }

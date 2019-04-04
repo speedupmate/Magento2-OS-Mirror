@@ -15,24 +15,46 @@ namespace Temando\Shipping\Rest\Response\Fields;
 class OrderQualificationAttributes
 {
     /**
-     * @var \Temando\Shipping\Rest\Response\Fields\OrderQualification\Experience[]
+     * @var \Temando\Shipping\Rest\Response\Fields\Generic\MonetaryValue[]
      */
-    private $experiences = [];
+    private $cost = [];
 
     /**
-     * @return \Temando\Shipping\Rest\Response\Fields\OrderQualification\Experience[]
+     * @var \Temando\Shipping\Rest\Response\Fields\OrderQualification\Description[]
      */
-    public function getExperiences()
+    private $description = [];
+
+    /**
+     * @return \Temando\Shipping\Rest\Response\Fields\Generic\MonetaryValue[]
+     */
+    public function getCost()
     {
-        return $this->experiences;
+        return $this->cost;
     }
 
     /**
-     * @param \Temando\Shipping\Rest\Response\Fields\OrderQualification\Experience[] $experiences
+     * @param \Temando\Shipping\Rest\Response\Fields\Generic\MonetaryValue[] $cost
      * @return void
      */
-    public function setExperiences(array $experiences)
+    public function setCost(array $cost)
     {
-        $this->experiences = $experiences;
+        $this->cost = $cost;
+    }
+
+    /**
+     * @return \Temando\Shipping\Rest\Response\Fields\OrderQualification\Description[]
+     */
+    public function getDescription()
+    {
+        return $this->description;
+    }
+
+    /**
+     * @param \Temando\Shipping\Rest\Response\Fields\OrderQualification\Description[] $description
+     * @return void
+     */
+    public function setDescription(array $description)
+    {
+        $this->description = $description;
     }
 }

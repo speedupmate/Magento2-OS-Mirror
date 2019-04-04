@@ -146,4 +146,12 @@ class Shipment extends DataObject implements ShipmentInterface
     {
         return $this->getData(ShipmentInterface::CREATED_AT);
     }
+
+    /**
+     * @return bool
+     */
+    public function isCancelable()
+    {
+        return $this->getData(ShipmentInterface::IS_CANCELABLE);
+    }
 }

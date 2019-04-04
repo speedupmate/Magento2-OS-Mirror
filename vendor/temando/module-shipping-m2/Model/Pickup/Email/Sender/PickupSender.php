@@ -5,7 +5,6 @@
 namespace Temando\Shipping\Model\Pickup\Email\Sender;
 
 use Magento\Sales\Model\Order\Email\Sender\OrderSender;
-use Magento\Sales\Model\ResourceModel\Order as OrderResource;
 use Temando\Shipping\Model\Pickup\Email\Container\PickupIdentity;
 
 /**

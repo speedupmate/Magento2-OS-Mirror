@@ -51,8 +51,9 @@ class QuotePickupLocation extends AbstractDb
     /**
      * @param AbstractModel|QuotePickupLocationInterface $object
      * @param int $value
-     * @param null $field
+     * @param string|null $field
      * @return $this
+     * @throws \Exception
      */
     public function load(AbstractModel $object, $value, $field = null)
     {
@@ -72,6 +73,9 @@ class QuotePickupLocation extends AbstractDb
             $object->setData(QuotePickupLocationInterface::OPENING_HOURS, $openingHours);
         }
 
+        // cast values for type safety
+        $distance = $object->getDistance() ? (int) $object->getDistance() : null;
+        $object->setData(QuotePickupLocationInterface::DISTANCE, $distance);
         $object->setData(QuotePickupLocationInterface::SELECTED, (bool) $object->isSelected());
 
         return $this;

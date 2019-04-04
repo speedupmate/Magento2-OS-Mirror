@@ -62,7 +62,11 @@ class CartCheckoutFieldManagement implements CartCheckoutFieldManagementInterfac
      */
     public function saveCheckoutFields($cartId, $serviceSelection)
     {
-        $shippingAddress = $this->addressManagement->get($cartId);
+        try {
+            $shippingAddress = $this->addressManagement->get($cartId);
+        } catch (NoSuchEntityException $exception) {
+            throw new CouldNotSaveException(__('Unable to load shipping address for specified quote.'), $exception);
+        }
 
         try {
             $address = $this->addressRepository->getByQuoteAddressId($shippingAddress->getId());

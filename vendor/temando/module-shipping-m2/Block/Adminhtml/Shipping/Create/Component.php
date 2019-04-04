@@ -47,17 +47,17 @@ class Component extends AbstractComponent
     /**
      * Component constructor.
      *
-     * @param WidgetContext             $context
-     * @param WsConfigInterface         $config
-     * @param StorageInterface          $session
-     * @param AuthenticationInterface   $auth
-     * @param Token                     $token
-     * @param DateTime                  $dateTime
-     * @param RemoteAddress             $remoteAddress
-     * @param Config                    $securityConfig
-     * @param OrderRepositoryInterface  $orderRepository
+     * @param WidgetContext $context
+     * @param WsConfigInterface $config
+     * @param StorageInterface $session
+     * @param AuthenticationInterface $auth
+     * @param Token $token
+     * @param DateTime $dateTime
+     * @param RemoteAddress $remoteAddress
+     * @param Config $securityConfig
+     * @param OrderRepositoryInterface $orderRepository
      * @param ShipmentProviderInterface $shipmentProvider
-     * @param mixed[]                   $data
+     * @param mixed[] $data
      */
     public function __construct(
         WidgetContext $context,

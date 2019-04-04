@@ -1,0 +1,35 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!--
+/**
+ * This file is part of the Klarna KP module
+ *
+ * (c) Klarna Bank AB (publ)
+ *
+ * For the full copyright and license information, please view the NOTICE
+ * and LICENSE files that were distributed with this source code.
+ */
+-->
+<sections xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="../../../../../../../dev/tests/acceptance/vendor/magento/magento2-functional-testing-framework/src/Magento/FunctionalTestingFramework/Page/etc/SectionObject.xsd">
+    <section name="KpConfiguraionSection">
+        <element name="apiTab" type="button" selector="//a[@id='payment_us_klarna_section_klarna_api-head']"/>
+        <element name="apiVersionSelect" type="select" selector="//select[@id='payment_us_klarna_section_klarna_api_api_version']"/>
+        <element name="kpApiEu" type="select" selector="//select[@id='payment_us_klarna_section_klarna_api_api_version']/option[text()='Klarna Payments (Europe)']"/>
+        <element name="kpApiNa" type="select" selector="//select[@id='payment_us_klarna_section_klarna_api_api_version']/option[text()='Klarna Payments (North America)']"/>
+        <element name="merchantEid" type="input" selector="//input[@id='payment_us_klarna_section_klarna_api_merchant_id']"/>
+        <element name="merchantPwd" type="input" selector="//input[@id='payment_us_klarna_section_klarna_api_shared_secret']"/>
+        <element name="apiTestModeSelect" type="select" selector="//select[@id='payment_us_klarna_section_klarna_api_test_mode']"/>
+        <element name="testModeEnable" type="select" selector="//select[@id='payment_us_klarna_section_klarna_api_test_mode']/option[text()='Enable']"/>
+        <element name="testModeDisable" type="select" selector="//select[@id='payment_us_klarna_section_klarna_api_test_mode']/option[text()='Disable']"/>
+        <element name="apiDebugModeSelect" type="select" selector="//select[@id='payment_us_klarna_section_klarna_api_debug']"/>
+        <element name="debugModeEnable" type="select" selector="//select[@id='payment_us_klarna_section_klarna_api_debug']/option[text()='Enable']"/>
+        <element name="debugModeDisable" type="select" selector="//select[@id='payment_us_klarna_section_klarna_api_debug']/option[text()='Disable']"/>
+        <element name="paymentTab" type="button" selector="//a[@id='payment_us_klarna_section_klarna_klarna_kp_required-head']"/>
+        <element name="kpPaymentActiveSelect" type="select" selector="//select[@id='payment_us_klarna_section_klarna_klarna_kp_required_active']"/>
+        <element name="activeEnabled" type="select" selector="//select[@id='payment_us_klarna_section_klarna_klarna_kp_required_active']/option[text()='Yes']"/>
+        <element name="activeDisabled" type="select" selector="//select[@id='payment_us_klarna_section_klarna_klarna_kp_required_active']/option[text()='No']"/>
+        <element name="kpPaymentAllowedCountriesSelect" type="select" selector="//select[@id='payment_us_klarna_section_klarna_klarna_kp_required_allowspecific']"/>
+        <element name="allAllowedCountries" type="select" selector="//select[@id='payment_us_klarna_section_klarna_klarna_kp_required_allowspecific']/option[text()='All Allowed Countries']"/>
+        <element name="save" type="button" selector="//span[text()='Save Config']"/>
+        <element name="successfulMessage" type="text" selector="//*[@data-ui-id='messages-message-success']"/>
+    </section>
+</sections>

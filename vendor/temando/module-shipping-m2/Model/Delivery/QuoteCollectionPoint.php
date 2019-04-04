@@ -96,6 +96,14 @@ class QuoteCollectionPoint extends AbstractModel implements QuoteCollectionPoint
     }
 
     /**
+     * @return int Distance in meters
+     */
+    public function getDistance()
+    {
+        return $this->getData(QuoteCollectionPointInterface::DISTANCE);
+    }
+
+    /**
      * @return string[]
      */
     public function getStreet()

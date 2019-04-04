@@ -42,26 +42,30 @@ class VertexUsageDeterminer
      * @param AddressInterface|null $address
      * @param int|null $customerId
      * @param bool $isVirtual
+     * @param bool $checkCalculation
      * @return bool
-     * @throws \InvalidArgumentException
      */
     public function shouldUseVertex(
         $storeCode = null,
         $address = null,
         $customerId = null,
-        $isVirtual = false
+        $isVirtual = false,
+        $checkCalculation = false
     ) {
+        if (!$this->config->isVertexActive($storeCode)
+            || ($checkCalculation && !$this->config->isTaxCalculationEnabled($storeCode))
+        ) {
+            return false;
+        }
         if ($address !== null && !($address instanceof AddressInterface || $address instanceof QuoteAddressInterface)) {
             throw new \InvalidArgumentException(
                 '$address must be a Customer or Quote Address.  Is: '
-                . (is_object($address) ? get_class($address) : gettype($address))
+                .(is_object($address) ? get_class($address) : gettype($address))
             );
         }
-
         $address = $this->addressDeterminer->determineAddress($address, $customerId, $isVirtual);
 
-        return $this->config->isVertexActive($storeCode)
-            && !$this->config->isDisplayPriceInCatalogEnabled($storeCode)
+        return !$this->config->isDisplayPriceInCatalogEnabled($storeCode)
             && $address !== null
             && $address->getCountryId()
             && $this->countryGuard->isCountryIdServiceableByVertex($address->getCountryId());

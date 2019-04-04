@@ -109,16 +109,16 @@ class GiftwrapExtensionLoader
      * Load the Giftwrapping module Extension Attributes onto an Order
      *
      * @param Order $order
-     * @return void
+     * @return Order
      */
     public function loadOnOrder(Order $order)
     {
-        foreach ($order->getItems() as $item) {
-            $this->loadOnOrderItem($item);
+        if (!$this->moduleManager->isEnabled('Magento_GiftWrapping')) {
+            return $order;
         }
 
-        if (!$this->moduleManager->isEnabled('Magento_GiftWrapping')) {
-            return;
+        foreach ($order->getItems() as $item) {
+            $this->loadOnOrderItem($item);
         }
 
         /** @var OrderExtensionInterface $extensionAttributes */
@@ -128,6 +128,8 @@ class GiftwrapExtensionLoader
         $extensionAttributes->setGwItemsBasePrice($order->getData('gw_items_base_price'));
 
         $order->setExtensionAttributes($extensionAttributes);
+
+        return $order;
     }
 
     /**
@@ -148,6 +150,4 @@ class GiftwrapExtensionLoader
 
         $item->setExtensionAttributes($extensionAttributes);
     }
-
-
 }

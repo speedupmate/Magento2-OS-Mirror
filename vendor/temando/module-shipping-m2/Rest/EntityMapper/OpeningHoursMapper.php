@@ -49,7 +49,11 @@ class OpeningHoursMapper
 
         foreach ($apiHours->getDefault() as $item) {
             $dow = $item->getDayOfWeek();
-            $openingHours[$dow] = [
+            if (!isset($openingHours[$dow])) {
+                $openingHours[$dow] = [];
+            }
+
+            $openingHours[$dow][] = [
                 'from' => $item->getOpens(),
                 'to' => $item->getCloses(),
             ];

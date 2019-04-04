@@ -19,7 +19,8 @@ use Temando\Shipping\Setup\SetupSchema;
 class ShipmentReference extends AbstractDb
 {
     /**
-     * Init main table and primary key
+     * Init main table and primary key.
+     *
      * @return void
      */
     protected function _construct()
@@ -28,80 +29,107 @@ class ShipmentReference extends AbstractDb
     }
 
     /**
+     * Query primary key by given shipment id.
+     *
      * @param int $shipmentId
-     * @return int
+     * @return int|null
      */
     public function getIdByShipmentId($shipmentId)
     {
-        $connection = $this->getConnection();
-        $tableName  = $this->getMainTable();
-        $table      = $this->getTable($tableName);
+        try {
+            $connection = $this->getConnection();
+            $tableName  = $this->getMainTable();
+            $table      = $this->getTable($tableName);
 
-        $select = $connection->select()
-            ->from($table, ShipmentReferenceInterface::ENTITY_ID)
-            ->where('shipment_id = :shipment_id');
+            $select = $connection->select()
+                ->from($table, ShipmentReferenceInterface::ENTITY_ID)
+                ->where('shipment_id = :shipment_id');
 
-        $bind  = [':shipment_id' => (string)$shipmentId];
+            $bind  = [':shipment_id' => (string)$shipmentId];
+            $entityId = $connection->fetchOne($select, $bind);
 
-        return $connection->fetchOne($select, $bind);
+            return $entityId ? (int) $entityId : null;
+        } catch (\Exception $exception) {
+            return null;
+        }
     }
 
     /**
+     * Query primary key by given platform shipment id.
+     *
      * @param string $shipmentId
-     * @return int
+     * @return int|null
      */
     public function getIdByExtShipmentId($shipmentId)
     {
-        $connection = $this->getConnection();
-        $tableName  = $this->getMainTable();
-        $table      = $this->getTable($tableName);
+        try {
+            $connection = $this->getConnection();
+            $tableName  = $this->getMainTable();
+            $table      = $this->getTable($tableName);
 
-        $select = $connection->select()
-            ->from($table, ShipmentReferenceInterface::ENTITY_ID)
-            ->where('ext_shipment_id = :ext_shipment_id');
+            $select = $connection->select()
+                ->from($table, ShipmentReferenceInterface::ENTITY_ID)
+                ->where('ext_shipment_id = :ext_shipment_id');
 
-        $bind = [':ext_shipment_id' => (string)$shipmentId];
+            $bind = [':ext_shipment_id' => (string)$shipmentId];
+            $entityId = $connection->fetchOne($select, $bind);
 
-        return $connection->fetchOne($select, $bind);
+            return $entityId ? (int) $entityId : null;
+        } catch (\Exception $exception) {
+            return null;
+        }
     }
 
     /**
+     * Query primary key by given platform return shipment id.
+     *
      * @param string $returnShipmentId
-     * @return int
+     * @return int|null
      */
     public function getIdByExtReturnShipmentId($returnShipmentId)
     {
-        $connection = $this->getConnection();
-        $table = $this->getMainTable();
+        try {
+            $connection = $this->getConnection();
+            $table = $this->getMainTable();
 
-        $select = $connection->select()
-            ->from($table, ShipmentReferenceInterface::ENTITY_ID)
-            ->where('ext_return_shipment_id = :ext_return_shipment_id');
+            $select = $connection->select()
+                ->from($table, ShipmentReferenceInterface::ENTITY_ID)
+                ->where('ext_return_shipment_id = :ext_return_shipment_id');
 
-        $bind = [':ext_return_shipment_id' => (string)$returnShipmentId];
+            $bind = [':ext_return_shipment_id' => (string)$returnShipmentId];
+            $entityId = $connection->fetchOne($select, $bind);
 
-        return $connection->fetchOne($select, $bind);
+            return $entityId ? (int) $entityId : null;
+        } catch (\Exception $exception) {
+            return null;
+        }
     }
 
     /**
+     * Query multiple primary keys by given platform shipment ids.
+     *
      * @param string[] $extShipmentIds
      * @return int[]
      */
     public function getShipmentIdsByExtShipmentIds(array $extShipmentIds)
     {
-        $connection = $this->getConnection();
-        $tableName  = $this->getMainTable();
-        $table      = $this->getTable($tableName);
+        try {
+            $connection = $this->getConnection();
+            $tableName  = $this->getMainTable();
+            $table      = $this->getTable($tableName);
 
-        $bind = [];
-        foreach ($extShipmentIds as $index => $extShipmentId) {
-            $bind[":id{$index}"] = $extShipmentId;
+            $bind = [];
+            foreach ($extShipmentIds as $index => $extShipmentId) {
+                $bind[":id{$index}"] = $extShipmentId;
+            }
+
+            $select = $connection->select()
+                ->from($table, [ShipmentReferenceInterface::EXT_SHIPMENT_ID, ShipmentReferenceInterface::SHIPMENT_ID])
+                ->where('ext_shipment_id in (' . implode(',', array_keys($bind)) . ')');
+
+            return $connection->fetchPairs($select, $bind);
+        } catch (\Exception $exception) {
+            return [];
         }
-
-        $select = $connection->select()
-            ->from($table, [ShipmentReferenceInterface::EXT_SHIPMENT_ID, ShipmentReferenceInterface::SHIPMENT_ID])
-            ->where('ext_shipment_id in (' . implode(',', array_keys($bind)) . ')');
-
-        return $connection->fetchPairs($select, $bind);
     }
 }

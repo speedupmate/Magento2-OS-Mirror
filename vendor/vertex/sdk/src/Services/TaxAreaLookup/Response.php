@@ -10,7 +10,7 @@ namespace Vertex\Services\TaxAreaLookup;
 use Vertex\Data\TaxAreaLookupResultInterface;
 
 /**
- * Default implementation of ResponseInterface
+ * {@inheritDoc}
  */
 class Response implements ResponseInterface
 {

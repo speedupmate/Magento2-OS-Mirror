@@ -182,7 +182,6 @@ class OrderInterfaceBuilder extends AbstractSimpleObjectBuilder
     /**
      * @param \Magento\Sales\Api\Data\OrderInterface|\Magento\Sales\Model\Order $order
      * @return void
-     * @throws LocalizedException
      */
     public function setOrder(\Magento\Sales\Api\Data\OrderInterface $order)
     {
@@ -260,6 +259,7 @@ class OrderInterfaceBuilder extends AbstractSimpleObjectBuilder
 
     /**
      * @param PickupLocationSearchRequestInterface $isPickupLocationSearchRequest
+     * @return void
      */
     public function setPickupLocationSearchRequest(PickupLocationSearchRequestInterface $isPickupLocationSearchRequest)
     {

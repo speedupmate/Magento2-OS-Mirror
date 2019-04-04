@@ -12,7 +12,7 @@ use Temando\Shipping\Api\Data\Order\ShippingExperienceInterfaceFactory;
 use Temando\Shipping\Model\OrderInterface;
 use Temando\Shipping\Model\ResourceModel\Delivery\CollectionPointSearchResult;
 use Temando\Shipping\Model\ResourceModel\Repository\QuoteCollectionPointRepositoryInterface;
-use Temando\Shipping\Webservice\Response\Type\OrderResponseTypeInterface;
+use Temando\Shipping\Webservice\Response\Type\QualificationResponseType;
 
 /**
  * Temando Collection Point Rates Processor.
@@ -62,13 +62,13 @@ class CollectionPointRatesProcessor implements RatesProcessorInterface
      *
      * @param RateRequest $rateRequest
      * @param OrderInterface $requestType
-     * @param OrderResponseTypeInterface $responseType
+     * @param QualificationResponseType $responseType
      * @return ShippingExperienceInterface[]
      */
     public function postProcess(
         RateRequest $rateRequest,
         OrderInterface $requestType,
-        OrderResponseTypeInterface $responseType
+        QualificationResponseType $responseType
     ) {
         $collectionPoint = $requestType->getCollectionPoint();
         if ($collectionPoint === null) {

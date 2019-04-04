@@ -26,6 +26,8 @@ interface OrderPickupLocationRepositoryInterface
     public function get($addressId);
 
     /**
+     * Save pickup location.
+     *
      * @param OrderPickupLocationInterface $collectionPoint
      * @return OrderPickupLocationInterface
      * @throws CouldNotSaveException

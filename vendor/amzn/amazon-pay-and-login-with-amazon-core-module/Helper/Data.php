@@ -23,6 +23,7 @@ use Magento\Store\Model\ScopeInterface;
 use Magento\Store\Model\StoreManagerInterface;
 use Magento\Framework\Module\ModuleListInterface;
 use Magento\Framework\Module\StatusFactory;
+use Amazon\Core\Model\AmazonConfig;
 
 /**
  * @SuppressWarnings(PHPMD.ExcessivePublicCount)
@@ -58,6 +59,11 @@ class Data extends AbstractHelper
     private $moduleStatusFactory;
 
     /**
+     * @var Config
+     */
+    private $config;
+
+    /**
      * Data constructor.
      *
      * @param ModuleListInterface $moduleList
@@ -66,6 +72,7 @@ class Data extends AbstractHelper
      * @param StoreManagerInterface $storeManager
      * @param ClientIp $clientIpHelper
      * @param StatusFactory $moduleStatusFactory
+     * @param AmazonConfig $config
      */
     public function __construct(
         ModuleListInterface $moduleList,
@@ -73,15 +80,16 @@ class Data extends AbstractHelper
         EncryptorInterface $encryptor,
         StoreManagerInterface $storeManager,
         ClientIp $clientIpHelper,
-        StatusFactory $moduleStatusFactory
-    )
-    {
+        StatusFactory $moduleStatusFactory,
+        AmazonConfig $config
+    ) {
         parent::__construct($context);
         $this->moduleList = $moduleList;
         $this->encryptor = $encryptor;
         $this->storeManager = $storeManager;
         $this->clientIpHelper = $clientIpHelper;
         $this->moduleStatusFactory = $moduleStatusFactory;
+        $this->config = $config;
     }
 
     /*
@@ -152,6 +160,8 @@ class Data extends AbstractHelper
 
     /*
      * @return string
+     *
+     * @deprecated - use \Amazon\Core\Model\AmazonConfig::getPaymentRegion() instead
      */
     public function getPaymentRegion($scope = ScopeInterface::SCOPE_STORE, $scopeCode = null)
     {
@@ -587,15 +597,7 @@ class Data extends AbstractHelper
      */
     public function isCurrentCurrencySupportedByAmazon()
     {
-        return $this->getCurrentCurrencyCode() == $this->getCurrencyCode();
-    }
-
-    /**
-     * @return mixed
-     */
-    protected function getCurrentCurrencyCode()
-    {
-        return $this->storeManager->getStore()->getCurrentCurrency()->getCode();
+        return $this->config->getBaseCurrencyCode() == $this->getCurrencyCode();
     }
 
     /**

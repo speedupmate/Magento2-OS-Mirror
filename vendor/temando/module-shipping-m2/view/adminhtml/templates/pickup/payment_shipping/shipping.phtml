@@ -32,7 +32,7 @@ $order = $viewModel->getOrder();
             <?php if ($this->helper('Magento\Tax\Helper\Data')->displayShippingBothPrices() && $_incl != $_excl) : ?>
                 (<?= $block->escapeHtml(__('Incl. Tax')) ?> <?= /* @noEscape */ $_incl ?>)
             <?php endif; ?>
-        <?php else: ?>
+        <?php else : ?>
             <?= $block->escapeHtml(__('No shipping information available')) ?>
         <?php endif; ?>
     </div>

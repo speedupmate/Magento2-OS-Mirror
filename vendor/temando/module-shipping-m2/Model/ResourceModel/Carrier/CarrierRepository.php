@@ -97,6 +97,7 @@ class CarrierRepository implements CarrierRepositoryInterface
      * @param null $offset
      * @param null $limit
      * @return CarrierIntegration[]
+     * @throws AdapterException
      */
     private function getIntegrations($offset = null, $limit = null)
     {
@@ -120,6 +121,7 @@ class CarrierRepository implements CarrierRepositoryInterface
      * @param null $offset
      * @param null $limit
      * @return CarrierConfiguration[]
+     * @throws AdapterException
      */
     private function getConfigurations($offset = null, $limit = null)
     {

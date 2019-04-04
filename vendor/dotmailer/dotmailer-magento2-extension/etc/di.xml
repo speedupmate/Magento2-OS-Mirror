@@ -12,14 +12,8 @@
     <type name="Magento\Customer\Model\EmailNotificationInterface">
         <plugin name="ddg_customer_email_disabler" type="Dotdigitalgroup\Email\Plugin\CustomerEmailNotificationPlugin" sortOrder="1" disabled="false"/>
     </type>
-    <type name="Magento\SalesRule\Model\ResourceModel\Coupon">
-        <plugin name="ddg_sales_coupon_expiration_date" type="Dotdigitalgroup\Email\Plugin\CouponPlugin" sortOrder="10" disabled="false"/>
-    </type>
     <type name="Magento\Framework\Mail\TransportInterface">
         <plugin name="ddg_mail_transport" type="Dotdigitalgroup\Email\Plugin\TransportPlugin" sortOrder="1" disabled="false" />
-    </type>
-    <type name="Magento\SalesRule\Model\ResourceModel\Rule\Collection">
-        <plugin name="ddg_sales_rule_collection" type="Dotdigitalgroup\Email\Plugin\RuleCollectionPlugin"/>
     </type>
     <type name="Magento\Reports\Model\ResourceModel\Product\Collection">
         <plugin name="ddg_reports_product_collection" type="Dotdigitalgroup\Email\Plugin\ReportsProductCollectionPlugin"/>
@@ -32,6 +26,9 @@
     </type>
     <type name="Magento\Framework\Mail\MessageInterface">
         <plugin name="dotmailer_message_plugin" type="Dotdigitalgroup\Email\Plugin\MessagePlugin" sortOrder="1" disabled="false" />
+    </type>
+    <type name="Magento\Newsletter\Controller\Manage\Index">
+        <plugin name="dotmailer_newsletter_plugin" type="Dotdigitalgroup\Email\Plugin\NewsletterManageIndexPlugin" sortOrder="1"/>
     </type>
     <virtualType name="ContactCustomPrice" type="Magento\Framework\Pricing\Price\Pool">
         <arguments>
@@ -77,5 +74,5 @@
     </type>
     <preference for="Magento\Config\Model\Config\Structure\SearchInterface" type="Magento\Config\Model\Config\Structure" />
     <preference for="Magento\Sales\Api\Data\OrderSearchResultInterface" type="Magento\Sales\Model\ResourceModel\Order\Collection" />
-    <preference for="Magento\SalesRule\Model\Coupon\CodegeneratorInterface" type="Magento\SalesRule\Model\Coupon\Massgenerator" />
+    <preference for="Magento\SalesRule\Model\Coupon\CodegeneratorInterface" type="Dotdigitalgroup\Email\Model\SalesRule\DotmailerCouponCodeGenerator" />
 </config>

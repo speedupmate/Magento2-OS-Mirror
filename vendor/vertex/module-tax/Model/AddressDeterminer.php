@@ -10,7 +10,6 @@ use Magento\Customer\Api\AddressRepositoryInterface;
 use Magento\Customer\Api\CustomerRepositoryInterface;
 use Magento\Customer\Api\Data\AddressInterface;
 use Magento\Quote\Api\Data\AddressInterface as QuoteAddressInterface;
-use Psr\Log\LoggerInterface;
 
 /**
  * Determines the address to use for tax calculation
@@ -23,18 +22,18 @@ class AddressDeterminer
     /** @var CustomerRepositoryInterface */
     private $customerRepository;
 
-    /** @var LoggerInterface */
+    /** @var ExceptionLogger */
     private $logger;
 
     /**
      * @param CustomerRepositoryInterface $customerRepository
      * @param AddressRepositoryInterface $addressRepository
-     * @param LoggerInterface $logger
+     * @param ExceptionLogger $logger
      */
     public function __construct(
         CustomerRepositoryInterface $customerRepository,
         AddressRepositoryInterface $addressRepository,
-        LoggerInterface $logger
+        ExceptionLogger $logger
     ) {
         $this->customerRepository = $customerRepository;
         $this->addressRepository = $addressRepository;
@@ -87,7 +86,7 @@ class AddressDeterminer
 
             return $this->addressRepository->getById($addressId);
         } catch (\Exception $e) {
-            $this->logger->warning($e->getMessage() . PHP_EOL . $e->getTraceAsString());
+            $this->logger->warning($e);
             return null;
         }
     }
@@ -106,7 +105,7 @@ class AddressDeterminer
 
             return $this->addressRepository->getById($addressId);
         } catch (\Exception $e) {
-            $this->logger->warning($e->getMessage() . PHP_EOL . $e->getTraceAsString());
+            $this->logger->warning($e);
             return null;
         }
     }

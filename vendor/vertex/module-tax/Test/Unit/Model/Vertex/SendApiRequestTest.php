@@ -10,13 +10,14 @@ use Magento\Framework\Stdlib\DateTime\DateTime;
 use Magento\Framework\Stdlib\DateTime\DateTimeFactory;
 use Magento\Store\Model\Store;
 use Magento\Store\Model\StoreManagerInterface;
-use Psr\Log\LoggerInterface;
+use PHPUnit_Framework_MockObject_MockObject as MockObject;
 use Vertex\Tax\Api\Data\LogEntryInterface;
 use Vertex\Tax\Api\Data\LogEntryInterfaceFactory;
 use Vertex\Tax\Model\ApiClient;
+use Vertex\Tax\Model\ApiClient\ObjectConverter;
 use Vertex\Tax\Model\Config;
 use Vertex\Tax\Model\DomDocumentFactory;
-use Vertex\Tax\Model\ApiClient\ObjectConverter;
+use Vertex\Tax\Model\ExceptionLogger;
 use Vertex\Tax\Model\RequestLogger;
 use Vertex\Tax\Test\Unit\TestCase;
 use Vertex\Utility\SoapClientFactory;
@@ -41,11 +42,17 @@ class SendApiRequestTest extends TestCase
     const VERTEX_HOST = 'vertex_host';
     const VERTEX_ADDRESS_HOST = 'vertex_address_host';
 
-    private $mockConfig;
+    /** @var DateTimeFactory|MockObject */
     private $dateTimeFactory;
-    private $storeManagerMock;
 
+    /** @var array */
     private $defaultRequest = [];
+
+    /** @var Config|MockObject */
+    private $mockConfig;
+
+    /** @var StoreManagerInterface|MockObject */
+    private $storeManagerMock;
 
     protected function setUp()
     {
@@ -81,6 +88,82 @@ class SendApiRequestTest extends TestCase
         $this->storeManagerMock = $this->createMock(StoreManagerInterface::class);
         $this->storeManagerMock->method('getStore')
             ->willReturn($storeMock);
+    }
+
+    public function testErrorLoggingIsLogged()
+    {
+        $requestException = new \SoapFault('test', 'Exception during Request');
+        $loggingException = new \Exception('Exception during Logging');
+
+        $mockSoapClient = $this->createPartialMock(
+            \SoapClient::class,
+            [static::VALIDATION_FUNCTION, static::CALCULATION_FUNCTION, '__getLastRequest', '__getLastResponse']
+        );
+        $mockSoapClient->method('__getLastRequest')
+            ->willReturn(static::REQUEST_XML);
+        $mockSoapClient->method('__getLastResponse')
+            ->willReturn(static::RESPONSE_XML);
+        $mockSoapClient->expects($this->once())
+            ->method(static::VALIDATION_FUNCTION)
+            ->willReturn($requestException);
+
+        $mockSoapClientFactory = $this->createPartialMock(SoapClientFactory::class, ['create']);
+        $mockSoapClientFactory->method('create')
+            ->willReturn($mockSoapClient);
+
+        $requestLoggerMock = $this->createPartialMock(RequestLogger::class, ['log']);
+        $requestLoggerMock->method('log')
+            ->willThrowException($loggingException);
+
+        // Test logged through Magento
+        $loggerMock = $this->createMock(ExceptionLogger::class);
+        $loggerMock->expects($this->exactly(2))
+            ->method('critical');
+
+        $vertex = $this->getObject(
+            ApiClient::class,
+            [
+                'config' => $this->mockConfig,
+                'soapClientFactory' => $mockSoapClientFactory,
+                'dateTimeFactory' => $this->dateTimeFactory,
+                'requestLogger' => $requestLoggerMock,
+                'storeManager' => $this->storeManagerMock,
+                'logger' => $loggerMock,
+            ]
+        );
+        $vertex->sendApiRequest($this->defaultRequest, static::TYPE_LOOKUP, static::ORDER);
+    }
+
+    public function testNonSoapExceptionDuringRequestLogs()
+    {
+        $mockSoapClient = $this->createMock(\SoapClient::class);
+
+        $mockSoapClientFactory = $this->createPartialMock(SoapClientFactory::class, ['create']);
+        $mockSoapClientFactory->method('create')
+            ->willReturn($mockSoapClient);
+
+        // Test logged through Magento
+        $loggerMock = $this->createMock(ExceptionLogger::class);
+        $loggerMock->expects($this->once())
+            ->method('critical');
+
+        // Ensure no attempt is made to log to database
+        $logFactory = $this->createMock(LogEntryInterfaceFactory::class);
+        $logFactory->expects($this->never())
+            ->method('create');
+
+        /** @var ApiClient $vertex */
+        $vertex = $this->getObject(
+            ApiClient::class,
+            [
+                'logger' => $loggerMock,
+                'soapClientFactory' => $mockSoapClientFactory,
+                'storeManager' => $this->storeManagerMock,
+                'logEntryFactory' => $logFactory,
+            ]
+        );
+
+        $vertex->sendApiRequest($this->defaultRequest, 'invalid_type', static::ORDER);
     }
 
     public function testTaxAreaLookupCallsValidationAndLogs()
@@ -128,82 +211,6 @@ class SendApiRequestTest extends TestCase
                 'storeManager' => $this->storeManagerMock,
                 'requestLogger' => $requestLogger,
                 'objectConverter' => $this->getObject(ObjectConverter::class),
-            ]
-        );
-        $vertex->sendApiRequest($this->defaultRequest, static::TYPE_LOOKUP, static::ORDER);
-    }
-
-    public function testNonSoapExceptionDuringRequestLogs()
-    {
-        $mockSoapClient = $this->createMock(\SoapClient::class);
-
-        $mockSoapClientFactory = $this->createPartialMock(SoapClientFactory::class, ['create']);
-        $mockSoapClientFactory->method('create')
-            ->willReturn($mockSoapClient);
-
-        // Test logged through Magento
-        $loggerMock = $this->createMock(LoggerInterface::class);
-        $loggerMock->expects($this->once())
-            ->method('critical');
-
-        // Ensure no attempt is made to log to database
-        $logFactory = $this->createMock(LogEntryInterfaceFactory::class);
-        $logFactory->expects($this->never())
-            ->method('create');
-
-        /** @var ApiClient $vertex */
-        $vertex = $this->getObject(
-            ApiClient::class,
-            [
-                'logger' => $loggerMock,
-                'soapClientFactory' => $mockSoapClientFactory,
-                'storeManager' => $this->storeManagerMock,
-                'logEntryFactory' => $logFactory,
-            ]
-        );
-
-        $vertex->sendApiRequest($this->defaultRequest, 'invalid_type', static::ORDER);
-    }
-
-    public function testErrorLoggingIsLogged()
-    {
-        $requestException = new \SoapFault('test', 'Exception during Request');
-        $loggingException = new \Exception('Exception during Logging');
-
-        $mockSoapClient = $this->createPartialMock(
-            \SoapClient::class,
-            [static::VALIDATION_FUNCTION, static::CALCULATION_FUNCTION, '__getLastRequest', '__getLastResponse']
-        );
-        $mockSoapClient->method('__getLastRequest')
-            ->willReturn(static::REQUEST_XML);
-        $mockSoapClient->method('__getLastResponse')
-            ->willReturn(static::RESPONSE_XML);
-        $mockSoapClient->expects($this->once())
-            ->method(static::VALIDATION_FUNCTION)
-            ->willReturn($requestException);
-
-        $mockSoapClientFactory = $this->createPartialMock(SoapClientFactory::class, ['create']);
-        $mockSoapClientFactory->method('create')
-            ->willReturn($mockSoapClient);
-
-        $requestLoggerMock = $this->createPartialMock(RequestLogger::class, ['log']);
-        $requestLoggerMock->method('log')
-            ->willThrowException($loggingException);
-
-        // Test logged through Magento
-        $loggerMock = $this->createMock(LoggerInterface::class);
-        $loggerMock->expects($this->exactly(2))
-            ->method('critical');
-
-        $vertex = $this->getObject(
-            ApiClient::class,
-            [
-                'config' => $this->mockConfig,
-                'soapClientFactory' => $mockSoapClientFactory,
-                'dateTimeFactory' => $this->dateTimeFactory,
-                'requestLogger' => $requestLoggerMock,
-                'storeManager' => $this->storeManagerMock,
-                'logger' => $loggerMock,
             ]
         );
         $vertex->sendApiRequest($this->defaultRequest, static::TYPE_LOOKUP, static::ORDER);

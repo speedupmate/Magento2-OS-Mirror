@@ -8,7 +8,7 @@
 namespace Vertex\Data;
 
 /**
- * Default implementation of {@see AddressInterface}
+ * {@inheritDoc}
  */
 class Address implements AddressInterface
 {

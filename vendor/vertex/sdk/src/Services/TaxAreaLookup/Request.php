@@ -10,7 +10,7 @@ namespace Vertex\Services\TaxAreaLookup;
 use Vertex\Data\AddressInterface;
 
 /**
- * Default implementation of RequestInterface
+ * {@inheritDoc}
  */
 class Request implements RequestInterface
 {

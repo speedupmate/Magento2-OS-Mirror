@@ -7,7 +7,7 @@ namespace Temando\Shipping\Webservice\Processor\OrderOperation;
 use Magento\Framework\Exception\LocalizedException;
 use Magento\Sales\Api\Data\OrderInterface as SalesOrderInterface;
 use Temando\Shipping\Model\OrderInterface;
-use Temando\Shipping\Webservice\Response\Type\OrderResponseTypeInterface;
+use Temando\Shipping\Webservice\Response\Type\OrderResponseType;
 
 /**
  * Temando Order Save Response Processor Interface
@@ -22,13 +22,13 @@ interface SaveProcessorInterface
     /**
      * @param SalesOrderInterface $salesOrder
      * @param OrderInterface $requestType
-     * @param OrderResponseTypeInterface $responseType
+     * @param OrderResponseType $responseType
      * @return void
      * @throws LocalizedException
      */
     public function postProcess(
         SalesOrderInterface $salesOrder,
         OrderInterface $requestType,
-        OrderResponseTypeInterface $responseType
+        OrderResponseType $responseType
     );
 }

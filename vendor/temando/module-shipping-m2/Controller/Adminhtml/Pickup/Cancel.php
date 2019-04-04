@@ -72,6 +72,8 @@ class Cancel extends Action
     }
 
     /**
+     * Execute action.
+     *
      * @return ResultInterface
      */
     public function execute()
@@ -89,7 +91,7 @@ class Cancel extends Action
 
         /** @var \Magento\Framework\Controller\Result\Redirect $resultRedirect */
         $resultRedirect = $this->resultFactory->create(ResultFactory::TYPE_REDIRECT);
-        $resultRedirect->setPath('sales/order/view', ['order_id' => $order->getEntityId()]);
+        $resultRedirect->setUrl($this->_redirect->getRefererUrl());
 
         try {
             $pickup->setData(PickupInterface::STATE, PickupInterface::STATE_CANCELLED);

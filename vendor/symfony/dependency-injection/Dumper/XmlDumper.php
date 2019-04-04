@@ -14,6 +14,7 @@ namespace Symfony\Component\DependencyInjection\Dumper;
 use Symfony\Component\DependencyInjection\Alias;
 use Symfony\Component\DependencyInjection\Argument\IteratorArgument;
 use Symfony\Component\DependencyInjection\Argument\ServiceClosureArgument;
+use Symfony\Component\DependencyInjection\Argument\ServiceLocatorArgument;
 use Symfony\Component\DependencyInjection\Argument\TaggedIteratorArgument;
 use Symfony\Component\DependencyInjection\ContainerInterface;
 use Symfony\Component\DependencyInjection\Definition;
@@ -40,7 +41,7 @@ class XmlDumper extends Dumper
      *
      * @return string An xml string representing of the service container
      */
-    public function dump(array $options = array())
+    public function dump(array $options = [])
     {
         $this->document = new \DOMDocument('1.0', 'utf-8');
         $this->document->formatOutput = true;
@@ -280,6 +281,9 @@ class XmlDumper extends Dumper
             } elseif ($value instanceof IteratorArgument) {
                 $element->setAttribute('type', 'iterator');
                 $this->convertParameters($value->getValues(), $type, $element, 'key');
+            } elseif ($value instanceof ServiceLocatorArgument) {
+                $element->setAttribute('type', 'service_locator');
+                $this->convertParameters($value->getValues(), $type, $element, 'key');
             } elseif ($value instanceof Reference) {
                 $element->setAttribute('type', 'service');
                 $element->setAttribute('id', (string) $value);
@@ -303,7 +307,7 @@ class XmlDumper extends Dumper
                 $text = $this->document->createTextNode(self::phpToXml(base64_encode($value)));
                 $element->appendChild($text);
             } else {
-                if (\in_array($value, array('null', 'true', 'false'), true)) {
+                if (\in_array($value, ['null', 'true', 'false'], true)) {
                     $element->setAttribute('type', 'string');
                 }
                 $text = $this->document->createTextNode(self::phpToXml($value));
@@ -320,7 +324,7 @@ class XmlDumper extends Dumper
      */
     private function escape(array $arguments)
     {
-        $args = array();
+        $args = [];
         foreach ($arguments as $k => $v) {
             if (\is_array($v)) {
                 $args[$k] = $this->escape($v);

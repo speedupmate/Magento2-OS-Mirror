@@ -42,7 +42,7 @@ class UpgradeSchema implements UpgradeSchemaInterface
     }
 
     /**
-     * @param SchemaSetupInterface   $setup
+     * @param SchemaSetupInterface $setup
      * @param ModuleContextInterface $context
      *
      * @return void
@@ -85,6 +85,10 @@ class UpgradeSchema implements UpgradeSchemaInterface
             $this->installer->createPickupLocationSearchTable($setup);
             $this->installer->createQuotePickupLocationTable($setup);
             $this->installer->createOrderPickupLocationTable($setup);
+        }
+
+        if (version_compare($moduleVersion, '1.5.0', '<')) {
+            $this->installer->addDeliveryLocationDistanceColumn($setup);
         }
     }
 }

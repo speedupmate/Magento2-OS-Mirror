@@ -81,6 +81,15 @@ class UpgradeSchema implements UpgradeSchemaInterface
         if (version_compare($context->getVersion(), '100.2.0') < 0) {
             $this->createOrderInvoiceStatusTable($setup);
         }
+
+        if (version_compare($context->getVersion(), '100.3.0') < 0) {
+            $this->createOrderItemTaxCodeTable($setup);
+            $this->createOrderItemInvoiceTextCodeTable($setup);
+            $this->createOrderItemVertexTaxCodeTable($setup);
+            $this->createCreditmemoItemInvoiceTextCodeTable($setup);
+            $this->createCreditmemoItemTaxCodeTable($setup);
+            $this->createCreditmemoItemVertexTaxCodeTable($setup);
+        }
     }
 
     /**
@@ -260,6 +269,268 @@ class UpgradeSchema implements UpgradeSchemaInterface
                     'default' => 0,
                 ],
                 'Invoice has been logged in Vertex'
+            );
+
+        $setup->getConnection()
+            ->createTable($table);
+    }
+
+    /**
+     * Create a table holding a string with invoice text code for order item from Vertex Invoice request
+     *
+     * @param SchemaSetupInterface $setup
+     */
+    private function createOrderItemInvoiceTextCodeTable(SchemaSetupInterface $setup)
+    {
+        $tableName = $setup->getTable('vertex_sales_order_item_invoice_text_code');
+
+        $table = $setup->getConnection()
+            ->newTable($tableName)
+            ->addColumn(
+                'item_id',
+                Table::TYPE_INTEGER,
+                null,
+                [
+                    'primary' => false,
+                    'nullable' => false,
+                    'unsigned' => true,
+                ],
+                'Order Item ID'
+            )
+            ->addColumn(
+                'invoice_text_code',
+                Table::TYPE_TEXT,
+                100,
+                [
+                    'nullable' => false,
+                ],
+                'Invoice text code from Vertex'
+            )->addIndex(
+                $setup->getIdxName(
+                    $tableName,
+                    ['item_id', 'invoice_text_code'],
+                    \Magento\Framework\DB\Adapter\AdapterInterface::INDEX_TYPE_UNIQUE
+                ),
+                ['item_id', 'invoice_text_code'],
+                ['type' => \Magento\Framework\DB\Adapter\AdapterInterface::INDEX_TYPE_UNIQUE]
+            );
+
+        $setup->getConnection()
+            ->createTable($table);
+    }
+
+    /**
+     * Create a table holding a string with tax code for order item from Vertex Invoice request
+     *
+     * @param SchemaSetupInterface $setup
+     */
+    private function createOrderItemTaxCodeTable(SchemaSetupInterface $setup)
+    {
+        $tableName = $setup->getTable('vertex_sales_order_item_tax_code');
+
+        $table = $setup->getConnection()
+            ->newTable($tableName)
+            ->addColumn(
+                'item_id',
+                Table::TYPE_INTEGER,
+                null,
+                [
+                    'primary' => false,
+                    'nullable' => false,
+                    'unsigned' => true,
+                ],
+                'Order Item ID'
+            )
+            ->addColumn(
+                'tax_code',
+                Table::TYPE_TEXT,
+                100,
+                [
+                    'nullable' => false,
+                ],
+                'Invoice text code from Vertex'
+            )->addIndex(
+                $setup->getIdxName(
+                    $tableName,
+                    ['item_id', 'tax_code'],
+                    \Magento\Framework\DB\Adapter\AdapterInterface::INDEX_TYPE_UNIQUE
+                ),
+                ['item_id', 'tax_code'],
+                ['type' => \Magento\Framework\DB\Adapter\AdapterInterface::INDEX_TYPE_UNIQUE]
+            );
+
+        $setup->getConnection()
+            ->createTable($table);
+    }
+
+    /**
+     * Create a table holding a string with vertex tax code for order item from Vertex Invoice request
+     *
+     * @param SchemaSetupInterface $setup
+     */
+    private function createOrderItemVertexTaxCodeTable(SchemaSetupInterface $setup)
+    {
+        $tableName = $setup->getTable('vertex_sales_order_item_vertex_tax_code');
+
+        $table = $setup->getConnection()
+            ->newTable($tableName)
+            ->addColumn(
+                'item_id',
+                Table::TYPE_INTEGER,
+                null,
+                [
+                    'primary' => false,
+                    'nullable' => false,
+                    'unsigned' => true,
+                ],
+                'Order Item ID'
+            )->addColumn(
+                'vertex_tax_code',
+                Table::TYPE_TEXT,
+                100,
+                [
+                    'nullable' => false,
+                ],
+                'Text code from Vertex'
+            )->addIndex(
+                $setup->getIdxName(
+                    $tableName,
+                    ['item_id', 'vertex_tax_code'],
+                    \Magento\Framework\DB\Adapter\AdapterInterface::INDEX_TYPE_UNIQUE
+                ),
+                ['item_id', 'vertex_tax_code'],
+                ['type' => \Magento\Framework\DB\Adapter\AdapterInterface::INDEX_TYPE_UNIQUE]
+            );
+
+        $setup->getConnection()
+            ->createTable($table);
+    }
+
+    /**
+     * Create a table holding a string with invoice text code for creditmemo item from Vertex Invoice request
+     *
+     * @param SchemaSetupInterface $setup
+     */
+    private function createCreditmemoItemInvoiceTextCodeTable(SchemaSetupInterface $setup)
+    {
+        $tableName = $setup->getTable('vertex_sales_creditmemo_item_invoice_text_code');
+
+        $table = $setup->getConnection()
+            ->newTable($tableName)
+            ->addColumn(
+                'item_id',
+                Table::TYPE_INTEGER,
+                null,
+                [
+                    'primary' => false,
+                    'nullable' => false,
+                    'unsigned' => true,
+                ],
+                'Creditmemo Item ID'
+            )
+            ->addColumn(
+                'invoice_text_code',
+                Table::TYPE_TEXT,
+                100,
+                [
+                    'nullable' => false,
+                ],
+                'Invoice text code from Vertex'
+            )->addIndex(
+                $setup->getIdxName(
+                    $tableName,
+                    ['item_id', 'invoice_text_code'],
+                    \Magento\Framework\DB\Adapter\AdapterInterface::INDEX_TYPE_UNIQUE
+                ),
+                ['item_id', 'invoice_text_code'],
+                ['type' => \Magento\Framework\DB\Adapter\AdapterInterface::INDEX_TYPE_UNIQUE]
+            );
+
+        $setup->getConnection()
+            ->createTable($table);
+    }
+
+    /**
+     * Create a table holding a string with tax code for creditmemo item from Vertex Invoice request
+     *
+     * @param SchemaSetupInterface $setup
+     */
+    private function createCreditmemoItemTaxCodeTable(SchemaSetupInterface $setup)
+    {
+        $tableName = $setup->getTable('vertex_sales_creditmemo_item_tax_code');
+
+        $table = $setup->getConnection()
+            ->newTable($tableName)
+            ->addColumn(
+                'item_id',
+                Table::TYPE_INTEGER,
+                null,
+                [
+                    'primary' => false,
+                    'nullable' => false,
+                    'unsigned' => true,
+                ],
+                'Creditmemo Item ID'
+            )
+            ->addColumn(
+                'tax_code',
+                Table::TYPE_TEXT,
+                100,
+                [
+                    'nullable' => false,
+                ],
+                'Invoice text code from Vertex'
+            )->addIndex(
+                $setup->getIdxName(
+                    $tableName,
+                    ['item_id', 'tax_code'],
+                    \Magento\Framework\DB\Adapter\AdapterInterface::INDEX_TYPE_UNIQUE
+                ),
+                ['item_id', 'tax_code'],
+                ['type' => \Magento\Framework\DB\Adapter\AdapterInterface::INDEX_TYPE_UNIQUE]
+            );
+
+        $setup->getConnection()
+            ->createTable($table);
+    }
+
+    /**
+     * Create a table holding a string with vertex tax code for creditmemo item from Vertex Invoice request
+     *
+     * @param SchemaSetupInterface $setup
+     */
+    private function createCreditmemoItemVertexTaxCodeTable(SchemaSetupInterface $setup)
+    {
+        $tableName = $setup->getTable('vertex_sales_creditmemo_item_vertex_tax_code');
+
+        $table = $setup->getConnection()
+            ->newTable($tableName)
+            ->addColumn(
+                'item_id',
+                Table::TYPE_INTEGER,
+                null,
+                [
+                    'primary' => false,
+                    'nullable' => false,
+                    'unsigned' => true,
+                ],
+                'Creditmemo Item ID'
+            )->addColumn(
+                'vertex_tax_code',
+                Table::TYPE_TEXT,
+                100,
+                [
+                    'nullable' => false,
+                ],
+                'Text code from Vertex'
+            )->addIndex(
+                $setup->getIdxName(
+                    $tableName,
+                    ['item_id', 'vertex_tax_code'],
+                    \Magento\Framework\DB\Adapter\AdapterInterface::INDEX_TYPE_UNIQUE
+                ),
+                ['item_id', 'vertex_tax_code'],
+                ['type' => \Magento\Framework\DB\Adapter\AdapterInterface::INDEX_TYPE_UNIQUE]
             );
 
         $setup->getConnection()

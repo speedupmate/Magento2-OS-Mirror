@@ -11,38 +11,33 @@ define([
 ], function (_, Component, ko, pickupLocations, selectPickupLocationAction) {
     'use strict';
 
-    var selectedPickupLocation = ko.observable(false);
-    var readSelected = function () {
-        if (selectedPickupLocation()) {
-            return selectedPickupLocation();
-        } else {
-            var selected = pickupLocations.getPickupLocations().find(function (element) {
-                return element.selected;
-            });
+    var selectedPickupLocation = ko.observable(false),
+        readSelected = function () {
+            if (selectedPickupLocation()) {
+                return selectedPickupLocation();
+            } else {
+                var selected = pickupLocations.getPickupLocations().find(function (element) {
+                    return element.selected;
+                });
 
-            return selected ? selected.entity_id : false;
-        }
-    };
+                return selected ? selected.pickup_location_id : false;
+            }
+        },
+        writeSelected = function (value) {
+            selectPickupLocationAction(value);
+            pickupLocations.selectPickupLocation(value);
+        };
 
     return Component.extend({
         defaults: {
-            template: 'Temando_Shipping/checkout/shipping/delivery-options',
-            listens: {
-                'selectedPickupLocation': 'onPickupLocationSelect'
-            }
+            template: 'Temando_Shipping/checkout/shipping/delivery-options'
         },
-
         selectedPickupLocation: selectedPickupLocation,
         selected: ko.pureComputed({
             read: readSelected,
-            write: selectedPickupLocation,
+            write: writeSelected,
             owner: this
         }),
-
-        onPickupLocationSelect: function (value) {
-            selectPickupLocationAction(value);
-            pickupLocations.selectPickupLocation(value);
-        },
 
         getPickupLocations: function () {
             return pickupLocations.getPickupLocations();

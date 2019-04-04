@@ -1,0 +1,223 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<actionGroups xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+              xsi:noNamespaceSchemaLocation="urn:magento:mftf:Test/etc/actionGroupSchema.xsd">
+    <!-- Disable the shipping method -->
+    <actionGroup name="AdminDisableShippingMethod">
+        <magentoCLI stepKey="disableShippingMethod" command="config:set carriers/temando/active 0" />
+        <magentoCLI stepKey="removeEndpoint" command="config:set carriers/temando/session_endpoint ''" />
+        <magentoCLI stepKey="removeAccountId" command="config:set carriers/temando/account_id ''" />
+        <magentoCLI stepKey="removeBearerToken" command="config:set carriers/temando/bearer_token ''" />
+    </actionGroup>
+    <actionGroup name="AdminDisableShippingMethodFlushConfigCache" extends="AdminDisableShippingMethod">
+        <magentoCLI stepKey="flushCache" command="cache:flush config" after="removeBearerToken" />
+    </actionGroup>
+    <!-- Enable the shipping method -->
+    <actionGroup name="AdminEnableShippingMethod" extends="AdminNavigateToShippingConfiguration">
+        <scrollTo stepKey="scrollToEnabled" y="85" selector="{{MagentoShippingSection.isTemandoActive}}" after="waitForShippingConfigurationToLoad" />
+        <selectOption selector="{{MagentoShippingSection.isTemandoActive}}" stepKey="seeShippingEnabled" userInput="1" />
+        <fillField stepKey="fillApiEndpoint" selector="{{MagentoShippingSection.sessionEndpoint}}" userInput="{{_CREDS.carriers_temando_session_endpoint}}" />
+        <fillField stepKey="fillAccountId" selector="{{MagentoShippingSection.accountId}}" userInput="{{_CREDS.carriers_temando_account_id}}" />
+        <fillField stepKey="fillBearerToken" selector="{{MagentoShippingSection.bearerToken}}" userInput="{{_CREDS.carriers_temando_bearer_token}}" />
+
+        <click stepKey="clickSave" selector="{{MagentoShippingSection.ButtonSave}}" />
+        <seeInCurrentUrl stepKey="returnToConfigurationPage" url="{{TemandoAdminConfigPage.url}}" />
+        <waitForPageLoad stepKey="waitForSuccess" />
+        <see stepKey="seeSuccessMessage" userInput="You saved the configuration." />
+    </actionGroup>
+    <!-- Admin menu links -->
+    <actionGroup name="AdminShippingModuleMenuLinks">
+        <click selector="{{TemandoAdminMenuSection.StoresMenuItem}}" stepKey="clickStoresMenuItem" />
+        <seeElement selector="{{TemandoAdminMenuSection.CarriersMenuItemLink}}" stepKey="seeCarriersMenuItem" />
+        <seeElement selector="{{TemandoAdminMenuSection.LocationsMenuItemLink}}" stepKey="seeLocationsMenuItem" />
+        <seeElement selector="{{TemandoAdminMenuSection.PackagingMenuItemLink}}" stepKey="seePackagingMenuItem" />
+        <seeElement selector="{{TemandoAdminMenuSection.ExperiencesMenuItemLink}}" stepKey="seeExperiencesMenuItem" />
+    </actionGroup>
+    <!-- Activate shipping method link -->
+    <actionGroup name="ActivateShippingLink">
+        <see stepKey="seeActivationMessage" userInput="Activate Magento Shipping" />
+        <seeLink stepKey="seeActivationLink" userInput="Activate Magento Shipping" />
+        <click stepKey="clickActivateShippinglink" userInput="Activate Magento Shipping" />
+        <seeInCurrentUrl stepKey="seeShippingConfigurationUrl" url="system_config/edit/section/carriers" />
+    </actionGroup>
+    <!-- Navigate to the carriers configuration page -->
+    <actionGroup name="AdminNavigateToCarrierConfiguration">
+        <click selector="{{TemandoAdminMenuSection.StoresMenuItem}}" stepKey="clickStoresMenuItem" />
+        <seeElement selector="{{TemandoAdminMenuSection.CarriersMenuItemLink}}" stepKey="seeCarriersMenuItem" />
+        <click stepKey="clickCarriersConfigurationLink" selector="{{TemandoAdminMenuSection.CarriersMenuItemLink}}" />
+        <waitForPageLoad stepKey="waitForCarriersConfigurationPage" />
+    </actionGroup>
+    <!-- Navigate to the locations configuration page -->
+    <actionGroup name="AdminNavigateToLocationConfiguration">
+        <click stepKey="clickStoresMenuItem" selector="{{TemandoAdminMenuSection.StoresMenuItem}}" />
+        <seeElement stepKey="seeLocationsMenuItem" selector="{{TemandoAdminMenuSection.LocationsMenuItemLink}}" />
+        <click stepKey="clickLocationsConfigurationLink" selector="{{TemandoAdminMenuSection.LocationsMenuItemLink}}" />
+        <waitForPageLoad stepKey="waitForLocationsConfigurationPage" />
+    </actionGroup>
+    <!-- Navigate to the packaging configuration page -->
+    <actionGroup name="AdminNavigateToPackagingConfiguration">
+        <click stepKey="clickStoresMenuItem" selector="{{TemandoAdminMenuSection.StoresMenuItem}}" />
+        <seeElement stepKey="seePackagingMenuItem" selector="{{TemandoAdminMenuSection.PackagingMenuItemLink}}" />
+        <click stepKey="clickPackagingConfigurationLink" selector="{{TemandoAdminMenuSection.PackagingMenuItemLink}}" />
+        <waitForPageLoad stepKey="waitForPackagingConfigurationPage" />
+    </actionGroup>
+    <!-- Navigate to the shipping configuration page -->
+    <actionGroup name="AdminNavigateToShippingConfiguration">
+        <amOnPage url="{{TemandoAdminConfigPage.url}}" stepKey="navigateToShippingConfiguration" />
+        <waitForPageLoad stepKey="waitForShippingConfigurationToLoad" />
+        <conditionalClick selector="{{MagentoShippingSection.sectionHead}}" dependentSelector="{{MagentoShippingSection.isTemandoActive}}" visible="false" stepKey="expandMagentoShipping" />
+    </actionGroup>
+    <!-- Navigate to the advanced settings page -->
+    <actionGroup name="AdminNavigateToAdvancedSettings">
+        <amOnPage url="{{TemandoAdvancedSettingsPage.url}}" stepKey="navigateToAdvancedSettings" />
+        <waitForPageLoad stepKey="waitForAdvancedSettingsToLoad" />
+        <see stepKey="seeAdvancedSettings" userInput="Advanced Settings" />
+    </actionGroup>
+    <!-- Navigate to the checkout view settings page -->
+    <actionGroup name="AdminNavigateToCheckoutViewSettings">
+        <amOnPage url="{{TemandoCheckoutViewSettingsPage.url}}" stepKey="navigateToCheckoutViewSettings" />
+        <waitForPageLoad stepKey="waitForCheckoutViewSettings" />
+        <see stepKey="seeCheckoutViewSettings" userInput="Show Fields At Checkout" />
+    </actionGroup>
+    <!-- Disabled getting started buttons -->
+    <actionGroup name="AdminGettingStartedButtonsDisabled">
+        <scrollTo stepKey="scrollToSectionConfiguration" selector="{{MagentoShippingSection.GettingStartedSection}}" />
+        <see stepKey="seeActivateMessage" userInput="Once you have activated Magento Shipping, configure these sections to get up and running" />
+        <seeElement stepKey="seeLocationsConfigureButtonDisabled" selector="{{MagentoShippingSection.GettingStartedLocationsButtonDisabled}}" />
+        <seeElement stepKey="seeCarriersConfigureButtonDisabled" selector="{{MagentoShippingSection.GettingStartedCarriersButtonDisabled}}" />
+        <seeElement stepKey="seePackagingConfigureButtonDisabled" selector="{{MagentoShippingSection.GettingStartedPackagingButtonDisabled}}" />
+        <seeElement stepKey="seeShippingExperiencesConfigureButtonDisabled" selector="{{MagentoShippingSection.GettingStartedShippingExperiencesButtonDisabled}}" />
+    </actionGroup>
+    <!-- Update configuration -->
+    <actionGroup name="AdminUpdateShippingConfiguration">
+        <arguments>
+            <argument name="isActive" defaultValue="0" type="string" />
+            <argument name="apiEndpoint" defaultValue="" type="string" />
+            <argument name="apiAccountId" defaultValue="" type="string" />
+            <argument name="apiBearerToken" defaultValue="" type="string" />
+        </arguments>
+        <scrollTo stepKey="scrollToEnabled" y="-85" selector="{{MagentoShippingSection.isTemandoActive}}" />
+        <selectOption selector="{{MagentoShippingSection.isTemandoActive}}" stepKey="seeShippingEnabled" userInput="{{isActive}}" />
+        <fillField stepKey="fillApiEndpoint" selector="{{MagentoShippingSection.sessionEndpoint}}" userInput="{{apiEndpoint}}" />
+        <fillField stepKey="fillAccountId" selector="{{MagentoShippingSection.accountId}}" userInput="{{apiAccountId}}" />
+        <fillField stepKey="fillBearerToken" selector="{{MagentoShippingSection.bearerToken}}" userInput="{{apiBearerToken}}" />
+    </actionGroup>
+    <actionGroup name="AdminUpdateShippingConfigurationWithSave" extends="AdminUpdateShippingConfiguration">
+        <click stepKey="clickSave" selector="{{MagentoShippingSection.ButtonSave}}" />
+        <seeInCurrentUrl stepKey="returnToConfigurationPage" url="{{TemandoAdminConfigPage.url}}" />
+        <waitForPageLoad stepKey="waitForSuccess" />
+        <see stepKey="seeSuccessMessage" userInput="You saved the configuration." />
+    </actionGroup>
+    <!-- Enable collection points -->
+    <actionGroup name="AdminEnableCollectionPoints">
+        <arguments>
+            <argument name="isActive" defaultValue="0" type="string" />
+            <argument name="countries" defaultValue="" type="string" />
+        </arguments>
+
+        <scrollTo stepKey="scrollToCollectionPoints" selector="{{MagentoShippingSection.CollectionPointsEnabled}}" y="85" />
+        <selectOption selector="{{MagentoShippingSection.CollectionPointsEnabled}}" stepKey="setCollectionPointsEnabled" userInput="{{isActive}}" />
+        <selectOption selector="{{MagentoShippingSection.CollectionPointCountries}}" stepKey="setCollectionPointCountries" parameterArray="{{countries}}" />
+    </actionGroup>
+    <!-- Enable click and collect -->
+    <actionGroup name="AdminEnableClickAndCollect">
+        <arguments>
+            <argument name="isActive" defaultValue="0" type="string" />
+        </arguments>
+        <scrollTo stepKey="scrollToClickAndCollect" selector="{{MagentoShippingSection.ClickAndCollectionEnabled}}" y="85" />
+        <selectOption selector="{{MagentoShippingSection.ClickAndCollectionEnabled}}" stepKey="enableClickAndCollect" userInput="{{isActive}}"/>
+    </actionGroup>
+    <!-- Enable sync -->
+    <actionGroup name="AdminAdvancedSettingsEnableSync">
+        <click selector="{{AdvancedSettingsSection.SyncEnabled}}" stepKey="clickEnableSync" />
+        <checkOption selector="{{AdvancedSettingsSection.SyncShipment}}" stepKey="enableSyncShipment" />
+    </actionGroup>
+    <actionGroup name="AdminAdvancedSettingsEnableSyncWithSave" extends="AdminAdvancedSettingsEnableSync">
+        <click stepKey="clickAdvancedSettingsSave" selector="{{AdvancedSettingsSection.ButtonSave}}" after="enableSyncShipment" />
+        <seeInCurrentUrl stepKey="returnToConfigurationPageFromAdvancedSettings" url="{{TemandoAdminConfigPage.url}}" />
+        <see stepKey="seeAdvancedSettingsSuccessMessage" userInput="Settings saved successfully, stream created" />
+    </actionGroup>
+    <!-- Save shipping configuration -->
+    <actionGroup name="SaveConfiguration">
+        <click stepKey="clickSave" selector="{{MagentoShippingSection.ButtonSave}}" />
+        <seeInCurrentUrl stepKey="returnToConfigurationPage" url="{{TemandoAdminConfigPage.url}}" />
+        <see stepKey="seeSuccessMessage" userInput="You saved the configuration." />
+    </actionGroup>
+    <!-- Enable address type -->
+    <actionGroup name="AdminEnableAddressType">
+        <checkOption selector="{{CheckoutViewSettingsSection.AddressType}}" stepKey="checkAddressType" />
+        <selectOption selector="{{CheckoutViewSettingsSection.DropdownOptions}}" parameterArray="['Residential','Business']" stepKey="selectDropdownValues" />
+        <selectOption selector="{{CheckoutViewSettingsSection.DefaultValue}}" userInput="Residential" stepKey="selectDefaultValue" />
+    </actionGroup>
+    <actionGroup name="AdminEnableAddressTypeWithSave" extends="AdminEnableAddressType">
+        <click stepKey="clickSaveAddressType" selector="button.save" after="selectDefaultValue" />
+        <waitForPageLoad stepKey="waitForAddressTypeSave" />
+        <seeInCurrentUrl stepKey="returnToConfigurationPageFromAddressTypeSave" url="{{TemandoAdminConfigPage.url}}" />
+    </actionGroup>
+    <!-- Disable address type -->
+    <actionGroup name="AdminDisableAddressType">
+        <uncheckOption selector="{{CheckoutViewSettingsSection.AddressType}}" stepKey="uncheckAddressType" />
+    </actionGroup>
+    <!-- Disable address type with save -->
+    <actionGroup name="AdminDisableAddressTypeWithSave" extends="AdminDisableAddressType">
+        <click stepKey="clickSaveAddressType" selector="button.save" after="uncheckAddressType" />
+        <waitForPageLoad stepKey="waitForAddressTypeSave" />
+        <seeInCurrentUrl stepKey="returnToConfigurationPageFromAddressTypeSave" url="{{TemandoAdminConfigPage.url}}" />
+    </actionGroup>
+    <!-- Verify address type save -->
+    <actionGroup name="verifyAdressTypeActive">
+        <seeCheckboxIsChecked selector="{{CheckoutViewSettingsSection.AddressType}}" stepKey="seeAddressTypeChecked" />
+        <seeInField stepKey="seeDropdownLabel" selector="{{CheckoutViewSettingsSection.DropdownLabel}}" userInput="Address Type" />
+        <seeOptionIsSelected selector="{{CheckoutViewSettingsSection.DropdownOptions}}" stepKey="seeResidentialOptionIsSelected" userInput="Residential" />
+        <seeOptionIsSelected selector="{{CheckoutViewSettingsSection.DropdownOptions}}" stepKey="seeBusinessOptionIsSelected" userInput="Business" />
+        <seeOptionIsSelected selector="{{CheckoutViewSettingsSection.DefaultValue}}" stepKey="seeDefaultValueIsSelected" userInput="Residential" />
+    </actionGroup>
+    <!-- Enable authority to leave -->
+    <actionGroup name="AdminEnableAuthorityToLeave">
+        <checkOption selector="{{CheckoutViewSettingsSection.AuthorityToLeave}}" stepKey="checkAddressType" />
+        <seeElement stepKey="seeCheckboxLabel" selector="{{CheckoutViewSettingsSection.AuthorityToLeaveCheckboxLabel}}" />
+    </actionGroup>
+    <actionGroup name="AdminEnableAuthorityToLeaveWithSave" extends="AdminEnableAuthorityToLeave">
+        <click stepKey="clickSaveAuthorityToLeave" selector="button.save" after="seeCheckboxLabel" />
+        <waitForPageLoad stepKey="waitForAuthorityToLeaveSave" />
+        <seeInCurrentUrl stepKey="returnToConfigurationPageFromAuthorityToLeaveSave" url="{{TemandoAdminConfigPage.url}}" />
+    </actionGroup>
+    <!-- Disable authority to leave -->
+    <actionGroup name="AdminDisableAuthorityToLeave">
+        <uncheckOption selector="{{CheckoutViewSettingsSection.AuthorityToLeave}}" stepKey="uncheckAddressType" />
+    </actionGroup>
+    <actionGroup name="AdminDisableAuthorityToLeaveWithSave" extends="AdminDisableAuthorityToLeave">
+        <click stepKey="clickSaveAuthorityToLeave" selector="button.save" after="uncheckAddressType" />
+        <waitForPageLoad stepKey="waitForAuthorityToLeaveSave" />
+        <seeInCurrentUrl stepKey="returnToConfigurationPageFromAuthorityToLeaveSave" url="{{TemandoAdminConfigPage.url}}" />
+    </actionGroup>
+    <!-- Verify authority to leave save -->
+    <actionGroup name="VerifyAuthorityToLeaveActive">
+        <seeCheckboxIsChecked selector="{{CheckoutViewSettingsSection.AuthorityToLeave}}" stepKey="seeAuthorityToLeaveCheckboxChecked" />
+        <seeInField stepKey="seeCheckboxLabel" userInput="Authority To Leave" selector="{{CheckoutViewSettingsSection.AuthorityToLeaveCheckboxLabel}}" />
+    </actionGroup>
+    <!-- Enable signature required -->
+    <actionGroup name="AdminEnableSignatureRequired">
+        <checkOption selector="{{CheckoutViewSettingsSection.SignatureRequired}}" stepKey="enableSignatureRequired" />
+        <seeElement stepKey="seeCheckboxLabel" selector="{{CheckoutViewSettingsSection.SignatureRequiredCheckboxLabel}}" />
+    </actionGroup>
+    <actionGroup name="AdminEnableSignatureRequiredWithSave" extends="AdminEnableSignatureRequired">
+        <click stepKey="clickSaveSignatureRequired" selector="button.save" after="seeCheckboxLabel" />
+        <waitForPageLoad stepKey="waitForSignatureRequiredSave" />
+        <seeInCurrentUrl stepKey="returnToConfigurationPageFromSignatureRequiredSave" url="{{TemandoAdminConfigPage.url}}" />
+    </actionGroup>
+    <!-- Disable signature required -->
+    <actionGroup name="AdminDisableSignatureRequired">
+        <uncheckOption selector="{{CheckoutViewSettingsSection.SignatureRequired}}" stepKey="uncheckSignatureRequired" />
+    </actionGroup>
+    <actionGroup name="AdminDisableSignatureRequiredWithSave" extends="AdminDisableSignatureRequired">
+        <click stepKey="clickSaveSignatureRequired" selector="button.save" after="uncheckSignatureRequired" />
+        <waitForPageLoad stepKey="waitForSignatureRequiredSave" />
+        <seeInCurrentUrl stepKey="returnToConfigurationPageFromSignatureRequiredSave" url="{{TemandoAdminConfigPage.url}}" />
+    </actionGroup>
+    <!-- Verify signature required -->
+    <actionGroup name="VerifySignatureRequiredActive">
+        <seeCheckboxIsChecked selector="{{CheckoutViewSettingsSection.SignatureRequired}}" stepKey="seeSignatureRequiredCheckboxChecked" />
+        <seeInField stepKey="seeCheckboxLabel" userInput="Signature Required" selector="{{CheckoutViewSettingsSection.SignatureRequiredCheckboxLabel}}" />
+    </actionGroup>
+</actionGroups>

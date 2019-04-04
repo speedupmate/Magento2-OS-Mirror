@@ -4,14 +4,9 @@
  */
 namespace Temando\Shipping\Block\Adminhtml\Dispatch;
 
-use Magento\Backend\Block\Widget\Context;
 use Magento\Backend\Block\Widget\Container;
-use Magento\Framework\Api\FilterBuilder;
-use Magento\Framework\Api\Search\SearchCriteriaBuilder;
-use Magento\Sales\Api\Data\ShipmentSearchResultInterface;
-use Magento\Sales\Api\ShipmentRepositoryInterface;
+use Magento\Backend\Block\Widget\Context;
 use Temando\Shipping\Model\Config\ModuleConfigInterface;
-use Temando\Shipping\Model\DispatchInterface;
 use Temando\Shipping\Model\DispatchProviderInterface;
 
 /**
@@ -75,7 +70,7 @@ class Solve extends Container
     }
 
     /**
-     * @return \Temando\Shipping\Model\Dispatch\Shipment[]
+     * @return \Temando\Shipping\Model\Dispatch\ShipmentInterface[]
      */
     public function getFailedShipments()
     {

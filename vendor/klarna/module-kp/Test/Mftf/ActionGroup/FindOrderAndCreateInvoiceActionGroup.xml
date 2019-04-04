@@ -1,0 +1,38 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!--
+/**
+ * This file is part of the Klarna KP module
+ *
+ * (c) Klarna Bank AB (publ)
+ *
+ * For the full copyright and license information, please view the NOTICE
+ * and LICENSE files that were distributed with this source code.
+ */
+-->
+
+<actionGroups xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+              xsi:noNamespaceSchemaLocation="urn:magento:mftf:Test/etc/actionGroupSchema.xsd">
+    <actionGroup name="FindOrderAndCreateInvoice">
+        <amOnPage url="{{OrdersPage.url}}" stepKey="onOrdersPage"/>
+        <wait stepKey="waitOrderPageLoad" time="5"/>
+        <waitForLoadingMaskToDisappear stepKey="waitForLoadingMask3"/>
+        <fillField selector="{{OrdersGridSection.search}}" userInput="$kpGrabOrderNumber" stepKey="searchOrderNum"/>
+        <click selector="{{OrdersGridSection.submitSearch}}" stepKey="submitSearch"/>
+        <waitForLoadingMaskToDisappear stepKey="waitForLoadingMask4"/>
+        <click selector="{{OrdersGridSection.firstRow}}" stepKey="clickOrderRow"/>
+        <click selector="{{OrderDetailsMainActionsSection.invoice}}" stepKey="clickInvoice"/>
+        <click selector="{{InvoiceNewSection.submitInvoice}}" stepKey="clickSubmitInvoice"/>
+        <see selector="{{OrderDetailsMessagesSection.successMessage}}" userInput="The invoice has been created."
+             stepKey="seeSuccessMessage"/>
+        <click selector="{{KpOrderDetailsOrderViewSection.invoices}}" stepKey="clickInvoices"/>
+        <waitForLoadingMaskToDisappear stepKey="waitForLoadingMask6"/>
+        <wait stepKey="waitOrderPageLoad1" time="5"/>
+
+        <!--View the new Invoice in order detail page -->
+        <see selector="{{OrderDetailsInvoicesSection.content}}" userInput="{$kpGrabOrderNumber}" stepKey="seeInvoice1"/>
+        <see selector="{{OrderDetailsInvoicesSection.content}}" userInput="John Doe" stepKey="seeInvoice2"/>
+        <click selector="{{OrderDetailsOrderViewSection.information}}" stepKey="clickInformation"/>
+        <see selector="{{OrderDetailsInformationSection.orderStatus}}" userInput="Processing" stepKey="seeOrderStatus"/>
+
+    </actionGroup>
+</actionGroups>

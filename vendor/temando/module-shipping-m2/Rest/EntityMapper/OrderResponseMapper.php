@@ -4,18 +4,13 @@
  */
 namespace Temando\Shipping\Rest\EntityMapper;
 
-use Magento\Framework\Exception\LocalizedException;
-use Psr\Log\LoggerInterface;
-use Temando\Shipping\Api\Data\Order\OrderReferenceInterfaceFactory;
-use Temando\Shipping\Api\Data\Order\ShippingExperienceInterfaceFactory;
-use Temando\Shipping\Rest\Response\DataObject\AbstractResource;
-use Temando\Shipping\Rest\Response\DataObject\OrderQualification;
+use Temando\Shipping\Model\Shipment\ShipmentErrorInterface;
+use Temando\Shipping\Model\Shipment\ShipmentErrorInterfaceFactory;
+use Temando\Shipping\Model\ShipmentInterface;
 use Temando\Shipping\Rest\Response\DataObject\Shipment;
-use Temando\Shipping\Rest\Response\Document\AllocateOrderInterface;
-use Temando\Shipping\Rest\Response\Document\GetCollectionPointsInterface;
-use Temando\Shipping\Rest\Response\Document\QualifyOrderInterface;
-use Temando\Shipping\Webservice\Response\Type\OrderResponseTypeInterface;
-use Temando\Shipping\Webservice\Response\Type\OrderResponseTypeInterfaceFactory;
+use Temando\Shipping\Rest\Response\Document\SaveOrderInterface;
+use Temando\Shipping\Webservice\Response\Type\OrderResponseType;
+use Temando\Shipping\Webservice\Response\Type\OrderResponseTypeFactory;
 
 /**
  * Map API data to application data object
@@ -29,183 +24,96 @@ use Temando\Shipping\Webservice\Response\Type\OrderResponseTypeInterfaceFactory;
 class OrderResponseMapper
 {
     /**
-     * @var OrderReferenceInterfaceFactory
-     */
-    private $orderReferenceFactory;
-
-    /**
-     * @var ShippingExperienceInterfaceFactory
-     */
-    private $shippingExperienceFactory;
-
-    /**
-     * @var OrderResponseTypeInterfaceFactory
+     * @var OrderResponseTypeFactory
      */
     private $orderResponseFactory;
 
     /**
-     * @var ShippingExperiencesMapper
+     * @var ShipmentResponseMapper
      */
-    private $shippingExperiencesMapper;
+    private $shipmentResponseMapper;
 
     /**
-     * @var OrderAllocationResponseMapper
+     * @var ShipmentErrorInterfaceFactory
      */
-    private $allocationMapper;
-
-    /**
-     * @var CollectionPointsResponseMapper
-     */
-    private $collectionPointsMapper;
-
-    /**
-     * @var PickupLocationsResponseMapper
-     */
-    private $pickupLocationsMapper;
-
-    /**
-     * @var LoggerInterface
-     */
-    private $logger;
+    private $shipmentErrorFactory;
 
     /**
      * OrderResponseMapper constructor.
-     * @param OrderReferenceInterfaceFactory $orderReferenceFactory
-     * @param ShippingExperienceInterfaceFactory $shippingExperienceFactory
-     * @param OrderResponseTypeInterfaceFactory $orderResponseFactory
-     * @param ShippingExperiencesMapper $shippingExperiencesMapper
-     * @param OrderAllocationResponseMapper $allocationMapper
-     * @param CollectionPointsResponseMapper $collectionPointsMapper
-     * @param PickupLocationsResponseMapper $pickupLocationsMapper
-     * @param LoggerInterface $logger
+     * @param OrderResponseTypeFactory $orderResponseFactory
+     * @param ShipmentResponseMapper $shipmentResponseMapper
+     * @param ShipmentErrorInterfaceFactory $shipmentErrorFactory
      */
     public function __construct(
-        OrderReferenceInterfaceFactory $orderReferenceFactory,
-        ShippingExperienceInterfaceFactory $shippingExperienceFactory,
-        OrderResponseTypeInterfaceFactory $orderResponseFactory,
-        ShippingExperiencesMapper $shippingExperiencesMapper,
-        OrderAllocationResponseMapper $allocationMapper,
-        CollectionPointsResponseMapper $collectionPointsMapper,
-        PickupLocationsResponseMapper $pickupLocationsMapper,
-        LoggerInterface $logger
+        OrderResponseTypeFactory $orderResponseFactory,
+        ShipmentResponseMapper $shipmentResponseMapper,
+        ShipmentErrorInterfaceFactory $shipmentErrorFactory
     ) {
-        $this->orderReferenceFactory = $orderReferenceFactory;
-        $this->shippingExperienceFactory = $shippingExperienceFactory;
         $this->orderResponseFactory = $orderResponseFactory;
-        $this->shippingExperiencesMapper =$shippingExperiencesMapper;
-        $this->allocationMapper = $allocationMapper;
-        $this->collectionPointsMapper = $collectionPointsMapper;
-        $this->pickupLocationsMapper = $pickupLocationsMapper;
-        $this->logger = $logger;
+        $this->shipmentResponseMapper = $shipmentResponseMapper;
+        $this->shipmentErrorFactory = $shipmentErrorFactory;
     }
 
     /**
-     * @return OrderResponseTypeInterface
+     * @param Shipment[] $apiIncluded
+     * @return ShipmentErrorInterface[]
      */
-    public function createEmptyResponse()
+    private function mapErrors(array $apiIncluded)
     {
-        $orderResponse = $this->orderResponseFactory->create(['data' => [
-            OrderResponseTypeInterface::SHIPPING_EXPERIENCES => [],
-        ]]);
-
-        return $orderResponse;
-    }
-
-    /**
-     * @param AllocateOrderInterface $apiOrder
-     * @return OrderResponseTypeInterface
-     */
-    public function mapAllocatedOrder(AllocateOrderInterface $apiOrder)
-    {
-        $extOrderId = $apiOrder->getData()->getId();
-        $errors = $this->allocationMapper->mapErrors($apiOrder->getIncluded());
-        $shipments = $this->allocationMapper->mapShipments($apiOrder->getIncluded());
-
-        $orderResponse = $this->orderResponseFactory->create(['data' => [
-            OrderResponseTypeInterface::EXT_ORDER_ID => $extOrderId,
-            OrderResponseTypeInterface::ERRORS => $errors,
-            OrderResponseTypeInterface::SHIPMENTS => $shipments,
-        ]]);
-
-        return $orderResponse;
-    }
-
-    /**
-     * @param QualifyOrderInterface $apiOrder
-     * @return OrderResponseTypeInterface
-     * @throws LocalizedException
-     */
-    public function mapCreatedOrder(QualifyOrderInterface $apiOrder)
-    {
-        $extOrderId = $apiOrder->getData()->getId();
-
-        /** @var OrderQualification[] $included */
-        $apiIncluded = array_filter($apiOrder->getIncluded(), function (OrderQualification $element) {
-            return ($element->getType() == 'orderQualification');
+        /** @var Shipment[] $includedErrors */
+        $includedErrors = array_filter($apiIncluded, function (Shipment $element) {
+            return ($element->getType() == 'error');
         });
-        /** @var \Temando\Shipping\Rest\Response\Fields\OrderQualification\Experience[] $sets */
-        $apiExperiences = array_reduce($apiIncluded, function ($experiences, OrderQualification $apiIncluded) {
-            return array_merge($experiences, $apiIncluded->getAttributes()->getExperiences());
-        }, []);
-        $shippingExperiences = $this->shippingExperiencesMapper->map($apiExperiences);
 
-        $orderResponse = $this->orderResponseFactory->create(['data' => [
-            OrderResponseTypeInterface::EXT_ORDER_ID => $extOrderId,
-            OrderResponseTypeInterface::SHIPPING_EXPERIENCES => $shippingExperiences,
-        ]]);
+        $allocationErrors = [];
+        foreach ($includedErrors as $item) {
+            $allocationError = $this->shipmentErrorFactory->create(['data' => [
+                ShipmentErrorInterface::TITLE => $item->getAttributes()->getTitle(),
+                ShipmentErrorInterface::CODE => $item->getAttributes()->getCode(),
+                ShipmentErrorInterface::STATUS => $item->getAttributes()->getStatus(),
+                ShipmentErrorInterface::DETAIL => $item->getAttributes()->getDetail(),
+            ]]);
 
-        return $orderResponse;
+            $allocationErrors[]= $allocationError;
+        }
+
+        return $allocationErrors;
     }
 
     /**
-     * @param GetCollectionPointsInterface $apiOrder
-     * @return OrderResponseTypeInterface
-     * @throws LocalizedException
+     * @param Shipment[] $apiIncluded
+     * @return ShipmentInterface[]
      */
-    public function mapCollectionPoints(GetCollectionPointsInterface $apiOrder)
+    private function mapShipments(array $apiIncluded)
     {
-        $extOrderId = $apiOrder->getData()->getId();
-        $collectionPoints = $this->collectionPointsMapper->map($apiOrder->getIncluded());
+        /** @var Shipment[] $includedShipments */
+        $includedShipments = array_filter($apiIncluded, function (Shipment $element) {
+            return ($element->getType() == 'shipment');
+        });
 
-        $orderResponse = $this->orderResponseFactory->create(['data' => [
-            OrderResponseTypeInterface::EXT_ORDER_ID => $extOrderId,
-            OrderResponseTypeInterface::COLLECTION_POINTS => $collectionPoints,
-            OrderResponseTypeInterface::SHIPPING_EXPERIENCES => [],
-        ]]);
+        $shipments = [];
+        foreach ($includedShipments as $shipment) {
+            $shipments[]= $this->shipmentResponseMapper->map($shipment);
+        }
 
-        return $orderResponse;
+        return $shipments;
     }
 
     /**
-     * @param QualifyOrderInterface $apiOrder
-     * @return OrderResponseTypeInterface
-     * @throws LocalizedException
+     * @param SaveOrderInterface $apiOrder
+     * @return OrderResponseType
      */
-    public function mapPickupLocations(QualifyOrderInterface $apiOrder)
+    public function map(SaveOrderInterface $apiOrder)
     {
-        $extOrderId = $apiOrder->getData()->getId();
-        $pickupLocations = $this->pickupLocationsMapper->map($apiOrder->getIncluded());
+        $orderId = $apiOrder->getData()->getId();
+        $shipments = $this->mapShipments($apiOrder->getIncluded());
+        $errors = $this->mapErrors($apiOrder->getIncluded());
 
-        $orderResponse = $this->orderResponseFactory->create(['data' => [
-            OrderResponseTypeInterface::EXT_ORDER_ID => $extOrderId,
-            OrderResponseTypeInterface::PICKUP_LOCATIONS => $pickupLocations,
-            OrderResponseTypeInterface::SHIPPING_EXPERIENCES => [],
-        ]]);
-
-        return $orderResponse;
-    }
-
-    /**
-     * @param QualifyOrderInterface $apiOrder
-     * @return OrderResponseTypeInterface
-     */
-    public function mapUpdatedOrder(QualifyOrderInterface $apiOrder)
-    {
-        $extOrderId = $apiOrder->getData()->getId();
-
-        $orderResponse = $this->orderResponseFactory->create(['data' => [
-            OrderResponseTypeInterface::EXT_ORDER_ID => $extOrderId,
-        ]]);
+        $orderResponse = $this->orderResponseFactory->create([
+            'orderId' => $orderId,
+            'errors' => $errors,
+            'shipments' => $shipments,
+        ]);
 
         return $orderResponse;
     }

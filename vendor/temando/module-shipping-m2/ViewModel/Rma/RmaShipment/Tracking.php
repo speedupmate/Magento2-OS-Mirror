@@ -10,6 +10,7 @@ use Magento\Rma\Api\Data\RmaInterface;
 use Magento\Sales\Api\Data\OrderInterface;
 use Temando\Shipping\Model\ResourceModel\Rma\RmaAccess;
 use Temando\Shipping\Model\Shipment;
+use Temando\Shipping\Model\Shipment\FulfillmentInterface;
 use Temando\Shipping\Model\ShipmentInterface;
 use Temando\Shipping\Model\Shipping\Carrier;
 use Temando\Shipping\ViewModel\RmaAccessInterface;
@@ -70,9 +71,11 @@ class Tracking implements ArgumentInterface, RmaAccessInterface
     {
         /** @var Shipment $shipment */
         $shipment =  $this->rmaAccess->getCurrentRmaShipment();
-        $trackingNumber = $shipment->getFulfillment()->getTrackingReference();
+        if (!$shipment->getFulfillment() instanceof FulfillmentInterface) {
+            return '';
+        }
 
-        return $trackingNumber;
+        return $shipment->getFulfillment()->getTrackingReference();
     }
 
     /**
@@ -81,6 +84,10 @@ class Tracking implements ArgumentInterface, RmaAccessInterface
     public function getCarrierTitle()
     {
         $shipment =  $this->rmaAccess->getCurrentRmaShipment();
+        if (!$shipment->getFulfillment() instanceof FulfillmentInterface) {
+            return $this->getCarrierName();
+        }
+
         $carrierTitle = sprintf(
             '%s - %s',
             $shipment->getFulfillment()->getCarrierName(),

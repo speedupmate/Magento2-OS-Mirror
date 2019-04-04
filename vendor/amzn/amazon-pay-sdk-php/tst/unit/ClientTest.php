@@ -8,20 +8,20 @@ require_once 'Signature.php';
 class ClientTest extends \PHPUnit_Framework_TestCase
 {
     private $configParams = array(
-                'merchant_id'         => 'MERCHANT1234567',
-                'access_key'          => 'ABCDEFGHI1JKLMN2O7',
-                'secret_key'          => "abc123Def456gHi789jKLmpQ987rstu6vWxyz",
-                'currency_code'       => 'usd',
-                'client_id'           => 'amzn1.application-oa2-client.45789c45a8f34927830be1d9e029f480',
-                'region'              => 'us',
-                'sandbox'             => true,
-                'platform_id'         => 'test',
-                'application_name'    => 'sdk testing',
-                'application_version' => '1.0',
-                'proxy_host'          => null,
-                'proxy_port'          => -1,
-                'proxy_username'      => null,
-                'proxy_Password'      => null           
+                'merchant_id'          => 'MERCHANT1234567',
+                'access_key'           => 'ABCDEFGHI1JKLMN2O7',
+                'secret_key'           => "abc123Def456gHi789jKLmpQ987rstu6vWxyz",
+                'currency_code'        => 'usd',
+                'client_id'            => 'amzn1.application-oa2-client.45789c45a8f34927830be1d9e029f480',
+                'region'               => 'us',
+                'sandbox'              => true,
+                'platform_id'          => 'test',
+                'application_name'     => 'sdk testing',
+                'application_version'  => '1.0',
+                'proxy_host'           => null,
+                'proxy_port'           => -1,
+                'proxy_username'       => null,
+                'proxy_Password'       => null
             );
 
     public function testConfigArray()
@@ -352,7 +352,88 @@ class ClientTest extends \PHPUnit_Framework_TestCase
         $this->assertEquals($apiParametersString, $expectedStringParams);
     }
 
-    public function testConfirmOrderReference()
+    public function testConfirmOrderReferenceWithAllSCA()
+    {
+        $client = new Client($this->configParams);
+        $fieldMappings = array(
+            'merchant_id'               => 'SellerId',
+            'amazon_order_reference_id' => 'AmazonOrderReferenceId',
+            'mws_auth_token'            => 'MWSAuthToken',
+            'success_url'               => 'SuccessUrl',
+            'failure_url'               => 'FailureUrl',
+            'authorization_amount'      => 'AuthorizationAmount.Amount',
+            'currency_code'             => 'AuthorizationAmount.CurrencyCode'
+        );
+
+        $action = 'ConfirmOrderReference';
+
+        $parameters = $this->setParametersAndPost($fieldMappings, $action);
+        $expectedParameters = $parameters['expectedParameters'];
+        $apiCallParams = $parameters['apiCallParams'];
+
+        $expectedStringParams = $this->callPrivateMethod($client, 'calculateSignatureAndParametersToString', $expectedParameters);
+
+        $response = $client->confirmOrderReference($apiCallParams);
+
+        $apiParametersString = $client->getParameters();
+
+        $this->assertEquals($apiParametersString, $expectedStringParams);
+    }
+
+    public function testConfirmOrderReferenceWithAllButCurrencyCodeSCA()
+    {
+        $client = new Client($this->configParams);
+        $fieldMappings = array(
+            'merchant_id'               => 'SellerId',
+            'amazon_order_reference_id' => 'AmazonOrderReferenceId',
+            'mws_auth_token'            => 'MWSAuthToken',
+            'success_url'               => 'SuccessUrl',
+            'failure_url'               => 'FailureUrl',
+            'authorization_amount'      => 'AuthorizationAmount.Amount'
+        );
+
+        $action = 'ConfirmOrderReference';
+
+        $parameters = $this->setParametersAndPost($fieldMappings, $action);
+        $expectedParameters = $parameters['expectedParameters'];
+        $apiCallParams = $parameters['apiCallParams'];
+
+        $expectedParameters['AuthorizationAmount.CurrencyCode'] = 'USD'; # default from client
+        $expectedStringParams = $this->callPrivateMethod($client, 'calculateSignatureAndParametersToString', $expectedParameters);
+
+        $response = $client->confirmOrderReference($apiCallParams);
+
+        $apiParametersString = $client->getParameters();
+        $this->assertEquals($apiParametersString, $expectedStringParams);
+    }
+
+    public function testConfirmOrderReferenceWithUrlSCA()
+    {
+        $client = new Client($this->configParams);
+        $fieldMappings = array(
+            'merchant_id'               => 'SellerId',
+            'amazon_order_reference_id' => 'AmazonOrderReferenceId',
+            'mws_auth_token'            => 'MWSAuthToken',
+            'success_url'               => 'SuccessUrl',
+            'failure_url'               => 'FailureUrl'
+        );
+
+        $action = 'ConfirmOrderReference';
+
+        $parameters = $this->setParametersAndPost($fieldMappings, $action);
+        $expectedParameters = $parameters['expectedParameters'];
+        $apiCallParams = $parameters['apiCallParams'];
+
+        $expectedStringParams = $this->callPrivateMethod($client, 'calculateSignatureAndParametersToString', $expectedParameters);
+
+        $response = $client->confirmOrderReference($apiCallParams);
+
+        $apiParametersString = $client->getParameters();
+
+        $this->assertEquals($apiParametersString, $expectedStringParams);
+    }
+
+    public function testConfirmOrderReferenceWithoutSCA()
     {
         $client = new Client($this->configParams);
         $fieldMappings = array(

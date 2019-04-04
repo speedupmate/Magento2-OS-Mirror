@@ -40,7 +40,7 @@ class ReturnFromAddress extends Column
      * @param Escaper $escaper
      * @param Region $region
      * @param mixed[] $components
-     * @param mixed[]  $data
+     * @param mixed[] $data
      */
     public function __construct(
         ContextInterface $context,
@@ -52,6 +52,7 @@ class ReturnFromAddress extends Column
     ) {
         $this->escaper = $escaper;
         $this->region = $region;
+
         parent::__construct($context, $uiComponentFactory, $components, $data);
     }
 

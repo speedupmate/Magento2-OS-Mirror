@@ -8,7 +8,7 @@
 namespace Vertex\Data;
 
 /**
- * Default implementation of {@see SellerInterface}
+ * {@inheritDoc}
  */
 class Seller implements SellerInterface
 {

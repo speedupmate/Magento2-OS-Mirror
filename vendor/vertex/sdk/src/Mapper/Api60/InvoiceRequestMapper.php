@@ -52,6 +52,16 @@ class InvoiceRequestMapper implements InvoiceRequestMapperInterface
      */
     const TRANSACTION_ID_MIN = 1;
 
+    /**
+     * Maximum characters allowed for the isoCurrencyCodeAlpha attribute
+     */
+    const CURRENCY_CODE_MAX = 3;
+
+    /**
+     * Minimum characters allowed for the isoCurrencyCodeAlpha attribute
+     */
+    const CURRENCY_CODE_MIN = 3;
+
     /** @var CustomerMapperInterface */
     private $customerMapper;
 
@@ -114,6 +124,12 @@ class InvoiceRequestMapper implements InvoiceRequestMapperInterface
         }
         if (isset($map->Customer)) {
             $object->setCustomer($this->customerMapper->build($map->Customer));
+        }
+        if (isset($map->returnAssistedParametersIndicator)) {
+            $object->setShouldReturnAssistedParameters($map->returnAssistedParametersIndicator);
+        }
+        if (isset($map->Currency->isoCurrencyCodeAlpha)) {
+            $object->setCurrencyCode($map->Currency->isoCurrencyCodeAlpha);
         }
         $rawLineItems = $map->LineItems;
         if ($rawLineItems instanceof \stdClass) {
@@ -210,7 +226,12 @@ class InvoiceRequestMapper implements InvoiceRequestMapperInterface
             'Transaction Type'
         );
 
+        if ($object->isSetToReturnAssistedParameters() !== null) {
+            $map->returnAssistedParametersIndicator = $object->isSetToReturnAssistedParameters();
+        }
+
         // Child Tags
+        $map = $this->addCurrencyToMap($map, $object);
         $map = $this->addSellerToMap($map, $object);
         $map = $this->addCustomerToMap($map, $object);
         $lineItems = [];
@@ -252,6 +273,31 @@ class InvoiceRequestMapper implements InvoiceRequestMapperInterface
     {
         if ($object->getSeller() !== null) {
             $map->Seller = $this->sellerMapper->map($object->getSeller());
+        }
+        return $map;
+    }
+
+    /**
+     * Add Currency to map if set
+     *
+     * @param \stdClass $map
+     * @param RequestInterface $object
+     * @return \stdClass
+     * @throws \Vertex\Exception\ValidationException
+     */
+    private function addCurrencyToMap(\stdClass $map, RequestInterface $object)
+    {
+        if ($object->getCurrencyCode() !== null) {
+            $map->Currency = new \stdClass();
+            $map->Currency = $this->utilities->addToMapWithLengthValidation(
+                $map->Currency,
+                $object->getCurrencyCode(),
+                'isoCurrencyCodeAlpha',
+                static::CURRENCY_CODE_MAX,
+                static::CURRENCY_CODE_MIN,
+                true,
+                'Currency Code'
+            );
         }
         return $map;
     }

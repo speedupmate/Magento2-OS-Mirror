@@ -18,6 +18,8 @@ use Temando\Shipping\Model\PickupInterface;
 interface PickupRepositoryInterface
 {
     /**
+     * Load pickup fulfillment by entity id.
+     *
      * @param string $pickupId
      * @return \Temando\Shipping\Model\PickupInterface
      * @throws \Magento\Framework\Exception\NoSuchEntityException
@@ -26,12 +28,16 @@ interface PickupRepositoryInterface
     public function getById($pickupId);
 
     /**
+     * Load pickup fulfillments.
+     *
      * @param \Magento\Framework\Api\SearchCriteriaInterface $criteria
      * @return \Temando\Shipping\Model\PickupInterface[]
      */
     public function getList(SearchCriteriaInterface $criteria);
 
     /**
+     * Save pickup fulfillment.
+     *
      * @param \Temando\Shipping\Model\PickupInterface $pickup
      * @return \Temando\Shipping\Model\PickupInterface
      * @throws \Magento\Framework\Exception\CouldNotSaveException

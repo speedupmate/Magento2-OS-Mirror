@@ -70,7 +70,7 @@ class OrderProcessor
     /**
      * Create a Vertex Invoice Request from a Magento Order
      *
-     * @param OrderInterface $invoice
+     * @param OrderInterface $order
      * @return RequestInterface
      */
     public function process(OrderInterface $order)
@@ -91,12 +91,14 @@ class OrderProcessor
             $scopeCode
         );
 
+        /** @var RequestInterface $request */
         $request = $this->requestFactory->create();
         $request->setDocumentNumber($order->getIncrementId());
         $request->setDocumentDate($this->dateTimeFactory->create());
         $request->setTransactionType(RequestInterface::TRANSACTION_TYPE_SALE);
         $request->setSeller($seller);
         $request->setCustomer($customer);
+        $request->setCurrencyCode($order->getBaseCurrencyCode());
         $this->deliveryTerm->addIfApplicable($request);
 
         if ($this->config->getLocationCode($scopeCode)) {

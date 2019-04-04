@@ -7,10 +7,10 @@ namespace Temando\Shipping\Rest\Request;
 /**
  * Temando API Item Listing Operation
  *
- * @package  Temando\Shipping\Rest
- * @author   Christoph Aßmann <christoph.assmann@netresearch.de>
- * @license  http://opensource.org/licenses/osl-3.0.php Open Software License (OSL 3.0)
- * @link     http://www.temando.com/
+ * @package Temando\Shipping\Rest
+ * @author  Christoph Aßmann <christoph.assmann@netresearch.de>
+ * @license https://opensource.org/licenses/osl-3.0.php Open Software License (OSL 3.0)
+ * @link    https://www.temando.com/
  */
 interface ListRequestInterface
 {
@@ -20,4 +20,11 @@ interface ListRequestInterface
      * @return string[]
      */
     public function getRequestParams();
+
+    /**
+     * Obtain url path parameters, i.e. entity ids, in order of appearance.
+     *
+     * @return string[]
+     */
+    public function getPathParams();
 }

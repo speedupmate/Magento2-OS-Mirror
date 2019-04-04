@@ -3,7 +3,7 @@
     "description": "Klarna Order Management Magento 2 Extension",
     "type": "magento2-module",
     "license": "Apache-2.0",
-    "version": "5.0.2",
+    "version": "5.0.3",
     "authors": [
         {
             "name": "Joe Constant",
@@ -35,11 +35,11 @@
         "phpunit/phpunit": "~6.2.0",
         "phpmd/phpmd": "@stable",
         "pdepend/pdepend": "^2.5",
-        "friendsofphp/php-cs-fixer": "~2.1.1",
+        "friendsofphp/php-cs-fixer": "~2.10.1",
         "lusitanian/oauth": "~0.8.10",
-        "sebastian/phpcpd": "2.0.4",
+        "sebastian/phpcpd": "~3.0",
         "mikey179/vfsStream": "^1.6",
-        "phpro/grumphp": "^0.12.1",
+        "phpro/grumphp": "^0.14",
         "theseer/phpdox": "^0.10.1",
         "phploc/phploc": "^4.0",
         "squizlabs/php_codesniffer": "^3.2",

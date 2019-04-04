@@ -118,6 +118,20 @@ interface RequestInterface
     public function getTransactionType();
 
     /**
+     * Retrieve the CurrencyCode
+     *
+     * @return string
+     */
+    public function getCurrencyCode();
+
+    /**
+     * Retrieve whether or not the response is set to return assisted parameters
+     *
+     * @return bool|null
+     */
+    public function isSetToReturnAssistedParameters();
+
+    /**
      * Set the Customer
      *
      * @param CustomerInterface $customer
@@ -186,6 +200,14 @@ interface RequestInterface
     public function setSeller(SellerInterface $seller);
 
     /**
+     * Set whether or not the response should return assisted parameters
+     *
+     * @param bool $returnAssistedParameters
+     * @return RequestInterface
+     */
+    public function setShouldReturnAssistedParameters($returnAssistedParameters);
+
+    /**
      * Set the Transaction ID
      *
      * @param string $transactionId
@@ -203,4 +225,12 @@ interface RequestInterface
      * @return RequestInterface
      */
     public function setTransactionType($transactionType);
+
+    /**
+     * Set the CurrencyCode
+     *
+     * @param string $currencyCode
+     * @return RequestInterface
+     */
+    public function setCurrencyCode($currencyCode);
 }

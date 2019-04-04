@@ -5,7 +5,7 @@
 namespace Temando\Shipping\Model\Order\AutoProcessing;
 
 use Magento\Sales\Api\Data\OrderInterface;
-use Temando\Shipping\Webservice\Response\Type\OrderResponseTypeInterface;
+use Temando\Shipping\Webservice\Response\Type\OrderResponseType;
 
 /**
  * Temando Order Fulfillment Processor Interface.
@@ -19,9 +19,9 @@ interface AutoFulfillInterface
 {
     /**
      * @param \Magento\Sales\Api\Data\OrderInterface $salesOrder
-     * @param \Temando\Shipping\Webservice\Response\Type\OrderResponseTypeInterface $orderResponse
+     * @param \Temando\Shipping\Webservice\Response\Type\OrderResponseType $orderResponse
      * @return int[]
      * @throws \Magento\Framework\Exception\CouldNotSaveException
      */
-    public function createShipments(OrderInterface $salesOrder, OrderResponseTypeInterface $orderResponse);
+    public function createShipments(OrderInterface $salesOrder, OrderResponseType $orderResponse);
 }

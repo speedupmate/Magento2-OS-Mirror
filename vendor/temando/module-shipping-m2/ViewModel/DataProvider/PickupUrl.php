@@ -4,6 +4,9 @@
  */
 namespace Temando\Shipping\ViewModel\DataProvider;
 
+use Magento\Framework\App\ActionInterface;
+use Magento\Framework\App\Response\RedirectInterface;
+use Magento\Framework\Url\EncoderInterface;
 use Magento\Framework\UrlInterface;
 use Temando\Shipping\Model\PickupInterface;
 
@@ -25,12 +28,29 @@ class PickupUrl implements EntityUrlInterface
     private $urlBuilder;
 
     /**
+     * @var RedirectInterface
+     */
+    private $redirect;
+
+    /**
+     * @var EncoderInterface
+     */
+    private $encoder;
+
+    /**
      * PickupUrl constructor.
      * @param UrlInterface $urlBuilder
+     * @param RedirectInterface $redirect
+     * @param EncoderInterface $encoder
      */
-    public function __construct(UrlInterface $urlBuilder)
-    {
+    public function __construct(
+        UrlInterface $urlBuilder,
+        RedirectInterface $redirect,
+        EncoderInterface $encoder
+    ) {
         $this->urlBuilder = $urlBuilder;
+        $this->redirect = $redirect;
+        $this->encoder = $encoder;
     }
 
     /**
@@ -82,6 +102,16 @@ class PickupUrl implements EntityUrlInterface
     }
 
     /**
+     * Link to the pickup forward action with placeholder.
+     *
+     * @return string
+     */
+    public function getForwardActionUrl(): string
+    {
+        return $this->urlBuilder->getUrl('temando/pickup/forward', ['pickup_id' => '--id--']);
+    }
+
+    /**
      * Link to the "mark as ready for pickup" POST action
      *
      * @param mixed[] $data Item data to pick entity identifiers.
@@ -89,10 +119,14 @@ class PickupUrl implements EntityUrlInterface
      */
     public function getReadyActionUrl(array $data): string
     {
-        return $this->urlBuilder->getUrl('temando/pickup/ready', [
-            'pickup_id' => $data[PickupInterface::PICKUP_ID],
-            'sales_order_id' => $data[PickupInterface::SALES_ORDER_ID],
-        ]);
+        $uenc = $this->encoder->encode($this->redirect->getRefererUrl());
+
+        $routeParams = [];
+        $routeParams['pickup_id'] = $data[PickupInterface::PICKUP_ID];
+        $routeParams['sales_order_id'] = $data[PickupInterface::SALES_ORDER_ID];
+        $routeParams[ActionInterface::PARAM_NAME_URL_ENCODED] = $uenc;
+
+        return $this->urlBuilder->getUrl('temando/pickup/ready', $routeParams);
     }
 
     /**
@@ -103,10 +137,14 @@ class PickupUrl implements EntityUrlInterface
      */
     public function getCollectedActionUrl(array $data): string
     {
-        return $this->urlBuilder->getUrl('temando/pickup/collected', [
-            'pickup_id' => $data[PickupInterface::PICKUP_ID],
-            'sales_order_id' => $data[PickupInterface::SALES_ORDER_ID],
-        ]);
+        $uenc = $this->encoder->encode($this->redirect->getRefererUrl());
+
+        $routeParams = [];
+        $routeParams['pickup_id'] = $data[PickupInterface::PICKUP_ID];
+        $routeParams['sales_order_id'] = $data[PickupInterface::SALES_ORDER_ID];
+        $routeParams[ActionInterface::PARAM_NAME_URL_ENCODED] = $uenc;
+
+        return $this->urlBuilder->getUrl('temando/pickup/collected', $routeParams);
     }
 
     /**
@@ -117,10 +155,14 @@ class PickupUrl implements EntityUrlInterface
      */
     public function getDeleteActionUrl(array $data): string
     {
-        return $this->urlBuilder->getUrl('temando/pickup/cancel', [
-            'pickup_id' => $data[PickupInterface::PICKUP_ID],
-            'sales_order_id' => $data[PickupInterface::SALES_ORDER_ID],
-        ]);
+        $uenc = $this->encoder->encode($this->redirect->getRefererUrl());
+
+        $routeParams = [];
+        $routeParams['pickup_id'] = $data[PickupInterface::PICKUP_ID];
+        $routeParams['sales_order_id'] = $data[PickupInterface::SALES_ORDER_ID];
+        $routeParams[ActionInterface::PARAM_NAME_URL_ENCODED] = $uenc;
+
+        return $this->urlBuilder->getUrl('temando/pickup/cancel', $routeParams);
     }
 
     /**

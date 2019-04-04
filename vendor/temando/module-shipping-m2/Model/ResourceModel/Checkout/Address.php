@@ -38,9 +38,9 @@ class Address extends AbstractDb
 
     /**
      * Address constructor.
+     * @param Context $context
      * @param Snapshot $entitySnapshot
      * @param RelationComposite $entityRelationComposite
-     * @param $context
      * @param SerializerInterface $serializer
      * @param string $connectionName
      */
@@ -57,7 +57,8 @@ class Address extends AbstractDb
     }
 
     /**
-     * Init main table and primary key
+     * Init main table and primary key.
+     *
      * @return void
      */
     protected function _construct()
@@ -66,21 +67,28 @@ class Address extends AbstractDb
     }
 
     /**
+     * Query primary key by given shipping address id.
+     *
      * @param int $quoteAddressId
-     * @return string
+     * @return int|null
      */
     public function getIdByQuoteAddressId($quoteAddressId)
     {
-        $connection = $this->getConnection();
-        $tableName  = $this->getMainTable();
-        $table      = $this->getTable($tableName);
+        try {
+            $connection = $this->getConnection();
+            $tableName  = $this->getMainTable();
+            $table      = $this->getTable($tableName);
 
-        $select = $connection->select()
-            ->from($table, AddressInterface::ENTITY_ID)
-            ->where('shipping_address_id = :shipping_address_id');
+            $select = $connection->select()
+                ->from($table, AddressInterface::ENTITY_ID)
+                ->where('shipping_address_id = :shipping_address_id');
 
-        $bind  = [':shipping_address_id' => (string)$quoteAddressId];
+            $bind  = [':shipping_address_id' => (string)$quoteAddressId];
+            $entityId = $connection->fetchOne($select, $bind);
 
-        return $connection->fetchOne($select, $bind);
+            return $entityId ? (int) $entityId : null;
+        } catch (\Exception $exception) {
+            return null;
+        }
     }
 }

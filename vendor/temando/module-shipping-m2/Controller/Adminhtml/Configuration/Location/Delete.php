@@ -6,15 +6,16 @@ namespace Temando\Shipping\Controller\Adminhtml\Configuration\Location;
 
 use Magento\Backend\App\Action;
 use Magento\Backend\App\Action\Context;
+use Magento\Framework\Exception\CouldNotDeleteException;
 use Temando\Shipping\Model\ResourceModel\Repository\LocationRepositoryInterface;
 
 /**
  * Temando Delete Location Action
  *
- * @package  Temando\Shipping\Controller
- * @author   Benjamin Heuer <benjamin.heuer@netresearch.de>
- * @license  http://opensource.org/licenses/osl-3.0.php Open Software License (OSL 3.0)
- * @link     http://www.temando.com/
+ * @package Temando\Shipping\Controller
+ * @author  Benjamin Heuer <benjamin.heuer@netresearch.de>
+ * @license https://opensource.org/licenses/osl-3.0.php Open Software License (OSL 3.0)
+ * @link    https://www.temando.com/
  */
 class Delete extends Action
 {
@@ -39,6 +40,8 @@ class Delete extends Action
     }
 
     /**
+     * Execute action.
+     *
      * @return \Magento\Framework\Controller\Result\Redirect
      */
     public function execute()
@@ -57,7 +60,7 @@ class Delete extends Action
         try {
             $this->locationRepository->delete($locationId);
             $this->messageManager->addSuccessMessage(__('Location was deleted successfully.'));
-        } catch (\Exception $e) {
+        } catch (CouldNotDeleteException $e) {
             $message = __('An error occurred while deleting the location: %1', $e->getMessage());
             $this->messageManager->addExceptionMessage($e, $message);
 

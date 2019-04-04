@@ -16,7 +16,7 @@ use Temando\Shipping\Model\DocumentationInterface;
 use Temando\Shipping\Model\Shipment\PackageInterface;
 use Temando\Shipping\Model\Shipment\PackageItemInterface;
 use Temando\Shipping\Model\Shipping\Carrier;
-use Temando\Shipping\Webservice\Response\Type\OrderResponseTypeInterface;
+use Temando\Shipping\Webservice\Response\Type\OrderResponseType;
 
 /**
  * Temando Order Fulfillment Processor.
@@ -119,11 +119,11 @@ class AutoFulfill implements AutoFulfillInterface
 
     /**
      * @param \Magento\Sales\Api\Data\OrderInterface $salesOrder
-     * @param \Temando\Shipping\Webservice\Response\Type\OrderResponseTypeInterface $orderResponse
+     * @param \Temando\Shipping\Webservice\Response\Type\OrderResponseType $orderResponse
      * @return int[]
      * @throws \Magento\Framework\Exception\CouldNotSaveException
      */
-    public function createShipments(OrderInterface $salesOrder, OrderResponseTypeInterface $orderResponse)
+    public function createShipments(OrderInterface $salesOrder, OrderResponseType $orderResponse)
     {
         if ($orderResponse->getErrors()) {
             $this->historyUpdater->addErrors($salesOrder, $orderResponse->getErrors());

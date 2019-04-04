@@ -19,7 +19,7 @@ use Magento\Framework\Exception\LocalizedException;
 class EventException extends LocalizedException
 {
     /**
-     * @param string          $entityType
+     * @param string $entityType
      * @param \Exception|null $previous
      *
      * @return static

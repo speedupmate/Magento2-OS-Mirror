@@ -1,13 +1,30 @@
 <?xml version="1.0" encoding="UTF-8"?>
 
 <entities xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
-        xsi:noNamespaceSchemaLocation="../../../../../../vendor/magento/magento2-functional-testing-framework/src/Magento/FunctionalTestingFramework/DataGenerator/etc/dataProfileSchema.xsd">
+        xsi:noNamespaceSchemaLocation="urn:magento:mftf:DataGenerator/etc/dataProfileSchema.xsd">
     <entity name="TemandoConfigurationData" type="configurations">
         <data key="disableMagentoShipping">0</data>
+        <data key="enableMagentoShipping">1</data>
         <data key="emptyMagentoShippingCredentials"/>
         <data key="enableClickAndCollectValue">1</data>
         <data key="enableClickAndCollectString">Yes</data>
         <data key="disableClickAndCollectValue">0</data>
         <data key="disableClickAndCollectString">No</data>
+        <data key="clickAndCollectCountries">['US', 'AU']</data>
+        <data key="enableCollectionPoints">1</data>
+    </entity>
+
+    <entity name="TemandoConfigurationAdvancedSyncEnabled" type="advancedConfigSync">
+        <data key="sync_enable">1</data>
+        <data key="sync_shipment">1</data>
+    </entity>
+
+    <entity name="TemandoConfigurationAdvancedSyncDisabled" type="advancedConfigSync">
+        <data key="sync_enable">0</data>
+        <data key="sync_shipment">0</data>
+    </entity>
+
+    <entity name="TemandoConfigurationCheckoutViewSettingsDisabled" type="checkoutViewSettings">
+        <data key="fields"></data>
     </entity>
 </entities>

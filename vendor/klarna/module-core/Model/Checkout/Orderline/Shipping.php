@@ -113,19 +113,22 @@ class Shipping extends AbstractLine
      */
     public function fetch(BuilderInterface $checkout)
     {
-        $checkout->addOrderLine(
-            [
-                'type'             => self::ITEM_TYPE_SHIPPING,
-                'reference'        => $checkout->getShippingReference(),
-                'name'             => $checkout->getShippingTitle(),
-                'quantity'         => 1,
-                'unit_price'       => $checkout->getShippingUnitPrice(),
-                'tax_rate'         => $checkout->getShippingTaxRate(),
-                'total_amount'     => $checkout->getShippingTotalAmount(),
-                'total_tax_amount' => $checkout->getShippingTaxAmount(),
-            ]
-        );
-
+        $object = $checkout->getObject();
+        $totals = $object->getTotals();
+        if (isset($totals['shipping']) && !$object->isVirtual()) {
+            $checkout->addOrderLine(
+                [
+                    'type'             => self::ITEM_TYPE_SHIPPING,
+                    'reference'        => $checkout->getShippingReference(),
+                    'name'             => $checkout->getShippingTitle(),
+                    'quantity'         => 1,
+                    'unit_price'       => $checkout->getShippingUnitPrice(),
+                    'tax_rate'         => $checkout->getShippingTaxRate(),
+                    'total_amount'     => $checkout->getShippingTotalAmount(),
+                    'total_tax_amount' => $checkout->getShippingTaxAmount(),
+                ]
+            );
+        }
         return $this;
     }
 }

@@ -11,12 +11,14 @@
 
 namespace Symfony\Component\Stopwatch;
 
+use Symfony\Contracts\Service\ResetInterface;
+
 /**
  * Stopwatch provides a way to profile code.
  *
  * @author Fabien Potencier <fabien@symfony.com>
  */
-class Stopwatch
+class Stopwatch implements ResetInterface
 {
     /**
      * @var bool
@@ -96,8 +98,8 @@ class Stopwatch
     /**
      * Starts an event.
      *
-     * @param string $name     The event name
-     * @param string $category The event category
+     * @param string      $name     The event name
+     * @param string|null $category The event category
      *
      * @return StopwatchEvent
      */
@@ -163,7 +165,7 @@ class Stopwatch
      */
     public function getSectionEvents($id)
     {
-        return isset($this->sections[$id]) ? $this->sections[$id]->getEvents() : array();
+        return isset($this->sections[$id]) ? $this->sections[$id]->getEvents() : [];
     }
 
     /**
@@ -171,6 +173,6 @@ class Stopwatch
      */
     public function reset()
     {
-        $this->sections = $this->activeSections = array('__root__' => new Section(null, $this->morePrecision));
+        $this->sections = $this->activeSections = ['__root__' => new Section(null, $this->morePrecision)];
     }
 }

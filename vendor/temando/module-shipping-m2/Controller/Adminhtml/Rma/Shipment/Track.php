@@ -7,6 +7,8 @@ namespace Temando\Shipping\Controller\Adminhtml\Rma\Shipment;
 use Magento\Backend\App\Action;
 use Magento\Backend\App\Action\Context;
 use Magento\Framework\Controller\ResultFactory;
+use Magento\Framework\Controller\ResultInterface;
+use Magento\Framework\Exception\LocalizedException;
 use Temando\Shipping\Model\ResourceModel\Repository\ShipmentRepositoryInterface;
 use Temando\Shipping\Model\ResourceModel\Rma\RmaAccess;
 
@@ -49,15 +51,26 @@ class Track extends Action
     }
 
     /**
-     * @return \Magento\Backend\Model\View\Result\Page
+     * @return ResultInterface
      */
     public function execute()
     {
         // load and register current RMA shipment
         $extShipmentId = $this->getRequest()->getParam('shipment_id');
-        /** @var \Temando\Shipping\Model\ShipmentInterface $extShipment */
-        $extShipment = $this->shipmentRepository->getById($extShipmentId);
-        $this->rmaAccess->setCurrentRmaShipment($extShipment);
+
+        try {
+            $extShipment = $this->shipmentRepository->getById($extShipmentId);
+            $this->rmaAccess->setCurrentRmaShipment($extShipment);
+        } catch (LocalizedException $exception) {
+            $message = "Shipment '$extShipmentId' not found.";
+            $this->messageManager->addExceptionMessage($exception, __($message));
+
+            /** @var \Magento\Framework\Controller\Result\Forward $resultForward */
+            $resultForward = $this->resultFactory->create(ResultFactory::TYPE_FORWARD);
+            $resultForward->forward('noroute');
+
+            return $resultForward;
+        }
 
         /** @var \Magento\Backend\Model\View\Result\Page $resultPage */
         $resultPage = $this->resultFactory->create(ResultFactory::TYPE_PAGE);

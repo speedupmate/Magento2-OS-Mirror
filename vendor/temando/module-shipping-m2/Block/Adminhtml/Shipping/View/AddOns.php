@@ -32,9 +32,9 @@ class AddOns extends BackendTemplate
     private $shipmentProvider;
 
     /**
-     * @param Context                   $context
+     * @param Context $context
      * @param ShipmentProviderInterface $shipmentProvider
-     * @param mixed[]                   $data
+     * @param mixed[] $data
      */
     public function __construct(
         Context $context,
@@ -53,7 +53,14 @@ class AddOns extends BackendTemplate
     {
         /** @var ShipmentInterface $shipment */
         $shipment = $this->shipmentProvider->getShipment();
-        return ($shipment ? $shipment->getCapabilities() : []);
+        if ($shipment) {
+            /** @var DataObject[] $capabilities */
+            $capabilities = $shipment->getCapabilities();
+        } else {
+            $capabilities = [];
+        }
+
+        return $capabilities;
     }
 
     /**

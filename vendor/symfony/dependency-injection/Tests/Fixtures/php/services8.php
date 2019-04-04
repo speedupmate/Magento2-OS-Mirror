@@ -17,26 +17,15 @@ use Symfony\Component\DependencyInjection\ParameterBag\FrozenParameterBag;
 class ProjectServiceContainer extends Container
 {
     private $parameters;
-    private $targetDirs = array();
-
-    /**
-     * @internal but protected for BC on cache:clear
-     */
-    protected $privates = array();
+    private $targetDirs = [];
 
     public function __construct()
     {
         $this->parameters = $this->getDefaultParameters();
 
-        $this->services = $this->privates = array();
+        $this->services = $this->privates = [];
 
-        $this->aliases = array();
-    }
-
-    public function reset()
-    {
-        $this->privates = array();
-        parent::reset();
+        $this->aliases = [];
     }
 
     public function compile()
@@ -51,10 +40,10 @@ class ProjectServiceContainer extends Container
 
     public function getRemovedIds()
     {
-        return array(
+        return [
             'Psr\\Container\\ContainerInterface' => true,
             'Symfony\\Component\\DependencyInjection\\ContainerInterface' => true,
-        );
+        ];
     }
 
     public function getParameter($name)
@@ -96,8 +85,8 @@ class ProjectServiceContainer extends Container
         return $this->parameterBag;
     }
 
-    private $loadedDynamicParameters = array();
-    private $dynamicParameters = array();
+    private $loadedDynamicParameters = [];
+    private $dynamicParameters = [];
 
     /**
      * Computes a dynamic parameter.
@@ -120,12 +109,12 @@ class ProjectServiceContainer extends Container
      */
     protected function getDefaultParameters()
     {
-        return array(
+        return [
             'foo' => 'bar',
             'baz' => 'bar',
             'bar' => 'foo is %foo bar',
             'escape' => '@escapeme',
-            'values' => array(
+            'values' => [
                 0 => true,
                 1 => false,
                 2 => NULL,
@@ -134,9 +123,9 @@ class ProjectServiceContainer extends Container
                 5 => 'true',
                 6 => 'false',
                 7 => 'null',
-            ),
+            ],
             'binary' => 'ננננ',
             'binary-control-char' => 'This is a Bell char ',
-        );
+        ];
     }
 }

@@ -68,6 +68,14 @@ class PickupUrl implements ArgumentInterface
     }
 
     /**
+     * @return string
+     */
+    public function getForwardActionUrl(): string
+    {
+        return $this->urlProvider->getForwardActionUrl();
+    }
+
+    /**
      * Link to the "Prepare for Pickup" page with editable quantities.
      *
      * @param mixed[] $data Item data for the implementer to pick entity identifier.

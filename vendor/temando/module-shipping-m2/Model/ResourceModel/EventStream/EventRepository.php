@@ -6,13 +6,13 @@ namespace Temando\Shipping\Model\ResourceModel\EventStream;
 
 use Magento\Framework\Exception\CouldNotDeleteException;
 use Magento\Framework\Exception\LocalizedException;
-use Temando\Shipping\Model\StreamEventInterface;
 use Temando\Shipping\Rest\Adapter\EventStreamApiInterface;
 use Temando\Shipping\Rest\EntityMapper\StreamEventResponseMapper;
 use Temando\Shipping\Rest\Exception\AdapterException;
-use Temando\Shipping\Rest\Request\StreamEventItemRequestInterfaceFactory;
-use Temando\Shipping\Rest\Request\StreamEventListRequestInterfaceFactory;
+use Temando\Shipping\Rest\Request\ListRequestInterfaceFactory;
+use Temando\Shipping\Rest\Request\StreamEventItemRequestFactory;
 use Temando\Shipping\Rest\Response\DataObject\StreamEvent;
+use Temando\Shipping\Webservice\Pagination\PaginationFactory;
 
 /**
  * Temando Event Stream Repository
@@ -30,14 +30,19 @@ class EventRepository implements EventRepositoryInterface
     private $apiAdapter;
 
     /**
-     * @var StreamEventListRequestInterfaceFactory
+     * @var PaginationFactory
      */
-    private $eventListRequestFactory;
+    private $paginationFactory;
 
     /**
-     * @var StreamEventItemRequestInterfaceFactory
+     * @var ListRequestInterfaceFactory
      */
-    private $eventItemRequestFactory;
+    private $listRequestFactory;
+
+    /**
+     * @var StreamEventItemRequestFactory
+     */
+    private $itemRequestFactory;
 
     /**
      * @var StreamEventResponseMapper
@@ -48,19 +53,19 @@ class EventRepository implements EventRepositoryInterface
      * StreamEventRepository constructor.
      *
      * @param EventStreamApiInterface $apiAdapter
-     * @param StreamEventItemRequestInterfaceFactory $eventItemRequestFactory
-     * @param StreamEventListRequestInterfaceFactory $listRequestFactory
+     * @param StreamEventItemRequestFactory $itemRequestFactory
+     * @param ListRequestInterfaceFactory $listRequestFactory
      * @param StreamEventResponseMapper $streamEventMapper
      */
     public function __construct(
         EventStreamApiInterface $apiAdapter,
-        StreamEventItemRequestInterfaceFactory $eventItemRequestFactory,
-        StreamEventListRequestInterfaceFactory $listRequestFactory,
+        StreamEventItemRequestFactory $itemRequestFactory,
+        ListRequestInterfaceFactory $listRequestFactory,
         StreamEventResponseMapper $streamEventMapper
     ) {
         $this->apiAdapter = $apiAdapter;
-        $this->eventItemRequestFactory = $eventItemRequestFactory;
-        $this->eventListRequestFactory = $listRequestFactory;
+        $this->itemRequestFactory = $itemRequestFactory;
+        $this->listRequestFactory = $listRequestFactory;
         $this->streamEventMapper = $streamEventMapper;
     }
 
@@ -75,10 +80,14 @@ class EventRepository implements EventRepositoryInterface
     public function getEventList($streamId, $offset = null, $limit = null)
     {
         try {
-            $request = $this->eventListRequestFactory->create([
-                'streamId' => $streamId,
+            $pagination = $this->paginationFactory->create([
                 'offset' => $offset,
-                'limit'  => $limit,
+                'limit' => $limit,
+            ]);
+
+            $request = $this->listRequestFactory->create([
+                'parentId' => $streamId,
+                'pagination' => $pagination,
             ]);
 
             // convert api response to local (reduced) event objects
@@ -103,7 +112,7 @@ class EventRepository implements EventRepositoryInterface
     public function delete($streamId, $eventId)
     {
         try {
-            $request = $this->eventItemRequestFactory->create([
+            $request = $this->itemRequestFactory->create([
                 'streamId' => $streamId,
                 'entityId' => $eventId,
             ]);

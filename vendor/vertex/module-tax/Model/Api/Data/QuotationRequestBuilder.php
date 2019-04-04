@@ -6,7 +6,10 @@
 
 namespace Vertex\Tax\Model\Api\Data;
 
+use Magento\Framework\Exception\LocalizedException;
+use Magento\Framework\Exception\NoSuchEntityException;
 use Magento\Store\Model\ScopeInterface;
+use Magento\Store\Model\StoreManagerInterface;
 use Magento\Tax\Api\Data\QuoteDetailsInterface;
 use Magento\Tax\Api\Data\QuoteDetailsItemInterface;
 use Magento\Tax\Api\Data\TaxClassKeyInterface;
@@ -49,6 +52,9 @@ class QuotationRequestBuilder
     /** @var SellerBuilder */
     private $sellerBuilder;
 
+    /** @var StoreManagerInterface */
+    private $storeManager;
+
     /**
      * @param LineItemBuilder $lineItemBuilder
      * @param RequestInterfaceFactory $requestFactory
@@ -58,6 +64,7 @@ class QuotationRequestBuilder
      * @param DeliveryTerm $deliveryTerm
      * @param DateTimeImmutableFactory $dateTimeFactory
      * @param AddressDeterminer $addressDeterminer
+     * @param StoreManagerInterface $storeManager
      */
     public function __construct(
         LineItemBuilder $lineItemBuilder,
@@ -67,7 +74,8 @@ class QuotationRequestBuilder
         Config $config,
         DeliveryTerm $deliveryTerm,
         DateTimeImmutableFactory $dateTimeFactory,
-        AddressDeterminer $addressDeterminer
+        AddressDeterminer $addressDeterminer,
+        StoreManagerInterface $storeManager
     ) {
         $this->lineItemBuilder = $lineItemBuilder;
         $this->requestFactory = $requestFactory;
@@ -77,6 +85,7 @@ class QuotationRequestBuilder
         $this->deliveryTerm = $deliveryTerm;
         $this->dateTimeFactory = $dateTimeFactory;
         $this->addressDeterminer = $addressDeterminer;
+        $this->storeManager = $storeManager;
     }
 
     /**
@@ -85,15 +94,17 @@ class QuotationRequestBuilder
      * @param QuoteDetailsInterface $quoteDetails
      * @param string|null $scopeCode
      * @return RequestInterface
-     * @throws \Magento\Framework\Exception\LocalizedException
-     * @throws \Magento\Framework\Exception\NoSuchEntityException
+     * @throws LocalizedException
+     * @throws NoSuchEntityException
      */
     public function buildFromQuoteDetails(QuoteDetailsInterface $quoteDetails, $scopeCode = null)
     {
         /** @var RequestInterface $request */
         $request = $this->requestFactory->create();
+        $request->setShouldReturnAssistedParameters(true);
         $request->setDocumentDate($this->dateTimeFactory->create());
         $request->setTransactionType(static::TRANSACTION_TYPE);
+        $request->setCurrencyCode($this->storeManager->getStore($scopeCode)->getBaseCurrencyCode());
 
         $taxLineItems = $this->getLineItemData($quoteDetails->getItems());
         $request->setLineItems($taxLineItems);
@@ -113,7 +124,7 @@ class QuotationRequestBuilder
 
         $taxClassKey = $quoteDetails->getCustomerTaxClassKey();
         if ($taxClassKey && $taxClassKey->getType() === TaxClassKeyInterface::TYPE_ID) {
-            $customerTaxClassId = $quoteDetails->getCustomerTaxClassKey()->getValue();
+            $customerTaxClassId = $taxClassKey->getValue();
         } else {
             $customerTaxClassId = $quoteDetails->getCustomerTaxClassId();
         }
@@ -193,6 +204,7 @@ class QuotationRequestBuilder
                 return false;
             }
         }
+
         return true;
     }
 }

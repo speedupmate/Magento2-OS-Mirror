@@ -40,6 +40,9 @@ class AddressBuilder
     /** @var string */
     private $regionId;
 
+    /** @var string */
+    private $region;
+
     /** @var string[] */
     private $street;
 
@@ -72,7 +75,7 @@ class AddressBuilder
     public function build()
     {
         $country = $this->getCountryInformation($this->countryCode);
-        $companyState = $this->getRegionCodeByCountryAndId($country, $this->regionId);
+        $companyState = $this->region ?: $this->getRegionCodeByCountryAndId($country, $this->regionId);
         $countryName = $country->getThreeLetterAbbreviation();
 
         /** @var AddressInterface $address */
@@ -129,6 +132,18 @@ class AddressBuilder
     public function setPostalCode($postalCode)
     {
         $this->postalCode = $postalCode;
+        return $this;
+    }
+
+    /**
+     * Set the Region string
+     *
+     * @param string $region
+     * @return AddressBuilder
+     */
+    public function setRegion($region)
+    {
+        $this->region = $region;
         return $this;
     }
 

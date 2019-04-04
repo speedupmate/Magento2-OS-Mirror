@@ -6,7 +6,6 @@
 
 namespace Vertex\Tax\Model\TaxQuote;
 
-use Psr\Log\LoggerInterface;
 use Vertex\Exception\ApiException;
 use Vertex\Exception\ConfigurationException;
 use Vertex\Exception\ValidationException;
@@ -15,6 +14,7 @@ use Vertex\Services\Quote\RequestInterface;
 use Vertex\Services\Quote\ResponseInterface;
 use Vertex\Tax\Api\QuoteInterface;
 use Vertex\Tax\Model\Api\Utility\MapperFactoryProxy;
+use Vertex\Tax\Model\ExceptionLogger;
 use Vertex\Tax\Model\TaxRegistry;
 
 /**
@@ -25,7 +25,7 @@ class TaxQuoteRequest
     /** @var CacheKeyGenerator */
     private $cacheKeyGenerator;
 
-    /** @var LoggerInterface */
+    /** @var ExceptionLogger */
     private $logger;
 
     /** @var MapperFactoryProxy */
@@ -41,14 +41,14 @@ class TaxQuoteRequest
      * @param QuoteInterface $quote
      * @param CacheKeyGenerator $cacheKeyGenerator
      * @param TaxRegistry $taxRegistry
-     * @param LoggerInterface $logger
+     * @param ExceptionLogger $logger
      * @param MapperFactoryProxy $mapperFactory
      */
     public function __construct(
         QuoteInterface $quote,
         CacheKeyGenerator $cacheKeyGenerator,
         TaxRegistry $taxRegistry,
-        LoggerInterface $logger,
+        ExceptionLogger $logger,
         MapperFactoryProxy $mapperFactory
     ) {
         $this->quote = $quote;
@@ -76,14 +76,14 @@ class TaxQuoteRequest
         try {
             $cacheKey = $this->cacheKeyGenerator->generateCacheKey($request);
         } catch (\Exception $e) {
-            $this->logger->warning($e->getMessage() . PHP_EOL . $e->getTraceAsString());
+            $this->logger->warning($e);
         }
 
         if ($cacheKey !== false) {
             try {
                 $response = $this->getCachedResponse($cacheKey, $scopeCode);
             } catch (\Exception $e) {
-                $this->logger->warning($e->getMessage() . PHP_EOL . $e->getTraceAsString());
+                $this->logger->warning($e);
             }
         }
 
@@ -91,7 +91,7 @@ class TaxQuoteRequest
             try {
                 $response = $this->quote->request($request, $scopeCode);
             } catch (\Exception $e) {
-                $this->logger->critical($e->getMessage() . PHP_EOL . $e->getTraceAsString());
+                $this->logger->critical($e);
                 throw $e;
             }
 
@@ -114,7 +114,7 @@ class TaxQuoteRequest
             /** @var QuoteResponseMapperInterface $mapper */
             $mapper = $this->mapperFactory->getForClass(ResponseInterface::class, $scopeCode);
         } catch (\Exception $e) {
-            $this->logger->warning($e->getMessage() . PHP_EOL . $e->getTraceAsString());
+            $this->logger->warning($e);
             return false;
         }
 
@@ -138,7 +138,7 @@ class TaxQuoteRequest
             $mapper = $this->mapperFactory->getForClass(ResponseInterface::class, $scopeCode);
             $mappedResponse = $mapper->map($response);
         } catch (\Exception $e) {
-            $this->logger->warning($e->getMessage() . PHP_EOL . $e->getTraceAsString());
+            $this->logger->warning($e);
             return;
         }
 

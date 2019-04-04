@@ -62,7 +62,7 @@ class TaxCalculationPlugin
         $round = true
     ) {
         $storeId = $this->getStoreId($storeId);
-        if (!$this->useVertex($quoteDetails, $storeId, $this->isVirtual($quoteDetails))) {
+        if (!$this->useVertex($quoteDetails, $storeId, $this->isVirtual($quoteDetails), true)) {
             // Allows forward compatibility with argument additions
             $arguments = func_get_args();
             array_splice($arguments, 0, 2);
@@ -113,10 +113,10 @@ class TaxCalculationPlugin
      * @param QuoteDetailsInterface $quoteDetails
      * @param string|null $storeId
      * @param bool $isVirtual
+     * @param bool $checkCalculation
      * @return bool
-     * @throws \InvalidArgumentException
      */
-    private function useVertex(QuoteDetailsInterface $quoteDetails, $storeId, $isVirtual)
+    private function useVertex(QuoteDetailsInterface $quoteDetails, $storeId, $isVirtual, $checkCalculation = false)
     {
         $anItemHasPrice = false;
         foreach ($quoteDetails->getItems() as $item) {
@@ -129,7 +129,8 @@ class TaxCalculationPlugin
                 $storeId,
                 $quoteDetails->getShippingAddress(),
                 $quoteDetails->getCustomerId(),
-                $isVirtual
+                $isVirtual,
+                $checkCalculation
             );
     }
 }

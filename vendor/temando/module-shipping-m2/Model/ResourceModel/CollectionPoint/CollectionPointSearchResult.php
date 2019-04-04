@@ -77,6 +77,7 @@ class CollectionPointSearchResult extends Collection implements CollectionPointS
      *
      * @param QuoteCollectionPointInterface[] $items
      * @return $this
+     * @throws \Exception
      */
     public function setItems(array $items = null)
     {

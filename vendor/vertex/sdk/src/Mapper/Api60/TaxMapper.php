@@ -103,6 +103,20 @@ class TaxMapper implements TaxMapperInterface
                     : $map->EffectiveRate
             );
         }
+        if (isset($map->InvoiceTextCode)) {
+            $textCodes = is_array($map->InvoiceTextCode) ? $map->InvoiceTextCode : [$map->InvoiceTextCode];
+            $ourTextCodes = array_map(function ($textCode) {
+                return $textCode instanceof \stdClass ? $textCode->_ : $textCode;
+            }, $textCodes);
+            $object->setInvoiceTextCodes($ourTextCodes);
+        }
+        if (isset($map->vertexTaxCode)) {
+            $object->setVertexTaxCode($map->vertexTaxCode);
+        }
+        if (isset($map->taxCode)) {
+            $object->setTaxCode($map->taxCode);
+        }
+
         return $object;
     }
 
@@ -117,14 +131,7 @@ class TaxMapper implements TaxMapperInterface
             $map,
             $object->getResult(),
             'taxResult',
-            [
-                TaxInterface::RESULT_TAXABLE,
-                TaxInterface::RESULT_NONTAXABLE,
-                TaxInterface::RESULT_EXEMPT,
-                TaxInterface::RESULT_DPPAPPLIED,
-                TaxInterface::RESULT_NO_TAX,
-                TaxInterface::RESULT_DEFERRED,
-            ],
+            TaxInterface::TAX_RESULTS,
             true,
             'Tax Result'
         );
@@ -132,14 +139,7 @@ class TaxMapper implements TaxMapperInterface
             $map,
             $object->getType(),
             'taxType',
-            [
-                TaxInterface::TYPE_SALES,
-                TaxInterface::TYPE_SELLER_USE,
-                TaxInterface::TYPE_CONSUMERS_USE,
-                TaxInterface::TYPE_VAT,
-                TaxInterface::TYPE_IMPORT_VAT,
-                TaxInterface::TYPE_NONE,
-            ],
+            TaxInterface::TAX_TYPES,
             true,
             'Tax Type'
         );
@@ -205,6 +205,58 @@ class TaxMapper implements TaxMapperInterface
             true,
             'Effective Rate'
         );
+        $this->addInvoiceTaxCode($object, $map);
+
+        return $map;
+    }
+
+    /**
+     * Add invoice tax Codes
+     *
+     * @param TaxInterface $object
+     * @param \stdClass $map
+     * @return \stdClass
+     * @throws \Vertex\Exception\ValidationException
+     */
+    private function addInvoiceTaxCode(TaxInterface $object, \stdClass $map)
+    {
+        if (!empty($object->getInvoiceTextCodes())) {
+            $map->InvoiceTextCode = [];
+            foreach ($object->getInvoiceTextCodes() as $invoiceTextCode) {
+                $mapTaxCode = new \stdClass();
+                $mapTaxCode = $this->utilities->addToMapWithEnumerationValidation(
+                    $mapTaxCode,
+                    $invoiceTextCode,
+                    '_',
+                    TaxInterface::INVOICE_TEXT_CODES,
+                    true,
+                    'Text Code'
+                );
+                $map->InvoiceTextCode[] = $mapTaxCode;
+            }
+        }
+        if ($object->getTaxCode()) {
+            $map = $this->utilities->addToMapWithLengthValidation(
+                $map,
+                $object->getTaxCode(),
+                'taxCode',
+                0,
+                PHP_INT_MAX,
+                true,
+                'Tax Code'
+            );
+        }
+        if ($object->getVertexTaxCode() !== null) {
+            $map = $this->utilities->addToMapWithLengthValidation(
+                $map,
+                $object->getVertexTaxCode(),
+                'vertexTaxCode',
+                0,
+                PHP_INT_MAX,
+                true,
+                'Vertex Tax Code'
+            );
+        }
 
         return $map;
     }

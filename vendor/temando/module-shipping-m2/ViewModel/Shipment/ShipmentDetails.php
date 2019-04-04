@@ -72,9 +72,11 @@ class ShipmentDetails implements ArgumentInterface
     }
 
     /**
+     * Get the Shipment.
+     *
      * @return ShipmentInterface
      */
-    private function getShipment() : ShipmentInterface
+    private function getShipment(): ShipmentInterface
     {
         if ($this->shipmentProvider->getShipment()) {
             return $this->shipmentProvider->getShipment();
@@ -88,36 +90,66 @@ class ShipmentDetails implements ArgumentInterface
     }
 
     /**
+     * Get the view action URL.
+     *
      * @param string $extShipmentId
      * @return string
      */
-    public function getViewActionUrl($extShipmentId)
+    public function getViewActionUrl($extShipmentId): string
     {
         return $this->urlBuilder->getUrl('temando/shipment/view', ['shipment_id' => $extShipmentId]);
     }
 
     /**
+     * Get External Shipment ID.
+     *
      * @return string
      */
-    public function getExtShipmentId()
+    public function getExtShipmentId(): string
     {
         $shipment = $this->getShipment();
         return ($shipment ? (string) $shipment->getShipmentId() : '');
     }
 
     /**
+     * Get Customer Reference.
+     *
      * @return string
      */
-    public function getCustomerReference()
+    public function getCustomerReference(): string
     {
         $shipment = $this->getShipment();
         return ($shipment ? (string) $shipment->getCustomerReference() : '');
     }
 
     /**
+     * Get Shipment Status
+     *
+     * @return string
+     */
+    public function getStatus(): string
+    {
+        $shipment = $this->getShipment();
+        return ($shipment ? ucwords($shipment->getStatus()) : '');
+    }
+
+    /**
+     * Check if status can be shown.
+     *
+     * @return bool
+     */
+    public function showStatus(): bool
+    {
+        $shipment = $this->getShipment();
+        return ($shipment && $shipment->getStatus() === 'cancelled');
+    }
+
+    /**
+     * Get Shipment documentation.
+     *
      * @return DataObject[]
      */
-    public function getDocumentation()
+    public function getDocumentation(): array
     {
         if ($this->dispatchProvider->getDispatch()) {
             $dispatch = $this->dispatchProvider->getDispatch();
@@ -132,9 +164,11 @@ class ShipmentDetails implements ArgumentInterface
     }
 
     /**
+     * Get Shipment packages.
+     *
      * @return DataObject[]
      */
-    public function getPackages()
+    public function getPackages(): array
     {
         /** @var DataObject[] $packages */
         $packages = $this->getShipment()->getPackages();
@@ -142,9 +176,11 @@ class ShipmentDetails implements ArgumentInterface
     }
 
     /**
+     * Get Shipment items.
+     *
      * @return DataObject[]
      */
-    public function getItems()
+    public function getItems(): array
     {
         $packages = $this->getShipment()->getPackages() ?: [];
 
@@ -157,10 +193,12 @@ class ShipmentDetails implements ArgumentInterface
     }
 
     /**
+     * Get Documentation display name.
+     *
      * @param string $documentationType
      * @return \Magento\Framework\Phrase
      */
-    public function getDocumentationDisplayName($documentationType)
+    public function getDocumentationDisplayName($documentationType): \Magento\Framework\Phrase
     {
         $fileTypeNames = [
             'nafta' => 'NAFTA',
@@ -186,9 +224,11 @@ class ShipmentDetails implements ArgumentInterface
     }
 
     /**
+     * Check if Shipment is paperless.
+     *
      * @return bool
      */
-    public function isShipmentPaperless()
+    public function isShipmentPaperless(): bool
     {
         $shipment = $this->getShipment();
         if ($shipment->getShipmentId()) {

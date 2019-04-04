@@ -12,12 +12,10 @@ use Magento\Framework\Api\SortOrder;
 use Magento\Framework\Exception\CouldNotSaveException;
 use Magento\Framework\Exception\NoSuchEntityException;
 use Magento\Sales\Api\ShipmentTrackRepositoryInterface;
-use Magento\Sales\Model\ResourceModel\Order\Shipment\Track as TrackResource;
 use Temando\Shipping\Api\Data\Shipment\ShipmentReferenceInterface;
 use Temando\Shipping\Api\Data\Shipment\ShipmentReferenceInterfaceFactory;
 use Temando\Shipping\Model\ResourceModel\Repository\ShipmentReferenceRepositoryInterface;
 use Temando\Shipping\Model\ResourceModel\Shipment\ShipmentReference as ShipmentReferenceResource;
-use Temando\Shipping\Setup\SetupSchema;
 
 /**
  * Temando Shipment Repository
@@ -65,11 +63,6 @@ class ShipmentReferenceRepository implements ShipmentReferenceRepositoryInterfac
     private $shipmentTrackRepository;
 
     /**
-     * @var TrackResource
-     */
-    private $trackResource;
-
-    /**
      * ShipmentReferenceRepository constructor.
      * @param ShipmentReference $resource
      * @param ShipmentReferenceInterfaceFactory $shipmentReferenceFactory
@@ -78,7 +71,6 @@ class ShipmentReferenceRepository implements ShipmentReferenceRepositoryInterfac
      * @param SearchCriteriaBuilderFactory $searchCriteriaBuilderFactory
      * @param FilterBuilder $filterBuilder
      * @param ShipmentTrackRepositoryInterface $shipmentTrackRepository
-     * @param TrackResource $trackResource
      */
     public function __construct(
         ShipmentReferenceResource $resource,
@@ -87,8 +79,7 @@ class ShipmentReferenceRepository implements ShipmentReferenceRepositoryInterfac
         CollectionProcessorInterface $collectionProcessor,
         SearchCriteriaBuilderFactory $searchCriteriaBuilderFactory,
         FilterBuilder $filterBuilder,
-        ShipmentTrackRepositoryInterface $shipmentTrackRepository,
-        TrackResource $trackResource
+        ShipmentTrackRepositoryInterface $shipmentTrackRepository
     ) {
         $this->resource = $resource;
         $this->shipmentReferenceFactory = $shipmentReferenceFactory;
@@ -97,7 +88,6 @@ class ShipmentReferenceRepository implements ShipmentReferenceRepositoryInterfac
         $this->searchCriteriaBuilderFactory = $searchCriteriaBuilderFactory;
         $this->filterBuilder = $filterBuilder;
         $this->shipmentTrackRepository = $shipmentTrackRepository;
-        $this->trackResource = $trackResource;
     }
 
     /**
@@ -197,8 +187,8 @@ class ShipmentReferenceRepository implements ShipmentReferenceRepositoryInterfac
      *
      * @param string $extShipmentId
      *
-     * @return \Temando\Shipping\Api\Data\Shipment\ShipmentReferenceInterface
-     * @throws \Magento\Framework\Exception\LocalizedException
+     * @return ShipmentReferenceInterface
+     * @throws NoSuchEntityException
      */
     public function getByExtShipmentId($extShipmentId)
     {
@@ -212,30 +202,12 @@ class ShipmentReferenceRepository implements ShipmentReferenceRepositoryInterfac
      *
      * @param string $extShipmentId
      *
-     * @return \Temando\Shipping\Api\Data\Shipment\ShipmentReferenceInterface
-     * @throws \Magento\Framework\Exception\LocalizedException
+     * @return ShipmentReferenceInterface
+     * @throws NoSuchEntityException
      */
     public function getByExtReturnShipmentId($extShipmentId)
     {
         $entityId = $this->resource->getIdByExtReturnShipmentId($extShipmentId);
-
-        return $this->getById($entityId);
-    }
-
-    /**
-     * @param string $trackingNumber
-     * @return ShipmentReferenceInterface
-     */
-    public function getByTrackingNumber($trackingNumber)
-    {
-        $connection = $this->resource->getConnection();
-        $select = $connection
-            ->select()
-            ->from(['ts' => SetupSchema::TABLE_SHIPMENT], ShipmentReferenceInterface::ENTITY_ID)
-            ->join(['sst' => $this->trackResource->getMainTable()], 'ts.shipment_id = sst.parent_id')
-            ->where('sst.track_number = ?', $trackingNumber);
-
-        $entityId = $connection->fetchOne($select);
 
         return $this->getById($entityId);
     }

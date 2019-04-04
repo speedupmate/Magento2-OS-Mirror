@@ -18,7 +18,7 @@
             <argument name="session" xsi:type="object">Magento\Backend\Model\Session</argument>
         </arguments>
     </type>
-    <type name="Temando\Shipping\Rest\EntityMapper\ShippingExperiencesMapper">
+    <type name="Temando\Shipping\Rest\EntityMapper\ShippingExperienceMapper">
         <arguments>
             <argument name="session" xsi:type="object">Magento\Backend\Model\Session\Quote</argument>
         </arguments>

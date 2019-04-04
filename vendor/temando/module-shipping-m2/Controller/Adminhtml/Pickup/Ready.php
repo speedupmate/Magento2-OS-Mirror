@@ -10,6 +10,7 @@ use Magento\Backend\App\Action\Context;
 use Magento\Framework\Controller\ResultFactory;
 use Magento\Framework\Controller\ResultInterface;
 use Magento\Framework\Exception\CouldNotSaveException;
+use Magento\Framework\Exception\LocalizedException;
 use Magento\Sales\Api\OrderRepositoryInterface;
 use Temando\Shipping\Model\Pickup\Email\Sender\PickupSender;
 use Temando\Shipping\Model\Pickup\PickupLoader;
@@ -131,7 +132,7 @@ class Ready extends Action
 
         /** @var \Magento\Framework\Controller\Result\Redirect $resultRedirect */
         $resultRedirect = $this->resultFactory->create(ResultFactory::TYPE_REDIRECT);
-        $resultRedirect->setPath('sales/order/view', ['order_id' => $order->getEntityId()]);
+        $resultRedirect->setUrl($this->_redirect->getRefererUrl());
 
         // perform sanity checks
         if (!$order->canShip()) {
@@ -192,7 +193,7 @@ class Ready extends Action
                 PickupInterface::ITEMS => $remainingItems,
             ]]);
             $this->pickupRepository->save($newPickup);
-        } catch (\Exception $exception) {
+        } catch (LocalizedException $exception) {
             $this->messageManager->addErrorMessage('Failed to create a new pickup fulfillment.');
         }
 

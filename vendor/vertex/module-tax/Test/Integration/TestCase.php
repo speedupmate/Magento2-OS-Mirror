@@ -8,8 +8,8 @@ namespace Vertex\Tax\Test\Integration;
 
 use Magento\Framework\ObjectManagerInterface;
 use Magento\TestFramework\Helper\Bootstrap;
-use Vertex\Utility\ServiceActionPerformer;
-use Vertex\Utility\SoapClientFactory;
+use Vertex\Tax\Service\ServiceActionPerformerFactory;
+use Vertex\Tax\Service\SoapClientFactory;
 use Vertex\Tax\Test\Integration\Mock\SoapFactoryMock;
 
 /**
@@ -32,7 +32,7 @@ class TestCase extends \PHPUnit\Framework\TestCase
         $this->objectManager->configure(
             [
                 'preferences' => [SoapClientFactory::class => SoapFactoryMock::class],
-                ServiceActionPerformer::class => [
+                ServiceActionPerformerFactory::class => [
                     'arguments' => [
                         'soapClientFactory' => [
                             'instance' => SoapFactoryMock::class

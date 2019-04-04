@@ -4,21 +4,15 @@
  */
 namespace Temando\Shipping\Model\ResourceModel\Shipment;
 
+use Magento\Framework\Exception\CouldNotDeleteException;
 use Magento\Framework\Exception\LocalizedException;
 use Magento\Framework\Exception\NoSuchEntityException;
-use Magento\Sales\Model\ResourceModel\Order\Shipment\Track as TrackResource;
-use Temando\Shipping\Api\Data\Shipment\ShipmentReferenceInterface;
 use Temando\Shipping\Model\ResourceModel\Repository\ShipmentRepositoryInterface;
-use Temando\Shipping\Model\ResourceModel\Shipment\ShipmentReference as ShipmentReferenceResource;
-use Temando\Shipping\Model\Shipment\TrackEventInterface;
 use Temando\Shipping\Model\ShipmentInterface;
 use Temando\Shipping\Rest\Adapter\ShipmentApiInterface;
 use Temando\Shipping\Rest\EntityMapper\ShipmentResponseMapper;
-use Temando\Shipping\Rest\EntityMapper\TrackingResponseMapper;
 use Temando\Shipping\Rest\Exception\AdapterException;
 use Temando\Shipping\Rest\Request\ItemRequestInterfaceFactory;
-use Temando\Shipping\Rest\Response\DataObject\TrackingEvent;
-use Temando\Shipping\Setup\SetupSchema;
 
 /**
  * Temando Shipment Repository
@@ -47,43 +41,19 @@ class ShipmentRepository implements ShipmentRepositoryInterface
     private $shipmentMapper;
 
     /**
-     * @var TrackingResponseMapper
-     */
-    private $trackMapper;
-
-    /**
-     * @var ShipmentReferenceResource
-     */
-    private $resource;
-
-    /**
-     * @var TrackResource
-     */
-    private $trackResource;
-
-    /**
      * ShipmentRepository constructor.
      * @param ShipmentApiInterface $apiAdapter
      * @param ItemRequestInterfaceFactory $requestFactory
      * @param ShipmentResponseMapper $shipmentMapper
-     * @param TrackingResponseMapper $trackMapper
-     * @param ShipmentReference $resource
-     * @param TrackResource $trackResource
      */
     public function __construct(
         ShipmentApiInterface $apiAdapter,
         ItemRequestInterfaceFactory $requestFactory,
-        ShipmentResponseMapper $shipmentMapper,
-        TrackingResponseMapper $trackMapper,
-        ShipmentReferenceResource $resource,
-        TrackResource $trackResource
+        ShipmentResponseMapper $shipmentMapper
     ) {
         $this->apiAdapter = $apiAdapter;
         $this->requestFactory = $requestFactory;
         $this->shipmentMapper = $shipmentMapper;
-        $this->trackMapper = $trackMapper;
-        $this->resource = $resource;
-        $this->trackResource = $trackResource;
     }
 
     /**
@@ -94,7 +64,7 @@ class ShipmentRepository implements ShipmentRepositoryInterface
      * @throws NoSuchEntityException
      * @throws LocalizedException
      */
-    public function getById($shipmentId)
+    public function getById(string $shipmentId): ShipmentInterface
     {
         if (!$shipmentId) {
             throw new LocalizedException(__('An error occurred while loading data.'));
@@ -116,63 +86,22 @@ class ShipmentRepository implements ShipmentRepositoryInterface
     }
 
     /**
-     * Load external tracking info from platform using external shipment id.
+     * Cancel external shipment at the platform.
      *
      * @param string $shipmentId
-     * @return TrackEventInterface[]
-     * @throws NoSuchEntityException
-     * @throws LocalizedException
+     * @return ShipmentInterface
+     * @throws CouldNotDeleteException
      */
-    public function getTrackingById($shipmentId)
+    public function cancel(string $shipmentId): ShipmentInterface
     {
         try {
             $request = $this->requestFactory->create(['entityId' => $shipmentId]);
-            $apiTrackingEvents = $this->apiAdapter->getTrackingEvents($request);
-
-            // Sort the tracking events by occurredAt descending.
-            usort($apiTrackingEvents, function (TrackingEvent $eventA, TrackingEvent $eventB) {
-                $occurredA = strtotime($eventA->getAttributes()->getOccurredAt());
-                $occurredB = strtotime($eventB->getAttributes()->getOccurredAt());
-                return ($occurredB - $occurredA);
-            });
-
-            $trackEvents = array_map(function (TrackingEvent $apiTrackingEvent) {
-                return $this->trackMapper->map($apiTrackingEvent);
-            }, $apiTrackingEvents);
+            $apiShipment = $this->apiAdapter->cancelShipment($request);
+            $shipment = $this->shipmentMapper->map($apiShipment);
         } catch (AdapterException $e) {
-            if ($e->getCode() === 404) {
-                throw NoSuchEntityException::singleField('shipmentId', $shipmentId);
-            }
-
-            throw new LocalizedException(__('An error occurred while loading tracking history.'), $e);
+            throw new CouldNotDeleteException(__('Unable to cancel shipment: %1.', $e->getMessage()), $e);
         }
 
-        return $trackEvents;
-    }
-
-    /**
-     * Load external tracking info from platform using tracking number.
-     *
-     * @param string $trackingNumber
-     * @return TrackEventInterface[]
-     * @throws NoSuchEntityException
-     */
-    public function getTrackingByNumber($trackingNumber)
-    {
-        $connection = $this->resource->getConnection();
-        $select = $connection
-            ->select()
-            ->from(['ts' => SetupSchema::TABLE_SHIPMENT], ShipmentReferenceInterface::EXT_SHIPMENT_ID)
-            ->join(['sst' => $this->trackResource->getMainTable()], 'ts.shipment_id = sst.parent_id')
-            ->where('sst.track_number = ?', $trackingNumber);
-
-        $shipmentId = $connection->fetchOne($select);
-
-        $trackEvents = $this->getTrackingById($shipmentId);
-        $trackEvents = array_filter($trackEvents, function (TrackEventInterface $trackEvent) use ($trackingNumber) {
-            return ($trackingNumber === $trackEvent->getTrackingReference());
-        });
-
-        return $trackEvents;
+        return $shipment;
     }
 }

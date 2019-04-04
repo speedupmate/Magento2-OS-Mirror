@@ -67,14 +67,16 @@ class PhpFileLoaderTest extends TestCase
 
     public function provideConfig()
     {
-        yield array('basic');
-        yield array('object');
-        yield array('defaults');
-        yield array('instanceof');
-        yield array('prototype');
-        yield array('child');
-        yield array('php7');
-        yield array('anonymous');
+        yield ['basic'];
+        yield ['object'];
+        yield ['defaults'];
+        yield ['instanceof'];
+        yield ['prototype'];
+        yield ['prototype_array'];
+        yield ['child'];
+        yield ['php7'];
+        yield ['anonymous'];
+        yield ['lazy_fqcn'];
     }
 
     /**
@@ -92,7 +94,7 @@ class PhpFileLoaderTest extends TestCase
 
     /**
      * @expectedException \Symfony\Component\DependencyInjection\Exception\InvalidArgumentException
-     * @expectedExceptionMessage Invalid factory "factory:method": the `service:method` notation is not available when using PHP-based DI configuration. Use "[ref('factory'), 'method']" instead.
+     * @expectedExceptionMessage Invalid factory "factory:method": the "service:method" notation is not available when using PHP-based DI configuration. Use "[ref('factory'), 'method']" instead.
      */
     public function testFactoryShortNotationNotAllowed()
     {

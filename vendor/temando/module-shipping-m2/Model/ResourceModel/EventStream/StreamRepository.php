@@ -9,7 +9,7 @@ use Magento\Framework\Exception\CouldNotSaveException;
 use Temando\Shipping\Rest\Adapter\EventStreamApiInterface;
 use Temando\Shipping\Rest\Exception\AdapterException;
 use Temando\Shipping\Rest\Request\ItemRequestInterfaceFactory;
-use Temando\Shipping\Rest\Request\StreamCreateRequestInterfaceFactory;
+use Temando\Shipping\Rest\Request\StreamCreateRequestFactory;
 use Temando\Shipping\Rest\Request\Type\StreamRequestTypeFactory;
 
 /**
@@ -28,7 +28,7 @@ class StreamRepository implements StreamRepositoryInterface
     private $apiAdapter;
 
     /**
-     * @var StreamCreateRequestInterfaceFactory
+     * @var StreamCreateRequestFactory
      */
     private $streamCreateRequestFactory;
 
@@ -48,15 +48,15 @@ class StreamRepository implements StreamRepositoryInterface
      * @param EventStreamApiInterface $apiAdapter
      * @param ItemRequestInterfaceFactory $itemRequestFactory
      * @param StreamRequestTypeFactory $streamRequuestTypeFactory
-     * @param StreamCreateRequestInterfaceFactory $streamCreateRequestFactory
+     * @param StreamCreateRequestFactory $streamCreateRequestFactory
      */
     public function __construct(
         EventStreamApiInterface $apiAdapter,
         ItemRequestInterfaceFactory $itemRequestFactory,
         StreamRequestTypeFactory $streamRequuestTypeFactory,
-        StreamCreateRequestInterfaceFactory $streamCreateRequestFactory
+        StreamCreateRequestFactory $streamCreateRequestFactory
     ) {
-        $this->apiAdapter         = $apiAdapter;
+        $this->apiAdapter = $apiAdapter;
         $this->itemRequestFactory = $itemRequestFactory;
         $this->streamRequestTypeFactory = $streamRequuestTypeFactory;
         $this->streamCreateRequestFactory = $streamCreateRequestFactory;

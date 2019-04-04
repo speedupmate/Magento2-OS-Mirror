@@ -5,36 +5,37 @@
 
 namespace Temando\Shipping\Rest\Adapter;
 
+use Temando\Shipping\Rest\Exception\AdapterException;
 use Temando\Shipping\Rest\Request\ItemRequestInterface;
 use Temando\Shipping\Rest\Response\DataObject\Shipment;
-use Temando\Shipping\Rest\Response\DataObject\TrackingEvent;
-use Temando\Shipping\Rest\Exception\AdapterException;
 
 /**
  * The Temando Shipment & Tracking API interface defines the supported subset of
  * operations as available at the Temando API.
  *
- * @package  Temando\Shipping\Rest
- * @author   Christoph Aßmann <christoph.assmann@netresearch.de>
- * @author   Sebastian Ertner <sebastian.ertner@netresearch.de>
- * @license  http://opensource.org/licenses/osl-3.0.php Open Software License (OSL 3.0)
- * @link     http://www.temando.com/
+ * @package Temando\Shipping\Rest
+ * @author  Christoph Aßmann <christoph.assmann@netresearch.de>
+ * @author  Sebastian Ertner <sebastian.ertner@netresearch.de>
+ * @license https://opensource.org/licenses/osl-3.0.php Open Software License (OSL 3.0)
+ * @link    https://www.temando.com/
  */
 interface ShipmentApiInterface
 {
     /**
-     * @param ItemRequestInterface $request
+     * Read one shipment from the platform.
      *
+     * @param ItemRequestInterface $request
      * @return Shipment
      * @throws AdapterException
      */
     public function getShipment(ItemRequestInterface $request);
 
     /**
-     * @param ItemRequestInterface $request
+     * Cancel shipment at the platform.
      *
-     * @return TrackingEvent[]
+     * @param ItemRequestInterface $request
+     * @return Shipment
      * @throws AdapterException
      */
-    public function getTrackingEvents(ItemRequestInterface $request);
+    public function cancelShipment(ItemRequestInterface $request);
 }

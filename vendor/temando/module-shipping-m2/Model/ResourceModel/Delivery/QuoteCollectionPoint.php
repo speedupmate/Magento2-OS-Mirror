@@ -70,6 +70,9 @@ class QuoteCollectionPoint extends AbstractDb
             $object->setData(QuoteCollectionPointInterface::OPENING_HOURS, $openingHours);
         }
 
+        // cast values for type safety
+        $distance = $object->getDistance() ? (int) $object->getDistance() : null;
+        $object->setData(QuoteCollectionPointInterface::DISTANCE, $distance);
         $object->setData(QuoteCollectionPointInterface::SELECTED, (bool) $object->isSelected());
 
         return parent::_afterLoad($object);

@@ -72,8 +72,8 @@ class InvoiceItemProcessor implements InvoiceProcessorInterface
         $taxClasses = [];
 
         foreach ($invoiceItems as $item) {
-            $product = $products[$item->getSku()];
-            $taxClassAttribute = $product->getCustomAttribute('tax_class_id');
+            $product = isset($products[$item->getSku()]) ? $products[$item->getSku()] : false;
+            $taxClassAttribute = $product ? $product->getCustomAttribute('tax_class_id') : false;
             $taxClassId = $taxClassAttribute ? $taxClassAttribute->getValue() : 0;
 
             if ($item->getBaseRowTotal() === null) {

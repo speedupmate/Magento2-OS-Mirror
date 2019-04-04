@@ -1,0 +1,33 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!--
+/**
+ * This file is part of the Klarna KP module
+ *
+ * (c) Klarna Bank AB (publ)
+ *
+ * For the full copyright and license information, please view the NOTICE
+ * and LICENSE files that were distributed with this source code.
+ */
+-->
+<actionGroups xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+              xsi:noNamespaceSchemaLocation="../../../../../../../dev/tests/acceptance/vendor/magento/magento2-functional-testing-framework/src/Magento/FunctionalTestingFramework/Test/etc/actionGroupSchema.xsd">
+    <actionGroup name="DisableKlarnaPayment">
+        <!-- GoTo ConfigureKlarnaPayment fields -->
+        <click stepKey="clickOnSTORES" selector="{{KpAdminMenuSection.stores}}"/>
+        <waitForPageLoad stepKey="waitForConfiguration" time="2"/>
+        <click stepKey="clickOnConfigurations" selector="{{KpStoresSubmenuSection.configuration}}" />
+        <waitForPageLoad stepKey="waitForSales" time="2"/>
+        <click stepKey="clickOnSales" selector="{{KpConfigurationListSection.sales}}" />
+        <waitForPageLoad stepKey="waitForPaymentMethods" time="2"/>
+        <click stepKey="clickOnPaymentMethods" selector="{{KpConfigurationListSection.salesPaymentMethods}}" />
+        <waitForPageLoad stepKey="waitForConfigureButton" time="2"/>
+        <click stepKey="clickOnConfigureButtonForKlarnaPayment" selector="{{KpConfigurationPaymentSection.configureButton}}" />
+        <waitForPageLoad stepKey="KlarnaPaymentSettings" time="2"/>
+        <!-- Fill Klarna Payment  Setting Tab -->
+        <click stepKey="openKpPaymentActiveSelect" selector="{{KpConfiguraionSection.kpPaymentActiveSelect}}"/>
+        <click stepKey="chooseKpPaymentInActive" selector="{{KpConfiguraionSection.activeDisabled}}"/>
+        <!-- Save Configuration -->
+        <click stepKey="save" selector="{{KpConfiguraionSection.save}}"/>
+        <waitForElementVisible selector="{{KpConfiguraionSection.successfulMessage}}" stepKey="waitForSuccessfullyConfigured" time="10"/>
+    </actionGroup>
+</actionGroups>

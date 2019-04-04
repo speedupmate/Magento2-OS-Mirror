@@ -48,4 +48,13 @@ interface LogEntryRepositoryInterface
      * @throws \Magento\Framework\Exception\CouldNotDeleteException
      */
     public function deleteById($logEntryId);
+
+    /**
+     * Delete multiple records by criteria
+     *
+     * @param \Magento\Framework\Api\SearchCriteriaInterface $searchCriteria
+     * @return bool true on success
+     * @throws \Magento\Framework\Exception\CouldNotDeleteException
+     */
+    public function deleteByCriteria(\Magento\Framework\Api\SearchCriteriaInterface $searchCriteria);
 }

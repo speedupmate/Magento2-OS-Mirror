@@ -1,0 +1,27 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!--
+/**
+ * This file is part of the Klarna KP module
+ *
+ * (c) Klarna Bank AB (publ)
+ *
+ * For the full copyright and license information, please view the NOTICE
+ * and LICENSE files that were distributed with this source code.
+ */
+-->
+
+<actionGroups xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+              xsi:noNamespaceSchemaLocation="urn:magento:mftf:Test/etc/actionGroupSchema.xsd">
+    <actionGroup name="KpAddCoupon">
+        <amOnPage stepKey="onCartPage"  url="/checkout/cart/"/>
+        <waitForPageLoad stepKey="waitForPageLoad2"/>
+        <click selector="{{KpStorefrontCartSection.ShowCouponCodeBox}}" stepKey="clickShowCouponCode"/>
+        <wait stepKey="openCouponFieldWait" time="5"/>
+        <fillField selector="{{KpStorefrontCartSection.CouponCodeField}}" userInput="$$kpCreateSalesCoupon.code$$" stepKey="kpEnterCouponCode"/>
+        <wait stepKey="openCouponFieldWait" time="5"/>
+        <click selector="{{KpStorefrontCartSection.CouponCodeApply}}" stepKey="clickApplyButton"/>
+        <wait stepKey="applyCouponFieldWait" time="10"/>
+        <see selector="{{KpStorefrontCartSection.SuccessMsg}}"
+              userInput="You used coupon code &quot;$$kpCreateSalesCoupon.code$$&quot;." stepKey="seeAddedCouponToCartMessage"/>
+    </actionGroup>
+</actionGroups>

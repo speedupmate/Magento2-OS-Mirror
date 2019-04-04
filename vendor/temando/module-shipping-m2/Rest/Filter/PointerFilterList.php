@@ -4,7 +4,6 @@
  */
 namespace Temando\Shipping\Rest\Filter;
 
-use Magento\Framework\Serialize\Serializer\Json;
 use Temando\Shipping\Webservice\Filter\CollectionFilterInterface;
 
 /**

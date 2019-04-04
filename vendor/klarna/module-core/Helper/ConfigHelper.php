@@ -319,7 +319,13 @@ class ConfigHelper extends AbstractHelper
         $customerObj = $this->customerRepository->getById($customerId);
         $billingAddressId = $customerObj->getDefaultBilling();
         if ($billingAddressId) {
-            $defaultBillingAddress = $this->addressRepository->getById($billingAddressId);
+            try {
+                $defaultBillingAddress = $this->addressRepository->getById($billingAddressId);
+            } catch (\Magento\Framework\Exception\NoSuchEntityException $e) {
+                $this->_logger->info("The default billing address does not exist.");
+                return false;
+            }
+
             return $defaultBillingAddress->getCompany();
         }
         return false;

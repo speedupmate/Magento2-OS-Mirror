@@ -8,19 +8,18 @@
     <type name="Magento\Framework\Notification\MessageList">
         <arguments>
             <argument name="messages" xsi:type="array">
-                <item name="vertex" xsi:type="string">Vertex\Tax\Model\System\Message\Notification\LiabilityErrors</item>
                 <item name="vertex_catalog" xsi:type="string">Vertex\Tax\Model\System\Message\Notification\DisplayTaxesInCatalog</item>
             </argument>
-        </arguments>
-    </type>
-    <type name="Vertex\Tax\Model\Config\State">
-        <arguments>
-            <argument name="forceActive" xsi:type="boolean">true</argument>
         </arguments>
     </type>
     <type name="Vertex\Tax\Model\ErrorMessageDisplayState">
         <arguments>
             <argument name="enabled" xsi:type="boolean">true</argument>
+        </arguments>
+    </type>
+    <type name="Vertex\Tax\Model\Calculator">
+        <arguments>
+            <argument name="addMessageToVertexGroup" xsi:type="boolean">false</argument>
         </arguments>
     </type>
 
@@ -29,5 +28,18 @@
     </type>
     <type name="Magento\Customer\Model\Customer\DataProvider">
         <plugin name="ShowCustomerCode" type="Vertex\Tax\Model\Plugin\CustomerDataProviderPlugin" />
+    </type>
+    <type name="Magento\Customer\Model\Customer\DataProviderWithDefaultAddresses">
+        <plugin name="ShowCustomerCode" type="Vertex\Tax\Model\Plugin\CustomerDataProviderPlugin" />
+    </type>
+    <type name="Vertex\Tax\Observer\OrderSavedAfterObserver">
+        <arguments>
+            <argument name="showSuccessMessage" xsi:type="boolean">true</argument>
+        </arguments>
+    </type>
+    <type name="Vertex\Tax\Observer\InvoiceSavedAfterObserver">
+        <arguments>
+            <argument name="showSuccessMessage" xsi:type="boolean">true</argument>
+        </arguments>
     </type>
 </config>

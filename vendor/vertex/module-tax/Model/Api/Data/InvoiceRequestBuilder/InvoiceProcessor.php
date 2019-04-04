@@ -3,6 +3,8 @@
 namespace Vertex\Tax\Model\Api\Data\InvoiceRequestBuilder;
 
 use Magento\Sales\Api\Data\InvoiceInterface;
+use Magento\Sales\Api\Data\OrderAddressInterface;
+use Magento\Sales\Api\Data\OrderInterface;
 use Magento\Sales\Api\OrderAddressRepositoryInterface;
 use Magento\Sales\Api\OrderRepositoryInterface;
 use Magento\Store\Model\ScopeInterface;
@@ -31,14 +33,8 @@ class InvoiceProcessor
     /** @var DeliveryTerm */
     private $deliveryTerm;
 
-    /** @var OrderRepositoryInterface */
-    private $orderRepository;
-
     /** @var InvoiceProcessorInterface */
     private $processorPool;
-
-    /** @var OrderAddressRepositoryInterface */
-    private $orderAddressRepository;
 
     /** @var RequestInterfaceFactory */
     private $requestFactory;
@@ -49,34 +45,28 @@ class InvoiceProcessor
     /**
      * @param RequestInterfaceFactory $requestFactory
      * @param DateTimeImmutableFactory $dateTimeFactory
-     * @param OrderAddressRepositoryInterface $orderAddressRepository
      * @param SellerBuilder $sellerBuilder
      * @param CustomerBuilder $customerBuilder
      * @param DeliveryTerm $deliveryTerm
      * @param Config $config
      * @param InvoiceProcessorInterface $processorPool
-     * @param OrderRepositoryInterface $orderRepository
      */
     public function __construct(
         RequestInterfaceFactory $requestFactory,
         DateTimeImmutableFactory $dateTimeFactory,
-        OrderAddressRepositoryInterface $orderAddressRepository,
         SellerBuilder $sellerBuilder,
         CustomerBuilder $customerBuilder,
         DeliveryTerm $deliveryTerm,
         Config $config,
-        InvoiceProcessorInterface $processorPool,
-        OrderRepositoryInterface $orderRepository
+        InvoiceProcessorInterface $processorPool
     ) {
         $this->requestFactory = $requestFactory;
         $this->dateTimeFactory = $dateTimeFactory;
-        $this->orderAddressRepository = $orderAddressRepository;
         $this->sellerBuilder = $sellerBuilder;
         $this->customerBuilder = $customerBuilder;
         $this->deliveryTerm = $deliveryTerm;
         $this->config = $config;
         $this->processorPool = $processorPool;
-        $this->orderRepository = $orderRepository;
     }
 
     /**
@@ -88,11 +78,12 @@ class InvoiceProcessor
     public function process(InvoiceInterface $invoice)
     {
         // If an invoice is virtual, it simply won't have a shipping address.
-        $address = $invoice->getShippingAddressId()
-            ? $this->orderAddressRepository->get($invoice->getShippingAddressId())
-            : $this->orderAddressRepository->get($invoice->getBillingAddressId());
+        /** @var OrderAddressInterface $address */
+        $address = $invoice->getExtensionAttributes()->getVertexTaxCalculationShippingAddress()
+            ?: $invoice->getExtensionAttributes()->getVertexTaxCalculationBillingAddress();
 
-        $order = $this->orderRepository->get($invoice->getOrderId());
+        /** @var OrderInterface $order */
+        $order = $invoice->getExtensionAttributes()->getVertexTaxCalculationOrder();
 
         $scopeCode = $invoice->getStoreId();
 
@@ -103,18 +94,20 @@ class InvoiceProcessor
 
         $customer = $this->customerBuilder->buildFromOrderAddress(
             $address,
-            $address->getCustomerId(),
+            $order->getCustomerId(),
             $order->getCustomerGroupId(),
             $scopeCode
         );
 
         /** @var RequestInterface $request */
         $request = $this->requestFactory->create();
+        $request->setShouldReturnAssistedParameters(true);
         $request->setDocumentNumber($order->getIncrementId());
         $request->setDocumentDate($this->dateTimeFactory->create());
         $request->setTransactionType(RequestInterface::TRANSACTION_TYPE_SALE);
         $request->setSeller($seller);
         $request->setCustomer($customer);
+        $request->setCurrencyCode($invoice->getBaseCurrencyCode());
         $this->deliveryTerm->addIfApplicable($request);
 
         if ($this->config->getLocationCode($scopeCode)) {

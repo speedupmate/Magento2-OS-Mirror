@@ -5,6 +5,7 @@
 namespace Temando\Shipping\Model\Location;
 
 use Magento\Directory\Model\RegionFactory;
+use Magento\Framework\Exception\LocalizedException;
 use Magento\Sales\Api\Data\OrderAddressInterface;
 use Magento\Sales\Api\Data\OrderAddressInterfaceFactory;
 use Magento\Sales\Model\Order\Address;
@@ -59,7 +60,7 @@ class OrderAddressFactory
 
             $addressData['region'] = $regionName;
             $address = $this->addressFactory->create(['data' => $addressData]);
-        } catch (\Exception $e) {
+        } catch (LocalizedException $e) {
             $address = $this->addressFactory->create(['data' => $addressData]);
         }
 

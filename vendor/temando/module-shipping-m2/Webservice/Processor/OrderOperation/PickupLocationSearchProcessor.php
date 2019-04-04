@@ -12,7 +12,7 @@ use Temando\Shipping\Api\Data\Order\ShippingExperienceInterface;
 use Temando\Shipping\Model\Delivery\QuotePickupLocation;
 use Temando\Shipping\Model\OrderInterface;
 use Temando\Shipping\Model\ResourceModel\Delivery\PickupLocationSearchResult;
-use Temando\Shipping\Webservice\Response\Type\OrderResponseTypeInterface;
+use Temando\Shipping\Webservice\Response\Type\QualificationResponseType;
 
 /**
  * Temando Pickup Location Search Processor.
@@ -45,14 +45,14 @@ class PickupLocationSearchProcessor implements RatesProcessorInterface
      *
      * @param RateRequest $rateRequest
      * @param OrderInterface $requestType
-     * @param OrderResponseTypeInterface $responseType
+     * @param QualificationResponseType $responseType
      * @return ShippingExperienceInterface[]
      * @throws CouldNotSaveException
      */
     public function postProcess(
         RateRequest $rateRequest,
         OrderInterface $requestType,
-        OrderResponseTypeInterface $responseType
+        QualificationResponseType $responseType
     ) {
         $searchRequest = $requestType->getPickupLocationSearchRequest();
         $pickupLocation = $requestType->getPickupLocation();
@@ -69,7 +69,7 @@ class PickupLocationSearchProcessor implements RatesProcessorInterface
 
         // persist pickup locations for a given search request
         $shippingAddressId = $searchRequest->getShippingAddressId();
-        $pickupLocations = (array) $responseType->getPickupLocations();
+        $pickupLocations = $responseType->getPickupLocations();
 
         /** @var QuotePickupLocation $pickupLocation */
         foreach ($pickupLocations as $pickupLocation) {

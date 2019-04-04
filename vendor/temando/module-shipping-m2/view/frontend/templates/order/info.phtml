@@ -53,7 +53,7 @@
                 <div class="box-content">
                 <?php if ($_order->getShippingDescription()) : ?>
                     <?= $block->escapeHtml($_order->getShippingDescription()) ?>
-                <?php else: ?>
+                <?php else : ?>
                     <?= $block->escapeHtml(__('No shipping information available')) ?>
                 <?php endif; ?>
                 </div>

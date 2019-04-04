@@ -11,6 +11,7 @@ use Magento\Config\Block\System\Config\Form\Field;
 use Magento\Framework\Data\Form\Element\AbstractElement;
 use Magento\Store\Model\ScopeInterface;
 use Vertex\Tax\Model\Config;
+use Vertex\Tax\Model\Config\DisableMessage;
 use Vertex\Tax\Model\ConfigurationValidator;
 
 /**
@@ -24,20 +25,26 @@ class VertexStatus extends Field
     /** @var ConfigurationValidator */
     private $configurationValidator;
 
+    /** @var DisableMessage */
+    private $disableMessage;
+
     /**
      * @param Context $context
      * @param Config $config
      * @param ConfigurationValidator $configurationValidator
+     * @param DisableMessage $disableMessage
      * @param array $data
      */
     public function __construct(
         Context $context,
         Config $config,
         ConfigurationValidator $configurationValidator,
+        DisableMessage $disableMessage,
         array $data = []
     ) {
         $this->config = $config;
         $this->configurationValidator = $configurationValidator;
+        $this->disableMessage = $disableMessage;
 
         parent::__construct($context, $data);
     }
@@ -60,7 +67,9 @@ class VertexStatus extends Field
         $useWebsite = $website > 0;
         $scopeType = $useWebsite ? ScopeInterface::SCOPE_WEBSITE : ScopeInterface::SCOPE_STORE;
 
-        if (!$this->config->isVertexActive($scopeId, $scopeType)) {
+        if (!$this->config->isVertexActive($scopeId, $scopeType)
+            || !$this->config->isTaxCalculationEnabled($scopeId, $scopeType)
+        ) {
             $state = 'critical';
             $status = 'Disabled';
         } else {
@@ -76,8 +85,12 @@ class VertexStatus extends Field
                 $status = call_user_func_array('__', array_merge([$message], $arguments));
             }
         }
+        $html = '<span class="grid-severity-' . $state . '"><span>' . $status . '</span></span>';
+        if ($disableMessage = $this->disableMessage->getMessage($scopeId)) {
+            $html .= '<div class="vertex__automatically-disabled-message">' . $disableMessage . '</div>';
+        }
 
-        return '<span class="grid-severity-' . $state . '"><span>' . $status . '</span></span>';
+        return $html;
     }
 
     /**

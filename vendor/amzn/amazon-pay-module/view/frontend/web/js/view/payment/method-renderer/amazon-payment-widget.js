@@ -41,17 +41,16 @@ define(
     ) {
         'use strict';
 
-        var self,
+        var context,
             countryData = customerData.get('directory-data');
 
         return Component.extend({
             defaults: {
-                template: 'Amazon_Payment/payment/amazon-payment-widget'
-            },
-            options: {
-                sellerId: registry.get('amazonPayment').merchantId,
+                template: 'Amazon_Payment/payment/amazon-payment-widget',
                 paymentWidgetDOMId: 'walletWidgetDiv',
-                widgetScope: registry.get('amazonPayment').loginScope
+                presentmentDOMId: 'tr.totals.charge',
+                apInputDOMId: '#amazon_payment',
+                customerEmail: '#customer-email'
             },
             isCustomerLoggedIn: customer.isLoggedIn,
             isAmazonAccountLoggedIn: amazonStorage.isAmazonAccountLoggedIn,
@@ -64,7 +63,7 @@ define(
              * Inits
              */
             initialize: function () {
-                self = this;
+                context = this;
                 this._super();
             },
 
@@ -72,20 +71,33 @@ define(
              * Init payment widget
              */
             initPaymentWidget: function () {
-                var $amazonPayment = $('#amazon_payment');
+                var $amazonPayment = $(context.apInputDOMId);
 
-                self.renderPaymentWidget();
+                context.initDefaultValues();
+                context.renderPaymentWidget();
                 $amazonPayment.trigger('click'); //activate Amazon Pay method on render
                 $amazonPayment.trigger('rendered');
+            },
+
+            /**
+             * Init potentially asynchronous values
+             */
+            initDefaultValues: function () {
+                registry.get('amazonPayment', function (amazonPayment) {
+                    context.widgetScope = amazonPayment.loginScope;
+                    context.sellerId = amazonPayment.merchantId;
+                    context.presentmentCurrency = amazonPayment.presentmentCurrency;
+                    context.useMultiCurrency = amazonPayment.useMultiCurrency;
+                });
             },
 
             /**
              * render Amazon Pay Widget
              */
             renderPaymentWidget: function () {
-                new OffAmazonPayments.Widgets.Wallet({ // eslint-disable-line no-undef
-                    sellerId: self.options.sellerId,
-                    scope: self.options.widgetScope,
+                var widget = new OffAmazonPayments.Widgets.Wallet({ // eslint-disable-line no-undef
+                    sellerId: context.sellerId,
+                    scope: context.widgetScope,
                     amazonOrderReferenceId: amazonStorage.getOrderReference(),
 
                     /**
@@ -93,7 +105,7 @@ define(
                      */
                     onPaymentSelect: function () { // orderReference
                         amazonStorage.isPlaceOrderDisabled(true);
-                        self.setBillingAddressFromAmazon();
+                        context.setBillingAddressFromAmazon();
                     },
                     design: {
                         designMode: 'responsive'
@@ -105,7 +117,15 @@ define(
                     onError: function (error) {
                         errorProcessor.process(error);
                     }
-                }).bind(self.options.paymentWidgetDOMId);
+                });
+                if (context.useMultiCurrency) {
+                    widget.setPresentmentCurrency(context.presentmentCurrency);
+                    $(context.presentmentDOMId).hide();
+                }
+                else {
+                    $(context.presentmentDOMId).show();
+                }
+                widget.bind(context.paymentWidgetDOMId);
             },
 
             /**
@@ -162,11 +182,11 @@ define(
                         selectBillingAddress(addressData);
                         amazonStorage.isPlaceOrderDisabled(false);
 
-                        if(window.checkoutConfig.amazonLogin.amazon_customer_email) {
-                            var customerField = $('#customer-email').val();
+                        if (window.checkoutConfig.amazonLogin.amazon_customer_email) {
+                            var customerField = $(context.customerEmail).val();
 
                             if (!customerField) {
-                                $('#customer-email').val(window.checkoutConfig.amazonLogin.amazon_customer_email);
+                                $(context.customerEmail).val(window.checkoutConfig.amazonLogin.amazon_customer_email);
                             }
                         }
                     }
@@ -199,8 +219,6 @@ define(
             placeOrder: function (data, event) {
                 var placeOrder;
 
-                self = this;
-
                 if (event) {
                     event.preventDefault();
                 }
@@ -210,7 +228,7 @@ define(
                     placeOrder = placeOrderAction(this.getData(), this.redirectAfterPlaceOrder);
 
                     $.when(placeOrder).fail(function () {
-                        self.isPlaceOrderActionAllowed(true);
+                        context.isPlaceOrderActionAllowed(true);
                     }).done(this.afterPlaceOrder.bind(this));
 
                     return true;

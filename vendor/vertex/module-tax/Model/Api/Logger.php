@@ -7,8 +7,9 @@
 namespace Vertex\Tax\Model\Api;
 
 use Magento\Framework\Exception\CouldNotSaveException;
-use Psr\Log\LoggerInterface;
 use Vertex\Tax\Model\Api\Utility\SoapClientRegistry;
+use Vertex\Tax\Model\Config;
+use Vertex\Tax\Model\ExceptionLogger;
 use Vertex\Tax\Model\RequestLogger;
 
 /**
@@ -16,7 +17,10 @@ use Vertex\Tax\Model\RequestLogger;
  */
 class Logger
 {
-    /** @var LoggerInterface */
+    /** @var Config */
+    private $config;
+
+    /** @var ExceptionLogger */
     private $logger;
 
     /** @var RequestLogger */
@@ -26,18 +30,21 @@ class Logger
     private $soapClientRegistry;
 
     /**
-     * @param LoggerInterface $logger
+     * @param ExceptionLogger $logger
      * @param RequestLogger $requestLogger
      * @param SoapClientRegistry $soapClientRegistry
+     * @param Config $config
      */
     public function __construct(
-        LoggerInterface $logger,
+        ExceptionLogger $logger,
         RequestLogger $requestLogger,
-        SoapClientRegistry $soapClientRegistry
+        SoapClientRegistry $soapClientRegistry,
+        Config $config
     ) {
         $this->logger = $logger;
         $this->requestLogger = $requestLogger;
         $this->soapClientRegistry = $soapClientRegistry;
+        $this->config = $config;
     }
 
     /**
@@ -45,10 +52,11 @@ class Logger
      *
      * @param callable $callable
      * @param string $type
+     * @param string|null $scopeCode Store ID
      * @return mixed Result of callable
      * @throws \Exception
      */
-    public function wrapCall(callable $callable, $type)
+    public function wrapCall(callable $callable, $type, $scopeCode = null)
     {
         try {
             return $callable();
@@ -56,7 +64,7 @@ class Logger
             $this->logException($exception);
             throw $exception;
         } finally {
-            $this->logRequest($type);
+            $this->logRequest($type, $scopeCode);
         }
     }
 
@@ -68,17 +76,22 @@ class Logger
      */
     private function logException(\Exception $exception)
     {
-        $this->logger->critical($exception->getMessage() . PHP_EOL . $exception->getTraceAsString());
+        $this->logger->critical($exception);
     }
 
     /**
      * Log an API call to the database
      *
      * @param string $requestType
+     * @param string|null $scopeCode Store ID
      * @return void
      */
-    private function logRequest($requestType)
+    private function logRequest($requestType, $scopeCode = null)
     {
+        if (!$this->config->isLoggingEnabled($scopeCode)) {
+            return;
+        }
+
         $soapClient = $this->soapClientRegistry->getLastClient();
         try {
             $this->requestLogger->log(

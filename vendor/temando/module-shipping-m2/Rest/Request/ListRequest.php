@@ -19,26 +19,48 @@ use Temando\Shipping\Webservice\Pagination\PaginationInterface;
 class ListRequest implements ListRequestInterface
 {
     /**
+     * The list's parent entity, e.g. /book/{parentId}/chapters.
+     *
+     * @var string
+     */
+    private $parentId;
+
+    /**
+     * Pagination parameters.
+     *
      * @var PaginationInterface
      */
     private $pagination;
 
     /**
+     * Limit and offset parameters.
+     *
      * @var CollectionFilterInterface
      */
     private $filter;
 
     /**
      * ListRequest constructor.
+     * @param string $parentId
      * @param PaginationInterface $pagination
      * @param CollectionFilterInterface $filter
      */
     public function __construct(
+        $parentId = '',
         PaginationInterface $pagination = null,
         CollectionFilterInterface $filter = null
     ) {
+        $this->parentId = $parentId;
         $this->pagination = $pagination;
         $this->filter = $filter;
+    }
+
+    /**
+     * @return string[]
+     */
+    public function getPathParams()
+    {
+        return $this->parentId ? [$this->parentId] : [];
     }
 
     /**

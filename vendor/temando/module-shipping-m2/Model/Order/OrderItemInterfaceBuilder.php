@@ -8,7 +8,6 @@ use Magento\Catalog\Model\Product\Configuration\Item\ItemInterface;
 use Magento\Directory\Model\Currency;
 use Magento\Framework\Api\AbstractSimpleObjectBuilder;
 use Magento\Framework\Api\ObjectFactory;
-use Magento\Framework\Exception\LocalizedException;
 use Magento\Quote\Model\Quote\Address\RateRequest;
 use Temando\Shipping\Model\Config\ModuleConfigInterface;
 use Temando\Shipping\Setup\SetupData;
@@ -48,7 +47,6 @@ class OrderItemInterfaceBuilder extends AbstractSimpleObjectBuilder
     /**
      * @param RateRequest $rateRequest
      * @return void
-     * @throws LocalizedException
      */
     public function setRateRequest(RateRequest $rateRequest)
     {
@@ -104,7 +102,6 @@ class OrderItemInterfaceBuilder extends AbstractSimpleObjectBuilder
     /**
      * @param \Magento\Sales\Api\Data\OrderInterface|\Magento\Sales\Model\Order $order
      * @return void
-     * @throws LocalizedException
      */
     public function setOrder(\Magento\Sales\Api\Data\OrderInterface $order)
     {
@@ -114,7 +111,6 @@ class OrderItemInterfaceBuilder extends AbstractSimpleObjectBuilder
     /**
      * @param \Magento\Sales\Api\Data\OrderItemInterface $orderItem
      * @return void
-     * @throws LocalizedException
      */
     public function setOrderItem(\Magento\Sales\Api\Data\OrderItemInterface $orderItem)
     {

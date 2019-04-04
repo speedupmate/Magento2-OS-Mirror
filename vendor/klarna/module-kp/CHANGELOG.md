@@ -1,4 +1,23 @@
 
+6.1.0 / 2018-12-21
+================
+
+  * MAGE-130 Add test for order creation as guest without special options
+  * MAGE-131 Add test for order creation as logged in customer without special option
+  * MAGE-132 Add test for order creation as guest with coupon test
+  * MAGE-133 Add test for order creation as logged in customer with coupon
+  * MAGE-134 Add test on invoice creation on klarna order
+  * MAGE-135 Add full credit memo test
+  * MAGE-136 Add partial credit memo test
+  * MAGE-137 Add test for cancel order
+  * MAGE-140 Add test suites
+  * MAGE-213 Add Pay Over Time test for cancel order
+
+6.0.1 / 2018-12-06
+==================
+
+  * PPI-583 Cleanup install/upgrade scripts
+
 6.0.0 / 2018-11-12
 ==================
 

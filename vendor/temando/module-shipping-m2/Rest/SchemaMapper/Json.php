@@ -5,6 +5,7 @@
 namespace Temando\Shipping\Rest\SchemaMapper;
 
 use Temando\Shipping\Rest\Response\DataObject\AbstractResource;
+use Temando\Shipping\Rest\SchemaMapper\JsonApi\RelationshipHandler;
 use Temando\Shipping\Rest\SchemaMapper\JsonApi\ResourceContainerInterface;
 use Temando\Shipping\Rest\SchemaMapper\JsonApi\TypeMapInterface;
 use Temando\Shipping\Rest\SchemaMapper\Reflection\PropertyHandlerInterface;
@@ -26,11 +27,6 @@ use Temando\Shipping\Rest\SchemaMapper\Reflection\TypeHandlerInterface;
 class Json extends AbstractParser implements ParserInterface
 {
     /**
-     * @var PropertyHandlerInterface
-     */
-    private $propertyHandler;
-
-    /**
      * @var ResourceContainerInterface
      */
     private $resourceContainer;
@@ -41,21 +37,28 @@ class Json extends AbstractParser implements ParserInterface
     private $typeMap;
 
     /**
+     * @var RelationshipHandler
+     */
+    private $relationshipHandler;
+
+    /**
      * JsonApi constructor.
      * @param PropertyHandlerInterface $propertyHandler
      * @param TypeHandlerInterface $typeHandler
      * @param ResourceContainerInterface $resourceContainer
      * @param TypeMapInterface $typeMap
+     * @param RelationshipHandler $relationshipHandler
      */
     public function __construct(
         PropertyHandlerInterface $propertyHandler,
         TypeHandlerInterface $typeHandler,
         ResourceContainerInterface $resourceContainer,
-        TypeMapInterface $typeMap
+        TypeMapInterface $typeMap,
+        RelationshipHandler $relationshipHandler
     ) {
-        $this->propertyHandler = $propertyHandler;
         $this->resourceContainer = $resourceContainer;
         $this->typeMap = $typeMap;
+        $this->relationshipHandler = $relationshipHandler;
 
         parent::__construct($propertyHandler, $typeHandler);
     }
@@ -105,34 +108,7 @@ class Json extends AbstractParser implements ParserInterface
 
         // iterate over all resources within the response
         foreach ($this->resourceContainer->getResources() as $resource) {
-            // iterate over each resource's relationships
-            foreach ($resource->getRelationships() as $relationship) {
-                // replace each relationship by its actual resource representation
-                $related = [];
-
-                // collect related resources by resource type
-                foreach ($relationship->getData() as $relationshipIdentifier) {
-                    $resourceType = $relationshipIdentifier->getType();
-                    $relatedResource = $this->resourceContainer->getResource(
-                        $relationshipIdentifier->getType(),
-                        $relationshipIdentifier->getId()
-                    );
-                    if (!$relatedResource) {
-                        continue;
-                    }
-
-                    if (!isset($related[$resourceType])) {
-                        $related[$resourceType] = [];
-                    }
-                    $related[$resourceType][]= $relatedResource;
-                }
-
-                // set related resources by resource type
-                foreach ($related as $resourceType => $relatedResources) {
-                    $setter = $this->propertyHandler->setter($resourceType);
-                    call_user_func([$resource, "{$setter}s"], $relatedResources);
-                }
-            }
+            $this->relationshipHandler->addRelationships($resource, $this->resourceContainer);
         }
 
         return $result;

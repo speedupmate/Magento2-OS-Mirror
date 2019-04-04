@@ -4,6 +4,7 @@
  */
 namespace Temando\Shipping\Plugin\Sales\Order;
 
+use Magento\Framework\Exception\FileSystemException;
 use Magento\Framework\Filesystem\Driver\Https as HttpsDownloader;
 use Magento\Sales\Api\Data\OrderInterface;
 use Magento\Sales\Api\Data\ShipmentCommentCreationInterface;
@@ -136,8 +137,8 @@ class ShipmentDocumentFactoryPlugin
         if ($count) {
             try {
                 $labelContent = $this->downloader->fileGetContents($labelUri);
-            } catch (\Exception $e) {
-                $this->logger->critical('Shipping label download failed', ['exception' => $e]);
+            } catch (FileSystemException $exception) {
+                $this->logger->critical('Shipping label download failed', ['exception' => $exception]);
                 $labelContent = '';
             }
 

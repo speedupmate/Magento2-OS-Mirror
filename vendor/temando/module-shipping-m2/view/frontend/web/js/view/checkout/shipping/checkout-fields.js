@@ -9,7 +9,7 @@ define([
     'temandoCheckoutFieldsDefinition',
     'Magento_Checkout/js/model/quote',
     'temandoDeliveryOptions',
-    'Temando_Shipping/js/action/save-service-selection',
+    'Temando_Shipping/js/action/save-service-selection'
 ], function (_, Component, ko, fieldsDefinition, quote, deliveryOptions, saveServiceSelection) {
     'use strict';
 

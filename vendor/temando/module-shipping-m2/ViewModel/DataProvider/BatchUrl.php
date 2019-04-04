@@ -90,9 +90,8 @@ class BatchUrl implements EntityUrlInterface
     }
 
     /**
-     * @param array  $data
+     * @param mixed[] $data
      * @param string $batchId
-     *
      * @return string
      */
     public function getPrintAllPackingSlips(array $data, string $batchId): string

@@ -4,19 +4,20 @@
  */
 namespace Temando\Shipping\Model\Delivery;
 
-use Magento\Framework\Api\SearchCriteriaBuilder;
 use Magento\Framework\Exception\CouldNotDeleteException;
 use Magento\Framework\Exception\CouldNotSaveException;
 use Magento\Framework\Exception\LocalizedException;
 use Temando\Shipping\Api\Data\Delivery\CollectionPointSearchRequestInterface;
-use Temando\Shipping\Api\Data\Delivery\CollectionPointSearchRequestInterfaceFactory;
 use Temando\Shipping\Api\Data\Delivery\CollectionPointSearchResultInterface;
 use Temando\Shipping\Api\Data\Delivery\QuoteCollectionPointInterface;
-use Temando\Shipping\Model\ResourceModel\Repository\CollectionPointSearchRepositoryInterface;
+use Temando\Shipping\Model\Checkout\Delivery\CollectionPointManagement as CheckoutCollectionPointManagement;
 use Temando\Shipping\Model\ResourceModel\Repository\QuoteCollectionPointRepositoryInterface;
 
 /**
  * Manage Collection Point Access
+ *
+ * @deprecated since 1.5.1
+ * @see \Temando\Shipping\Model\Checkout\Delivery\CollectionPointManagement
  *
  * @package Temando\Shipping\Model
  * @author  Benjamin Heuer <benjamin.heuer@netresearch.de>
@@ -27,14 +28,9 @@ use Temando\Shipping\Model\ResourceModel\Repository\QuoteCollectionPointReposito
 class CollectionPointManagement
 {
     /**
-     * @var CollectionPointSearchRepositoryInterface
+     * @var CheckoutCollectionPointManagement
      */
-    private $searchRequestRepository;
-
-    /**
-     * @var CollectionPointSearchRequestInterfaceFactory
-     */
-    private $searchRequestFactory;
+    private $collectionPointManagement;
 
     /**
      * @var QuoteCollectionPointRepositoryInterface
@@ -42,28 +38,17 @@ class CollectionPointManagement
     private $collectionPointRepository;
 
     /**
-     * @var SearchCriteriaBuilder
-     */
-    private $searchCriteriaBuilder;
-
-    /**
      * CollectionPointManagement constructor.
      *
-     * @param CollectionPointSearchRepositoryInterface $searchRequestRepository
-     * @param CollectionPointSearchRequestInterfaceFactory $searchRequestFactory
+     * @param CheckoutCollectionPointManagement $collectionPointManagement
      * @param QuoteCollectionPointRepositoryInterface $collectionPointRepository
-     * @param SearchCriteriaBuilder $searchCriteriaBuilder
      */
     public function __construct(
-        CollectionPointSearchRepositoryInterface $searchRequestRepository,
-        CollectionPointSearchRequestInterfaceFactory $searchRequestFactory,
-        QuoteCollectionPointRepositoryInterface $collectionPointRepository,
-        SearchCriteriaBuilder $searchCriteriaBuilder
+        CheckoutCollectionPointManagement $collectionPointManagement,
+        QuoteCollectionPointRepositoryInterface $collectionPointRepository
     ) {
-        $this->searchRequestRepository = $searchRequestRepository;
-        $this->searchRequestFactory = $searchRequestFactory;
+        $this->collectionPointManagement = $collectionPointManagement;
         $this->collectionPointRepository = $collectionPointRepository;
-        $this->searchCriteriaBuilder = $searchCriteriaBuilder;
     }
 
     /**
@@ -78,26 +63,7 @@ class CollectionPointManagement
      */
     public function saveSearchRequest($addressId, $countryId, $postcode, $pending = false)
     {
-        $data = [
-            CollectionPointSearchRequestInterface::SHIPPING_ADDRESS_ID => $addressId,
-            CollectionPointSearchRequestInterface::PENDING => $pending,
-        ];
-
-        if ($countryId && $postcode) {
-            $data[CollectionPointSearchRequestInterface::COUNTRY_ID] = $countryId;
-            $data[CollectionPointSearchRequestInterface::POSTCODE] = $postcode;
-        }
-
-        $searchRequest = $this->searchRequestFactory->create(['data' => $data]);
-
-        try {
-            $this->searchRequestRepository->save($searchRequest);
-            $this->deleteCollectionPoints($addressId);
-        } catch (LocalizedException $exception) {
-            throw new CouldNotSaveException(__('Unable to save search parameters.'), $exception);
-        }
-
-        return $searchRequest;
+        return $this->collectionPointManagement->saveSearchRequest($addressId, $countryId, $postcode, $pending);
     }
 
     /**
@@ -109,33 +75,21 @@ class CollectionPointManagement
      */
     public function deleteSearchRequest($addressId)
     {
-        try {
-            $this->searchRequestRepository->delete($addressId);
-            $this->deleteCollectionPoints($addressId);
-        } catch (LocalizedException $exception) {
-            throw new CouldNotDeleteException(__('Unable to delete search parameters.'), $exception);
-        }
-
-        return true;
+        return $this->collectionPointManagement->deleteSearchRequest($addressId);
     }
 
     /**
      * Load all collection point search results for a given shipping address id.
      *
+     * Sort by pseudo field `sort_distance` that gets added to handle null values.
+     *
+     * @see QuoteCollectionPointRepository::getList
      * @param int $addressId
      * @return QuoteCollectionPointInterface[]
      */
     public function getCollectionPoints($addressId)
     {
-        $this->searchCriteriaBuilder->addFilter(
-            QuoteCollectionPointInterface::RECIPIENT_ADDRESS_ID,
-            $addressId
-        );
-        $criteria = $this->searchCriteriaBuilder->create();
-
-        $searchResult = $this->collectionPointRepository->getList($criteria);
-
-        return $searchResult->getItems();
+        return $this->collectionPointManagement->getCollectionPoints($addressId);
     }
 
     /**
@@ -147,23 +101,7 @@ class CollectionPointManagement
      */
     public function deleteCollectionPoints($addressId)
     {
-        $this->searchCriteriaBuilder->addFilter(
-            QuoteCollectionPointInterface::RECIPIENT_ADDRESS_ID,
-            $addressId
-        );
-        $criteria = $this->searchCriteriaBuilder->create();
-
-        try {
-            $searchResult = $this->collectionPointRepository->getList($criteria);
-            $collectionPoints = $searchResult->getItems();
-            array_walk($collectionPoints, function (QuoteCollectionPointInterface $collectionPoint) {
-                $this->collectionPointRepository->delete($collectionPoint);
-            });
-        } catch (LocalizedException $exception) {
-            throw new CouldNotDeleteException(__('Unable to delete collection points.'), $exception);
-        }
-
-        return $searchResult;
+        return $this->collectionPointManagement->deleteCollectionPoints($addressId);
     }
 
     /**
@@ -181,11 +119,11 @@ class CollectionPointManagement
         try {
             array_walk($collectionPoints, function (QuoteCollectionPointInterface $collectionPoint) use ($entityId) {
                 $isSelected = ($entityId == $collectionPoint->getEntityId());
-                /** @var $collectionPoint QuoteCollectionPoint */
+                /** @var QuoteCollectionPoint $collectionPoint */
                 $collectionPoint->setData(QuoteCollectionPointInterface::SELECTED, $isSelected);
                 $this->collectionPointRepository->save($collectionPoint);
             });
-        } catch (\Exception $exception) {
+        } catch (LocalizedException $exception) {
             throw new CouldNotSaveException(__('Unable to select collection point.'), $exception);
         }
 

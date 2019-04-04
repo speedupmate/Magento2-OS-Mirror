@@ -25,6 +25,10 @@
                 <jp>https://payments.amazon.co.jp/overview</jp>
             </country>
         </region>
+        <multicurrency>
+            <regions>uk,de</regions>
+            <currencies>AUD,GBP,DKK,EUR,HKD,JPY,NZD,NOK,ZAR,SEK,CHF,USD</currencies>
+        </multicurrency>
         <client>
             <paths>
                 <secretkey>secret_key</secretkey>
@@ -50,5 +54,10 @@
                 <jp>https://static-fe.payments-amazon.com/OffAmazonPayments/jp/sandbox/lpa/js/Widgets.js?nomin</jp>
             </sandbox>
         </widget>
+        <customer>
+            <address>
+                <street_lines>3</street_lines>
+            </address>
+        </customer>
     </default>
 </config>

@@ -5,27 +5,38 @@
 namespace Temando\Shipping\Block\Adminhtml\Activation;
 
 use Magento\Backend\Block\Template;
+use Magento\Framework\Exception\LocalizedException;
 
 /**
- * Temando Dispatch Layout Block
+ * Activation Notice Layout Block
  *
- * @package  Temando\Shipping\Block
- * @author   Sebastian Ertner <sebastian.ertner@netresearch.de>
- * @license  http://opensource.org/licenses/osl-3.0.php Open Software License (OSL 3.0)
- * @link     http://www.temando.com/
+ * @package Temando\Shipping\Block
+ * @author  Sebastian Ertner <sebastian.ertner@netresearch.de>
+ * @license https://opensource.org/licenses/osl-3.0.php Open Software License (OSL 3.0)
+ * @link    https://www.temando.com/
  *
  * @api
  */
 class Notice extends Template
 {
     /**
-     * Internal constructor, that is called from real constructor
+     * Update the page title depending on where user is coming from,
+     *
      * @return void
      */
     protected function _construct()
     {
+        try {
+            $layout = $this->getLayout();
+        } catch (LocalizedException $exception) {
+            $this->_logger->error($exception->getLogMessage(), ['exception' => $exception]);
+
+            parent::_construct();
+            return;
+        }
+
         /** @var $menuBlock \Magento\Backend\Block\Menu */
-        $menuBlock = $this->getLayout()->getBlock('menu');
+        $menuBlock = $layout->getBlock('menu');
         if ($menuBlock) {
             $itemId = 'Temando_Shipping::shipping';
 
@@ -84,6 +95,8 @@ class Notice extends Template
     }
 
     /**
+     * Get the current context, i.e. where the user was forwarded from.
+     *
      * @return string
      */
     public function getSubject()
@@ -92,6 +105,8 @@ class Notice extends Template
     }
 
     /**
+     * Obtain module configuration section URL.
+     *
      * @return string
      */
     public function getConfigUrl()

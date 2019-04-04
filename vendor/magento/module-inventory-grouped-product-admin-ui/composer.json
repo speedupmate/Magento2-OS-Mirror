@@ -7,9 +7,9 @@
         "magento/module-catalog": "*",
         "magento/module-grouped-product": "*",
         "magento/module-ui": "*",
-        "magento/module-inventory-api": "1.0.*",
-        "magento/module-inventory-catalog-api": "1.0.*",
-        "magento/module-inventory-catalog-admin-ui": "1.0.*"
+        "magento/module-inventory-api": "*",
+        "magento/module-inventory-catalog-api": "*",
+        "magento/module-inventory-catalog-admin-ui": "*"
     },
     "suggest": {
         "magento/module-inventory-configuration-api": "1.0.*"
@@ -27,5 +27,5 @@
             "Magento\\InventoryGroupedProductAdminUi\\": ""
         }
     },
-    "version": "1.0.3"
+    "version": "1.0.4"
 }

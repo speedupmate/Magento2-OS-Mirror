@@ -5,7 +5,6 @@
 namespace Temando\Shipping\Rest\Request\Type;
 
 use Temando\Shipping\Rest\Request\Type\Generic\MonetaryValue;
-use Temando\Shipping\Rest\Request\Type\Order\CollectionPointSearch;
 use Temando\Shipping\Rest\Request\Type\Order\Customer;
 use Temando\Shipping\Rest\Request\Type\Order\Experience;
 use Temando\Shipping\Rest\Request\Type\Order\OrderItem;
@@ -98,11 +97,6 @@ class OrderRequestType implements OrderRequestTypeInterface, \JsonSerializable
     private $selectedExperience;
 
     /**
-     * @var CollectionPointSearch
-     */
-    private $collectionPointSearch;
-
-    /**
      * @var ShipmentDetails
      */
     private $shipmentDetails;
@@ -121,7 +115,6 @@ class OrderRequestType implements OrderRequestTypeInterface, \JsonSerializable
      * @param OrderItem[] $items
      * @param string[] $aliases
      * @param Experience $selectedExperience
-     * @param CollectionPointSearch $collectionPointSearch
      * @param ShipmentDetails $shipmentDetails
      */
     public function __construct(
@@ -137,7 +130,6 @@ class OrderRequestType implements OrderRequestTypeInterface, \JsonSerializable
         array $items,
         array $aliases = [],
         Experience $selectedExperience = null,
-        CollectionPointSearch $collectionPointSearch = null,
         ShipmentDetails $shipmentDetails = null
     ) {
         $this->type = 'order';
@@ -153,7 +145,6 @@ class OrderRequestType implements OrderRequestTypeInterface, \JsonSerializable
         $this->items = $items;
         $this->aliases = $aliases;
         $this->selectedExperience = $selectedExperience;
-        $this->collectionPointSearch = $collectionPointSearch;
         $this->shipmentDetails = $shipmentDetails;
     }
 
@@ -176,16 +167,6 @@ class OrderRequestType implements OrderRequestTypeInterface, \JsonSerializable
     public function setId($id)
     {
         $this->id = $id;
-    }
-
-    /**
-     * Indicates if the order was placed and can be persisted at Temando platform.
-     *
-     * @return bool
-     */
-    public function canPersist()
-    {
-        return (!empty($this->aliases['magento']) && !empty($this->aliases['magentoincrement']));
     }
 
     /**
@@ -233,8 +214,7 @@ class OrderRequestType implements OrderRequestTypeInterface, \JsonSerializable
                 ],
             ],
             'meta' => [
-                'aliases' => $this->aliases,
-                'collectionPointSearch' => $this->collectionPointSearch,
+                'aliases' => $this->aliases
             ],
         ];
 

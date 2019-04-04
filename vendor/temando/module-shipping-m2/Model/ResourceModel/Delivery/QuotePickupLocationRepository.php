@@ -135,6 +135,8 @@ class QuotePickupLocationRepository implements QuotePickupLocationRepositoryInte
     }
 
     /**
+     * Save pickup location.
+     *
      * @param QuotePickupLocationInterface $pickupLocation
      * @return QuotePickupLocationInterface
      * @throws CouldNotSaveException
@@ -152,6 +154,8 @@ class QuotePickupLocationRepository implements QuotePickupLocationRepositoryInte
     }
 
     /**
+     * Delete pickup location.
+     *
      * @param QuotePickupLocationInterface $pickupLocation
      * @return bool
      * @throws CouldNotDeleteException
@@ -178,6 +182,11 @@ class QuotePickupLocationRepository implements QuotePickupLocationRepositoryInte
     {
         /** @var PickupLocationSearchResult $searchResult */
         $searchResult = $this->pickupLocationSearchResultFactory->create();
+        $searchResult->addExpressionFieldToSelect(
+            'sort_distance',
+            'COALESCE({{sd}}, POW(2, 32))',
+            ['sd' => QuotePickupLocationInterface::DISTANCE]
+        );
 
         $this->collectionProcessor->process($criteria, $searchResult);
         $searchResult->setSearchCriteria($criteria);

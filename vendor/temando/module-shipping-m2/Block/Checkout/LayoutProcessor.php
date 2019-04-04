@@ -5,6 +5,7 @@
 namespace Temando\Shipping\Block\Checkout;
 
 use Magento\Checkout\Block\Checkout\LayoutProcessorInterface;
+use Magento\Framework\Exception\NoSuchEntityException;
 use Magento\Store\Model\StoreManagerInterface;
 use Temando\Shipping\Model\Config\ModuleConfigInterface;
 
@@ -50,7 +51,12 @@ class LayoutProcessor implements LayoutProcessorInterface
      */
     public function process($jsLayout)
     {
-        $storeId = $this->storeManager->getStore()->getId();
+        try {
+            $storeId = $this->storeManager->getStore()->getId();
+        } catch (NoSuchEntityException $exception) {
+            $storeId = null;
+        }
+
         $isCheckoutEnabled = $this->config->isEnabled($storeId);
 
         if (!$isCheckoutEnabled) {

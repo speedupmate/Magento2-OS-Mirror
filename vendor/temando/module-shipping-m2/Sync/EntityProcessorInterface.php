@@ -21,9 +21,9 @@ interface EntityProcessorInterface
     /**
      * @param string $operation
      * @param string $externalEntityId
+     * @return int Processed entity ID.
      * @throws EventException
      * @throws EventProcessorException
-     * @return int Processed entity ID.
      */
-    public function execute($operation, $externalEntityId);
+    public function execute(string $operation, string $externalEntityId): int;
 }

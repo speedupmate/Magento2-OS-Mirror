@@ -4,10 +4,11 @@
  */
 namespace Temando\Shipping\Ui\Component\MassAction;
 
-use Magento\Framework\Exception\LocalizedException;
 use Temando\Shipping\Model\CarrierInterface;
 use Temando\Shipping\Model\LocationInterface;
 use Temando\Shipping\Model\PackagingInterface;
+use Temando\Shipping\Model\PickupInterface;
+use Temando\Shipping\Model\ResourceModel\Pickup\Grid\Collection;
 use Temando\Shipping\Model\ResourceModel\Repository\CarrierRepositoryInterface;
 use Temando\Shipping\Model\ResourceModel\Repository\LocationRepositoryInterface;
 use Temando\Shipping\Model\ResourceModel\Repository\PackagingRepositoryInterface;
@@ -33,7 +34,7 @@ class Filter
      *
      * @param CarrierRepositoryInterface $carrierRepository
      * @param string[] $selected
-     * @param string|string[] $excluded
+     * @param string[] $excluded
      * @return string[]
      */
     public function getCarrierIds(CarrierRepositoryInterface $carrierRepository, array $selected, array $excluded)
@@ -63,7 +64,7 @@ class Filter
      *
      * @param LocationRepositoryInterface $locationRepository
      * @param string[] $selected
-     * @param string|string[] $excluded
+     * @param string[] $excluded
      * @return string[]
      */
     public function getLocationIds(LocationRepositoryInterface $locationRepository, $selected, $excluded)
@@ -93,9 +94,8 @@ class Filter
      *
      * @param PackagingRepositoryInterface $packagingRepository
      * @param string[] $selected
-     * @param string|string[] $excluded
+     * @param string[] $excluded
      * @return string[]
-     * @throws LocalizedException
      */
     public function getPackagingIds(PackagingRepositoryInterface $packagingRepository, $selected, $excluded)
     {
@@ -108,6 +108,36 @@ class Filter
         $selected = array_map(function (PackagingInterface $container) {
             return $container->getPackagingId();
         }, $containers);
+        // remove $excluded from ids
+        $selected = array_diff($selected, $excluded);
+
+        return $selected;
+    }
+
+    /**
+     * Obtain the list of selected pickups:
+     * - inclusive:
+     * -- some items: non-empty `$selected` array
+     * - exclusive:
+     * -- all items: empty `$selected` array, empty `$excluded` array
+     * -- some items: empty `$selected` array, non-empty `$excluded` array
+     *
+     * @param Collection $collection
+     * @param string[] $selected
+     * @param string[] $excluded
+     * @return string[]
+     */
+    public function getPickupIds(Collection $collection, $selected, $excluded)
+    {
+        if (!empty($selected)) {
+            return $selected;
+        }
+
+        // read all ids from collection
+        $pickups = $collection->getItems();
+        $selected = array_map(function (PickupInterface $pickup) {
+            return $pickup->getPickupId();
+        }, $pickups);
         // remove $excluded from ids
         $selected = array_diff($selected, $excluded);
 

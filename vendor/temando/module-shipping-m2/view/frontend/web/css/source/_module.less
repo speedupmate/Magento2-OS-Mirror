@@ -24,12 +24,6 @@
   padding: 20px 10px 0 0;
 }
 
-.collection-point-list {
-  border: 1px solid @form-element-input__border-color;
-  max-height: 200px;
-  overflow: auto;
-}
-
 .collection-point-postalcode {
   max-width: 9em;
   vertical-align: top;
@@ -39,10 +33,6 @@
   color: @error__color;
   font-size: 1.2rem;
   margin-top: 7px;
-}
-
-table.collection-point-opening-hours > tbody > tr > td {
-  padding-bottom: 2px;
 }
 
 .box-order-shipping-address {
@@ -70,163 +60,73 @@ table.collection-point-opening-hours > tbody > tr > td {
 
 .delivery-locations-form {
   .delivery-locations-list {
-    .lib-css(margin-top, @checkout-shipping-address__margin-top);
-    .lib-css(margin-bottom, @checkout-shipping-address__margin-top);
     border: 1px solid @form-element-input__border-color;
+    max-height: 500px;
+    overflow: auto;
+
+    table.location {
+      margin-top: 28px;
+
+      .first-column {
+        padding: 0 14px;
+        width: 14px;
+      }
+
+      .second-column {
+        padding: 0;
+      }
+    }
   }
 }
 
-#pickup-locations-form {
+.opening-hour-wrapper {
+  font-size: @font-size__s;
 
-  .pickup-locations-list {
+  table {
+    thead {
+      cursor: pointer;
+      font-weight: @font-weight__bold;
+      tr td {
+        padding: 10px 0 0;
 
-    .pickup-location-wrapper {
-      max-height: 500px;
-      overflow-y: auto;
-
-      &::-webkit-scrollbar {
-        width: 6px;
-      }
-      &::-webkit-scrollbar-thumb {
-        border-radius: 3px;
-        background-color: rgba(60,60,60,.5);
-        -webkit-box-shadow: 0 0 1px rgba(255,255,255,.5);
+        .lib-icon-font(
+          @icon-down,
+          @_icon-font-size: 1.2rem,
+          @_icon-font-line-height: 20px,
+          @_icon-font-color: @minicart-icons-color,
+          @_icon-font-color-hover: @primary__color,
+          @_icon-font-color-active: @minicart-icons-color,
+          @_icon-font-margin: 0 0 0 @indent__s,
+          @_icon-font-position: after
+        );
       }
     }
 
-    .pickup-location {
-      padding: 25px 25px 25px 20px;
-      margin-left: 5px;
-      border-bottom: 3px solid @color-gray78;
+    tbody {
+      display: none;
 
-      &:last-child {
-        border-bottom: 0;
+      &.special-hours-heading {
+        padding-top: 10px;
+        font-weight: @font-weight__bold;
       }
 
-      input[type="radio"] {
-        width: 14px;
-        height: 14px;
-        line-height: 16px;
-        margin: 2px 0 0;
-        vertical-align: text-top;
-      }
+      tr td {
+        padding: 0 10px 0 0;
 
-      label {
-        margin-left: 15px;
-
-        span {
-          font-weight: @font-weight__bold;
-          font-size: 16px;
-          line-height: 16px;
-        }
-      }
-
-      ul {
-        list-style: none;
-        padding: 0;
-      }
-
-      .opening-hours {
-        margin-top: 25px;
-
-        dl {
-          margin: 0 0 0 33px;
-
-          .open-hours, .special-hours {
-            display: table;
-            width: 100%;
-
-            .description {
-              display: table-cell;
-              width: 45%;
-              font-size: @font-size__s;
-
-              @media @desktopSmall {
-                font-size: 14px;
-              }
-              @media @mobileSmall {
-                font-size: 14px;
-              }
-            }
-
-            .time-span {
-              display: table-cell;
-              width: 55%;
-              text-align: right;
-              padding-right: 45px;
-              font-weight: 700;
-              font-size: @font-size__s;
-
-              @media @desktopSmall {
-                text-align: left;
-                font-size: 14px;
-              }
-              @media @mobileSmall {
-                text-align: left;
-                font-size: 14px;
-              }
-            }
-          }
-
-          .special-hours {
-            .time-span {
-              text-align: left;
-              padding: 0;
-            }
-          }
-
-          @media @desktopSmall {
-            margin: 0;
-          }
-          @media @mobileSmall {
-            margin: 0;
-          }
-        }
-
-        .pickup-location-special-hours {
-          margin-left: 0;
+        &.time-span {
+          font-weight: @font-weight__semibold;
         }
       }
     }
-  }
 
-  .columns-2 {
-    display: table;
-    width: 100%;
-
-    .column-left {
-      display: table-cell;
-      width: 45%;
-
-      @media @desktopSmall {
-        display: block;
-        width: 100%;
+    &._active {
+      thead tr td:after {
+        content: @icon-up;
       }
-      @media @mobileSmall {
-        display: block;
-        width: 100%;
-      }
-    }
 
-    .column-right {
-      display: table-cell;
-      width: 55%;
-
-      @media @desktopSmall {
+      tbody {
         display: block;
-        width: 100%;
       }
-      @media @mobileSmall {
-        display: block;
-        width: 100%;
-      }
-    }
-
-    @media @desktopSmall {
-      display: block;
-    }
-    @media @mobileSmall {
-      display: block;
     }
   }
 }

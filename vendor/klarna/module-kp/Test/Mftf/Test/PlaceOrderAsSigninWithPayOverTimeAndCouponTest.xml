@@ -1,0 +1,56 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!--
+/**
+ * This file is part of the Klarna KP module
+ *
+ * (c) Klarna Bank AB (publ)
+ *
+ * For the full copyright and license information, please view the NOTICE
+ * and LICENSE files that were distributed with this source code.
+ */
+-->
+
+<tests xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+       xsi:noNamespaceSchemaLocation="urn:magento:mftf:Test/etc/testSchema.xsd">
+    <test name="PlaceOrderAsSigninWithPayOverTimeAndCouponTest">
+        <annotations>
+            <features value="Place order with Klarna Payment as logged in customer with coupon"/>
+            <stories value="Place order with Klarna Payment as logged in customer with coupon"/>
+            <title value="Pay overtime as logged in with coupon"/>
+            <description value="You should be able to place an order with coupon as logged in customer using Pay Over Time."/>
+            <severity value="AVERAGE"/>
+            <group value="klarna"/>
+            <group value="klarna_pay_over_time"/>
+            <group value="payments"/>
+        </annotations>
+        <before>
+            <createData entity="_defaultCategory" stepKey="createCategory"/>
+            <createData entity="_defaultProduct" stepKey="createProduct">
+                <requiredEntity createDataKey="createCategory"/>
+            </createData>
+            <createData entity="KpTestSalesRuleData" stepKey="kpCreateSalesRule"/>
+            <createData entity="KpTestSalesCouponData" stepKey="kpCreateSalesCoupon">
+                <requiredEntity createDataKey="kpCreateSalesRule"/>
+            </createData>
+            <createData entity="KpCustomerEntityOne" stepKey="createCustomer"/>
+        </before>
+        <after>
+            <deleteData createDataKey="createCategory" stepKey="deleteCategory"/>
+            <deleteData createDataKey="createProduct" stepKey="deleteProduct"/>
+            <deleteData createDataKey="kpCreateSalesRule" stepKey="kpDeleteSalesRule"/>
+            <deleteData createDataKey="createCustomer" stepKey="deleteCustomer"/>
+        </after>
+
+        <actionGroup ref="KpCustomerLogIn" stepKey="kpCustomerLogin"/>
+        <actionGroup ref="KpAddToCart" stepKey="kpAddToCart">
+            <argument name="purchaseQty" value="1"/>
+        </actionGroup>
+        <actionGroup ref="KpAddCoupon" stepKey="kpAddCoupon"/>
+        <actionGroup ref="MakePaymentWithPayOverTime" stepKey="kpPlaceOrderWithPayOverTime"/>
+
+        <!-- Add any additional steps here, eg enter DOB, SSN, etc... -->
+        <grabTextFrom selector="{{KpCheckoutSuccessMainSection.orderNumber}}" stepKey="kpGrabOrderNumber"/>
+        <see selector="{{KpCheckoutSuccessMainSection.success}}" userInput="Your order # is:" stepKey="kpSeeOrderNumber"/>
+        <see selector="{{KpCheckoutSuccessMainSection.success}}" userInput="We'll email you an order confirmation with details and tracking info." stepKey="kpSeeEmailYou"/>
+    </test>
+</tests>

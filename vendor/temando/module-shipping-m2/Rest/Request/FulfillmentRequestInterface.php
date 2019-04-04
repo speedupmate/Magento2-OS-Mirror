@@ -7,6 +7,8 @@ namespace Temando\Shipping\Rest\Request;
 /**
  * Temando API Fulfillment Operation Parameters
  *
+ * @deprecated since 1.5.0 | use implementation
+ *
  * @package  Temando\Shipping\Rest
  * @author   Christoph Aßmann <christoph.assmann@netresearch.de>
  * @license  http://opensource.org/licenses/osl-3.0.php Open Software License (OSL 3.0)

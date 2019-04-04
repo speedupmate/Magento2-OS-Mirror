@@ -11,7 +11,6 @@
 
 namespace Symfony\Component\DependencyInjection;
 
-use Symfony\Component\Config\Util\XmlUtils;
 use Symfony\Component\DependencyInjection\Exception\EnvNotFoundException;
 use Symfony\Component\DependencyInjection\Exception\RuntimeException;
 
@@ -32,7 +31,7 @@ class EnvVarProcessor implements EnvVarProcessorInterface
      */
     public static function getProvidedTypes()
     {
-        return array(
+        return [
             'base64' => 'string',
             'bool' => 'bool',
             'const' => 'bool|int|float|string|array',
@@ -41,9 +40,10 @@ class EnvVarProcessor implements EnvVarProcessorInterface
             'float' => 'float',
             'int' => 'int',
             'json' => 'array',
+            'key' => 'bool|int|float|string|array',
             'resolve' => 'string',
             'string' => 'string',
-        );
+        ];
     }
 
     /**
@@ -52,6 +52,25 @@ class EnvVarProcessor implements EnvVarProcessorInterface
     public function getEnv($prefix, $name, \Closure $getEnv)
     {
         $i = strpos($name, ':');
+
+        if ('key' === $prefix) {
+            if (false === $i) {
+                throw new RuntimeException(sprintf('Invalid configuration: env var "key:%s" does not contain a key specifier.', $name));
+            }
+
+            $next = substr($name, $i + 1);
+            $key = substr($name, 0, $i);
+            $array = $getEnv($next);
+
+            if (!\is_array($array)) {
+                throw new RuntimeException(sprintf('Resolved value of "%s" did not result in an array value.', $next));
+            }
+            if (!\array_key_exists($key, $array)) {
+                throw new RuntimeException(sprintf('Key "%s" not found in "%s" (resolved from "%s")', $key, json_encode($array), $next));
+            }
+
+            return $array[$key];
+        }
 
         if ('file' === $prefix) {
             if (!is_scalar($file = $getEnv($name))) {
@@ -91,11 +110,11 @@ class EnvVarProcessor implements EnvVarProcessorInterface
         }
 
         if ('bool' === $prefix) {
-            return (bool) self::phpize($env);
+            return (bool) (filter_var($env, FILTER_VALIDATE_BOOLEAN) ?: filter_var($env, FILTER_VALIDATE_INT) ?: filter_var($env, FILTER_VALIDATE_FLOAT));
         }
 
         if ('int' === $prefix) {
-            if (!is_numeric($env = self::phpize($env))) {
+            if (false === $env = filter_var($env, FILTER_VALIDATE_INT) ?: filter_var($env, FILTER_VALIDATE_FLOAT)) {
                 throw new RuntimeException(sprintf('Non-numeric env var "%s" cannot be cast to int.', $name));
             }
 
@@ -103,7 +122,7 @@ class EnvVarProcessor implements EnvVarProcessorInterface
         }
 
         if ('float' === $prefix) {
-            if (!is_numeric($env = self::phpize($env))) {
+            if (false === $env = filter_var($env, FILTER_VALIDATE_FLOAT)) {
                 throw new RuntimeException(sprintf('Non-numeric env var "%s" cannot be cast to float.', $name));
             }
 
@@ -155,14 +174,5 @@ class EnvVarProcessor implements EnvVarProcessorInterface
         }
 
         throw new RuntimeException(sprintf('Unsupported env var prefix "%s".', $prefix));
-    }
-
-    private static function phpize($value)
-    {
-        if (!class_exists(XmlUtils::class)) {
-            throw new RuntimeException('The Symfony Config component is required to cast env vars to "bool", "int" or "float".');
-        }
-
-        return XmlUtils::phpize($value);
     }
 }

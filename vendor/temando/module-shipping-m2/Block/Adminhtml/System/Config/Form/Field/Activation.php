@@ -53,8 +53,12 @@ class Activation extends Field
      * @param AbstractElement $element
      * @return string
      */
-    public function render(AbstractElement $element)
+    public function render(AbstractElement $element): string
     {
+        if (!$this->getAuthorization()->isAllowed('Temando_Shipping::portal')) {
+            return '';
+        }
+
         $html = sprintf(
             '<td colspan="%d" id="%s">%s</td>',
             3 + (int)$this->_isInheritCheckboxRequired($element),
@@ -71,7 +75,7 @@ class Activation extends Field
      * @param AbstractElement $element
      * @return string
      */
-    protected function _renderValue(AbstractElement $element)
+    protected function _renderValue(AbstractElement $element): string
     {
         return $this->_toHtml();
     }
@@ -79,7 +83,7 @@ class Activation extends Field
     /**
      * @return bool
      */
-    public function isMerchantRegistered()
+    public function isMerchantRegistered(): bool
     {
         return $this->moduleConfig->isRegistered();
     }
@@ -87,16 +91,18 @@ class Activation extends Field
     /**
      * @return string
      */
-    public function getRegisterAccountUrl()
+    public function getRegisterAccountUrl(): string
     {
         return $this->moduleConfig->getRegisterAccountUrl();
     }
 
     /**
+     * Obtain the URL to redirect the user into the Shipping Portal account.
+     *
      * @return string
      */
-    public function getShippingPortalUrl()
+    public function getAccountRedirectUrl(): string
     {
-        return $this->moduleConfig->getShippingPortalUrl();
+        return $this->_urlBuilder->getUrl('temando/configuration_portal/account');
     }
 }

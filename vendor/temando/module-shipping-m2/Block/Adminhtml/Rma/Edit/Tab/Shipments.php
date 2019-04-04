@@ -30,9 +30,9 @@ class Shipments extends Widget implements TabInterface
     private $registry;
 
     /**
-     * @param Context               $context
-     * @param Registry              $registry
-     * @param array                 $data
+     * @param Context $context
+     * @param Registry $registry
+     * @param mixed[] $data
      */
     public function __construct(
         Context $context,

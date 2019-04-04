@@ -1,27 +1,13 @@
 define(
     [
-        'jquery',
         'Magento_Checkout/js/view/payment/default',
-        'ko',
         'Amazon_Payment/js/model/storage',
-        'mage/storage',
-        'amazonPaymentConfig',
-        'uiRegistry',
-        'Amazon_Login/js/view/login-button'
     ],
     function (
-        $,
         Component,
-        ko,
-        amazonStorage,
-        storage,
-        amazonPaymentConfig,
-        registry,
-        loginButton
+        amazonStorage
     ) {
         'use strict';
-
-        var self;
 
         return Component.extend(
             {

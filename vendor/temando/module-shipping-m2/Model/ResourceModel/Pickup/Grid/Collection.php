@@ -81,6 +81,7 @@ class Collection extends ApiCollection
 
         parent::__construct($entityFactory, $messageManager, $filterBuilder, $searchCriteriaBuilder);
     }
+
     /**
      * @param SearchCriteriaInterface $criteria
      * @return PickupInterface[]

@@ -8,7 +8,7 @@ define(['jquery', 'domReady!'], function ($) {
      */
     function validateEmail(sEmail) {
         var filter
-            = /^([\w-\.]+)@((\[[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\.)|(([\w-]+\.)+))([a-zA-Z]{2,4}|[0-9]{1,3})(\]?)$/;
+            = /^([+\w-\.]+)@((\[[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\.)|(([\w-]+\.)+))([a-zA-Z]{2,4}|[0-9]{1,3})(\]?)$/;
 
         return filter.test(sEmail);
     }
@@ -20,7 +20,6 @@ define(['jquery', 'domReady!'], function ($) {
      */
     function emailCaptureCheckout(url) {
         var previousEmail = '';
-        
         $('body').on('blur', 'input[id=customer-email]', function () {
             var email = $(this).val();
 

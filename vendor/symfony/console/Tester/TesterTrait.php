@@ -24,7 +24,7 @@ trait TesterTrait
 {
     /** @var StreamOutput */
     private $output;
-    private $inputs = array();
+    private $inputs = [];
 
     /**
      * Gets the display returned by the last execution of the command or application.
@@ -95,7 +95,10 @@ trait TesterTrait
     {
         $stream = fopen('php://memory', 'r+', false);
 
-        fwrite($stream, implode(PHP_EOL, $inputs));
+        foreach ($inputs as $input) {
+            fwrite($stream, $input.PHP_EOL);
+        }
+
         rewind($stream);
 
         return $stream;

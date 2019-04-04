@@ -17,6 +17,7 @@
 namespace Amazon\Core\Model\Config;
 
 use Amazon\Core\Helper\Data as CoreHelper;
+use Amazon\Core\Model\AmazonConfig;
 use Magento\Framework\App\State;
 use Magento\Framework\App\Cache\Type\Config as CacheTypeConfig;
 use Magento\Backend\Model\UrlInterface;
@@ -31,6 +32,7 @@ class SimplePath
 {
 
     const CONFIG_XML_PATH_PRIVATE_KEY = 'payment/amazon_payments/simplepath/privatekey';
+
     const CONFIG_XML_PATH_PUBLIC_KEY  = 'payment/amazon_payments/simplepath/publickey';
 
     private $_spIds = [
@@ -47,16 +49,40 @@ class SimplePath
         'JPY' => 'ja',
     ];
 
+    /**
+     * @var
+     */
     private $_storeId;
+
+    /**
+     * @var
+     */
     private $_websiteId;
+
+    /**
+     * @var string
+     */
     private $_scope;
+
+    /**
+     * @var int
+     */
     private $_scopeId;
 
+    /**
+     * @var CoreHelper
+     */
     private $coreHelper;
+
+    /**
+     * @var AmazonConfig
+     */
+    private $amazonConfig;
 
     /**
      * SimplePath constructor.
      * @param CoreHelper $coreHelper
+     * @param AmazonConfig $amazonConfig
      * @param \Magento\Framework\App\Config\ConfigResource\ConfigInterface $config
      * @param \Magento\Framework\App\Config\ScopeConfigInterface $scopeConfig
      * @param \Magento\Framework\App\ProductMetadataInterface $productMeta
@@ -75,6 +101,7 @@ class SimplePath
      */
     public function __construct(
         CoreHelper $coreHelper,
+        AmazonConfig $amazonConfig,
         \Magento\Framework\App\Config\ConfigResource\ConfigInterface $config,
         \Magento\Framework\App\Config\ScopeConfigInterface $scopeConfig,
         \Magento\Framework\App\ProductMetadataInterface $productMeta,
@@ -90,6 +117,7 @@ class SimplePath
         \Psr\Log\LoggerInterface $logger
     ) {
         $this->coreHelper    = $coreHelper;
+        $this->amazonConfig  = $amazonConfig;
         $this->config        = $config;
         $this->scopeConfig   = $scopeConfig;
         $this->productMeta   = $productMeta;
@@ -199,7 +227,9 @@ class SimplePath
     /**
      * Return RSA public key
      *
-     * @param bool $pemformat Return key in PEM format
+     * @param bool $pemformat
+     * @param bool $reset
+     * @return mixed|string|string[]|null
      */
     public function getPublicKey($pemformat = false, $reset = false)
     {
@@ -274,7 +304,8 @@ class SimplePath
             // Retrieve Amazon public key to verify signature
             try {
                 $client = new \Zend_Http_Client(
-                    $this->getEndpointPubkey(), [
+                    $this->getEndpointPubkey(),
+                    [
                         'maxredirects' => 2,
                         'timeout'      => 30,
                     ]
@@ -308,23 +339,12 @@ class SimplePath
                     OPENSSL_PKCS1_OAEP_PADDING
                 );
 
-                // Decrypt final payload (AES 128-bit CBC)
-                if (function_exists('mcrypt_decrypt')) {
-                    $finalPayload = @mcrypt_decrypt(
-                        MCRYPT_RIJNDAEL_128,
-                        $decryptedKey,
-                        base64_decode($payload->encryptedPayload),
-                        MCRYPT_MODE_CBC,
-                        base64_decode($payload->iv)
-                    );
-                } else {
-                    // This library uses openssl_decrypt, which may have issues
-                    $aes = new AES();
-                    $aes->setKey($decryptedKey);
-                    $aes->setIV(base64_decode($payload->iv, true));
-                    $aes->setKeyLength(128);
-                    $finalPayload = $aes->decrypt($payload->encryptedPayload);
-                }
+                // Decrypt final payload (AES 256-bit CBC)
+                $aes = new AES();
+                $aes->setKey($decryptedKey);
+                $aes->setIV(base64_decode($payload->iv, true));
+                $aes->setKeyLength(256);
+                $finalPayload = $aes->decrypt(base64_decode($payload->encryptedPayload));
 
                 // Remove binary characters
                 $finalPayload = preg_replace('/[\x00-\x1F\x80-\xFF]/', '', $finalPayload);
@@ -346,7 +366,8 @@ class SimplePath
             $this->messageManager->addError(
                 __(
                     "If you're experiencing consistent errors with transferring keys, " .
-                    "click <a href=\"%1\" target=\"_blank\">Manual Transfer Instructions</a> to learn more.", $link
+                    "click <a href=\"%1\" target=\"_blank\">Manual Transfer Instructions</a> to learn more.",
+                    $link
                 )
             );
         }
@@ -357,7 +378,9 @@ class SimplePath
     /**
      * Save values to Mage config
      *
-     * @param string $json
+     * @param $json
+     * @param bool $autoEnable
+     * @return bool
      */
     public function saveToConfig($json, $autoEnable = true)
     {
@@ -545,6 +568,7 @@ class SimplePath
             'isSecure'      => (int) ($this->request->isSecure()),
             'hasOpenssl'    => (int) (extension_loaded('openssl')),
             'formParams'    => $this->getFormParams(),
+            'isMultiCurrencyRegion' => (int) $this->amazonConfig->isMulticurrencyRegion(),
         ];
     }
 }

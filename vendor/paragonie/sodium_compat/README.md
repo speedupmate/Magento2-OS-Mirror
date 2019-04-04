@@ -28,6 +28,10 @@ and have the funds for such an audit, please open an issue or contact
 However, sodium_compat has been adopted by high profile open source projects,
 such as [Joomla!](https://github.com/joomla/joomla-cms/blob/459d74686d2a638ec51149d7c44ddab8075852be/composer.json#L40)
 and [Magento](https://github.com/magento/magento2/blob/8fd89cfdf52c561ac0ca7bc20fd38ef688e201b0/composer.json#L44).
+Furthermore, sodium_compat was developed by Paragon Initiative Enterprises, a
+company that *specializes* in secure PHP development and PHP cryptography, and
+has been informally reviewed by many other security experts who also specialize
+in PHP.
 
 If you'd like to learn more about the defensive security measures we've taken
 to prevent sodium_compat from being a source of vulnerability in your systems,
@@ -91,6 +95,11 @@ from multiple vendors. If you need help using sodium_compat in one of your proje
 Non-commercial report will be facilitated through [Github issues](https://github.com/paragonie/sodium_compat/issues).
 We offer no guarantees of our availability to resolve questions about integrating sodium_compat into third-party
 software for free, but will strive to fix any bugs (security-related or otherwise) in our library.
+
+## Support Contracts
+
+If your company uses this library in their products or services, you may be
+interested in [purchasing a support contract from Paragon Initiative Enterprises](https://paragonie.com/enterprise).
 
 # Using Sodium Compat
 
@@ -192,6 +201,22 @@ There are three ways to make it fast:
    2. Only if you are 100% certain that your processor is safe, you can set `ParagonIE_Sodium_Compat::$fastMult = true;`
       without harming the security of your cryptography keys. If your processor *isn't* safe, then decide whether you
       want speed or security because you can't have both.
+
+### How can I tell if sodium_compat will be slow, at runtime?
+
+Since version 1.8, you can use the `polyfill_is_fast()` static method to
+determine if sodium_compat will be slow at runtime.
+
+```php
+<?php
+if (ParagonIE_Sodium_Compat::polyfill_is_fast()) {
+    // Use libsodium now
+    $process->execute();
+} else {
+    // Defer to a cron job or other sort of asynchronous process
+    $process->enqueue();
+}
+```
 
 ### Help, my PHP only has 32-Bit Integers! It's super slow!
 

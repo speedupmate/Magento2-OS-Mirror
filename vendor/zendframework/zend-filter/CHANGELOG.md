@@ -2,6 +2,66 @@
 
 All notable changes to this project will be documented in this file, in reverse chronological order by release.
 
+## 2.9.1 - 2018-12-17
+
+### Added
+
+- Nothing.
+
+### Changed
+
+- Nothing.
+
+### Deprecated
+
+- Nothing.
+
+### Removed
+
+- Nothing.
+
+### Fixed
+
+- [#79](https://github.com/zendframework/zend-filter/pull/79) fixes a regression introduced in 2.9.0 when using
+  `Zend\Filter\File\RenameUpload` via the traditional SAPI.
+
+## 2.9.0 - 2018-12-12
+
+### Added
+
+- [#70](https://github.com/zendframework/zend-inputfilter/pull/70) Adds compatibility with the PSR-7 `UploadedFileInterface` to the
+  `RenameUpload` filter. The functionality requires PHP 7 and a
+  psr/http-factory-implementation in your application. When present,
+  `RenameUpload` will accept a PSR-7 `UploadedFileInterface`, and return a new
+  one representing the renamed file.
+
+- [#71](https://github.com/zendframework/zend-filter/pull/71) adds the `ToFloat` filter, to complement the `ToInt` filter.
+
+- [#69](https://github.com/zendframework/zend-filter/pull/69) adds `Zend\Filter\StringSufix`; when provided with a string `suffix`
+  option, it will suffix scalar values with that string.
+
+- [#69](https://github.com/zendframework/zend-filter/pull/69) adds `Zend\Filter\StringPrefix`; when provided with a string `prefix`
+  option, it will prefix scalar values with that string.
+
+### Changed
+
+- [#66](https://github.com/zendframework/zend-filter/pull/66) modifies how the FilterPluginManager is registered with the dependency
+  injection container. Previously, it was registered only under the name
+  `FilterManager`. Now it regisers `Zend\Filter\FilterPluginManager` as a
+  factory service, and `FilterManager` as an alias to that service.
+
+### Deprecated
+
+- Nothing.
+
+### Removed
+
+- Nothing.
+
+### Fixed
+
+- Nothing.
+
 ## 2.8.0 - 2018-04-11
 
 ### Added

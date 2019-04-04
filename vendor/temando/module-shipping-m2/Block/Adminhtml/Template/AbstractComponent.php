@@ -107,6 +107,7 @@ abstract class AbstractComponent extends WidgetContainer
      * Obtain authentication token for Magento REST API access.
      *
      * @return string
+     * @throws \Exception
      */
     public function getAccessToken()
     {

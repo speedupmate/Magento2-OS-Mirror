@@ -17,30 +17,21 @@ use Symfony\Component\DependencyInjection\ParameterBag\FrozenParameterBag;
 class Symfony_DI_PhpDumper_Test_Rot13Parameters extends Container
 {
     private $parameters;
-    private $targetDirs = array();
-
-    /**
-     * @internal but protected for BC on cache:clear
-     */
-    protected $privates = array();
+    private $targetDirs = [];
+    private $getService;
 
     public function __construct()
     {
+        $this->getService = \Closure::fromCallable([$this, 'getService']);
         $this->parameters = $this->getDefaultParameters();
 
-        $this->services = $this->privates = array();
-        $this->methodMap = array(
+        $this->services = $this->privates = [];
+        $this->methodMap = [
             'Symfony\\Component\\DependencyInjection\\Tests\\Dumper\\Rot13EnvVarProcessor' => 'getRot13EnvVarProcessorService',
             'container.env_var_processors_locator' => 'getContainer_EnvVarProcessorsLocatorService',
-        );
+        ];
 
-        $this->aliases = array();
-    }
-
-    public function reset()
-    {
-        $this->privates = array();
-        parent::reset();
+        $this->aliases = [];
     }
 
     public function compile()
@@ -55,10 +46,11 @@ class Symfony_DI_PhpDumper_Test_Rot13Parameters extends Container
 
     public function getRemovedIds()
     {
-        return array(
+        return [
+            '.service_locator.GU08LT9' => true,
             'Psr\\Container\\ContainerInterface' => true,
             'Symfony\\Component\\DependencyInjection\\ContainerInterface' => true,
-        );
+        ];
     }
 
     /**
@@ -78,9 +70,9 @@ class Symfony_DI_PhpDumper_Test_Rot13Parameters extends Container
      */
     protected function getContainer_EnvVarProcessorsLocatorService()
     {
-        return $this->services['container.env_var_processors_locator'] = new \Symfony\Component\DependencyInjection\ServiceLocator(array('rot13' => function () {
-            return ($this->services['Symfony\Component\DependencyInjection\Tests\Dumper\Rot13EnvVarProcessor'] ?? $this->services['Symfony\Component\DependencyInjection\Tests\Dumper\Rot13EnvVarProcessor'] = new \Symfony\Component\DependencyInjection\Tests\Dumper\Rot13EnvVarProcessor());
-        }));
+        return $this->services['container.env_var_processors_locator'] = new \Symfony\Component\DependencyInjection\Argument\ServiceLocator($this->getService, [
+            'rot13' => ['services', 'Symfony\\Component\\DependencyInjection\\Tests\\Dumper\\Rot13EnvVarProcessor', 'getRot13EnvVarProcessorService', false],
+        ]);
     }
 
     public function getParameter($name)
@@ -122,10 +114,10 @@ class Symfony_DI_PhpDumper_Test_Rot13Parameters extends Container
         return $this->parameterBag;
     }
 
-    private $loadedDynamicParameters = array(
+    private $loadedDynamicParameters = [
         'hello' => false,
-    );
-    private $dynamicParameters = array();
+    ];
+    private $dynamicParameters = [];
 
     /**
      * Computes a dynamic parameter.
@@ -154,8 +146,8 @@ class Symfony_DI_PhpDumper_Test_Rot13Parameters extends Container
      */
     protected function getDefaultParameters()
     {
-        return array(
+        return [
             'env(foo)' => 'jbeyq',
-        );
+        ];
     }
 }

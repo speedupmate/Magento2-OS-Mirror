@@ -26,7 +26,9 @@
             "carrierId": "<?= $block->escapeHtml($viewModel->getCarrierIntegrationId()) ?>",
             "availableCarriersPageUrl": "<?= $block->escapeUrl($viewModel->getCarrierUrl()->getNewActionUrl()) ?>",
             "myCarriersPageUrl": "<?= $block->escapeUrl($viewModel->getCarrierUrl()->getListActionUrl()) ?>"
-        }
+        },
+        "platform": "m2",
+        "version": "<?= $block->escapeHtml($viewModel->getMagentoVersion()) ?>"
      }]'
 >
     <!-- ko template: getTemplate() --><!-- /ko -->
@@ -38,4 +40,3 @@
     }
     </script>
 </div>
-

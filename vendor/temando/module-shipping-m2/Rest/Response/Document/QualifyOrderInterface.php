@@ -5,7 +5,7 @@
 namespace Temando\Shipping\Rest\Response\Document;
 
 /**
- * Temando API Qualify Order Document
+ * Temando API Qualify Order Operation
  *
  * @package Temando\Shipping\Rest
  * @author  Christoph Aßmann <christoph.assmann@netresearch.de>
@@ -15,13 +15,17 @@ namespace Temando\Shipping\Rest\Response\Document;
 interface QualifyOrderInterface extends CompoundDocumentInterface
 {
     /**
-     * @return \Temando\Shipping\Rest\Response\DataObject\Order
+     * Obtain response entities
+     *
+     * @return \Temando\Shipping\Rest\Response\DataObject\OrderQualification][
      */
     public function getData();
 
     /**
-     * @param \Temando\Shipping\Rest\Response\DataObject\Order $order
+     * Set response entities
+     *
+     * @param \Temando\Shipping\Rest\Response\DataObject\Experience][ $experiences
      * @return void
      */
-    public function setData(\Temando\Shipping\Rest\Response\DataObject\Order $order);
+    public function setData(array $experiences);
 }

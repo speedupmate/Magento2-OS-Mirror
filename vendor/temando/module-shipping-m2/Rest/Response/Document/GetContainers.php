@@ -28,7 +28,7 @@ class GetContainers implements GetContainersInterface
     }
 
     /**
-     * @param $containers \Temando\Shipping\Rest\Response\DataObject\Container[]
+     * @param \Temando\Shipping\Rest\Response\DataObject\Container[] $containers
      * @return void
      */
     public function setData(array $containers)

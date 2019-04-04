@@ -55,18 +55,20 @@ class Active extends Value
     }
 
     /**
-     * Template method to return validate rules for the entity
+     * Obtain validation rules for establishing the api connection
      *
-     * @return \Zend_Validate_Interface|null
+     * @return \Zend\Validator\ValidatorInterface|null
      */
     protected function _getValidationRulesBeforeSave()
     {
         $inputValidator = $this->validationRules->getInputValidator();
+        $uriValidator = $this->validationRules->getUriEndpointValidator();
         $authenticationValidator = $this->validationRules->getAuthenticationValidator();
 
-        $validatorChain = new \Zend_Validate();
-        $validatorChain->addValidator($inputValidator, true);
-        $validatorChain->addValidator($authenticationValidator, true);
+        $validatorChain = new \Zend\Validator\ValidatorChain();
+        $validatorChain->attach($inputValidator, true);
+        $validatorChain->attach($uriValidator, true);
+        $validatorChain->attach($authenticationValidator, true);
 
         return $validatorChain;
     }

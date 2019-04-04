@@ -35,7 +35,7 @@ interface ShipmentReferenceRepositoryInterface
      *
      * @param \Temando\Shipping\Api\Data\Shipment\ShipmentReferenceInterface $shipment
      * @return \Temando\Shipping\Api\Data\Shipment\ShipmentReferenceInterface
-     * @throws \Magento\Framework\Exception\LocalizedException
+     * @throws \Magento\Framework\Exception\CouldNotSaveException
      */
     public function save(\Temando\Shipping\Api\Data\Shipment\ShipmentReferenceInterface $shipment);
 
@@ -44,7 +44,7 @@ interface ShipmentReferenceRepositoryInterface
      *
      * @param int $entityId
      * @return \Temando\Shipping\Api\Data\Shipment\ShipmentReferenceInterface
-     * @throws \Magento\Framework\Exception\LocalizedException
+     * @throws \Magento\Framework\Exception\NoSuchEntityException
      */
     public function getById($entityId);
 
@@ -53,7 +53,7 @@ interface ShipmentReferenceRepositoryInterface
      *
      * @param int $shipmentId
      * @return \Temando\Shipping\Api\Data\Shipment\ShipmentReferenceInterface
-     * @throws \Magento\Framework\Exception\LocalizedException
+     * @throws \Magento\Framework\Exception\NoSuchEntityException
      */
     public function getByShipmentId($shipmentId);
 
@@ -62,7 +62,7 @@ interface ShipmentReferenceRepositoryInterface
      *
      * @param string $extShipmentId
      * @return \Temando\Shipping\Api\Data\Shipment\ShipmentReferenceInterface
-     * @throws \Magento\Framework\Exception\LocalizedException
+     * @throws \Magento\Framework\Exception\NoSuchEntityException
      */
     public function getByExtShipmentId($extShipmentId);
 
@@ -72,18 +72,9 @@ interface ShipmentReferenceRepositoryInterface
      * @param string $extShipmentId
      *
      * @return \Temando\Shipping\Api\Data\Shipment\ShipmentReferenceInterface
-     * @throws \Magento\Framework\Exception\LocalizedException
+     * @throws \Magento\Framework\Exception\NoSuchEntityException
      */
     public function getByExtReturnShipmentId($extShipmentId);
-
-    /**
-     * Load local reference to external shipment entity by tracking number.
-     *
-     * @param string $trackingNumber
-     * @return \Temando\Shipping\Api\Data\Shipment\ShipmentReferenceInterface
-     * @throws \Magento\Framework\Exception\LocalizedException
-     */
-    public function getByTrackingNumber($trackingNumber);
 
     /**
      * List shipment references that match specified search criteria.

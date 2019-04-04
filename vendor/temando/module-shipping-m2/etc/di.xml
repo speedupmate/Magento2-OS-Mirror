@@ -26,19 +26,17 @@
     <preference for="Temando\Shipping\Api\Data\Shipment\ShipmentReferenceInterface"
                 type="Temando\Shipping\Model\Shipment\ShipmentReference" />
 
-    <preference for="Temando\Shipping\Api\Delivery\CartCollectionPointManagementInterface"
-                type="Temando\Shipping\Model\Delivery\CartCollectionPointManagement" />
-    <preference for="Temando\Shipping\Api\Delivery\CartPickupLocationManagementInterface"
-                type="Temando\Shipping\Model\Delivery\CartPickupLocationManagement" />
-    <preference for="Temando\Shipping\Api\Delivery\GuestCartCollectionPointManagementInterface"
-                type="Temando\Shipping\Model\Delivery\GuestCartCollectionPointManagement" />
-    <preference for="Temando\Shipping\Api\Delivery\GuestCartPickupLocationManagementInterface"
-                type="Temando\Shipping\Model\Delivery\GuestCartPickupLocationManagement" />
+    <preference for="Temando\Shipping\Api\Checkout\CartCollectionPointManagementInterface"
+                type="Temando\Shipping\Model\Checkout\Delivery\CartCollectionPointManagement" />
+    <preference for="Temando\Shipping\Api\Checkout\CartPickupLocationManagementInterface"
+                type="Temando\Shipping\Model\Checkout\Delivery\CartPickupLocationManagement" />
+    <preference for="Temando\Shipping\Api\Checkout\GuestCartCollectionPointManagementInterface"
+                type="Temando\Shipping\Model\Checkout\Delivery\GuestCartCollectionPointManagement" />
+    <preference for="Temando\Shipping\Api\Checkout\GuestCartPickupLocationManagementInterface"
+                type="Temando\Shipping\Model\Checkout\Delivery\GuestCartPickupLocationManagement" />
 
     <preference for="Temando\Shipping\Api\Quote\ShippingMethodManagementInterface"
                 type="Temando\Shipping\Model\Quote\ShippingMethodManagement" />
-    <preference for="Temando\Shipping\Api\Rma\RmaShipmentManagementInterface"
-                type="Temando\Shipping\Model\Rma\RmaShipmentManagement" />
     <preference for="Temando\Shipping\Api\Quote\CartCheckoutFieldManagementInterface"
                 type="Temando\Shipping\Model\Quote\CartCheckoutFieldManagement" />
     <preference for="Temando\Shipping\Api\Quote\GuestCartCheckoutFieldManagementInterface"
@@ -47,6 +45,10 @@
                 type="Temando\Shipping\Model\Quote\CartDeliveryOptionManagement" />
     <preference for="Temando\Shipping\Api\Quote\GuestCartDeliveryOptionManagementInterface"
                 type="Temando\Shipping\Model\Quote\GuestCartDeliveryOptionManagement" />
+    <preference for="Temando\Shipping\Api\Rma\RmaShipmentManagementInterface"
+                type="Temando\Shipping\Model\Rma\RmaShipmentManagement" />
+    <preference for="Temando\Shipping\Api\Shipment\ShipmentStatusInterface"
+                type="Temando\Shipping\Model\Shipment\ShipmentStatus" />
 
     <!-- # internal data interface preferences -->
     <!-- ## webservice request types -->
@@ -58,16 +60,10 @@
                 type="Temando\Shipping\Rest\Request\ItemRequest"/>
     <preference for="Temando\Shipping\Rest\Request\ListRequestInterface"
                 type="Temando\Shipping\Rest\Request\ListRequest"/>
-    <preference for="Temando\Shipping\Rest\Request\OrderRequestInterface"
-                type="Temando\Shipping\Rest\Request\OrderRequest"/>
     <preference for="Temando\Shipping\Rest\Request\RequestHeadersInterface"
                 type="\Temando\Shipping\Rest\Request\RequestHeaders"/>
     <preference for="Temando\Shipping\Rest\Request\StreamCreateRequestInterface"
                 type="Temando\Shipping\Rest\Request\StreamCreateRequest"/>
-    <preference for="Temando\Shipping\Rest\Request\StreamEventItemRequestInterface"
-                type="Temando\Shipping\Rest\Request\StreamEventItemRequest"/>
-    <preference for="Temando\Shipping\Rest\Request\StreamEventListRequestInterface"
-                type="Temando\Shipping\Rest\Request\StreamEventListRequest"/>
     <preference for="Temando\Shipping\Rest\Request\Type\FulfillmentRequestTypeInterface"
                 type="Temando\Shipping\Rest\Request\Type\FulfillmentRequestType"/>
     <preference for="Temando\Shipping\Rest\Request\Type\OrderRequestTypeInterface"
@@ -76,6 +72,8 @@
     <!-- ## account data return types -->
     <preference for="Temando\Shipping\Model\CarrierInterface"
                 type="Temando\Shipping\Model\Carrier" />
+    <preference for="Temando\Shipping\Model\ExperienceInterface"
+                type="Temando\Shipping\Model\Experience" />
     <preference for="Temando\Shipping\Model\LocationInterface"
                 type="Temando\Shipping\Model\Location" />
     <preference for="Temando\Shipping\Model\PackagingInterface"
@@ -88,8 +86,6 @@
     <!-- ## shipment entity and related (sub-)types -->
     <preference for="Temando\Shipping\Model\ShipmentInterface"
                 type="Temando\Shipping\Model\Shipment" />
-    <preference for="Temando\Shipping\Model\Shipment\AllocationErrorInterface"
-                type="Temando\Shipping\Model\Shipment\AllocationError" />
     <preference for="Temando\Shipping\Model\Shipment\CapabilityInterface"
                 type="Temando\Shipping\Model\Shipment\Capability" />
     <preference for="Temando\Shipping\Model\Shipment\ExportDeclarationInterface"
@@ -108,8 +104,6 @@
                 type="Temando\Shipping\Model\Shipment\ShipmentItem" />
     <preference for="Temando\Shipping\Model\Shipment\ShipmentSummaryInterface"
                 type="Temando\Shipping\Model\Shipment\ShipmentSummary" />
-    <preference for="Temando\Shipping\Model\Shipment\TrackEventInterface"
-                type="Temando\Shipping\Model\Shipment\TrackEvent" />
 
     <!-- ## dispatch entity and related (sub-)types -->
     <preference for="Temando\Shipping\Model\DispatchInterface"
@@ -138,8 +132,6 @@
                 type="Temando\Shipping\Model\Order\OrderItem" />
     <preference for="Temando\Shipping\Model\Order\OrderRecipientInterface"
                 type="Temando\Shipping\Model\Order\OrderRecipient" />
-    <preference for="Temando\Shipping\Webservice\Response\Type\OrderResponseTypeInterface"
-                type="Temando\Shipping\Webservice\Response\Type\OrderResponseType" />
 
     <!-- ## dynamic checkout fields -->
     <preference for="Temando\Shipping\Model\Order\CheckoutFieldContainerInterface"
@@ -167,6 +159,8 @@
                 type="Temando\Shipping\Model\ResourceModel\Batch\BatchRepository" />
     <preference for="Temando\Shipping\Model\ResourceModel\Repository\DispatchRepositoryInterface"
                 type="Temando\Shipping\Model\ResourceModel\Dispatch\DispatchRepository" />
+    <preference for="Temando\Shipping\Model\ResourceModel\Repository\ExperienceRepositoryInterface"
+                type="Temando\Shipping\Model\ResourceModel\Experience\ExperienceRepository" />
     <preference for="Temando\Shipping\Model\ResourceModel\Repository\LocationRepositoryInterface"
                 type="Temando\Shipping\Model\ResourceModel\Location\LocationRepository" />
     <preference for="Temando\Shipping\Model\ResourceModel\Repository\OrderCollectionPointRepositoryInterface"
@@ -205,11 +199,13 @@
     <preference for="Temando\Shipping\Rest\Adapter\CompletionApiInterface"
                 type="Temando\Shipping\Rest\Adapter"/>
     <preference for="Temando\Shipping\Rest\Adapter\BatchApiInterface"
-                type="Temando\Shipping\Rest\Adapter"/>
+                type="Temando\Shipping\Rest\ShipmentAdapter"/>
     <preference for="Temando\Shipping\Rest\Adapter\ContainerApiInterface"
                 type="Temando\Shipping\Rest\Adapter"/>
     <preference for="Temando\Shipping\Rest\Adapter\EventStreamApiInterface"
                 type="Temando\Shipping\Rest\Adapter"/>
+    <preference for="Temando\Shipping\Rest\Adapter\ExperienceApiInterface"
+                type="Temando\Shipping\Rest\ExperienceAdapter"/>
     <preference for="Temando\Shipping\Rest\Adapter\FulfillmentApiInterface"
                 type="Temando\Shipping\Rest\FulfillmentAdapter"/>
     <preference for="Temando\Shipping\Rest\Adapter\LocationApiInterface"
@@ -217,7 +213,7 @@
     <preference for="Temando\Shipping\Rest\Adapter\OrderApiInterface"
                 type="Temando\Shipping\Rest\OrderAdapter"/>
     <preference for="Temando\Shipping\Rest\Adapter\ShipmentApiInterface"
-                type="Temando\Shipping\Rest\Adapter"/>
+                type="Temando\Shipping\Rest\ShipmentAdapter"/>
     <preference for="Temando\Shipping\Rest\RestClientInterface"
                 type="Temando\Shipping\Rest\RestClient"/>
     <preference for="Temando\Shipping\Webservice\HttpClientInterface"
@@ -274,7 +270,7 @@
             </argument>
         </arguments>
     </virtualType>
-    <virtualType name="Temando\Shipping\Webservice\Processor\CollectRatesProcessorPool" type="Temando\Shipping\Webservice\Processor\OrderOperationProcessorPool">
+    <virtualType name="Temando\Shipping\Webservice\Processor\CollectRatesProcessorPool" type="Temando\Shipping\Webservice\Processor\OrderQualificationProcessorPool">
         <arguments>
             <argument name="ratesProcessors" xsi:type="array">
                 <item name="tsDefaultRatesProcessor" xsi:type="object">Temando\Shipping\Webservice\Processor\OrderOperation\RatesProcessor</item>
@@ -318,6 +314,14 @@
     <virtualType name="Temando\Shipping\Virtual\Rest\Filter\PickupFilterConverter" type="Temando\Shipping\Rest\Filter\FilterConverter">
         <arguments>
             <argument name="entityMapper" xsi:type="object">Temando\Shipping\Rest\EntityMapper\FulfillmentResponseMapper\Proxy</argument>
+            <argument name="fieldMap" xsi:type="array">
+                <item name="origin_location" xsi:type="const">Temando\Shipping\Model\PickupInterface::LOCATION_ID</item>
+            </argument>
+        </arguments>
+    </virtualType>
+    <virtualType name="Temando\Shipping\Virtual\Sales\Email\Shipment\CancelSender" type="Magento\Sales\Model\Order\Email\Sender\ShipmentSender">
+        <arguments>
+            <argument name="identityContainer" xsi:type="object">Temando\Shipping\Model\Sales\Email\Shipment\CancelIdentity</argument>
         </arguments>
     </virtualType>
     <!-- # argument di overrides -->
@@ -406,19 +410,35 @@
             <argument name="connectionName" xsi:type="const">Temando\Shipping\Setup\SetupSchema::SALES_CONNECTION_NAME</argument>
         </arguments>
     </type>
-    <type name="Temando\Shipping\Model\ResourceModel\Rma\RmaShipmentRepository">
+    <type name="Temando\Shipping\Model\Sales\Service\Operation\SendCancelEmail">
         <arguments>
-            <argument name="collectionProcessor" xsi:type="object">Temando\Shipping\Api\SearchCriteria\ShipmentReferenceCollectionProcessor</argument>
+            <argument name="emailSender" xsi:type="object">Temando\Shipping\Virtual\Sales\Email\Shipment\CancelSender</argument>
+        </arguments>
+    </type>
+    <type name="Temando\Shipping\Model\Sales\Service\ShipmentOperationPool">
+        <arguments>
+            <argument name="operations" xsi:type="array">
+                <item name="read" xsi:type="array">
+                    <item name="updateStatus" xsi:type="object">Temando\Shipping\Model\Sales\Service\Operation\UpdateShipmentStatus</item>
+                    <item name="addTrack" xsi:type="object">Temando\Shipping\Model\Sales\Service\Operation\AddShipmentTrack</item>
+                </item>
+                <item name="cancel" xsi:type="array">
+                    <item name="updateQtyShipped" xsi:type="object">Temando\Shipping\Model\Sales\Service\Operation\UpdateQtyShipped</item>
+                    <item name="updateStatus" xsi:type="object">Temando\Shipping\Model\Sales\Service\Operation\UpdateShipmentStatus</item>
+                    <item name="sendEmail" xsi:type="object">Temando\Shipping\Model\Sales\Service\Operation\SendCancelEmail</item>
+                </item>
+            </argument>
         </arguments>
     </type>
     <type name="Temando\Shipping\Model\Shipping\Carrier">
         <arguments>
             <argument name="logger" xsi:type="object">Temando\Shipping\Webservice\Logger</argument>
-            <argument name="shipmentReferenceRepository" xsi:type="object">Temando\Shipping\Model\ResourceModel\Repository\ShipmentReferenceRepositoryInterface\Proxy</argument>
             <argument name="shipmentRepository" xsi:type="object">Temando\Shipping\Model\ResourceModel\Repository\ShipmentRepositoryInterface\Proxy</argument>
-            <argument name="orderRepository" xsi:type="object">Temando\Shipping\Model\ResourceModel\Repository\OrderRepositoryInterface\Proxy</argument>
+            <argument name="shipmentReferenceRepository" xsi:type="object">Temando\Shipping\Model\ResourceModel\Repository\ShipmentReferenceRepositoryInterface\Proxy</argument>
+            <argument name="experienceRepository" xsi:type="object">Temando\Shipping\Model\ResourceModel\Repository\ExperienceRepositoryInterface\Proxy</argument>
             <argument name="quotingDataInitializer" xsi:type="object">Temando\Shipping\Model\Checkout\RateRequest\QuotingDataInitializer\Proxy</argument>
             <argument name="processorPool" xsi:type="object">Temando\Shipping\Webservice\Processor\CollectRatesProcessorPool</argument>
+            <argument name="freeShipping" xsi:type="object">Temando\Shipping\Model\Shipping\RateResult\FreeShipping\Proxy</argument>
         </arguments>
     </type>
     <type name="Temando\Shipping\Observer\PickupEmailObserver">
@@ -446,6 +466,12 @@
             <argument name="addressRepository" xsi:type="object">Temando\Shipping\Model\ResourceModel\Repository\AddressRepositoryInterface\Proxy</argument>
         </arguments>
     </type>
+    <type name="Temando\Shipping\Plugin\Sales\OrderManagementPlugin">
+        <arguments>
+            <argument name="shipmentReferenceRepository" xsi:type="object">Temando\Shipping\Model\ResourceModel\Repository\ShipmentReferenceRepositoryInterface\Proxy</argument>
+            <argument name="shipmentService" xsi:type="object">Temando\Shipping\Model\Sales\Service\ShipmentService\Proxy</argument>
+        </arguments>
+    </type>
     <type name="Temando\Shipping\Plugin\Sales\OrderRepositoryPlugin">
         <arguments>
             <argument name="processorPool" xsi:type="object">Temando\Shipping\Webservice\Processor\ManifestOrderProcessorPool</argument>
@@ -465,7 +491,7 @@
     </type>
     <type name="Temando\Shipping\Plugin\Shipping\Order\ShipmentLoaderPlugin">
         <arguments>
-            <argument name="shipmentRepository" xsi:type="object">Temando\Shipping\Model\ResourceModel\Repository\ShipmentRepositoryInterface\Proxy</argument>
+            <argument name="shipmentService" xsi:type="object">Temando\Shipping\Model\Sales\Service\ShipmentService\Proxy</argument>
         </arguments>
     </type>
     <type name="Temando\Shipping\Rest\Adapter">
@@ -478,9 +504,9 @@
             <argument name="logger" xsi:type="object">Temando\Shipping\Webservice\Logger</argument>
         </arguments>
     </type>
-    <type name="Temando\Shipping\Rest\EntityMapper\ShippingExperiencesMapper">
+    <type name="Temando\Shipping\Rest\ExperienceAdapter">
         <arguments>
-            <argument name="session" xsi:type="object">Magento\Checkout\Model\Session</argument>
+            <argument name="logger" xsi:type="object">Temando\Shipping\Webservice\Logger</argument>
         </arguments>
     </type>
     <type name="Temando\Shipping\Rest\FulfillmentAdapter">
@@ -489,6 +515,11 @@
         </arguments>
     </type>
     <type name="Temando\Shipping\Rest\OrderAdapter">
+        <arguments>
+            <argument name="logger" xsi:type="object">Temando\Shipping\Webservice\Logger</argument>
+        </arguments>
+    </type>
+    <type name="Temando\Shipping\Rest\ShipmentAdapter">
         <arguments>
             <argument name="logger" xsi:type="object">Temando\Shipping\Webservice\Logger</argument>
         </arguments>
@@ -541,6 +572,9 @@
     <type name="Magento\Quote\Model\Quote\Address\ToOrderAddress">
         <plugin name="temando-shipping-convertQuoteAddress" type="Temando\Shipping\Plugin\Quote\Address\ToOrderAddressPlugin" />
     </type>
+    <type name="Magento\Sales\Api\OrderManagementInterface">
+        <plugin name="temando-shipping-cancelShipment" type="Temando\Shipping\Plugin\Sales\OrderManagementPlugin" />
+    </type>
     <type name="Magento\Sales\Api\OrderRepositoryInterface">
         <plugin name="temando-shipping-manifestOrder" type="Temando\Shipping\Plugin\Sales\OrderRepositoryPlugin" />
     </type>
@@ -589,4 +623,14 @@
                 type="Temando\Shipping\Model\CollectionPoint\QuoteCollectionPoint" />
     <preference for="Temando\Shipping\Api\Data\CollectionPoint\SearchRequestInterface"
                 type="Temando\Shipping\Model\CollectionPoint\SearchRequest" />
+
+    <!-- # deprecated since 1.5.1 -->
+    <preference for="Temando\Shipping\Api\Delivery\CartCollectionPointManagementInterface"
+                type="Temando\Shipping\Model\Delivery\CartCollectionPointManagement" />
+    <preference for="Temando\Shipping\Api\Delivery\GuestCartCollectionPointManagementInterface"
+                type="Temando\Shipping\Model\Delivery\GuestCartCollectionPointManagement" />
+    <preference for="Temando\Shipping\Api\Delivery\CartPickupLocationManagementInterface"
+                type="Temando\Shipping\Model\Delivery\CartPickupLocationManagement" />
+    <preference for="Temando\Shipping\Api\Delivery\GuestCartPickupLocationManagementInterface"
+                type="Temando\Shipping\Model\Delivery\GuestCartPickupLocationManagement" />
 </config>

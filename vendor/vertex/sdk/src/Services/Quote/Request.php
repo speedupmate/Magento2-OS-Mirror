@@ -12,7 +12,7 @@ use Vertex\Data\LineItemInterface;
 use Vertex\Data\SellerInterface;
 
 /**
- * Default implementation of {@see RequestInterface}
+ * {@inheritDoc}
  */
 class Request implements RequestInterface
 {
@@ -34,6 +34,9 @@ class Request implements RequestInterface
     /** @var string */
     private $locationCode;
 
+    /** @var bool */
+    private $returnAssistedParameters;
+
     /** @var SellerInterface */
     private $seller;
 
@@ -42,6 +45,9 @@ class Request implements RequestInterface
 
     /** @var string */
     private $transactionType;
+
+    /** @var string */
+    private $currencyCode;
 
     /**
      * @inheritdoc
@@ -116,6 +122,24 @@ class Request implements RequestInterface
     }
 
     /**
+     * Retrieve whether or not the response is set to return assisted parameters
+     *
+     * @return bool|null
+     */
+    public function isSetToReturnAssistedParameters()
+    {
+        return $this->returnAssistedParameters;
+    }
+
+    /**
+     * @inheritdoc
+     */
+    public function getCurrencyCode()
+    {
+        return $this->currencyCode;
+    }
+
+    /**
      * @inheritdoc
      */
     public function setCustomer(CustomerInterface $customer)
@@ -184,6 +208,18 @@ class Request implements RequestInterface
     }
 
     /**
+     * Set whether or not the response should return assisted parameters
+     *
+     * @param bool $returnAssistedParameters
+     * @return RequestInterface
+     */
+    public function setShouldReturnAssistedParameters($returnAssistedParameters)
+    {
+        $this->returnAssistedParameters = (bool)$returnAssistedParameters;
+        return $this;
+    }
+
+    /**
      * @inheritdoc
      */
     public function setTransactionId($transactionId)
@@ -198,6 +234,15 @@ class Request implements RequestInterface
     public function setTransactionType($transactionType)
     {
         $this->transactionType = $transactionType;
+        return $this;
+    }
+
+    /**
+     * @inheritdoc
+     */
+    public function setCurrencyCode($currencyCode)
+    {
+        $this->currencyCode = $currencyCode;
         return $this;
     }
 }

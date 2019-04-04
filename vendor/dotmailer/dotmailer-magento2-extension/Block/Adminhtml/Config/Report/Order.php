@@ -10,7 +10,7 @@ class Order extends \Magento\Config\Block\System\Config\Form\Field
      *
      * @var string
      */
-    public $buttonLabel = 'Contact Report';
+    public $buttonLabel = 'Order Report';
 
     /**
      * @deprecated
@@ -64,7 +64,8 @@ class Order extends \Magento\Config\Block\System\Config\Form\Field
      */
     public function render(
         \Magento\Framework\Data\Form\Element\AbstractElement $element
-    ) {
+    )
+    {
         $element->unsScope()->unsCanUseWebsiteValue()->unsCanUseDefaultValue();
 
         return parent::render($element);
@@ -81,7 +82,8 @@ class Order extends \Magento\Config\Block\System\Config\Form\Field
      */
     public function _getElementHtml(
         \Magento\Framework\Data\Form\Element\AbstractElement $element
-    ) {
+    )
+    {
         $originalData = $element->getOriginalData();
         $buttonLabel = !empty($originalData['button_label'])
             ? $originalData['button_label'] : $this->buttonLabel;

@@ -6,9 +6,9 @@
         "magento/framework": "*",
         "magento/module-eav": "*",
         "magento/module-import-export": "*",
-        "magento/module-inventory-api": "1.0.*",
-        "magento/module-inventory": "1.0.*",
-        "magento/module-inventory-catalog-api": "1.0.*",
+        "magento/module-inventory-api": "*",
+        "magento/module-inventory": "*",
+        "magento/module-inventory-catalog-api": "*",
         "magento/module-store": "*"
     },
     "suggest": {
@@ -27,5 +27,5 @@
             "Magento\\InventoryImportExport\\": ""
         }
     },
-    "version": "1.0.3"
+    "version": "1.0.4"
 }

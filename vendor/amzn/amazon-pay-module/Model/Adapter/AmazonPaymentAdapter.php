@@ -102,8 +102,7 @@ class AmazonPaymentAdapter
         SubjectReader $subjectReader,
         Data $coreHelper,
         Logger $logger
-    )
-    {
+    ) {
         $this->clientFactory = $clientFactory;
         $this->amazonSetOrderDetailsResponseFactory = $amazonSetOrderDetailsResponseFactory;
         $this->logger = $logger;
@@ -242,7 +241,6 @@ class AmazonPaymentAdapter
         $confirmResponse = $this->confirmOrderReference($storeId, $data['amazon_order_reference_id']);
 
         if ($confirmResponse->response['Status'] == 200) {
-
             $authorizeResponse = $this->getAuthorization($storeId, $authorizeData);
 
             if ($authorizeResponse) {
@@ -343,6 +341,21 @@ class AmazonPaymentAdapter
         }
 
         return $response;
+    }
+
+    /**
+     * @param $storeId
+     * @param $amazonId
+     * @param $orderId
+     */
+    public function setOrderAttributes($storeId, $amazonId, $orderId)
+    {
+        $orderAttributes = [
+            'amazon_order_reference_id' => $amazonId,
+            'seller_order_id' => $orderId
+        ];
+
+        $this->clientFactory->create($storeId)->setOrderAttributes($orderAttributes);
     }
 
     /**

@@ -14,6 +14,7 @@ use Temando\Shipping\Model\ResourceModel\Order\OrderReference;
 use Temando\Shipping\Model\ResourceModel\Repository\PickupRepositoryInterface;
 use Temando\Shipping\Rest\Adapter\FulfillmentApiInterface;
 use Temando\Shipping\Rest\EntityMapper\FulfillmentResponseMapper;
+use Temando\Shipping\Rest\Exception\AdapterException;
 use Temando\Shipping\Rest\Filter\FilterConverter;
 use Temando\Shipping\Rest\Pagination\PaginationFactory;
 use Temando\Shipping\Rest\Request\FulfillmentRequestInterfaceFactory;
@@ -137,6 +138,8 @@ class PickupRepository implements PickupRepositoryInterface
     }
 
     /**
+     * Load pickup fulfillment by entity id.
+     *
      * @param string $pickupId
      * @return PickupInterface
      * @throws NoSuchEntityException
@@ -152,7 +155,7 @@ class PickupRepository implements PickupRepositoryInterface
             $request = $this->itemRequestFactory->create(['entityId' => $pickupId]);
             $apiFulfillment = $this->apiAdapter->getFulfillment($request);
             $pickup = $this->fulfillmentMapper->mapPickup($apiFulfillment);
-        } catch (\Exception $e) {
+        } catch (AdapterException $e) {
             if ($e->getCode() === 404) {
                 throw NoSuchEntityException::singleField('fulfillmentId', $pickupId);
             }
@@ -164,6 +167,8 @@ class PickupRepository implements PickupRepositoryInterface
     }
 
     /**
+     * Load pickup fulfillments.
+     *
      * @param SearchCriteriaInterface $criteria
      * @return PickupInterface[]
      */
@@ -174,6 +179,7 @@ class PickupRepository implements PickupRepositoryInterface
                 'offset' => 0,
                 'limit' => 1000,
             ]);
+
             $filter = $this->filterConverter->convert(
                 $criteria->getFilterGroups(),
                 $this->getFilterCallbacks()
@@ -185,7 +191,10 @@ class PickupRepository implements PickupRepositoryInterface
             ]);
 
             $apiFulfillments = $this->apiAdapter->getFulfillments($request);
-        } catch (\Exception $e) {
+        } catch (LocalizedException $e) {
+            $this->logger->error($e->getLogMessage(), ['exception' => $e]);
+            $apiFulfillments = [];
+        } catch (AdapterException $e) {
             $this->logger->critical($e->getMessage(), ['exception' => $e]);
             $apiFulfillments = [];
         }
@@ -198,6 +207,8 @@ class PickupRepository implements PickupRepositoryInterface
     }
 
     /**
+     * Save pickup fulfillment.
+     *
      * @param PickupInterface $pickup
      * @return PickupInterface
      * @throws CouldNotSaveException
@@ -227,7 +238,7 @@ class PickupRepository implements PickupRepositoryInterface
             }
 
             $fulfillment = $this->fulfillmentMapper->mapPickup($apiFulfillment);
-        } catch (\Exception $e) {
+        } catch (AdapterException $e) {
             throw new CouldNotSaveException(__('Unable to save pickup.'), $e);
         }
 

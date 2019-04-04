@@ -20,7 +20,7 @@ use Temando\Shipping\Api\Data\Delivery\QuotePickupLocationInterface;
 interface QuotePickupLocationRepositoryInterface
 {
     /**
-     * Load collect location by entity id.
+     * Load pickup location by entity id.
      *
      * @param int $entityId
      * @return QuotePickupLocationInterface
@@ -29,7 +29,7 @@ interface QuotePickupLocationRepositoryInterface
     public function get($entityId);
 
     /**
-     * Load selected collect location for given shipping address ID.
+     * Load selected pickup location for given shipping address ID.
      *
      * @param int $addressId
      * @return QuotePickupLocationInterface
@@ -38,6 +38,8 @@ interface QuotePickupLocationRepositoryInterface
     public function getSelected($addressId);
 
     /**
+     * Save pickup location.
+     *
      * @param QuotePickupLocationInterface $pickupLocation
      * @return QuotePickupLocationInterface
      * @throws CouldNotSaveException
@@ -45,6 +47,8 @@ interface QuotePickupLocationRepositoryInterface
     public function save(QuotePickupLocationInterface $pickupLocation);
 
     /**
+     * Delete pickup location.
+     *
      * @param QuotePickupLocationInterface $pickupLocation
      * @return bool
      * @throws CouldNotDeleteException

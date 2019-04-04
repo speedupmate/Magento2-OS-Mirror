@@ -23,7 +23,9 @@ define([
                 entrypoint: componentData.entrypoint,
                 assetsUrl: componentData.assetsUrl,
                 elements: elements,
-                data: componentData.data
+                data: componentData.data,
+                platform: componentData.platform,
+                version: componentData.version
             });
         }
     });

@@ -71,6 +71,8 @@ class OrderPickupLocationRepository implements OrderPickupLocationRepositoryInte
     }
 
     /**
+     * Save pickup location.
+     *
      * @param OrderPickupLocationInterface $pickupLocation
      * @return OrderPickupLocationInterface
      * @throws CouldNotSaveException

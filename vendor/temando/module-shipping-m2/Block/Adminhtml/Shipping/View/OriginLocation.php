@@ -42,11 +42,11 @@ class OriginLocation extends BackendTemplate
     /**
      * OriginLocation constructor.
      *
-     * @param Context                      $context
+     * @param Context $context
      * @param OrderAddressInterfaceFactory $addressFactory
-     * @param AddressRenderer              $addressRenderer
-     * @param ShipmentProviderInterface    $shipmentProvider
-     * @param mixed[]                      $data
+     * @param AddressRenderer $addressRenderer
+     * @param ShipmentProviderInterface $shipmentProvider
+     * @param mixed[] $data
      */
     public function __construct(
         Context $context,
