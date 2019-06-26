@@ -82,8 +82,16 @@ class GroupsExclusionStrategy implements ExclusionStrategyInterface
         return true;
     }
 
-    private function getGroupsFor(Context $navigatorContext)
+    /**
+     * @param Context $navigatorContext
+     * @return array
+     */
+    public function getGroupsFor(Context $navigatorContext)
     {
+        if (!$this->nestedGroups) {
+            return array_keys($this->groups);
+        }
+
         $paths = $navigatorContext->getCurrentPath();
 
         $groups = $this->groups;
@@ -97,6 +105,10 @@ class GroupsExclusionStrategy implements ExclusionStrategyInterface
             }
 
             $groups = $groups[$path];
+
+            if (!array_filter($groups, 'is_string')) {
+                $groups += array(self::DEFAULT_GROUP);
+            }
         }
 
         return $groups;

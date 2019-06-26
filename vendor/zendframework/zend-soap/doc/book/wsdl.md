@@ -193,6 +193,8 @@ and SOAP types:
 - PHP floats and doubles &lt;-&gt; `xsd:float`.
 - PHP booleans &lt;-&gt; `xsd:boolean`.
 - PHP arrays &lt;-&gt; `soap-enc:Array`.
+- PHP Date &lt;-&gt; `xsd:date`.
+- PHP DateTime &lt;-&gt; `xsd:dateTime`.
 - PHP object &lt;-&gt; `xsd:struct`.
 - PHP class &lt;-&gt; based on complex type strategy (See
   [the section on adding complex types](#adding-complex-type-information)).
@@ -301,6 +303,20 @@ binding is bound to the SOAP protocol format.
 
 See the [W3C WSDL documentation section](http://www.w3.org/TR/wsdl#_documentation)
 for more details.
+
+## Documenting complex types
+
+To automatically generate documentation for complex types add a class implementing
+`Zend\Soap\Wsdl\DocumentationStrategy\DocumentationStrategyInterface` to your
+complex type strategy. A `ReflectionDocumentation` strategy is included, which 
+will parse class and property docblocks and generate documentation based on the
+comments found:
+
+```php
+$strategy = new ArrayOfTypeSequence();
+$strategy->setDocumentationStrategy(new ReflectionDocumentation());
+$wsdl = new Zend\Soap\Wsdl('MyService', $myWebServiceUri, $strategy);
+```
 
 ## Retrieve the final WSDL document
 

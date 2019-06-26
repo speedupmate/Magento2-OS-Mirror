@@ -23,7 +23,6 @@ return array(
     'JMS\\' => array($vendorDir . '/jms/parser-lib/src'),
     'Flow\\JSONPath\\Test' => array($vendorDir . '/flow/jsonpath/tests'),
     'Flow\\JSONPath' => array($vendorDir . '/flow/jsonpath/src'),
-    'Doctrine\\Common\\Lexer\\' => array($vendorDir . '/doctrine/lexer/lib'),
     'Doctrine\\Common\\Collections\\' => array($vendorDir . '/doctrine/collections/lib'),
     'Dflydev\\DotAccessData' => array($vendorDir . '/dflydev/dot-access-data/src'),
     'Cm\\RedisSession\\' => array($vendorDir . '/colinmollenhour/php-redis-session-abstract/src'),

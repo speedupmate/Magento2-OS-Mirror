@@ -16,8 +16,10 @@ use Magento\Customer\Helper\View as CustomerViewHelper;
 use Magento\Customer\Model\Config\Share as ConfigShare;
 use Magento\Customer\Model\Customer as CustomerModel;
 use Magento\Customer\Model\Customer\CredentialsValidator;
+use Magento\Customer\Model\Data\Customer;
 use Magento\Customer\Model\Metadata\Validator;
 use Magento\Customer\Model\ResourceModel\Visitor\CollectionFactory;
+use Magento\Directory\Model\AllowedCountries;
 use Magento\Eav\Model\Validator\Attribute\Backend;
 use Magento\Framework\Api\ExtensibleDataObjectConverter;
 use Magento\Framework\Api\SearchCriteriaBuilder;
@@ -54,11 +56,12 @@ use Magento\Store\Model\StoreManagerInterface;
 use Psr\Log\LoggerInterface as PsrLogger;
 
 /**
- * Handle various customer account actions
+ * Handle various customer account actions.
  *
  * @SuppressWarnings(PHPMD.CouplingBetweenObjects)
  * @SuppressWarnings(PHPMD.TooManyFields)
  * @SuppressWarnings(PHPMD.ExcessiveClassComplexity)
+ * @SuppressWarnings(PHPMD.CookieAndSessionMisuse)
  */
 class AccountManagement implements AccountManagementInterface
 {
@@ -338,6 +341,11 @@ class AccountManagement implements AccountManagementInterface
     private $addressRegistry;
 
     /**
+     * @var AllowedCountries
+     */
+    private $allowedCountriesReader;
+
+    /**
      * @param CustomerFactory $customerFactory
      * @param ManagerInterface $eventManager
      * @param StoreManagerInterface $storeManager
@@ -369,8 +377,10 @@ class AccountManagement implements AccountManagementInterface
      * @param CollectionFactory|null $visitorCollectionFactory
      * @param SearchCriteriaBuilder|null $searchCriteriaBuilder
      * @param AddressRegistry|null $addressRegistry
+     * @param AllowedCountries|null $allowedCountriesReader
      * @SuppressWarnings(PHPMD.ExcessiveParameterList)
      * @SuppressWarnings(PHPMD.NPathComplexity)
+     * @SuppressWarnings(PHPMD.CyclomaticComplexity)
      */
     public function __construct(
         CustomerFactory $customerFactory,
@@ -403,7 +413,8 @@ class AccountManagement implements AccountManagementInterface
         SaveHandlerInterface $saveHandler = null,
         CollectionFactory $visitorCollectionFactory = null,
         SearchCriteriaBuilder $searchCriteriaBuilder = null,
-        AddressRegistry $addressRegistry = null
+        AddressRegistry $addressRegistry = null,
+        AllowedCountries $allowedCountriesReader = null
     ) {
         $this->customerFactory = $customerFactory;
         $this->eventManager = $eventManager;
@@ -443,6 +454,8 @@ class AccountManagement implements AccountManagementInterface
             ?: ObjectManager::getInstance()->get(SearchCriteriaBuilder::class);
         $this->addressRegistry = $addressRegistry
             ?: ObjectManager::getInstance()->get(AddressRegistry::class);
+        $this->allowedCountriesReader = $allowedCountriesReader
+            ?: ObjectManager::getInstance()->get(AllowedCountries::class);
     }
 
     /**
@@ -526,6 +539,8 @@ class AccountManagement implements AccountManagementInterface
         }
 
         $customer->setConfirmation(null);
+        // No need to validate customer and customer address while activating customer
+        $this->setIgnoreValidationFlag($customer);
         $this->customerRepository->save($customer);
         $this->getEmailNotification()->newAccount($customer, 'confirmed', '', $this->storeManager->getStore()->getId());
         return $customer;
@@ -673,8 +688,9 @@ class AccountManagement implements AccountManagementInterface
             $customer = $this->customerRepository->get($email);
         }
 
-        // No need to validate customer address while saving customer reset password token
+        // No need to validate customer and customer address while saving customer reset password token
         $this->disableAddressValidation($customer);
+        $this->setIgnoreValidationFlag($customer);
 
         //Validate Token and new password strength
         $this->validateResetPasswordToken($customer->getId(), $resetToken);
@@ -877,6 +893,9 @@ class AccountManagement implements AccountManagementInterface
         }
         try {
             foreach ($customerAddresses as $address) {
+                if (!$this->isAddressAllowedForWebsite($address, $customer->getStoreId())) {
+                    continue;
+                }
                 if ($address->getId()) {
                     $newAddress = clone $address;
                     $newAddress->setId(null);
@@ -981,7 +1000,7 @@ class AccountManagement implements AccountManagementInterface
     }
 
     /**
-     * Change customer password
+     * Change customer password.
      *
      * @param CustomerInterface $customer
      * @param string $currentPassword
@@ -1009,6 +1028,7 @@ class AccountManagement implements AccountManagementInterface
         $this->checkPasswordStrength($newPassword);
         $customerSecure->setPasswordHash($this->createPasswordHash($newPassword));
         $this->destroyCustomerSessions($customer->getId());
+        $this->disableAddressValidation($customer);
         $this->customerRepository->save($customer);
 
         return true;
@@ -1357,9 +1377,7 @@ class AccountManagement implements AccountManagementInterface
     }
 
     /**
-     * Change reset password link token
-     *
-     * Stores new reset password link token
+     * Set a new reset password link token.
      *
      * @param CustomerInterface $customer
      * @param string $passwordLinkToken
@@ -1385,8 +1403,10 @@ class AccountManagement implements AccountManagementInterface
             $customerSecure->setRpTokenCreatedAt(
                 $this->dateTimeFactory->create()->format(DateTime::DATETIME_PHP_FORMAT)
             );
+            $this->setIgnoreValidationFlag($customer);
             $this->customerRepository->save($customer);
         }
+
         return true;
     }
 
@@ -1554,5 +1574,30 @@ class AccountManagement implements AccountManagementInterface
             $sessionId = $visitor->getSessionId();
             $this->saveHandler->destroy($sessionId);
         }
+    }
+
+    /**
+     * Set ignore_validation_flag for reset password flow to skip unnecessary address and customer validation.
+     *
+     * @param Customer $customer
+     * @return void
+     */
+    private function setIgnoreValidationFlag(Customer $customer)
+    {
+        $customer->setData('ignore_validation_flag', true);
+    }
+
+    /**
+     * Check is address allowed for store
+     *
+     * @param AddressInterface $address
+     * @param int|null $storeId
+     * @return bool
+     */
+    private function isAddressAllowedForWebsite(AddressInterface $address, $storeId): bool
+    {
+        $allowedCountries = $this->allowedCountriesReader->getAllowedCountries(ScopeInterface::SCOPE_STORE, $storeId);
+
+        return in_array($address->getCountryId(), $allowedCountries);
     }
 }

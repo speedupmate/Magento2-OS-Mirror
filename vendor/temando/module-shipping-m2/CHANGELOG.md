@@ -1,3 +1,8 @@
+## [1.3.11] - 2019-05-16
+### Fixed
+
+- Validate API URL host name in module configuration
+
 ## [1.3.10] - 2019-02-11
 ### Fixed
 

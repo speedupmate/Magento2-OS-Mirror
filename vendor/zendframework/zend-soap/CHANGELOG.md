@@ -2,6 +2,42 @@
 
 All notable changes to this project will be documented in this file, in reverse chronological order by release.
 
+## 2.8.0 - 2019-04-30
+
+### Added
+
+- [#53](https://github.com/zendframework/zend-soap/pull/53) adds the ability to automatically generate WSDL documentation
+  for complex types. To do so, either create an implementation of the new interface
+  `Zend\Soap\Wsdl\DocumentationStrategy\DocumentationStrategyInterface`, or use the
+  shipped `Zend\Soap\Wsdl\DocumentationStrategy\ReflectionDocumentation`, and attach
+  it to any ComplexTypeStrategy using its `setDocumentationStategy()` method:
+  
+  ```php
+  $strategy = new ArrayOfTypeSequence();
+  $strategy->setDocumentationStrategy(new ReflectionDocumentation());
+  ```
+
+- [#52](https://github.com/zendframework/zend-soap/pull/52) adds support for for
+  the `xsd:dateTime` type, mapping it to PHP `DateTime` instances.
+
+- [#59](https://github.com/zendframework/zend-soap/pull/59) adds support for PHP 7.3.
+
+### Changed
+
+- Nothing.
+
+### Deprecated
+
+- Nothing.
+
+### Removed
+
+- Nothing.
+
+### Fixed
+
+- Nothing.
+
 ## 2.7.0 - 2018-01-29
 
 ### Added

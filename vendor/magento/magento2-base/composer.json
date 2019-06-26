@@ -2,7 +2,7 @@
     "name": "magento/magento2-base",
     "description": "Magento 2 Base (Community Edition)",
     "type": "magento2-component",
-    "version": "2.2.8",
+    "version": "2.2.9",
     "require": {
         "magento/magento-composer-installer": "*",
         "php": "~7.0.13|~7.1.0",
@@ -270,8 +270,8 @@
                 "dev/tests/integration/tmp"
             ],
             [
-                "dev/tests/js",
-                "dev/tests/js"
+                "dev/tests/js/jasmine",
+                "dev/tests/js/jasmine"
             ],
             [
                 "dev/tests/static/.gitignore",

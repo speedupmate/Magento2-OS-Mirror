@@ -15,7 +15,7 @@
     </actionGroup>
     <actionGroup name="assertOneProductNameInMiniCart">
         <arguments>
-            <argument name="productName"/>
+            <argument name="productName" type="string"/>
         </arguments>
         <conditionalClick selector="{{StorefrontMinicartSection.showCart}}" dependentSelector="{{StorefrontMinicartSection.miniCartOpened}}" visible="false" stepKey="openMiniCart"/>
         <waitForElementVisible selector="{{StorefrontMinicartSection.viewAndEditCart}}" stepKey="waitForViewAndEditCartVisible"/>
@@ -34,5 +34,12 @@
         <see selector="{{StoreFrontRemoveItemModalSection.message}}" userInput="Are you sure you would like to remove this item from the shopping cart?" stepKey="seeDeleteConfirmationMessage"/>
         <click selector="{{StoreFrontRemoveItemModalSection.ok}}" stepKey="confirmDelete"/>
         <waitForPageLoad stepKey="waitForDeleteToFinish"/>
+    </actionGroup>
+
+    <!--Check that the minicart is empty-->
+    <actionGroup name="AssertMiniCartEmpty">
+        <dontSeeElement selector="{{StorefrontMinicartSection.productCount}}" stepKey="dontSeeMinicartProductCount"/>
+        <click selector="{{StorefrontMinicartSection.showCart}}" stepKey="expandMinicart"/>
+        <see selector="{{StorefrontMinicartSection.minicartContent}}" userInput="You have no items in your shopping cart." stepKey="seeEmptyCartMessage"/>
     </actionGroup>
 </actionGroups>

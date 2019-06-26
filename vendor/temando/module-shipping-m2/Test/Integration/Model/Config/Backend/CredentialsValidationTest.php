@@ -21,8 +21,11 @@ use Temando\Shipping\Rest\Authentication;
  */
 class CredentialsValidationTest extends \PHPUnit\Framework\TestCase
 {
-    const ENDPOINT = 'https://auth.temando.io/v1/';
-    const ENDPOINT_INVALID = 'gopher://127.0.0.1';
+    const ENDPOINT = 'https://auth.temando.io/';
+    const ENDPOINT_INVALID = 'gopher://auth.temando.io';
+
+    const ENDPOINT_INVALID_HOST_1 = 'https://auth.temando.com';
+    const ENDPOINT_INVALID_HOST_2 = 'https://mitm.proxy/temando.io';
 
     const CHECKOUT_DISABLED = '0';
     const CHECKOUT_ENABLED = '1';
@@ -334,6 +337,44 @@ class CredentialsValidationTest extends \PHPUnit\Framework\TestCase
                     'session_endpoint' => self::ENDPOINT_INVALID,
                     'account_id' => self::USER_INVALID,
                     'bearer_token' => self::PASSWORD_INVALID,
+                ]
+            ]
+        ]);
+
+        $this->expectException(\Magento\Framework\Validator\Exception::class);
+        $this->expectExceptionMessage('Please enter a valid URL. Protocol (http://, https://) is required.');
+        $backendModel->validateBeforeSave();
+    }
+
+    /**
+     * @test
+     */
+    public function cannotSaveWithInvalidEndpointHostname()
+    {
+        $backendModel = Bootstrap::getObjectManager()->create(Active::class, [
+            'validationRules' => $this->getValidator(),
+            'data' => [
+                'value' => self::CHECKOUT_ENABLED,
+                'fieldset_data' => [
+                    'session_endpoint' => self::ENDPOINT_INVALID_HOST_1,
+                    'account_id' => self::USER_VALID,
+                    'bearer_token' => self::PASSWORD_VALID,
+                ]
+            ]
+        ]);
+
+        $this->expectException(\Magento\Framework\Validator\Exception::class);
+        $this->expectExceptionMessage('Please enter a valid URL. Protocol (http://, https://) is required.');
+        $backendModel->validateBeforeSave();
+
+        $backendModel = Bootstrap::getObjectManager()->create(Active::class, [
+            'validationRules' => $this->getValidator(),
+            'data' => [
+                'value' => self::CHECKOUT_ENABLED,
+                'fieldset_data' => [
+                    'session_endpoint' => self::ENDPOINT_INVALID_HOST_2,
+                    'account_id' => self::USER_VALID,
+                    'bearer_token' => self::PASSWORD_VALID,
                 ]
             ]
         ]);

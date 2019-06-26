@@ -5,9 +5,12 @@
  */
 namespace Magento\Catalog\Model;
 
+use Magento\Authorization\Model\UserContextInterface;
 use Magento\Catalog\Api\CategoryRepositoryInterface;
 use Magento\CatalogUrlRewrite\Model\CategoryUrlRewriteGenerator;
 use Magento\Framework\Api\AttributeValueFactory;
+use Magento\Framework\App\ObjectManager;
+use Magento\Framework\AuthorizationInterface;
 use Magento\Framework\Convert\ConvertArray;
 use Magento\Framework\Exception\NoSuchEntityException;
 use Magento\Framework\Profiler;
@@ -241,6 +244,16 @@ class Category extends \Magento\Catalog\Model\AbstractModel implements
      * @var \Magento\Framework\Api\MetadataServiceInterface
      */
     protected $metadataService;
+
+    /**
+     * @var UserContextInterface
+     */
+    private $userContext;
+
+    /**
+     * @var AuthorizationInterface
+     */
+    private $authorization;
 
     /**
      * @param \Magento\Framework\Model\Context $context
@@ -927,6 +940,59 @@ class Category extends \Magento\Catalog\Model\AbstractModel implements
     }
 
     /**
+     * Get user context.
+     *
+     * @return UserContextInterface
+     */
+    private function getUserContext(): UserContextInterface
+    {
+        if (!$this->userContext) {
+            $this->userContext = ObjectManager::getInstance()->get(UserContextInterface::class);
+        }
+
+        return $this->userContext;
+    }
+
+    /**
+     * Get authorization service.
+     *
+     * @return AuthorizationInterface
+     */
+    private function getAuthorization(): AuthorizationInterface
+    {
+        if (!$this->authorization) {
+            $this->authorization = ObjectManager::getInstance()->get(AuthorizationInterface::class);
+        }
+
+        return $this->authorization;
+    }
+
+    /**
+     * @inheritdoc
+     */
+    public function beforeSave()
+    {
+        //Validate changing of design.
+        $userType = $this->getUserContext()->getUserType();
+        if (($userType === UserContextInterface::USER_TYPE_ADMIN
+                || $userType === UserContextInterface::USER_TYPE_INTEGRATION)
+            && !$this->getAuthorization()->isAllowed('Magento_Catalog::edit_category_design')
+        ) {
+            foreach ($this->_designAttributes as $attributeCode) {
+                $this->setData($attributeCode, $value = $this->getOrigData($attributeCode));
+                if (!empty($this->_data[self::CUSTOM_ATTRIBUTES])
+                    && array_key_exists($attributeCode, $this->_data[self::CUSTOM_ATTRIBUTES])
+                ) {
+                    //In case custom attribute were used to update the entity.
+                    $this->_data[self::CUSTOM_ATTRIBUTES][$attributeCode]->setValue($value);
+                }
+            }
+        }
+
+        return parent::beforeSave();
+    }
+
+    /**
      * Retrieve anchors above
      *
      * @return array
@@ -1130,10 +1196,15 @@ class Category extends \Magento\Catalog\Model\AbstractModel implements
             }
         }
         $productIndexer = $this->indexerRegistry->get(Indexer\Category\Product::INDEXER_ID);
-        if (!$productIndexer->isScheduled()
-            && (!empty($this->getAffectedProductIds()) || $this->dataHasChangedFor('is_anchor'))
-        ) {
-            $productIndexer->reindexList($this->getPathIds());
+
+        if (!empty($this->getAffectedProductIds())
+            || $this->dataHasChangedFor('is_anchor')
+            || $this->dataHasChangedFor('is_active')) {
+            if (!$productIndexer->isScheduled()) {
+                $productIndexer->reindexList($this->getPathIds());
+            } else {
+                $productIndexer->invalidate();
+            }
         }
     }
 
@@ -1165,16 +1236,14 @@ class Category extends \Magento\Catalog\Model\AbstractModel implements
                 $identities[] = self::CACHE_TAG . '_' . $this->getId();
             }
 
-            if ($this->hasDataChanges() || $this->isDeleted() || $this->dataHasChangedFor(self::KEY_INCLUDE_IN_MENU)) {
-                $identities[] = Product::CACHE_PRODUCT_CATEGORY_TAG . '_' . $this->getId();
-            }
-            
+            $identities = $this->getCategoryRelationIdentities($identities);
+
             if ($this->isObjectNew()) {
                 $identities[] = self::CACHE_TAG;
             }
         }
 
-        return $identities;
+        return array_unique($identities);
     }
 
     /**
@@ -1458,6 +1527,26 @@ class Category extends \Magento\Catalog\Model\AbstractModel implements
     public function setExtensionAttributes(\Magento\Catalog\Api\Data\CategoryExtensionInterface $extensionAttributes)
     {
         return $this->_setExtensionAttributes($extensionAttributes);
+    }
+
+    /**
+     * Return category relation identities.
+     *
+     * @param array $identities
+     * @return array
+     */
+    private function getCategoryRelationIdentities(array $identities): array
+    {
+        if ($this->hasDataChanges() || $this->isDeleted() || $this->dataHasChangedFor(self::KEY_INCLUDE_IN_MENU)) {
+            $identities[] = Product::CACHE_PRODUCT_CATEGORY_TAG . '_' . $this->getId();
+            if ($this->dataHasChangedFor('is_anchor') || $this->dataHasChangedFor('is_active')) {
+                foreach ($this->getPathIds() as $id) {
+                    $identities[] = Product::CACHE_PRODUCT_CATEGORY_TAG . '_' . $id;
+                }
+            }
+        }
+
+        return $identities;
     }
 
     //@codeCoverageIgnoreEnd
