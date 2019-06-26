@@ -20,55 +20,57 @@
 
 namespace MSP\ReCaptcha\Plugin\Block\Account;
 
-use Magento\Framework\Json\DecoderInterface;
-use Magento\Framework\Json\EncoderInterface;
+use Magento\Customer\Block\Account\AuthenticationPopup;
+use MSP\ReCaptcha\Model\Config;
 use MSP\ReCaptcha\Model\LayoutSettings;
+use Zend\Json\Json;
 
 class AuthenticationPopupPlugin
 {
-    /**
-     * @var EncoderInterface
-     */
-    private $encoder;
-
-    /**
-     * @var DecoderInterface
-     */
-    private $decoder;
-
     /**
      * @var LayoutSettings
      */
     private $layoutSettings;
 
     /**
-     * AuthenticationPopupPlugin constructor.
-     * @param EncoderInterface $encoder
-     * @param DecoderInterface $decoder
+     * @var Config
+     */
+    private $config;
+
+    /**
      * @param LayoutSettings $layoutSettings
+     * @param Config|null $config
      */
     public function __construct(
-        EncoderInterface $encoder,
-        DecoderInterface $decoder,
-        LayoutSettings $layoutSettings
+        LayoutSettings $layoutSettings,
+        Config $config
     ) {
-        $this->encoder = $encoder;
-        $this->decoder = $decoder;
         $this->layoutSettings = $layoutSettings;
+        $this->config = $config;
     }
 
     /**
-     * @param \Magento\Customer\Block\Account\AuthenticationPopup $subject
-     * @param array $result
+     * @param AuthenticationPopup $subject
+     * @param string $result
      * @return string
      * @SuppressWarnings(PHPMD.UnusedFormalParameter)
      */
-    public function afterGetJsLayout(\Magento\Customer\Block\Account\AuthenticationPopup $subject, $result)
+    public function afterGetJsLayout(AuthenticationPopup $subject, $result)
     {
-        $layout = $this->decoder->decode($result);
-        $layout['components']['authenticationPopup']['children']['msp_recaptcha']['settings'] =
-            $this->layoutSettings->getCaptchaSettings();
+        $layout = Json::decode($result, Json::TYPE_ARRAY);
 
-        return $this->encoder->encode($layout);
+        if ($this->config->isEnabledFrontend()) {
+            $layout['components']['authenticationPopup']['children']['msp_recaptcha']['settings']
+                = $this->layoutSettings->getCaptchaSettings();
+        }
+
+        if(
+            isset($layout['components']['authenticationPopup']['children']['msp_recaptcha'])
+            && !$this->config->isEnabledFrontend()
+        ) {
+            unset($layout['components']['authenticationPopup']['children']['msp_recaptcha']);
+        }
+
+        return Json::encode($layout);
     }
 }

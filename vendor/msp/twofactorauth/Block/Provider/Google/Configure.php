@@ -21,9 +21,26 @@
 namespace MSP\TwoFactorAuth\Block\Provider\Google;
 
 use Magento\Backend\Block\Template;
+use Magento\Backend\Model\Auth\Session;
+use MSP\TwoFactorAuth\Model\Provider\Engine\Google;
 
 class Configure extends Template
 {
+    private $session;
+
+    /**
+     * @var Google
+     */
+    private $google;
+
+    public function __construct(Template\Context $context, Google $google, Session $session, array $data = [])
+    {
+        $this->session = $session;
+        $this->google  = $google;
+
+        parent::__construct($context, $data);
+    }
+
     /**
      * @inheritdoc
      */
@@ -37,6 +54,9 @@ class Configure extends Template
 
         $this->jsLayout['components']['msp-twofactorauth-configure']['successUrl'] =
             $this->getUrl($this->_urlBuilder->getStartupPageUrl());
+
+        $this->jsLayout['components']['msp-twofactorauth-configure']['secretCode'] =
+            $this->google->getSecretCode($this->session->getUser());
 
         return parent::getJsLayout();
     }

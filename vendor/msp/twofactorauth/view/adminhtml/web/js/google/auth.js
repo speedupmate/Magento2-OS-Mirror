@@ -37,6 +37,7 @@ define([
         qrCodeUrl: '',
         postUrl: '',
         successUrl: '',
+        secretCode: '',
 
         /**
          * Get QR code URL
@@ -52,6 +53,15 @@ define([
          */
         getPostUrl: function () {
             return this.postUrl;
+        },
+
+        /**
+         * Get plain Secret Code
+         * @returns {string}
+         * @author Konrad Skrzynski <konrad.skrzynski@accenture.com>
+         */
+        getSecretCode: function() {
+            return this.secretCode;
         },
 
         /**

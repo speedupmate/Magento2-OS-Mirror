@@ -149,6 +149,21 @@ class ResolveNamedArgumentsPassTest extends TestCase
         $this->assertEquals([new Reference('foo'), '123'], $definition->getArguments());
     }
 
+    /**
+     * @expectedException \Symfony\Component\DependencyInjection\Exception\InvalidArgumentException
+     * @expectedExceptionMessage Invalid service "Symfony\Component\DependencyInjection\Tests\Fixtures\NamedArgumentsDummy": did you forget to add the "$" prefix to argument "apiKey"?
+     */
+    public function testTypedArgumentWithMissingDollar()
+    {
+        $container = new ContainerBuilder();
+
+        $definition = $container->register(NamedArgumentsDummy::class, NamedArgumentsDummy::class);
+        $definition->setArgument('apiKey', '123');
+
+        $pass = new ResolveNamedArgumentsPass();
+        $pass->process($container);
+    }
+
     public function testResolvesMultipleArgumentsOfTheSameType()
     {
         $container = new ContainerBuilder();
@@ -180,16 +195,14 @@ class ResolveNamedArgumentsPassTest extends TestCase
         $container = new ContainerBuilder();
 
         $definition = $container->register(NamedArgumentsVariadicsDummy::class, NamedArgumentsVariadicsDummy::class);
-        $definition->setArguments(
-            [
-                '$class' => new \stdClass(),
-                '$variadics' => [
-                    new Reference('foo'),
-                    new Reference('bar'),
-                    new Reference('baz'),
-                ],
-            ]
-        );
+        $definition->setArguments([
+            '$class' => new \stdClass(),
+            '$variadics' => [
+                new Reference('foo'),
+                new Reference('bar'),
+                new Reference('baz'),
+            ],
+        ]);
 
         $pass = new ResolveNamedArgumentsPass();
         $pass->process($container);

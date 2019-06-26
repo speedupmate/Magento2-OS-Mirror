@@ -31,7 +31,7 @@ class Position implements \Magento\Framework\Option\ArrayInterface
     {
         return [
             ['value' => 'inline', 'label' => __('Inline')],
-            ['value' => 'bottomright ', 'label' => __('Bottom Right')],
+            ['value' => 'bottomright', 'label' => __('Bottom Right')],
             ['value' => 'bottomleft', 'label' => __('Bottom Left')],
         ];
     }

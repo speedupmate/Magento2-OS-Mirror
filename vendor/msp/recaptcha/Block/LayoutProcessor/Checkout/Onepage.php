@@ -21,6 +21,8 @@
 namespace MSP\ReCaptcha\Block\LayoutProcessor\Checkout;
 
 use Magento\Checkout\Block\Checkout\LayoutProcessorInterface;
+use Magento\Framework\App\ObjectManager;
+use MSP\ReCaptcha\Model\Config;
 use MSP\ReCaptcha\Model\LayoutSettings;
 
 class Onepage implements LayoutProcessorInterface
@@ -31,13 +33,22 @@ class Onepage implements LayoutProcessorInterface
     private $layoutSettings;
 
     /**
+     * @var Config
+     */
+    private $config;
+
+    /**
      * Onepage constructor.
+     *
      * @param LayoutSettings $layoutSettings
+     * @param Config|null $config
      */
     public function __construct(
-        LayoutSettings $layoutSettings
+        LayoutSettings $layoutSettings,
+        Config $config = null
     ) {
         $this->layoutSettings = $layoutSettings;
+        $this->config = $config ?: ObjectManager::getInstance()->get(Config::class);
     }
 
     /**
@@ -48,12 +59,26 @@ class Onepage implements LayoutProcessorInterface
      */
     public function process($jsLayout)
     {
-        $jsLayout['components']['checkout']['children']['steps']['children']['shipping-step']['children']
-            ['shippingAddress']['children']['customer-email']['children']
-            ['msp_recaptcha']['settings'] = $this->layoutSettings->getCaptchaSettings();
+        if ($this->config->isEnabledFrontend()) {
+            $jsLayout['components']['checkout']['children']['steps']['children']['shipping-step']['children']
+                ['shippingAddress']['children']['customer-email']['children']
+                ['msp_recaptcha']['settings'] = $this->layoutSettings->getCaptchaSettings();
 
-        $jsLayout['components']['checkout']['children']['authentication']['children']
-            ['msp_recaptcha']['settings'] = $this->layoutSettings->getCaptchaSettings();
+            $jsLayout['components']['checkout']['children']['authentication']['children']
+                ['msp_recaptcha']['settings'] = $this->layoutSettings->getCaptchaSettings();
+        }
+
+        if (!$this->config->isEnabledFrontend()) {
+            if (isset($jsLayout['components']['checkout']['children']['steps']['children']['shipping-step']['children']
+                ['shippingAddress']['children']['customer-email']['children']['msp_recaptcha'])) {
+                unset($jsLayout['components']['checkout']['children']['steps']['children']['shipping-step']['children']
+                    ['shippingAddress']['children']['customer-email']['children']['msp_recaptcha']);
+            }
+
+            if (isset($jsLayout['components']['checkout']['children']['authentication']['children']['msp_recaptcha'])) {
+                unset($jsLayout['components']['checkout']['children']['authentication']['children']['msp_recaptcha']);
+            }
+        }
 
         return $jsLayout;
     }

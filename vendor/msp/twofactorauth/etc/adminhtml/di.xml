@@ -20,7 +20,7 @@
  */
 -->
 <config xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
-        xsi:noNamespaceSchemaLocation="urn:magento:framework:Event/etc/events.xsd">
+        xsi:noNamespaceSchemaLocation="urn:magento:framework:ObjectManager/etc/config.xsd">
 
     <type name="Magento\User\Block\User\Edit\Tabs">
         <plugin sortOrder="1" name="mSPTwoFactorAuthTabs" type="MSP\TwoFactorAuth\Plugin\Block\User\Edit\TabsPlugin"/>

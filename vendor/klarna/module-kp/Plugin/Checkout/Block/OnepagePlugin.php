@@ -33,7 +33,9 @@ class OnepagePlugin
      */
     private $config;
 
-    /** @var StoreManagerInterface */
+    /**
+     * @var StoreManagerInterface
+     */
     private $storeManager;
 
     /**
@@ -56,10 +58,14 @@ class OnepagePlugin
     /**
      * Initialize Klarna Payment session before get js layout
      *
+     * @param \Magento\Checkout\Block\Onepage $subject
+     * @return array
      * @throws \Klarna\Core\Exception
      * @throws \Klarna\Core\Model\Api\Exception
+     * @throws \Magento\Framework\Exception\NoSuchEntityException
+     * @SuppressWarnings(PHPMD.UnusedFormalParameter)
      */
-    public function beforeGetJsLayout()
+    public function beforeGetJsLayout(\Magento\Checkout\Block\Onepage $subject)
     {
         $store = $this->storeManager->getStore();
         if ($this->config->isSetFlag(
@@ -69,5 +75,6 @@ class OnepagePlugin
         )) {
             $this->kpSession->init();
         }
+        return [];
     }
 }

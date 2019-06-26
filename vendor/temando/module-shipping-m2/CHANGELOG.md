@@ -1,3 +1,15 @@
+## [1.5.3] - 2019-05-20
+### Fixed
+
+- Event stream cron job
+- Retrieving shipping labels from the platform
+
+## [1.5.2] - 2019-05-17
+### Fixed
+
+- Validate API URL host name in module configuration
+
+
 ## [1.5.1] - 2019-02-15
 ### Fixed
 

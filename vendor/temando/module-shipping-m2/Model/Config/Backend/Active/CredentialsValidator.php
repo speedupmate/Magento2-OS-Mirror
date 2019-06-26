@@ -78,7 +78,15 @@ class CredentialsValidator
             // read session endpoint from current save operation
             $sessionUrl = $field->getFieldsetDataValue('session_endpoint');
 
-            return (empty($sessionUrl) || $uriValidator->isValid($sessionUrl));
+            if (empty($sessionUrl)) {
+                return true;
+            }
+
+            if (!preg_match('/^https?:\/\/[\dA-Za-z\-\.]+\.temando\.io\/?$/', $sessionUrl)) {
+                return false;
+            }
+
+            return $uriValidator->isValid($sessionUrl);
         };
 
         $uriValidator = new UriValidator(['uriHandler' => \Zend\Uri\Http::class]);

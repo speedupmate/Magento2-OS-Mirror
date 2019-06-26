@@ -25,6 +25,18 @@
     },
     'afterRender': renderReCaptcha()
 }">
-    <div class="g-recaptcha" ></div>
+    <div class="g-recaptcha"></div>
+    <!-- ko if: (getIsInvisibleRecaptcha()) -->
+    <div class="field">
+        <div class="control">
+            <input type="checkbox"
+                   value=""
+                   class="required-captcha checkbox"
+                   name="recaptcha-validate-"
+                   data-validate="{required:true}"
+            />
+        </div>
+    </div>
+    <!-- /ko -->
 </div>
 <!-- /ko -->

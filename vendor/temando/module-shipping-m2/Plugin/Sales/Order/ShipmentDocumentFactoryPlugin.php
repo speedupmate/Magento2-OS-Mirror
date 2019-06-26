@@ -4,8 +4,8 @@
  */
 namespace Temando\Shipping\Plugin\Sales\Order;
 
-use Magento\Framework\Exception\FileSystemException;
 use Magento\Framework\Filesystem\Driver\Https as HttpsDownloader;
+use Magento\Framework\HTTP\ClientFactory;
 use Magento\Sales\Api\Data\OrderInterface;
 use Magento\Sales\Api\Data\ShipmentCommentCreationInterface;
 use Magento\Sales\Api\Data\ShipmentCreationArgumentsInterface;
@@ -40,19 +40,27 @@ class ShipmentDocumentFactoryPlugin
     private $logger;
 
     /**
+     * @var ClientFactory
+     */
+    private $client;
+
+    /**
      * ShipmentDocumentFactoryPlugin constructor.
      * @param ShipmentExtensionFactory $extensionFactory
-     * @param HttpsDownloader $downloader
+     * @param HttpsDownloader $downloader - deprecatedsince 1.5.3, use $client
      * @param LoggerInterface $logger
+     * @param ClientFactory|null $client
      */
     public function __construct(
         ShipmentExtensionFactory $extensionFactory,
         HttpsDownloader $downloader,
-        LoggerInterface $logger
+        LoggerInterface $logger,
+        ClientFactory $client = null
     ) {
         $this->shipmentExtensionFactory = $extensionFactory;
         $this->downloader = $downloader;
         $this->logger = $logger;
+        $this->client = $client ?: \Magento\Framework\App\ObjectManager::getInstance()->get(ClientFactory::class);
     }
 
     /**
@@ -131,13 +139,19 @@ class ShipmentDocumentFactoryPlugin
         }
 
         // download label and attach to shipment
-        $count = 0;
         $labelUri = $arguments->getExtensionAttributes()->getShippingLabel();
-        $labelUri = preg_replace('#^https://#', '', $labelUri, 1, $count);
-        if ($count) {
+        if ($labelUri) {
             try {
-                $labelContent = $this->downloader->fileGetContents($labelUri);
-            } catch (FileSystemException $exception) {
+                $curl = $this->client->create();
+                $curl->setOptions(
+                    [
+                        CURLOPT_HEADER => false,
+                        CURLOPT_FOLLOWLOCATION => true
+                    ]
+                );
+                $curl->get($labelUri);
+                $labelContent = $curl->getBody();
+            } catch (\Exception $exception) {
                 $this->logger->critical('Shipping label download failed', ['exception' => $exception]);
                 $labelContent = '';
             }

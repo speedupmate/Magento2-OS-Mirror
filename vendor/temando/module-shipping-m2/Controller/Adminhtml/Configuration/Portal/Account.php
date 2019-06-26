@@ -58,8 +58,9 @@ class Account extends Action implements HttpGetActionInterface
         try {
             $redirectUrl = $this->portalUrl->getAccountUrl();
         } catch (LocalizedException $exception) {
-            $msg = 'Temando Shipping is not properly configured. Please register an account.';
-            $this->messageManager->addWarningMessage(__($msg));
+            $this->messageManager->addWarningMessage(
+                __('Temando Shipping is not properly configured. Please register an account.')
+            );
 
             $redirectUrl = $this->getUrl('adminhtml/system_config/edit', [
                 'section' => 'carriers',

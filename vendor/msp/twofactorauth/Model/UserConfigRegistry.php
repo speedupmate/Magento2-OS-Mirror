@@ -24,6 +24,8 @@
 
 namespace MSP\TwoFactorAuth\Model;
 
+use MSP\TwoFactorAuth\Api\Data\UserConfigInterface;
+
 /**
  * @SuppressWarnings(PHPMD.ShortVariable)
  */
@@ -35,14 +37,12 @@ class UserConfigRegistry
     ];
 
     /**
-     * @var \MSP\TwoFactorAuth\Model\UserConfigFactory
+     * @param null $userConfigFactory @deprecated
+     * @SuppressWarnings(PHPMD.UnusedFormalParameter)
      */
-    private $userConfigFactory;
-
     public function __construct(
-        \MSP\TwoFactorAuth\Model\UserConfigFactory $userConfigFactory
+        $userConfigFactory
     ) {
-        $this->userConfigFactory = $userConfigFactory;
     }
     
     /**
@@ -66,21 +66,17 @@ class UserConfigRegistry
     /**
      * Push one object into registry
      * @param int $id
-     * @return \MSP\TwoFactorAuth\Api\Data\UserConfigInterface|null
+     * @return UserConfigInterface|null
      */
     public function retrieveById($id)
     {
-        if (isset($this->registry[$id])) {
-            return $this->registry[$id];
-        }
-
-        return null;
+        return $this->registry[$id] ?? null;
     }
 
     /**
      * Retrieve by UserId value
      * @param int $value
-     * @return \MSP\TwoFactorAuth\Api\Data\UserConfigInterface|null
+     * @return UserConfigInterface|null
      */
     public function retrieveByUserId($value)
     {
@@ -93,9 +89,9 @@ class UserConfigRegistry
 
     /**
      * Push one object into registry
-     * @param \MSP\TwoFactorAuth\Model\UserConfig $userConfig
+     * @param UserConfig $userConfig
      */
-    public function push(\MSP\TwoFactorAuth\Model\UserConfig $userConfig)
+    public function push(UserConfig $userConfig)
     {
         $this->registry[$userConfig->getId()] = $userConfig->getDataModel();
         foreach (array_keys($this->registryByKey) as $key) {

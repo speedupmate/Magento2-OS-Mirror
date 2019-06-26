@@ -45,6 +45,30 @@
     <preference for="MSP\TwoFactorAuth\Api\TfaSessionInterface" type="MSP\TwoFactorAuth\Model\TfaSession"/>
     <preference for="MSP\TwoFactorAuth\Model\AlertInterface" type="MSP\TwoFactorAuth\Model\Alert"/>
 
+    <type name="MSP\TwoFactorAuth\Model\UserConfigManager">
+        <arguments>
+            <!-- @deprecated parameter decoder has been deprecated and not in use now -->
+            <argument name="decoder" xsi:type="null" />
+            <!-- @deprecated parameter encoder has been deprecated and not in use now -->
+            <argument name="encoder" xsi:type="null" />
+        </arguments>
+    </type>
+    <type name="MSP\TwoFactorAuth\Model\ResourceModel\UserConfig">
+        <arguments>
+            <!-- @deprecated parameter decoder has been deprecated and not in use now -->
+            <argument name="decoder" xsi:type="null" />
+            <!-- @deprecated parameter encoder has been deprecated and not in use now -->
+            <argument name="encoder" xsi:type="null" />
+        </arguments>
+    </type>
+
+    <type name="MSP\TwoFactorAuth\Model\UserConfigRegistry">
+        <arguments>
+            <!-- @deprecated parameter userConfigFactory has been deprecated and not in use now -->
+            <argument name="userConfigFactory" xsi:type="null" />
+        </arguments>
+    </type>
+
     <type name="Magento\Framework\Console\CommandList">
         <arguments>
             <argument name="commands" xsi:type="array">

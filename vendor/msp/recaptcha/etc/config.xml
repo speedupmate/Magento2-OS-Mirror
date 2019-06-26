@@ -39,6 +39,8 @@
                 <enabled_forgot>1</enabled_forgot>
                 <enabled_contact>1</enabled_contact>
                 <enabled_create>1</enabled_create>
+                <enabled_review>1</enabled_review>
+		        <enabled_newsletter>1</enabled_newsletter>
             </frontend>
         </msp_securitysuite_recaptcha>
     </default>

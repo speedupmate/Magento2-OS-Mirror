@@ -37,11 +37,11 @@
                    showInStore="1">
                 <label>General</label>
                 <field id="public_key" translate="label comment" type="text" sortOrder="10" showInDefault="1"
-                       showInWebsite="1" showInStore="1">
+                       showInWebsite="1" showInStore="0">
                     <label>Google API website key</label>
                 </field>
                 <field id="private_key" translate="label comment" type="password" sortOrder="20" showInDefault="1"
-                       showInWebsite="1" showInStore="1">
+                       showInWebsite="1" showInStore="0">
                     <label>Google API secret key</label>
                 </field>
             </group>
@@ -155,6 +155,22 @@
                 <field id="enabled_create" translate="label" type="select" sortOrder="230" showInDefault="1"
                        showInWebsite="1" showInStore="0" canRestore="1">
                     <label>Use in Create user</label>
+                    <source_model>Magento\Config\Model\Config\Source\Yesno</source_model>
+                    <depends>
+                        <field id="enabled">1</field>
+                    </depends>
+                </field>
+                <field id="enabled_review" translate="label" type="select" sortOrder="240" showInDefault="1"
+                       showInWebsite="1" showInStore="0" canRestore="1">
+                    <label>Use in Review</label>
+                    <source_model>Magento\Config\Model\Config\Source\Yesno</source_model>
+                    <depends>
+                        <field id="enabled">1</field>
+                    </depends>
+                </field>
+		        <field id="enabled_newsletter" translate="label" type="select" sortOrder="250" showInDefault="1"
+                       showInWebsite="1" showInStore="0" canRestore="1">
+                    <label>Use in Newsletter</label>
                     <source_model>Magento\Config\Model\Config\Source\Yesno</source_model>
                     <depends>
                         <field id="enabled">1</field>

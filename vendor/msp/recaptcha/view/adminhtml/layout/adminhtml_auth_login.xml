@@ -28,7 +28,8 @@
     <body>
         <referenceContainer name="form.additional.info">
             <block class="MSP\ReCaptcha\Block\Adminhtml\ReCaptcha" name="msp-recaptcha"
-                   template="MSP_ReCaptcha::msp_recaptcha.phtml" />
+                   template="MSP_ReCaptcha::msp_recaptcha.phtml"
+                   ifconfig="msp_securitysuite_recaptcha/backend/enabled" />
         </referenceContainer>
     </body>
 </page>

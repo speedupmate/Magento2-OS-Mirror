@@ -1,4 +1,9 @@
 
+6.1.1 / 2019-04-24
+================
+
+  * Remove MFTF tests for now to avoid breaking default suite
+
 6.1.0 / 2018-12-21
 ================
 

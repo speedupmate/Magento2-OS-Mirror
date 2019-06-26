@@ -48,7 +48,7 @@ class XmlDumper extends Dumper
 
         $container = $this->document->createElementNS('http://symfony.com/schema/dic/services', 'container');
         $container->setAttribute('xmlns:xsi', 'http://www.w3.org/2001/XMLSchema-instance');
-        $container->setAttribute('xsi:schemaLocation', 'http://symfony.com/schema/dic/services http://symfony.com/schema/dic/services/services-1.0.xsd');
+        $container->setAttribute('xsi:schemaLocation', 'http://symfony.com/schema/dic/services https://symfony.com/schema/dic/services/services-1.0.xsd');
 
         $this->addParameters($container);
         $this->addServices($container);
@@ -83,6 +83,9 @@ class XmlDumper extends Dumper
             $call->setAttribute('method', $methodcall[0]);
             if (\count($methodcall[1])) {
                 $this->convertParameters($methodcall[1], 'argument', $call);
+            }
+            if ($methodcall[2] ?? false) {
+                $call->setAttribute('returns-clone', 'true');
             }
             $parent->appendChild($call);
         }
@@ -227,6 +230,14 @@ class XmlDumper extends Dumper
         if (!$id->isPrivate()) {
             $service->setAttribute('public', $id->isPublic() ? 'true' : 'false');
         }
+
+        if ($id->isDeprecated()) {
+            $deprecated = $this->document->createElement('deprecated');
+            $deprecated->appendChild($this->document->createTextNode($id->getDeprecationMessage('%alias_id%')));
+
+            $service->appendChild($deprecated);
+        }
+
         $parent->appendChild($service);
     }
 
@@ -272,12 +283,20 @@ class XmlDumper extends Dumper
             if ($value instanceof ServiceClosureArgument) {
                 $value = $value->getValues()[0];
             }
-            if (\is_array($value)) {
+            if (\is_array($tag = $value)) {
                 $element->setAttribute('type', 'collection');
                 $this->convertParameters($value, $type, $element, 'key');
-            } elseif ($value instanceof TaggedIteratorArgument) {
-                $element->setAttribute('type', 'tagged');
-                $element->setAttribute('tag', $value->getTag());
+            } elseif ($value instanceof TaggedIteratorArgument || ($value instanceof ServiceLocatorArgument && $tag = $value->getTaggedIteratorArgument())) {
+                $element->setAttribute('type', $value instanceof TaggedIteratorArgument ? 'tagged' : 'tagged_locator');
+                $element->setAttribute('tag', $tag->getTag());
+
+                if (null !== $tag->getIndexAttribute()) {
+                    $element->setAttribute('index-by', $tag->getIndexAttribute());
+
+                    if (null !== $tag->getDefaultIndexMethod()) {
+                        $element->setAttribute('default-index-method', $tag->getDefaultIndexMethod());
+                    }
+                }
             } elseif ($value instanceof IteratorArgument) {
                 $element->setAttribute('type', 'iterator');
                 $this->convertParameters($value->getValues(), $type, $element, 'key');
@@ -287,12 +306,12 @@ class XmlDumper extends Dumper
             } elseif ($value instanceof Reference) {
                 $element->setAttribute('type', 'service');
                 $element->setAttribute('id', (string) $value);
-                $behaviour = $value->getInvalidBehavior();
-                if (ContainerInterface::NULL_ON_INVALID_REFERENCE == $behaviour) {
+                $behavior = $value->getInvalidBehavior();
+                if (ContainerInterface::NULL_ON_INVALID_REFERENCE == $behavior) {
                     $element->setAttribute('on-invalid', 'null');
-                } elseif (ContainerInterface::IGNORE_ON_INVALID_REFERENCE == $behaviour) {
+                } elseif (ContainerInterface::IGNORE_ON_INVALID_REFERENCE == $behavior) {
                     $element->setAttribute('on-invalid', 'ignore');
-                } elseif (ContainerInterface::IGNORE_ON_UNINITIALIZED_REFERENCE == $behaviour) {
+                } elseif (ContainerInterface::IGNORE_ON_UNINITIALIZED_REFERENCE == $behavior) {
                     $element->setAttribute('on-invalid', 'ignore_uninitialized');
                 }
             } elseif ($value instanceof Definition) {

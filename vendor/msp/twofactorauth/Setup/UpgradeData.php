@@ -18,18 +18,20 @@
  * @license    http://opensource.org/licenses/osl-3.0.php  Open Software License (OSL 3.0)
  */
 
+declare(strict_types=1);
+
 namespace MSP\TwoFactorAuth\Setup;
 
 use Magento\Framework\App\Config\ScopeConfigInterface;
 use Magento\Framework\Filesystem\Io\File;
-use Magento\Framework\Json\EncoderInterface;
 use Magento\Framework\Module\Dir\Reader;
+use Magento\Framework\Serialize\SerializerInterface;
 use Magento\Framework\Setup\ModuleContextInterface;
 use Magento\Framework\Setup\ModuleDataSetupInterface;
 use Magento\Framework\Setup\UpgradeDataInterface;
-use Magento\Framework\Json\DecoderInterface;
 use Magento\Framework\App\Config\ConfigResource\ConfigInterface;
 use MSP\TwoFactorAuth\Model\Provider\Engine\DuoSecurity;
+use MSP\TwoFactorAuth\Setup\Operation\EncryptConfiguration;
 
 /**
  * @codeCoverageIgnore
@@ -37,19 +39,9 @@ use MSP\TwoFactorAuth\Model\Provider\Engine\DuoSecurity;
 class UpgradeData implements UpgradeDataInterface
 {
     /**
-     * @var EncoderInterface
-     */
-    private $encoder;
-
-    /**
      * @var ConfigInterface
      */
     private $config;
-
-    /**
-     * @var DecoderInterface
-     */
-    private $decoder;
 
     /**
      * @var Reader
@@ -66,20 +58,38 @@ class UpgradeData implements UpgradeDataInterface
      */
     private $scopeConfig;
 
+    /**
+     * @var SerializerInterface
+     */
+    private $serializer;
+
+    /**
+     * @var EncryptConfiguration
+     */
+    private $encryptConfiguration;
+
+    /**
+     * @param SerializerInterface $serializer
+     * @param ConfigInterface $config
+     * @param ScopeConfigInterface $scopeConfig
+     * @param File $file
+     * @param Reader $moduleReader
+     * @param EncryptConfiguration $encryptConfiguration
+     */
     public function __construct(
-        EncoderInterface $encoder,
-        DecoderInterface $decoder,
+        SerializerInterface $serializer,
         ConfigInterface $config,
         ScopeConfigInterface $scopeConfig,
         File $file,
-        Reader $moduleReader
+        Reader $moduleReader,
+        EncryptConfiguration $encryptConfiguration
     ) {
-        $this->encoder = $encoder;
         $this->config = $config;
-        $this->decoder = $decoder;
         $this->moduleReader = $moduleReader;
         $this->file = $file;
         $this->scopeConfig = $scopeConfig;
+        $this->serializer = $serializer;
+        $this->encryptConfiguration = $encryptConfiguration;
     }
 
     /**
@@ -148,7 +158,7 @@ class UpgradeData implements UpgradeDataInterface
 
         $countryCodesJson = $this->file->read($countryCodesJsonFile);
 
-        $countryCodes = $this->decoder->decode(trim($countryCodesJson));
+        $countryCodes = $this->serializer->unserialize(trim($countryCodesJson));
 
         // @codingStandardsIgnoreStart
         foreach ($countryCodes as $countryCode) {
@@ -178,6 +188,10 @@ class UpgradeData implements UpgradeDataInterface
 
         if (version_compare($context->getVersion(), '2.0.1') < 0) {
             $this->upgradeTo020001($setup);
+        }
+
+        if (version_compare($context->getVersion(), '3.1.0') < 0) {
+            $this->encryptConfiguration->execute($setup);
         }
 
         $setup->endSetup();

@@ -55,6 +55,8 @@ class LayoutSettings
                 'create' => $this->config->isEnabledFrontendCreate(),
                 'forgot' => $this->config->isEnabledFrontendForgot(),
                 'contact' => $this->config->isEnabledFrontendContact(),
+                'review' => $this->config->isEnabledFrontendReview(),
+                'newsletter' => $this->config->isEnabledFrontendNewsletter(),
             ]
         ];
     }

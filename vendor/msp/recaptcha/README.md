@@ -14,8 +14,11 @@ Did you lock yourself out from Magento backend? <a href="https://github.com/mage
 
 From command line: 
 
-`composer require msp/recaptcha`<br />
-`php bin/magento setup:upgrade`
+```
+composer require msp/recaptcha
+php bin/magento module:enable MSP_ReCaptcha
+php bin/magento setup:upgrade
+```
 
 **2. Enable and configure from your Magento backend config**
 

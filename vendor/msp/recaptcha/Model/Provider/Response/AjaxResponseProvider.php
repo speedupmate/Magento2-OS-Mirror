@@ -66,5 +66,7 @@ class AjaxResponseProvider implements ResponseProviderInterface
                 return '';
             }
         }
+
+        return '';
     }
 }

@@ -56,17 +56,20 @@ class EventRepository implements EventRepositoryInterface
      * @param StreamEventItemRequestFactory $itemRequestFactory
      * @param ListRequestInterfaceFactory $listRequestFactory
      * @param StreamEventResponseMapper $streamEventMapper
+     * @param PaginationFactory $paginationFactory
      */
     public function __construct(
         EventStreamApiInterface $apiAdapter,
         StreamEventItemRequestFactory $itemRequestFactory,
         ListRequestInterfaceFactory $listRequestFactory,
-        StreamEventResponseMapper $streamEventMapper
+        StreamEventResponseMapper $streamEventMapper,
+        PaginationFactory $paginationFactory
     ) {
         $this->apiAdapter = $apiAdapter;
         $this->itemRequestFactory = $itemRequestFactory;
         $this->listRequestFactory = $listRequestFactory;
         $this->streamEventMapper = $streamEventMapper;
+        $this->paginationFactory = $paginationFactory;
     }
 
     /**

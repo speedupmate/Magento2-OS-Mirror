@@ -7,11 +7,11 @@
         "magento/module-catalog": "*",
         "magento/module-catalog-inventory": "*",
         "magento/module-backend": "*",
-        "magento/module-inventory-api": "*",
+        "magento/module-inventory-api": "1.0.*",
         "magento/module-ui": "*",
-        "magento/module-inventory-catalog-api": "*",
-        "magento/module-inventory-configuration-api": "*",
-        "magento/module-inventory-indexer": "*",
+        "magento/module-inventory-catalog-api": "1.1.*",
+        "magento/module-inventory-configuration-api": "1.0.*",
+        "magento/module-inventory-indexer": "1.0.*",
         "magento/module-asynchronous-operations": "*"
     },
     "suggest": {
@@ -30,5 +30,5 @@
             "Magento\\InventoryCatalogAdminUi\\": ""
         }
     },
-    "version": "1.0.4"
+    "version": "1.0.5"
 }

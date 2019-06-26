@@ -90,6 +90,10 @@ class Google implements EngineInterface
         if ($this->totp === null) {
             $config = $this->configManager->getProviderConfig($user->getId(), static::CODE);
 
+            if (!isset($config['secret'])) {
+                $config['secret'] = $this->getSecretCode($user);
+            }
+
             // @codingStandardsIgnoreStart
             $this->totp = new \OTPHP\TOTP(
                 $user->getEmail(),
@@ -102,6 +106,25 @@ class Google implements EngineInterface
     }
 
     /**
+     * Get the secret code used for Google Authentication
+     * @param UserInterface $user
+     * @return string|null
+     * @throws \Magento\Framework\Exception\NoSuchEntityException
+     * @author Konrad Skrzynski <konrad.skrzynski@accenture.com>
+     */
+    public function getSecretCode(UserInterface $user)
+    {
+        $config = $this->configManager->getProviderConfig($user->getId(), static::CODE);
+
+        if (!isset($config['secret'])) {
+            $config['secret'] = $this->generateSecret();
+            $this->configManager->setProviderConfig($user->getId(), static::CODE, $config);
+        }
+
+        return $config['secret'] ?? null;
+    }
+
+    /**
      * Get TFA provisioning URL
      * @param UserInterface $user
      * @return string
@@ -109,12 +132,6 @@ class Google implements EngineInterface
      */
     private function getProvisioningUrl(UserInterface $user)
     {
-        $config = $this->configManager->getProviderConfig($user->getId(), static::CODE);
-        if (!isset($config['secret'])) {
-            $config['secret'] = $this->generateSecret();
-            $this->configManager->setProviderConfig($user->getId(), static::CODE, $config);
-        }
-
         $baseUrl = $this->storeManager->getStore()->getBaseUrl();
 
         // @codingStandardsIgnoreStart

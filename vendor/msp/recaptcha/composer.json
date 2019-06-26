@@ -1,14 +1,14 @@
 {
     "name": "msp/recaptcha",
-    "version": "2.0.2",
-    "description": "Google reCaptcha integration for Magento2 - Member of MageSpecialist SecuritySuite",
+    "version": "2.1.2",
+    "description": "Google reCaptcha integration for Magento2",
     "require": {
-        "php": "^7.0|^7.1|^7.2",
+        "php": "^5.6|^7.0|^7.1|^7.2",
         "magento/magento-composer-installer": "*",
+        "magento/module-customer": "*",
+        "magento/module-checkout": "*",
+        "magento/module-newsletter": "*",
         "google/recaptcha": "^1.1"
-    },
-    "suggest": {
-        "msp/security-suite": "Full MageSpecialist Security Suite"
     },
     "authors": [
         {

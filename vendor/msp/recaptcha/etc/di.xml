@@ -35,6 +35,15 @@
         <plugin name="msp-exclude" type="MSP\ReCaptcha\Plugin\ExcludeFromMinification"/>
     </type>
 
+    <type name="MSP\ReCaptcha\Block\Frontend\ReCaptcha">
+        <arguments>
+            <!-- Deprecated parameter encoder -->
+            <argument name="encoder" xsi:type="null" />
+            <!-- Deprecated parameter decoder -->
+            <argument name="decoder" xsi:type="null" />
+        </arguments>
+    </type>
+
     <!-- Default HTTP response provider -->
     <preference for="MSP\ReCaptcha\Model\Provider\ResponseProviderInterface"
                 type="MSP\ReCaptcha\Model\Provider\Response\DefaultResponseProvider"/>

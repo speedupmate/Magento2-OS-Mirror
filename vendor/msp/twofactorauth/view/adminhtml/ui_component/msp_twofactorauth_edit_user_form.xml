@@ -34,6 +34,7 @@
             <item name="dataScope" xsi:type="string">data</item>
             <item name="namespace" xsi:type="string">msp_twofactorauth_edit_user_form</item>
         </item>
+        <item name="acl" xsi:type="string">MSP_TwoFactorAuth::tfa</item>
         <item name="template" xsi:type="string">templates/form/collapsible</item>
         <item name="childrenFromMeta" xsi:type="boolean">true</item>
     </argument>
@@ -44,6 +45,11 @@
             <argument name="name" xsi:type="string">msp_twofactorauth_edit_user_form_data_source</argument>
             <argument name="primaryFieldName" xsi:type="string">main_table.user_id</argument>
             <argument name="requestFieldName" xsi:type="string">user_id</argument>
+            <argument name="data" xsi:type="array">
+                <item name="config" xsi:type="array">
+                    <item name="aclResource" xsi:type="string">MSP_TwoFactorAuth::tfa</item>
+                </item>
+            </argument>
         </argument>
         <argument name="data" xsi:type="array">
             <item name="js_config" xsi:type="array">

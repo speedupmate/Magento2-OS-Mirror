@@ -18,46 +18,51 @@
  * @license    http://opensource.org/licenses/osl-3.0.php  Open Software License (OSL 3.0)
  */
 
+declare(strict_types=1);
+
 namespace MSP\TwoFactorAuth\Model;
 
-use Magento\Framework\Json\DecoderInterface;
-use Magento\Framework\Json\EncoderInterface;
+use Magento\Framework\App\ObjectManager;
 use MSP\TwoFactorAuth\Api\UserConfigManagerInterface;
+use MSP\TwoFactorAuth\Model\ResourceModel\UserConfig as UserConfigResource;
 
 class UserConfigManager implements UserConfigManagerInterface
 {
+    /**
+     * @var array
+     */
     private $configurationRegistry = [];
-
-    /**
-     * @var EncoderInterface
-     */
-    private $encoder;
-
-    /**
-     * @var DecoderInterface
-     */
-    private $decoder;
 
     /**
      * @var UserConfigFactory
      */
     private $userConfigFactory;
 
+    /**
+     * @var UserConfigResource
+     */
+    private $userConfigResource;
+
+    /**
+     * @param null $encoder @deprecated
+     * @param null $decoder @deprecated
+     * @param UserConfigFactory $userConfigFactory
+     * @param UserConfigResource|null $userConfigResource
+     * @SuppressWarnings(PHPMD.UnusedFormalParameter)
+     */
     public function __construct(
-        EncoderInterface $encoder,
-        DecoderInterface $decoder,
-        UserConfigFactory $userConfigFactory
+        $encoder,
+        $decoder,
+        UserConfigFactory $userConfigFactory,
+        UserConfigResource $userConfigResource = null
     ) {
-        $this->encoder = $encoder;
-        $this->decoder = $decoder;
         $this->userConfigFactory = $userConfigFactory;
+        $this->userConfigResource = $userConfigResource ?:
+            ObjectManager::getInstance()->get(UserConfigResource::class);
     }
 
     /**
-     * Get a provider configuration for a given user
-     * @param int $userId
-     * @param string $providerCode
-     * @return array
+     * @inheritDoc
      */
     public function getProviderConfig($userId, $providerCode)
     {
@@ -88,7 +93,7 @@ class UserConfigManager implements UserConfigManagerInterface
         }
 
         $userConfig->setData('config', $providersConfig);
-        $userConfig->getResource()->save($userConfig);
+        $this->userConfigResource->save($userConfig);
         return true;
     }
 
@@ -126,7 +131,7 @@ class UserConfigManager implements UserConfigManagerInterface
         if (!isset($this->configurationRegistry[$userId])) {
             /** @var $userConfig UserConfig */
             $userConfig = $this->userConfigFactory->create();
-            $userConfig->getResource()->load($userConfig, $userId, 'user_id');
+            $this->userConfigResource->load($userConfig, $userId, 'user_id');
             $userConfig->setData('user_id', $userId);
 
             $this->configurationRegistry[$userId] = $userConfig;
@@ -146,7 +151,7 @@ class UserConfigManager implements UserConfigManagerInterface
 
         $userConfig = $this->getUserConfiguration($userId);
         $userConfig->setData('providers', $providersCodes);
-        $userConfig->getResource()->save($userConfig);
+        $this->userConfigResource->save($userConfig);
 
         return true;
     }
@@ -188,7 +193,7 @@ class UserConfigManager implements UserConfigManagerInterface
     {
         $userConfig = $this->getUserConfiguration($userId);
         $userConfig->setData('default_provider', $providerCode);
-        $userConfig->getResource()->save($userConfig);
+        $this->userConfigResource->save($userConfig);
         return true;
     }
 

@@ -90,10 +90,8 @@ class Cm_Cache_Backend_File extends Zend_Cache_Backend_File
         }
 
         // Validate prefix
-        if (isset($this->_options['file_name_prefix'])) { // particular case for this option
-            if (!preg_match('~^[a-zA-Z0-9_]+$~D', $this->_options['file_name_prefix'])) {
-                Zend_Cache::throwException('Invalid file_name_prefix : must use only [a-zA-Z0-9_]');
-            }
+        if (isset($this->_options['file_name_prefix']) && !preg_match('~^[a-zA-Z0-9_]+$~D', $this->_options['file_name_prefix'])) {
+            Zend_Cache::throwException('Invalid file_name_prefix : must use only [a-zA-Z0-9_]');
         }
 
         // See #ZF-4422
@@ -494,7 +492,7 @@ class Cm_Cache_Backend_File extends Zend_Cache_Backend_File
                     Zend_Cache::throwException('Invalid mode for clean() method.');
                 }
             }
-            if ((is_dir($file)) and ($this->_options['hashed_directory_level']>0)) {
+            if (is_dir($file) && $this->_options['hashed_directory_level'] > 0) {
                 // Recursive call
                 $result = $this->_clean($file . DIRECTORY_SEPARATOR, $mode) && $result;
                 if ($mode == 'all') {
@@ -586,7 +584,7 @@ class Cm_Cache_Backend_File extends Zend_Cache_Backend_File
             case Zend_Cache::CLEANING_MODE_MATCHING_ANY_TAG:
                 foreach ($tags as $tag) {
                     $file = $this->_tagFile($tag);
-                    if ( ! ($fd = @fopen($file, 'rb+'))) {
+                    if ( ! is_file($file) || ! ($fd = @fopen($file, 'rb+'))) {
                         continue;
                     }
                     if ($this->_options['file_locking']) flock($fd, LOCK_EX);
@@ -671,7 +669,7 @@ class Cm_Cache_Backend_File extends Zend_Cache_Backend_File
         foreach($tags as $tag) {
             $file = $this->_tagFile($tag);
             if (file_exists($file)) {
-                if ($mode == 'diff' || (rand(1,100) == 1 && filesize($file) > 4096)) {
+                if ($mode == 'diff' || (mt_rand(1,100) == 1 && filesize($file) > 4096)) {
                     $file = $this->_tagFile($tag);
                     if ( ! ($fd = @fopen($file, 'rb+'))) {
                         $result = false;

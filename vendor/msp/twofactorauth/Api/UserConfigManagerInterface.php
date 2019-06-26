@@ -27,8 +27,8 @@ interface UserConfigManagerInterface
     /**
      * Get a provider configuration for a given user
      * @param int $userId
-     * @param int $providerCode
-     * @return array
+     * @param string $providerCode
+     * @return array|null
      * @throws \Magento\Framework\Exception\NoSuchEntityException
      */
     public function getProviderConfig($userId, $providerCode);
@@ -65,7 +65,7 @@ interface UserConfigManagerInterface
     /**
      * Set providers list for a given user
      * @param int $userId
-     * @param string $providersCodes
+     * @param string|array $providersCodes
      * @return boolean
      * @throws \Magento\Framework\Exception\NoSuchEntityException
      */

@@ -231,7 +231,7 @@ final class PlacedOrderFixture
             $subTotal += ($quoteItemQty * $quoteItemUnitPrice);
         }
 
-        $quote->setItemsCount(count($quote->getItems()));
+        $quote->setItemsCount(count($quote->getItemsCollection()));
         $quote->setSubtotal($subTotal);
         $quote->setBaseSubtotal($subTotal);
         $quote->setGrandTotal($subTotal + $shippingCost);
