@@ -5,9 +5,12 @@
  */
 namespace Magento\Catalog\Model;
 
+use Magento\Authorization\Model\UserContextInterface;
 use Magento\Catalog\Api\CategoryRepositoryInterface;
 use Magento\CatalogUrlRewrite\Model\CategoryUrlRewriteGenerator;
 use Magento\Framework\Api\AttributeValueFactory;
+use Magento\Framework\App\ObjectManager;
+use Magento\Framework\AuthorizationInterface;
 use Magento\Framework\Convert\ConvertArray;
 use Magento\Framework\Exception\NoSuchEntityException;
 use Magento\Framework\Profiler;
@@ -233,6 +236,16 @@ class Category extends \Magento\Catalog\Model\AbstractModel implements
     protected $metadataService;
 
     /**
+     * @var UserContextInterface
+     */
+    private $userContext;
+
+    /**
+     * @var AuthorizationInterface
+     */
+    private $authorization;
+
+    /**
      * @param \Magento\Framework\Model\Context $context
      * @param \Magento\Framework\Registry $registry
      * @param \Magento\Framework\Api\ExtensionAttributesFactory $extensionFactory
@@ -313,10 +326,10 @@ class Category extends \Magento\Catalog\Model\AbstractModel implements
     {
         // If Flat Index enabled then use it but only on frontend
         if ($this->flatState->isAvailable()) {
-            $this->_init('Magento\Catalog\Model\ResourceModel\Category\Flat');
+            $this->_init(\Magento\Catalog\Model\ResourceModel\Category\Flat::class);
             $this->_useFlatResource = true;
         } else {
-            $this->_init('Magento\Catalog\Model\ResourceModel\Category');
+            $this->_init(\Magento\Catalog\Model\ResourceModel\Category::class);
         }
     }
 
@@ -914,6 +927,59 @@ class Category extends \Magento\Catalog\Model\AbstractModel implements
             throw new \Magento\Framework\Exception\LocalizedException(__('Can\'t delete root category.'));
         }
         return parent::beforeDelete();
+    }
+
+    /**
+     * Get user context.
+     *
+     * @return UserContextInterface
+     */
+    private function getUserContext()
+    {
+        if (!$this->userContext) {
+            $this->userContext = ObjectManager::getInstance()->get(UserContextInterface::class);
+        }
+
+        return $this->userContext;
+    }
+
+    /**
+     * Get authorization service.
+     *
+     * @return AuthorizationInterface
+     */
+    private function getAuthorization()
+    {
+        if (!$this->authorization) {
+            $this->authorization = ObjectManager::getInstance()->get(AuthorizationInterface::class);
+        }
+
+        return $this->authorization;
+    }
+
+    /**
+     * @inheritdoc
+     */
+    public function beforeSave()
+    {
+        //Validate changing of design.
+        $userType = $this->getUserContext()->getUserType();
+        if (($userType === UserContextInterface::USER_TYPE_ADMIN
+                || $userType === UserContextInterface::USER_TYPE_INTEGRATION)
+            && !$this->getAuthorization()->isAllowed('Magento_Catalog::edit_category_design')
+        ) {
+            foreach ($this->_designAttributes as $attributeCode) {
+                $this->setData($attributeCode, $value = $this->getOrigData($attributeCode));
+                if (!empty($this->_data[self::CUSTOM_ATTRIBUTES])
+                    && array_key_exists($attributeCode, $this->_data[self::CUSTOM_ATTRIBUTES])
+                ) {
+                    //In case custom attribute were used to update the entity.
+                    $this->_data[self::CUSTOM_ATTRIBUTES][$attributeCode]->setValue($value);
+                }
+            }
+        }
+
+        return parent::beforeSave();
     }
 
     /**
