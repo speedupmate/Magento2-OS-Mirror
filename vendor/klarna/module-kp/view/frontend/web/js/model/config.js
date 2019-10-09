@@ -17,6 +17,7 @@ define(
       authorization_token = ko.observable(window.checkoutConfig.payment.klarna_kp.authorization_token),
       debug = window.checkoutConfig.payment.klarna_kp.debug,
       enabled = window.checkoutConfig.payment.klarna_kp.enabled,
+      b2b_enabled = window.checkoutConfig.payment.klarna_kp.b2b_enabled,
       success = window.checkoutConfig.payment.klarna_kp.success,
       hasErrors = ko.observable(false),
       available_methods = window.checkoutConfig.payment.klarna_kp.available_methods;
@@ -25,6 +26,7 @@ define(
       hasErrors: hasErrors,
       debug: debug,
       enabled: enabled,
+      b2b_enabled: b2b_enabled,
       client_token: client_token,
       message: message,
       success: success,

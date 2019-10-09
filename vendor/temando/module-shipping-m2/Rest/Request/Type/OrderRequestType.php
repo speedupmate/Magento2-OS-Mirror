@@ -5,6 +5,7 @@
 namespace Temando\Shipping\Rest\Request\Type;
 
 use Temando\Shipping\Rest\Request\Type\Generic\MonetaryValue;
+use Temando\Shipping\Rest\Request\Type\Order\CustomAttributes;
 use Temando\Shipping\Rest\Request\Type\Order\Customer;
 use Temando\Shipping\Rest\Request\Type\Order\Experience;
 use Temando\Shipping\Rest\Request\Type\Order\OrderItem;
@@ -77,6 +78,11 @@ class OrderRequestType implements OrderRequestTypeInterface, \JsonSerializable
     private $items;
 
     /**
+     * @var CustomAttributes
+     */
+    private $customAttributes;
+
+    /**
      * @var MonetaryValue
      */
     private $total;
@@ -113,6 +119,7 @@ class OrderRequestType implements OrderRequestTypeInterface, \JsonSerializable
      * @param Customer $customer
      * @param Recipient $recipient
      * @param OrderItem[] $items
+     * @param CustomAttributes $customAttributes
      * @param string[] $aliases
      * @param Experience $selectedExperience
      * @param ShipmentDetails $shipmentDetails
@@ -128,6 +135,7 @@ class OrderRequestType implements OrderRequestTypeInterface, \JsonSerializable
         Customer $customer,
         Recipient $recipient,
         array $items,
+        CustomAttributes $customAttributes,
         array $aliases = [],
         Experience $selectedExperience = null,
         ShipmentDetails $shipmentDetails = null
@@ -143,6 +151,7 @@ class OrderRequestType implements OrderRequestTypeInterface, \JsonSerializable
         $this->customer = $customer;
         $this->recipient = $recipient;
         $this->items = $items;
+        $this->customAttributes = $customAttributes;
         $this->aliases = $aliases;
         $this->selectedExperience = $selectedExperience;
         $this->shipmentDetails = $shipmentDetails;
@@ -209,6 +218,7 @@ class OrderRequestType implements OrderRequestTypeInterface, \JsonSerializable
                     'deliverTo' => $this->recipient,
                     'shipmentDetails' => $this->shipmentDetails,
                     'items' => $this->items,
+                    'customAttributes' => $this->customAttributes,
                     'total' => $this->total,
                     'selectedExperience' => $this->selectedExperience
                 ],
@@ -221,6 +231,7 @@ class OrderRequestType implements OrderRequestTypeInterface, \JsonSerializable
         foreach ($this->additionalAttributes as $additionalAttribute) {
             $order = ExtensibleTypeProcessor::addAttribute($order, $additionalAttribute);
         }
+
         $order = AttributeFilter::notEmpty($order);
 
         return $order;

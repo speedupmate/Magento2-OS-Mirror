@@ -1,0 +1,72 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!--
+ /**
+  * Copyright © Magento, Inc. All rights reserved.
+  * See COPYING.txt for license details.
+  *
+  * This file is part of the Klarna KP module
+  *
+  * (c) Klarna Bank AB (publ)
+  *
+  * For the full copyright and license information, please view the NOTICE
+  * and LICENSE files that were distributed with this source code.
+  */
+-->
+<actionGroups xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+              xsi:noNamespaceSchemaLocation="urn:magento:mftf:Test/etc/actionGroupSchema.xsd">
+    <actionGroup name="ConfigureKlarna">
+        <arguments>
+            <argument name="api_version" type="string"/>
+            <argument name="merchant_id" type="string"/>
+            <argument name="shared_secret" type="string"/>
+        </arguments>
+        <!-- GoTo Configure Klarna fields -->
+        <amOnPage url="{{AdminConfigKlarnaPaymentsPage.url}}" stepKey="navigateToKlarnaPaymentsConfigurationPage"/>
+        <waitForPageLoad stepKey="waitForPageLoad1"/>
+        <conditionalClick selector="{{AdminConfigPaymentSection.OtherPaymentMethods}}"
+                          dependentSelector="{{AdminConfigPaymentSection.KlarnaPaymentMethods}}"
+                          visible="false"
+                          stepKey="expandOtherPaymentMethodsSection"/>
+        <scrollTo stepKey="scrollToKlarnaSection" selector="{{AdminConfigPaymentSection.OtherPaymentMethods}}"/>
+        <waitForElementVisible selector="{{AdminConfigPaymentSection.KlarnaPaymentMethods}}"
+                               stepKey="waitForKlarnaSection"/>
+        <conditionalClick selector="{{AdminConfigPaymentSection.KlarnaPaymentMethods}}"
+                          dependentSelector="{{AdminConfigPaymentSection.ConfigureKlarnaButton}}"
+                          visible="false"
+                          stepKey="clickOnKlarnaSection"/>
+        <click stepKey="clickOnConfigureButtonForKlarnaPayment"
+               selector="{{AdminConfigPaymentSection.ConfigureKlarnaButton}}"/>
+
+        <!-- Fill Klarna Payment Api Setting Tab -->
+        <conditionalClick selector="{{AdminConfigPaymentSection.KlarnaApiHeader}}"
+                          dependentSelector="{{AdminConfigPaymentSection.KlarnaApi}}"
+                          visible="false"
+                          stepKey="clickKlarnaApiSection"/>
+        <selectOption stepKey="selectKlarnaApiVersion"
+                      selector="{{AdminConfigPaymentSection.KlarnaApiVersion}}"
+                      userInput="{{api_version}}"/>
+        <fillField stepKey="enterKlarnaApiMerchantId"
+                   selector="{{AdminConfigPaymentSection.KlarnaMerchantId}}"
+                   userInput="{{merchant_id}}"/>
+        <fillField stepKey="enterKlarnaApiSharedSecret"
+                   selector="{{AdminConfigPaymentSection.KlarnaSharedSecret}}"
+                   userInput="{{shared_secret}}"/>
+        <selectOption stepKey="enterKlarnaApiTestMode"
+                      selector="{{AdminConfigPaymentSection.KlarnaTestMode}}"
+                      userInput="Enable"/>
+
+        <!-- Fill Klarna Payment Setting Tab -->
+        <scrollTo stepKey="scrollToKlarnaApi"
+                  selector="{{AdminConfigPaymentSection.KlarnaApiHeader}}"/>
+        <conditionalClick selector="{{AdminConfigPaymentSection.KlarnaKpSection}}"
+                          dependentSelector="{{AdminConfigPaymentSection.KlarnaKpEnabled}}"
+                          visible="false"
+                          stepKey="clickKlarnaKPSection"/>
+        <selectOption stepKey="disableKlarnaPaymentsSolution"
+                      selector="{{AdminConfigPaymentSection.KlarnaKpEnabled}}"
+                      userInput="Yes"/>
+
+        <!-- Save Configuration -->
+        <click stepKey="saveConfig" selector="{{AdminMainActionsSection.save}}"/>
+    </actionGroup>
+</actionGroups>

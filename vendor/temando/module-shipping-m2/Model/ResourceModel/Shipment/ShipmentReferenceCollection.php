@@ -53,7 +53,7 @@ class ShipmentReferenceCollection extends AbstractCollection
         $salesOrderTable = $this->getTable('sales_order');
 
         $this->getSelect()
-            ->join(['s' => $salesShipmentTable], 's.entity_id = main_table.shipment_id', [])
+            ->join(['s' => $salesShipmentTable], 's.entity_id = main_table.shipment_id', ['order_id'])
             ->join(['o' => $salesOrderTable], 'o.entity_id = s.order_id', []);
 
         return $this;

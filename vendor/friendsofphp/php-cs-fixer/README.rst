@@ -4,7 +4,7 @@ PHP Coding Standards Fixer
 The PHP Coding Standards Fixer (PHP CS Fixer) tool fixes your code to follow standards;
 whether you want to follow PHP coding standards as defined in the PSR-1, PSR-2, etc.,
 or other community driven ones like the Symfony one.
-You can **also** define your (teams) style through configuration.
+You can **also** define your (team's) style through configuration.
 
 It can modernize your code (like converting the ``pow`` function to the ``**`` operator on PHP 5.6)
 and (micro) optimize it.
@@ -46,7 +46,7 @@ or with specified version:
 
 .. code-block:: bash
 
-    $ wget https://github.com/FriendsOfPHP/PHP-CS-Fixer/releases/download/v2.13.3/php-cs-fixer.phar -O php-cs-fixer
+    $ wget https://github.com/FriendsOfPHP/PHP-CS-Fixer/releases/download/v2.14.6/php-cs-fixer.phar -O php-cs-fixer
 
 or with curl:
 
@@ -167,9 +167,9 @@ NOTE: the output for the following formats are generated in accordance with XML 
 * ``checkstyle`` follows the common `"checkstyle" xml schema </doc/checkstyle.xsd>`_
 
 
-The ``--verbose`` option will show the applied rules. When using the ``txt`` format it will also displays progress notifications.
+The ``--verbose`` option will show the applied rules. When using the ``txt`` format it will also display progress notifications.
 
-The ``--rules`` option limits the rules to apply on the
+The ``--rules`` option limits the rules to apply to the
 project:
 
 .. code-block:: bash
@@ -214,7 +214,7 @@ The ``--diff-format`` option allows to specify in which format the fixer should 
 * ``sbd``: Sebastianbergmann/diff format (default when using `--diff` without specifying `diff-format`).
 
 The ``--allow-risky`` option (pass ``yes`` or ``no``) allows you to set whether risky rules may run. Default value is taken from config file.
-Risky rule is a rule, which could change code behaviour. By default no risky rules are run.
+A rule is considered risky if it could change code behaviour. By default no risky rules are run.
 
 The ``--stop-on-violation`` flag stops the execution upon first file that needs to be fixed.
 
@@ -705,7 +705,7 @@ Choose from the list of available rules:
 
 * **function_typehint_space** [@Symfony, @PhpCsFixer]
 
-  Add missing space between function's argument and its typehint.
+  Ensure single space between function's argument and its typehint.
 
 * **general_phpdoc_annotation_remove**
 
@@ -734,6 +734,10 @@ Choose from the list of available rules:
     inserted header; defaults to ``'after_declare_strict'``
   - ``separate`` (``'both'``, ``'bottom'``, ``'none'``, ``'top'``): whether the header should be
     separated from the file content with a new line; defaults to ``'both'``
+
+* **heredoc_indentation**
+
+  Heredoc/nowdoc content must be properly indented. Requires PHP >= 7.3.
 
 * **heredoc_to_nowdoc** [@PhpCsFixer]
 
@@ -922,6 +926,8 @@ Choose from the list of available rules:
     defaults to ``['@internal']``
   - ``scope`` (``'all'``, ``'namespaced'``): only fix function calls that are made
     within a namespace or fix all; defaults to ``'all'``
+  - ``strict`` (``bool``): whether leading ``\`` of function call not meant to have it
+    should be removed; defaults to ``false``
 
 * **new_with_braces** [@Symfony, @PhpCsFixer]
 
@@ -1093,6 +1099,11 @@ Choose from the list of available rules:
   Removes ``@param`` and ``@return`` tags that don't provide any useful
   information.
 
+  Configuration options:
+
+  - ``allow_mixed`` (``bool``): whether type ``mixed`` without description is allowed
+    (``true``) or considered superfluous (``false``); defaults to ``false``
+
 * **no_trailing_comma_in_list_call** [@Symfony, @PhpCsFixer]
 
   Remove trailing commas in list function calls.
@@ -1134,6 +1145,10 @@ Choose from the list of available rules:
   before non-default ones.
 
   *Risky rule: modifies the signature of functions; therefore risky when using systems (such as some Symfony components) that rely on those (for example through reflection).*
+
+* **no_unset_cast** [@PhpCsFixer]
+
+  Variables must be set ``null`` instead of using ``(unset)`` casting.
 
 * **no_unset_on_property** [@PhpCsFixer:risky]
 
@@ -1308,7 +1323,7 @@ Choose from the list of available rules:
 
 * **php_unit_namespaced** [@PHPUnit48Migration:risky, @PHPUnit50Migration:risky, @PHPUnit52Migration:risky, @PHPUnit54Migration:risky, @PHPUnit55Migration:risky, @PHPUnit56Migration:risky, @PHPUnit57Migration:risky, @PHPUnit60Migration:risky]
 
-  PHPUnit classes MUST be used in namespaced version, eg
+  PHPUnit classes MUST be used in namespaced version, e.g.
   ``\PHPUnit\Framework\TestCase`` instead of ``\PHPUnit_Framework_TestCase``.
 
   *Risky rule: risky when PHPUnit classes are overridden or not accessible, or when project has PHPUnit incompatibilities.*
@@ -1526,7 +1541,7 @@ Choose from the list of available rules:
   - ``groups`` (a subset of ``['simple', 'alias', 'meta']``): type groups to fix;
     defaults to ``['simple', 'alias', 'meta']``
 
-* **phpdoc_types_order** [@PhpCsFixer]
+* **phpdoc_types_order** [@Symfony, @PhpCsFixer]
 
   Sorts PHPDoc types.
 
@@ -1537,6 +1552,11 @@ Choose from the list of available rules:
     ``'always_first'``
   - ``sort_algorithm`` (``'alpha'``, ``'none'``): the sorting algorithm to apply;
     defaults to ``'alpha'``
+
+* **phpdoc_var_annotation_correct_order** [@PhpCsFixer]
+
+  ``@var`` and ``@type`` annotations must have type and name in the correct
+  order.
 
 * **phpdoc_var_without_name** [@Symfony, @PhpCsFixer]
 
@@ -1562,7 +1582,7 @@ Choose from the list of available rules:
   Classes must be in a path that matches their namespace, be at least one
   namespace deep and the class name should match the file name.
 
-  *Risky rule: this fixer may change your class name, which will break the code that is depended on old name.*
+  *Risky rule: this fixer may change your class name, which will break the code that depends on the old name.*
 
   Configuration options:
 
@@ -1573,7 +1593,7 @@ Choose from the list of available rules:
 
   Class names should match the file name.
 
-  *Risky rule: this fixer may change your class name, which will break the code that is depended on old name.*
+  *Risky rule: this fixer may change your class name, which will break the code that depends on the old name.*
 
 * **random_api_migration** [@PHP70Migration:risky, @PHP71Migration:risky]
 
@@ -1807,7 +1827,7 @@ Config file
 
 Instead of using command line options to customize the rule, you can save the
 project configuration in a ``.php_cs.dist`` file in the root directory of your project.
-The file must return an instance of `PhpCsFixer\\ConfigInterface <https://github.com/FriendsOfPHP/PHP-CS-Fixer/blob/v2.13.3/src/ConfigInterface.php>`_
+The file must return an instance of `PhpCsFixer\\ConfigInterface <https://github.com/FriendsOfPHP/PHP-CS-Fixer/blob/v2.14.6/src/ConfigInterface.php>`_
 which lets you configure the rules, the files and directories that
 need to be analyzed. You may also create ``.php_cs`` file, which is
 the local configuration that will be used instead of the project configuration. It
@@ -1924,22 +1944,22 @@ Then, add the following command to your CI:
     $ if ! echo "${CHANGED_FILES}" | grep -qE "^(\\.php_cs(\\.dist)?|composer\\.lock)$"; then EXTRA_ARGS=$(printf -- '--path-mode=intersection\n--\n%s' "${CHANGED_FILES}"); else EXTRA_ARGS=''; fi
     $ vendor/bin/php-cs-fixer fix --config=.php_cs.dist -v --dry-run --stop-on-violation --using-cache=no ${EXTRA_ARGS}
 
-Where ``$COMMIT_RANGE`` is your range of commits, eg ``$TRAVIS_COMMIT_RANGE`` or ``HEAD~..HEAD``.
+Where ``$COMMIT_RANGE`` is your range of commits, e.g. ``$TRAVIS_COMMIT_RANGE`` or ``HEAD~..HEAD``.
 
-Exit codes
-----------
+Exit code
+---------
 
 Exit code is built using following bit flags:
 
-*  0 OK.
-*  1 General error (or PHP minimal requirement not matched).
-*  4 Some files have invalid syntax (only in dry-run mode).
-*  8 Some files need fixing (only in dry-run mode).
-* 16 Configuration error of the application.
-* 32 Configuration error of a Fixer.
-* 64 Exception raised within the application.
+*  0 - OK.
+*  1 - General error (or PHP minimal requirement not matched).
+*  4 - Some files have invalid syntax (only in dry-run mode).
+*  8 - Some files need fixing (only in dry-run mode).
+* 16 - Configuration error of the application.
+* 32 - Configuration error of a Fixer.
+* 64 - Exception raised within the application.
 
-(applies to exit codes of the `fix` command only)
+(Applies to exit code of the `fix` command only)
 
 Helpers
 -------

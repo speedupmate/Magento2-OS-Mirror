@@ -4,18 +4,18 @@
  */
 namespace Temando\Shipping\Block\Adminhtml\System\Config\Form\Field;
 
-use Magento\Config\Block\System\Config\Form\Field;
 use Magento\Backend\Block\Template\Context;
+use Magento\Config\Block\System\Config\Form\Field;
 use Magento\Framework\Data\Form\Element\AbstractElement;
 use Temando\Shipping\Model\Config\ModuleConfigInterface;
 
 /**
  * Temando Config Getting Started Info Block
  *
- * @package  Temando\Shipping\Block
- * @author   Christoph Aßmann <christoph.assmann@netresearch.de>
- * @license  http://opensource.org/licenses/osl-3.0.php Open Software License (OSL 3.0)
- * @link     http://www.temando.com/
+ * @package Temando\Shipping\Block
+ * @author  Christoph Aßmann <christoph.assmann@netresearch.de>
+ * @license https://opensource.org/licenses/osl-3.0.php Open Software License (OSL 3.0)
+ * @link    https://www.temando.com/
  *
  * @api
  */
@@ -77,6 +77,8 @@ class GettingStarted extends Field
     }
 
     /**
+     * Check if merchant registered an account at Temando.
+     *
      * @return bool
      */
     public function isMerchantRegistered(): bool
@@ -85,22 +87,28 @@ class GettingStarted extends Field
     }
 
     /**
+     * Obtain the URL to redirect the user into the Shipping Portal, locations section.
+     *
      * @return string
      */
-    public function getLocationsUrl(): string
+    public function getLocationsRedirectUrl(): string
     {
-        return $this->_urlBuilder->getUrl('temando/configuration_location/index');
+        return $this->_urlBuilder->getUrl('temando/configuration_portal/location');
     }
 
     /**
+     * Obtain the URL to redirect the user into the Shipping Portal, carriers section.
+     *
      * @return string
      */
-    public function getCarriersUrl(): string
+    public function getCarriersRedirectUrl(): string
     {
-        return $this->_urlBuilder->getUrl('temando/configuration_carrier/index');
+        return $this->_urlBuilder->getUrl('temando/configuration_portal/carriers');
     }
 
     /**
+     * Obtain packages configuration page URL.
+     *
      * @return string
      */
     public function getPackagesUrl(): string
@@ -109,6 +117,9 @@ class GettingStarted extends Field
     }
 
     /**
+     * Obtain Shipping Portal Url.
+     *
+     * @deprecated since 1.6.0 | No longer used.
      * @return string
      */
     public function getShippingPortalUrl(): string
@@ -117,7 +128,7 @@ class GettingStarted extends Field
     }
 
     /**
-     * Obtain the URL to redirect the user into the Shipping Portal experiences.
+     * Obtain the URL to redirect the user into the Shipping Portal, experiences section.
      *
      * @return string
      */

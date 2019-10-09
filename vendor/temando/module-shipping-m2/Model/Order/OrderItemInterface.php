@@ -9,10 +9,10 @@ namespace Temando\Shipping\Model\Order;
  *
  * An order item as associated with an order entity at the Temando platform.
  *
- * @package  Temando\Shipping\Model
- * @author   Christoph Aßmann <christoph.assmann@netresearch.de>
- * @license  http://opensource.org/licenses/osl-3.0.php Open Software License (OSL 3.0)
- * @link     http://www.temando.com/
+ * @package Temando\Shipping\Model
+ * @author  Christoph Aßmann <christoph.assmann@netresearch.de>
+ * @license https://opensource.org/licenses/osl-3.0.php Open Software License (OSL 3.0)
+ * @link    https://temando.com.au/
  */
 interface OrderItemInterface
 {
@@ -35,6 +35,7 @@ interface OrderItemInterface
     const IS_FRAGILE = 'is_fragile';
     const IS_VIRTUAL = 'is_virtual';
     const IS_PREPACKAGED = 'is_prepackaged';
+    const PACKAGE_ID = 'package_id';
     const CAN_ROTATE_VERTICAL = 'can_rotate_vertical';
 
     const COUNTRY_OF_ORIGIN = 'country_of_origin';
@@ -42,6 +43,9 @@ interface OrderItemInterface
     const ECCN = 'eccn';
     const SCHEDULE_B_INFO = 'schedule_b_info';
     const HS_CODE = 'hs_code';
+    const COMPOSITION = 'composition';
+
+    const CUSTOM_ATTRIBUTES = 'custom_attributes';
 
     /**
      * @return int
@@ -129,6 +133,11 @@ interface OrderItemInterface
     public function isPrePackaged();
 
     /**
+     * @return string
+     */
+    public function getPackageId();
+
+    /**
      * @return bool
      */
     public function canRotateVertically();
@@ -157,4 +166,14 @@ interface OrderItemInterface
      * @return string
      */
     public function getHsCode();
+
+    /**
+     * @return string
+     */
+    public function getComposition();
+
+    /**
+     * @return array
+     */
+    public function getCustomAttributes();
 }

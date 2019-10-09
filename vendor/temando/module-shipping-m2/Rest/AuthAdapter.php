@@ -9,7 +9,7 @@ use Psr\Log\LogLevel;
 use Temando\Shipping\Rest\Adapter\AuthenticationApiInterface;
 use Temando\Shipping\Rest\Exception\AdapterException;
 use Temando\Shipping\Rest\Exception\RestClientErrorException;
-use Temando\Shipping\Rest\Request\AuthRequestInterface;
+use Temando\Shipping\Rest\Request\AuthRequest;
 use Temando\Shipping\Rest\Response\DataObject\Session;
 use Temando\Shipping\Rest\Response\Document\Errors;
 use Temando\Shipping\Rest\Response\Document\GetSession;
@@ -19,11 +19,11 @@ use Temando\Shipping\Webservice\Config\WsConfigInterface;
 /**
  * Temando REST API Authentication Adapter
  *
- * @package  Temando\Shipping\Rest
- * @author   Christoph Aßmann <christoph.assmann@netresearch.de>
- * @author   Sebastian Ertner <sebastian.ertner@netresearch.de>
- * @license  http://opensource.org/licenses/osl-3.0.php Open Software License (OSL 3.0)
- * @link     http://www.temando.com/
+ * @package Temando\Shipping\Rest
+ * @author  Christoph Aßmann <christoph.assmann@netresearch.de>
+ * @author  Sebastian Ertner <sebastian.ertner@netresearch.de>
+ * @license https://opensource.org/licenses/osl-3.0.php Open Software License (OSL 3.0)
+ * @link    https://www.temando.com/
  */
 class AuthAdapter implements AuthenticationApiInterface
 {
@@ -74,11 +74,11 @@ class AuthAdapter implements AuthenticationApiInterface
     }
 
     /**
-     * @param AuthRequestInterface $request
+     * @param AuthRequest $request
      * @return Session
      * @throws AdapterException
      */
-    public function startSession(AuthRequestInterface $request)
+    public function startSession(AuthRequest $request)
     {
         $uri = sprintf('%s/sessions', $this->endpoint);
         $requestBody = $request->getRequestBody();

@@ -12,6 +12,7 @@ define(
     'jquery',
     'mage/translate',
     'Magento_Checkout/js/view/payment/default',
+    'Magento_Checkout/js/view/billing-address',
     'Magento_Checkout/js/model/full-screen-loader',
     'Magento_Checkout/js/action/set-payment-information',
     'Klarna_Kp/js/model/config',
@@ -25,6 +26,7 @@ define(
             $,
             $t,
             Component,
+            billingAddress,
             fullScreenLoader,
             setPaymentInformationAction,
             config,
@@ -45,12 +47,13 @@ define(
 
       isVisible: ko.observable(true),
       isLoading: false,
+      isBillingSameAsShipping: true,
       showButton: ko.observable(false),
 
       checkPreSelect: function() {
         if (this.getCode() === this.isChecked()) {
           this.isLoading = false;
-          this.loadKlarna();
+          this.debounceKlarnaLoad();
         }
       },
 
@@ -142,21 +145,29 @@ define(
         quote.paymentMethod.subscribe(function (value) {
           self.isLoading = false;
           if (value && value.method === self.getCode()) {
-            self.loadKlarna();
+            self.debounceKlarnaLoad();
           }
         });
         config.hasErrors.subscribe(function (value) {
           self.showButton(value);
         });
 
+        billingAddress().isAddressSameAsShipping.subscribe(function (isSame) {
+          self.isBillingSameAsShipping = isSame;
+        });
         quote.shippingAddress.subscribe(function () {
-          if (self.getCode() === self.isChecked()) {
-            self.loadKlarna();
+          // MAGE-803: When billing and shipping are the same, both the shipping and billing listeners will be
+          // called with the shipping one called first. If we allow this to update KP in that case then the
+          // billing address will not match between Magento and Klarna as by the time it reaches here the address
+          // change will not have propagated to the billing address in the Magento quote and the billing listener
+          // will be blocked from updating KP as an update will already be in progress.
+          if (self.getCode() === self.isChecked() && !self.isBillingSameAsShipping) {
+            self.debounceKlarnaLoad();
           }
         });
         quote.billingAddress.subscribe(function () {
           if (self.getCode() === self.isChecked()) {
-            self.loadKlarna();
+            self.debounceKlarnaLoad();
           }
         });
       },
@@ -165,9 +176,20 @@ define(
       },
       selectPaymentMethod: function () {
         this.isLoading = false;
-        this.loadKlarna();
+        this.debounceKlarnaLoad();
         return this._super();
       },
+      loadTimeout: null,
+      debounceKlarnaLoad: function () {
+        var self = this;
+        if (self.loadTimeout) {
+          clearTimeout(self.loadTimeout);
+        }
+        self.loadTimeout = setTimeout(function(){
+          self.loadKlarna();
+        }, 200);
+      },
+
       loadKlarna: function () {
         var self = this;
 

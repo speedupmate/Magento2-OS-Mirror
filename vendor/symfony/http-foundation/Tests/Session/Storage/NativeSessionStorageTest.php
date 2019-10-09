@@ -14,9 +14,10 @@ namespace Symfony\Component\HttpFoundation\Tests\Session\Storage;
 use PHPUnit\Framework\TestCase;
 use Symfony\Component\HttpFoundation\Session\Attribute\AttributeBag;
 use Symfony\Component\HttpFoundation\Session\Flash\FlashBag;
-use Symfony\Component\HttpFoundation\Session\Storage\Handler\NativeFileSessionHandler;
+use Symfony\Component\HttpFoundation\Session\Storage\Handler\NativeSessionHandler;
 use Symfony\Component\HttpFoundation\Session\Storage\Handler\NullSessionHandler;
 use Symfony\Component\HttpFoundation\Session\Storage\NativeSessionStorage;
+use Symfony\Component\HttpFoundation\Session\Storage\Proxy\NativeProxy;
 use Symfony\Component\HttpFoundation\Session\Storage\Proxy\SessionHandlerProxy;
 
 /**
@@ -36,7 +37,7 @@ class NativeSessionStorageTest extends TestCase
     protected function setUp()
     {
         $this->iniSet('session.save_handler', 'files');
-        $this->iniSet('session.save_path', $this->savePath = sys_get_temp_dir().'/sftest');
+        $this->iniSet('session.save_path', $this->savePath = sys_get_temp_dir().'/sf2test');
         if (!is_dir($this->savePath)) {
             mkdir($this->savePath);
         }
@@ -56,7 +57,7 @@ class NativeSessionStorageTest extends TestCase
     /**
      * @return NativeSessionStorage
      */
-    protected function getStorage(array $options = [])
+    protected function getStorage(array $options = array())
     {
         $storage = new NativeSessionStorage($options);
         $storage->registerBag(new AttributeBag());
@@ -157,27 +158,23 @@ class NativeSessionStorageTest extends TestCase
     {
         $this->iniSet('session.cache_limiter', 'nocache');
 
-        $storage = new NativeSessionStorage(['cache_limiter' => 'public']);
+        $storage = new NativeSessionStorage(array('cache_limiter' => 'public'));
         $this->assertEquals('public', ini_get('session.cache_limiter'));
     }
 
     public function testCookieOptions()
     {
-        $options = [
+        $options = array(
             'cookie_lifetime' => 123456,
             'cookie_path' => '/my/cookie/path',
             'cookie_domain' => 'symfony.example.com',
             'cookie_secure' => true,
             'cookie_httponly' => false,
-        ];
-
-        if (\PHP_VERSION_ID >= 70300) {
-            $options['cookie_samesite'] = 'lax';
-        }
+        );
 
         $this->getStorage($options);
         $temp = session_get_cookie_params();
-        $gco = [];
+        $gco = array();
 
         foreach ($temp as $key => $value) {
             $gco['cookie_'.$key] = $value;
@@ -192,10 +189,10 @@ class NativeSessionStorageTest extends TestCase
             $this->markTestSkipped('HHVM is not handled in this test case.');
         }
 
-        $options = [
+        $options = array(
             'url_rewriter.tags' => 'a=href',
             'cache_expire' => '200',
-        ];
+        );
 
         $this->getStorage($options);
 
@@ -212,7 +209,32 @@ class NativeSessionStorageTest extends TestCase
         $storage->setSaveHandler(new \stdClass());
     }
 
-    public function testSetSaveHandler()
+    public function testSetSaveHandler53()
+    {
+        if (\PHP_VERSION_ID >= 50400) {
+            $this->markTestSkipped('Test skipped, for PHP 5.3 only.');
+        }
+
+        $this->iniSet('session.save_handler', 'files');
+        $storage = $this->getStorage();
+        $storage->setSaveHandler();
+        $this->assertInstanceOf('Symfony\Component\HttpFoundation\Session\Storage\Proxy\NativeProxy', $storage->getSaveHandler());
+        $storage->setSaveHandler(null);
+        $this->assertInstanceOf('Symfony\Component\HttpFoundation\Session\Storage\Proxy\NativeProxy', $storage->getSaveHandler());
+        $storage->setSaveHandler(new NativeSessionHandler());
+        $this->assertInstanceOf('Symfony\Component\HttpFoundation\Session\Storage\Proxy\NativeProxy', $storage->getSaveHandler());
+        $storage->setSaveHandler(new SessionHandlerProxy(new NullSessionHandler()));
+        $this->assertInstanceOf('Symfony\Component\HttpFoundation\Session\Storage\Proxy\SessionHandlerProxy', $storage->getSaveHandler());
+        $storage->setSaveHandler(new NullSessionHandler());
+        $this->assertInstanceOf('Symfony\Component\HttpFoundation\Session\Storage\Proxy\SessionHandlerProxy', $storage->getSaveHandler());
+        $storage->setSaveHandler(new NativeProxy());
+        $this->assertInstanceOf('Symfony\Component\HttpFoundation\Session\Storage\Proxy\NativeProxy', $storage->getSaveHandler());
+    }
+
+    /**
+     * @requires PHP 5.4
+     */
+    public function testSetSaveHandler54()
     {
         $this->iniSet('session.save_handler', 'files');
         $storage = $this->getStorage();
@@ -220,9 +242,9 @@ class NativeSessionStorageTest extends TestCase
         $this->assertInstanceOf('Symfony\Component\HttpFoundation\Session\Storage\Proxy\SessionHandlerProxy', $storage->getSaveHandler());
         $storage->setSaveHandler(null);
         $this->assertInstanceOf('Symfony\Component\HttpFoundation\Session\Storage\Proxy\SessionHandlerProxy', $storage->getSaveHandler());
-        $storage->setSaveHandler(new SessionHandlerProxy(new NativeFileSessionHandler()));
+        $storage->setSaveHandler(new SessionHandlerProxy(new NativeSessionHandler()));
         $this->assertInstanceOf('Symfony\Component\HttpFoundation\Session\Storage\Proxy\SessionHandlerProxy', $storage->getSaveHandler());
-        $storage->setSaveHandler(new NativeFileSessionHandler());
+        $storage->setSaveHandler(new NativeSessionHandler());
         $this->assertInstanceOf('Symfony\Component\HttpFoundation\Session\Storage\Proxy\SessionHandlerProxy', $storage->getSaveHandler());
         $storage->setSaveHandler(new SessionHandlerProxy(new NullSessionHandler()));
         $this->assertInstanceOf('Symfony\Component\HttpFoundation\Session\Storage\Proxy\SessionHandlerProxy', $storage->getSaveHandler());
@@ -233,7 +255,7 @@ class NativeSessionStorageTest extends TestCase
     /**
      * @expectedException \RuntimeException
      */
-    public function testStarted()
+    public function testStartedOutside()
     {
         $storage = $this->getStorage();
 
@@ -242,8 +264,10 @@ class NativeSessionStorageTest extends TestCase
 
         session_start();
         $this->assertTrue(isset($_SESSION));
-        $this->assertTrue($storage->getSaveHandler()->isActive());
-
+        if (\PHP_VERSION_ID >= 50400) {
+            // this only works in PHP >= 5.4 where session_status is available
+            $this->assertTrue($storage->getSaveHandler()->isActive());
+        }
         // PHP session might have started, but the storage driver has not, so false is correct here
         $this->assertFalse($storage->isStarted());
 
@@ -264,6 +288,9 @@ class NativeSessionStorageTest extends TestCase
         $this->assertSame(7, $storage->getBag('attributes')->get('lucky'), 'Data still available');
     }
 
+    /**
+     * @requires PHP 5.4
+     */
     public function testCanCreateNativeSessionStorageWhenSessionAlreadyStarted()
     {
         session_start();
@@ -273,17 +300,23 @@ class NativeSessionStorageTest extends TestCase
         $this->addToAssertionCount(1);
     }
 
+    /**
+     * @requires PHP 5.4
+     */
     public function testSetSessionOptionsOnceSessionStartedIsIgnored()
     {
         session_start();
-        $this->getStorage([
+        $this->getStorage(array(
             'name' => 'something-else',
-        ]);
+        ));
 
         // Assert no exception has been thrown by `getStorage()`
         $this->addToAssertionCount(1);
     }
 
+    /**
+     * @requires PHP 5.4
+     */
     public function testGetBagsOnceSessionStartedIsIgnored()
     {
         session_start();

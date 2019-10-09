@@ -292,7 +292,6 @@ class Ordermanagement implements ApiInterface
         return self::KLARNA_API_SHIPPING_METHOD_HOME;
     }
 
-
     /**
      * @param array                   $data
      * @param Invoice|Creditmemo|null $document
@@ -369,7 +368,7 @@ class Ordermanagement implements ApiInterface
             'refunded_amount' => $this->dataConverter->toApiFloat($amount)
         ];
 
-        if (!is_null($creditMemo->getCustomerNote())) {
+        if ($creditMemo->getCustomerNote() !== null) {
             $data['description'] = $creditMemo->getCustomerNote();
         }
 

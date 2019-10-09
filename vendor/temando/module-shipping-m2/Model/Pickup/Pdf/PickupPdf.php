@@ -327,7 +327,7 @@ class PickupPdf extends AbstractPdf
         /* Add body */
         /** @var DataObject $item */
         foreach ($pickupData->getData('items') as $item) {
-            if ($item->getData('order_item')->getParentItem()) {
+            if ($item->getData('order_item')->isDummy(true)) {
                 continue;
             }
             /* Draw item */

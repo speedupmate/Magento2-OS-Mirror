@@ -5,6 +5,8 @@ namespace Dotdigitalgroup\Email\Helper;
 use Dotdigitalgroup\Email\Helper\Config as EmailConfig;
 use Dotdigitalgroup\Email\Model\Config\Json;
 use \Magento\Framework\App\Config\ScopeConfigInterface;
+use Dotdigitalgroup\Email\Logger\Logger;
+use \Magento\Framework\App\RequestInterface;
 
 /**
  * General most used helper to work with config data, saving updating and generating.
@@ -62,11 +64,6 @@ class Data extends \Magento\Framework\App\Helper\AbstractHelper
     public $customerFactory;
 
     /**
-     * @var File
-     */
-    public $fileHelper;
-
-    /**
      * @var \Magento\Framework\App\Config\Storage\Writer
      */
     public $writer;
@@ -97,6 +94,11 @@ class Data extends \Magento\Framework\App\Helper\AbstractHelper
     public $contactResource;
 
     /**
+     * @var \Magento\Framework\Encryption\EncryptorInterface
+     */
+    public $encryptor;
+
+    /**
      * @var \Magento\Quote\Model\ResourceModel\Quote
      */
     private $quoteResource;
@@ -112,16 +114,30 @@ class Data extends \Magento\Framework\App\Helper\AbstractHelper
     private $userResource;
 
     /**
-     * @var \Magento\Framework\Encryption\EncryptorInterface
+     * @var \Magento\Framework\Stdlib\DateTime\TimezoneInterface
      */
-    public $encryptor;
+    private $timezone;
+
+    /**
+     * @var \Dotdigitalgroup\Email\Model\DateIntervalFactory
+     */
+    private $dateIntervalFactory;
+
+    /**
+     * @var Logger
+     */
+    private $logger;
+
+    /**
+     * @var RequestInterface
+     */
+    private $request;
 
     /**
      * Data constructor.
      * @param \Magento\Framework\App\ProductMetadata $productMetadata
      * @param \Dotdigitalgroup\Email\Model\ContactFactory $contactFactory
      * @param \Dotdigitalgroup\Email\Model\ResourceModel\Contact $contactResource
-     * @param File $fileHelper
      * @param \Magento\Config\Model\ResourceModel\Config $resourceConfig
      * @param \Magento\Framework\App\ResourceConnection $adapter
      * @param \Magento\Framework\App\Helper\Context $context
@@ -138,12 +154,12 @@ class Data extends \Magento\Framework\App\Helper\AbstractHelper
      * @param \Magento\Quote\Model\QuoteFactory $quoteFactory
      * @param \Magento\User\Model\ResourceModel\User $userResource
      * @var \Magento\Framework\Encryption\EncryptorInterface $encryptor
+     * @param Logger $logger
      */
     public function __construct(
         \Magento\Framework\App\ProductMetadata $productMetadata,
         \Dotdigitalgroup\Email\Model\ContactFactory $contactFactory,
         \Dotdigitalgroup\Email\Model\ResourceModel\Contact $contactResource,
-        \Dotdigitalgroup\Email\Helper\File $fileHelper,
         \Magento\Config\Model\ResourceModel\Config $resourceConfig,
         \Magento\Framework\App\ResourceConnection $adapter,
         \Magento\Framework\App\Helper\Context $context,
@@ -156,10 +172,14 @@ class Data extends \Magento\Framework\App\Helper\AbstractHelper
         \Dotdigitalgroup\Email\Helper\ConfigFactory $configHelperFactory,
         \Dotdigitalgroup\Email\Model\Config\Json $serilizer,
         \Magento\Framework\Stdlib\DateTime\DateTime $dateTime,
+        \Magento\Framework\Stdlib\DateTime\TimezoneInterface $timezone,
+        \Dotdigitalgroup\Email\Model\DateIntervalFactory $dateIntervalFactory,
         \Magento\Quote\Model\ResourceModel\Quote $quoteResource,
         \Magento\Quote\Model\QuoteFactory $quoteFactory,
         \Magento\User\Model\ResourceModel\User $userResource,
-        \Magento\Framework\Encryption\EncryptorInterface $encryptor
+        \Magento\Framework\Encryption\EncryptorInterface $encryptor,
+        Logger $logger,
+        RequestInterface $request
     ) {
         $this->serializer       = $serilizer;
         $this->adapter          = $adapter;
@@ -174,14 +194,17 @@ class Data extends \Magento\Framework\App\Helper\AbstractHelper
         $this->clientFactory = $clientFactory;
         $this->configHelperFactory = $configHelperFactory;
         $this->datetime = $dateTime;
+        $this->timezone = $timezone;
+        $this->dateIntervalFactory = $dateIntervalFactory;
         $this->quoteResource = $quoteResource;
         $this->quoteFactory = $quoteFactory;
         $this->userResource = $userResource;
         $this->contactResource = $contactResource;
         $this->encryptor = $encryptor;
+        $this->logger = $logger;
+        $this->request = $request;
 
         parent::__construct($context);
-        $this->fileHelper = $fileHelper;
     }
 
     /**
@@ -298,7 +321,7 @@ class Data extends \Magento\Framework\App\Helper\AbstractHelper
      *
      * @return int|float|string|boolean
      */
-    private function getConfigValue(
+    public function getConfigValue(
         $path,
         $contextScope = 'default',
         $contextScopeId = null
@@ -345,7 +368,7 @@ class Data extends \Magento\Framework\App\Helper\AbstractHelper
      */
     public function getWebsite()
     {
-        $websiteId = $this->_request->getParam('website', false);
+        $websiteId = $this->request->getParam('website', false);
         if ($websiteId) {
             return $this->storeManager->getWebsite($websiteId);
         }
@@ -360,9 +383,14 @@ class Data extends \Magento\Framework\App\Helper\AbstractHelper
      */
     public function getWebsiteForSelectedScopeInAdmin()
     {
-        //If website param does not exist then default value returned 0 "default scope"
-        //This is because there is no website param in default scope
-        $websiteId = $this->_request->getParam('website', 0);
+        /**
+         * See first if store param exist. If it does than get website from store.
+         * If website param does not exist then default value returned 0 "default scope"
+         * This is because there is no website param in default scope
+         */
+        $storeId = $this->request->getParam('store');
+        $websiteId = ($storeId) ? $this->storeManager->getStore($storeId)->getWebsiteId() :
+            $this->request->getParam('website', 0);
         return $this->storeManager->getWebsite($websiteId);
     }
 
@@ -373,7 +401,7 @@ class Data extends \Magento\Framework\App\Helper\AbstractHelper
      */
     public function getPasscode()
     {
-        $websiteId = (int) $this->_request->getParam('website', false);
+        $websiteId = (int) $this->request->getParam('website', false);
 
         $scope = 'default';
         $scopeId = '0';
@@ -457,38 +485,45 @@ class Data extends \Magento\Framework\App\Helper\AbstractHelper
     }
 
     /**
-     * Log data into the connector file.
+     * Log data to the extension's log file.
+     * INFO (200): Interesting events.
+     *
      * @param string $data
+     * @param array $extra
      *
      * @return null
      */
-    public function log($data)
+    public function log($data, $extra = [])
     {
-        $this->fileHelper->info($data);
+        $this->logger->info($data, $extra);
     }
 
     /**
+     * Log data to the extension's log file.
+     * DEBUG (100): Detailed debug information.
      *
      * @param string $message
      * @param array $extra
      *
      * @return null
      */
-    public function debug($message, $extra)
+    public function debug($message, $extra = [])
     {
-        $this->fileHelper->debug($message, $extra);
+        $this->logger->debug($message, $extra);
     }
 
     /**
+     * Log data to the extension's log file.
+     * ERROR (400): Runtime errors.
      *
      * @param string $message
      * @param array $extra
      *
      * @return null
      */
-    public function error($message, $extra)
+    public function error($message, $extra = [])
     {
-        $this->debug($message, $extra);
+        $this->logger->error($message, $extra);
     }
 
     /**
@@ -615,6 +650,50 @@ class Data extends \Magento\Framework\App\Helper\AbstractHelper
         }
 
         return $response;
+    }
+
+    /**
+     * @param \Magento\Store\Api\Data\WebsiteInterface $website
+     * @param string $intervalSpec
+     * @return array
+     */
+    public function getSuppressedContacts($website, $intervalSpec = 'PT24H')
+    {
+        $limit = 5;
+        $maxToSelect = 1000;
+        $skip = $i = 0;
+        $contacts = [];
+        $suppressedEmails = [];
+        $date = $this->timezone->date()->sub($this->dateIntervalFactory->create(['interval_spec' => $intervalSpec]));
+        $dateString = $date->format(\DateTime::W3C);
+        $client = $this->getWebsiteApiClient($website);
+
+        //there is a maximum of request we need to loop to get more suppressed contacts
+        for ($i=0; $i<= $limit; $i++) {
+            $apiContacts = $client->getContactsSuppressedSinceDate($dateString, $maxToSelect, $skip);
+
+            // skip no more contacts or the api request failed
+            if (empty($apiContacts) || isset($apiContacts->message)) {
+                break;
+            }
+            $contacts = array_merge($contacts, $apiContacts);
+            $skip += 1000;
+        }
+
+        // Contacts to un-subscribe
+        foreach ($contacts as $apiContact) {
+            if (isset($apiContact->suppressedContact)) {
+                $suppressedContactEmail = $apiContact->suppressedContact->email;
+                if (!array_key_exists($suppressedContactEmail, $suppressedEmails)) {
+                    $suppressedEmails[$suppressedContactEmail] = [
+                        'email' => $apiContact->suppressedContact->email,
+                        'removed_at' => $apiContact->dateRemoved,
+                    ];
+                }
+            }
+        }
+
+        return array_values($suppressedEmails);
     }
 
     /**
@@ -960,7 +1039,7 @@ class Data extends \Magento\Framework\App\Helper\AbstractHelper
     public function disableConfigForWebsite($path)
     {
         $scopeId = 0;
-        if ($website = $this->_request->getParam('website')) {
+        if ($website = $this->request->getParam('website')) {
             $scope = 'websites';
             $scopeId = $this->storeManager->getWebsite($website)->getId();
         } else {
@@ -1000,7 +1079,7 @@ class Data extends \Magento\Framework\App\Helper\AbstractHelper
      */
     public function generateDynamicUrl()
     {
-        $website = $this->_request->getParam('website', false);
+        $website = $this->request->getParam('website', false);
 
         //set website url for the default store id
         $website = ($website) ? $this->storeManager->getWebsite($website) : 0;
@@ -1155,7 +1234,7 @@ class Data extends \Magento\Framework\App\Helper\AbstractHelper
                 'Key' => $quoteIdField,
                 'Value' => $quoteId,
             ];
-            //update datafields for conctact
+            //update datafields for contact
             $client->updateContactDatafieldsByEmail($email, $data);
         }
     }
@@ -1408,74 +1487,6 @@ class Data extends \Magento\Framework\App\Helper\AbstractHelper
     }
 
     /**
-     * Dynamic styles from config.
-     *
-     * @return array
-     */
-    public function getDynamicStyles()
-    {
-        return [
-            'nameStyle' => explode(
-                ',',
-                $this->getConfigValue(
-                    \Dotdigitalgroup\Email\Helper\Config::XML_PATH_CONNECTOR_DYNAMIC_NAME_STYLE
-                )
-            ),
-            'priceStyle' => explode(
-                ',',
-                $this->getConfigValue(
-                    \Dotdigitalgroup\Email\Helper\Config::XML_PATH_CONNECTOR_DYNAMIC_PRICE_STYLE
-                )
-            ),
-            'linkStyle' => explode(
-                ',',
-                $this->getConfigValue(
-                    \Dotdigitalgroup\Email\Helper\Config::XML_PATH_CONNECTOR_DYNAMIC_LINK_STYLE
-                )
-            ),
-            'otherStyle' => explode(
-                ',',
-                $this->getConfigValue(
-                    \Dotdigitalgroup\Email\Helper\Config::XML_PATH_CONNECTOR_DYNAMIC_OTHER_STYLE
-                )
-            ),
-            'nameColor' => $this->getConfigValue(
-                \Dotdigitalgroup\Email\Helper\Config::XML_PATH_CONNECTOR_DYNAMIC_NAME_COLOR
-            ),
-            'fontSize' => $this->getConfigValue(
-                \Dotdigitalgroup\Email\Helper\Config::XML_PATH_CONNECTOR_DYNAMIC_NAME_FONT_SIZE
-            ),
-            'priceColor' => $this->getConfigValue(
-                \Dotdigitalgroup\Email\Helper\Config::XML_PATH_CONNECTOR_DYNAMIC_PRICE_COLOR
-            ),
-            'priceFontSize' => $this->getConfigValue(
-                \Dotdigitalgroup\Email\Helper\Config::XML_PATH_CONNECTOR_DYNAMIC_PRICE_FONT_SIZE
-            ),
-            'urlColor' => $this->getConfigValue(
-                \Dotdigitalgroup\Email\Helper\Config::XML_PATH_CONNECTOR_DYNAMIC_LINK_COLOR
-            ),
-            'urlFontSize' => $this->getConfigValue(
-                \Dotdigitalgroup\Email\Helper\Config::XML_PATH_CONNECTOR_DYNAMIC_LINK_FONT_SIZE
-            ),
-            'otherColor' => $this->getConfigValue(
-                \Dotdigitalgroup\Email\Helper\Config::XML_PATH_CONNECTOR_DYNAMIC_OTHER_COLOR
-            ),
-            'otherFontSize' => $this->getConfigValue(
-                \Dotdigitalgroup\Email\Helper\Config::XML_PATH_CONNECTOR_DYNAMIC_OTHER_FONT_SIZE
-            ),
-            'docFont' => $this->getConfigValue(
-                \Dotdigitalgroup\Email\Helper\Config::XML_PATH_CONNECTOR_DYNAMIC_DOC_FONT
-            ),
-            'docBackgroundColor' => $this->getConfigValue(
-                \Dotdigitalgroup\Email\Helper\Config::XML_PATH_CONNECTOR_DYNAMIC_DOC_BG_COLOR
-            ),
-            'dynamicStyling' => $this->getConfigValue(
-                \Dotdigitalgroup\Email\Helper\Config::XML_PATH_CONNECTOR_DYNAMIC_STYLING
-            ),
-        ];
-    }
-
-    /**
      * Get display type for review product.
      *
      * @param int $website
@@ -1620,7 +1631,7 @@ class Data extends \Magento\Framework\App\Helper\AbstractHelper
         $cartLimit = $this->scopeConfig->getValue(
             \Dotdigitalgroup\Email\Helper\Config::XML_PATH_CONNECTOR_ABANDONED_CART_LIMIT
         );
-        
+
         return $cartLimit;
     }
 
@@ -1880,7 +1891,9 @@ class Data extends \Magento\Framework\App\Helper\AbstractHelper
      */
     public function getPageTrackingUrl()
     {
-        return '//' . $this->getRegionPrefix() . 't.trackedlink.net/_dmpt';
+        $version = $this->getTrackingScriptVersionNumber();
+        return '//' . $this->getRegionPrefix() . 't.trackedlink.net/_dmpt'
+            . ($version ? '.js?v=' . $version : '');
     }
 
     /**
@@ -1888,7 +1901,9 @@ class Data extends \Magento\Framework\App\Helper\AbstractHelper
      */
     public function getPageTrackingUrlForSuccessPage()
     {
-        return '//' . $this->getRegionPrefix() . 't.trackedlink.net/_dmmpt';
+        $version = $this->getTrackingScriptVersionNumber();
+        return '//' . $this->getRegionPrefix() . 't.trackedlink.net/_dmmpt'
+            . ($version ? '.js?v=' . $version : '');
     }
 
     /**
@@ -1963,5 +1978,15 @@ class Data extends \Magento\Framework\App\Helper\AbstractHelper
     public function saveContact($contact)
     {
         $this->contactResource->save($contact);
+    }
+
+    /**
+     * Get the version number to append to _dmpt tracking script
+     *
+     * @return int|null
+     */
+    private function getTrackingScriptVersionNumber()
+    {
+        return (int) $this->scopeConfig->getValue(Config::XML_PATH_TRACKING_SCRIPT_VERSION);
     }
 }

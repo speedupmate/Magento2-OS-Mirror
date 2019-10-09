@@ -8,6 +8,14 @@ namespace Temando\Shipping\Model\Shipment;
 /**
  * Temando Shipment Summary Interface.
  *
+ * As opposed to the standalone shipment entity, the shipment summary contains
+ * only a subset of the shipment's data and is usually obtained as a member
+ * property of a primary entity, e.g. a Batch.
+ *
+ * @see \Temando\Shipping\Model\BatchInterface::getIncludedShipments()
+ * @see \Temando\Shipping\Model\BatchInterface::getFailedShipments()
+ * @see \Temando\Shipping\Model\ShipmentInterface
+ *
  * @package Temando\Shipping\Model
  * @author  Christoph Aßmann <christoph.assmann@netresearch.de>
  * @license https://opensource.org/licenses/osl-3.0.php Open Software License (OSL 3.0)
@@ -15,12 +23,12 @@ namespace Temando\Shipping\Model\Shipment;
  */
 interface ShipmentSummaryInterface
 {
-    const ORDER_ID          = 'order_id';
-    const SHIPMENT_ID       = 'shipment_id';
-    const STATUS            = 'status';
-    const RECIPIENT_ADDRESS = 'recipient_address';
-    const RECIPIENT_NAME    = 'recipient_name';
-    const ERRORS            = 'errors';
+    const ORDER_ID = 'order_id';
+    const SHIPMENT_ID = 'shipment_id';
+    const STATUS = 'status';
+    const ITEMS = 'items';
+    const DESTINATION_LOCATION = 'destination_location';
+    const ERRORS = 'errors';
 
     /**
      * @return string
@@ -38,14 +46,14 @@ interface ShipmentSummaryInterface
     public function getStatus();
 
     /**
-     * @return string
+     * @return ShipmentItemInterface[]
      */
-    public function getRecipientAddress();
+    public function getItems();
 
     /**
-     * @return string
+     * @return LocationInterface
      */
-    public function getRecipientName();
+    public function getDestinationLocation();
 
     /**
      * @return ShipmentErrorInterface[]

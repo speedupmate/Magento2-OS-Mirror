@@ -6,6 +6,10 @@
 -->
 <page xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="urn:magento:framework:View/Layout/etc/page_configuration.xsd">
     <body>
+        <referenceBlock name="page.actions.toolbar">
+            <block class="Temando\Shipping\Block\Adminhtml\PageAction\BatchBackButton" name="batch_btn_back" />
+            <block class="Temando\Shipping\Block\Adminhtml\PageAction\BatchPrintButton" name="batch_btn_print" />
+        </referenceBlock>
         <referenceContainer name="content">
             <block class="Magento\Backend\Block\Template" name="admin.temando.batch.view">
                 <arguments>

@@ -1,3 +1,40 @@
+## [1.6.1] - 2019-08-16
+###Fixed
+
+- Ready At date/time is displayed relative to shipping location on dispatches
+- Pickup location opening hours are displayed relative to location
+- Return types allow WSDL to generate correctly
+- Remove incorrect layout update in product attribute mapping layout
+- Integration tests now run to success
+- Configurable products correctly inherit product attribute values
+- Product attribute mappings are not refreshed on a failed delete
+- Allow saving of empty product attribute mappings
+- Remove product attribute types from mapping that can't be sent to the platform
+- Validate product attribute type values can be sent to the platform
+- Multiple response relationships are able to be mapped
+
+## [1.6.0] - 2019-08-05
+### Added
+
+- Improve MFTF test coverage
+- Batch processing improvements
+- Checkout performance improvements
+- Moved locations configuration to platform
+- Update shipping address via PATCH request
+- Moved carriers configuration to platform
+- Bundled product shipping
+- Add customer group and site to order request
+- Product attribute to shipping attribute mapping
+
+### Changed
+
+- Reorder dimensions in product shipping options
+- PHP version constraint
+
+### Fixed
+
+- Allow orders to reship if cancelled from the platform
+
 ## [1.5.3] - 2019-05-20
 ### Fixed
 
@@ -70,6 +107,29 @@
 ### Added
 
 - Click & Collect: Enable customers to collect items from a pickup location
+
+## [1.3.14] - 2019-08-20
+### Fixed
+
+- Add context to configurable object whitelist
+
+## [1.3.13] - 2019-08-16
+### Fixed
+
+- Fix rendering of tooltips on order ship
+
+## [1.3.12] - 2019-08-05
+### Fixed
+
+- Rounding pre-filled package weights
+- Display duties and taxes on quotes where applicable
+- Link to return shipment when solving errors for return shipment dispatches
+- PHP version constraint
+
+## [1.3.11] - 2019-05-16
+### Fixed
+
+- Validate API URL host name in module configuration
 
 ## [1.3.10] - 2019-02-11
 ### Fixed

@@ -5,19 +5,25 @@
 namespace Temando\Shipping\Rest\EntityMapper;
 
 use Temando\Shipping\Model\Checkout\Attribute\CheckoutFieldInterface;
+use Temando\Shipping\Model\Order\CustomAttributesInterface;
 use Temando\Shipping\Model\Order\OrderBillingInterface;
 use Temando\Shipping\Model\Order\OrderItemInterface;
 use Temando\Shipping\Model\Order\OrderRecipientInterface;
 use Temando\Shipping\Model\OrderInterface;
 use Temando\Shipping\Rest\Request\Type\ExtensibleTypeAttribute;
 use Temando\Shipping\Rest\Request\Type\ExtensibleTypeAttributeFactory;
+use Temando\Shipping\Rest\Request\Type\Generic\AddressFactory;
 use Temando\Shipping\Rest\Request\Type\Generic\DimensionsFactory;
 use Temando\Shipping\Rest\Request\Type\Generic\MonetaryValueFactory;
 use Temando\Shipping\Rest\Request\Type\Generic\WeightFactory;
+use Temando\Shipping\Rest\Request\Type\Order\CustomAttributes;
+use Temando\Shipping\Rest\Request\Type\Order\CustomAttributesFactory;
 use Temando\Shipping\Rest\Request\Type\Order\Customer;
 use Temando\Shipping\Rest\Request\Type\Order\CustomerFactory;
 use Temando\Shipping\Rest\Request\Type\Order\OrderItem;
 use Temando\Shipping\Rest\Request\Type\Order\OrderItem\ClassificationCodesFactory;
+use Temando\Shipping\Rest\Request\Type\Order\OrderItem\ManufactureFactory;
+use Temando\Shipping\Rest\Request\Type\Order\OrderItem\OriginFactory;
 use Temando\Shipping\Rest\Request\Type\Order\OrderItemFactory;
 use Temando\Shipping\Rest\Request\Type\Order\Recipient;
 use Temando\Shipping\Rest\Request\Type\Order\RecipientFactory;
@@ -64,6 +70,21 @@ class QualificationRequestTypeBuilder
     private $orderItemFactory;
 
     /**
+     * @var OriginFactory
+     */
+    private $originFactory;
+
+    /**
+     * @var ManufactureFactory
+     */
+    private $manufactureFactory;
+
+    /**
+     * @var AddressFactory
+     */
+    private $addressFactory;
+
+    /**
      * @var ClassificationCodesFactory
      */
     private $classificationCodesFactory;
@@ -94,18 +115,27 @@ class QualificationRequestTypeBuilder
     private $attributeFactory;
 
     /**
+     * @var CustomAttributesFactory
+     */
+    private $customAttributesFactory;
+
+    /**
      * OrderRequestTypeBuilder constructor.
      * @param QualificationRequestTypeFactory $requestTypeFactory
      * @param OrderFactory $orderFactory
      * @param CustomerFactory $customerFactory
      * @param RecipientFactory $recipientFactory
      * @param OrderItemFactory $orderItemFactory
+     * @param OriginFactory $originFactory
+     * @param ManufactureFactory $manufactureFactory
+     * @param AddressFactory $addressFactory
      * @param ClassificationCodesFactory $classificationCodesFactory
      * @param DimensionsFactory $dimensionsFactory
      * @param MonetaryValueFactory $monetaryValueFactory
      * @param WeightFactory $weightFactory
      * @param GeoAddressFactory $geoAddressFactory
      * @param ExtensibleTypeAttributeFactory $attributeFactory
+     * @param CustomAttributesFactory $customAttributesFactory
      */
     public function __construct(
         QualificationRequestTypeFactory $requestTypeFactory,
@@ -113,24 +143,32 @@ class QualificationRequestTypeBuilder
         CustomerFactory $customerFactory,
         RecipientFactory $recipientFactory,
         OrderItemFactory $orderItemFactory,
+        OriginFactory $originFactory,
+        ManufactureFactory $manufactureFactory,
+        AddressFactory $addressFactory,
         ClassificationCodesFactory $classificationCodesFactory,
         DimensionsFactory $dimensionsFactory,
         MonetaryValueFactory $monetaryValueFactory,
         WeightFactory $weightFactory,
         GeoAddressFactory $geoAddressFactory,
-        ExtensibleTypeAttributeFactory $attributeFactory
+        ExtensibleTypeAttributeFactory $attributeFactory,
+        CustomAttributesFactory $customAttributesFactory
     ) {
         $this->requestTypeFactory = $requestTypeFactory;
         $this->orderFactory = $orderFactory;
         $this->customerFactory = $customerFactory;
         $this->recipientFactory = $recipientFactory;
         $this->orderItemFactory = $orderItemFactory;
+        $this->originFactory = $originFactory;
+        $this->manufactureFactory =  $manufactureFactory;
+        $this->addressFactory = $addressFactory;
         $this->classificationCodesFactory = $classificationCodesFactory;
         $this->dimensionsFactory = $dimensionsFactory;
         $this->monetaryValueFactory = $monetaryValueFactory;
         $this->weightFactory = $weightFactory;
         $this->geoAddressFactory = $geoAddressFactory;
         $this->attributeFactory = $attributeFactory;
+        $this->customAttributesFactory = $customAttributesFactory;
     }
 
     /**
@@ -215,6 +253,20 @@ class QualificationRequestTypeBuilder
     }
 
     /**
+     * @param CustomAttributesInterface $customAttributes
+     * @return CustomAttributes
+     */
+    private function getCustomAttributesType(CustomAttributesInterface $customAttributes)
+    {
+        $customAttributesType = $this->customAttributesFactory->create([
+            'storeCode' => $customAttributes->getStoreCode(),
+            'customerGroupCode' => $customAttributes->getCustomerGroupCode()
+        ]);
+
+        return $customAttributesType;
+    }
+
+    /**
      * @param OrderItemInterface[] $orderItems
      * @return OrderItem[]
      */
@@ -248,14 +300,25 @@ class QualificationRequestTypeBuilder
                 'isFragile' => $orderItem->isFragile(),
                 'isVirtual' => $orderItem->isVirtual(),
                 'isPrePackaged' => $orderItem->isPrePackaged(),
+                'packageId' => $orderItem->getPackageId(),
                 'canRotateVertical' => $orderItem->canRotateVertically(),
-                'countryOfOrigin' => $orderItem->getCountryOfOrigin(),
-                'countryOfManufacture' => $orderItem->getCountryOfManufacture(),
+                'origin' => $this->originFactory->create([
+                    'address' => $this->addressFactory->create([
+                        'countryCode' => $orderItem->getCountryOfOrigin(),
+                    ]),
+                ]),
+                'manufacture' => $this->manufactureFactory->create([
+                    'address' => $this->addressFactory->create([
+                        'countryCode' => $orderItem->getCountryOfManufacture(),
+                    ]),
+                ]),
                 'classificationCodes' => $this->classificationCodesFactory->create([
                     'eccn' => $orderItem->getEccn(),
                     'scheduleBinfo' => $orderItem->getScheduleBinfo(),
                     'hsCode' => $orderItem->getHsCode(),
                 ]),
+                'composition' => $orderItem->getComposition(),
+                'customAttributes' => $orderItem->getCustomAttributes(),
             ]);
             $itemTypes[] = $itemType;
         }
@@ -281,6 +344,7 @@ class QualificationRequestTypeBuilder
             'customer' => $this->getCustomerType($order->getBilling()),
             'recipient' => $this->getRecipientType($order->getRecipient()),
             'items' => $this->getItemTypes($order->getOrderItems()),
+            'customAttributes' => $this->getCustomAttributesType($order->getCustomAttributes()),
         ]);
 
         return $orderType;

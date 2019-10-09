@@ -10,6 +10,7 @@ use Temando\Shipping\Model\DispatchInterface;
 use Temando\Shipping\Model\ResourceModel\Repository\DispatchRepositoryInterface;
 use Temando\Shipping\Model\Config\ModuleConfig;
 use Temando\Shipping\Rest\AuthenticationInterface;
+use Temando\Shipping\Test\Integration\Fixture\ApiTokenFixture;
 use Temando\Shipping\Test\Integration\Provider\RestResponseProvider;
 use Temando\Shipping\Webservice\HttpClientInterfaceFactory;
 
@@ -17,11 +18,12 @@ use Temando\Shipping\Webservice\HttpClientInterfaceFactory;
  * Temando Dispatch Repository Test
  *
  * @magentoAppIsolation enabled
+ * @magentoDataFixture createApiToken
  *
- * @package  Temando\Shipping\Test\Integration
- * @author   Christoph Aßmann <christoph.assmann@netresearch.de>
- * @license  http://opensource.org/licenses/osl-3.0.php Open Software License (OSL 3.0)
- * @link     http://www.temando.com/
+ * @package Temando\Shipping\Test\Integration
+ * @author  Christoph Aßmann <christoph.assmann@netresearch.de>
+ * @license https://opensource.org/licenses/osl-3.0.php Open Software License (OSL 3.0)
+ * @link    https://www.temando.com/
  */
 class DispatchRepositoryTest extends \PHPUnit\Framework\TestCase
 {
@@ -35,30 +37,29 @@ class DispatchRepositoryTest extends \PHPUnit\Framework\TestCase
     }
 
     /**
-     * Set valid session token
+     * delegate fixtures creation to separate class.
      */
-    protected function setUp()
+    public static function createApiToken()
     {
-        parent::setUp();
-
-        /** @var SessionManagerInterface $adminSession */
-        $adminSession = Bootstrap::getObjectManager()->get(SessionManagerInterface::class);
-        $adminSession->setData(AuthenticationInterface::DATA_KEY_SESSION_TOKEN_EXPIRY, '2038-01-19T03:03:33.000Z');
-    }
-
-    protected function tearDown()
-    {
-        /** @var SessionManagerInterface $adminSession */
-        $adminSession = Bootstrap::getObjectManager()->get(SessionManagerInterface::class);
-        $adminSession->unsetData(AuthenticationInterface::DATA_KEY_SESSION_TOKEN_EXPIRY);
-
-        parent::tearDown();
+        ApiTokenFixture::createValidToken();
     }
 
     /**
+     * delegate fixtures rollback to separate class.
+     */
+    public static function createApiTokenRollback()
+    {
+        ApiTokenFixture::rollbackToken();
+    }
+
+    /**
+     * Assert that the dispatch repository throws a LocalizedException when api request fails.
+     *
      * @test
+     *
      * @magentoConfigFixture default/carriers/temando/session_endpoint https://auth.temando.io/v1/
      * @magentoConfigFixture default/carriers/temando/sovereign_endpoint https://foo.temando.io/v1/
+     *
      * @expectedException \Magento\Framework\Exception\LocalizedException
      */
     public function apiItemAccessFails()
@@ -89,9 +90,13 @@ class DispatchRepositoryTest extends \PHPUnit\Framework\TestCase
     }
 
     /**
+     * Assert that the dispatch repository throws a LocalizedException when api returns error response.
+     *
      * @test
+     *
      * @magentoConfigFixture default/carriers/temando/session_endpoint https://auth.temando.io/v1/
      * @magentoConfigFixture default/carriers/temando/sovereign_endpoint https://foo.temando.io/v1/
+     *
      * @expectedException \Magento\Framework\Exception\LocalizedException
      */
     public function apiItemReturnsError()
@@ -127,9 +132,13 @@ class DispatchRepositoryTest extends \PHPUnit\Framework\TestCase
     }
 
     /**
+     * Assert that the dispatch repository throws a NoSuchEntityException when api returns 404 response.
+     *
      * @test
+     *
      * @magentoConfigFixture default/carriers/temando/session_endpoint https://auth.temando.io/v1/
      * @magentoConfigFixture default/carriers/temando/sovereign_endpoint https://foo.temando.io/v1/
+     *
      * @expectedException \Magento\Framework\Exception\NoSuchEntityException
      */
     public function apiItemReturnsEmptyResult()
@@ -165,10 +174,14 @@ class DispatchRepositoryTest extends \PHPUnit\Framework\TestCase
     }
 
     /**
+     * Assert that a non-empty api response is properly passed through the repository.
+     *
      * @test
      * @dataProvider getCompletionResponseDataProvider
+     *
      * @magentoConfigFixture default/carriers/temando/session_endpoint https://auth.temando.io/v1/
      * @magentoConfigFixture default/carriers/temando/sovereign_endpoint https://foo.temando.io/v1/
+     *
      * @param string $responseBody
      */
     public function getById($responseBody)

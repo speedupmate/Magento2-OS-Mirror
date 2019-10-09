@@ -7,7 +7,7 @@ namespace Temando\Shipping\Rest;
 use Magento\TestFramework\Helper\Bootstrap;
 use Psr\Log\NullLogger;
 use Temando\Shipping\Rest\Adapter as RestAdapter;
-use Temando\Shipping\Rest\Request\AuthRequestInterface;
+use Temando\Shipping\Rest\Request\AuthRequest;
 use Temando\Shipping\Rest\Request\ItemRequestInterface;
 use Temando\Shipping\Rest\Request\ListRequestInterface;
 use Temando\Shipping\Rest\Response\DataObject\Session;
@@ -90,8 +90,8 @@ class AuthAdapterTest extends \PHPUnit\Framework\TestCase
             'httpClientFactory' => $clientFactoryMock,
         ]);
 
-        /** @var AuthRequestInterface $request */
-        $request = Bootstrap::getObjectManager()->create(AuthRequestInterface::class, [
+        /** @var AuthRequest $request */
+        $request = Bootstrap::getObjectManager()->create(AuthRequest::class, [
             'accountId' => 'foo',
             'bearerToken' => 'bar',
             'scope' => AuthenticationInterface::AUTH_SCOPE_ADMIN,
@@ -144,8 +144,8 @@ class AuthAdapterTest extends \PHPUnit\Framework\TestCase
             'httpClientFactory' => $clientFactoryMock,
         ]);
 
-        /** @var AuthRequestInterface $request */
-        $request = Bootstrap::getObjectManager()->create(AuthRequestInterface::class, [
+        /** @var AuthRequest $request */
+        $request = Bootstrap::getObjectManager()->create(AuthRequest::class, [
             'accountId' => 'foo',
             'bearerToken' => 'bar',
             'scope' => AuthenticationInterface::AUTH_SCOPE_ADMIN,
@@ -194,8 +194,8 @@ class AuthAdapterTest extends \PHPUnit\Framework\TestCase
             'httpClientFactory' => $clientFactoryMock,
         ]);
 
-        /** @var AuthRequestInterface $request */
-        $request = Bootstrap::getObjectManager()->create(AuthRequestInterface::class, [
+        /** @var AuthRequest $request */
+        $request = Bootstrap::getObjectManager()->create(AuthRequest::class, [
             'accountId' => 'foo',
             'bearerToken' => 'bar',
             'scope' => AuthenticationInterface::AUTH_SCOPE_ADMIN,
@@ -221,7 +221,7 @@ class AuthAdapterTest extends \PHPUnit\Framework\TestCase
         $adapter = Bootstrap::getObjectManager()->create(RestAdapter::class, [
             'logger' => new NullLogger(),
         ]);
-        $this->assertEmpty($adapter->getCarrierIntegrations($request));
+        $this->assertEmpty($adapter->getLocations($request));
     }
 
     /**

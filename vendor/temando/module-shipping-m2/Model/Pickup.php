@@ -115,7 +115,7 @@ class Pickup extends DataObject implements PickupInterface
 
     /**
      * format: [ <sku> => <qty>, <sku> => <qty> ]
-     * @return string[]
+     * @return int[]
      */
     public function getItems()
     {

@@ -12,14 +12,15 @@
         <annotations>
             <stories value="Add Downloadable Product"/>
             <title value="Downloadable Product created with Default Source assigned by Admin user"/>
-            <description value="Downloadable Product created with Default Source assigned by Admin user"/>
-            <testCaseId value="MSI-1749"/>
+            <description value="Downloadable Product created with Default Source assigned by Admin user."/>
+            <testCaseId value="https://app.hiptest.com/projects/69435/test-plan/folders/457024/scenarios/1436947"/>
             <severity value="MAJOR"/>
             <group value="msi"/>
             <group value="multi_mode"/>
         </annotations>
         
         <before>
+            <magentoCLI stepKey="addDownloadableDomain" command="downloadable:domains:add static.magento.com"/>
             <magentoCLI command="config:set cataloginventory/item_options/manage_stock 1" stepKey="enableStockManagement1"/>
 
             <createData entity="SimpleSubCategory" stepKey="simpleCategory1"/>
@@ -45,6 +46,7 @@
             <click selector="{{AdminGridMainControls.saveAndContinue}}" stepKey="saveDefaultStock"/>
         </before>
         <after>
+            <magentoCLI stepKey="removeDownloadableDomain" command="downloadable:domains:remove static.magento.com"/>
             <actionGroup ref="logout" stepKey="logoutOfAdmin1"/>
 
             <deleteData createDataKey="simpleCategory1" stepKey="deleteCategory1"/>

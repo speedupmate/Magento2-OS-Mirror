@@ -26,6 +26,109 @@ logs in an external system.
 * `vertex_customer_code` extension attribute on `\Magento\Customer\Api\Data\CustomerInterface`  
   Use this field and `\Magento\Customer\Api\CustomerRepositoryInterface` to load/save Vertex Customer Codes
 
+## Adding new Flexible Fields
+
+Flexible Fields are a feature of the Vertex Tax Engine designed to allow the passing of additional data that is not 
+built into the API.  This additional data can then be used to create additional rules in the Vertex Tax Engine.
+
+Vertex Tax Links for Magento 2 comes with several useful flexible field processors - including processors designed to 
+allow for the sending of custom (EAV) attributes for Customers and Products.  In some cases these processors may not be
+enough to send all the necessary data to the Vertex Tax Engine.  In such a scenario, it will become necessary to create
+new flexible field processors.
+
+There are three interfaces used for creating Flexible Field processors:
+
+* `Vertex\Tax\Model\FlexField\Processor\ProcessorInterface`  
+Implement this interface to provide information about what data your processor makes available for inclusion in 
+ flexible fields.  Its method, `getAttributes` should return an array of 
+ `Vertex\Tax\Model\FlexField\FlexFieldProcessableAttribute` objects indexed by their "attribute code."  The Invoice and
+ TaxCalculation processor interfaces extend from this interface, so you should not need to include it in your implements
+ statement.
+* `Vertex\Tax\Model\FlexField\Processor\InvoiceFlexFieldProcessorInterface`  
+Implement this interface to declare that your processor should be used for Vertex Invoice calls, and to provide the 
+ data it makes available from a relevant Magento object: an Invoice, Order, or CreditMemo.  To work in all scenarios, 
+ your processor MUST be able to retrieve the proper data from each object type.
+* `Vertex\Tax\Model\FlexField\Processor\TaxCalculationFlexFieldProcessorInterface`  
+Implement this interface to declare that your processor should be used for Vertex Quotation calls, and to provide the
+ data it makes available from a Magento `QuoteDetailsItemInterface`.
+ 
+If your flexible field modifies the amount of tax the buyer is responsible for, it must implement both the Invoice 
+ and the TaxCalculation processor interfaces to work correctly in all cases.  If your processor does not result in the
+ same data being passed during Invoice and Quotation calls, it will result in a scenario in which the amount of tax 
+ recorded in the Vertex Tax Journal is different from the amount received from the buyer.
+ 
+### Making Vertex Tax Links aware of your processor
+
+Once you have your base class in place, make the Vertex module aware of it by adding it to the `processors` argument 
+ for the object `Vertex\Tax\Model\FlexField\Processor\FlexFieldAttributeProcessor`.  Please view the global `di.xml` 
+ file for the Vertex module to see how we do this for the default processors.
+ 
+To summarize what you'll find there - the `processors` argument is a string indexed array.  Each index is a unique name
+ identifying the processor, and the value is another string indexed array, expected to contain two keys with values:
+ 
+* `sort-order` (number) - Where this processors is in the sort order.  The last processor declaring an attribute code is
+ the processor that handles that attribute code.
+* `processor` (object) - The processor you wrote
+
+Once you have specified the new item(s) in your module's global di.xml file, any attributes your processor makes 
+ available will begin to appear in the flexible field drop downs in the admin configuration section.
+ 
+### Declaring Attributes
+
+One of the methods you will need to implement is the `getAttributes` method from the `ProcessorInterface`.  As above 
+ states, the resultant array must be indexed by the attribute code.  This attribute code should be unique, unless you
+ are overriding an existing flex field processor's implementation.  In addition to being unique, this string *should*
+ be all ASCII for ease of use.  Other than that, there are no requirements to what you specify in this string - though
+ you may need to use it later to determine what data to fetch. 
+ 
+In addition to the attribute code, the `FlexFieldProcessableAttribute` object you must return will need to have a 
+label, an option group, a type, and a processor assigned to it.
+
+* Label - A human readable label.  Should be passed through the localization layer if possible. (e.g. `__($label)
+  ->render())`
+* Option Group - A human readable label for the group this attribute belongs to.  Should be passed through the 
+  localization layer.  Example groups are like objects.  "Product", "Customer."  Basically - where is the data coming 
+  from.
+* Type - One of the three type constants from `FlexFieldProcessableAttribute` - `TYPE_CODE`, `TYPE_DATE`, or 
+ `TYPE_NUMERIC`.  Code represents a string.  Date a date object (will be passed to Vertex as `YYYY-MM-DD`, but when the
+  value is fetched must be an instance of a `DateTimeInterface`).  Numeric represents a decimal or integer.
+* Processor - A string representing the class name of the processor
+
+### Fetching data for the Flexible Field
+
+Depending on which interfaces you implement, you will need to implement methods for fetching your flexible field data
+ using a variety of objects.  Objects you may be given include:
+ 
+* `InvoiceItemInterface`
+* `OrderItemInterface`
+* `CreditmemoItemInterface`
+* _and_ `QuoteDetailsItemInterface`
+
+These items will be provided to your processor nearly exactly as Magento provides them to us during the various 
+ events and interceptors used to fetch them.  In some cases, they may contain additional data that Magento would not 
+ have normally passed during the event (such as some extension attributes), that we have added to improve quality of 
+ development.  In some cases, extension attributes that you expect to exist may not exist if Vertex does not utilize
+ them by default - simply because Magento does not include them in several cases.  You will need to fetch such 
+ attributes yourself.
+ 
+The one object that is very special in these regards is the `QuoteDetailsItemInterface`.  If you have not worked with
+ the Magento Tax module before, you are unlikely to know what this object is.
+ 
+#### QuoteDetailsItemInterface
+
+This object belongs to the Magento_Tax module and is a container object for anything that can have tax charged 
+ against it.  Vertex Tax Links adds several extension attributes to this object that can be used to retrieve additional 
+ information:
+ 
+* store_id
+* quote_id
+* product_id
+* quote_item_id
+* customer_id
+
+If you would like to create additional extension attributes for use with your own processor, you can define them like
+ normal in the `extension_attributes.xml` file.  You can then load the value of these extension attributes by 
+ creating a plugin for `Magento\Tax\Model\Sales\Total\Quote\CommonTaxCollector::mapItem()`
 
 ## Testing
 
@@ -66,29 +169,6 @@ Once configuration is complete, the tests may be run as specified in [Step 7 of 
 The core functionality of Vertex Tax Links for Magento 2 intercepts the tax request from the Magento software and relays it through a Vertex Tax Links-compatible service, such as Vertex Cloud.
 
 This module uses a variety of models to convert a Magento Quote, Order, or Invoice object to a compatible Vertex request object.
-
-### Cart estimation / Order placed
-
-The Cart Estimation and Order Placed functionalities use the `Vertex\Tax\Model\Api\Data\QuotationRequest` class and its helper models located in `Vertex\Tax\Model\Request`, `Vertex\Tax\Model\TaxQuote` and `Vertex\Tax\Model\Api`.  
-
-This process is automatically triggered by the `Vertex\Tax\Model\Plugin\QuoteTaxCollectorPlugin`, which is called  whenever Magento attempts to calculate Tax.
-
-After retrieving the taxes eligible for the order, the plugin places this information in a cache so that it can be called to calculate the taxes per line-item.  This practice reduces the number of requests to the Vertex API server and ensures store speed.
-
-These taxes are then re-applied when calling `SubtotalPlugin`.
-
-### Invoice / Creditmemo
-
-Vertex Tax Links for Magento 2 issues a request to the Vertex API server to record an entry in the Vertex Tax Log during the following events:
-
-* The Magento invoice procedure or an order status change (depending on how Vertex is configured)
-* The issuance of a credit memo
-
-These events are triggered by the observers `CreditMemoObserver`, `InvoiceSavedAfterObserver`, and/or `OrderSavedAfterObserver`. They all use the `Vertex\Tax\Model\TaxInvoice` and the `Vertex\Tax\Model\TaxInvoice\` series of classes to compile requests and responses.
-
-### Tax area requests
-
-The Admin panel verifies the connector is properly configured. A tax area request validates an address and/or determines the jurisdictions imposing sales & use taxes on an address.  They are controlled by the `Vertex\Tax\Model\TaxArea\` series of classes. 
 
 ### Request/Response logging
 

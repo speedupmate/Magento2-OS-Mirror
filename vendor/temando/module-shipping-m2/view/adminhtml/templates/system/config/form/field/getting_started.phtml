@@ -19,20 +19,23 @@
     <li>
         <?= $block->escapeHtml(__('Locations')) ?>
         <a class="button action-default <?= /* @noEscape */ ($block->isMerchantRegistered() ? "" : "disabled"); ?>"
-           href="<?= $block->escapeUrl($block->getLocationsUrl()) ?>"><?= $block->escapeHtml(__('Configure')) ?></a>
+           href="<?= $block->escapeUrl($block->getLocationsRedirectUrl()) ?>">
+            <?= $block->escapeHtml(__('Configure')) ?></a>
     </li>
     <li>
         <?= $block->escapeHtml(__('Carriers')) ?>
         <a class="button action-default <?= /* @noEscape */ ($block->isMerchantRegistered() ? "" : "disabled"); ?>"
-           href="<?= $block->escapeUrl($block->getCarriersUrl()) ?>"><?= $block->escapeHtml(__('Configure')) ?></a>
+           href="<?= $block->escapeUrl($block->getCarriersRedirectUrl()) ?>">
+            <?= $block->escapeHtml(__('Configure')) ?></a>
     </li>
     <li>
         <?= $block->escapeHtml(__('Packaging')) ?>
         <a class="button action-default <?= /* @noEscape */ ($block->isMerchantRegistered() ? "" : "disabled"); ?>"
-           href="<?= $block->escapeUrl($block->getPackagesUrl()) ?>"><?= $block->escapeHtml(__('Configure')) ?></a>
+           href="<?= $block->escapeUrl($block->getPackagesUrl()) ?>">
+            <?= $block->escapeHtml(__('Configure')) ?></a>
     </li>
     <li>
-        <?= $block->escapeHtml(__('Shipping Experiences via %1 portal', $block->getShippingPortalUrl())) ?>
+        <?= $block->escapeHtml(__('Shipping Experiences')) ?>
         <a class="button action-default <?= /* @noEscape */ ($block->isMerchantRegistered() ? "" : "disabled"); ?>"
            href="<?= $block->escapeUrl($block->getExperienceRedirectUrl()) ?>">
             <?= $block->escapeHtml(__('Configure')) ?>

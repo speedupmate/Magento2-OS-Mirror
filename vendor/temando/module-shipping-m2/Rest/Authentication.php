@@ -4,30 +4,35 @@
  */
 namespace Temando\Shipping\Rest;
 
+use Magento\Framework\App\CacheInterface;
 use Magento\Framework\Exception\AuthenticationException;
 use Magento\Framework\Exception\InputException;
-use Magento\Framework\Session\SessionManagerInterface;
-use Magento\Framework\Stdlib\DateTime\DateTime;
+use Magento\Framework\Serialize\Serializer\Json;
 use Temando\Shipping\Rest\Adapter\AuthenticationApiInterface;
 use Temando\Shipping\Rest\Exception\AdapterException;
-use Temando\Shipping\Rest\Request\AuthRequestInterfaceFactory;
+use Temando\Shipping\Rest\Request\AuthRequestFactory;
 use Temando\Shipping\Webservice\Config\WsConfigInterface;
 
 /**
  * Temando REST API Authentication
  *
- * @package  Temando\Shipping\Rest
- * @author   Christoph Aßmann <christoph.assmann@netresearch.de>
- * @author   Sebastian Ertner <sebastian.ertner@netresearch.de>
- * @license  http://opensource.org/licenses/osl-3.0.php Open Software License (OSL 3.0)
- * @link     http://www.temando.com/
+ * @package Temando\Shipping\Rest
+ * @author  Christoph Aßmann <christoph.assmann@netresearch.de>
+ * @author  Sebastian Ertner <sebastian.ertner@netresearch.de>
+ * @license https://opensource.org/licenses/osl-3.0.php Open Software License (OSL 3.0)
+ * @link    https://www.temando.com/
  */
 class Authentication implements AuthenticationInterface
 {
     /**
-     * @var SessionManagerInterface
+     * @var CacheInterface
      */
-    private $session;
+    private $cache;
+
+    /**
+     * @var Json
+     */
+    private $serializer;
 
     /**
      * @var WsConfigInterface
@@ -40,87 +45,84 @@ class Authentication implements AuthenticationInterface
     private $apiAdapter;
 
     /**
-     * @var AuthRequestInterfaceFactory
+     * @var AuthRequestFactory
      */
     private $authRequestFactory;
 
     /**
-     * @var DateTime
-     */
-    private $datetime;
-
-    /**
      * Authentication constructor.
-     *
-     * @param SessionManagerInterface $session
+     * @param CacheInterface $cache
+     * @param Json $serializer
      * @param WsConfigInterface $config
      * @param AuthenticationApiInterface $apiAdapter
-     * @param AuthRequestInterfaceFactory $authRequestFactory
-     * @param DateTime $datetime
+     * @param AuthRequestFactory $authRequestFactory
      */
     public function __construct(
-        SessionManagerInterface $session,
+        CacheInterface $cache,
+        Json $serializer,
         WsConfigInterface $config,
         AuthenticationApiInterface $apiAdapter,
-        AuthRequestInterfaceFactory $authRequestFactory,
-        DateTime $datetime
+        AuthRequestFactory $authRequestFactory
     ) {
-        $this->apiAdapter         = $apiAdapter;
-        $this->config             = $config;
+        $this->cache = $cache;
+        $this->serializer = $serializer;
+        $this->config = $config;
+        $this->apiAdapter = $apiAdapter;
         $this->authRequestFactory = $authRequestFactory;
-        $this->session            = $session;
-        $this->datetime           = $datetime;
     }
 
     /**
-     * Check if Session Token is invalid
+     * Check if session token is invalid
      *
      * @return bool
      */
-    private function isSessionTokenExpired()
+    private function isSessionTokenExpired(): bool
     {
-        $sessionTokenExpiry = strtotime($this->getSessionTokenExpiry());
-        $currentTime = $this->datetime->timestamp();
-        $threshold = 1200; //20min in s
-
-        return (($sessionTokenExpiry - $threshold ) < $currentTime);
+        return !(bool) $this->cache->load(self::CACHE_KEY_SESSION_TOKEN);
     }
 
     /**
-     * Save Temando API token to admin session.
+     * Save Temando API token to cache.
      *
      * @param string $sessionToken
      * @param string $sessionTokenExpiry
      * @return void
      */
-    private function setSession($sessionToken, $sessionTokenExpiry)
+    private function setSession(string $sessionToken, string $sessionTokenExpiry): void
     {
-        $this->session->setData(self::DATA_KEY_SESSION_TOKEN, $sessionToken);
-        $this->session->setData(self::DATA_KEY_SESSION_TOKEN_EXPIRY, $sessionTokenExpiry);
+        $data = $this->serializer->serialize([
+            self::DATA_KEY_SESSION_TOKEN => $sessionToken,
+            self::DATA_KEY_SESSION_TOKEN_EXPIRY => $sessionTokenExpiry
+        ]);
+
+        // let the cache expire 20mins before the session token actually expires.
+        $threshold = 1200;
+        $cacheLifetime = strtotime($sessionTokenExpiry) - time() - $threshold;
+
+        $this->cache->save($data, self::CACHE_KEY_SESSION_TOKEN, [], $cacheLifetime);
     }
 
     /**
-     * Remove Temando API token from admin session.
+     * Remove Temando API token from cache.
      *
      * @return void
      */
-    private function unsetSession()
+    private function unsetSession(): void
     {
-        $this->session->unsetData(self::DATA_KEY_SESSION_TOKEN);
-        $this->session->unsetData(self::DATA_KEY_SESSION_TOKEN_EXPIRY);
+        $this->cache->remove(self::CACHE_KEY_SESSION_TOKEN);
     }
 
     /**
      * Refresh bearer token.
+     *
      * For future use, bearer tokens do currently not expire.
      *
      * @param string $username
      * @param string $password
-     * @return void
      * @throws AuthenticationException
      * @throws InputException
      */
-    public function authenticate($username, $password)
+    public function authenticate($username, $password): void
     {
         if (!$username) {
             throw InputException::requiredField('username');
@@ -153,7 +155,7 @@ class Authentication implements AuthenticationInterface
      * @throws AuthenticationException
      * @throws InputException
      */
-    public function connect($accountId, $bearerToken)
+    public function connect($accountId, $bearerToken): void
     {
         if (!$this->isSessionTokenExpired()) {
             return;
@@ -198,7 +200,7 @@ class Authentication implements AuthenticationInterface
      *
      * @return void
      */
-    public function disconnect()
+    public function disconnect(): void
     {
         $this->apiAdapter->endSession();
         $this->unsetSession();
@@ -213,7 +215,7 @@ class Authentication implements AuthenticationInterface
      * @throws AuthenticationException
      * @throws InputException
      */
-    public function reconnect($accountId, $bearerToken)
+    public function reconnect($accountId, $bearerToken): void
     {
         $this->disconnect();
         $this->connect($accountId, $bearerToken);
@@ -224,9 +226,15 @@ class Authentication implements AuthenticationInterface
      *
      * @return string
      */
-    public function getSessionToken()
+    public function getSessionToken(): string
     {
-        return $this->session->getData(self::DATA_KEY_SESSION_TOKEN);
+        $cache = $this->cache->load(self::CACHE_KEY_SESSION_TOKEN);
+        if ($cache) {
+            $data = $this->serializer->unserialize($cache);
+            return $data[self::DATA_KEY_SESSION_TOKEN] ?? '';
+        }
+
+        return '';
     }
 
     /**
@@ -234,8 +242,14 @@ class Authentication implements AuthenticationInterface
      *
      * @return string
      */
-    public function getSessionTokenExpiry()
+    public function getSessionTokenExpiry(): string
     {
-        return $this->session->getData(self::DATA_KEY_SESSION_TOKEN_EXPIRY);
+        $cache = $this->cache->load(self::CACHE_KEY_SESSION_TOKEN);
+        if ($cache) {
+            $data = $this->serializer->unserialize($cache);
+            return $data[self::DATA_KEY_SESSION_TOKEN_EXPIRY] ?? '';
+        }
+
+        return '';
     }
 }

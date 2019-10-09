@@ -66,6 +66,54 @@ class CustomerMapper implements CustomerMapperInterface
     }
 
     /**
+     * @inheritDoc
+     */
+    public function getCustomerTaxClassNameMaxLength()
+    {
+        return static::CUSTOMER_CLASS_MAX;
+    }
+
+    /**
+     * @inheritDoc
+     */
+    public function getCustomerTaxClassNameMinLength()
+    {
+        return static::CUSTOMER_CLASS_MIN;
+    }
+
+    /**
+     * @inheritDoc
+     */
+    public function validateCustomerTaxClassName($fieldName)
+    {
+        // TODO: Implement validateCustomerTaxClassName() method.
+    }
+
+    /**
+     * @inheritDoc
+     */
+    public function getCustomerCodeMaxLength()
+    {
+        return static::CUSTOMER_CODE_MAX;
+    }
+
+    /**
+     * @inheritDoc
+     */
+    public function getCustomerCodeMinLength()
+    {
+        return static::CUSTOMER_CODE_MIN;
+    }
+
+    /**
+     * @inheritDoc
+     */
+    public function validateCustomerCode($fieldValue)
+    {
+        // TODO: Implement validateCustomerCode() method.
+    }
+
+    /**
      * @inheritdoc
      */
     public function build(\stdClass $map)
@@ -113,8 +161,8 @@ class CustomerMapper implements CustomerMapperInterface
                 new \stdClass(),
                 $object->getCode() ?: '',
                 '_',
-                self::CUSTOMER_CODE_MIN,
-                self::CUSTOMER_CODE_MAX,
+                $this->getCustomerCodeMinLength(),
+                $this->getCustomerCodeMaxLength(),
                 false,
                 'Customer Code'
             );
@@ -127,8 +175,8 @@ class CustomerMapper implements CustomerMapperInterface
                 $map->CustomerCode,
                 $object->getTaxClass(),
                 'classCode',
-                self::CUSTOMER_CLASS_MIN,
-                self::CUSTOMER_CLASS_MAX,
+                $this->getCustomerTaxClassNameMinLength(),
+                $this->getCustomerTaxClassNameMaxLength(),
                 true,
                 'Customer Tax Class'
             );

@@ -1,0 +1,139 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!--
+ /**
+  * @copyright  Vertex. All rights reserved.  https://www.vertexinc.com/
+  * @author     Mediotype                     https://www.mediotype.com/
+  */
+-->
+<operations xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="urn:magento:mftf:DataGenerator/etc/dataOperation.xsd">
+    <operation name="CreateVertexConfigDefaults" dataType="vertex_config" type="create" auth="adminFormKey" url="/admin/system_config/save/section/tax/" method="POST">
+        <object key="groups" dataType="vertex_config">
+            <object key="vertex_settings" dataType="vertex_config">
+                <object key="fields" dataType="vertex_config">
+                    <object key="enable_vertex" dataType="VertexTaxEnabled">
+                        <field key="value">boolean</field>
+                    </object>
+                    <object key="use_for_calculation" dataType="VertexTaxUseForCalculation">
+                        <field key="value">boolean</field>
+                    </object>
+                    <object key="api_url" dataType="VertexCalculationWsdlUrl">
+                        <field key="value">string</field>
+                    </object>
+                    <object key="address_api_url" dataType="VertexAddressValidationWsdlUrl">
+                        <field key="value">string</field>
+                    </object>
+                    <object key="trustedId" dataType="VertexTrustedId">
+                        <field key="value">string</field>
+                    </object>
+                    <object key="invoice_order" dataType="VertexInvoiceOrderDuring">
+                        <field key="value">string</field>
+                    </object>
+                    <object key="invoice_order_status" dataType="VertexInvoiceOrderWithStatus">
+                        <field key="value">string</field>
+                    </object>
+                    <object key="allowed_countries" dataType="VertexAllowedCountries">
+                        <field key="value">string</field>
+                    </object>
+                    <object key="summarize_tax" dataType="VertexTaxSummaryType">
+                        <field key="value">string</field>
+                    </object>
+                </object>
+            </object>
+            <object key="vertex_seller_info" dataType="vertex_config">
+                <object key="fields" dataType="vertex_config">
+                    <object key="company" dataType="VertexSellerCompanyCode">
+                        <field key="value">string</field>
+                    </object>
+                    <object key="location_code" dataType="VertexSellerLocationCode">
+                        <field key="value">string</field>
+                    </object>
+                    <object key="streetAddress1" dataType="VertexSellerStreetAddress1">
+                        <field key="value">string</field>
+                    </object>
+                    <object key="streetAddress2" dataType="VertexSellerStreetAddress2">
+                        <field key="value">string</field>
+                    </object>
+                    <object key="city" dataType="VertexSellerCity">
+                        <field key="value">string</field>
+                    </object>
+                    <object key="country_id" dataType="VertexSellerCountryId">
+                        <field key="value">string</field>
+                    </object>
+                    <object key="region_id" dataType="VertexSellerRegionId">
+                        <field key="value">string</field>
+                    </object>
+                    <object key="postalCode" dataType="VertexSellerPostcode">
+                        <field key="value">string</field>
+                    </object>
+                </object>
+            </object>
+            <object key="vertex_delivery_terms" dataType="vertex_config">
+                <object key="fields" dataType="vertex_config">
+                    <object key="default_term" dataType="VertexGlobalDeliveryTerm">
+                        <field key="value">string</field>
+                    </object>
+                </object>
+            </object>
+            <object key="vertex_flexfields" dataType="vertex_config">
+                <object key="groups" dataType="vertex_config">
+                    <object key="code" dataType="vertex_config">
+                        <object key="fields" dataType="vertex_config">
+                            <object key="list" dataType="vertex_config">
+                                <object key="value" dataType="vertex_config">
+                                    <object key="1" dataType="VertexCodeFlexField1">
+                                        <field key="field_id">int</field>
+                                        <field key="field_source">string</field>
+                                    </object>
+                                </object>
+                            </object>
+                        </object>
+                    </object>
+                </object>
+            </object>
+            <object key="cart_display" dataType="vertex_config">
+                <object key="fields" dataType="vertex_config">
+                    <object key="price" dataType="VertexTaxCartPriceDisplay"><!-- both is 3 -->
+                        <field key="value">string</field>
+                    </object>
+                    <object key="subtotal" dataType="VertexTaxCartSubtotalDisplay">
+                        <field key="value">string</field>
+                    </object>
+                    <object key="shipping" dataType="VertexTaxCartShippingDisplay">
+                        <field key="value">string</field>
+                    </object>
+                    <object key="grandtotal" dataType="VertexTaxCartGrandtotalDisplay">
+                        <field key="value">string</field>
+                    </object>
+                    <object key="full_summary" dataType="VertexTaxCartFullSummary">
+                        <field key="value">boolean</field>
+                    </object>
+                    <object key="zero_tax" dataType="VertexTaxCartZeroSubtotal">
+                        <field key="value">boolean</field>
+                    </object>
+                </object>
+            </object>
+            <object key="sales_display" dataType="vertex_config">
+                <object key="fields" dataType="vertex_config">
+                    <object key="price" dataType="VertexTaxSalesPriceDisplay">
+                        <field key="value">string</field>
+                    </object>
+                    <object key="subtotal" dataType="VertexTaxSalesSubtotalDisplay">
+                        <field key="value">string</field>
+                    </object>
+                    <object key="shipping" dataType="VertexTaxSalesShippingDisplay">
+                        <field key="value">string</field>
+                    </object>
+                    <object key="grandtotal" dataType="VertexTaxSalesGrandtotalDisplay">
+                        <field key="value">string</field>
+                    </object>
+                    <object key="full_summary" dataType="VertexTaxSalesFullSummary">
+                        <field key="value">string</field>
+                    </object>
+                    <object key="zero_tax" dataType="VertexTaxSalesZeroSubtotal">
+                        <field key="value">string</field>
+                    </object>
+                </object>
+            </object>
+        </object>
+    </operation>
+</operations>

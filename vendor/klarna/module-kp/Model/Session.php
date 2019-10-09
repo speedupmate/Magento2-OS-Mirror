@@ -175,6 +175,7 @@ class Session
      */
     private function getGeneratedCreateRequest()
     {
+        $this->getQuote()->collectTotals();
         return $this->builder->setObject($this->getQuote())->generateRequest(BuilderInterface::GENERATE_TYPE_CREATE)
             ->getRequest();
     }

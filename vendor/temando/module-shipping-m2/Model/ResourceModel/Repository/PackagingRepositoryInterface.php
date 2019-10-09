@@ -4,6 +4,7 @@
  */
 namespace Temando\Shipping\Model\ResourceModel\Repository;
 
+use Magento\Framework\Api\SearchCriteriaInterface;
 use Magento\Framework\Exception\CouldNotDeleteException;
 
 /**
@@ -21,11 +22,10 @@ use Magento\Framework\Exception\CouldNotDeleteException;
 interface PackagingRepositoryInterface
 {
     /**
-     * @param int|null $offset
-     * @param int|null $limit
+     * @param \Magento\Framework\Api\SearchCriteriaInterface $searchCriteria
      * @return \Temando\Shipping\Model\PackagingInterface[]
      */
-    public function getList($offset = null, $limit = null);
+    public function getList(SearchCriteriaInterface $searchCriteria);
 
     /**
      * @param string $packagingId

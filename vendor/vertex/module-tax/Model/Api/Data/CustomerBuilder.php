@@ -11,10 +11,13 @@ use Magento\Customer\Api\Data\AddressInterface;
 use Magento\Customer\Api\Data\RegionInterface;
 use Magento\Customer\Api\GroupManagementInterface as CustomerGroupManagement;
 use Magento\Customer\Api\GroupRepositoryInterface;
+use Magento\Framework\Stdlib\StringUtils;
 use Magento\Sales\Api\Data\OrderAddressInterface;
 use Magento\Sales\Model\Order;
 use Vertex\Data\CustomerInterface;
 use Vertex\Data\CustomerInterfaceFactory;
+use Vertex\Exception\ConfigurationException;
+use Vertex\Tax\Model\Api\Utility\MapperFactoryProxy;
 use Vertex\Tax\Model\Config;
 use Vertex\Tax\Model\ExceptionLogger;
 use Vertex\Tax\Model\Repository\TaxClassNameRepository;
@@ -51,6 +54,12 @@ class CustomerBuilder
     /** @var TaxRegistrationBuilder */
     private $taxRegistrationBuilder;
 
+    /** @var StringUtils */
+    private $stringUtilities;
+
+    /** @var MapperFactoryProxy */
+    private $mapperFactory;
+
     /**
      * @param Config $config
      * @param AddressBuilder $addressBuilder
@@ -61,6 +70,8 @@ class CustomerBuilder
      * @param ExceptionLogger $logger
      * @param GroupRepositoryInterface $groupRepository
      * @param TaxRegistrationBuilder $builder
+     * @param StringUtils $stringUtils
+     * @param MapperFactoryProxy $mapperFactory
      */
     public function __construct(
         Config $config,
@@ -71,7 +82,9 @@ class CustomerBuilder
         CustomerInterfaceFactory $customerFactory,
         ExceptionLogger $logger,
         GroupRepositoryInterface $groupRepository,
-        TaxRegistrationBuilder $builder
+        TaxRegistrationBuilder $builder,
+        StringUtils $stringUtils,
+        MapperFactoryProxy $mapperFactory
     ) {
         $this->addressBuilder = $addressBuilder;
         $this->config = $config;
@@ -82,6 +95,8 @@ class CustomerBuilder
         $this->logger = $logger;
         $this->groupRepository = $groupRepository;
         $this->taxRegistrationBuilder = $builder;
+        $this->stringUtilities = $stringUtils;
+        $this->mapperFactory = $mapperFactory;
     }
 
     /**
@@ -92,6 +107,7 @@ class CustomerBuilder
      * @param int|null $taxClassId
      * @param string|null $storeCode
      * @return CustomerInterface
+     * @throws ConfigurationException
      */
     public function buildFromCustomerAddress(
         AddressInterface $taxAddress = null,
@@ -107,14 +123,23 @@ class CustomerBuilder
      *
      * @param Order $order
      * @return CustomerInterface
+     * @throws ConfigurationException
      */
     public function buildFromOrder(Order $order)
     {
         $orderAddress = $order->getIsVirtual() ? $order->getBillingAddress() : $order->getShippingAddress();
         $customer = $this->buildFromOrderAddress($orderAddress);
 
-        $customer->setTaxClass($this->getCustomerClassById($order->getCustomerId()));
-        $customer->setCode($this->getCustomerCodeById($order->getCustomerId()));
+        $storeCode = $order->getStoreId();
+        $customerMapper = $this->mapperFactory->getForClass(CustomerInterface::class, $storeCode);
+
+        $taxClass = $this->getCustomerClassById($order->getCustomerId());
+        $taxClassName = $this->stringUtilities->substr($taxClass, 0, $customerMapper->getCustomerTaxClassNameMaxLength());
+        $customer->setTaxClass($taxClassName);
+
+        $code = $this->getCustomerCodeById($order->getCustomerId());
+        $customerCode = $this->stringUtilities->substr($code, 0, $customerMapper->getCustomerCodeMaxLength());
+        $customer->setCode($customerCode);
 
         return $customer;
     }
@@ -127,6 +152,7 @@ class CustomerBuilder
      * @param int|null $customerGroupId
      * @param string|null $storeCode
      * @return CustomerInterface
+     * @throws ConfigurationException
      */
     public function buildFromOrderAddress(
         OrderAddressInterface $taxAddress = null,
@@ -154,11 +180,13 @@ class CustomerBuilder
      * @param int $taxClassId
      * @param string $storeCode
      * @return CustomerInterface
+     * @throws ConfigurationException
      */
     private function buildFromAddress($taxAddress = null, $customerId = null, $taxClassId = null, $storeCode = null)
     {
         /** @var CustomerInterface $customer */
         $customer = $this->customerFactory->create();
+        $customerMapper = $this->mapperFactory->getForClass(CustomerInterface::class, $storeCode);
 
         if ($taxAddress !== null) {
             if (!($taxAddress instanceof AddressInterface || $taxAddress instanceof OrderAddressInterface)) {
@@ -169,6 +197,7 @@ class CustomerBuilder
             }
 
             $addressBuilder = $this->addressBuilder
+                ->setScopeCode($storeCode)
                 ->setStreet($taxAddress->getStreet())
                 ->setCity($taxAddress->getCity())
                 ->setPostalCode($taxAddress->getPostcode())
@@ -193,13 +222,16 @@ class CustomerBuilder
             }
         }
 
-        $customer->setCode($this->getCustomerCodeById($customerId, $storeCode));
+        $code = $this->getCustomerCodeById($customerId, $storeCode);
+        $customerCode = $this->stringUtilities->substr($code, 0, $customerMapper->getCustomerCodeMaxLength());
+        $customer->setCode($customerCode);
 
         $class = $taxClassId
             ? $this->taxClassNameRepository->getById($taxClassId)
             : $this->getCustomerClassById($customerId);
 
-        $customer->setTaxClass($class);
+        $taxClassName = $this->stringUtilities->substr($class, 0, $customerMapper->getCustomerTaxClassNameMaxLength());
+        $customer->setTaxClass($taxClassName);
 
         return $customer;
     }

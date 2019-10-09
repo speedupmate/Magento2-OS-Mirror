@@ -1,48 +1,60 @@
 <?php
 
+/*
+ * Copyright 2013 Johannes M. Schmitt <schmittjoh@gmail.com>
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *     http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
+
 namespace JMS\Serializer\Metadata\Driver;
 
-use Doctrine\Common\Annotations\Reader;
-use JMS\Serializer\Annotation\Accessor;
-use JMS\Serializer\Annotation\AccessorOrder;
-use JMS\Serializer\Annotation\AccessType;
 use JMS\Serializer\Annotation\Discriminator;
-use JMS\Serializer\Annotation\Exclude;
-use JMS\Serializer\Annotation\ExcludeIf;
-use JMS\Serializer\Annotation\ExclusionPolicy;
-use JMS\Serializer\Annotation\Expose;
-use JMS\Serializer\Annotation\Groups;
-use JMS\Serializer\Annotation\HandlerCallback;
-use JMS\Serializer\Annotation\Inline;
-use JMS\Serializer\Annotation\MaxDepth;
-use JMS\Serializer\Annotation\PostDeserialize;
-use JMS\Serializer\Annotation\PostSerialize;
-use JMS\Serializer\Annotation\PreSerialize;
-use JMS\Serializer\Annotation\ReadOnly;
-use JMS\Serializer\Annotation\SerializedName;
-use JMS\Serializer\Annotation\Since;
-use JMS\Serializer\Annotation\SkipWhenEmpty;
-use JMS\Serializer\Annotation\Type;
-use JMS\Serializer\Annotation\Until;
-use JMS\Serializer\Annotation\VirtualProperty;
-use JMS\Serializer\Annotation\XmlAttribute;
-use JMS\Serializer\Annotation\XmlAttributeMap;
-use JMS\Serializer\Annotation\XmlDiscriminator;
-use JMS\Serializer\Annotation\XmlElement;
-use JMS\Serializer\Annotation\XmlKeyValuePairs;
-use JMS\Serializer\Annotation\XmlList;
-use JMS\Serializer\Annotation\XmlMap;
-use JMS\Serializer\Annotation\XmlNamespace;
-use JMS\Serializer\Annotation\XmlRoot;
-use JMS\Serializer\Annotation\XmlValue;
-use JMS\Serializer\Exception\InvalidArgumentException;
 use JMS\Serializer\GraphNavigator;
+use JMS\Serializer\Annotation\HandlerCallback;
+use JMS\Serializer\Annotation\AccessorOrder;
+use JMS\Serializer\Annotation\Accessor;
+use JMS\Serializer\Annotation\AccessType;
+use JMS\Serializer\Annotation\XmlMap;
+use JMS\Serializer\Annotation\XmlRoot;
+use JMS\Serializer\Annotation\XmlNamespace;
+use JMS\Serializer\Annotation\XmlAttribute;
+use JMS\Serializer\Annotation\XmlList;
+use JMS\Serializer\Annotation\XmlValue;
+use JMS\Serializer\Annotation\XmlKeyValuePairs;
+use JMS\Serializer\Annotation\XmlElement;
+use JMS\Serializer\Annotation\PostSerialize;
+use JMS\Serializer\Annotation\PostDeserialize;
+use JMS\Serializer\Annotation\PreSerialize;
+use JMS\Serializer\Annotation\VirtualProperty;
+use Metadata\MethodMetadata;
+use Doctrine\Common\Annotations\Reader;
+use JMS\Serializer\Annotation\Type;
+use JMS\Serializer\Annotation\Exclude;
+use JMS\Serializer\Annotation\Groups;
+use JMS\Serializer\Annotation\Expose;
+use JMS\Serializer\Annotation\SerializedName;
+use JMS\Serializer\Annotation\Until;
+use JMS\Serializer\Annotation\Since;
+use JMS\Serializer\Annotation\ExclusionPolicy;
+use JMS\Serializer\Annotation\Inline;
+use JMS\Serializer\Annotation\ReadOnly;
 use JMS\Serializer\Metadata\ClassMetadata;
-use JMS\Serializer\Metadata\ExpressionPropertyMetadata;
 use JMS\Serializer\Metadata\PropertyMetadata;
 use JMS\Serializer\Metadata\VirtualPropertyMetadata;
+use JMS\Serializer\Exception\InvalidArgumentException;
+use JMS\Serializer\Annotation\XmlAttributeMap;
 use Metadata\Driver\DriverInterface;
-use Metadata\MethodMetadata;
+use JMS\Serializer\Annotation\MaxDepth;
 
 class AnnotationDriver implements DriverInterface
 {
@@ -85,16 +97,8 @@ class AnnotationDriver implements DriverInterface
                 if ($annot->disabled) {
                     $classMetadata->discriminatorDisabled = true;
                 } else {
-                    $classMetadata->setDiscriminator($annot->field, $annot->map, $annot->groups);
+                    $classMetadata->setDiscriminator($annot->field, $annot->map);
                 }
-            } elseif ($annot instanceof XmlDiscriminator) {
-                $classMetadata->xmlDiscriminatorAttribute = (bool)$annot->attribute;
-                $classMetadata->xmlDiscriminatorCData = (bool)$annot->cdata;
-                $classMetadata->xmlDiscriminatorNamespace = $annot->namespace ? (string)$annot->namespace : null;
-            } elseif ($annot instanceof VirtualProperty) {
-                $virtualPropertyMetadata = new ExpressionPropertyMetadata($name, $annot->name, $annot->exp);
-                $propertiesMetadata[] = $virtualPropertyMetadata;
-                $propertiesAnnotations[] = $annot->options;
             }
         }
 
@@ -129,7 +133,7 @@ class AnnotationDriver implements DriverInterface
 
         if (!$excludeAll) {
             foreach ($class->getProperties() as $property) {
-                if ($property->class !== $name || (isset($property->info) && $property->info['class'] !== $name)) {
+                if ($property->class !== $name) {
                     continue;
                 }
                 $propertiesMetadata[] = new PropertyMetadata($name, $property->getName());
@@ -138,8 +142,7 @@ class AnnotationDriver implements DriverInterface
 
             foreach ($propertiesMetadata as $propertyKey => $propertyMetadata) {
                 $isExclude = false;
-                $isExpose = $propertyMetadata instanceof VirtualPropertyMetadata
-                    || $propertyMetadata instanceof ExpressionPropertyMetadata;
+                $isExpose = $propertyMetadata instanceof VirtualPropertyMetadata;
                 $propertyMetadata->readOnly = $propertyMetadata->readOnly || $readOnlyClass;
                 $accessType = $classAccessType;
                 $accessor = array(null, null);
@@ -153,19 +156,10 @@ class AnnotationDriver implements DriverInterface
                         $propertyMetadata->untilVersion = $annot->version;
                     } elseif ($annot instanceof SerializedName) {
                         $propertyMetadata->serializedName = $annot->name;
-                    } elseif ($annot instanceof SkipWhenEmpty) {
-                        $propertyMetadata->skipWhenEmpty = true;
                     } elseif ($annot instanceof Expose) {
                         $isExpose = true;
-                        if (null !== $annot->if) {
-                            $propertyMetadata->excludeIf = "!(" . $annot->if . ")";
-                        }
                     } elseif ($annot instanceof Exclude) {
-                        if (null !== $annot->if) {
-                            $propertyMetadata->excludeIf = $annot->if;
-                        } else {
-                            $isExclude = true;
-                        }
+                        $isExclude = true;
                     } elseif ($annot instanceof Type) {
                         $propertyMetadata->setType($annot->name);
                     } elseif ($annot instanceof XmlElement) {
@@ -176,13 +170,10 @@ class AnnotationDriver implements DriverInterface
                         $propertyMetadata->xmlCollection = true;
                         $propertyMetadata->xmlCollectionInline = $annot->inline;
                         $propertyMetadata->xmlEntryName = $annot->entry;
-                        $propertyMetadata->xmlEntryNamespace = $annot->namespace;
-                        $propertyMetadata->xmlCollectionSkipWhenEmpty = $annot->skipWhenEmpty;
                     } elseif ($annot instanceof XmlMap) {
                         $propertyMetadata->xmlCollection = true;
                         $propertyMetadata->xmlCollectionInline = $annot->inline;
                         $propertyMetadata->xmlEntryName = $annot->entry;
-                        $propertyMetadata->xmlEntryNamespace = $annot->namespace;
                         $propertyMetadata->xmlKeyAttribute = $annot->keyAttribute;
                     } elseif ($annot instanceof XmlKeyValuePairs) {
                         $propertyMetadata->xmlKeyValuePairs = true;
@@ -197,17 +188,17 @@ class AnnotationDriver implements DriverInterface
                     } elseif ($annot instanceof AccessType) {
                         $accessType = $annot->type;
                     } elseif ($annot instanceof ReadOnly) {
-                        $propertyMetadata->readOnly = $annot->readOnly;
+                       $propertyMetadata->readOnly = $annot->readOnly;
                     } elseif ($annot instanceof Accessor) {
                         $accessor = array($annot->getter, $annot->setter);
                     } elseif ($annot instanceof Groups) {
                         $propertyMetadata->groups = $annot->groups;
-                        foreach ((array)$propertyMetadata->groups as $groupName) {
+                        foreach ((array) $propertyMetadata->groups as $groupName) {
                             if (false !== strpos($groupName, ',')) {
                                 throw new InvalidArgumentException(sprintf(
                                     'Invalid group name "%s" on "%s", did you mean to create multiple groups?',
                                     implode(', ', $propertyMetadata->groups),
-                                    $propertyMetadata->class . '->' . $propertyMetadata->name
+                                    $propertyMetadata->class.'->'.$propertyMetadata->name
                                 ));
                             }
                         }
@@ -220,11 +211,10 @@ class AnnotationDriver implements DriverInterface
                     }
                 }
 
+                $propertyMetadata->setAccessor($accessType, $accessor[0], $accessor[1]);
 
                 if ((ExclusionPolicy::NONE === $exclusionPolicy && !$isExclude)
-                    || (ExclusionPolicy::ALL === $exclusionPolicy && $isExpose)
-                ) {
-                    $propertyMetadata->setAccessor($accessType, $accessor[0], $accessor[1]);
+                    || (ExclusionPolicy::ALL === $exclusionPolicy && $isExpose)) {
                     $classMetadata->addPropertyMetadata($propertyMetadata);
                 }
             }

@@ -2,11 +2,24 @@
 
 namespace Dotdigitalgroup\Email\Model\Sync\Contact;
 
+use \Dotdigitalgroup\Email\Model\Apiconnector\Client;
+use \Dotdigitalgroup\Email\Model\Apiconnector\EngagementCloudAddressBookApi;
+
 /**
  * Handle bulk data for importer.
  */
 class Bulk
 {
+    /**
+     * Legendary error message
+     */
+    const ERROR_UNKNOWN = 'Error unknown';
+
+    /**
+     * @var \Dotdigitalgroup\Email\Model\Config\Json
+     */
+    public $serializer;
+
     /**
      * @var \Dotdigitalgroup\Email\Model\ResourceModel\Importer
      */
@@ -18,7 +31,12 @@ class Bulk
     protected $helper;
 
     /**
-     * @var \Dotdigitalgroup\Email\Model\Apiconnector\Client
+     * @var \Dotdigitalgroup\Email\Helper\File
+     */
+    protected $fileHelper;
+
+    /**
+     * @var Client|EngagementCloudAddressBookApi
      */
     protected $client;
 
@@ -28,27 +46,33 @@ class Bulk
     private $contactFactory;
 
     /**
-     * @var \Dotdigitalgroup\Email\Model\Config\Json
+     * @var \Magento\Framework\Stdlib\DateTime
      */
-    public $serializer;
+    private $dateTime;
 
     /**
      * Bulk constructor.
      * @param \Dotdigitalgroup\Email\Helper\Data $helper
+     * @param \Dotdigitalgroup\Email\Helper\File $fileHelper
      * @param \Dotdigitalgroup\Email\Model\ResourceModel\Importer $importerResource
      * @param \Dotdigitalgroup\Email\Model\Config\Json $serializer
      * @param \Dotdigitalgroup\Email\Model\ContactFactory $contactFactory
+     * @param \Magento\Framework\Stdlib\DateTime $dateTime
      */
     public function __construct(
         \Dotdigitalgroup\Email\Helper\Data $helper,
+        \Dotdigitalgroup\Email\Helper\File $fileHelper,
         \Dotdigitalgroup\Email\Model\ResourceModel\Importer $importerResource,
         \Dotdigitalgroup\Email\Model\Config\Json $serializer,
-        \Dotdigitalgroup\Email\Model\ContactFactory $contactFactory
+        \Dotdigitalgroup\Email\Model\ContactFactory $contactFactory,
+        \Magento\Framework\Stdlib\DateTime $dateTime
     ) {
-        $this->helper         = $helper;
-        $this->serializer     = $serializer;
+        $this->helper = $helper;
+        $this->fileHelper = $fileHelper;
+        $this->serializer = $serializer;
         $this->importerResource = $importerResource;
         $this->contactFactory = $contactFactory;
+        $this->dateTime = $dateTime;
     }
 
     /**
@@ -72,7 +96,7 @@ class Bulk
                 );
 
                 if (! empty($file) && ! empty($addressBook) && $this->client) {
-                    if ($this->helper->fileHelper->isFilePathExistWithFallback($file)) {
+                    if ($this->fileHelper->isFilePathExistWithFallback($file)) {
                         //import contacts from csv file
                         $result = $this->client->postAddressBookContactsImport($file, $addressBook);
                         $this->_handleItemAfterSync($item, $result);
@@ -118,7 +142,7 @@ class Bulk
     }
 
     /**
-     * @param mixed  $item
+     * @param mixed $item
      * @param mixed $result
      *
      * @return null
@@ -136,11 +160,11 @@ class Bulk
             } elseif (isset($result->id) && !isset($result->message)) {
                 $item->setImportStatus(\Dotdigitalgroup\Email\Model\Importer::IMPORTING)
                     ->setImportId($result->id)
-                    ->setImportStarted(time())
+                    ->setImportStarted($this->dateTime->formatDate(true))
                     ->setMessage('');
                 $this->importerResource->save($item);
             } else {
-                $message = (isset($result->message)) ? $result->message : 'Error unknown';
+                $message = (isset($result->message)) ? $result->message : self::ERROR_UNKNOWN;
                 $item->setImportStatus(\Dotdigitalgroup\Email\Model\Importer::FAILED)
                     ->setMessage($message);
 
@@ -172,5 +196,33 @@ class Bulk
         }
 
         return false;
+    }
+
+    /**
+     * @param $item
+     * @param $apiContact
+     * @param string|null $apiMessage
+     * @throws \Magento\Framework\Exception\AlreadyExistsException
+     */
+    protected function handleSingleItemAfterSync($item, $apiContact, $apiMessage = null)
+    {
+        $curlError = $this->_checkCurlError($item);
+
+        //no api connection error
+        if (! $curlError) {
+            //api response error
+            if (isset($apiContact->message) or ! $apiContact) {
+                $message = (isset($apiContact->message)) ? $apiContact->message : self::ERROR_UNKNOWN;
+                $item->setImportStatus(\Dotdigitalgroup\Email\Model\Importer::FAILED)
+                    ->setMessage($message);
+            } else {
+                $dateTime = $this->dateTime->formatDate(true);
+                $item->setImportStatus(\Dotdigitalgroup\Email\Model\Importer::IMPORTED)
+                    ->setImportFinished($dateTime)
+                    ->setImportStarted($dateTime)
+                    ->setMessage($apiMessage ?: '');
+            }
+            $this->importerResource->save($item);
+        }
     }
 }

@@ -228,6 +228,9 @@ final class Inflector
         // bacteria (bacterium), criteria (criterion), phenomena (phenomenon)
         ['noi', 3, true, true, 'ions'],
 
+        // seasons (season), treasons (treason), poisons (poison), lessons (lesson)
+        ['nos', 3, true, true, 'sons'],
+
         // bacteria (bacterium), criteria (criterion), phenomena (phenomenon)
         ['no', 2, true, true, 'a'],
 
@@ -280,6 +283,9 @@ final class Inflector
 
         // indices (index)
         ['xedni', 5, false, true, ['indicies', 'indexes']],
+
+        // boxes (box)
+        ['xo', 2, false, true, 'oxes'],
 
         // indexes (index), matrixes (matrix)
         ['x', 1, true, false, ['cies', 'xes']],

@@ -8,41 +8,55 @@
 namespace Vertex\Mapper\Api60;
 
 use Vertex\Data\DeliveryTerm;
+use Vertex\Data\FlexibleCodeFieldInterface;
+use Vertex\Data\FlexibleDateFieldInterface;
+use Vertex\Data\FlexibleFieldInterface;
+use Vertex\Data\FlexibleNumericFieldInterface;
 use Vertex\Data\LineItem;
 use Vertex\Data\LineItemInterface;
 use Vertex\Mapper\CustomerMapperInterface;
+use Vertex\Mapper\FlexibleCodeFieldMapperInterface;
+use Vertex\Mapper\FlexibleDateFieldMapperInterface;
+use Vertex\Mapper\FlexibleNumericFieldMapperInterface;
 use Vertex\Mapper\LineItemMapperInterface;
-use Vertex\Mapper\SellerMapperInterface;
 use Vertex\Mapper\MapperUtilities;
+use Vertex\Mapper\SellerMapperInterface;
 use Vertex\Mapper\TaxMapperInterface;
 
 /**
  * API Level 60 implementation of {@see LineItemMapperInterface}
+ * @SuppressWarnings(PHPMD.CouplingBetweenObjects)
  */
 class LineItemMapper implements LineItemMapperInterface
 {
-    /**
-     * Minimum characters allowed for commodity code
-     */
-    const COMMODITY_CODE_MIN = 0;
-
-    /**
-     * Maximum characters allowed for commodity code
-     */
+    /** Maximum characters allowed for commodity code */
     const COMMODITY_CODE_MAX = 40;
-
-    /**
-     * Minimum characters allowed for commodity type code
-     */
-    const COMMODITY_CODE_TYPE_MIN = 0;
-
-    /**
-     * Maximum characters allowed for commodity type code
-     */
+    /** Minimum characters allowed for commodity code */
+    const COMMODITY_CODE_MIN = 0;
+    /** Maximum characters allowed for commodity type code */
     const COMMODITY_CODE_TYPE_MAX = 60;
+    /** Minimum characters allowed for commodity type code */
+    const COMMODITY_CODE_TYPE_MIN = 0;
+    /** @var int Minimum characters allowed for product code  */
+    const PRODUCT_CODE_MAX = 40;
+    /** @var int Minimum characters allowed for product code */
+    const PRODUCT_CODE_MIN = 0;
+    /** @var int Maximum characters allowed for product tax class name */
+    const PRODUCT_TAX_CLASS_NAME_MAX = 40;
+    /** @var int Minimum characters allowed for product tax class name */
+    const PRODUCT_TAX_CLASS_NAME_MIN = 0;
 
     /** @var CustomerMapperInterface */
     private $customerMapper;
+
+    /** @var FlexibleCodeFieldMapperInterface */
+    private $flexibleCodeFieldMapper;
+
+    /** @var FlexibleDateFieldMapperInterface */
+    private $flexibleDateFieldMapper;
+
+    /** @var FlexibleNumericFieldMapperInterface */
+    private $flexibleNumericFieldMapper;
 
     /** @var SellerMapperInterface */
     private $sellerMapper;
@@ -58,17 +72,26 @@ class LineItemMapper implements LineItemMapperInterface
      * @param CustomerMapperInterface|null $customerMapper
      * @param SellerMapperInterface|null $sellerMapper
      * @param TaxMapperInterface|null $taxMapper
+     * @param FlexibleCodeFieldMapperInterface|null $flexibleCodeFieldMapper
+     * @param FlexibleNumericFieldMapperInterface|null $flexibleNumericFieldMapper
+     * @param FlexibleDateFieldMapperInterface|null $flexibleDateFieldMapper
      */
     public function __construct(
         MapperUtilities $utilities = null,
         CustomerMapperInterface $customerMapper = null,
         SellerMapperInterface $sellerMapper = null,
-        TaxMapperInterface $taxMapper = null
+        TaxMapperInterface $taxMapper = null,
+        FlexibleCodeFieldMapperInterface $flexibleCodeFieldMapper = null,
+        FlexibleNumericFieldMapperInterface $flexibleNumericFieldMapper = null,
+        FlexibleDateFieldMapperInterface $flexibleDateFieldMapper = null
     ) {
         $this->utilities = $utilities ?: new MapperUtilities();
         $this->customerMapper = $customerMapper ?: new CustomerMapper();
         $this->sellerMapper = $sellerMapper ?: new SellerMapper();
         $this->taxMapper = $taxMapper ?: new TaxMapper();
+        $this->flexibleCodeFieldMapper = $flexibleCodeFieldMapper ?: new FlexibleCodeFieldMapper();
+        $this->flexibleNumericFieldMapper = $flexibleNumericFieldMapper ?: new FlexibleNumericFieldMapper();
+        $this->flexibleDateFieldMapper = $flexibleDateFieldMapper ?: new FlexibleDateFieldMapper();
     }
 
     /**
@@ -94,16 +117,8 @@ class LineItemMapper implements LineItemMapperInterface
         if (isset($map->locationCode)) {
             $object->setLocationCode($map->locationCode);
         }
-        if (isset($map->Product)) {
-            if ($map->Product instanceof \stdClass) {
-                $object->setProductCode($map->Product->_);
-                if (isset($map->Product->productClass)) {
-                    $object->setProductClass($map->Product->productClass);
-                }
-            } else {
-                $object->setProductCode($map->Product);
-            }
-        }
+        $this->buildProduct($map, $object);
+
         if (isset($map->ExtendedPrice)) {
             $object->setExtendedPrice(
                 $map->ExtendedPrice instanceof \stdClass ? $map->ExtendedPrice->_ : $map->ExtendedPrice
@@ -137,14 +152,58 @@ class LineItemMapper implements LineItemMapperInterface
             $taxes[] = $this->taxMapper->build($rawTax);
         }
         $object->setTaxes($taxes);
-        if (isset($map->CommodityCode) && $map->CommodityCode instanceof \stdClass) {
-            $object->setCommodityCode($map->CommodityCode->_);
-            if (isset($map->CommodityCode->commodityCodeType)) {
-                $object->setCommodityCodeType($map->CommodityCode->commodityCodeType);
-            }
-        }
+        $this->buildCommodityCode($map, $object);
+        $this->buildFlexibleFields($map, $object);
 
         return $object;
+    }
+
+    /**
+     * @inheritDoc
+     */
+    public function getProductCodeMaxLength()
+    {
+        return static::PRODUCT_CODE_MAX;
+    }
+
+    /**
+     * @inheritDoc
+     */
+    public function getProductCodeMinLength()
+    {
+        return static::PRODUCT_CODE_MIN;
+    }
+
+    /**
+     * @inheritDoc
+     */
+    public function validateProductCode($fieldValue)
+    {
+        // TODO: Implement validateProductCode() method.
+    }
+
+    /**
+     * @inheritDoc
+     */
+    public function getProductTaxClassNameMaxLength()
+    {
+        return static::PRODUCT_TAX_CLASS_NAME_MAX;
+    }
+
+    /**
+     * @inheritDoc
+     */
+    public function getProductTaxClassNameMinLength()
+    {
+        return static::PRODUCT_TAX_CLASS_NAME_MIN;
+    }
+
+    /**
+     * @inheritDoc
+     */
+    public function validateProductTaxClassName($fieldValue)
+    {
+        // TODO: Implement validateProductTaxClassName() method.
     }
 
     /**
@@ -233,7 +292,46 @@ class LineItemMapper implements LineItemMapperInterface
 
         $this->addCommodityToMap($map, $object);
 
+        if (count($object->getFlexibleFields())) {
+            $map->FlexibleFields = new \stdClass();
+        }
+        $this->mapFlexibleFields($object, $map);
+
         return $map;
+    }
+
+    /**
+     * Add Commodity to SOAP map object
+     *
+     * @param \stdClass $map
+     * @param LineItemInterface $object
+     * @throws \Vertex\Exception\ValidationException
+     */
+    private function addCommodityToMap(\stdClass $map, LineItemInterface $object)
+    {
+        if ($object->getCommodityCode() !== null) {
+            $map->CommodityCode = new \stdClass();
+            $map->CommodityCode = $this->utilities->addToMapWithLengthValidation(
+                $map->CommodityCode,
+                $object->getCommodityCode(),
+                '_',
+                static::COMMODITY_CODE_MIN,
+                static::COMMODITY_CODE_MAX,
+                true,
+                'Commodity Code'
+            );
+            if ($object->getCommodityCodeType() !== null) {
+                $map->CommodityCode = $this->utilities->addToMapWithLengthValidation(
+                    $map->CommodityCode,
+                    $object->getCommodityCodeType(),
+                    'commodityCodeType',
+                    static::COMMODITY_CODE_TYPE_MIN,
+                    static::COMMODITY_CODE_TYPE_MAX,
+                    false,
+                    'Commodity Code Type'
+                );
+            }
+        }
     }
 
     /**
@@ -327,35 +425,154 @@ class LineItemMapper implements LineItemMapperInterface
     }
 
     /**
-     * Add Commodity to SOAP map object
+     * Map commodity code data into a LineItem
+     *
+     * @param \stdClass $map
+     * @param LineItem $object
+     * @return void
+     */
+    private function buildCommodityCode(\stdClass $map, LineItem $object)
+    {
+        if (isset($map->CommodityCode) && $map->CommodityCode instanceof \stdClass) {
+            $object->setCommodityCode($map->CommodityCode->_);
+            if (isset($map->CommodityCode->commodityCodeType)) {
+                $object->setCommodityCodeType($map->CommodityCode->commodityCodeType);
+            }
+        }
+    }
+
+    /**
+     * Map Flexible Code Fields
+     *
+     * @param \stdClass $mapFields Representation of <FlexibleFields> tag
+     * @param FlexibleFieldInterface[] $flexibleFields
+     * @return FlexibleFieldInterface[]
+     */
+    private function buildFlexibleCodeFields($mapFields, array $flexibleFields)
+    {
+        if (isset($mapFields->FlexibleCodeField)) {
+            if ($mapFields->FlexibleCodeField instanceof \stdClass) {
+                $flexibleFields[] = $this->flexibleCodeFieldMapper->build($mapFields->FlexibleCodeField);
+            } else {
+                foreach ($mapFields->FlexibleCodeField as $codeField) {
+                    $flexibleFields[] = $this->flexibleCodeFieldMapper->build($codeField);
+                }
+            }
+        }
+        return $flexibleFields;
+    }
+
+    /**
+     * Map Flexible Date Fields
+     *
+     * @param \stdClass $mapFields Representation of <FlexibleFields> tag
+     * @param FlexibleFieldInterface[] $flexibleFields
+     * @return FlexibleFieldInterface[]
+     */
+    private function buildFlexibleDateFields($mapFields, array $flexibleFields)
+    {
+        if (isset($mapFields->FlexibleDateField)) {
+            if ($mapFields->FlexibleDateField instanceof \stdClass) {
+                $flexibleFields[] = $this->flexibleDateFieldMapper->build($mapFields->FlexibleDateField);
+            } else {
+                foreach ($mapFields->FlexibleDateField as $dateField) {
+                    $flexibleFields[] = $this->flexibleDateFieldMapper->build($dateField);
+                }
+            }
+        }
+        return $flexibleFields;
+    }
+
+    /**
+     * Build out flexible field items from a LineItem stdClass
      *
      * @param \stdClass $map
      * @param LineItemInterface $object
+     * @return void
+     */
+    private function buildFlexibleFields(\stdClass $map, LineItemInterface $object)
+    {
+        $flexibleFields = [];
+        if (isset($map->FlexibleFields)) {
+            $mapFields = $map->FlexibleFields;
+            $flexibleFields = $this->buildFlexibleCodeFields($mapFields, $flexibleFields);
+            $flexibleFields = $this->buildFlexibleDateFields($mapFields, $flexibleFields);
+            $flexibleFields = $this->buildFlexibleNumericFields($mapFields, $flexibleFields);
+        }
+
+        $object->setFlexibleFields($flexibleFields);
+    }
+
+    /**
+     * Map Flexible Numeric Fields
+     *
+     * @param \stdClass $mapFields Representation of <FlexibleFields> tag
+     * @param FlexibleFieldInterface[] $flexibleFields
+     * @return FlexibleFieldInterface[]
+     */
+    private function buildFlexibleNumericFields($mapFields, array $flexibleFields)
+    {
+        if (isset($mapFields->FlexibleNumericField)) {
+            if ($mapFields->FlexibleNumericField instanceof \stdClass) {
+                $flexibleFields[] = $this->flexibleNumericFieldMapper->build($mapFields->FlexibleNumericField);
+            } else {
+                foreach ($mapFields->FlexibleNumericField as $numField) {
+                    $flexibleFields[] = $this->flexibleNumericFieldMapper->build($numField);
+                }
+            }
+        }
+        return $flexibleFields;
+    }
+
+    /**
+     * Map product data into a LineItem
+     *
+     * @param \stdClass $map
+     * @param LineItem $object
+     * @return void
+     */
+    private function buildProduct(\stdClass $map, LineItem $object)
+    {
+        if (isset($map->Product)) {
+            if ($map->Product instanceof \stdClass) {
+                $object->setProductCode($map->Product->_);
+                if (isset($map->Product->productClass)) {
+                    $object->setProductClass($map->Product->productClass);
+                }
+            } else {
+                $object->setProductCode($map->Product);
+            }
+        }
+    }
+
+    /**
+     * Map Flexible Fields
+     *
+     * @param LineItemInterface $object
+     * @param \stdClass $map
+     * @return void
      * @throws \Vertex\Exception\ValidationException
      */
-    private function addCommodityToMap(\stdClass $map, LineItemInterface $object)
+    private function mapFlexibleFields(LineItemInterface $object, \stdClass $map)
     {
-        if ($object->getCommodityCode() !== null) {
-            $map->CommodityCode = new \stdClass();
-            $map->CommodityCode = $this->utilities->addToMapWithLengthValidation(
-                $map->CommodityCode,
-                $object->getCommodityCode(),
-                '_',
-                static::COMMODITY_CODE_MIN,
-                static::COMMODITY_CODE_MAX,
-                true,
-                'Commodity Code'
-            );
-            if ($object->getCommodityCodeType() !== null) {
-                $map->CommodityCode = $this->utilities->addToMapWithLengthValidation(
-                    $map->CommodityCode,
-                    $object->getCommodityCodeType(),
-                    'commodityCodeType',
-                    static::COMMODITY_CODE_TYPE_MIN,
-                    static::COMMODITY_CODE_TYPE_MAX,
-                    false,
-                    'Commodity Code Type'
-                );
+        foreach ($object->getFlexibleFields() as $flexibleField) {
+            if ($flexibleField instanceof FlexibleCodeFieldInterface) {
+                if (!isset($map->FlexibleFields->FlexibleCodeField)) {
+                    $map->FlexibleFields->FlexibleCodeField = [];
+                }
+                $map->FlexibleFields->FlexibleCodeField[] = $this->flexibleCodeFieldMapper->map($flexibleField);
+            }
+            if ($flexibleField instanceof FlexibleDateFieldInterface) {
+                if (!isset($map->FlexibleFields->FlexibleDateField)) {
+                    $map->FlexibleFields->FlexibleDateField = [];
+                }
+                $map->FlexibleFields->FlexibleDateField[] = $this->flexibleDateFieldMapper->map($flexibleField);
+            }
+            if ($flexibleField instanceof FlexibleNumericFieldInterface) {
+                if (!isset($map->FlexibleFields->FlexibleNumericField)) {
+                    $map->FlexibleFields->FlexibleNumericField = [];
+                }
+                $map->FlexibleFields->FlexibleNumericField[] = $this->flexibleNumericFieldMapper->map($flexibleField);
             }
         }
     }

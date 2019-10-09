@@ -7,6 +7,7 @@ namespace Temando\Shipping\Controller\Adminhtml\Pickup;
 
 use Magento\Backend\App\Action;
 use Magento\Backend\App\Action\Context;
+use Magento\Catalog\Model\Product\Type;
 use Magento\Framework\Controller\ResultFactory;
 use Magento\Framework\Controller\ResultInterface;
 use Magento\Framework\Exception\CouldNotSaveException;
@@ -121,19 +122,27 @@ class Collected extends Action
 
         // update item quantities and order status
         $pickupItems = $pickup->getItems();
-        /** @var \Magento\Sales\Model\Order\Item $orderItem */
-        foreach ($order->getAllVisibleItems() as $orderItem) {
-            if ($orderItem->getParentItem()) {
+        foreach ($order->getAllItems() as $orderItem) {
+            $forceIncrement = ($orderItem->isDummy(true) && ($orderItem->getProductType() === Type::TYPE_BUNDLE));
+
+            // there is one (known) reason to increment a dummy's quantity: the bundle container, shipped separately.
+            if (!isset($pickupItems[$orderItem->getSku()]) && !$forceIncrement) {
+                // item is not to be collected, do not update quantity
                 continue;
             }
 
-            if (!isset($pickupItems[$orderItem->getSku()])) {
+            if ($forceIncrement) {
+                // bundle parent (container) item, shipped separately, actual quantities set in child items
+                $orderItem->setQtyShipped(1);
                 continue;
             }
 
-            $qtyShipped = $orderItem->getQtyShipped();
-            $qtyFulfilled = $pickupItems[$orderItem->getSku()];
-            $orderItem->setQtyShipped($qtyShipped + $qtyFulfilled);
+            if (!$orderItem->isDummy(true)) {
+                // regular item
+                $qtyShipped = $orderItem->getQtyShipped();
+                $qtyFulfilled = $pickupItems[$orderItem->getSku()];
+                $orderItem->setQtyShipped($qtyShipped + $qtyFulfilled);
+            }
         }
 
         $this->orderRepository->save($order);

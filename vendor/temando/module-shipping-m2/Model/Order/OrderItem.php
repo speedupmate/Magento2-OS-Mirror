@@ -11,10 +11,10 @@ use Magento\Framework\DataObject;
  *
  * An order item as associated with an order entity at the Temando platform.
  *
- * @package  Temando\Shipping\Model
- * @author   Christoph Aßmann <christoph.assmann@netresearch.de>
- * @license  http://opensource.org/licenses/osl-3.0.php Open Software License (OSL 3.0)
- * @link     http://www.temando.com/
+ * @package Temando\Shipping\Model
+ * @author  Christoph Aßmann <christoph.assmann@netresearch.de>
+ * @license https://opensource.org/licenses/osl-3.0.php Open Software License (OSL 3.0)
+ * @link    https://www.temando.com/
  */
 class OrderItem extends DataObject implements OrderItemInterface
 {
@@ -155,6 +155,14 @@ class OrderItem extends DataObject implements OrderItemInterface
     }
 
     /**
+     * @return string
+     */
+    public function getPackageId()
+    {
+        return $this->getData(OrderItemInterface::PACKAGE_ID);
+    }
+
+    /**
      * @return bool
      */
     public function canRotateVertically()
@@ -200,5 +208,21 @@ class OrderItem extends DataObject implements OrderItemInterface
     public function getHsCode()
     {
         return $this->getData(OrderItemInterface::HS_CODE);
+    }
+
+    /**
+     * @return string
+     */
+    public function getComposition()
+    {
+        return $this->getData(OrderItemInterface::COMPOSITION);
+    }
+
+    /**
+     * @return array
+     */
+    public function getCustomAttributes()
+    {
+        return $this->getData(OrderItemInterface::CUSTOM_ATTRIBUTES);
     }
 }

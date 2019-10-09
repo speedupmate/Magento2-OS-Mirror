@@ -90,5 +90,9 @@ class UpgradeSchema implements UpgradeSchemaInterface
         if (version_compare($moduleVersion, '1.5.0', '<')) {
             $this->installer->addDeliveryLocationDistanceColumn($setup);
         }
+
+        if (version_compare($moduleVersion, '1.6.0', '<')) {
+            $this->installer->createProductAttributeMapping($setup);
+        }
     }
 }

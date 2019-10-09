@@ -26,7 +26,7 @@ interface QuotePickupLocationRepositoryInterface
      * @return QuotePickupLocationInterface
      * @throws NoSuchEntityException
      */
-    public function get($entityId);
+    public function get(int $entityId): QuotePickupLocationInterface;
 
     /**
      * Load selected pickup location for given shipping address ID.
@@ -35,7 +35,7 @@ interface QuotePickupLocationRepositoryInterface
      * @return QuotePickupLocationInterface
      * @throws NoSuchEntityException
      */
-    public function getSelected($addressId);
+    public function getSelected(int $addressId): QuotePickupLocationInterface;
 
     /**
      * Save pickup location.
@@ -44,7 +44,7 @@ interface QuotePickupLocationRepositoryInterface
      * @return QuotePickupLocationInterface
      * @throws CouldNotSaveException
      */
-    public function save(QuotePickupLocationInterface $pickupLocation);
+    public function save(QuotePickupLocationInterface $pickupLocation): QuotePickupLocationInterface;
 
     /**
      * Delete pickup location.
@@ -53,7 +53,7 @@ interface QuotePickupLocationRepositoryInterface
      * @return bool
      * @throws CouldNotDeleteException
      */
-    public function delete(QuotePickupLocationInterface $pickupLocation);
+    public function delete(QuotePickupLocationInterface $pickupLocation): bool;
 
     /**
      * Load collect locations.
@@ -61,5 +61,5 @@ interface QuotePickupLocationRepositoryInterface
      * @param SearchCriteriaInterface $criteria
      * @return PickupLocationSearchResultInterface
      */
-    public function getList(SearchCriteriaInterface $criteria);
+    public function getList(SearchCriteriaInterface $criteria): PickupLocationSearchResultInterface;
 }

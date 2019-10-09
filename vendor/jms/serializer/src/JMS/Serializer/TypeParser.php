@@ -1,5 +1,21 @@
 <?php
 
+/*
+ * Copyright 2013 Johannes M. Schmitt <schmittjoh@gmail.com>
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *     http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
+
 namespace JMS\Serializer;
 
 /**
@@ -33,8 +49,8 @@ final class TypeParser extends \JMS\Parser\AbstractParser
                 |(.)
             /x',
             array(self::T_NAME => 'T_NAME', self::T_STRING => 'T_STRING', self::T_OPEN_BRACKET => 'T_OPEN_BRACKET',
-                self::T_CLOSE_BRACKET => 'T_CLOSE_BRACKET', self::T_COMMA => 'T_COMMA', self::T_NONE => 'T_NONE'),
-            function ($value) {
+                  self::T_CLOSE_BRACKET => 'T_CLOSE_BRACKET', self::T_COMMA => 'T_COMMA', self::T_NONE => 'T_NONE'),
+            function($value) {
                 switch ($value[0]) {
                     case '"':
                     case "'":
@@ -66,7 +82,7 @@ final class TypeParser extends \JMS\Parser\AbstractParser
     protected function parseInternal()
     {
         $typeName = $this->match(self::T_NAME);
-        if (!$this->lexer->isNext(self::T_OPEN_BRACKET)) {
+        if ( ! $this->lexer->isNext(self::T_OPEN_BRACKET)) {
             return array('name' => $typeName, 'params' => array());
         }
 

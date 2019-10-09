@@ -19,8 +19,10 @@ define(
   function ($, quote, customer, config, debug) {
     'use strict';
     return {
+      b2b_enabled: config.b2b_enabled,
       buildAddress: function (address, email) {
         var addr = {
+          'organization_name': '',
           'given_name': '',
           'family_name': '',
           'street_address': '',
@@ -66,15 +68,32 @@ define(
         if (address.telephone) {
           addr['phone'] = address.telephone;
         }
+        // Having organization_name in the address causes KP/PLSI to return B2B methods no matter
+        // the customer type. So we only want to set this if the merchant has enabled B2B.
+        if (this.b2b_enabled && address.company) {
+          addr['organization_name'] = address.company;
+        }
         debug.log(addr);
         return addr;
+      },
+      buildCustomer: function (billingAddress) {
+        var type = 'person';
+
+        if (this.b2b_enabled && billingAddress.company) {
+          type = 'organization';
+        }
+
+        return {
+          'type': type
+        };
       },
       getUpdateData: function () {
         var email = '',
           shippingAddress = quote.shippingAddress(),
           data = {
             'billing_address': {},
-            'shipping_address': {}
+            'shipping_address': {},
+            'customer': {}
           };
 
         if (customer.isLoggedIn()) {
@@ -87,6 +106,7 @@ define(
         }
         data.billing_address = this.buildAddress(quote.billingAddress(), email);
         data.shipping_address = this.buildAddress(shippingAddress, email);
+        data.customer = this.buildCustomer(quote.billingAddress());
         debug.log(data);
         return data;
       },

@@ -6,11 +6,14 @@
 
 namespace Vertex\Tax\Model\Api\Data\InvoiceRequestBuilder;
 
+use Magento\Framework\Stdlib\StringUtils;
 use Magento\Sales\Api\Data\InvoiceInterface;
 use Magento\Sales\Api\Data\InvoiceItemInterface;
 use Vertex\Data\LineItemInterface;
 use Vertex\Data\LineItemInterfaceFactory;
 use Vertex\Services\Invoice\RequestInterface;
+use Vertex\Tax\Model\Api\Data\FlexFieldBuilder;
+use Vertex\Tax\Model\Api\Utility\MapperFactoryProxy;
 use Vertex\Tax\Model\Repository\TaxClassNameRepository;
 
 /**
@@ -18,6 +21,9 @@ use Vertex\Tax\Model\Repository\TaxClassNameRepository;
  */
 class InvoiceItemProcessor implements InvoiceProcessorInterface
 {
+    /** @var FlexFieldBuilder */
+    private $flexFieldBuilder;
+
     /** @var ItemProcessor */
     private $itemProcessor;
 
@@ -27,19 +33,34 @@ class InvoiceItemProcessor implements InvoiceProcessorInterface
     /** @var TaxClassNameRepository */
     private $taxClassNameRepository;
 
+    /** @var StringUtils */
+    private $stringUtilities;
+
+    /** @var MapperFactoryProxy */
+    private $mapperFactory;
+
     /**
      * @param ItemProcessor $itemProcessor
      * @param LineItemInterfaceFactory $lineItemFactory
      * @param TaxClassNameRepository $taxClassNameRepository
+     * @param FlexFieldBuilder $flexFieldBuilder
+     * @param StringUtils $stringUtils
+     * @param MapperFactoryProxy $mapperFactory
      */
     public function __construct(
         ItemProcessor $itemProcessor,
         LineItemInterfaceFactory $lineItemFactory,
-        TaxClassNameRepository $taxClassNameRepository
+        TaxClassNameRepository $taxClassNameRepository,
+        FlexFieldBuilder $flexFieldBuilder,
+        StringUtils $stringUtils,
+        MapperFactoryProxy $mapperFactory
     ) {
         $this->itemProcessor = $itemProcessor;
         $this->lineItemFactory = $lineItemFactory;
         $this->taxClassNameRepository = $taxClassNameRepository;
+        $this->flexFieldBuilder = $flexFieldBuilder;
+        $this->stringUtilities = $stringUtils;
+        $this->mapperFactory = $mapperFactory;
     }
 
     /**
@@ -71,6 +92,10 @@ class InvoiceItemProcessor implements InvoiceProcessorInterface
         /** @var int[] $taxClasses Key is InvoiceItem ID, Value is Tax Class ID */
         $taxClasses = [];
 
+        $storeId = $invoice->getStoreId();
+
+        $lineItemMapper = $this->mapperFactory->getForClass(LineItemInterface::class, $storeId);
+
         foreach ($invoiceItems as $item) {
             $product = isset($products[$item->getSku()]) ? $products[$item->getSku()] : false;
             $taxClassAttribute = $product ? $product->getCustomAttribute('tax_class_id') : false;
@@ -83,7 +108,9 @@ class InvoiceItemProcessor implements InvoiceProcessorInterface
 
             /** @var LineItemInterface $lineItem */
             $lineItem = $this->lineItemFactory->create();
-            $lineItem->setProductCode($item->getSku());
+            $lineItem->setProductCode(
+                $this->stringUtilities->substr($item->getSku(), 0, $lineItemMapper->getProductCodeMaxLength())
+            );
             $lineItem->setQuantity($item->getQty());
             $lineItem->setUnitPrice($item->getBasePrice());
             $lineItem->setExtendedPrice($item->getBaseRowTotal() - $item->getBaseDiscountAmount());
@@ -94,7 +121,7 @@ class InvoiceItemProcessor implements InvoiceProcessorInterface
             if ($lineItem->getExtendedPrice() == 0) {
                 continue;
             }
-
+            $lineItem->setFlexibleFields($this->flexFieldBuilder->buildAllFromInvoiceItem($item, $storeId));
             $lineItems[] = $lineItem;
         }
 
@@ -105,10 +132,13 @@ class InvoiceItemProcessor implements InvoiceProcessorInterface
             $lineItemId = $lineItem->getLineItemId();
             $taxClass = $taxClasses[$lineItemId];
             $taxClassName = $taxClassNames[$taxClass];
-            $lineItem->setProductClass($taxClassName);
+            $lineItem->setProductClass(
+                $this->stringUtilities->substr($taxClassName, 0, $lineItemMapper->getProductTaxClassNameMaxLength())
+            );
         }
 
         $request->setLineItems(array_merge($request->getLineItems(), $lineItems));
+
         return $request;
     }
 }

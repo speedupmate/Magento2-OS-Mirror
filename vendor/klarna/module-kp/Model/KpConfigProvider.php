@@ -62,6 +62,7 @@ class KpConfigProvider implements ConfigProviderInterface
                     'success'           => 0,
                     'debug'             => $this->config->isApiConfigFlag('debug', $store),
                     'enabled'           => $this->config->isPaymentConfigFlag('active', $store, Kp::METHOD_CODE),
+                    'b2b_enabled'       => $this->config->isPaymentConfigFlag('enable_b2b', $store, Kp::METHOD_CODE),
                     'available_methods' => [
                         'type'      => 'klarna_kp',
                         'component' => 'Klarna_Kp/js/view/payments/kp'

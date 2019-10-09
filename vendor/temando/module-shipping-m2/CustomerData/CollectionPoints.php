@@ -9,9 +9,10 @@ use Magento\Framework\EntityManager\HydratorInterface;
 use Magento\Framework\Exception\LocalizedException;
 use Magento\Framework\Exception\NoSuchEntityException;
 use Magento\Framework\Session\SessionManagerInterface;
+use Magento\Quote\Model\ResourceModel\Quote\Address\CollectionFactory;
 use Magento\Store\Model\StoreManagerInterface;
+use Temando\Shipping\Api\Checkout\CartCollectionPointManagementInterface;
 use Temando\Shipping\Api\Data\Delivery\QuoteCollectionPointInterface;
-use Temando\Shipping\Api\Delivery\CartCollectionPointManagementInterface;
 use Temando\Shipping\Model\Config\ModuleConfigInterface;
 use Temando\Shipping\Model\Delivery\DistanceConverter;
 use Temando\Shipping\Model\Delivery\OpeningHoursFormatter;
@@ -36,12 +37,17 @@ class CollectionPoints implements SectionSourceInterface
     /**
      * @var ModuleConfigInterface
      */
-    private $moduleConfig;
+    private $config;
 
     /**
      * @var SessionManagerInterface|\Magento\Checkout\Model\Session
      */
     private $checkoutSession;
+
+    /**
+     * @var CollectionFactory
+     */
+    private $addressCollectionFactory;
 
     /**
      * @var HydratorInterface
@@ -71,8 +77,9 @@ class CollectionPoints implements SectionSourceInterface
     /**
      * CollectionPoints constructor.
      * @param StoreManagerInterface $storeManager
-     * @param ModuleConfigInterface $moduleConfig
+     * @param ModuleConfigInterface $config
      * @param SessionManagerInterface $checkoutSession
+     * @param CollectionFactory $addressCollectionFactory
      * @param HydratorInterface $hydrator
      * @param CollectionPointSearchRepositoryInterface $searchRequestRepository
      * @param CartCollectionPointManagementInterface $cartCollectionPointManagement
@@ -81,8 +88,9 @@ class CollectionPoints implements SectionSourceInterface
      */
     public function __construct(
         StoreManagerInterface $storeManager,
-        ModuleConfigInterface $moduleConfig,
+        ModuleConfigInterface $config,
         SessionManagerInterface $checkoutSession,
+        CollectionFactory $addressCollectionFactory,
         HydratorInterface $hydrator,
         CollectionPointSearchRepositoryInterface $searchRequestRepository,
         CartCollectionPointManagementInterface $cartCollectionPointManagement,
@@ -90,8 +98,9 @@ class CollectionPoints implements SectionSourceInterface
         DistanceConverter $distanceConverter
     ) {
         $this->storeManager = $storeManager;
-        $this->moduleConfig = $moduleConfig;
+        $this->config = $config;
         $this->checkoutSession = $checkoutSession;
+        $this->addressCollectionFactory = $addressCollectionFactory;
         $this->hydrator = $hydrator;
         $this->searchRequestRepository = $searchRequestRepository;
         $this->cartCollectionPointManagement = $cartCollectionPointManagement;
@@ -112,20 +121,27 @@ class CollectionPoints implements SectionSourceInterface
             $storeId = null;
         }
 
-        if (!$this->moduleConfig->isEnabled($storeId) || !$this->moduleConfig->isCollectionPointsEnabled($storeId)) {
+        $isEnabled = $this->config->isEnabled($storeId) && $this->config->isCollectionPointsEnabled($storeId);
+        $quoteId = $this->checkoutSession->getQuoteId();
+        if (!$isEnabled || empty($quoteId)) {
             return [
                 'collection-points' => [],
                 'search-request' => [],
             ];
         }
 
-        $quote = $this->checkoutSession->getQuote();
-        $quoteAddressId = $quote->getShippingAddress()->getId();
+        // loading the quote address directly without loading the full quote brings a huge performance gain.
+        $addressCollection = $this->addressCollectionFactory->create();
+        $addressCollection->setQuoteFilter($quoteId)
+            ->addFieldToFilter('address_type', ['eq' => 'shipping'])
+            ->setPageSize(1)
+            ->setCurPage(1);
+        $shippingAddress = $addressCollection->fetchItem();
 
         // check if customer checks out with collection points delivery option
         try {
             // a search request was performed or is pending (waiting for search input)
-            $searchRequest = $this->searchRequestRepository->get($quoteAddressId);
+            $searchRequest = $this->searchRequestRepository->get($shippingAddress->getId());
             $searchRequestData = $this->hydrator->extract($searchRequest);
         } catch (LocalizedException $e) {
             // no search request found at all for given address
@@ -139,7 +155,7 @@ class CollectionPoints implements SectionSourceInterface
             ];
         }
 
-        $collectionPoints = $this->cartCollectionPointManagement->getCollectionPoints($quote->getId());
+        $collectionPoints = $this->cartCollectionPointManagement->getCollectionPoints($quoteId);
 
         // map collection points to data array with formatted/localized opening hours
         $collectionPoints = array_map(function (QuoteCollectionPointInterface $collectionPoint) use ($storeId) {

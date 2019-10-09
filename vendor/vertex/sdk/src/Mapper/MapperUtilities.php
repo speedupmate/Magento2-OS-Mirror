@@ -7,6 +7,7 @@
 
 namespace Vertex\Mapper;
 
+use stdClass;
 use Vertex\Exception\ValidationException;
 
 /**
@@ -27,15 +28,15 @@ class MapperUtilities
     /**
      * Validate and, if valid, add a date to the mapping based on it's key
      *
-     * @param \stdClass $mapping
+     * @param stdClass $mapping
      * @param \DateTimeInterface $value
      * @param string $key
      * @param bool $optional
      * @param string $name Human readable name
-     * @return \stdClass
+     * @return stdClass
      * @throws ValidationException
      */
-    public function addToMapWithDateValidation(\stdClass $mapping, $value, $key, $optional = true, $name = null)
+    public function addToMapWithDateValidation(stdClass $mapping, $value, $key, $optional = true, $name = null)
     {
         $name = $name ?: $key;
 
@@ -51,18 +52,18 @@ class MapperUtilities
     /**
      * Validate and, if valid, add a float to the mapping based on its key
      *
-     * @param \stdClass $mapping
+     * @param stdClass $mapping
      * @param float $value
      * @param string $key
      * @param int $min
      * @param int $max
      * @param bool $optional
      * @param string $name Human readable name
-     * @return \stdClass
+     * @return stdClass
      * @throws ValidationException
      */
     public function addToMapWithDecimalValidation(
-        \stdClass $mapping,
+        stdClass $mapping,
         $value,
         $key,
         $min = PHP_INT_MIN,
@@ -85,17 +86,17 @@ class MapperUtilities
     /**
      * Validate and, if valid, add an enumeration to the mapping based on its key
      *
-     * @param \stdClass $mapping
+     * @param stdClass $mapping
      * @param string $value
      * @param string $key
      * @param string[] $availableValues
      * @param bool $optional
      * @param string $name Human readable name
-     * @return \stdClass
+     * @return stdClass
      * @throws ValidationException
      */
     public function addToMapWithEnumerationValidation(
-        \stdClass $mapping,
+        stdClass $mapping,
         $value,
         $key,
         array $availableValues,
@@ -116,18 +117,18 @@ class MapperUtilities
     /**
      * Validate and, if valid, add an integer to the mapping based on its key
      *
-     * @param \stdClass $mapping
+     * @param stdClass $mapping
      * @param int $value
      * @param string $key
      * @param int $min
      * @param int $max
      * @param bool $optional
      * @param string $name Human readable name
-     * @return \stdClass
+     * @return stdClass
      * @throws ValidationException
      */
     public function addToMapWithIntegerValidation(
-        \stdClass $mapping,
+        stdClass $mapping,
         $value,
         $key,
         $min = PHP_INT_MIN,
@@ -150,18 +151,18 @@ class MapperUtilities
     /**
      * Validate and, if valid, add a string to the mapping based on it's key
      *
-     * @param \stdClass $mapping
+     * @param stdClass $mapping
      * @param string $value
      * @param string $key
      * @param int $min
      * @param int $max
      * @param bool $optional
      * @param string $name Human readable name
-     * @return \stdClass
+     * @return stdClass
      * @throws ValidationException
      */
     public function addToMapWithLengthValidation(
-        \stdClass $mapping,
+        stdClass $mapping,
         $value,
         $key,
         $min = self::DEFAULT_MIN,
@@ -191,7 +192,7 @@ class MapperUtilities
      * @SuppressWarnings(PHPMD.CyclomaticComplexity)
      * @throws ValidationException
      */
-    private function assertBetween($value, $min = PHP_INT_MIN, $max = PHP_INT_MAX, $exceptionName = 'Value')
+    public function assertBetween($value, $min = PHP_INT_MIN, $max = PHP_INT_MAX, $exceptionName = 'Value')
     {
         $failure = $value < $min || $value > $max;
         $message = "{$exceptionName} must be a valid integer";
@@ -220,7 +221,7 @@ class MapperUtilities
      * @return true
      * @throws ValidationException
      */
-    private function assertContains($value, array $array, $exceptionName = 'Value', $strict = true)
+    public function assertContains($value, array $array, $exceptionName = 'Value', $strict = true)
     {
         if (!in_array($value, $array, $strict)) {
             throw new ValidationException("{$exceptionName} must be one of " . implode(', ', $array));
@@ -237,7 +238,7 @@ class MapperUtilities
      * @return true
      * @throws ValidationException
      */
-    private function assertDate($value, $exceptionName = 'Value')
+    public function assertDate($value, $exceptionName = 'Value')
     {
         $isObject = is_object($value);
         $isDateTime = $value instanceof \DateTime;
@@ -257,7 +258,7 @@ class MapperUtilities
      * @return true
      * @throws ValidationException
      */
-    private function assertDecimal($value, $exceptionName = 'Value')
+    public function assertDecimal($value, $exceptionName = 'Value')
     {
         if (!is_numeric($value)) {
             throw new ValidationException("{$exceptionName} must be a float");
@@ -274,7 +275,7 @@ class MapperUtilities
      * @return true
      * @throws ValidationException
      */
-    private function assertInteger($value, $exceptionName = 'Value')
+    public function assertInteger($value, $exceptionName = 'Value')
     {
         if (!is_numeric($value) || (int)$value != (float)$value) {
             throw new ValidationException("{$exceptionName} must be an integer");
@@ -293,7 +294,7 @@ class MapperUtilities
      * @return true
      * @throws ValidationException
      */
-    private function assertLength($value, $min = self::DEFAULT_MIN, $max = self::DEFAULT_MAX, $exceptionName = 'Value')
+    public function assertLength($value, $min = self::DEFAULT_MIN, $max = self::DEFAULT_MAX, $exceptionName = 'Value')
     {
         $length = mb_strlen($value);
         if ($length < $min || $length > $max) {
@@ -314,7 +315,7 @@ class MapperUtilities
      * @return bool Whether or not the value was null
      * @throws ValidationException
      */
-    private function assertNotNull($value, $optional = true, $exceptionName = 'Value')
+    public function assertNotNull($value, $optional = true, $exceptionName = 'Value')
     {
         if (!$optional && $value === null) {
             throw new ValidationException("{$exceptionName} must not be null");

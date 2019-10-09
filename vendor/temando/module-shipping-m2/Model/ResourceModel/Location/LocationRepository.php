@@ -5,7 +5,6 @@
 
 namespace Temando\Shipping\Model\ResourceModel\Location;
 
-use Magento\Framework\Exception\CouldNotDeleteException;
 use Psr\Log\LoggerInterface;
 use Temando\Shipping\Model\LocationInterface;
 use Temando\Shipping\Model\ResourceModel\Repository\LocationRepositoryInterface;
@@ -84,9 +83,10 @@ class LocationRepository implements LocationRepositoryInterface
     }
 
     /**
+     * Load locations listing.
+     *
      * @param int|null $offset
      * @param int|null $limit
-     *
      * @return LocationInterface[]
      */
     public function getList($offset = null, $limit = null)
@@ -111,22 +111,5 @@ class LocationRepository implements LocationRepositoryInterface
         }
 
         return $locations;
-    }
-
-    /**
-     * @param string $locationId
-     *
-     * @return void
-     * @throws CouldNotDeleteException
-     */
-    public function delete($locationId)
-    {
-        try {
-            $request = $this->itemRequestFactory->create(['entityId' => $locationId]);
-            $this->apiAdapter->deleteLocation($request);
-        } catch (AdapterException $e) {
-            $this->logger->critical($e->getMessage(), ['exception' => $e]);
-            throw new CouldNotDeleteException(__('Unable to delete location.'), $e);
-        }
     }
 }

@@ -7,6 +7,7 @@ namespace Temando\Shipping\Model\Pickup;
 
 use Magento\Sales\Api\Data\OrderItemInterface;
 use Temando\Shipping\Model\PickupInterface;
+use Temando\Shipping\Model\Shipping\ItemExtractor;
 
 /**
  * Temando Pickup Management
@@ -19,21 +20,32 @@ use Temando\Shipping\Model\PickupInterface;
 class PickupManagement
 {
     /**
+     * @var ItemExtractor
+     */
+    private $itemExtractor;
+
+    /**
      * @var PickupInterface[]
      */
     private $pickups = [];
 
     /**
      * PickupManagement constructor.
+     *
+     * @param ItemExtractor $itemExtractor
      * @param PickupInterface[] $pickups
      */
     public function __construct(
+        ItemExtractor $itemExtractor,
         array $pickups = []
     ) {
+        $this->itemExtractor = $itemExtractor;
         $this->pickups = $pickups;
     }
 
     /**
+     * Filter pickups by given state.
+     *
      * @param string $state
      * @return PickupInterface[]
      */
@@ -105,6 +117,7 @@ class PickupManagement
 
     /**
      * Obtain a list of items that are ready for collection.
+     *
      * Return format: [<sku> => <qty>, <sku> => <qty>]
      *
      * @return mixed[]
@@ -116,7 +129,7 @@ class PickupManagement
         }
 
         $preparedPickups = $this->getPickupsByState(PickupInterface::STATE_READY);
-        $preparedItems = array_reduce($preparedPickups, function ($carry, PickupInterface $pickup) {
+        $preparedItems = array_reduce($preparedPickups, function (array $carry, PickupInterface $pickup) {
             foreach ($pickup->getItems() as $sku => $quantity) {
                 if (isset($carry[$sku])) {
                     $carry[$sku]+= $quantity;
@@ -133,6 +146,7 @@ class PickupManagement
 
     /**
      * Obtain a list of items that are not yet shipped, prepared, or collected.
+     *
      * Return format: [<sku> => <qty>, <sku> => <qty>]
      *
      * @param OrderItemInterface[] $orderItems
@@ -140,32 +154,30 @@ class PickupManagement
      */
     public function getOpenItems(array $orderItems)
     {
+        $orderItems = $this->itemExtractor->extractShippableOrderItems($orderItems);
+
         $openItems = [];
         $preparedItems = $this->getPreparedItems();
 
+        /** @var \Magento\Sales\Model\Order\Item $orderItem */
         foreach ($orderItems as $orderItem) {
-            if ($orderItem->getIsVirtual() || $orderItem->getParentItem()) {
-                continue;
-            }
-
             $sku = $orderItem->getSku();
             $qtyOrdered = $orderItem->getQtyOrdered();
             $qtyShipped = $orderItem->getQtyShipped();
             $qtyPrepared = isset($preparedItems[$sku]) ? $preparedItems[$sku] : 0;
-
-            $openItems[$sku] = $qtyOrdered - $qtyShipped - $qtyPrepared;
+            $qtyOpen = $qtyOrdered - $qtyShipped - $qtyPrepared;
+            if ($qtyOpen > 0) {
+                $openItems[$sku] = $qtyOpen;
+            }
         }
-
-        $openItems = array_filter($openItems, function ($qty) {
-            return $qty > 0;
-        });
 
         return $openItems;
     }
 
     /**
-     * Check if requested items can be fulfilled. Returns a subset of the requested
-     * items in case some of them are already fulfilled.
+     * Check if requested items can be fulfilled.
+     *
+     * Returns a subset of the requested items in case some of them are already fulfilled.
      * Return format: [<sku> => <qty>, <sku> => <qty>]
      *
      * @param mixed[] $requestedItems Format: [<order_item_id> => <qty>, <order_item_id> => <qty>]
@@ -177,11 +189,8 @@ class PickupManagement
         $openItems = $this->getOpenItems($orderItems);
         $acceptedItems = [];
 
+        /** @var \Magento\Sales\Model\Order\Item $orderItem */
         foreach ($orderItems as $orderItem) {
-            if ($orderItem->getParentItem()) {
-                continue;
-            }
-
             $sku = $orderItem->getSku();
             $id = $orderItem->getId();
 
@@ -190,11 +199,9 @@ class PickupManagement
 
             $qtyRequested = min($qtyRequested, $qtyOpen);
 
-            if ($qtyRequested < 1) {
-                continue;
+            if ($qtyRequested > 0) {
+                $acceptedItems[$sku] = $qtyRequested;
             }
-
-            $acceptedItems[$sku] = $qtyRequested;
         }
 
         return $acceptedItems;

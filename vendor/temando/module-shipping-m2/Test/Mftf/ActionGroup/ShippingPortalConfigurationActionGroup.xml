@@ -2,7 +2,7 @@
 
 <actionGroups xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
               xsi:noNamespaceSchemaLocation="urn:magento:mftf:Test/etc/actionGroupSchema.xsd">
-    <actionGroup name="TemandoShippingPortalConfigurationLink">
+    <actionGroup name="TemandoShippingPortalAccountConfigurationLink">
         <amOnPage url="{{TemandoAdminConfigPage.url}}" stepKey="navigateToTemandoConfigurationPage" />
         <seeElement stepKey="seeShippingPortalLink" selector="{{TemandoShippingPortalSection.aConfigurationPortalLink}}" />
         <click stepKey="clickShippingPortalLink" selector="{{TemandoShippingPortalSection.aConfigurationPortalLink}}" />
@@ -12,7 +12,7 @@
         <closeTab stepKey="closeShippingPortalTab" />
     </actionGroup>
 
-    <actionGroup name="TemandoShippingPortalConfigureExperiences">
+    <actionGroup name="TemandoShippingPortalExperiencesConfigureLink">
         <amOnPage url="{{TemandoAdminConfigPage.url}}" stepKey="navigateToTemandoConfigurationPage" />
         <seeInField stepKey="seeTemandoIsEnabled" selector="{{MagentoShippingSection.isTemandoActive}}" userInput="1" />
         <seeElement stepKey="seeConfigureShippingExperiencesLink" selector="{{TemandoShippingPortalSection.aConfigureShippingExperiences}}" />
@@ -21,9 +21,29 @@
         <amOnPage url="{{TemandoAdminConfigPage.url}}" stepKey="returnToTemandoConfigurationPage" />
     </actionGroup>
 
+    <actionGroup name="TemandoShippingPortalLocationsConfigureLink">
+        <amOnPage url="{{TemandoAdminConfigPage.url}}" stepKey="navigateToTemandoConfigurationPage" />
+        <seeInField stepKey="seeTemandoIsEnabled" selector="{{MagentoShippingSection.isTemandoActive}}" userInput="1" />
+        <seeElement stepKey="seeConfigureShippingLocationsLink" selector="{{TemandoShippingPortalSection.aConfigureShippingLocations}}" />
+        <click stepKey="clickShippingPortalLink" selector="{{TemandoShippingPortalSection.aConfigureShippingLocations}}" />
+        <seeInCurrentUrl url="{{ShippingPortalData.shippingPortalUrlLocations}}" stepKey="seeShippingPortalUrl" />
+        <amOnPage url="{{TemandoAdminConfigPage.url}}" stepKey="returnToTemandoConfigurationPage" />
+    </actionGroup>
+
+    <actionGroup name="TemandoShippingPortalCarriersConfigureLink">
+        <amOnPage url="{{TemandoAdminConfigPage.url}}" stepKey="navigateToTemandoConfigurationPage" />
+        <seeInField stepKey="seeTemandoIsEnabled" selector="{{MagentoShippingSection.isTemandoActive}}" userInput="1" />
+        <seeElement stepKey="seeConfigureShippingCarriersLink" selector="{{TemandoShippingPortalSection.aConfigureShippingCarriers}}" />
+        <click stepKey="clickShippingPortalLink" selector="{{TemandoShippingPortalSection.aConfigureShippingCarriers}}" />
+        <seeInCurrentUrl url="{{ShippingPortalData.shippingPortalUrlCarriers}}" stepKey="seeShippingPortalUrl" />
+        <amOnPage url="{{TemandoAdminConfigPage.url}}" stepKey="returnToTemandoConfigurationPage" />
+    </actionGroup>
+
     <actionGroup name="TemandoShippingPortalMenuLink">
         <click selector="{{TemandoAdminMenuSection.StoresMenuItem}}" stepKey="clickStoresMenuItem" />
         <seeElement selector="{{TemandoAdminMenuSection.ExperiencesMenuItemLink}}" stepKey="seeExperiencesMenuItem" />
+        <seeElement selector="{{TemandoAdminMenuSection.LocationsMenuItemLink}}" stepKey="seeLocationsMenuItem" />
+        <seeElement selector="{{TemandoAdminMenuSection.CarriersMenuItemLink}}" stepKey="seeCarriersMenuItem" />
     </actionGroup>
 
     <actionGroup name="TemandoShippingPortalSetUrl">

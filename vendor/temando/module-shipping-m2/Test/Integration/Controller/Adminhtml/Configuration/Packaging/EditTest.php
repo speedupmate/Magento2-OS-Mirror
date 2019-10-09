@@ -4,13 +4,12 @@
  */
 namespace Temando\Shipping\Controller\Adminhtml\Configuration\Packaging;
 
-use Magento\Framework\Session\SessionManagerInterface;
-use Magento\TestFramework\Helper\Bootstrap;
 use Magento\TestFramework\TestCase\AbstractBackendController;
-use Temando\Shipping\Rest\AuthenticationInterface;
+use Temando\Shipping\Test\Integration\Fixture\ApiTokenFixture;
 
 /**
  * @magentoAppArea adminhtml
+ * @magentoDataFixture createApiToken
  */
 class EditTest extends AbstractBackendController
 {
@@ -28,17 +27,25 @@ class EditTest extends AbstractBackendController
      */
     protected $uri = 'backend/temando/configuration_packaging/edit';
 
-    protected function setUp()
+    /**
+     * delegate fixtures creation to separate class.
+     */
+    public static function createApiToken()
     {
-        parent::setUp();
+        ApiTokenFixture::createValidToken();
+    }
 
-        /** @var SessionManagerInterface $adminSession */
-        $adminSession = Bootstrap::getObjectManager()->get(SessionManagerInterface::class);
-        $adminSession->setData(AuthenticationInterface::DATA_KEY_SESSION_TOKEN_EXPIRY, '2038-01-19T03:03:33.000Z');
+    /**
+     * delegate fixtures rollback to separate class.
+     */
+    public static function createApiTokenRollback()
+    {
+        ApiTokenFixture::rollbackToken();
     }
 
     /**
      * @test
+     *
      * @magentoConfigFixture default/carriers/temando/account_id 23
      * @magentoConfigFixture default/carriers/temando/bearer_token 808
      */
@@ -53,7 +60,6 @@ class EditTest extends AbstractBackendController
     }
 
     /**
-     * @test
      * @magentoConfigFixture default/carriers/temando/account_id 23
      * @magentoConfigFixture default/carriers/temando/bearer_token 808
      */
@@ -63,7 +69,6 @@ class EditTest extends AbstractBackendController
     }
 
     /**
-     * @test
      * @magentoConfigFixture default/carriers/temando/account_id 23
      * @magentoConfigFixture default/carriers/temando/bearer_token 808
      */

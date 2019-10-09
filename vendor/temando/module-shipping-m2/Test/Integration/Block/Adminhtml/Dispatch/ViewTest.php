@@ -4,7 +4,6 @@
  */
 namespace Temando\Shipping\Block\Adminhtml\Dispatch;
 
-use Magento\Framework\Session\SessionManagerInterface;
 use Magento\Framework\View\LayoutInterface;
 use Magento\TestFramework\Helper\Bootstrap;
 use Temando\Shipping\Model\DispatchInterface;
@@ -12,8 +11,8 @@ use Temando\Shipping\Model\DispatchProvider;
 use Temando\Shipping\Model\ResourceModel\Dispatch\DispatchRepository;
 use Temando\Shipping\Model\ResourceModel\Repository\DispatchRepositoryInterface;
 use Temando\Shipping\Rest\Adapter;
-use Temando\Shipping\Rest\AuthenticationInterface;
 use Temando\Shipping\Rest\RestClient;
+use Temando\Shipping\Test\Integration\Fixture\ApiTokenFixture;
 use Temando\Shipping\Test\Integration\Provider\RestResponseProvider;
 use Temando\Shipping\Webservice\HttpClientInterface;
 use Temando\Shipping\Webservice\HttpClientInterfaceFactory;
@@ -21,40 +20,20 @@ use Temando\Shipping\Webservice\HttpClientInterfaceFactory;
 /**
  * Temando View Dispatch Page Test
  *
- * @package  Temando\Shipping\Test\Integration
- * @author   Christoph Aßmann <christoph.assmann@netresearch.de>
- * @license  http://opensource.org/licenses/osl-3.0.php Open Software License (OSL 3.0)
- * @link     http://www.temando.com/
+ * @package Temando\Shipping\Test\Integration
+ * @author  Christoph Aßmann <christoph.assmann@netresearch.de>
+ * @license https://opensource.org/licenses/osl-3.0.php Open Software License (OSL 3.0)
+ * @link    https://www.temando.com/
  *
+ * @magentoAppArea adminhtml
+ * @magentoDataFixture createApiToken
  */
 class ViewTest extends \PHPUnit\Framework\TestCase
 {
-    /**
-     * Delegate provisioning of test data to separate class
-     * @return string[]
-     */
-    public function getCompletionDataProvider()
-    {
-        return RestResponseProvider::getCompletionResponseDataProvider();
-    }
-
-    protected function setUp()
-    {
-        parent::setUp();
-
-        /** @var SessionManagerInterface $adminSession */
-        $adminSession = Bootstrap::getObjectManager()->get(SessionManagerInterface::class);
-        $adminSession->setData(AuthenticationInterface::DATA_KEY_SESSION_TOKEN_EXPIRY, '2038-01-19T03:03:33.000Z');
-    }
-
     protected function tearDown()
     {
         /** @var \Magento\TestFramework\ObjectManager $objectManager */
         $objectManager = Bootstrap::getObjectManager();
-
-        /** @var SessionManagerInterface $adminSession */
-        $adminSession = $objectManager->get(SessionManagerInterface::class);
-        $adminSession->unsetData(AuthenticationInterface::DATA_KEY_SESSION_TOKEN_EXPIRY);
 
         $objectManager->removeSharedInstance(RestClient::class);
         $objectManager->removeSharedInstance(DispatchProvider::class);
@@ -65,10 +44,35 @@ class ViewTest extends \PHPUnit\Framework\TestCase
     }
 
     /**
+     * Delegate provisioning of test data to separate class
+     * @return string[]
+     */
+    public function getCompletionDataProvider()
+    {
+        return RestResponseProvider::getCompletionResponseDataProvider();
+    }
+
+    /**
+     * delegate fixtures creation to separate class.
+     */
+    public static function createApiToken()
+    {
+        ApiTokenFixture::createValidToken();
+    }
+
+    /**
+     * delegate fixtures rollback to separate class.
+     */
+    public static function createApiTokenRollback()
+    {
+        ApiTokenFixture::rollbackToken();
+    }
+
+    /**
      * Assert dispatch listing url is being generated.
      *
      * @test
-     * @magentoAppArea adminhtml
+     *
      * @magentoConfigFixture default/carriers/temando/sovereign_endpoint https://foo.temando.io/v1/
      */
     public function getDispatchListingPageUrl()
@@ -85,7 +89,7 @@ class ViewTest extends \PHPUnit\Framework\TestCase
      * Assert exception is caught if repository cannot load dispatch.
      *
      * @test
-     * @magentoAppArea adminhtml
+     *
      * @magentoConfigFixture default/carriers/temando/sovereign_endpoint https://foo.temando.io/v1/
      */
     public function dispatchCannotBeLoaded()
@@ -131,9 +135,10 @@ class ViewTest extends \PHPUnit\Framework\TestCase
 
     /**
      * @test
-     * @magentoAppArea adminhtml
      * @dataProvider getCompletionDataProvider
+     *
      * @magentoConfigFixture default/carriers/temando/sovereign_endpoint https://foo.temando.io/v1/
+     *
      * @param string $responseBody
      */
     public function dispatchIsLoaded($responseBody)
@@ -191,7 +196,7 @@ class ViewTest extends \PHPUnit\Framework\TestCase
 
     /**
      * @test
-     * @magentoAppArea adminhtml
+     *
      * @magentoConfigFixture default/general/locale/timezone Europe/London
      */
     public function getLocalizedDate()
@@ -208,7 +213,7 @@ class ViewTest extends \PHPUnit\Framework\TestCase
 
     /**
      * @test
-     * @magentoAppArea adminhtml
+     *
      * @magentoConfigFixture default/general/locale/timezone Australia/Brisbane
      */
     public function getLocalizedDateAu()

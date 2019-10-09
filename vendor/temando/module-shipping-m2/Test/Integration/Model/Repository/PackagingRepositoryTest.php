@@ -4,23 +4,25 @@
  */
 namespace Temando\Shipping\Model\ResourceModel\Packaging;
 
+use Magento\Framework\Api\SearchCriteriaBuilder;
 use Magento\Framework\Session\SessionManagerInterface;
 use Magento\TestFramework\Helper\Bootstrap;
 use Temando\Shipping\Model\ResourceModel\Repository\PackagingRepositoryInterface;
-use Temando\Shipping\Model\Config\ModuleConfig;
-use Temando\Shipping\Rest\AuthenticationInterface;
+use Temando\Shipping\Test\Integration\Fixture\ApiTokenFixture;
 use Temando\Shipping\Test\Integration\Provider\RestResponseProvider;
 use Temando\Shipping\Webservice\HttpClientInterfaceFactory;
 
 /**
  * Temando Packaging Repository Test
  *
+ * @magentoAppArea adminhtml
  * @magentoAppIsolation enabled
+ * @magentoDataFixture createApiToken
  *
- * @package  Temando\Shipping\Test\Integration
- * @author   Christoph Aßmann <christoph.assmann@netresearch.de>
- * @license  http://opensource.org/licenses/osl-3.0.php Open Software License (OSL 3.0)
- * @link     http://www.temando.com/
+ * @package Temando\Shipping\Test\Integration
+ * @author  Christoph Aßmann <christoph.assmann@netresearch.de>
+ * @license https://opensource.org/licenses/osl-3.0.php Open Software License (OSL 3.0)
+ * @link    https://www.temando.com/
  */
 class PackagingRepositoryTest extends \PHPUnit\Framework\TestCase
 {
@@ -34,27 +36,24 @@ class PackagingRepositoryTest extends \PHPUnit\Framework\TestCase
     }
 
     /**
-     * Set valid session token
+     * delegate fixtures creation to separate class.
      */
-    protected function setUp()
+    public static function createApiToken()
     {
-        parent::setUp();
-
-        /** @var SessionManagerInterface $adminSession */
-        $adminSession = Bootstrap::getObjectManager()->get(SessionManagerInterface::class);
-        $adminSession->setData(AuthenticationInterface::DATA_KEY_SESSION_TOKEN_EXPIRY, '2038-01-19T03:03:33.000Z');
-    }
-
-    protected function tearDown()
-    {
-        /** @var SessionManagerInterface $adminSession */
-        $adminSession = Bootstrap::getObjectManager()->get(SessionManagerInterface::class);
-        $adminSession->unsetData(AuthenticationInterface::DATA_KEY_SESSION_TOKEN_EXPIRY);
-
-        parent::tearDown();
+        ApiTokenFixture::createValidToken();
     }
 
     /**
+     * delegate fixtures rollback to separate class.
+     */
+    public static function createApiTokenRollback()
+    {
+        ApiTokenFixture::rollbackToken();
+    }
+
+    /**
+     * Assert that the packaging repository returns an empty list (does not crash) when api request fails.
+     *
      * @test
      */
     public function apiAccessFails()
@@ -81,14 +80,18 @@ class PackagingRepositoryTest extends \PHPUnit\Framework\TestCase
 
         /** @var PackagingRepositoryInterface $packagingRepository */
         $packagingRepository = Bootstrap::getObjectManager()->get(PackagingRepositoryInterface::class);
-        $items = $packagingRepository->getList();
+        $searchCriteriaBuilder = Bootstrap::getObjectManager()->get(SearchCriteriaBuilder::class);
+        $items = $packagingRepository->getList($searchCriteriaBuilder->create());
 
         $this->assertInternalType('array', $items);
         $this->assertCount(0, $items);
     }
 
     /**
+     * Assert that the packaging repository returns an empty list (does not crash) when api returns error response.
+     *
      * @test
+     *
      * @magentoConfigFixture default/carriers/temando/session_endpoint https://auth.temando.io/v1/
      * @magentoConfigFixture default/carriers/temando/sovereign_endpoint https://foo.temando.io/v1/
      */
@@ -121,14 +124,18 @@ class PackagingRepositoryTest extends \PHPUnit\Framework\TestCase
 
         /** @var PackagingRepositoryInterface $packagingRepository */
         $packagingRepository = Bootstrap::getObjectManager()->get(PackagingRepositoryInterface::class);
-        $items = $packagingRepository->getList();
+        $searchCriteriaBuilder = Bootstrap::getObjectManager()->get(SearchCriteriaBuilder::class);
+        $items = $packagingRepository->getList($searchCriteriaBuilder->create());
 
         $this->assertInternalType('array', $items);
         $this->assertCount(0, $items);
     }
 
     /**
+     * Assert that the packaging repository returns an empty list when api result is empty.
+     *
      * @test
+     *
      * @magentoConfigFixture default/carriers/temando/session_endpoint https://auth.temando.io/v1/
      * @magentoConfigFixture default/carriers/temando/sovereign_endpoint https://foo.temando.io/v1/
      */
@@ -161,20 +168,25 @@ class PackagingRepositoryTest extends \PHPUnit\Framework\TestCase
 
         /** @var PackagingRepositoryInterface $packagingRepository */
         $packagingRepository = Bootstrap::getObjectManager()->get(PackagingRepositoryInterface::class);
-        $items = $packagingRepository->getList();
+        $searchCriteriaBuilder = Bootstrap::getObjectManager()->get(SearchCriteriaBuilder::class);
+        $items = $packagingRepository->getList($searchCriteriaBuilder->create());
 
         $this->assertInternalType('array', $items);
         $this->assertCount(0, $items);
     }
 
     /**
+     * Assert that a non-empty api response is properly passed through the repository.
+     *
      * @test
      * @dataProvider getContainersResponseDataProvider
+     *
      * @magentoConfigFixture default/carriers/temando/session_endpoint https://auth.temando.io/v1/
      * @magentoConfigFixture default/carriers/temando/sovereign_endpoint https://foo.temando.io/v1/
+     *
      * @param string $responseBody
      */
-    public function getList($responseBody)
+    public function getList(string $responseBody)
     {
         $testResponse = new \Zend\Http\Response();
         $testResponse->setStatusCode(\Zend\Http\Response::STATUS_CODE_200);
@@ -202,7 +214,8 @@ class PackagingRepositoryTest extends \PHPUnit\Framework\TestCase
 
         /** @var PackagingRepositoryInterface $packagingRepository */
         $packagingRepository = Bootstrap::getObjectManager()->get(PackagingRepositoryInterface::class);
-        $items = $packagingRepository->getList();
+        $searchCriteriaBuilder = Bootstrap::getObjectManager()->get(SearchCriteriaBuilder::class);
+        $items = $packagingRepository->getList($searchCriteriaBuilder->create());
 
         $this->assertInternalType('array', $items);
         $this->assertCount(3, $items);

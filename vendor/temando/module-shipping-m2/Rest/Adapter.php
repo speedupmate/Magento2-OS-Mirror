@@ -6,7 +6,6 @@ namespace Temando\Shipping\Rest;
 
 use Psr\Log\LoggerInterface;
 use Psr\Log\LogLevel;
-use Temando\Shipping\Rest\Adapter\CarrierApiInterface;
 use Temando\Shipping\Rest\Adapter\CompletionApiInterface;
 use Temando\Shipping\Rest\Adapter\ContainerApiInterface;
 use Temando\Shipping\Rest\Adapter\EventStreamApiInterface;
@@ -18,15 +17,11 @@ use Temando\Shipping\Rest\Request\ListRequestInterface;
 use Temando\Shipping\Rest\Request\RequestHeadersInterface;
 use Temando\Shipping\Rest\Request\StreamCreateRequestInterface;
 use Temando\Shipping\Rest\Request\StreamEventItemRequest;
-use Temando\Shipping\Rest\Response\DataObject\CarrierConfiguration;
-use Temando\Shipping\Rest\Response\DataObject\CarrierIntegration;
 use Temando\Shipping\Rest\Response\DataObject\Completion;
 use Temando\Shipping\Rest\Response\DataObject\Container;
 use Temando\Shipping\Rest\Response\DataObject\Location;
 use Temando\Shipping\Rest\Response\DataObject\StreamEvent;
 use Temando\Shipping\Rest\Response\Document\Errors;
-use Temando\Shipping\Rest\Response\Document\GetCarrierConfigurations;
-use Temando\Shipping\Rest\Response\Document\GetCarrierIntegrations;
 use Temando\Shipping\Rest\Response\Document\GetCompletion;
 use Temando\Shipping\Rest\Response\Document\GetCompletions;
 use Temando\Shipping\Rest\Response\Document\GetContainers;
@@ -45,7 +40,6 @@ use Temando\Shipping\Webservice\Config\WsConfigInterface;
  * @link    https://www.temando.com/
  */
 class Adapter implements
-    CarrierApiInterface,
     CompletionApiInterface,
     ContainerApiInterface,
     LocationApiInterface,
@@ -117,105 +111,6 @@ class Adapter implements
         $this->restClient = $restClient;
         $this->responseParser = $responseParser;
         $this->logger = $logger;
-    }
-
-    /**
-     * @param ListRequestInterface $request
-     * @return CarrierConfiguration[]
-     * @throws AdapterException
-     */
-    public function getCarrierConfigurations(ListRequestInterface $request)
-    {
-        $uri = sprintf('%s/carriers/configuration', $this->endpoint);
-        $queryParams = $request->getRequestParams();
-
-        $this->logger->log(LogLevel::DEBUG, sprintf('%s?%s', $uri, http_build_query($queryParams)));
-
-        try {
-            $this->auth->connect($this->accountId, $this->bearerToken);
-            $headers = $this->requestHeaders->getHeaders();
-
-            $rawResponse = $this->restClient->get($uri, $queryParams, $headers);
-            $this->logger->log(LogLevel::DEBUG, $rawResponse);
-
-            /** @var GetCarrierConfigurations $response */
-            $response = $this->responseParser->parse($rawResponse, GetCarrierConfigurations::class);
-            $configurations = $response->getData();
-        } catch (RestClientErrorException $e) {
-            $this->logger->log(LogLevel::ERROR, $e->getMessage());
-
-            /** @var Errors $response */
-            $response = $this->responseParser->parse($e->getMessage(), Errors::class);
-            throw AdapterException::errorResponse($response, $e);
-        } catch (\Exception $e) {
-            $this->logger->critical($e->getMessage(), ['exception' => $e]);
-            $configurations = [];
-        }
-
-        return $configurations;
-    }
-
-    /**
-     * @param ListRequestInterface $request
-     * @return CarrierIntegration[]
-     * @throws AdapterException
-     */
-    public function getCarrierIntegrations(ListRequestInterface $request)
-    {
-        $uri = sprintf('%s/carriers', $this->endpoint);
-        $queryParams = $request->getRequestParams();
-
-        $this->logger->log(LogLevel::DEBUG, sprintf('%s?%s', $uri, http_build_query($queryParams)));
-
-        try {
-            $this->auth->connect($this->accountId, $this->bearerToken);
-            $headers = $this->requestHeaders->getHeaders();
-
-            $rawResponse = $this->restClient->get($uri, $queryParams, $headers);
-            $this->logger->log(LogLevel::DEBUG, $rawResponse);
-
-            /** @var GetCarrierIntegrations $response */
-            $response = $this->responseParser->parse($rawResponse, GetCarrierIntegrations::class);
-            $carriers = $response->getData();
-        } catch (RestClientErrorException $e) {
-            $this->logger->log(LogLevel::ERROR, $e->getMessage());
-
-            /** @var Errors $response */
-            $response = $this->responseParser->parse($e->getMessage(), Errors::class);
-            throw AdapterException::errorResponse($response, $e);
-        } catch (\Exception $e) {
-            $this->logger->critical($e->getMessage(), ['exception' => $e]);
-            $carriers = [];
-        }
-
-        return $carriers;
-    }
-
-    /**
-     * @param ItemRequestInterface $request
-     * @return void
-     * @throws AdapterException
-     */
-    public function deleteCarrierConfiguration(ItemRequestInterface $request)
-    {
-        $uri = sprintf('%s/carriers/configuration/%s', $this->endpoint, ...$request->getPathParams());
-
-        $this->logger->log(LogLevel::DEBUG, $uri);
-
-        try {
-            $this->auth->connect($this->accountId, $this->bearerToken);
-            $headers = $this->requestHeaders->getHeaders();
-
-            $this->restClient->delete($uri, $headers);
-        } catch (RestClientErrorException $e) {
-            $this->logger->log(LogLevel::ERROR, $e->getMessage());
-
-            /** @var Errors $response */
-            $response = $this->responseParser->parse($e->getMessage(), Errors::class);
-            throw AdapterException::errorResponse($response, $e);
-        } catch (\Exception $e) {
-            throw AdapterException::create($e);
-        }
     }
 
     /**

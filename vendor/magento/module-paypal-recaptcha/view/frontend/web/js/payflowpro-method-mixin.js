@@ -15,7 +15,9 @@ define([
              */
             placeOrder: function () {
                 var original = this._super.bind(this),
-                    isEnabledForPaypal = window.checkoutConfig['msp_recaptcha'].enabled['paypal'],
+                    // jscs:disable requireCamelCaseOrUpperCaseIdentifiers
+                    isEnabledForPaypal = window.checkoutConfig.msp_recaptcha.enabled.paypal,
+                    // jscs:enable requireCamelCaseOrUpperCaseIdentifiers
                     paymentFormSelector = $('#co-payment-form'),
                     startEvent = 'captcha:startExecute',
                     endEvent = 'captcha:endExecute';

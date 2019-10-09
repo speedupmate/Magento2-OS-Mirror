@@ -12,10 +12,10 @@ use Temando\Shipping\Model\ResourceModel\Rma\RmaAccess;
 /**
  * RMA Shipment View
  *
- * @package  Temando\Shipping\Block
- * @author   Rhodri Davies <rhodri.davies@temando.com>
- * @license  http://opensource.org/licenses/osl-3.0.php Open Software License (OSL 3.0)
- * @link     http://www.temando.com/
+ * @package Temando\Shipping\Block
+ * @author  Rhodri Davies <rhodri.davies@temando.com>
+ * @license https://opensource.org/licenses/osl-3.0.php Open Software License (OSL 3.0)
+ * @link    https://www.temando.com/
  *
  * @api
  */
@@ -40,24 +40,6 @@ class View extends Container
     }
 
     /**
-     * @param RmaInterface $rma
-     * @return string
-     */
-    private function getBackUrl(RmaInterface $rma)
-    {
-        if (!$rma->getEntityId()) {
-            $backUrl = $this->getUrl(
-                'adminhtml/order_shipment/view',
-                ['shipment_id' => $this->getRequest()->getParam('shipment_id')]
-            );
-        } else {
-            $backUrl = $this->getUrl('adminhtml/rma/edit', ['id' => $rma->getEntityId()]);
-        }
-
-        return $backUrl;
-    }
-
-    /**
      * @return \Magento\Backend\Block\Widget\Container
      */
     protected function _prepareLayout()
@@ -67,17 +49,11 @@ class View extends Container
             return parent::_prepareLayout();
         }
 
-        $backUrl = $this->getBackUrl($rma);
         $dispatchCreateUrl = $this->getUrl('temando/rma_shipment/dispatch', [
             'rma_id' => $rma->getEntityId(),
             'ext_shipment_id' => $this->rmaAccess->getCurrentRmaShipment()->getShipmentId()
         ]);
 
-        $this->addButton('back', [
-            'label' => __('Back'),
-            'class' => 'back',
-            'onclick' => sprintf("setLocation('%s')", $backUrl)
-        ]);
         $this->addButton('temando_dispatch_return_shipment', [
             'label' => __('Dispatch Shipment'),
             'class' => 'primary',

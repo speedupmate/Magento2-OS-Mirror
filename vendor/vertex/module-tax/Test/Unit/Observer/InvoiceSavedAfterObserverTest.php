@@ -16,6 +16,7 @@ use Vertex\Tax\Model\ConfigurationValidator;
 use Vertex\Tax\Model\CountryGuard;
 use Vertex\Tax\Model\InvoiceSentRegistry;
 use Vertex\Tax\Model\TaxInvoice;
+use Vertex\Tax\Observer\GiftwrapExtensionLoader;
 use Vertex\Tax\Observer\InvoiceSavedAfterObserver;
 use Vertex\Tax\Observer\VertexCalculationExtensionLoader;
 use Vertex\Tax\Test\Unit\TestCase;
@@ -102,6 +103,18 @@ class InvoiceSavedAfterObserverTest extends TestCase
                 }
             );
 
+        $giftwrapExtensionLoader = $this->getMockBuilder(GiftwrapExtensionLoader::class)
+            ->setMethods(['loadOnInvoice'])
+            ->disableOriginalConstructor()
+            ->getMock();
+
+        $giftwrapExtensionLoader->method('loadOnInvoice')
+            ->willReturnCallback(
+                static function ($invoice) {
+                    return $invoice;
+                }
+            );
+
         $this->invoiceSavedAfterObserver = $this->getObject(
             InvoiceSavedAfterObserver::class,
             [
@@ -114,6 +127,7 @@ class InvoiceSavedAfterObserverTest extends TestCase
                 'invoiceRequestBuilder' => $this->invoiceRequestBuilderMock,
                 'vertexExtensionLoader' => $vertexExtensionLoaderMock,
                 'showSuccessMessage' => true,
+                'extensionLoader' => $giftwrapExtensionLoader
             ]
         );
     }

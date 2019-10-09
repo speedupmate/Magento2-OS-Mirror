@@ -6,6 +6,8 @@ namespace Temando\Shipping\Model\ResourceModel\Experience;
 
 use Magento\Framework\Exception\CouldNotSaveException;
 use Psr\Log\LoggerInterface;
+use Temando\Shipping\Model\Checkout\Delivery\CollectionPointManagement;
+use Temando\Shipping\Model\Checkout\Delivery\PickupLocationManagement;
 use Temando\Shipping\Model\OrderInterface;
 use Temando\Shipping\Model\ResourceModel\Repository\ExperienceRepositoryInterface;
 use Temando\Shipping\Rest\Adapter\ExperienceApiInterface;
@@ -29,6 +31,16 @@ use Temando\Shipping\Webservice\Response\Type\QualificationResponseType;
  */
 class ExperienceRepository implements ExperienceRepositoryInterface
 {
+    /**
+     * @var CollectionPointManagement
+     */
+    private $collectionPointManagement;
+
+    /**
+     * @var PickupLocationManagement
+     */
+    private $pickupLocationManagement;
+
     /**
      * @var QualificationRequestTypeBuilder
      */
@@ -66,6 +78,8 @@ class ExperienceRepository implements ExperienceRepositoryInterface
 
     /**
      * ExperienceRepository constructor.
+     * @param CollectionPointManagement $collectionPointManagement
+     * @param PickupLocationManagement $pickupLocationManagement
      * @param QualificationRequestTypeBuilder $requestBuilder
      * @param QualifyRequestFactory $qualifyRequestFactory
      * @param ListRequestInterfaceFactory $listRequestFactory
@@ -75,6 +89,8 @@ class ExperienceRepository implements ExperienceRepositoryInterface
      * @param LoggerInterface $logger
      */
     public function __construct(
+        CollectionPointManagement $collectionPointManagement,
+        PickupLocationManagement $pickupLocationManagement,
         QualificationRequestTypeBuilder $requestBuilder,
         QualifyRequestFactory $qualifyRequestFactory,
         ListRequestInterfaceFactory $listRequestFactory,
@@ -83,6 +99,8 @@ class ExperienceRepository implements ExperienceRepositoryInterface
         ExperienceResponseMapper $experienceMapper,
         LoggerInterface $logger
     ) {
+        $this->collectionPointManagement = $collectionPointManagement;
+        $this->pickupLocationManagement = $pickupLocationManagement;
         $this->requestBuilder = $requestBuilder;
         $this->qualifyRequestFactory = $qualifyRequestFactory;
         $this->listRequestFactory = $listRequestFactory;
@@ -116,15 +134,17 @@ class ExperienceRepository implements ExperienceRepositoryInterface
 
         $isSearchPerformed = $searchRequest && $searchRequest->getPostcode() && $searchRequest->getCountryId();
         if ($isSearchPerformed) {
-            // collection point search triggered, request applicable locations
-            return true;
+            $locations = $this->collectionPointManagement->getCollectionPoints($searchRequest->getShippingAddressId());
+            // no need to qualify if collection points are already available for the given address.
+            return (empty($locations));
         }
 
         $searchRequest = $order->getPickupLocationSearchRequest();
         $isSearchPerformed = $searchRequest && $searchRequest->isActive();
         if ($isSearchPerformed) {
-            // pickup location search triggered, request applicable locations
-            return true;
+            $locations = $this->pickupLocationManagement->getPickupLocations($searchRequest->getShippingAddressId());
+            // no need to qualify if pickup locations are already available for the given address.
+            return (empty($locations));
         }
 
         // regular address quoting

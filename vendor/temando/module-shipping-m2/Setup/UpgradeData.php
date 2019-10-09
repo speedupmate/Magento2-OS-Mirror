@@ -41,6 +41,8 @@ class UpgradeData implements UpgradeDataInterface
     }
 
     /**
+     * Upgrade module data.
+     *
      * @param ModuleDataSetupInterface $setup
      * @param ModuleContextInterface $context
      * @throws \Magento\Framework\Exception\LocalizedException
@@ -62,6 +64,13 @@ class UpgradeData implements UpgradeDataInterface
         if (version_compare($moduleVersion, '1.5.0', '<')) {
             $this->bookmarkCleaner->resetPickupGrid();
             $this->bookmarkCleaner->resetOrderPickupGrid();
+        }
+
+        if (version_compare($moduleVersion, '1.6.0', '<')) {
+            $this->installer->addPackagingAttributes($setup);
+            $this->installer->updateDimensionAttributes($setup);
+            $this->installer->addInternationalShippingProductAttributes($setup);
+            $this->installer->addMappedProductAttributes($setup);
         }
     }
 }

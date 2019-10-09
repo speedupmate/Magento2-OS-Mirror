@@ -118,20 +118,6 @@ class CannotBeAutowired
     }
 }
 
-class CannotBeAutowiredForwardOrder
-{
-    public function __construct(CollisionA $a, CollisionInterface $b, CollisionB $c)
-    {
-    }
-}
-
-class CannotBeAutowiredReverseOrder
-{
-    public function __construct(CollisionA $a, CollisionB $c, CollisionInterface $b)
-    {
-    }
-}
-
 class Lille
 {
 }
@@ -416,6 +402,13 @@ class DecoratedDecorator implements DecoratorInterface
 class NonAutowirableDecorator implements DecoratorInterface
 {
     public function __construct(LoggerInterface $logger, DecoratorInterface $decorated1, DecoratorInterface $decorated2)
+    {
+    }
+}
+
+final class ElsaAction
+{
+    public function __construct(NotExisting $notExisting)
     {
     }
 }

@@ -66,7 +66,18 @@ class UseDeclarationSniff implements Sniff
             if ($tokens[$next]['code'] === T_COMMA) {
                 $fix = $phpcsFile->addFixableError($error, $stackPtr, 'MultipleDeclarations');
                 if ($fix === true) {
-                    $phpcsFile->fixer->replaceToken($next, ';'.$phpcsFile->eolChar.'use ');
+                    switch ($tokens[($stackPtr + 2)]['content']) {
+                    case 'const':
+                        $baseUse = 'use const';
+                        break;
+                    case 'function':
+                        $baseUse = 'use function';
+                        break;
+                    default:
+                        $baseUse = 'use';
+                    }
+
+                    $phpcsFile->fixer->replaceToken($next, ';'.$phpcsFile->eolChar.$baseUse);
                 }
             } else {
                 $closingCurly = $phpcsFile->findNext(T_CLOSE_USE_GROUP, ($next + 1));
@@ -108,7 +119,7 @@ class UseDeclarationSniff implements Sniff
                                 $phpcsFile->fixer->replaceToken($i, '');
                             }
 
-                            if ($tokens[$next]['code'] === T_CONST || $tokens[$next]['code'] === T_FUNCTION) {
+                            if ($tokens[$next]['content'] === 'const' || $tokens[$next]['content'] === 'function') {
                                 $phpcsFile->fixer->addContentBefore($next, 'use ');
                                 $next = $phpcsFile->findNext(Tokens::$emptyTokens, ($next + 1), $closingCurly, true);
                                 $phpcsFile->fixer->addContentBefore($next, str_replace('use ', '', $baseUse));
@@ -263,7 +274,7 @@ class UseDeclarationSniff implements Sniff
      * @param int                         $stackPtr  The position of the current token in
      *                                               the stack passed in $tokens.
      *
-     * @return void
+     * @return bool
      */
     private function shouldIgnoreUse($phpcsFile, $stackPtr)
     {

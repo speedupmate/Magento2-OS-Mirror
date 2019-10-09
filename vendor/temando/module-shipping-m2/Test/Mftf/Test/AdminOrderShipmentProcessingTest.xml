@@ -30,6 +30,7 @@
 
             <actionGroup ref="AdminDeleteStoreViewActionGroup" stepKey="AdminDeleteStoreViewActionGroup" />
             <amOnPage url="admin/admin/auth/logout/" stepKey="amOnLogoutPage" />
+            <actionGroup ref="AdminDisableShippingMethodFlushConfigCache" stepKey="disableShippingMethod" />
         </after>
 
         <!-- Start testing -->

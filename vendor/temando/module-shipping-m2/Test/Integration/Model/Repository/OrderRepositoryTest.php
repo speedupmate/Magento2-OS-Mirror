@@ -7,7 +7,6 @@ namespace Temando\Shipping\Model\ResourceModel\Order;
 use Magento\Framework\Api\SearchCriteriaBuilder;
 use Magento\Framework\Exception\CouldNotSaveException;
 use Magento\Framework\Exception\NoSuchEntityException;
-use Magento\Framework\Session\SessionManagerInterface;
 use Magento\TestFramework\Helper\Bootstrap;
 use Temando\Shipping\Api\Data\Order\OrderReferenceInterface;
 use Temando\Shipping\Model\ResourceModel\Repository\OrderRepositoryInterface;
@@ -19,40 +18,28 @@ use Temando\Shipping\Test\Integration\Fixture\PlacedOrderFixture;
  *
  * @magentoAppIsolation enabled
  *
- * @package  Temando\Shipping\Test\Integration
- * @author   Christoph Aßmann <christoph.assmann@netresearch.de>
- * @license  http://opensource.org/licenses/osl-3.0.php Open Software License (OSL 3.0)
- * @link     http://www.temando.com/
+ * @package Temando\Shipping\Test\Integration
+ * @author  Christoph Aßmann <christoph.assmann@netresearch.de>
+ * @license https://opensource.org/licenses/osl-3.0.php Open Software License (OSL 3.0)
+ * @link    https://www.temando.com/
  */
 class OrderRepositoryTest extends \PHPUnit\Framework\TestCase
 {
+    protected function tearDown()
+    {
+        /** @var \Magento\Framework\App\CacheInterface $cache */
+        $cache = Bootstrap::getObjectManager()->get(\Magento\Framework\App\CacheInterface::class);
+        $cache->remove(AuthenticationInterface::DATA_KEY_SESSION_TOKEN);
+
+        parent::tearDown();
+    }
+
     /**
      * delegate fixtures creation to separate class.
      */
     public static function createOrderReferenceFixture()
     {
         PlacedOrderFixture::createOrderReferenceFixture();
-    }
-
-    /**
-     * Set valid session token
-     */
-    protected function setUp()
-    {
-        parent::setUp();
-
-        /** @var SessionManagerInterface $adminSession */
-        $adminSession = Bootstrap::getObjectManager()->get(SessionManagerInterface::class);
-        $adminSession->setData(AuthenticationInterface::DATA_KEY_SESSION_TOKEN_EXPIRY, '2038-01-19T03:03:33.000Z');
-    }
-
-    protected function tearDown()
-    {
-        /** @var SessionManagerInterface $adminSession */
-        $adminSession = Bootstrap::getObjectManager()->get(SessionManagerInterface::class);
-        $adminSession->unsetData(AuthenticationInterface::DATA_KEY_SESSION_TOKEN_EXPIRY);
-
-        parent::tearDown();
     }
 
     /**

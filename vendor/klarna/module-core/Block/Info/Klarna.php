@@ -60,7 +60,6 @@ class Klarna extends \Magento\Payment\Block\Info
      * @param MerchantPortal    $merchantPortal
      * @param Resolver          $locale
      * @param DataObjectFactory $dataObjectFactory
-     * @param State             $appState
      * @param array             $data
      */
     public function __construct(
@@ -69,7 +68,6 @@ class Klarna extends \Magento\Payment\Block\Info
         MerchantPortal $merchantPortal,
         Resolver $locale,
         DataObjectFactory $dataObjectFactory,
-        State $appState,
         array $data = []
     ) {
         parent::__construct($context, $data);
@@ -78,7 +76,7 @@ class Klarna extends \Magento\Payment\Block\Info
         $this->locale = $locale;
         $this->merchantPortal = $merchantPortal;
         $this->dataObjectFactory = $dataObjectFactory;
-        $this->appState = $appState;
+        $this->appState = $context->getAppState();
     }
 
     /**

@@ -8,6 +8,7 @@ namespace Magento\FunctionalTestingFramework\DataGenerator\Handlers;
 
 use Magento\FunctionalTestingFramework\DataGenerator\Persist\DataPersistenceHandler;
 use Magento\FunctionalTestingFramework\Exceptions\TestReferenceException;
+use Magento\FunctionalTestingFramework\Exceptions\TestFrameworkException;
 
 class PersistedObjectHandler
 {
@@ -83,6 +84,15 @@ class PersistedObjectHandler
         $retrievedDependentObjects = [];
         foreach ($dependentObjectKeys as $objectKey) {
             $retrievedDependentObjects[] = $this->retrieveEntity($objectKey, $scope);
+        }
+
+        foreach ($overrideFields as $index => $field) {
+            try {
+                $overrideFields[$index] = CredentialStore::getInstance()->decryptAllSecretsInString($field);
+            } catch (TestFrameworkException $e) {
+                //do not rethrow if Credentials are not defined
+                $overrideFields[$index] = $field;
+            }
         }
         
         $retrievedEntity = DataObjectHandler::getInstance()->getObject($entity);

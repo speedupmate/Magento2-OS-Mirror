@@ -1,4 +1,23 @@
 
+5.2.1 / 2019-08-02
+==================
+
+  * MAGE-1175 Remove table and column migration from declarative schema
+  * Some misc checkstyle cleanup
+  * Update PHP versions supported
+
+5.2.0 / 2019-07-02
+==================
+
+  * MAGE-484 Converted to declarative database schema
+
+5.1.1 / 2019-06-10
+==================
+
+  * MAGE-58 Update PHP version supported in composer.json to match Magento
+  * MAGE-250 Change coding standards to use Marketplace version
+  * MAGE-315 Add translations
+
 5.1.0 / 2018-12-06
 ==================
 

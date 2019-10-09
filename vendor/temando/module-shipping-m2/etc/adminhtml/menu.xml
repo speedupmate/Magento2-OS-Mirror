@@ -19,17 +19,19 @@
              title="Carriers"
              module="Temando_Shipping"
              sortOrder="20"
-             resource="Temando_Shipping::carriers"
+             resource="Temando_Shipping::portal"
              parent="Temando_Shipping::shipping"
-             action="temando/configuration_carrier/index"
+             action="temando/configuration_portal/carriers"
+             target="_blank"
         />
         <add id="Temando_Shipping::locations"
              title="Locations"
              module="Temando_Shipping"
              sortOrder="22"
-             resource="Temando_Shipping::locations"
+             resource="Temando_Shipping::portal"
              parent="Temando_Shipping::shipping"
-             action="temando/configuration_location/index"
+             action="temando/configuration_portal/location"
+             target="_blank"
         />
         <add id="Temando_Shipping::packaging"
              title="Packaging"
@@ -71,6 +73,16 @@
              resource="Temando_Shipping::batches"
              parent="Magento_Sales::sales_operation"
              action="temando/batch/index"
+        />
+        <add id="Temando_Shipping::product"
+             title="Attribute Mapping"
+             translate="title"
+             module="Temando_Shipping"
+             sortOrder="40"
+             dependsOnModule="Temando_Shipping"
+             resource="Temando_Shipping::product"
+             parent="Temando_Shipping::shipping"
+             action="temando/attribute_mapping_product/edit"
         />
     </menu>
 </config>

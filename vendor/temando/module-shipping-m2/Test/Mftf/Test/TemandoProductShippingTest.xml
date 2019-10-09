@@ -1,0 +1,753 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<tests xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+       xsi:noNamespaceSchemaLocation="urn:magento:mftf:Test/etc/testSchema.xsd">
+    <test name="TemandoProductShippingWithSimplePrePackaged">
+        <annotations>
+            <title value="Temando Product Shipping With Simple PrePackaged" />
+            <description value="Ship a product with simple prepackaged configuration." />
+            <stories value="Ship a product with simple prepackaged configuration." />
+            <severity value="CRITICAL" />
+            <group value="Temando_Shipping_Product_Shipping" />
+            <testCaseId value="MPI-106" />
+        </annotations>
+        <before>
+            <createData entity="SimpleSubCategory" stepKey="simplecategory" />
+            <createData entity="TemandoSimpleProductNoWeight" stepKey="simpleproduct">
+                <requiredEntity createDataKey="simplecategory" />
+            </createData>
+        </before>
+        <after>
+            <deleteData createDataKey="simpleproduct" stepKey="deleteProduct" />
+            <deleteData createDataKey="simplecategory" stepKey="deleteCategory" />
+            <actionGroup ref="AdminDisableShippingMethod" stepKey="disableShippingMethod" />
+        </after>
+
+        <!-- Start testing -->
+        <!-- Enable shipping -->
+        <actionGroup ref="LoginAsAdmin" stepKey="loginToEnableShipping" />
+        <actionGroup ref="AdminNavigateToShippingConfiguration" stepKey="navigateToShippingConfiguration" />
+        <actionGroup ref="AdminUpdateShippingConfigurationWithSave" stepKey="enableShippingMethod">
+            <argument name="isActive" value="{{TemandoConfigurationData.enableMagentoShipping}}" />
+            <argument name="apiEndpoint" value="{{_CREDS.carriers_temando_session_endpoint}}" />
+            <argument name="apiAccountId" value="{{_CREDS.carriers_temando_account_id}}" />
+            <argument name="apiBearerToken" value="{{_CREDS.carriers_temando_bearer_token}}" />
+        </actionGroup>
+
+        <!-- Navigate to product -->
+        <actionGroup ref="NavigateToProductShippingSection" stepKey="navigateToProductShippingSection">
+            <argument name="product" value="$$simpleproduct$$" />
+        </actionGroup>
+
+        <!-- Set packaging type -->
+        <actionGroup ref="SetPackagingTypePrepackaged" stepKey="setPackagingType">
+            <argument name="product" value="$$simpleproduct$$" />
+        </actionGroup>
+        <actionGroup ref="VerifyPackagingType" stepKey="verifyPackagingType">
+            <argument name="packagingType" value="{{TemandoPackagingType.Prepackaged}}" />
+        </actionGroup>
+        <amOnPage url="admin/admin/auth/logout/" stepKey="logoutFromEnablingShipping" />
+
+        <!-- Place order -->
+        <actionGroup ref="TemandoAddSimpleProductToCart" stepKey="addProductToCart" />
+        <actionGroup ref="GoToCheckoutFromMinicartActionGroup" stepKey="guestGoToCheckoutFromMinicart" />
+        <actionGroup ref="TemandoCompleteShippingDetails" stepKey="fillShippingDetails" />
+        <actionGroup ref="TemandoSelectShippingMethod" stepKey="selectStandardShipping">
+            <argument name="shippingMethod" value="{{TemandoShippingMethodLabels.standard}}" />
+        </actionGroup>
+        <click stepKey="clickNext" selector="{{CheckoutShippingSection.next}}" />
+        <waitForPageLoad stepKey="waitForReviewAndPayments" />
+        <actionGroup ref="CheckoutPlaceOrderActionGroup" stepKey="guestPlaceorder">
+            <argument name="orderNumberMessage" value="CONST.successGuestCheckoutOrderNumberMessage" />
+            <argument name="emailYouMessage" value="CONST.successCheckoutEmailYouMessage" />
+        </actionGroup>
+        <grabTextFrom selector="{{CheckoutSuccessMainSection.orderNumber}}" stepKey="orderNumber" />
+
+        <!-- Verify order -->
+        <actionGroup ref="LoginAsAdmin" stepKey="loginAsAdmin1" />
+        <amOnPage url="{{AdminOrdersPage.url}}" stepKey="onOrdersPage" />
+        <waitForLoadingMaskToDisappear stepKey="waitForLoadingMaskToDisappearOnOrdersPage" />
+        <actionGroup ref="clearFiltersAdminDataGrid" stepKey="clearGridFilter" />
+        <actionGroup ref="TemandoVerifyOrderWasPlaced" stepKey="verifyOrder">
+            <argument name="orderId" value="{$orderNumber}" />
+        </actionGroup>
+
+        <!-- Ship order -->
+        <actionGroup ref="TemandoShipOrderUsingPreFilledPackageDetails" stepKey="shipOrder">
+            <argument name="orderId" value="{$orderNumber}" />
+        </actionGroup>
+    </test>
+
+    <test name="TemandoProductShippingWithSimpleAssigned">
+        <annotations>
+            <title value="Temando Product Shipping With Simple Assigned" />
+            <description value="Ship a product with simple assigned configuration." />
+            <stories value="Ship a product with simple assigned configuration." />
+            <severity value="CRITICAL" />
+            <group value="Temando_Product_Shipping" />
+            <testCaseId value="MPI-106" />
+        </annotations>
+        <before>
+            <createData entity="SimpleSubCategory" stepKey="simplecategory" />
+            <createData entity="TemandoSimpleProductNoWeight" stepKey="simpleproduct">
+                <requiredEntity createDataKey="simplecategory" />
+            </createData>
+        </before>
+        <after>
+            <deleteData createDataKey="simpleproduct" stepKey="deleteProduct" />
+            <deleteData createDataKey="simplecategory" stepKey="deleteCategory" />
+            <actionGroup ref="AdminDisableShippingMethod" stepKey="disableShippingMethod" />
+        </after>
+
+        <!-- Start testing -->
+        <!-- Enable shipping -->
+        <actionGroup ref="LoginAsAdmin" stepKey="loginToEnableShipping" />
+        <actionGroup ref="AdminNavigateToShippingConfiguration" stepKey="navigateToShippingConfiguration" />
+        <actionGroup ref="AdminUpdateShippingConfigurationWithSave" stepKey="enableShippingMethod">
+            <argument name="isActive" value="{{TemandoConfigurationData.enableMagentoShipping}}" />
+            <argument name="apiEndpoint" value="{{_CREDS.carriers_temando_session_endpoint}}" />
+            <argument name="apiAccountId" value="{{_CREDS.carriers_temando_account_id}}" />
+            <argument name="apiBearerToken" value="{{_CREDS.carriers_temando_bearer_token}}" />
+        </actionGroup>
+
+        <!-- Navigate to product -->
+        <actionGroup ref="NavigateToProductShippingSection" stepKey="navigateToProductShippingSection">
+            <argument name="product" value="$$simpleproduct$$" />
+        </actionGroup>
+
+        <!-- Set packaging type -->
+        <actionGroup ref="SetPackagingTypeAssigned" stepKey="setPackagingType">
+            <argument name="product" value="$$simpleproduct$$" />
+        </actionGroup>
+        <actionGroup ref="VerifyPackagingTypeAndPackage" stepKey="verifyPackagingType" />
+        <amOnPage url="admin/admin/auth/logout/" stepKey="logoutFromEnablingShipping" />
+
+        <!-- Place order -->
+        <actionGroup ref="TemandoAddSimpleProductToCart" stepKey="addProductToCart" />
+        <actionGroup ref="GoToCheckoutFromMinicartActionGroup" stepKey="guestGoToCheckoutFromMinicart" />
+        <actionGroup ref="TemandoCompleteShippingDetails" stepKey="fillShippingDetails" />
+        <actionGroup ref="TemandoSelectShippingMethod" stepKey="selectStandardShipping">
+            <argument name="shippingMethod" value="{{TemandoShippingMethodLabels.standard}}" />
+        </actionGroup>
+        <click stepKey="clickNext" selector="{{CheckoutShippingSection.next}}" />
+        <waitForPageLoad stepKey="waitForReviewAndPayments" />
+        <actionGroup ref="CheckoutPlaceOrderActionGroup" stepKey="guestPlaceorder">
+            <argument name="orderNumberMessage" value="CONST.successGuestCheckoutOrderNumberMessage" />
+            <argument name="emailYouMessage" value="CONST.successCheckoutEmailYouMessage" />
+        </actionGroup>
+        <grabTextFrom selector="{{CheckoutSuccessMainSection.orderNumber}}" stepKey="orderNumber" />
+
+        <!-- Verify order -->
+        <actionGroup ref="LoginAsAdmin" stepKey="loginAsAdmin1" />
+        <amOnPage url="{{AdminOrdersPage.url}}" stepKey="onOrdersPage" />
+        <waitForLoadingMaskToDisappear stepKey="waitForLoadingMaskToDisappearOnOrdersPage" />
+        <actionGroup ref="clearFiltersAdminDataGrid" stepKey="clearGridFilter" />
+        <actionGroup ref="TemandoVerifyOrderWasPlaced" stepKey="verifyOrder">
+            <argument name="orderId" value="{$orderNumber}" />
+        </actionGroup>
+
+        <!-- Ship order -->
+        <actionGroup ref="TemandoShipOrderUsingPreFilledPackageDetails" stepKey="shipOrder">
+            <argument name="orderId" value="{$orderNumber}" />
+            <argument name="packageType" value="{{TemandoPackageLabels.SmallBox}}" />
+        </actionGroup>
+    </test>
+
+    <test name="TemandoProductShippingWithConfigurablePrePackaged">
+        <annotations>
+            <title value="Temando Product Shipping With Configurable PrePackaged" />
+            <description value="Ship a product with simple configurable configuration." />
+            <stories value="Ship a product with simple configurable configuration." />
+            <severity value="CRITICAL" />
+            <group value="Temando_Product_Shipping" />
+            <testCaseId value="MPI-106" />
+        </annotations>
+        <before>
+            <!-- Create Default Category -->
+            <createData entity="_defaultCategory" stepKey="createCategory"/>
+
+            <!-- Create an attribute with three options to be used in the first child product -->
+            <createData entity="productAttributeWithTwoOptions" stepKey="createConfigProductAttribute"/>
+            <createData entity="productAttributeOption1" stepKey="createConfigProductAttributeOption1">
+                <requiredEntity createDataKey="createConfigProductAttribute"/>
+            </createData>
+            <createData entity="productAttributeOption2" stepKey="createConfigProductAttributeOption2">
+                <requiredEntity createDataKey="createConfigProductAttribute"/>
+            </createData>
+            <createData entity="productAttributeOption3" stepKey="createConfigProductAttributeOption3">
+                <requiredEntity createDataKey="createConfigProductAttribute"/>
+            </createData>
+
+            <!-- Add the attribute just created to default attribute set -->
+            <createData entity="AddToDefaultSet" stepKey="createConfigAddToAttributeSet">
+                <requiredEntity createDataKey="createConfigProductAttribute"/>
+            </createData>
+
+            <!-- Get the first option of the attribute created -->
+            <getData entity="ProductAttributeOptionGetter" index="1" stepKey="getConfigAttributeOption1">
+                <requiredEntity createDataKey="createConfigProductAttribute"/>
+            </getData>
+
+            <!-- Get the second option of the attribute created -->
+            <getData entity="ProductAttributeOptionGetter" index="2" stepKey="getConfigAttributeOption2">
+                <requiredEntity createDataKey="createConfigProductAttribute"/>
+            </getData>
+
+            <!-- Get the third option of the attribute created -->
+            <getData entity="ProductAttributeOptionGetter" index="3" stepKey="getConfigAttributeOption3">
+                <requiredEntity createDataKey="createConfigProductAttribute"/>
+            </getData>
+
+            <!-- Create Configurable product -->
+            <createData entity="TemandoConfigurableProduct" stepKey="createConfigProduct">
+                <requiredEntity createDataKey="createCategory"/>
+            </createData>
+
+            <!-- Create a simple product and give it the attribute with the first option -->
+            <createData entity="ApiSimpleOne" stepKey="createConfigChildProduct1">
+                <requiredEntity createDataKey="createConfigProductAttribute"/>
+                <requiredEntity createDataKey="getConfigAttributeOption1"/>
+                <field key="price">10.00</field>
+                <field key="weight">1</field>
+            </createData>
+
+            <!--Create a simple product and give it the attribute with the second option -->
+            <createData entity="ApiSimpleTwo" stepKey="createConfigChildProduct2">
+                <requiredEntity createDataKey="createConfigProductAttribute"/>
+                <requiredEntity createDataKey="getConfigAttributeOption2"/>
+                <field key="price">20.00</field>
+                <field key="weight">2</field>
+            </createData>
+
+            <!--Create a simple product and give it the attribute with the Third option -->
+            <createData entity="ApiSimpleTwo" stepKey="createConfigChildProduct3">
+                <requiredEntity createDataKey="createConfigProductAttribute"/>
+                <requiredEntity createDataKey="getConfigAttributeOption3"/>
+                <field key="price">30.00</field>
+                <field key="weight">3</field>
+            </createData>
+
+            <!-- Create the configurable product -->
+            <createData entity="ConfigurableProductThreeOptions" stepKey="createConfigProductOption">
+                <requiredEntity createDataKey="createConfigProduct"/>
+                <requiredEntity createDataKey="createConfigProductAttribute"/>
+                <requiredEntity createDataKey="getConfigAttributeOption1"/>
+                <requiredEntity createDataKey="getConfigAttributeOption2"/>
+                <requiredEntity createDataKey="getConfigAttributeOption3"/>
+            </createData>
+
+            <!-- Add the first simple product to the configurable product -->
+            <createData entity="ConfigurableProductAddChild" stepKey="createConfigProductAddChild1">
+                <requiredEntity createDataKey="createConfigProduct"/>
+                <requiredEntity createDataKey="createConfigChildProduct1"/>
+            </createData>
+
+            <!-- Add the second simple product to the configurable product -->
+            <createData entity="ConfigurableProductAddChild" stepKey="createConfigProductAddChild2">
+                <requiredEntity createDataKey="createConfigProduct"/>
+                <requiredEntity createDataKey="createConfigChildProduct2"/>
+            </createData>
+
+            <!-- Add the third simple product to the configurable product -->
+            <createData entity="ConfigurableProductAddChild" stepKey="createConfigProductAddChild3">
+                <requiredEntity createDataKey="createConfigProduct"/>
+                <requiredEntity createDataKey="createConfigChildProduct3"/>
+            </createData>
+
+            <magentoCLI command="indexer:reindex" stepKey="reindex"/>
+            <magentoCLI command="cache:flush" stepKey="flushCache"/>
+        </before>
+        <after>
+            <deleteData createDataKey="createConfigProduct" stepKey="deleteProduct"/>
+            <deleteData createDataKey="createConfigChildProduct1" stepKey="deleteSimpleProduct1"/>
+            <deleteData createDataKey="createConfigChildProduct2" stepKey="deleteSimpleProduct2"/>
+            <deleteData createDataKey="createConfigChildProduct3" stepKey="deleteSimpleProduct3"/>
+            <deleteData createDataKey="createCategory" stepKey="deleteCategory"/>
+            <deleteData createDataKey="createConfigProductAttribute" stepKey="deleteProductAttribute"/>
+            <actionGroup ref="AdminDisableShippingMethod" stepKey="disableShippingMethod" />
+        </after>
+
+        <!-- Start testing -->
+        <!-- Enable shipping -->
+        <actionGroup ref="LoginAsAdmin" stepKey="loginToEnableShipping" />
+        <actionGroup ref="AdminNavigateToShippingConfiguration" stepKey="navigateToShippingConfiguration" />
+        <actionGroup ref="AdminUpdateShippingConfigurationWithSave" stepKey="enableShippingMethod">
+            <argument name="isActive" value="{{TemandoConfigurationData.enableMagentoShipping}}" />
+            <argument name="apiEndpoint" value="{{_CREDS.carriers_temando_session_endpoint}}" />
+            <argument name="apiAccountId" value="{{_CREDS.carriers_temando_account_id}}" />
+            <argument name="apiBearerToken" value="{{_CREDS.carriers_temando_bearer_token}}" />
+        </actionGroup>
+
+        <!-- Navigate to product -->
+        <actionGroup ref="NavigateToProductShippingSection" stepKey="navigateToProductShippingSection">
+            <argument name="product" value="$$createConfigProduct$$" />
+        </actionGroup>
+
+        <!-- Set packaging type -->
+        <actionGroup ref="SetPackagingTypePrepackaged" stepKey="setPackagingType">
+            <argument name="product" value="$$createConfigProduct$$" />
+        </actionGroup>
+        <actionGroup ref="VerifyPackagingType" stepKey="verifyPackagingType">
+            <argument name="packagingType" value="{{TemandoPackagingType.Prepackaged}}" />
+        </actionGroup>
+        <amOnPage url="admin/admin/auth/logout/" stepKey="logoutFromEnablingShipping" />
+
+        <!-- Place order -->
+        <actionGroup ref="TemandoAddConfigurableProductToCart" stepKey="addProductToCart">
+            <argument name="product" value="$$createConfigProduct$$" />
+            <argument name="category" value="$$createCategory$$" />
+            <argument name="productAttribute" value="$$createConfigProductAttribute.attribute_id$$"/>
+            <argument name="productOption" value="$$getConfigAttributeOption1.label$$"/>
+        </actionGroup>
+        <actionGroup ref="GoToCheckoutFromMinicartActionGroup" stepKey="guestGoToCheckoutFromMinicart" />
+        <actionGroup ref="TemandoCompleteShippingDetails" stepKey="fillShippingDetails" />
+        <actionGroup ref="TemandoSelectShippingMethod" stepKey="selectStandardShipping">
+            <argument name="shippingMethod" value="{{TemandoShippingMethodLabels.standard}}" />
+        </actionGroup>
+        <click stepKey="clickNext" selector="{{CheckoutShippingSection.next}}" />
+        <waitForPageLoad stepKey="waitForReviewAndPayments" />
+        <actionGroup ref="CheckoutPlaceOrderActionGroup" stepKey="guestPlaceorder">
+            <argument name="orderNumberMessage" value="CONST.successGuestCheckoutOrderNumberMessage" />
+            <argument name="emailYouMessage" value="CONST.successCheckoutEmailYouMessage" />
+        </actionGroup>
+        <grabTextFrom selector="{{CheckoutSuccessMainSection.orderNumber}}" stepKey="orderNumber" />
+
+        <!-- Verify order -->
+        <actionGroup ref="LoginAsAdmin" stepKey="loginAsAdmin1" />
+        <amOnPage url="{{AdminOrdersPage.url}}" stepKey="onOrdersPage" />
+        <waitForLoadingMaskToDisappear stepKey="waitForLoadingMaskToDisappearOnOrdersPage" />
+        <actionGroup ref="clearFiltersAdminDataGrid" stepKey="clearGridFilter" />
+        <actionGroup ref="TemandoVerifyOrderWasPlaced" stepKey="verifyOrder">
+            <argument name="orderId" value="{$orderNumber}" />
+        </actionGroup>
+
+        <!-- Ship order -->
+        <actionGroup ref="TemandoShipOrderUsingPreFilledPackageDetails" stepKey="shipOrder">
+            <argument name="orderId" value="{$orderNumber}" />
+        </actionGroup>
+    </test>
+
+    <test name="TemandoProductShippingWithConfigurableAssigned">
+        <annotations>
+            <title value="Temando Product Shipping With Configurable Assigned" />
+            <description value="Ship a product with configurable assigned configuration." />
+            <stories value="Ship a product with configurable assigned configuration." />
+            <severity value="CRITICAL" />
+            <group value="Temando_Product_Shipping" />
+            <testCaseId value="MPI-106" />
+        </annotations>
+        <before>
+            <!-- Create Default Category -->
+            <createData entity="_defaultCategory" stepKey="createCategory"/>
+
+            <!-- Create an attribute with three options to be used in the first child product -->
+            <createData entity="productAttributeWithTwoOptions" stepKey="createConfigProductAttribute"/>
+            <createData entity="productAttributeOption1" stepKey="createConfigProductAttributeOption1">
+                <requiredEntity createDataKey="createConfigProductAttribute"/>
+            </createData>
+            <createData entity="productAttributeOption2" stepKey="createConfigProductAttributeOption2">
+                <requiredEntity createDataKey="createConfigProductAttribute"/>
+            </createData>
+            <createData entity="productAttributeOption3" stepKey="createConfigProductAttributeOption3">
+                <requiredEntity createDataKey="createConfigProductAttribute"/>
+            </createData>
+
+            <!-- Add the attribute just created to default attribute set -->
+            <createData entity="AddToDefaultSet" stepKey="createConfigAddToAttributeSet">
+                <requiredEntity createDataKey="createConfigProductAttribute"/>
+            </createData>
+
+            <!-- Get the first option of the attribute created -->
+            <getData entity="ProductAttributeOptionGetter" index="1" stepKey="getConfigAttributeOption1">
+                <requiredEntity createDataKey="createConfigProductAttribute"/>
+            </getData>
+
+            <!-- Get the second option of the attribute created -->
+            <getData entity="ProductAttributeOptionGetter" index="2" stepKey="getConfigAttributeOption2">
+                <requiredEntity createDataKey="createConfigProductAttribute"/>
+            </getData>
+
+            <!-- Get the third option of the attribute created -->
+            <getData entity="ProductAttributeOptionGetter" index="3" stepKey="getConfigAttributeOption3">
+                <requiredEntity createDataKey="createConfigProductAttribute"/>
+            </getData>
+
+            <!-- Create Configurable product -->
+            <createData entity="TemandoConfigurableProduct" stepKey="createConfigProduct">
+                <requiredEntity createDataKey="createCategory"/>
+            </createData>
+
+            <!-- Create a simple product and give it the attribute with the first option -->
+            <createData entity="ApiSimpleOne" stepKey="createConfigChildProduct1">
+                <requiredEntity createDataKey="createConfigProductAttribute"/>
+                <requiredEntity createDataKey="getConfigAttributeOption1"/>
+                <field key="price">10.00</field>
+                <field key="weight">1</field>
+            </createData>
+
+            <!--Create a simple product and give it the attribute with the second option -->
+            <createData entity="ApiSimpleTwo" stepKey="createConfigChildProduct2">
+                <requiredEntity createDataKey="createConfigProductAttribute"/>
+                <requiredEntity createDataKey="getConfigAttributeOption2"/>
+                <field key="price">20.00</field>
+                <field key="weight">2</field>
+            </createData>
+
+            <!--Create a simple product and give it the attribute with the Third option -->
+            <createData entity="ApiSimpleTwo" stepKey="createConfigChildProduct3">
+                <requiredEntity createDataKey="createConfigProductAttribute"/>
+                <requiredEntity createDataKey="getConfigAttributeOption3"/>
+                <field key="price">30.00</field>
+                <field key="weight">3</field>
+            </createData>
+
+            <!-- Create the configurable product -->
+            <createData entity="ConfigurableProductThreeOptions" stepKey="createConfigProductOption">
+                <requiredEntity createDataKey="createConfigProduct"/>
+                <requiredEntity createDataKey="createConfigProductAttribute"/>
+                <requiredEntity createDataKey="getConfigAttributeOption1"/>
+                <requiredEntity createDataKey="getConfigAttributeOption2"/>
+                <requiredEntity createDataKey="getConfigAttributeOption3"/>
+            </createData>
+
+            <!-- Add the first simple product to the configurable product -->
+            <createData entity="ConfigurableProductAddChild" stepKey="createConfigProductAddChild1">
+                <requiredEntity createDataKey="createConfigProduct"/>
+                <requiredEntity createDataKey="createConfigChildProduct1"/>
+            </createData>
+
+            <!-- Add the second simple product to the configurable product -->
+            <createData entity="ConfigurableProductAddChild" stepKey="createConfigProductAddChild2">
+                <requiredEntity createDataKey="createConfigProduct"/>
+                <requiredEntity createDataKey="createConfigChildProduct2"/>
+            </createData>
+
+            <!-- Add the third simple product to the configurable product -->
+            <createData entity="ConfigurableProductAddChild" stepKey="createConfigProductAddChild3">
+                <requiredEntity createDataKey="createConfigProduct"/>
+                <requiredEntity createDataKey="createConfigChildProduct3"/>
+            </createData>
+
+
+            <magentoCLI command="indexer:reindex" stepKey="reindex"/>
+            <magentoCLI command="cache:flush" stepKey="flushCache"/>
+        </before>
+        <after>
+            <deleteData createDataKey="createConfigProduct" stepKey="deleteProduct"/>
+            <deleteData createDataKey="createConfigChildProduct1" stepKey="deleteSimpleProduct1"/>
+            <deleteData createDataKey="createConfigChildProduct2" stepKey="deleteSimpleProduct2"/>
+            <deleteData createDataKey="createConfigChildProduct3" stepKey="deleteSimpleProduct3"/>
+            <deleteData createDataKey="createCategory" stepKey="deleteCategory"/>
+            <deleteData createDataKey="createConfigProductAttribute" stepKey="deleteProductAttribute"/>
+            <actionGroup ref="AdminDisableShippingMethod" stepKey="disableShippingMethod" />
+        </after>
+
+        <!-- Start testing -->
+        <!-- Enable shipping -->
+        <actionGroup ref="LoginAsAdmin" stepKey="loginToEnableShipping" />
+        <actionGroup ref="AdminNavigateToShippingConfiguration" stepKey="navigateToShippingConfiguration" />
+        <actionGroup ref="AdminUpdateShippingConfigurationWithSave" stepKey="enableShippingMethod">
+            <argument name="isActive" value="{{TemandoConfigurationData.enableMagentoShipping}}" />
+            <argument name="apiEndpoint" value="{{_CREDS.carriers_temando_session_endpoint}}" />
+            <argument name="apiAccountId" value="{{_CREDS.carriers_temando_account_id}}" />
+            <argument name="apiBearerToken" value="{{_CREDS.carriers_temando_bearer_token}}" />
+        </actionGroup>
+
+        <!-- Navigate to product -->
+        <actionGroup ref="NavigateToProductShippingSection" stepKey="navigateToProductShippingSection">
+            <argument name="product" value="$$createConfigProduct$$" />
+        </actionGroup>
+
+        <!-- Set packaging type -->
+        <actionGroup ref="SetPackagingTypeAssigned" stepKey="setPackagingType">
+            <argument name="product" value="$$createConfigProduct$$" />
+        </actionGroup>
+        <actionGroup ref="VerifyPackagingTypeAndPackage" stepKey="verifyPackagingType" />
+        <amOnPage url="admin/admin/auth/logout/" stepKey="logoutFromEnablingShipping" />
+
+        <!-- Place order -->
+        <actionGroup ref="TemandoAddConfigurableProductToCart" stepKey="addProductToCart">
+            <argument name="product" value="$$createConfigProduct$$" />
+            <argument name="category" value="$$createCategory$$" />
+            <argument name="productAttribute" value="$$createConfigProductAttribute.attribute_id$$"/>
+            <argument name="productOption" value="$$getConfigAttributeOption1.label$$"/>
+        </actionGroup>
+        <actionGroup ref="GoToCheckoutFromMinicartActionGroup" stepKey="guestGoToCheckoutFromMinicart" />
+        <actionGroup ref="TemandoCompleteShippingDetails" stepKey="fillShippingDetails" />
+        <actionGroup ref="TemandoSelectShippingMethod" stepKey="selectStandardShipping">
+            <argument name="shippingMethod" value="{{TemandoShippingMethodLabels.standard}}" />
+        </actionGroup>
+        <click stepKey="clickNext" selector="{{CheckoutShippingSection.next}}" />
+        <waitForPageLoad stepKey="waitForReviewAndPayments" />
+        <actionGroup ref="CheckoutPlaceOrderActionGroup" stepKey="guestPlaceorder">
+            <argument name="orderNumberMessage" value="CONST.successGuestCheckoutOrderNumberMessage" />
+            <argument name="emailYouMessage" value="CONST.successCheckoutEmailYouMessage" />
+        </actionGroup>
+        <grabTextFrom selector="{{CheckoutSuccessMainSection.orderNumber}}" stepKey="orderNumber" />
+
+        <!-- Verify order -->
+        <actionGroup ref="LoginAsAdmin" stepKey="loginAsAdmin1" />
+        <amOnPage url="{{AdminOrdersPage.url}}" stepKey="onOrdersPage" />
+        <waitForLoadingMaskToDisappear stepKey="waitForLoadingMaskToDisappearOnOrdersPage" />
+        <actionGroup ref="clearFiltersAdminDataGrid" stepKey="clearGridFilter" />
+        <actionGroup ref="TemandoVerifyOrderWasPlaced" stepKey="verifyOrder">
+            <argument name="orderId" value="{$orderNumber}" />
+        </actionGroup>
+
+        <!-- Ship order -->
+        <actionGroup ref="TemandoShipOrderUsingPreFilledPackageDetails" stepKey="shipOrder">
+            <argument name="orderId" value="{$orderNumber}" />
+            <argument name="packageType" value="{{TemandoPackageLabels.SmallBox}}" />
+        </actionGroup>
+    </test>
+
+    <test name="TemandoProductShippingWithBundledTogether">
+        <annotations>
+            <title value="Temando Product Shipping With Bundled Together" />
+            <description value="Ship a product with bundled together configuration." />
+            <stories value="Ship a product with bundled together configuration." />
+            <severity value="CRITICAL" />
+            <group value="Temando_Product_Shipping" />
+            <testCaseId value="MPI-106" />
+        </annotations>
+        <before>
+            <createData entity="ApiProductWithDescription" stepKey="simple1">
+                <field key="sku">temando-simple-product-1</field>
+                <field key="price">32.33</field>
+                <field key="name">TemandoSimpleProduct1</field>
+                <field key="weight">1</field>
+            </createData>
+            <createData entity="ApiProductWithDescription" stepKey="simple2">
+                <field key="sku">temando-simple-product-2</field>
+                <field key="price">34.35</field>
+                <field key="name">TemandoSimpleProduct2</field>
+                <field key="weight">1</field>
+            </createData>
+
+            <createData entity="TemandoApiBundleTogetherProduct" stepKey="bundleproduct" />
+            <createData entity="TemandoDropDownBundleOption" stepKey="bundleOption1">
+                <requiredEntity createDataKey="bundleproduct" />
+            </createData>
+
+            <createData entity="TemandoDropDownBundleOption" stepKey="bundleOption2">
+                <requiredEntity createDataKey="bundleproduct" />
+            </createData>
+
+            <createData entity="ApiBundleLink" stepKey="createBundleLink1">
+                <requiredEntity createDataKey="bundleproduct" />
+                <requiredEntity createDataKey="bundleOption1" />
+                <requiredEntity createDataKey="simple1" />
+            </createData>
+
+            <createData entity="ApiBundleLink" stepKey="createBundleLink2">
+                <requiredEntity createDataKey="bundleproduct" />
+                <requiredEntity createDataKey="bundleOption2" />
+                <requiredEntity createDataKey="simple2" />
+            </createData>
+
+            <magentoCLI command="indexer:reindex" stepKey="reindex" />
+            <magentoCLI command="cache:flush" stepKey="flushCache" />
+        </before>
+        <after>
+            <deleteData createDataKey="simple1" stepKey="deleteSimple1" />
+            <deleteData createDataKey="simple2" stepKey="deleteSimple2" />
+            <deleteData stepKey="deleteBundle" createDataKey="bundleproduct" />
+            <actionGroup ref="AdminDisableShippingMethod" stepKey="disableShippingMethod" />
+        </after>
+
+        <!-- Start testing -->
+        <!-- Enable shipping -->
+        <actionGroup ref="LoginAsAdmin" stepKey="loginToEnableShipping" />
+        <actionGroup ref="AdminNavigateToShippingConfiguration" stepKey="navigateToShippingConfiguration" />
+        <actionGroup ref="AdminUpdateShippingConfigurationWithSave" stepKey="enableShippingMethod">
+            <argument name="isActive" value="{{TemandoConfigurationData.enableMagentoShipping}}" />
+            <argument name="apiEndpoint" value="{{_CREDS.carriers_temando_session_endpoint}}" />
+            <argument name="apiAccountId" value="{{_CREDS.carriers_temando_account_id}}" />
+            <argument name="apiBearerToken" value="{{_CREDS.carriers_temando_bearer_token}}" />
+        </actionGroup>
+
+        <!-- Navigate to product -->
+        <actionGroup ref="NavigateToProductShippingSection" stepKey="navigateToProductShippingSection">
+            <argument name="product" value="$$bundleproduct$$" />
+        </actionGroup>
+
+        <!-- Set packaging type -->
+        <actionGroup ref="SetBundledProductPackagingTypePrepackaged" stepKey="setPackagingType">
+            <argument name="product" value="$$bundleproduct$$" />
+        </actionGroup>
+        <actionGroup ref="VerifyPackagingType" stepKey="verifyPackagingType">
+            <argument name="packagingType" value="{{TemandoPackagingType.Prepackaged}}" />
+        </actionGroup>
+        <amOnPage url="admin/admin/auth/logout/" stepKey="logoutFromEnablingShipping" />
+
+        <magentoCLI command="indexer:reindex" stepKey="reindex" />
+        <magentoCLI command="cache:flush" stepKey="flushCache" />
+
+        <!-- Place order -->
+        <actionGroup ref="TemandoAddBundleProductToCart" stepKey="addProductToCart">
+            <argument name="product" value="$$bundleproduct$$" />
+        </actionGroup>
+        <actionGroup ref="GoToCheckoutFromMinicartActionGroup" stepKey="guestGoToCheckoutFromMinicart" />
+
+        <actionGroup ref="TemandoCompleteShippingDetails" stepKey="fillShippingDetails" />
+        <actionGroup ref="TemandoSelectShippingMethod" stepKey="selectStandardShipping">
+            <argument name="shippingMethod" value="{{TemandoShippingMethodLabels.standard}}" />
+        </actionGroup>
+
+        <click stepKey="clickNext" selector="{{CheckoutShippingSection.next}}" />
+        <waitForPageLoad stepKey="waitForReviewAndPayments" />
+
+        <actionGroup ref="CheckoutPlaceOrderActionGroup" stepKey="guestPlaceorder">
+            <argument name="orderNumberMessage" value="CONST.successGuestCheckoutOrderNumberMessage" />
+            <argument name="emailYouMessage" value="CONST.successCheckoutEmailYouMessage" />
+        </actionGroup>
+        <grabTextFrom selector="{{CheckoutSuccessMainSection.orderNumber}}" stepKey="orderNumber" />
+
+        <!-- Verify order -->
+        <actionGroup ref="LoginAsAdmin" stepKey="loginAsAdmin1" />
+        <amOnPage url="{{AdminOrdersPage.url}}" stepKey="onOrdersPage" />
+        <waitForLoadingMaskToDisappear stepKey="waitForLoadingMaskToDisappearOnOrdersPage" />
+        <actionGroup ref="clearFiltersAdminDataGrid" stepKey="clearGridFilter" />
+
+        <actionGroup ref="TemandoVerifyOrderWasPlaced" stepKey="verifyOrder">
+            <argument name="orderId" value="{$orderNumber}" />
+        </actionGroup>
+
+        <!-- Ship order -->
+        <actionGroup ref="TemandoShipOrderUsingPreFilledPackageDetails" stepKey="shipOrder">
+            <argument name="orderId" value="{$orderNumber}" />
+        </actionGroup>
+
+        <amOnPage url="admin/admin/auth/logout/" stepKey="amOnLogoutPage" />
+    </test>
+
+    <test name="TemandoProductShippingWithBundledSeparately">
+        <annotations>
+            <title value="Temando Product Shipping With Bundled Separately" />
+            <description value="Ship a product with bundled separately configuration." />
+            <stories value="Ship a product with bundled separately configuration." />
+            <severity value="CRITICAL" />
+            <group value="Temando_Product_Shipping" />
+            <testCaseId value="MPI-106" />
+        </annotations>
+        <before>
+            <createData entity="ApiProductWithDescription" stepKey="simple1">
+                <field key="sku">temando-simple-product-1</field>
+                <field key="price">32.33</field>
+                <field key="name">TemandoSimpleProduct1</field>
+            </createData>
+            <createData entity="ApiProductWithDescription" stepKey="simple2">
+                <field key="sku">temando-simple-product-2</field>
+                <field key="price">34.35</field>
+                <field key="name">TemandoSimpleProduct2</field>
+                <field key="weight">1</field>
+            </createData>
+
+            <createData entity="TemandoApiBundleProduct" stepKey="bundleproduct" />
+            <createData entity="TemandoDropDownBundleOption" stepKey="bundleOption1">
+                <requiredEntity createDataKey="bundleproduct" />
+            </createData>
+
+            <createData entity="TemandoDropDownBundleOption" stepKey="bundleOption2">
+                <requiredEntity createDataKey="bundleproduct" />
+            </createData>
+
+            <createData entity="ApiBundleLink" stepKey="createBundleLink1">
+                <requiredEntity createDataKey="bundleproduct" />
+                <requiredEntity createDataKey="bundleOption1" />
+                <requiredEntity createDataKey="simple1" />
+            </createData>
+
+            <createData entity="ApiBundleLink" stepKey="createBundleLink2">
+                <requiredEntity createDataKey="bundleproduct" />
+                <requiredEntity createDataKey="bundleOption2" />
+                <requiredEntity createDataKey="simple2" />
+            </createData>
+
+            <magentoCLI command="indexer:reindex" stepKey="reindex" />
+            <magentoCLI command="cache:flush" stepKey="flushCache" />
+        </before>
+        <after>
+            <deleteData createDataKey="simple1" stepKey="deleteSimple1" />
+            <deleteData createDataKey="simple2" stepKey="deleteSimple2" />
+            <deleteData stepKey="deleteBundle" createDataKey="bundleproduct" />
+            <actionGroup ref="AdminDisableShippingMethod" stepKey="disableShippingMethod" />
+        </after>
+
+        <!-- Start testing -->
+        <!-- Enable shipping -->
+        <actionGroup ref="LoginAsAdmin" stepKey="loginToEnableShipping" />
+        <actionGroup ref="AdminNavigateToShippingConfiguration" stepKey="navigateToShippingConfiguration" />
+        <actionGroup ref="AdminUpdateShippingConfigurationWithSave" stepKey="enableShippingMethod">
+            <argument name="isActive" value="{{TemandoConfigurationData.enableMagentoShipping}}" />
+            <argument name="apiEndpoint" value="{{_CREDS.carriers_temando_session_endpoint}}" />
+            <argument name="apiAccountId" value="{{_CREDS.carriers_temando_account_id}}" />
+            <argument name="apiBearerToken" value="{{_CREDS.carriers_temando_bearer_token}}" />
+        </actionGroup>
+
+        <!-- Navigate to product 1 -->
+        <actionGroup ref="NavigateToProductShippingSection" stepKey="navigateToProductShippingSectionForProduct1">
+            <argument name="product" value="$$simple1$$" />
+        </actionGroup>
+
+        <!-- Set packaging type -->
+        <actionGroup ref="SetPackagingTypePrepackaged" stepKey="setPackagingTypeForProduct1">
+            <argument name="product" value="$$simple1$$" />
+        </actionGroup>
+        <actionGroup ref="VerifyPackagingType" stepKey="verifyPackagingTypeForProduct1">
+            <argument name="packagingType" value="{{TemandoPackagingType.Prepackaged}}" />
+        </actionGroup>
+
+        <!-- Navigate to product 2 -->
+        <actionGroup ref="NavigateToProductShippingSection" stepKey="navigateToProductShippingSectionForProduct2">
+            <argument name="product" value="$$simple2$$" />
+        </actionGroup>
+
+        <!-- Set packaging type -->
+        <actionGroup ref="SetPackagingTypeAssigned" stepKey="setPackagingTypeForProduct2">
+            <argument name="product" value="$$simple2$$" />
+        </actionGroup>
+        <actionGroup ref="VerifyPackagingTypeAndPackage" stepKey="verifyPackagingTypeForProduct2" />
+        <amOnPage url="admin/admin/auth/logout/" stepKey="logoutFromProductSetup" />
+
+        <magentoCLI command="indexer:reindex" stepKey="reindex" />
+        <magentoCLI command="cache:flush" stepKey="flushCache" />
+
+        <!-- Place order -->
+        <actionGroup ref="TemandoAddBundleProductToCart" stepKey="addProductToCart">
+            <argument name="product" value="$$bundleproduct$$" />
+        </actionGroup>
+        <actionGroup ref="GoToCheckoutFromMinicartActionGroup" stepKey="guestGoToCheckoutFromMinicart" />
+
+        <actionGroup ref="TemandoCompleteShippingDetails" stepKey="fillShippingDetails" />
+        <actionGroup ref="TemandoSelectShippingMethod" stepKey="selectStandardShipping">
+            <argument name="shippingMethod" value="{{TemandoShippingMethodLabels.standard}}" />
+        </actionGroup>
+
+        <click stepKey="clickNext" selector="{{CheckoutShippingSection.next}}" />
+        <waitForPageLoad stepKey="waitForReviewAndPayments" />
+
+        <actionGroup ref="CheckoutPlaceOrderActionGroup" stepKey="guestPlaceorder">
+            <argument name="orderNumberMessage" value="CONST.successGuestCheckoutOrderNumberMessage" />
+            <argument name="emailYouMessage" value="CONST.successCheckoutEmailYouMessage" />
+        </actionGroup>
+        <grabTextFrom selector="{{CheckoutSuccessMainSection.orderNumber}}" stepKey="orderNumber" />
+
+        <!-- Verify order -->
+        <actionGroup ref="LoginAsAdmin" stepKey="loginAsAdmin1" />
+        <amOnPage url="{{AdminOrdersPage.url}}" stepKey="onOrdersPage" />
+        <waitForLoadingMaskToDisappear stepKey="waitForLoadingMaskToDisappearOnOrdersPage" />
+        <actionGroup ref="clearFiltersAdminDataGrid" stepKey="clearGridFilter" />
+
+        <actionGroup ref="TemandoVerifyOrderWasPlaced" stepKey="verifyOrder">
+            <argument name="orderId" value="{$orderNumber}" />
+        </actionGroup>
+
+        <!-- Ship order -->
+        <actionGroup ref="TemandoShipOrderUsingPreFilledPackageDetails" stepKey="shipOrder">
+            <argument name="orderId" value="{$orderNumber}" />
+        </actionGroup>
+
+        <amOnPage url="admin/admin/auth/logout/" stepKey="amOnLogoutPage" />
+    </test>
+</tests>

@@ -9,8 +9,14 @@
         <attribute code="vertex_customer_code" type="string"/>
     </extension_attributes>
     <extension_attributes for="Magento\Tax\Api\Data\QuoteDetailsItemInterface">
+        <!-- @api For all QuoteDetailsItemInterface extension attributes -->
         <attribute code="vertex_product_code" type="string"/>
         <attribute code="vertex_is_configurable" type="bool"/>
+        <attribute code="store_id" type="string"/>
+        <attribute code="quote_id" type="string"/>
+        <attribute code="product_id" type="string"/>
+        <attribute code="quote_item_id" type="string"/>
+        <attribute code="customer_id" type="string"/>
     </extension_attributes>
     <extension_attributes for="Magento\Sales\Api\Data\OrderItemInterface">
         <attribute code="vertex_tax_codes" type="string[]"/>
@@ -34,6 +40,10 @@
     </extension_attributes>
     <extension_attributes for="Magento\Quote\Api\Data\TotalSegmentInterface">
         <attribute code="vertex_tax_calculation_messages" type="string[]"/>
+    </extension_attributes>
+
+    <extension_attributes for="Magento\Catalog\Api\Data\ProductCustomOptionInterface">
+        <attribute code="vertex_flex_field" type="string"/>
     </extension_attributes>
 
     <!-- Passes data to InvoiceProcessors during invoice save event -->

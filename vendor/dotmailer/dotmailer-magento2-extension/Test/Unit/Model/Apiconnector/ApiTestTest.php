@@ -19,6 +19,17 @@ class ApiTestTest extends TestCase
      */
     private $configInterfaceMock;
 
+    protected function setUp()
+    {
+        $this->helperMock = $this->createMock(Data::class);
+        $this->configInterfaceMock = $this->createMock(ReinitableConfigInterface::class);
+
+        $this->apiTest = new Test(
+            $this->helperMock,
+            $this->configInterfaceMock
+        );
+    }
+
     public function testValidDotmailerEndpoint()
     {
         $validEndpoint = 'https://api.dotmailer.com';
@@ -93,16 +104,5 @@ class ApiTestTest extends TestCase
         $invalidEndpoint = 'https://r1-api.dotmailer.com/';
         $this->expectException(\Magento\Framework\Exception\LocalizedException::class);
         $this->apiTest->validateEndpoint($invalidEndpoint);
-    }
-
-    protected function setUp()
-    {
-        $this->helperMock = $this->createMock(Data::class);
-        $this->configInterfaceMock = $this->createMock(ReinitableConfigInterface::class);
-
-        $this->apiTest = new Test(
-            $this->helperMock,
-            $this->configInterfaceMock
-        );
     }
 }

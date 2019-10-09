@@ -12,13 +12,8 @@ if (!empty($_POST['token']) && !empty($_POST['command'])) {
     $tokenModel = $magentoObjectManager->get(\Magento\Integration\Model\Oauth\Token::class);
 
     $tokenPassedIn = urldecode($_POST['token']);
-    $command = urldecode($_POST['command']);
-
-    if (!empty($_POST['arguments'])) {
-        $arguments = urldecode($_POST['arguments']);
-    } else {
-        $arguments = null;
-    }
+    $command = str_replace([';', '&', '|'], '', urldecode($_POST['command']));
+    $arguments = str_replace([';', '&', '|'], '', urldecode($_POST['arguments']));
 
     // Token returned will be null if the token we passed in is invalid
     $tokenFromMagento = $tokenModel->loadByToken($tokenPassedIn)->getToken();

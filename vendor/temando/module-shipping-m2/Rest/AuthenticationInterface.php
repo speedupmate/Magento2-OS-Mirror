@@ -4,16 +4,20 @@
  */
 namespace Temando\Shipping\Rest;
 
+use Magento\Framework\Exception\AuthenticationException;
+use Magento\Framework\Exception\InputException;
+
 /**
  * Temando Rest Authentication Service
  *
- * @package  Temando\Shipping\Rest
- * @author   Christoph Aßmann <christoph.assmann@netresearch.de>
- * @license  http://opensource.org/licenses/osl-3.0.php Open Software License (OSL 3.0)
- * @link     http://www.temando.com/
+ * @package Temando\Shipping\Rest
+ * @author  Christoph Aßmann <christoph.assmann@netresearch.de>
+ * @license https://opensource.org/licenses/osl-3.0.php Open Software License (OSL 3.0)
+ * @link    https://www.temando.com/
  */
 interface AuthenticationInterface
 {
+    const CACHE_KEY_SESSION_TOKEN = 'temando_api_token';
     const DATA_KEY_SESSION_TOKEN = 'temando_api_token';
     const DATA_KEY_SESSION_TOKEN_EXPIRY = 'temando_api_token_expiry';
 
@@ -34,6 +38,8 @@ interface AuthenticationInterface
      * @param string $accountId
      * @param string $bearerToken
      * @return void
+     * @throws AuthenticationException
+     * @throws InputException
      */
     public function connect($accountId, $bearerToken);
 

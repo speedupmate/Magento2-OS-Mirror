@@ -11,6 +11,9 @@ use Temando\Shipping\Rest\Response\DataObject\Location;
 /**
  * Map API data to application data object
  *
+ * The location response mapper is responsible for transforming the merchant's
+ * locations, i.e. stores, warehouses, etc.
+ *
  * @package  Temando\Shipping\Rest
  * @author   Sebastian Ertner <sebastian.ertner@netresearch.de>
  * @author   Christoph Aßmann <christoph.assmann@netresearch.de>
@@ -26,6 +29,7 @@ class LocationResponseMapper
 
     /**
      * LocationResponseMapper constructor.
+     *
      * @param LocationInterfaceFactory $locationFactory
      */
     public function __construct(LocationInterfaceFactory $locationFactory)
@@ -34,10 +38,12 @@ class LocationResponseMapper
     }
 
     /**
+     * Map a merchant location.
+     *
      * @param Location $apiLocation
      * @return LocationInterface
      */
-    public function map(Location $apiLocation)
+    public function map(Location $apiLocation): LocationInterface
     {
         $location = $this->locationFactory->create(['data' => [
             LocationInterface::LOCATION_ID => $apiLocation->getId(),

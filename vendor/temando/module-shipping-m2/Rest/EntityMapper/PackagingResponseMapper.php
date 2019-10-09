@@ -4,6 +4,7 @@
  */
 namespace Temando\Shipping\Rest\EntityMapper;
 
+use Magento\Framework\Exception\LocalizedException;
 use Temando\Shipping\Model\PackagingInterface;
 use Temando\Shipping\Model\PackagingInterfaceFactory;
 use Temando\Shipping\Rest\Response\DataObject\Container;
@@ -17,7 +18,7 @@ use Temando\Shipping\Rest\Response\DataObject\Container;
  * @license  http://opensource.org/licenses/osl-3.0.php Open Software License (OSL 3.0)
  * @link     http://www.temando.com/
  */
-class PackagingResponseMapper
+class PackagingResponseMapper implements PointerAwareInterface
 {
     /**
      * @var PackagingInterfaceFactory
@@ -55,5 +56,25 @@ class PackagingResponseMapper
         ]]);
 
         return $packaging;
+    }
+
+    /**
+     * Obtain the JSON pointer to a platform property that corresponds to a local entity property.
+     *
+     * @param string $property The local property name
+     * @return string The platform property pointer
+     * @throws LocalizedException
+     */
+    public function getPath($property)
+    {
+        $pathMap = [
+            'provider' => '/provider',
+        ];
+
+        if (!isset($pathMap[$property])) {
+            throw new LocalizedException(__('Filter field %1 is not supported by the API.', $property));
+        }
+
+        return $pathMap[$property];
     }
 }

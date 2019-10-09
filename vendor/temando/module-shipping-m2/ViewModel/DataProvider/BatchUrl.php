@@ -90,17 +90,13 @@ class BatchUrl implements EntityUrlInterface
     }
 
     /**
-     * @param mixed[] $data
-     * @param string $batchId
+     * @param mixed[] $data Item data to pick entity identifier.
      * @return string
      */
-    public function getPrintAllPackingSlips(array $data, string $batchId): string
+    public function getPrintActionUrl(array $data): string
     {
-        $ids = implode(",", $data);
-
-        return $this->urlBuilder->getUrl(
-            'temando/batch/printpackageslips',
-            ['order_ids' => $ids, 'batch_id' => $batchId]
-        );
+        return $this->urlBuilder->getUrl('temando/batch/print', [
+            'shipment_ids' => implode(',', $data['shipment_ids']),
+        ]);
     }
 }

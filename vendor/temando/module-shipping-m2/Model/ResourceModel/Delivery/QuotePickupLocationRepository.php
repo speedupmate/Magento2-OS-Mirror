@@ -56,6 +56,7 @@ class QuotePickupLocationRepository implements QuotePickupLocationRepositoryInte
 
     /**
      * PickupLocationRepository constructor.
+     *
      * @param PickupLocationResource $resource
      * @param SearchCriteriaBuilder $searchCriteriaBuilder
      * @param QuotePickupLocationInterfaceFactory $pickupLocationFactory
@@ -83,7 +84,7 @@ class QuotePickupLocationRepository implements QuotePickupLocationRepositoryInte
      * @return QuotePickupLocationInterface
      * @throws NoSuchEntityException
      */
-    public function get($entityId)
+    public function get(int $entityId): QuotePickupLocationInterface
     {
         /** @var QuotePickupLocation $pickupLocation */
         $pickupLocation = $this->pickupLocationFactory->create();
@@ -106,7 +107,7 @@ class QuotePickupLocationRepository implements QuotePickupLocationRepositoryInte
      * @return QuotePickupLocationInterface
      * @throws NoSuchEntityException
      */
-    public function getSelected($addressId)
+    public function getSelected(int $addressId): QuotePickupLocationInterface
     {
         $this->searchCriteriaBuilder->addFilter(
             QuotePickupLocationInterface::RECIPIENT_ADDRESS_ID,
@@ -141,7 +142,7 @@ class QuotePickupLocationRepository implements QuotePickupLocationRepositoryInte
      * @return QuotePickupLocationInterface
      * @throws CouldNotSaveException
      */
-    public function save(QuotePickupLocationInterface $pickupLocation)
+    public function save(QuotePickupLocationInterface $pickupLocation): QuotePickupLocationInterface
     {
         try {
             /** @var QuotePickupLocation $pickupLocation */
@@ -160,7 +161,7 @@ class QuotePickupLocationRepository implements QuotePickupLocationRepositoryInte
      * @return bool
      * @throws CouldNotDeleteException
      */
-    public function delete(QuotePickupLocationInterface $pickupLocation)
+    public function delete(QuotePickupLocationInterface $pickupLocation): bool
     {
         try {
             /** @var QuotePickupLocation $pickupLocation */
@@ -178,7 +179,7 @@ class QuotePickupLocationRepository implements QuotePickupLocationRepositoryInte
      * @param SearchCriteriaInterface $criteria
      * @return PickupLocationSearchResultInterface|PickupLocationSearchResult
      */
-    public function getList(SearchCriteriaInterface $criteria)
+    public function getList(SearchCriteriaInterface $criteria): PickupLocationSearchResultInterface
     {
         /** @var PickupLocationSearchResult $searchResult */
         $searchResult = $this->pickupLocationSearchResultFactory->create();

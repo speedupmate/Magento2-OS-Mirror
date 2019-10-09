@@ -14,7 +14,7 @@ use Temando\Shipping\Api\Data\Delivery\CollectionPointSearchRequestInterface;
 use Temando\Shipping\Api\Data\Delivery\CollectionPointSearchRequestInterfaceFactory;
 use Temando\Shipping\Api\Data\Delivery\CollectionPointSearchResultInterface;
 use Temando\Shipping\Api\Data\Delivery\QuoteCollectionPointInterface;
-use Temando\Shipping\Model\Delivery\QuoteCollectionPoint;
+use Temando\Shipping\Model\ResourceModel\Delivery\CollectionPointMassAction;
 use Temando\Shipping\Model\ResourceModel\Repository\CollectionPointSearchRepositoryInterface;
 use Temando\Shipping\Model\ResourceModel\Repository\QuoteCollectionPointRepositoryInterface;
 
@@ -60,6 +60,11 @@ class CollectionPointManagement
     private $sortOrderBuilder;
 
     /**
+     * @var CollectionPointMassAction
+     */
+    private $massAction;
+
+    /**
      * CollectionPointManagement constructor.
      *
      * @param CollectionPointSearchRepositoryInterface $searchRequestRepository
@@ -68,6 +73,7 @@ class CollectionPointManagement
      * @param SearchCriteriaBuilder $searchCriteriaBuilder
      * @param FilterBuilder $filterBuilder
      * @param SortOrderBuilder $sortOrderBuilder
+     * @param CollectionPointMassAction $massAction
      */
     public function __construct(
         CollectionPointSearchRepositoryInterface $searchRequestRepository,
@@ -75,7 +81,8 @@ class CollectionPointManagement
         QuoteCollectionPointRepositoryInterface $collectionPointRepository,
         SearchCriteriaBuilder $searchCriteriaBuilder,
         FilterBuilder $filterBuilder,
-        SortOrderBuilder $sortOrderBuilder
+        SortOrderBuilder $sortOrderBuilder,
+        CollectionPointMassAction $massAction
     ) {
         $this->searchRequestRepository = $searchRequestRepository;
         $this->searchRequestFactory = $searchRequestFactory;
@@ -83,6 +90,7 @@ class CollectionPointManagement
         $this->searchCriteriaBuilder = $searchCriteriaBuilder;
         $this->filterBuilder = $filterBuilder;
         $this->sortOrderBuilder = $sortOrderBuilder;
+        $this->massAction = $massAction;
     }
 
     /**
@@ -194,17 +202,7 @@ class CollectionPointManagement
         $this->searchCriteriaBuilder->addFilters([$filter]);
         $criteria = $this->searchCriteriaBuilder->create();
 
-        try {
-            $searchResult = $this->collectionPointRepository->getList($criteria);
-            $collectionPoints = $searchResult->getItems();
-            array_walk($collectionPoints, function (QuoteCollectionPointInterface $collectionPoint) {
-                $this->collectionPointRepository->delete($collectionPoint);
-            });
-        } catch (LocalizedException $exception) {
-            throw new CouldNotDeleteException(__('Unable to delete collection points.'), $exception);
-        }
-
-        return $searchResult;
+        return $this->massAction->deleteCollectionPoints($addressId, $criteria);
     }
 
     /**
@@ -217,21 +215,6 @@ class CollectionPointManagement
      */
     public function selectCollectionPoint(int $addressId, string $collectionPointId): bool
     {
-        $collectionPoints = $this->getCollectionPoints($addressId);
-
-        try {
-            $updateSelection = function (QuoteCollectionPointInterface $collectionPoint) use ($collectionPointId) {
-                $isSelected = ($collectionPointId == $collectionPoint->getCollectionPointId());
-                /** @var QuoteCollectionPoint $collectionPoint */
-                $collectionPoint->setData(QuoteCollectionPointInterface::SELECTED, $isSelected);
-                $this->collectionPointRepository->save($collectionPoint);
-            };
-
-            array_walk($collectionPoints, $updateSelection);
-        } catch (LocalizedException $exception) {
-            throw new CouldNotSaveException(__('Unable to select collection point.'), $exception);
-        }
-
-        return true;
+        return $this->massAction->selectCollectionPoint($addressId, $collectionPointId);
     }
 }

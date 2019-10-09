@@ -70,6 +70,10 @@ class PickupLocationSearchProcessor implements RatesProcessorInterface
         // persist pickup locations for a given search request
         $shippingAddressId = $searchRequest->getShippingAddressId();
         $pickupLocations = $responseType->getPickupLocations();
+        if (empty($pickupLocations)) {
+            // no qualification performed or no pickup locations in response.
+            return [];
+        }
 
         /** @var QuotePickupLocation $pickupLocation */
         foreach ($pickupLocations as $pickupLocation) {

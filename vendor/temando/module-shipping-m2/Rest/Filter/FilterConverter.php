@@ -154,7 +154,7 @@ class FilterConverter
      * @return PointerFilterList
      * @throws LocalizedException
      */
-    public function convert(array $filterGroups, array $filterCallbacks)
+    public function convert(array $filterGroups, array $filterCallbacks = [])
     {
         $apiFilters = [];
 

@@ -1,0 +1,30 @@
+<?xml version="1.0"?>
+<!--
+/**
+ * Refer to LICENSE.txt distributed with the Temando Shipping module for notice of license
+ */
+-->
+<page xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="urn:magento:framework:View/Layout/etc/page_configuration.xsd">
+    <body>
+        <referenceBlock name="page.actions.toolbar">
+            <block class="Temando\Shipping\Block\Adminhtml\PageAction\AttributeMappingSaveButton" name="product_attribute_mapping_btn_save" />
+        </referenceBlock>
+        <referenceContainer name="content">
+            <block class="Magento\Backend\Block\Template" name="product_attribute_mapping" template="Temando_Shipping::attribute/mapping/product.phtml">
+                <arguments>
+                    <argument name="mappingViewModel" xsi:type="object">Temando\Shipping\ViewModel\Attribute\Mapping\Product</argument>
+                    <argument name="jsLayout" xsi:type="array">
+                        <item name="components" xsi:type="array">
+                            <item name="product-attribute-mapping" xsi:type="array">
+                                <item name="component" xsi:type="string">Temando_Shipping/js/view/attribute/mapping/product</item>
+                                <item name="config" xsi:type="array">
+                                    <item name="template" xsi:type="string">Temando_Shipping/attribute/mapping/product</item>
+                                </item>
+                            </item>
+                        </item>
+                    </argument>
+                </arguments>
+            </block>
+        </referenceContainer>
+    </body>
+</page>

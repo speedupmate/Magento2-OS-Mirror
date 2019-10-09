@@ -28,6 +28,14 @@
         <severity>10</severity>
         <type>error</type>
     </rule>
+    <rule ref="Magento2.Classes.DiscouragedDependencies">
+        <severity>10</severity>
+        <type>error</type>
+        <exclude-pattern>*/_files/*</exclude-pattern>
+        <exclude-pattern>*/Fixtures/*</exclude-pattern>
+        <exclude-pattern>*/Test/*</exclude-pattern>
+        <exclude-pattern>*Test.php</exclude-pattern>
+    </rule>
     <rule ref="Magento2.Legacy.MageEntity">
         <severity>10</severity>
         <type>error</type>
@@ -52,17 +60,27 @@
         <severity>10</severity>
         <type>error</type>
         <exclude-pattern>*/_files/*</exclude-pattern>
+        <exclude-pattern>*/Fixtures/*</exclude-pattern>
+        <exclude-pattern>*/lib/*</exclude-pattern>
         <exclude-pattern>*/Test/*</exclude-pattern>
         <exclude-pattern>*Test.php</exclude-pattern>
+    </rule>
+    <rule ref="Magento2.Security.InsecureFunction">
+        <severity>10</severity>
+        <type>error</type>
     </rule>
     <rule ref="Magento2.Security.LanguageConstruct">
         <severity>10</severity>
         <type>error</type>
     </rule>
+    <rule ref="Magento2.Security.LanguageConstruct.DirectOutput">
+        <exclude-pattern>*.phtml</exclude-pattern>
+    </rule>
     <rule ref="Magento2.Security.Superglobal.SuperglobalUsageError">
         <severity>10</severity>
         <type>error</type>
         <exclude-pattern>*/_files/*</exclude-pattern>
+        <exclude-pattern>*/Fixtures/*</exclude-pattern>
         <exclude-pattern>*/lib/*</exclude-pattern>
         <exclude-pattern>*/Test/*</exclude-pattern>
         <exclude-pattern>*Test.php</exclude-pattern>
@@ -90,14 +108,11 @@
         <severity>9</severity>
         <type>warning</type>
     </rule>
-    <rule ref="Magento2.Security.InsecureFunction">
-        <severity>9</severity>
-        <type>warning</type>
-    </rule>
     <rule ref="Magento2.Security.Superglobal.SuperglobalUsageWarning">
         <severity>9</severity>
         <type>warning</type>
         <exclude-pattern>*/_files/*</exclude-pattern>
+        <exclude-pattern>*/Fixtures/*</exclude-pattern>
         <exclude-pattern>*/lib/*</exclude-pattern>
         <exclude-pattern>*/Test/*</exclude-pattern>
         <exclude-pattern>*Test.php</exclude-pattern>
@@ -111,6 +126,7 @@
         <severity>9</severity>
         <type>warning</type>
         <exclude-pattern>*/_files/*</exclude-pattern>
+        <exclude-pattern>*/Fixtures/*</exclude-pattern>
         <exclude-pattern>*/lib/*</exclude-pattern>
         <exclude-pattern>*/Test/*</exclude-pattern>
         <exclude-pattern>*Test.php</exclude-pattern>
@@ -129,6 +145,7 @@
         <severity>8</severity>
         <type>warning</type>
         <exclude-pattern>*/_files/*</exclude-pattern>
+        <exclude-pattern>*/Fixtures/*</exclude-pattern>
         <exclude-pattern>*/Test/*</exclude-pattern>
         <exclude-pattern>*Test.php</exclude-pattern>
     </rule>
@@ -140,6 +157,7 @@
         <severity>8</severity>
         <type>warning</type>
         <exclude-pattern>*/_files/*</exclude-pattern>
+        <exclude-pattern>*/Fixtures/*</exclude-pattern>
         <exclude-pattern>*/lib/*</exclude-pattern>
         <exclude-pattern>*/Test/*</exclude-pattern>
         <exclude-pattern>*Test.php</exclude-pattern>
@@ -148,6 +166,7 @@
         <severity>8</severity>
         <type>warning</type>
         <exclude-pattern>*/_files/*</exclude-pattern>
+        <exclude-pattern>*/Fixtures/*</exclude-pattern>
         <exclude-pattern>*/lib/*</exclude-pattern>
         <exclude-pattern>*/Setup/*</exclude-pattern>
         <exclude-pattern>*/Test/*</exclude-pattern>
@@ -156,6 +175,7 @@
     <rule ref="Magento2.Files.LineLength">
         <severity>8</severity>
         <type>warning</type>
+        <exclude-pattern>*.phtml</exclude-pattern>
     </rule>
     <rule ref="Magento2.NamingConvention.InterfaceName">
         <severity>8</severity>
@@ -219,14 +239,23 @@
         <severity>7</severity>
         <type>warning</type>
         <exclude-pattern>*/_files/*</exclude-pattern>
+        <exclude-pattern>*/Fixtures/*</exclude-pattern>
         <exclude-pattern>*/Test/*</exclude-pattern>
         <exclude-pattern>*Test.php</exclude-pattern>
     </rule>
     <rule ref="Magento2.PHP.LiteralNamespaces">
         <severity>7</severity>
         <type>warning</type>
+        <exclude-pattern>*/_files/*</exclude-pattern>
+        <exclude-pattern>*/Fixtures/*</exclude-pattern>
+        <exclude-pattern>*/Test/*</exclude-pattern>
+        <exclude-pattern>*Test.php</exclude-pattern>
     </rule>
     <rule ref="Magento2.PHP.Var">
+        <severity>7</severity>
+        <type>warning</type>
+    </rule>
+    <rule ref="Magento2.Performance.ForeachArrayMerge">
         <severity>7</severity>
         <type>warning</type>
     </rule>
@@ -242,12 +271,14 @@
         <severity>7</severity>
         <type>warning</type>
         <exclude-pattern>*/_files/*</exclude-pattern>
+        <exclude-pattern>*/Fixtures/*</exclude-pattern>
         <exclude-pattern>*/Test/*</exclude-pattern>
         <exclude-pattern>*Test.php</exclude-pattern>
     </rule>
     <rule ref="Squiz.Operators.IncrementDecrementUsage">
         <severity>7</severity>
         <type>warning</type>
+        <exclude-pattern>*.phtml</exclude-pattern>
     </rule>
     <rule ref="Squiz.Operators.ValidLogicalOperators">
         <severity>7</severity>
@@ -257,6 +288,7 @@
         <severity>7</severity>
         <type>warning</type>
         <exclude-pattern>*/_files/*</exclude-pattern>
+        <exclude-pattern>*/Fixtures/*</exclude-pattern>
         <exclude-pattern>*/Test/*</exclude-pattern>
         <exclude-pattern>*Test.php</exclude-pattern>
     </rule>
@@ -315,11 +347,13 @@
     <rule ref="PEAR.ControlStructures.ControlSignature">
         <severity>6</severity>
         <type>warning</type>
+        <exclude-pattern>*.phtml</exclude-pattern>
     </rule>
     <rule ref="PSR1.Files.SideEffects">
         <severity>6</severity>
         <type>warning</type>
         <exclude-pattern>*/_files/*</exclude-pattern>
+        <exclude-pattern>*/Fixtures/*</exclude-pattern>
         <exclude-pattern>*/Test/*</exclude-pattern>
         <exclude-pattern>*Test.php</exclude-pattern>
     </rule>
@@ -387,6 +421,9 @@
         <severity>6</severity>
         <type>warning</type>
     </rule>
+    <rule ref="Squiz.ControlStructures.ControlSignature.NewlineAfterOpenBrace">
+        <exclude-pattern>*.phtml</exclude-pattern>
+    </rule>
     <rule ref="Squiz.ControlStructures.ForEachLoopDeclaration">
         <severity>6</severity>
         <type>warning</type>
@@ -435,6 +472,7 @@
     <rule ref="Squiz.WhiteSpace.ScopeClosingBrace">
         <severity>6</severity>
         <type>warning</type>
+        <exclude-pattern>*.phtml</exclude-pattern>
     </rule>
     <rule ref="Squiz.WhiteSpace.ScopeKeywordSpacing">
         <severity>6</severity>
@@ -461,13 +499,6 @@
     <rule ref="Squiz.Commenting.DocCommentAlignment">
         <severity>5</severity>
         <type>warning</type>
-    </rule>
-    <rule ref="Squiz.Commenting.ClassComment">
-        <severity>5</severity>
-        <type>warning</type>
-    </rule>
-    <rule ref="Squiz.Commenting.ClassComment.TagNotAllowed">
-        <severity>0</severity>
     </rule>
     <rule ref="Squiz.PHP.CommentedOutCode">
         <properties>

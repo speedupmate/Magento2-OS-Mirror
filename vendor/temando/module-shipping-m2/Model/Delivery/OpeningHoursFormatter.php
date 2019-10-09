@@ -200,6 +200,10 @@ class OpeningHoursFormatter
             $dateFrom = $this->date->date($opening['from'], $locale, false, true);
             $dateTo = $this->date->date($opening['to'], $locale, false, true);
 
+            $timeZone = preg_match('/([\-\+]{1}[0-9]{2}:[0-9]{2})$/', $opening['from'], $matches) ?
+                sprintf('GMT%s', array_pop($matches)) :
+                'UTC';
+
             $diff = $today->diff($dateFrom);
             if (!$diff->invert && ($diff->days > $offset)) {
                 // do not display any specifics beginning more than $offset days in the future
@@ -222,7 +226,7 @@ class OpeningHoursFormatter
                 \IntlDateFormatter::MEDIUM,
                 \IntlDateFormatter::NONE,
                 $locale,
-                'UTC'
+                $timeZone
             );
             // end date, date part
             $dateToDate = $this->date->formatDateTime(
@@ -230,7 +234,7 @@ class OpeningHoursFormatter
                 \IntlDateFormatter::MEDIUM,
                 \IntlDateFormatter::NONE,
                 $locale,
-                'UTC'
+                $timeZone
             );
 
             // start date, time part
@@ -239,7 +243,7 @@ class OpeningHoursFormatter
                 \IntlDateFormatter::NONE,
                 \IntlDateFormatter::SHORT,
                 $locale,
-                'UTC'
+                $timeZone
             );
             // end date, time part
             $dateToTime = $timeOpens = $this->date->formatDateTime(
@@ -247,7 +251,7 @@ class OpeningHoursFormatter
                 \IntlDateFormatter::NONE,
                 \IntlDateFormatter::SHORT,
                 $locale,
-                'UTC'
+                $timeZone
             );
 
             $dateFromDate = trim(str_replace($dateFromYear, '', $dateFromDate), ' ,');

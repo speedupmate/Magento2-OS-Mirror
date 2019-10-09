@@ -41,4 +41,52 @@ class CustomerMapper implements CustomerMapperInterface
     {
         return $this->parentMapper->map($object);
     }
+
+    /**
+     * @inheritDoc
+     */
+    public function getCustomerTaxClassNameMaxLength()
+    {
+        return $this->parentMapper->getCustomerTaxClassNameMaxLength();
+    }
+
+    /**
+     * @inheritDoc
+     */
+    public function getCustomerTaxClassNameMinLength()
+    {
+        return $this->parentMapper->getCustomerTaxClassNameMinLength();
+    }
+
+    /**
+     * @inheritDoc
+     */
+    public function validateCustomerTaxClassName($fieldName)
+    {
+        return $this->parentMapper->validateCustomerTaxClassName($fieldName);
+    }
+
+    /**
+     * @inheritDoc
+     */
+    public function getCustomerCodeMaxLength()
+    {
+        return $this->parentMapper->getCustomerCodeMaxLength();
+    }
+
+    /**
+     * @inheritDoc
+     */
+    public function getCustomerCodeMinLength()
+    {
+        return $this->parentMapper->getCustomerTaxClassNameMinLength();
+    }
+
+    /**
+     * @inheritDoc
+     */
+    public function validateCustomerCode($fieldValue)
+    {
+        return $this->parentMapper->validateCustomerCode($fieldValue);
+    }
 }

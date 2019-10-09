@@ -42,12 +42,10 @@ class ValidateEnvPlaceholdersPassTest extends TestCase
         $this->assertSame($expected, $container->resolveEnvPlaceholders($ext->getConfig()));
     }
 
-    /**
-     * @expectedException \Symfony\Component\Config\Definition\Exception\InvalidConfigurationException
-     * @expectedExceptionMessage Invalid configuration for path "env_extension.string_node": "fail" is not a valid string
-     */
     public function testDefaultEnvIsValidatedInConfig()
     {
+        $this->expectException('Symfony\Component\Config\Definition\Exception\InvalidConfigurationException');
+        $this->expectExceptionMessage('Invalid configuration for path "env_extension.string_node": "fail" is not a valid string');
         $container = new ContainerBuilder();
         $container->setParameter('env(STRING)', 'fail');
         $container->registerExtension($ext = new EnvExtension());
@@ -76,12 +74,10 @@ class ValidateEnvPlaceholdersPassTest extends TestCase
         $this->assertSame($expected, $container->resolveEnvPlaceholders($ext->getConfig()));
     }
 
-    /**
-     * @expectedException \Symfony\Component\Config\Definition\Exception\InvalidTypeException
-     * @expectedExceptionMessage Invalid type for path "env_extension.bool_node". Expected "bool", but got one of "bool", "int", "float", "string", "array".
-     */
     public function testEnvsAreValidatedInConfigWithInvalidPlaceholder()
     {
+        $this->expectException('Symfony\Component\Config\Definition\Exception\InvalidTypeException');
+        $this->expectExceptionMessage('Invalid type for path "env_extension.bool_node". Expected "bool", but got one of "bool", "int", "float", "string", "array".');
         $container = new ContainerBuilder();
         $container->registerExtension($ext = new EnvExtension());
         $container->prependExtensionConfig('env_extension', $expected = [
@@ -93,12 +89,10 @@ class ValidateEnvPlaceholdersPassTest extends TestCase
         $this->assertSame($expected, $container->resolveEnvPlaceholders($ext->getConfig()));
     }
 
-    /**
-     * @expectedException \Symfony\Component\Config\Definition\Exception\InvalidTypeException
-     * @expectedExceptionMessage Invalid type for path "env_extension.int_node". Expected "int", but got "array".
-     */
     public function testInvalidEnvInConfig()
     {
+        $this->expectException('Symfony\Component\Config\Definition\Exception\InvalidTypeException');
+        $this->expectExceptionMessage('Invalid type for path "env_extension.int_node". Expected "int", but got "array".');
         $container = new ContainerBuilder();
         $container->registerExtension(new EnvExtension());
         $container->prependExtensionConfig('env_extension', [
@@ -108,12 +102,10 @@ class ValidateEnvPlaceholdersPassTest extends TestCase
         $this->doProcess($container);
     }
 
-    /**
-     * @expectedException \Symfony\Component\Config\Definition\Exception\InvalidTypeException
-     * @expectedExceptionMessage Invalid type for path "env_extension.int_node". Expected int, but got NULL.
-     */
     public function testNulledEnvInConfig()
     {
+        $this->expectException('Symfony\Component\Config\Definition\Exception\InvalidTypeException');
+        $this->expectExceptionMessage('Invalid type for path "env_extension.int_node". Expected int, but got NULL.');
         $container = new ContainerBuilder();
         $container->setParameter('env(NULLED)', null);
         $container->registerExtension(new EnvExtension());
@@ -162,12 +154,10 @@ class ValidateEnvPlaceholdersPassTest extends TestCase
         $this->assertSame(['scalar_node' => $expected], $container->resolveEnvPlaceholders($ext->getConfig()));
     }
 
-    /**
-     * @expectedException \Symfony\Component\Config\Definition\Exception\InvalidConfigurationException
-     * @expectedExceptionMessage A dynamic value is not compatible with a "Symfony\Component\Config\Definition\EnumNode" node type at path "env_extension.enum_node".
-     */
     public function testEnvIsIncompatibleWithEnumNode()
     {
+        $this->expectException('Symfony\Component\Config\Definition\Exception\InvalidConfigurationException');
+        $this->expectExceptionMessage('A dynamic value is not compatible with a "Symfony\Component\Config\Definition\EnumNode" node type at path "env_extension.enum_node".');
         $container = new ContainerBuilder();
         $container->registerExtension(new EnvExtension());
         $container->prependExtensionConfig('env_extension', [
@@ -177,12 +167,10 @@ class ValidateEnvPlaceholdersPassTest extends TestCase
         $this->doProcess($container);
     }
 
-    /**
-     * @expectedException \Symfony\Component\Config\Definition\Exception\InvalidConfigurationException
-     * @expectedExceptionMessage A dynamic value is not compatible with a "Symfony\Component\Config\Definition\ArrayNode" node type at path "env_extension.simple_array_node".
-     */
     public function testEnvIsIncompatibleWithArrayNode()
     {
+        $this->expectException('Symfony\Component\Config\Definition\Exception\InvalidConfigurationException');
+        $this->expectExceptionMessage('A dynamic value is not compatible with a "Symfony\Component\Config\Definition\ArrayNode" node type at path "env_extension.simple_array_node".');
         $container = new ContainerBuilder();
         $container->registerExtension(new EnvExtension());
         $container->prependExtensionConfig('env_extension', [
@@ -278,23 +266,21 @@ class ValidateEnvPlaceholdersPassTest extends TestCase
 
     /**
      * @group legacy
+     * @expectedDeprecation A tree builder without a root node is deprecated since Symfony 4.2 and will not be supported anymore in 5.0.
      */
     public function testConfigurationWithoutRootNode(): void
     {
         $container = new ContainerBuilder();
         $container->registerExtension(new EnvExtension(new EnvConfigurationWithoutRootNode()));
-        $container->loadFromExtension('env_extension');
+        $container->loadFromExtension('env_extension', ['foo' => 'bar']);
 
-        $this->doProcess($container);
-
-        $this->addToAssertionCount(1);
+        (new ValidateEnvPlaceholdersPass())->process($container);
     }
 
     public function testEmptyConfigFromMoreThanOneSource()
     {
         $container = new ContainerBuilder();
         $container->registerExtension(new EnvExtension(new ConfigurationWithArrayNodeRequiringOneElement()));
-        $container->loadFromExtension('env_extension', []);
         $container->loadFromExtension('env_extension', []);
 
         $this->doProcess($container);
@@ -400,8 +386,8 @@ class ConfigurationWithArrayNodeRequiringOneElement implements ConfigurationInte
 {
     public function getConfigTreeBuilder()
     {
-        $treeBuilder = new TreeBuilder();
-        $treeBuilder->root('env_extension')
+        $treeBuilder = new TreeBuilder('env_extension');
+        $treeBuilder->getRootNode()
             ->children()
                 ->arrayNode('nodes')
                     ->isRequired()

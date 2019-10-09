@@ -201,7 +201,7 @@ class CommonTaxCollectorPlugin
     }
 
     /**
-     * Add product SKU to a QuoteDetailsItem
+     * Add Vertex data to QuoteDetailsItems
      *
      * @see CommonTaxCollector::mapItem()
      * @param CommonTaxCollector $subject
@@ -233,6 +233,15 @@ class CommonTaxCollectorPlugin
             $extensionData = $this->getExtensionAttributes($taxData);
             $extensionData->setVertexProductCode($item->getProduct()->getSku());
             $extensionData->setVertexIsConfigurable($item->getProduct()->getTypeId() === 'configurable');
+            $extensionData->setStoreId($item->getStore()->getStoreId());
+            $extensionData->setProductId($item->getProduct()->getId());
+            $extensionData->setQuoteItemId($item->getId());
+            $extensionData->setCustomerId($item->getQuote()->getCustomerId());
+
+            if ($quote = $item->getQuote()) {
+                $extensionData->setQuoteId($quote->getId());
+                $extensionData->setCustomerId($quote->getCustomerId());
+            }
         }
 
         return $taxData;

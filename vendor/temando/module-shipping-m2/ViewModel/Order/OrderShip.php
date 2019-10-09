@@ -17,6 +17,7 @@ use Temando\Shipping\Model\Pickup\PickupLoader;
 use Temando\Shipping\Model\ResourceModel\Repository\OrderCollectionPointRepositoryInterface;
 use Temando\Shipping\Model\ResourceModel\Repository\OrderRepositoryInterface;
 use Temando\Shipping\Model\Shipment\ShipmentProviderInterface;
+use Temando\Shipping\Model\Shipping\ItemExtractor;
 use Temando\Shipping\ViewModel\CoreApiInterface;
 use Temando\Shipping\ViewModel\DataProvider\CoreApiAccess;
 use Temando\Shipping\ViewModel\DataProvider\CoreApiAccessInterface;
@@ -78,6 +79,11 @@ class OrderShip implements ArgumentInterface, CoreApiInterface, OrderShipInterfa
     private $shipmentProvider;
 
     /**
+     * @var ItemExtractor
+     */
+    private $itemExtractor;
+
+    /**
      * @var OrderCollectionPointRepositoryInterface
      */
     private $collectionPointRepository;
@@ -107,6 +113,7 @@ class OrderShip implements ArgumentInterface, CoreApiInterface, OrderShipInterfa
      * @param DeliveryType $deliveryType
      * @param OrderRepositoryInterface $orderRepository
      * @param ShipmentProviderInterface $shipmentProvider
+     * @param ItemExtractor $itemExtractor
      * @param OrderCollectionPointRepositoryInterface $collectionPointRepository
      * @param PickupLoader $pickupLoader
      * @param PickupItems $pickupItems
@@ -121,6 +128,7 @@ class OrderShip implements ArgumentInterface, CoreApiInterface, OrderShipInterfa
         DeliveryType $deliveryType,
         OrderRepositoryInterface $orderRepository,
         ShipmentProviderInterface $shipmentProvider,
+        ItemExtractor $itemExtractor,
         OrderCollectionPointRepositoryInterface $collectionPointRepository,
         PickupLoader $pickupLoader,
         PickupItems $pickupItems,
@@ -134,6 +142,7 @@ class OrderShip implements ArgumentInterface, CoreApiInterface, OrderShipInterfa
         $this->deliveryType = $deliveryType;
         $this->orderRepository = $orderRepository;
         $this->shipmentProvider = $shipmentProvider;
+        $this->itemExtractor = $itemExtractor;
         $this->collectionPointRepository = $collectionPointRepository;
         $this->pickupLoader = $pickupLoader;
         $this->pickupItems = $pickupItems;
@@ -287,14 +296,14 @@ class OrderShip implements ArgumentInterface, CoreApiInterface, OrderShipInterfa
         $order = $this->getOrder();
 
         $orderItems = [];
-        foreach ($order->getAllItems() as $orderItem) {
-            if (!$orderItem->getIsVirtual() && !$orderItem->getParentItem()) {
-                // skip virtual and child items
-                $qtyShipped = $orderItem->getQtyShipped() + $this->getReservedQty($orderItem->getSku());
+        $shippableItems = $this->itemExtractor->extractShippableOrderItems($order->getAllItems());
 
-                $orderItems[$orderItem->getId()] = $orderItem->toArray($this->getOrderItemProperties());
-                $orderItems[$orderItem->getId()]['qty_shipped'] = number_format($qtyShipped, 3);
-            }
+        /** @var \Magento\Sales\Model\Order\Item $orderItem */
+        foreach ($shippableItems as $orderItem) {
+            $qtyShipped = $orderItem->getQtyShipped() + $this->getReservedQty($orderItem->getSku());
+
+            $orderItems[$orderItem->getId()] = $orderItem->toArray($this->getOrderItemProperties());
+            $orderItems[$orderItem->getId()]['qty_shipped'] = number_format($qtyShipped, 3);
         }
 
         $orderAddresses = [];

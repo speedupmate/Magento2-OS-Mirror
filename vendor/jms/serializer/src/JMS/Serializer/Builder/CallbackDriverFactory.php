@@ -19,8 +19,8 @@ class CallbackDriverFactory implements DriverFactoryInterface
 
     public function createDriver(array $metadataDirs, Reader $reader)
     {
-        $driver = \call_user_func($this->callback, $metadataDirs, $reader);
-        if (!$driver instanceof DriverInterface) {
+        $driver = call_user_func($this->callback, $metadataDirs, $reader);
+        if ( ! $driver instanceof DriverInterface) {
             throw new \LogicException('The callback must return an instance of DriverInterface.');
         }
 

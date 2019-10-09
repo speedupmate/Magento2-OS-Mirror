@@ -103,7 +103,7 @@ class CreditMemoObserver implements ObserverInterface
         $order = $creditMemo->getOrder();
 
         if ($this->canSend($creditMemo, $order) && $this->hasInvoiceDeterminer->hasInvoice($order->getId())) {
-            $this->extensionLoader->loadOnCreditmemo($creditMemo);
+            $creditMemo = $this->extensionLoader->loadOnCreditmemo($creditMemo);
             $request = $this->invoiceRequestBuilder->buildFromCreditmemo($creditMemo);
             $response = $this->taxInvoice->sendRefundRequest($request, $order);
 

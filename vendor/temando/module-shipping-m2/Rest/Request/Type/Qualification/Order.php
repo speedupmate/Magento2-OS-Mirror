@@ -7,6 +7,7 @@ namespace Temando\Shipping\Rest\Request\Type\Qualification;
 use Temando\Shipping\Rest\Request\Type\ExtensibleTypeAttribute;
 use Temando\Shipping\Rest\Request\Type\ExtensibleTypeProcessor;
 use Temando\Shipping\Rest\Request\Type\Generic\MonetaryValue;
+use Temando\Shipping\Rest\Request\Type\Order\CustomAttributes;
 use Temando\Shipping\Rest\Request\Type\Order\Customer;
 use Temando\Shipping\Rest\Request\Type\Order\OrderItem;
 use Temando\Shipping\Rest\Request\Type\Order\Recipient;
@@ -66,6 +67,11 @@ class Order implements \JsonSerializable
     private $total;
 
     /**
+     * @var CustomAttributes
+     */
+    private $customAttributes;
+
+    /**
      * @var ExtensibleTypeAttribute[]
      */
     private $additionalAttributes = [];
@@ -80,6 +86,7 @@ class Order implements \JsonSerializable
      * @param Customer $customer
      * @param Recipient $recipient
      * @param OrderItem[] $items
+     * @param CustomAttributes $customAttributes
      */
     public function __construct(
         $createdAt,
@@ -89,7 +96,8 @@ class Order implements \JsonSerializable
         MonetaryValue $total,
         Customer $customer,
         Recipient $recipient,
-        array $items
+        array $items,
+        $customAttributes
     ) {
         $this->createdAt = $createdAt;
         $this->lastModifiedAt = $lastModifiedAt;
@@ -99,6 +107,7 @@ class Order implements \JsonSerializable
         $this->customer = $customer;
         $this->recipient = $recipient;
         $this->items = $items;
+        $this->customAttributes = $customAttributes;
     }
 
     /**
@@ -130,6 +139,7 @@ class Order implements \JsonSerializable
                 'deliverTo' => $this->recipient,
                 'items' => $this->items,
                 'total' => $this->total,
+                'customAttributes' => $this->customAttributes,
             ],
         ];
 

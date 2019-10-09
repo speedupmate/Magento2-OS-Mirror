@@ -7,6 +7,7 @@ namespace Temando\Shipping\Model\Sales\Service\Operation;
 use Magento\Framework\Exception\LocalizedException;
 use Magento\Sales\Api\OrderRepositoryInterface;
 use Magento\Sales\Api\ShipmentRepositoryInterface;
+use Temando\Shipping\Api\Shipment\ShipmentStatusInterface;
 use Temando\Shipping\Model\Shipment\PackageInterface;
 use Temando\Shipping\Model\Shipment\PackageItemInterface;
 use Temando\Shipping\Model\ShipmentInterface;
@@ -32,16 +33,24 @@ class UpdateQtyShipped implements ShipmentOperationInterface
     private $orderRepository;
 
     /**
+     * @var ShipmentStatusInterface
+     */
+    private $shipmentStatus;
+
+    /**
      * UpdateQtyShipped constructor.
      * @param ShipmentRepositoryInterface $shipmentRepository
      * @param OrderRepositoryInterface $orderRepository
+     * @param ShipmentStatusInterface $shipmentStatus
      */
     public function __construct(
         ShipmentRepositoryInterface $shipmentRepository,
-        OrderRepositoryInterface $orderRepository
+        OrderRepositoryInterface $orderRepository,
+        ShipmentStatusInterface $shipmentStatus
     ) {
         $this->shipmentRepository = $shipmentRepository;
         $this->orderRepository = $orderRepository;
+        $this->shipmentStatus = $shipmentStatus;
     }
 
     /**
@@ -53,7 +62,18 @@ class UpdateQtyShipped implements ShipmentOperationInterface
      */
     public function execute(ShipmentInterface $shipment, int $salesShipmentId): void
     {
+        $status = $this->shipmentStatus->getStatusCode($shipment->getStatus());
+        if ((int)$status !== ShipmentStatusInterface::STATUS_CANCELLED) {
+            // do not update quantities if the remote shipment was not cancelled
+            return;
+        }
+
         $salesShipment = $this->shipmentRepository->get($salesShipmentId);
+        if ((int)$salesShipment->getShipmentStatus() === ShipmentStatusInterface::STATUS_CANCELLED) {
+            // do not update quantities if the local shipment cancellation was done before (quantities are up-to-date)
+            return;
+        }
+
         $salesOrder = $this->orderRepository->get($salesShipment->getOrderId());
 
         // collect all items from all included packages

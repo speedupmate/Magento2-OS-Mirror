@@ -1,0 +1,37 @@
+<?xml version="1.0"?>
+<!--
+/**
+ * This file is part of the Klarna Core module
+ *
+ * (c) Klarna Bank AB (publ)
+ *
+ * For the full copyright and license information, please view the NOTICE
+ * and LICENSE files that were distributed with this source code.
+ */
+-->
+<schema xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+        xsi:noNamespaceSchemaLocation="urn:magento:framework:Setup/Declaration/Schema/etc/schema.xsd">
+    <table name="klarna_core_order" resource="default"
+           engine="innodb" comment="Klarna Order">
+        <column name="id" xsi:type="int" padding="10" unsigned="true"
+                nullable="false" identity="true" comment="Entity Id"/>
+        <column name="klarna_order_id" xsi:type="varchar" length="255"
+                nullable="true" comment="Klarna Order Id"/>
+        <column name="session_id" xsi:type="varchar" length="255" nullable="true" comment="Session Id"/>
+        <column name="reservation_id" xsi:type="varchar" length="255"
+                nullable="true" comment="Reservation Id"/>
+        <column name="order_id" xsi:type="int" padding="10" unsigned="true" nullable="false" identity="false"
+                comment="Order Id"/>
+        <column name="is_acknowledged" xsi:type="smallint" padding="6" unsigned="false" nullable="false"
+                identity="false" default="0" comment="Is Acknowledged"/>
+        <constraint xsi:type="primary" referenceId="PRIMARY">
+            <column name="id"/>
+        </constraint>
+        <index referenceId="KLARNA_CORE_ORDER_IS_ACKNOWLEDGED" indexType="btree">
+            <column name="is_acknowledged"/>
+        </index>
+        <index referenceId="KLARNA_CORE_ORDER_ORDER_ID" indexType="btree">
+            <column name="order_id"/>
+        </index>
+    </table>
+</schema>

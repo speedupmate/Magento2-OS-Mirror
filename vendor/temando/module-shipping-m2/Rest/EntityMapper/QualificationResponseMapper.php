@@ -35,7 +35,7 @@ class QualificationResponseMapper
     private $shippingExperienceMapper;
 
     /**
-     * @var DeliveryLocationResponseMapper
+     * @var DeliveryLocationMapper
      */
     private $deliveryLocationMapper;
 
@@ -48,13 +48,13 @@ class QualificationResponseMapper
      * QualificationResponseMapper constructor.
      * @param QualificationResponseTypeFactory $qualificationResponseFactory
      * @param ShippingExperienceMapper $shippingExperienceMapper
-     * @param DeliveryLocationResponseMapper $deliveryLocationMapper
+     * @param DeliveryLocationMapper $deliveryLocationMapper
      * @param LoggerInterface $logger
      */
     public function __construct(
         QualificationResponseTypeFactory $qualificationResponseFactory,
         ShippingExperienceMapper $shippingExperienceMapper,
-        DeliveryLocationResponseMapper $deliveryLocationMapper,
+        DeliveryLocationMapper $deliveryLocationMapper,
         LoggerInterface $logger
     ) {
         $this->qualificationResponseFactory = $qualificationResponseFactory;

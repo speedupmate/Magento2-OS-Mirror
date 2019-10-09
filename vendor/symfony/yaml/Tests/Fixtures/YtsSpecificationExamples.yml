@@ -30,11 +30,11 @@ yaml: |
        - Atlanta Braves
 php: |
     ['american' =>
-        ['Boston Red Sox', 'Detroit Tigers',
-          'New York Yankees'],
+        [ 'Boston Red Sox', 'Detroit Tigers',
+          'New York Yankees' ],
       'national' =>
-        ['New York Mets', 'Chicago Cubs',
-          'Atlanta Braves']
+        [ 'New York Mets', 'Chicago Cubs',
+          'Atlanta Braves' ]
     ]
 ---
 test: Sequence of mappings
@@ -230,7 +230,7 @@ php: |
          ['Mark McGwire', 'Sammy Sosa'],
       'rbi' =>
          ['Sammy Sosa', 'Ken Griffey']
-   ]
+    ]
 ---
 test: Mapping between sequences
 todo: true
@@ -518,16 +518,6 @@ php: |
     'hexadecimal' => 0xC
   ]
 ---
-test: Decimal Integer
-deprecated: true
-spec: 2.19
-yaml: |
-  decimal: +12,345
-php: |
-  [
-    'decimal' => 12345.0,
-  ]
----
 # FIX: spec shows parens around -inf and NaN
 test: Floating point
 spec: 2.20
@@ -544,16 +534,6 @@ php: |
     'negative infinity' => log(0),
     'not a number' => -log(0),
     'float as whole number' => (float) 1
-  ]
----
-test: Fixed Floating point
-deprecated: true
-spec: 2.20
-yaml: |
-  fixed: 1,230.15
-php: |
-  [
-    'fixed' => 1230.15,
   ]
 ---
 test: Timestamps
@@ -757,14 +737,14 @@ php: |
   [
      'invoice' => 34843, 'date' => gmmktime(0, 0, 0, 1, 23, 2001),
      'bill-to' =>
-      [ 'given' => 'Chris', 'family' => 'Dumars', 'address' => [ 'lines' => "458 Walkman Dr.\nSuite #292\n", 'city' => 'Royal Oak', 'state' => 'MI', 'postal' => 48046 ] ]
+      [ 'given' => 'Chris', 'family' => 'Dumars', 'address' => [ 'lines' => "458 Walkman Dr.\nSuite #292\n", 'city' => 'Royal Oak', 'state' => 'MI', 'postal' => 48046 ]]
      , 'ship-to' =>
-      [ 'given' => 'Chris', 'family' => 'Dumars', 'address' => [ 'lines' => "458 Walkman Dr.\nSuite #292\n", 'city' => 'Royal Oak', 'state' => 'MI', 'postal' => 48046 ] ]
+      [ 'given' => 'Chris', 'family' => 'Dumars', 'address' => [ 'lines' => "458 Walkman Dr.\nSuite #292\n", 'city' => 'Royal Oak', 'state' => 'MI', 'postal' => 48046 ]]
      , 'product' =>
        [
         [ 'sku' => 'BL394D', 'quantity' => 4, 'description' => 'Basketball', 'price' => 450.00 ],
         [ 'sku' => 'BL4438H', 'quantity' => 1, 'description' => 'Super Hoop', 'price' => 2392.00 ]
-       ],
+      ],
      'tax' => 251.42, 'total' => 4443.52,
      'comments' => "Late afternoon is best. Backup contact is Nancy Billsmer @ 338-4338.\n"
   ]
@@ -928,13 +908,12 @@ documents: 2
 
 ---
 test: Explicit typing
-deprecated: Using the non-specific tag "!" is deprecated since Symfony 3.4 as its behavior will change in 4.0.
 yaml: |
    integer: 12
-   also int: ! "12"
+   no int: ! 12
    string: !!str 12
 php: |
-   [ 'integer' => 12, 'also int' => 12, 'string' => '12' ]
+   [ 'integer' => 12, 'no int' => '12', 'string' => '12' ]
 ---
 test: Private types
 todo: true
@@ -1041,7 +1020,7 @@ yaml: |
 php: |
   [ 'anchor' => 'This scalar has an anchor.',
     'override' => "The alias node below is a repeated use of this value.\n",
-    'alias' => "The alias node below is a repeated use of this value.\n"]
+    'alias' => "The alias node below is a repeated use of this value.\n" ]
 ---
 test: Flow and block formatting
 todo: true
@@ -1232,7 +1211,7 @@ php: |
      'indented and chomped' => '  This has no newline.',
      'also written as' => '  This has no newline.',
      'both are equal to' => '  This has no newline.'
-   [
+   ]
 ---
 test: Folded combinations
 todo: true
@@ -1411,7 +1390,7 @@ php: |
    [
      'flow' => [ 'one' => 1, 'two' => 2 ],
      'block' => [ 'one' => 1, 'two' => 2 ]
-   ]
+    ]
 ---
 test: Representations of 12
 todo: true
@@ -1460,7 +1439,7 @@ php: |
      'english' => null,
      'sparse' => [ null, '2nd entry', null, '4th entry', null ]],
      'four' => 'This mapping has five keys, only two with values.'
-   ]
+      ]
 ---
 test: Omap
 todo: true
@@ -1530,24 +1509,6 @@ php: |
      'octal' => 12,
      'hexadecimal' => 12
    ]
----
-test: Decimal
-deprecated: true
-yaml: |
-   decimal: +12,345
-php: |
-   [
-     'decimal' => 12345.0,
-   ]
----
-test: Fixed Float
-deprecated: true
-yaml: |
-   fixed: 1,230.15
-php: |
-  [
-    'fixed' => 1230.15,
-  ]
 ---
 test: Float
 yaml: |

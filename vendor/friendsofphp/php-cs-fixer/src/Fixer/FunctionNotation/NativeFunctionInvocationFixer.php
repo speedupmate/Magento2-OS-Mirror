@@ -74,7 +74,7 @@ final class NativeFunctionInvocationFixer extends AbstractFixer implements Confi
             'Add leading `\` before function invocation to speed up resolving.',
             [
                 new CodeSample(
-'<?php
+                    '<?php
 
 function baz($options)
 {
@@ -87,7 +87,7 @@ function baz($options)
 '
                 ),
                 new CodeSample(
-'<?php
+                    '<?php
 
 function baz($options)
 {
@@ -182,7 +182,7 @@ $c = get_class($d);
     protected function applyFix(\SplFileInfo $file, Tokens $tokens)
     {
         if ('all' === $this->configuration['scope']) {
-            $this->fixFunctionCalls($tokens, $this->functionFilter, 0, \count($tokens) - 1);
+            $this->fixFunctionCalls($tokens, $this->functionFilter, 0, \count($tokens) - 1, false);
 
             return;
         }
@@ -192,11 +192,7 @@ $c = get_class($d);
         // 'scope' is 'namespaced' here
         /** @var NamespaceAnalysis $namespace */
         foreach (array_reverse($namespaces) as $namespace) {
-            if ('' === $namespace->getFullName()) {
-                continue;
-            }
-
-            $this->fixFunctionCalls($tokens, $this->functionFilter, $namespace->getScopeStartIndex(), $namespace->getScopeEndIndex());
+            $this->fixFunctionCalls($tokens, $this->functionFilter, $namespace->getScopeStartIndex(), $namespace->getScopeEndIndex(), '' === $namespace->getFullName());
         }
     }
 
@@ -252,6 +248,10 @@ $c = get_class($d);
                 ->setAllowedValues(['all', 'namespaced'])
                 ->setDefault('all')
                 ->getOption(),
+            (new FixerOptionBuilder('strict', 'Whether leading `\` of function call not meant to have it should be removed.'))
+                ->setAllowedTypes(['bool'])
+                ->setDefault(false) // @TODO: 3.0 change to true as default
+                ->getOption(),
         ]);
     }
 
@@ -260,8 +260,9 @@ $c = get_class($d);
      * @param callable $functionFilter
      * @param int      $start
      * @param int      $end
+     * @param bool     $tryToRemove
      */
-    private function fixFunctionCalls(Tokens $tokens, callable $functionFilter, $start, $end)
+    private function fixFunctionCalls(Tokens $tokens, callable $functionFilter, $start, $end, $tryToRemove)
     {
         $functionsAnalyzer = new FunctionsAnalyzer();
 
@@ -271,11 +272,20 @@ $c = get_class($d);
                 continue;
             }
 
-            if (!$functionFilter($tokens[$index]->getContent())) {
+            $prevIndex = $tokens->getPrevMeaningfulToken($index);
+
+            if (!$functionFilter($tokens[$index]->getContent()) || $tryToRemove) {
+                if (!$this->configuration['strict']) {
+                    continue;
+                }
+                if ($tokens[$prevIndex]->isGivenKind(T_NS_SEPARATOR)) {
+                    $tokens->clearTokenAndMergeSurroundingWhitespace($prevIndex);
+                }
+
                 continue;
             }
 
-            if ($tokens[$tokens->getPrevMeaningfulToken($index)]->isGivenKind(T_NS_SEPARATOR)) {
+            if ($tokens[$prevIndex]->isGivenKind(T_NS_SEPARATOR)) {
                 continue; // do not bother if previous token is already namespace separator
             }
 
@@ -336,7 +346,8 @@ $c = get_class($d);
     private function getAllCompilerOptimizedFunctionsNormalized()
     {
         return $this->normalizeFunctionNames([
-            // @see https://github.com/php/php-src/blob/php-7.2.6/Zend/zend_compile.c "zend_try_compile_special_func"
+            // @see https://github.com/php/php-src/blob/PHP-7.4/Zend/zend_compile.c "zend_try_compile_special_func"
+            'array_key_exists',
             'array_slice',
             'assert',
             'boolval',

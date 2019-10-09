@@ -1,0 +1,35 @@
+<?xml version="1.0"?>
+<!--
+/**
+ * This file is part of the Klarna KP module
+ *
+ * (c) Klarna Bank AB (publ)
+ *
+ * For the full copyright and license information, please view the NOTICE
+ * and LICENSE files that were distributed with this source code.
+ */
+-->
+<schema xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+        xsi:noNamespaceSchemaLocation="urn:magento:framework:Setup/Declaration/Schema/etc/schema.xsd">
+    <table name="klarna_payments_quote" resource="default" engine="innodb" comment="Klarna Payments Quote">
+        <column name="payments_quote_id" xsi:type="int" padding="10" unsigned="true" nullable="false" identity="true"
+                comment="Payments Id"/>
+        <column name="session_id" xsi:type="varchar" length="255" nullable="true" comment="Klarna Session Id"/>
+        <column name="client_token" xsi:type="text" nullable="true" comment="Klarna Client Token"/>
+        <column name="authorization_token" xsi:type="varchar" length="255" nullable="true"
+                comment="Authorization Token"/>
+        <column name="is_active" xsi:type="smallint" padding="6" unsigned="false" nullable="false" identity="false"
+                default="0" comment="Is Active"/>
+        <column name="quote_id" xsi:type="int" padding="10" unsigned="true" nullable="false" identity="false"
+                comment="Quote Id"/>
+        <column name="payment_methods" xsi:type="varchar" length="255" nullable="true"
+                comment="Payment Method Categories"/>
+        <column name="payment_method_info" xsi:type="text" nullable="true" comment="Payment Method Category Info"/>
+        <constraint xsi:type="primary" referenceId="PRIMARY">
+            <column name="payments_quote_id"/>
+        </constraint>
+        <index referenceId="KLARNA_PAYMENTS_QUOTE_QUOTE_ID" indexType="btree">
+            <column name="quote_id"/>
+        </index>
+    </table>
+</schema>

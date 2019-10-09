@@ -5,7 +5,7 @@ namespace Dotdigitalgroup\Email\Model\Sync;
 /**
  * Send email campaings.
  */
-class Campaign
+class Campaign implements SyncInterface
 {
     //single call contact limit
     const SEND_EMAIL_CONTACT_LIMIT = 10;
@@ -85,9 +85,18 @@ class Campaign
 
             $emailsToSend = $this->_getEmailCampaigns($storeIds);
             $campaignsToSend = $this->getCampaignsToSend($emailsToSend, $website);
-            $this->sendCampaignsViaDotmailer($campaignsToSend);
+            $this->sendCampaignsViaEngagementCloud($campaignsToSend);
         }
     }
+
+    /**
+     * @inheritdoc
+     */
+    public function sync(\DateTime $from = null)
+    {
+        $this->sendCampaigns();
+    }
+
 
     /**
      * @param int $website
@@ -97,6 +106,7 @@ class Campaign
      */
     public function _checkSendStatus($website, $storeIds)
     {
+        $this->expireExpiredCampaigns($storeIds);
         $campaigns = $this->_getEmailCampaigns(
             $storeIds,
             \Dotdigitalgroup\Email\Model\Campaign::PROCESSING,
@@ -109,8 +119,25 @@ class Campaign
                 $message = isset($response->message) ? $response->message : $response->status;
                 $this->campaignResourceModel->setMessageWithSendId($campaign->getSendId(), $message);
             } elseif ($response->status == 'Sent') {
-                $this->campaignResourceModel->setSent($campaign->getSendId());
+                $this->campaignResourceModel->setSent(
+                    $campaign->getSendId(),
+                    $response->sendDate
+                );
             }
+        }
+    }
+
+    /**
+     * @param array $storeIds
+     */
+    private function expireExpiredCampaigns($storeIds)
+    {
+        $expiredCampaigns = $this->campaignCollection->create()
+            ->getExpiredEmailCampaignsByStoreIds($storeIds);
+        $ids = $expiredCampaigns->getColumnValues('id');
+
+        if (! empty($ids)) {
+            $this->campaignResourceModel->expireCampaigns($ids);
         }
     }
 
@@ -199,7 +226,7 @@ class Campaign
      *
      * @return null
      */
-    private function sendCampaignsViaDotmailer($campaignsToSend)
+    private function sendCampaignsViaEngagementCloud($campaignsToSend)
     {
         foreach ($campaignsToSend as $campaignId => $data) {
             if (isset($data['contacts']) && isset($data['client'])) {

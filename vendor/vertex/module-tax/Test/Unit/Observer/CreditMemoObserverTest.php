@@ -20,6 +20,7 @@ use Vertex\Tax\Model\OrderHasInvoiceDeterminer;
 use Vertex\Tax\Model\Repository\OrderInvoiceStatusRepository;
 use Vertex\Tax\Model\TaxInvoice;
 use Vertex\Tax\Observer\CreditMemoObserver;
+use Vertex\Tax\Observer\GiftwrapExtensionLoader;
 use Vertex\Tax\Test\Unit\TestCase;
 use PHPUnit_Framework_MockObject_MockObject as MockObject;
 
@@ -51,6 +52,9 @@ class CreditMemoObserverTest extends TestCase
 
     /** @var MockObject|OrderInvoiceStatusRepository */
     private $orderInvoiceStatusRepositoryMock;
+
+    /** @var MockObject|GiftwrapExtensionLoader */
+    private $extensionLoaderMock;
 
     protected function setUp()
     {
@@ -103,6 +107,18 @@ class CreditMemoObserverTest extends TestCase
             ->method('getByOrderId')
             ->willThrowException(new NoSuchEntityException(__('No Such Entity')));
 
+        $this->extensionLoaderMock = $this->getMockBuilder(GiftwrapExtensionLoader::class)
+            ->setMethods(['loadOnCreditmemo'])
+            ->disableOriginalConstructor()
+            ->getMock();
+
+        $this->extensionLoaderMock->method('loadOnCreditmemo')
+            ->willReturnCallback(
+                static function ($creditMemo) {
+                    return $creditMemo;
+                }
+            );
+
         $this->creditMemoObserver = $this->getObject(
             CreditMemoObserver::class,
             [
@@ -113,6 +129,7 @@ class CreditMemoObserverTest extends TestCase
                 'configValidator' => $this->configValidatorMock,
                 'invoiceRequestBuilder' => $this->invoiceRequestBuilderMock,
                 'hasInvoiceDeterminer' => $this->hasInvoiceDeterminer,
+                'extensionLoader' => $this->extensionLoaderMock,
                 'orderInvoiceStatusRepository' => $this->orderInvoiceStatusRepositoryMock,
             ]
         );

@@ -13,13 +13,14 @@
             <stories value="Create order with downloadable product on default stock from admin area."/>
             <title value="Create order with downloadable product on default stock from admin area"/>
             <description value="Check, admin user able to create order with downloadable product on default stock from admin area."/>
-            <testCaseId value="MSI-1301"/>
+            <testCaseId value="https://app.hiptest.com/projects/69435/test-plan/folders/419539/scenarios/1444367"/>
             <severity value="CRITICAL"/>
             <group value="msi"/>
             <group value="multi_mode"/>
         </annotations>
 
         <before>
+            <magentoCLI stepKey="addDownloadableDomain" command="downloadable:domains:add static.magento.com"/>
             <magentoCLI command="config:set cataloginventory/item_options/manage_stock 1" stepKey="magentoCLI1"/>
             <createData entity="FullSource1" stepKey="customSource"/>
             <createData entity="BasicMsiStock1" stepKey="customStock"/>
@@ -50,6 +51,7 @@
             <magentoCLI command="cache:flush" stepKey="cleanCache"/>
         </before>
         <after>
+            <magentoCLI stepKey="removeDownloadableDomain" command="downloadable:domains:remove static.magento.com"/>
             <actionGroup ref="DisableSourceActionGroup" stepKey="disableCreatedCustomSource">
                 <argument name="sourceCode" value="$$customSource.source[source_code]$$"/>
             </actionGroup>

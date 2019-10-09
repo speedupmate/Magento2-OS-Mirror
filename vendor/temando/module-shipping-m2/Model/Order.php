@@ -132,6 +132,14 @@ class Order extends DataObject implements OrderInterface
     }
 
     /**
+     * @return \Temando\Shipping\Model\Order\CustomAttributesInterface[]
+     */
+    public function getCustomAttributes()
+    {
+        return $this->getData(OrderInterface::CUSTOM_ATTRIBUTES);
+    }
+
+    /**
      * @return \Temando\Shipping\Api\Data\Delivery\CollectionPointSearchRequestInterface|null
      */
     public function getCollectionPointSearchRequest()

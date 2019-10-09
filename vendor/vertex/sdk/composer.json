@@ -3,7 +3,7 @@
     "description": "Tools for communicating with Vertex Cloud and Vertex O-Series",
     "type": "library",
     "license": "proprietary",
-    "version": "1.1.0",
+    "version": "1.2.0",
     "require": {
         "php": "^5.4|^7",
         "ext-soap": "*",

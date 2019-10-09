@@ -191,7 +191,6 @@ class Kasper extends \Klarna\Core\Model\Api\Builder
         }
         $this->addBillingAddress($billingAddress);
         $this->addShippingAddress($this->getAddressData($quote, Address::TYPE_SHIPPING));
-        return;
     }
 
     /**

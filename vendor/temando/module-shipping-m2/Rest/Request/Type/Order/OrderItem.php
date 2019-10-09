@@ -12,14 +12,16 @@ use Temando\Shipping\Rest\Request\Type\Generic\Dimensions;
 use Temando\Shipping\Rest\Request\Type\Generic\MonetaryValue;
 use Temando\Shipping\Rest\Request\Type\Generic\Weight;
 use Temando\Shipping\Rest\Request\Type\Order\OrderItem\ClassificationCodes;
+use Temando\Shipping\Rest\Request\Type\Order\OrderItem\Manufacture;
+use Temando\Shipping\Rest\Request\Type\Order\OrderItem\Origin;
 
 /**
  * Temando API Order Item
  *
- * @package  Temando\Shipping\Rest
- * @author   Christoph Aßmann <christoph.assmann@netresearch.de>
- * @license  http://opensource.org/licenses/osl-3.0.php Open Software License (OSL 3.0)
- * @link     http://www.temando.com/
+ * @package Temando\Shipping\Rest
+ * @author  Christoph Aßmann <christoph.assmann@netresearch.de>
+ * @license https://opensource.org/licenses/osl-3.0.php Open Software License (OSL 3.0)
+ * @link    https://www.temando.com/
  */
 class OrderItem implements \JsonSerializable, ExtensibleTypeInterface
 {
@@ -140,6 +142,11 @@ class OrderItem implements \JsonSerializable, ExtensibleTypeInterface
     private $isPrePackaged;
 
     /**
+     * @var string
+     */
+    private $packageId;
+
+    /**
      * @var bool
      */
     private $canRotateVertical;
@@ -147,19 +154,29 @@ class OrderItem implements \JsonSerializable, ExtensibleTypeInterface
     // ========== EXPORT ========== //
 
     /**
-     * @var string
+     * @var Origin
      */
-    private $countryOfOrigin;
+    private $origin;
 
     /**
-     * @var string
+     * @var Manufacture
      */
-    private $countryOfManufacture;
+    private $manufacture;
 
     /**
      * @var ClassificationCodes
      */
     private $classificationCodes;
+
+    /**
+     * @var string
+     */
+    private $composition;
+
+    /**
+     * @var array
+     */
+    private $customAttributes;
 
     /**
      * @var ExtensibleTypeAttribute[]
@@ -181,10 +198,13 @@ class OrderItem implements \JsonSerializable, ExtensibleTypeInterface
      * @param bool $isFragile
      * @param bool $isVirtual
      * @param bool $isPrePackaged
+     * @param string $packageId
      * @param bool $canRotateVertical
-     * @param string $countryOfOrigin
-     * @param string $countryOfManufacture
+     * @param Origin $origin
+     * @param Manufacture $manufacture
      * @param ClassificationCodes $classificationCodes
+     * @param string $composition
+     * @param array $customAttributes
      */
     public function __construct(
         $productId,
@@ -200,10 +220,13 @@ class OrderItem implements \JsonSerializable, ExtensibleTypeInterface
         $isFragile,
         $isVirtual,
         $isPrePackaged,
+        $packageId,
         $canRotateVertical,
-        $countryOfOrigin,
-        $countryOfManufacture,
-        ClassificationCodes $classificationCodes
+        Origin $origin,
+        Manufacture $manufacture,
+        ClassificationCodes $classificationCodes,
+        $composition,
+        array $customAttributes
     ) {
         $this->productId = $productId;
         $this->qty = $qty;
@@ -218,10 +241,13 @@ class OrderItem implements \JsonSerializable, ExtensibleTypeInterface
         $this->isFragile = $isFragile;
         $this->isVirtual = $isVirtual;
         $this->isPrePackaged = $isPrePackaged;
+        $this->packageId = $packageId;
         $this->canRotateVertical = $canRotateVertical;
-        $this->countryOfOrigin = $countryOfOrigin;
-        $this->countryOfManufacture = $countryOfManufacture;
+        $this->origin = $origin;
+        $this->manufacture = $manufacture;
         $this->classificationCodes = $classificationCodes;
+        $this->composition = $composition;
+        $this->customAttributes = $customAttributes;
     }
 
     /**
@@ -253,10 +279,13 @@ class OrderItem implements \JsonSerializable, ExtensibleTypeInterface
                 'isFragile' => (bool) $this->isFragile,
                 'isVirtual' => (bool) $this->isVirtual,
                 'isPrePackaged' => (bool) $this->isPrePackaged,
+                'packageId' => $this->packageId,
                 'canRotateVertical' => $this->canRotateVertical,
-                'countryOfOrigin' => $this->countryOfOrigin,
-                'countryOfManufacture' => $this->countryOfManufacture,
+                'origin' => $this->origin,
+                'manufacture' => $this->manufacture,
                 'classificationCodes' => $this->classificationCodes,
+                'composition' => $this->composition,
+                'customAttributes' => $this->customAttributes,
             ],
             'quantity' => (int) $this->qty,
         ];

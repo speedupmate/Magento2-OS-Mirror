@@ -326,13 +326,13 @@ final class MethodArgumentSpaceFixer extends AbstractFixer implements Configurat
         $indentation = $existingIndentation.$this->whitespacesConfig->getIndent();
         $endFunctionIndex = $tokens->findBlockEnd(Tokens::BLOCK_TYPE_PARENTHESIS_BRACE, $startFunctionIndex);
 
-        if (!$this->isNewline($tokens[$endFunctionIndex - 1])) {
-            $tokens->ensureWhitespaceAtIndex(
-                $endFunctionIndex,
-                0,
-                $this->whitespacesConfig->getLineEnding().$existingIndentation
-            );
+        $wasWhitespaceBeforeEndFunctionAddedAsNewToken = $tokens->ensureWhitespaceAtIndex(
+            $tokens[$endFunctionIndex - 1]->isWhitespace() ? $endFunctionIndex - 1 : $endFunctionIndex,
+            0,
+            $this->whitespacesConfig->getLineEnding().$existingIndentation
+        );
 
+        if ($wasWhitespaceBeforeEndFunctionAddedAsNewToken) {
             ++$endFunctionIndex;
         }
 
@@ -359,7 +359,7 @@ final class MethodArgumentSpaceFixer extends AbstractFixer implements Configurat
                 continue;
             }
 
-            if ($token->equals(',')) {
+            if ($token->equals(',') && !$tokens[$tokens->getNextMeaningfulToken($index)]->equals(')')) {
                 $this->fixNewline($tokens, $index, $indentation);
             }
         }
@@ -377,7 +377,7 @@ final class MethodArgumentSpaceFixer extends AbstractFixer implements Configurat
      */
     private function fixNewline(Tokens $tokens, $index, $indentation, $override = true)
     {
-        if ($this->isNewline($tokens[$index + 1]) || $tokens[$index + 1]->isComment()) {
+        if ($tokens[$index + 1]->isComment()) {
             return;
         }
 
@@ -387,6 +387,11 @@ final class MethodArgumentSpaceFixer extends AbstractFixer implements Configurat
                 $tokens->ensureWhitespaceAtIndex($nextMeaningfulTokenIndex, 0, $this->whitespacesConfig->getLineEnding().$indentation);
             }
 
+            return;
+        }
+
+        $nextMeaningfulTokenIndex = $tokens->getNextMeaningfulToken($index);
+        if ($tokens[$nextMeaningfulTokenIndex]->equals(')')) {
             return;
         }
 

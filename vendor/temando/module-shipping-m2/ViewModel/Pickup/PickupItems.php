@@ -9,6 +9,7 @@ use Magento\Sales\Api\Data\OrderItemInterface;
 use Magento\Sales\Model\Order;
 use Temando\Shipping\Model\PickupInterface;
 use Temando\Shipping\Model\PickupProviderInterface;
+use Temando\Shipping\Model\Shipping\ItemExtractor;
 
 /**
  * View model for Pickup Item blocks.
@@ -26,32 +27,36 @@ class PickupItems implements ArgumentInterface
     private $pickupProvider;
 
     /**
-     * PickupItems constructor.
-     * @param PickupProviderInterface $pickupProvider
+     * @var ItemExtractor
      */
-    public function __construct(PickupProviderInterface $pickupProvider)
-    {
+    private $itemExtractor;
+
+    /**
+     * PickupItems constructor.
+     *
+     * @param PickupProviderInterface $pickupProvider
+     * @param ItemExtractor $itemExtractor
+     */
+    public function __construct(
+        PickupProviderInterface $pickupProvider,
+        ItemExtractor $itemExtractor
+    ) {
         $this->pickupProvider = $pickupProvider;
+        $this->itemExtractor = $itemExtractor;
     }
 
     /**
+     * Collect order items for pickup.
+     *
      * @return OrderItemInterface[]
      */
     public function getAllOrderItems(): array
     {
-        $items = [];
-
         /** @var Order $order */
         $order = $this->pickupProvider->getOrder();
-        $orderItems = $order->getAllItems();
-        foreach ($orderItems as $orderItem) {
-            if ($orderItem->getParentItem()) {
-                continue;
-            }
-            $items[] = $orderItem;
-        }
+        $orderItems = $this->itemExtractor->extractShippableOrderItems($order->getAllItems());
 
-        return $items;
+        return $orderItems;
     }
 
     /**
@@ -75,6 +80,8 @@ class PickupItems implements ArgumentInterface
     }
 
     /**
+     * Read already prepared item quantities from other pickups in "ready" state.
+     *
      * @param string $sku
      * @return int
      */

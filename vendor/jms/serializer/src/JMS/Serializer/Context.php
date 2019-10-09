@@ -1,5 +1,21 @@
 <?php
 
+/*
+ * Copyright 2013 Johannes M. Schmitt <schmittjoh@gmail.com>
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *     http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
+
 namespace JMS\Serializer;
 
 use JMS\Serializer\Exception\RuntimeException;
@@ -17,7 +33,6 @@ use PhpCollection\Map;
 abstract class Context
 {
     /**
-     * @deprecated use has/get/set attribute methods
      * @var \PhpCollection\Map
      */
     public $attributes;
@@ -36,7 +51,7 @@ abstract class Context
     /** @var ExclusionStrategyInterface */
     private $exclusionStrategy;
 
-    /** @var boolean|null */
+    /** @var boolean */
     private $serializeNull;
 
     private $initialized = false;
@@ -47,7 +62,6 @@ abstract class Context
     public function __construct()
     {
         $this->attributes = new Map();
-        $this->metadataStack = new \SplStack();
     }
 
     /**
@@ -67,12 +81,6 @@ abstract class Context
         $this->metadataStack = new \SplStack();
     }
 
-    /**
-     * @deprecated  Will be removed in 2.0, Use getNavigator()->accept() instead
-     * @param $data
-     * @param array|null $type
-     * @return mixed
-     */
     public function accept($data, array $type = null)
     {
         return $this->navigator->accept($data, $type, $this);
@@ -98,16 +106,6 @@ abstract class Context
         return $this->exclusionStrategy;
     }
 
-    public function hasAttribute($key)
-    {
-        return $this->attributes->get($key)->isDefined();
-    }
-
-    public function getAttribute($key)
-    {
-        return $this->attributes->get($key)->get();
-    }
-
     public function setAttribute($key, $value)
     {
         $this->assertMutable();
@@ -118,7 +116,7 @@ abstract class Context
 
     private function assertMutable()
     {
-        if (!$this->initialized) {
+        if ( ! $this->initialized) {
             return;
         }
 
@@ -173,8 +171,8 @@ abstract class Context
             throw new \LogicException('The groups must not be empty.');
         }
 
-        $this->attributes->set('groups', (array)$groups);
-        $this->addExclusionStrategy(new GroupsExclusionStrategy((array)$groups));
+        $this->attributes->set('groups', (array) $groups);
+        $this->addExclusionStrategy(new GroupsExclusionStrategy((array) $groups));
 
         return $this;
     }
@@ -186,27 +184,13 @@ abstract class Context
         return $this;
     }
 
-    /**
-     * Set if NULLs should be serialized (TRUE) ot not (FALSE)
-     *
-     * @param bool $bool
-     * @return $this
-     */
     public function setSerializeNull($bool)
     {
-        $this->serializeNull = (boolean)$bool;
+        $this->serializeNull = (boolean) $bool;
 
         return $this;
     }
 
-    /**
-     * Returns TRUE when NULLs should be serialized
-     * Returns FALSE when NULLs should not be serialized
-     * Returns NULL when NULLs should not be serialized,
-     * but the user has not explicitly decided to use this policy
-     *
-     * @return bool|null
-     */
     public function shouldSerializeNull()
     {
         return $this->serializeNull;
@@ -252,26 +236,6 @@ abstract class Context
     {
         return $this->metadataStack;
     }
-
-    /**
-     * @return array
-     */
-    public function getCurrentPath()
-    {
-        if (!$this->metadataStack) {
-            return array();
-        }
-
-        $paths = array();
-        foreach ($this->metadataStack as $metadata) {
-            if ($metadata instanceof PropertyMetadata) {
-                array_unshift($paths, $metadata->name);
-            }
-        }
-
-        return $paths;
-    }
-
 
     abstract public function getDepth();
 

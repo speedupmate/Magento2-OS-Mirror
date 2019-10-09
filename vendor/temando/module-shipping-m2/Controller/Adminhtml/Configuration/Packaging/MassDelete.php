@@ -84,9 +84,11 @@ class MassDelete extends Action
         $resultMessage = __('A total of %1 record(s) have been deleted.', $deletedItemsCount);
         if ($requestedItemsCount !== $deletedItemsCount) {
             $this->messageManager->addWarningMessage($resultMessage);
-            $errorMessage = 'An error occurred while deleting packages.';
-            $errorMessage.= ' Please see the log files for more detailed information.';
-            $this->messageManager->addErrorMessage(__($errorMessage));
+            $errorMessages = [
+                __('An error occurred while deleting packages.'),
+                __('Please see the log files for more detailed information.'),
+            ];
+            $this->messageManager->addErrorMessage(implode(' ', $errorMessages));
         } else {
             $this->messageManager->addSuccessMessage($resultMessage);
         }

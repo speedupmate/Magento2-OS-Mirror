@@ -52,17 +52,9 @@ class Notice extends Template
         $subject = $this->getRequest()->getParam('subject');
         switch ($subject) {
             // merchant account configuration
-            case 'carrier':
-                $this->pageConfig->getTitle()->prepend(__('Shipping Partners'));
-                $this->assign('subject', __('carriers'));
-                break;
             case 'dispatch':
                 $this->pageConfig->getTitle()->prepend(__('Dispatches'));
                 $this->assign('subject', __('dispatches'));
-                break;
-            case 'location':
-                $this->pageConfig->getTitle()->prepend(__('Locations'));
-                $this->assign('subject', __('shipping locations'));
                 break;
             case 'packaging':
                 $this->pageConfig->getTitle()->prepend(__('Packaging'));
@@ -85,6 +77,10 @@ class Notice extends Template
             case 'checkout':
                 $this->pageConfig->getTitle()->prepend(__('Checkout View Settings'));
                 $this->assign('subject', __('checkout options'));
+                break;
+            case 'mapping_product':
+                $this->pageConfig->getTitle()->prepend(__('Product Attribute Mapping'));
+                $this->assign('subject', __('attribute mappings'));
                 break;
             default:
                 $this->pageConfig->getTitle()->prepend(__('Magento Shipping'));

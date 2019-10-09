@@ -2,6 +2,33 @@
 
 All notable changes to this project will be documented in this file, in reverse chronological order by release.
 
+## 2.11.0 - 2019-08-23
+
+### Added
+
+- [#96](https://github.com/zendframework/zend-log/pull/96) adds support for PHP 7.3.
+
+- [#83](https://github.com/zendframework/zend-log/pull/83) adds
+  ability to define custom ignored namespaces in addition to default `Zend\Log`
+  in `Backtrace` processor.
+
+### Changed
+
+- Nothing.
+
+### Deprecated
+
+- Nothing.
+
+### Removed
+
+- [#88](https://github.com/zendframework/zend-log/pull/88) removes
+  support for HHVM.
+
+### Fixed
+
+- Nothing.
+
 ## 2.10.0 - 2018-04-09
 
 ### Added

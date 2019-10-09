@@ -1,0 +1,68 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<actionGroups xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+              xsi:noNamespaceSchemaLocation="urn:magento:mftf:Test/etc/actionGroupSchema.xsd">
+
+    <!-- Navigate to the Batch Index Page -->
+    <actionGroup name="TemandoNavigateToBatchIndexPage">
+        <amOnPage url="{{TemandoBatchPage.url}}" stepKey="navigateToBatchIndexPage" />
+        <waitForPageLoad stepKey="waitForBatchPageLoad" />
+    </actionGroup>
+
+    <!-- Select Specific Order for Batch Process -->
+    <actionGroup name="TemandoSelectOrderIdForBatchProcessing">
+        <arguments>
+            <argument name="orderId" defaultValue="000000001" type="string" />
+        </arguments>
+        <seeInCurrentUrl stepKey="seeAdminOrdersPageUrl" url="{{TemandoAdminOrderPage.url}}" />
+        <seeElement selector="{{TemandoSalesOrderGridSection.specificOrderId('orderId')}}" stepKey="seeOrderId" />
+        <checkOption selector="{{TemandoSalesOrderGridSection.selectCheckBoxOfOrderId('orderId')}}" stepKey="checkBoxOfOrderId" />
+        <click selector="{{TemandoSalesOrderGridSection.massActionDropdown}}" stepKey="selectMassActionDropdown" />
+        <click selector="{{TemandoSalesOrderGridSection.batchProcess}}" stepKey="selectMassActionBatchProcess" />
+        <waitForPageLoad stepKey="waitForNewBatchPageLoad" />
+    </actionGroup>
+
+    <!-- Complete the Batch Process for a single shipment -->
+    <actionGroup name="TemandoProcessNewBatchOrderSingleShipment">
+        <arguments>
+            <argument name="store" type="string" defaultValue="{{TemandoLocationLabels.US}}" />
+            <argument name="packageType" type="string" defaultValue="{{TemandoPackageLabels.LargeBox}}" />
+            <argument name="totalWeight" type="string" defaultValue="10" />
+            <argument name="shippingExperience" type="string" defaultValue="{{TemandoShippingExperiences.batch}}" />
+            <argument name="addressType" type="string" defaultValue="{{TemandoAddressTypes.residential}}" />
+            <argument name="packageContents" type="string" defaultValue="1" />
+        </arguments>
+        <seeInCurrentUrl url="{{TemandoBatchNewPage.url}}" stepKey="seeBatchNewPage" />
+        <waitForElement selector="{{TemandoBatchNewSection.originLocationDropDown}}" stepKey="waitForOriginLocationsToBeReceived" />
+        <selectOption userInput="{{store}}" selector="{{TemandoBatchNewSection.originLocationDropDown}}" stepKey="selectOriginLocation" />
+        <click selector="{{TemandoBatchNewSection.nextStepButton}}" stepKey="proceedToConfirmOrderProcesses" />
+        <waitForPageLoad stepKey="waitForConfirmOrderProcessToLoad" />
+        <waitForLoadingMaskToDisappear stepKey="waitForOrderGridToLoad" />
+        <click selector="{{TemandoBatchNewSection.nextStepButton}}" stepKey="proceedToPrepareOrdersForBooking" />
+        <waitForPageLoad stepKey="waitForPrepareOrdersForBookingProcessToLoad" />
+        <selectOption userInput="{{packageType}}" selector="{{TemandoBatchNewSection.firstPackageType}}" stepKey="selectLargeBoxPackageType" />
+        <selectOption userInput="{{shippingExperience}}" selector="{{TemandoBatchNewSection.firstShippingExperience}}" stepKey="selectBatchShippingExperience" />
+        <click selector="{{TemandoBatchNewSection.getQuotesButton}}" stepKey="getBatchShippingQuotes" />
+        <waitForElementNotVisible selector="{{TemandoBatchNewSection.quoteSpinner}}" stepKey="waitForShippingQuotesToLoad" time="60" />
+        <click selector="{{TemandoBatchNewSection.finishButton}}" stepKey="finishBatchProcess" />
+        <waitForPageLoad stepKey="waitForDirectToBatchPageLoad" />
+        <seeInCurrentUrl url="{{TemandoBatchPage.url}}" stepKey="seeBatchIndexPageURL" />
+    </actionGroup>
+
+    <!-- View the latest Batch Order Details -->
+    <actionGroup name="TemandoViewLatestBatchOrderDetails">
+        <click selector="{{TemandoBatchSection.firstBatchActionLink('View')}}" stepKey="clickViewAction"/>
+        <waitForPageLoad stepKey="waitForBatchViewPageLoad" />
+        <seeElement selector="{{TemandoBatchViewSection.dateCreated}}" stepKey="seeDateCreated" />
+        <seeElement selector="{{TemandoBatchViewSection.dateUpdated}}" stepKey="seeDateUpdated" />
+        <seeElement selector="{{TemandoBatchViewSection.batchId}}" stepKey="seeBatchId" />
+        <seeElement selector="{{TemandoBatchViewSection.batchStatus}}" stepKey="seeBatchStatus" />
+    </actionGroup>
+
+    <!-- Refresh batch list -->
+    <actionGroup name="TemandoRefreshBatchList">
+        <wait stepKey="waitForBatchProcess" time="45" />
+        <click stepKey="clickRefreshLink" selector="{{TemandoBatchSection.firstBatchActionLink('Refresh')}}" />
+        <waitForPageLoad stepKey="waitForBatchToRefresh" time="20" />
+    </actionGroup>
+</actionGroups>

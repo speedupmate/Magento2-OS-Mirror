@@ -33,4 +33,50 @@ interface CustomerMapperInterface
      * @throws ValidationException
      */
     public function map(CustomerInterface $object);
+
+    /**
+     * Return maximum length of Customer tax class name value
+     *
+     * @return int
+     */
+    public function getCustomerTaxClassNameMaxLength();
+
+    /**
+     * Return maximum length of Customer tax class name value
+     *
+     * @return int
+     */
+    public function getCustomerTaxClassNameMinLength();
+
+    /**
+     * Validates Customer tax class name value
+     *
+     * @param string $fieldName
+     * @return true
+     * @throws ValidationException
+     */
+    public function validateCustomerTaxClassName($fieldName);
+
+    /**
+     * Returns maximum length for Customer code value
+     *
+     * @return int
+     */
+    public function getCustomerCodeMaxLength();
+
+    /**
+     * Returns minimum length for Customer code value
+     *
+     * @return int
+     */
+    public function getCustomerCodeMinLength();
+
+    /**
+     * Validates Customer code value
+     *
+     * @param string $fieldValue
+     * @return true
+     * @throws ValidationException
+     */
+    public function validateCustomerCode($fieldValue);
 }

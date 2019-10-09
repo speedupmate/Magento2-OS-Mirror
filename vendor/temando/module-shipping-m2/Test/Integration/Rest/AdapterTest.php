@@ -7,7 +7,7 @@ namespace Temando\Shipping\Rest;
 use Magento\TestFramework\Helper\Bootstrap;
 use Magento\TestFramework\ObjectManager;
 use Temando\Shipping\Rest\Adapter as RestAdapter;
-use Temando\Shipping\Rest\Request\AuthRequestInterface;
+use Temando\Shipping\Rest\Request\AuthRequest;
 use Temando\Shipping\Rest\Request\ItemRequestInterface;
 use Temando\Shipping\Rest\Request\ListRequestInterface;
 use Temando\Shipping\Rest\Request\OrderRequest;
@@ -188,8 +188,8 @@ class AdapterTest extends \PHPUnit\Framework\TestCase
             ->method('send')
             ->willReturn($jsonResponse);
 
-        /** @var AuthRequestInterface $request */
-        $request = $this->objectManager->create(AuthRequestInterface::class, [
+        /** @var AuthRequest $request */
+        $request = $this->objectManager->create(AuthRequest::class, [
             'username' => '',
             'password' => '',
             'accountId' => 'foo',
@@ -205,33 +205,6 @@ class AdapterTest extends \PHPUnit\Framework\TestCase
         $this->assertInstanceOf(Session::class, $session);
         $this->assertNotEmpty($session->getAttributes()->getSessionToken());
         $this->assertNotEmpty($session->getAttributes()->getExpiry());
-    }
-
-    /**
-     * @test
-     * @dataProvider getCarriersResponseDataProvider
-     * @magentoConfigFixture default/carriers/temando/session_endpoint https://auth.temando.io/v1/
-     * @magentoConfigFixture default/carriers/temando/sovereign_endpoint https://foo.temando.io/v1/
-     * @param string $jsonResponse
-     */
-    public function getCarriers($jsonResponse)
-    {
-        $this->httpClient
-            ->expects($this->once())
-            ->method('send')
-            ->willReturn($jsonResponse);
-
-        /** @var ListRequestInterface $request */
-        $request = $this->objectManager->create(ListRequestInterface::class, ['offset' => 0, 'limit' => 20]);
-        /** @var RestAdapter $adapter */
-        $adapter = $this->objectManager->create(RestAdapter::class, [
-            'auth' => $this->auth,
-            'restClient' => $this->restClient,
-        ]);
-        $carriers = $adapter->getCarrierIntegrations($request);
-
-        $this->assertInternalType('array', $carriers);
-        $this->assertContainsOnly(CarrierIntegration::class, $carriers);
     }
 
     /**

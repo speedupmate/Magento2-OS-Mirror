@@ -29,12 +29,12 @@ use PhpCsFixer\Tokenizer\Tokens;
 final class FunctionToConstantFixer extends AbstractFixer implements ConfigurationDefinitionFixerInterface
 {
     /**
-     * @var string[]
+     * @var array<string, Token[]>
      */
     private static $availableFunctions;
 
     /**
-     * @var array<string, Token>
+     * @var array<string, Token[]>
      */
     private $functionsFixMap;
 
@@ -220,7 +220,7 @@ final class FunctionToConstantFixer extends AbstractFixer implements Configurati
 
         // test if the function call is to a native PHP function
         $lowerContent = strtolower($tokens[$index]->getContent());
-        if (!array_key_exists($lowerContent, $this->functionsFixMap)) {
+        if (!\array_key_exists($lowerContent, $this->functionsFixMap)) {
             return null;
         }
 

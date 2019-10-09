@@ -4,23 +4,24 @@
  */
 namespace Temando\Shipping\Model\ResourceModel\Shipment;
 
-use Magento\Framework\Session\SessionManagerInterface;
 use Magento\TestFramework\Helper\Bootstrap;
 use Temando\Shipping\Model\ResourceModel\Repository\ShipmentRepositoryInterface;
 use Temando\Shipping\Model\ShipmentInterface;
-use Temando\Shipping\Rest\AuthenticationInterface;
+use Temando\Shipping\Test\Integration\Fixture\ApiTokenFixture;
 use Temando\Shipping\Test\Integration\Provider\RestResponseProvider;
 use Temando\Shipping\Webservice\HttpClientInterfaceFactory;
 
 /**
  * Temando Shipment Repository Test
  *
+ * @magentoAppArea adminhtml
  * @magentoAppIsolation enabled
+ * @magentoDataFixture createApiToken
  *
- * @package  Temando\Shipping\Test\Integration
- * @author   Christoph Aßmann <christoph.assmann@netresearch.de>
- * @license  http://opensource.org/licenses/osl-3.0.php Open Software License (OSL 3.0)
- * @link     http://www.temando.com/
+ * @package Temando\Shipping\Test\Integration
+ * @author  Christoph Aßmann <christoph.assmann@netresearch.de>
+ * @license https://opensource.org/licenses/osl-3.0.php Open Software License (OSL 3.0)
+ * @link    https://www.temando.com/
  */
 class ShipmentRepositoryTest extends \PHPUnit\Framework\TestCase
 {
@@ -34,32 +35,30 @@ class ShipmentRepositoryTest extends \PHPUnit\Framework\TestCase
     }
 
     /**
-     * Set valid session token
+     * delegate fixtures creation to separate class.
      */
-    protected function setUp()
+    public static function createApiToken()
     {
-        parent::setUp();
-
-        /** @var SessionManagerInterface $adminSession */
-        $adminSession = Bootstrap::getObjectManager()->get(SessionManagerInterface::class);
-        $adminSession->setData(AuthenticationInterface::DATA_KEY_SESSION_TOKEN_EXPIRY, '2038-01-19T03:03:33.000Z');
+        ApiTokenFixture::createValidToken();
     }
 
-    protected function tearDown()
+    /**
+     * delegate fixtures rollback to separate class.
+     */
+    public static function createApiTokenRollback()
     {
-        /** @var SessionManagerInterface $adminSession */
-        $adminSession = Bootstrap::getObjectManager()->get(SessionManagerInterface::class);
-        $adminSession->unsetData(AuthenticationInterface::DATA_KEY_SESSION_TOKEN_EXPIRY);
-
-        parent::tearDown();
+        ApiTokenFixture::rollbackToken();
     }
 
     /**
      * @test
      * @dataProvider getShipmentResponseDataProvider
+     *
      * @magentoConfigFixture default/carriers/temando/session_endpoint https://auth.temando.io/v1/
      * @magentoConfigFixture default/carriers/temando/sovereign_endpoint https://foo.temando.io/v1/
+     *
      * @param string $responseBody
+     * @throws \Magento\Framework\Exception\LocalizedException
      */
     public function getById($responseBody)
     {

@@ -75,11 +75,11 @@ class RelationshipHandler
             }
 
             // set related resources by resource type
-            foreach ($related as $resourceType => $relatedResources) {
+            foreach ($related as $resourceType => $relatedResource) {
                 $setter = $this->propertyHandler->setter($resourceType);
                 $method = "{$setter}s";
                 if (method_exists($resource, $method)) {
-                    call_user_func([$resource, $method], $relatedResources);
+                    call_user_func([$resource, $method], $relatedResource);
                 }
             }
 

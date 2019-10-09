@@ -42,7 +42,8 @@ define(
                 /*
                  * Workaround for data-bind issue:
                  * We cannot use data-bind to link a dynamic id to our component
-                 * See: https://stackoverflow.com/questions/46657573/recaptcha-the-bind-parameter-must-be-an-element-or-id
+                 * See:
+                 * https://stackoverflow.com/questions/46657573/recaptcha-the-bind-parameter-must-be-an-element-or-id
                  *
                  * We create a wrapper element with a wrapping id and we inject the real ID with jQuery.
                  * In this way we have no data-bind attribute at all in our reCaptcha div
@@ -63,7 +64,7 @@ define(
                         me.reCaptchaCallback(token);
                         me.validateReCaptcha(true);
                     },
-                    'expired-callback': function () {
+                    'expired-callback': function () { // jscs:ignore jsDoc
                         me.validateReCaptcha(false);
                     }
                 });

@@ -144,7 +144,7 @@ namespace {
 
         $caseInsensitiveConstantsToEscape = array_diff(
             array_unique($caseInsensitiveConstantsToEscape),
-            array_map('strtolower', $uniqueConfiguredExclude)
+            array_map(function ($function) { return strtolower($function); }, $uniqueConfiguredExclude)
         );
 
         // Store the cache

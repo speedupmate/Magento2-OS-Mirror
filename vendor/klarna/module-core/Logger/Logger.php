@@ -82,7 +82,7 @@ class Logger extends MonoLogger
             $message = $this->cleanser->checkForSensitiveData($message);
         }
         if (is_array($message)) {
-            $message = print_r($message, true);
+            $message = json_encode($message, JSON_PRETTY_PRINT);
         }
         return parent::addRecord($level, $message, $context);
     }

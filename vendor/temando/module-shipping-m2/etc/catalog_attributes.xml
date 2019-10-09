@@ -9,5 +9,7 @@
         <attribute name="ts_dimensions_length"/>
         <attribute name="ts_dimensions_width"/>
         <attribute name="ts_dimensions_height"/>
+        <attribute name="ts_packaging_type"/>
+        <attribute name="ts_packaging_id"/>
     </group>
 </config>

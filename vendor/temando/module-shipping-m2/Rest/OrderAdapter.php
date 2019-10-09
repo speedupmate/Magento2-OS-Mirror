@@ -11,6 +11,7 @@ use Temando\Shipping\Rest\Exception\AdapterException;
 use Temando\Shipping\Rest\Exception\RestClientErrorException;
 use Temando\Shipping\Rest\Request\OrderRequest;
 use Temando\Shipping\Rest\Request\RequestHeadersInterface;
+use Temando\Shipping\Rest\Request\UpdateRequestInterface;
 use Temando\Shipping\Rest\Response\Document\Errors;
 use Temando\Shipping\Rest\Response\Document\SaveOrder;
 use Temando\Shipping\Rest\Response\Document\SaveOrderInterface;
@@ -134,7 +135,7 @@ class OrderAdapter implements OrderApiInterface
     }
 
     /**
-     * Update order.
+     * Replace entire order.
      *
      * @param OrderRequest $request
      * @return SaveOrderInterface
@@ -152,6 +153,42 @@ class OrderAdapter implements OrderApiInterface
             $headers = $this->requestHeaders->getHeaders();
 
             $rawResponse =  $this->restClient->put($uri, $requestBody, $headers);
+            $this->logger->log(LogLevel::DEBUG, $rawResponse);
+
+            /** @var SaveOrder $response */
+            $response = $this->responseParser->parse($rawResponse, SaveOrder::class);
+        } catch (RestClientErrorException $e) {
+            $this->logger->log(LogLevel::ERROR, $e->getMessage());
+
+            /** @var Errors $response */
+            $response = $this->responseParser->parse($e->getMessage(), Errors::class);
+            throw AdapterException::errorResponse($response, $e);
+        } catch (\Exception $e) {
+            throw AdapterException::create($e);
+        }
+
+        return $response;
+    }
+
+    /**
+     * Update specific order attributes.
+     *
+     * @param UpdateRequestInterface $request
+     * @return SaveOrderInterface
+     * @throws AdapterException
+     */
+    public function patchOrder(UpdateRequestInterface $request)
+    {
+        $uri = sprintf('%s/orders/%s', $this->endpoint, ...$request->getPathParams());
+        $requestBody = $request->getRequestBody();
+
+        $this->logger->log(LogLevel::DEBUG, sprintf("%s\n%s", $uri, $requestBody));
+
+        try {
+            $this->auth->connect($this->accountId, $this->bearerToken);
+            $headers = $this->requestHeaders->getHeaders();
+
+            $rawResponse =  $this->restClient->patch($uri, $requestBody, $headers);
             $this->logger->log(LogLevel::DEBUG, $rawResponse);
 
             /** @var SaveOrder $response */

@@ -43,6 +43,7 @@ interface OrderInterface
     const SOURCE_INCREMENT_ID = 'source_increment_id';
 
     const CHECKOUT_FIELDS = 'checkout_fields';
+    const CUSTOM_ATTRIBUTES = 'custom_attributes';
 
     const COLLECTION_POINT = 'collection_point';
     const COLLECTION_POINT_SEARCH_REQUEST = 'collection_point_search_request';
@@ -125,6 +126,11 @@ interface OrderInterface
      * @return \Temando\Shipping\Model\Checkout\Attribute\CheckoutFieldInterface[]
      */
     public function getCheckoutFields();
+
+    /**
+     * @return \Temando\Shipping\Model\Order\CustomAttributesInterface
+     */
+    public function getCustomAttributes();
 
     /**
      * @return \Temando\Shipping\Api\Data\Delivery\CollectionPointSearchRequestInterface|null

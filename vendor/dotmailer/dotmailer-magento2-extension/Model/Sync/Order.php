@@ -5,7 +5,7 @@ namespace Dotdigitalgroup\Email\Model\Sync;
 /**
  * Sync Orders.
  */
-class Order
+class Order implements SyncInterface
 {
     /**
      * @var \Dotdigitalgroup\Email\Model\ResourceModel\Contact\CollectionFactory
@@ -30,14 +30,19 @@ class Order
     /**
      * Global number of orders.
      *
-     * @var int
+     * @var array
      */
-    public $countOrders = 0;
+    public $countOrders = [
+        'orders' => 0,
+        'single_sync' => 0,
+        'pending' => 0,
+        'modified' => 0,
+    ];
 
     /**
      * @var array
      */
-    private $orderIds;
+    private $orderIds = [];
 
     /**
      * @var \Dotdigitalgroup\Email\Helper\Data
@@ -125,9 +130,10 @@ class Order
      *
      * @return array
      *
+     * @param \DateTime|null $from
      * @throws \Magento\Framework\Exception\LocalizedException
      */
-    public function sync()
+    public function sync(\DateTime $from = null)
     {
         $response = ['success' => true, 'message' => 'Done.'];
 
@@ -140,8 +146,10 @@ class Order
             $numOrders = count($orders);
             $numOrdersForSingleSync = count($ordersForSingleSync);
             $website = $account->getWebsites();
-            $this->countOrders += $numOrders;
-            $this->countOrders += $numOrdersForSingleSync;
+
+            $this->countOrders['orders'] += $numOrders;
+            $this->countOrders['single_sync'] += $numOrdersForSingleSync;
+
             //create bulk
             if ($numOrders) {
                 $this->helper->log('--------- Order sync ---------- : ' . $numOrders);
@@ -184,8 +192,11 @@ class Order
             $this->contactResource->updateContactsAsGuests($guestsEmailFound);
         }
 
+        $totalOrders = $this->countOrders['orders'] + $this->countOrders['single_sync'];
         if ($this->countOrders) {
-            $response['message'] = 'Orders updated ' . $this->countOrders;
+            $response = [
+                'message' => 'Orders updated ' . $totalOrders,
+            ] + $this->countOrders + $response;
         }
 
         return $response;
@@ -225,13 +236,17 @@ class Order
                     $account->setApiPassword($this->apiPassword);
                     $this->accounts[$this->apiUsername] = $account;
                 }
+
                 $pendingOrders = $this->getPendingConnectorOrders($website, $limit);
                 if (! empty($pendingOrders)) {
+                    $this->countOrders['pending'] += count($pendingOrders);
                     $this->accounts[$this->apiUsername]->setOrders($pendingOrders);
                 }
                 $this->accounts[$this->apiUsername]->setWebsites($website->getId());
+
                 $modifiedOrders = $this->getModifiedOrders($website, $limit);
                 if (! empty($modifiedOrders)) {
+                    $this->countOrders['modified'] += count($modifiedOrders);
                     $this->accounts[$this->apiUsername]->setOrdersForSingleSync($modifiedOrders);
                 }
             }
@@ -266,7 +281,7 @@ class Order
             return $orders;
         }
 
-        $orders = $this->mappOrderData($orderCollection, $orderModel, $orders);
+        $orders = $this->mapOrderData($orderCollection, $orderModel, $orders);
 
         return $orders;
     }
@@ -299,7 +314,7 @@ class Order
             return $orders;
         }
 
-        $orders = $this->mappOrderData($orderCollection, $orderModel, $orders);
+        $orders = $this->mapOrderData($orderCollection, $orderModel, $orders);
 
         return $orders;
     }
@@ -311,7 +326,7 @@ class Order
      *
      * @return array
      */
-    protected function mappOrderData($orderCollection, $orderModel, $orders)
+    protected function mapOrderData($orderCollection, $orderModel, $orders)
     {
         $orderIds = $orderCollection->getColumnValues('order_id');
 

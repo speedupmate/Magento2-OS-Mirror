@@ -24,4 +24,7 @@
     <event name="core_collection_abstract_load_before">
         <observer name="temando_add_shipment_grid_status_field" instance="Temando\Shipping\Observer\ShipmentCollectionLoadObserver"/>
     </event>
+    <event name="admin_sales_order_address_update">
+        <observer name="temando_address_update" instance="Temando\Shipping\Observer\AddressUpdateObserver" />
+    </event>
 </config>

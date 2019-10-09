@@ -17,10 +17,9 @@
                 </resource>
                 <resource id="Magento_Backend::stores">
                     <resource id="Temando_Shipping::shipping" sortOrder="10" title="Shipping">
-                        <resource id="Temando_Shipping::carriers" sortOrder="10" title="Carriers"/>
-                        <resource id="Temando_Shipping::locations" sortOrder="20" title="Locations"/>
-                        <resource id="Temando_Shipping::packaging" sortOrder="30" title="Packaging"/>
-                        <resource id="Temando_Shipping::portal" sortOrder="40" title="Shipping Portal"/>
+                        <resource id="Temando_Shipping::packaging" sortOrder="10" title="Packaging"/>
+                        <resource id="Temando_Shipping::portal" sortOrder="20" title="Shipping Portal"/>
+                        <resource id="Temando_Shipping::product" sortOrder="30" title="Attribute Mapping" />
                     </resource>
                 </resource>
             </resource>

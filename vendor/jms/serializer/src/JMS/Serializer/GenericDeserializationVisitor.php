@@ -1,16 +1,30 @@
 <?php
 
+/*
+ * Copyright 2013 Johannes M. Schmitt <schmittjoh@gmail.com>
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *     http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
+
 namespace JMS\Serializer;
 
 use JMS\Serializer\Exception\RuntimeException;
-use JMS\Serializer\Metadata\ClassMetadata;
 use JMS\Serializer\Metadata\PropertyMetadata;
-use JMS\Serializer\Naming\AdvancedNamingStrategyInterface;
-use JMS\Serializer\Naming\PropertyNamingStrategyInterface;
+use JMS\Serializer\Metadata\ClassMetadata;
 
 /**
  * Generic Deserialization Visitor.
- * @deprecated
+ *
  * @author Johannes M. Schmitt <schmittjoh@gmail.com>
  */
 abstract class GenericDeserializationVisitor extends AbstractVisitor
@@ -44,7 +58,7 @@ abstract class GenericDeserializationVisitor extends AbstractVisitor
 
     public function visitString($data, array $type, Context $context)
     {
-        $data = (string)$data;
+        $data = (string) $data;
 
         if (null === $this->result) {
             $this->result = $data;
@@ -55,7 +69,7 @@ abstract class GenericDeserializationVisitor extends AbstractVisitor
 
     public function visitBoolean($data, array $type, Context $context)
     {
-        $data = (Boolean)$data;
+        $data = (Boolean) $data;
 
         if (null === $this->result) {
             $this->result = $data;
@@ -66,7 +80,7 @@ abstract class GenericDeserializationVisitor extends AbstractVisitor
 
     public function visitInteger($data, array $type, Context $context)
     {
-        $data = (integer)$data;
+        $data = (integer) $data;
 
         if (null === $this->result) {
             $this->result = $data;
@@ -77,7 +91,7 @@ abstract class GenericDeserializationVisitor extends AbstractVisitor
 
     public function visitDouble($data, array $type, Context $context)
     {
-        $data = (double)$data;
+        $data = (double) $data;
 
         if (null === $this->result) {
             $this->result = $data;
@@ -88,12 +102,12 @@ abstract class GenericDeserializationVisitor extends AbstractVisitor
 
     public function visitArray($data, array $type, Context $context)
     {
-        if (!\is_array($data)) {
-            throw new RuntimeException(sprintf('Expected array, but got %s: %s', \gettype($data), json_encode($data)));
+        if ( ! is_array($data)) {
+            throw new RuntimeException(sprintf('Expected array, but got %s: %s', gettype($data), json_encode($data)));
         }
 
         // If no further parameters were given, keys/values are just passed as is.
-        if (!$type['params']) {
+        if ( ! $type['params']) {
             if (null === $this->result) {
                 $this->result = $data;
             }
@@ -101,7 +115,7 @@ abstract class GenericDeserializationVisitor extends AbstractVisitor
             return $data;
         }
 
-        switch (\count($type['params'])) {
+        switch (count($type['params'])) {
             case 1: // Array is a list.
                 $listType = $type['params'][0];
 
@@ -146,32 +160,25 @@ abstract class GenericDeserializationVisitor extends AbstractVisitor
 
     public function visitProperty(PropertyMetadata $metadata, $data, Context $context)
     {
-        if ($this->namingStrategy instanceof AdvancedNamingStrategyInterface) {
-            $name = $this->namingStrategy->getPropertyName($metadata, $context);
-        } else {
-            $name = $this->namingStrategy->translateName($metadata);
-        }
+        $name = $this->namingStrategy->translateName($metadata);
 
-        if (null === $data) {
+        if (null === $data || ! array_key_exists($name, $data)) {
             return;
         }
 
-        if (!\is_array($data)) {
-            throw new RuntimeException(sprintf('Invalid data "%s"(%s), expected "%s".', $data, $metadata->type['name'], $metadata->reflection->class));
-        }
-
-        if (!array_key_exists($name, $data)) {
-            return;
-        }
-
-        if (!$metadata->type) {
+        if ( ! $metadata->type) {
             throw new RuntimeException(sprintf('You must define a type for %s::$%s.', $metadata->reflection->class, $metadata->name));
         }
 
         $v = $data[$name] !== null ? $this->navigator->accept($data[$name], $metadata->type, $context) : null;
 
-        $this->accessor->setValue($this->currentObject, $v, $metadata);
+        if (null === $metadata->setter) {
+            $metadata->reflection->setValue($this->currentObject, $v);
 
+            return;
+        }
+
+        $this->currentObject->{$metadata->setter}($v);
     }
 
     public function endVisitingObject(ClassMetadata $metadata, $data, array $type, Context $context)

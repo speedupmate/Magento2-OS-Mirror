@@ -154,9 +154,13 @@ class CarrierTest extends \PHPUnit\Framework\TestCase
             $quoteData = $item->getQuote()->getData();
             /** @var Quote|\PHPUnit_Framework_MockObject_MockObject $quote */
             $quote = $this->getMockBuilder(Quote::class)
-                ->setMethods(['getShippingAddress', 'getBillingAddress'])
+                ->setMethods(['getStore', 'getShippingAddress', 'getBillingAddress'])
                 ->disableOriginalConstructor()
                 ->getMock();
+            $quote
+                ->expects($this->any())
+                ->method('getStore')
+                ->willReturn(Bootstrap::getObjectManager()->create(\Magento\Store\Model\Store::class));
             $quote
                 ->expects($this->any())
                 ->method('getShippingAddress')
@@ -220,9 +224,13 @@ class CarrierTest extends \PHPUnit\Framework\TestCase
             $quoteData = $item->getQuote()->getData();
             /** @var Quote|\PHPUnit_Framework_MockObject_MockObject $quote */
             $quote = $this->getMockBuilder(Quote::class)
-                ->setMethods(['getShippingAddress', 'getBillingAddress'])
+                ->setMethods(['getStore', 'getShippingAddress', 'getBillingAddress'])
                 ->disableOriginalConstructor()
                 ->getMock();
+            $quote
+                ->expects($this->any())
+                ->method('getStore')
+                ->willReturn(Bootstrap::getObjectManager()->create(\Magento\Store\Model\Store::class));
             $quote
                 ->expects($this->any())
                 ->method('getShippingAddress')

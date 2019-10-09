@@ -23,7 +23,14 @@ class LineItemMapper implements LineItemMapperInterface
      */
     public function __construct(LineItemMapper60 $parentMapper = null)
     {
-        $this->parentMapper = $parentMapper ?: new LineItemMapper60(null, new CustomerMapper());
+        $this->parentMapper = $parentMapper ?: new LineItemMapper60(
+            null,
+            new CustomerMapper(),
+            null,
+            null,
+            null,
+            new FlexibleNumericFieldMapper()
+        );
     }
 
     /**
@@ -40,5 +47,53 @@ class LineItemMapper implements LineItemMapperInterface
     public function map(LineItemInterface $object)
     {
         return $this->parentMapper->map($object);
+    }
+
+    /**
+     * @inheritDoc
+     */
+    public function getProductCodeMinLength()
+    {
+        return $this->parentMapper->getProductCodeMinLength();
+    }
+
+    /**
+     * @inheritDoc
+     */
+    public function getProductCodeMaxLength()
+    {
+        return $this->parentMapper->getProductCodeMaxLength();
+    }
+
+    /**
+     * @inheritDoc
+     */
+    public function validateProductCode($fieldValue)
+    {
+        return $this->parentMapper->validateProductCode($fieldValue);
+    }
+
+    /**
+     * @inheritDoc
+     */
+    public function getProductTaxClassNameMaxLength()
+    {
+        return $this->parentMapper->getProductTaxClassNameMaxLength();
+    }
+
+    /**
+     * @inheritDoc
+     */
+    public function getProductTaxClassNameMinLength()
+    {
+        return $this->parentMapper->getProductTaxClassNameMinLength();
+    }
+
+    /**
+     * @inheritDoc
+     */
+    public function validateProductTaxClassName($fieldValue)
+    {
+        return $this->parentMapper->validateProductTaxClassName($fieldValue);
     }
 }

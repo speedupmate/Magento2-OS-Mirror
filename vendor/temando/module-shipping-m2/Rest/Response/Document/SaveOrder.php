@@ -24,7 +24,7 @@ class SaveOrder implements SaveOrderInterface
     /**
      * @var \Temando\Shipping\Rest\Response\DataObject\Shipment[]
      */
-    private $included;
+    private $included = [];
 
     /**
      * @return \Temando\Shipping\Rest\Response\DataObject\Order

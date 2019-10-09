@@ -9,9 +9,10 @@ use Magento\Framework\EntityManager\HydratorInterface;
 use Magento\Framework\Exception\LocalizedException;
 use Magento\Framework\Exception\NoSuchEntityException;
 use Magento\Framework\Session\SessionManagerInterface;
+use Magento\Quote\Model\ResourceModel\Quote\Address\CollectionFactory;
 use Magento\Store\Model\StoreManagerInterface;
+use Temando\Shipping\Api\Checkout\CartPickupLocationManagementInterface;
 use Temando\Shipping\Api\Data\Delivery\QuotePickupLocationInterface;
-use Temando\Shipping\Api\Delivery\CartPickupLocationManagementInterface;
 use Temando\Shipping\Model\Config\ModuleConfigInterface;
 use Temando\Shipping\Model\Delivery\DistanceConverter;
 use Temando\Shipping\Model\Delivery\OpeningHoursFormatter;
@@ -36,12 +37,17 @@ class PickupLocations implements SectionSourceInterface
     /**
      * @var ModuleConfigInterface
      */
-    private $moduleConfig;
+    private $config;
 
     /**
      * @var SessionManagerInterface|\Magento\Checkout\Model\Session
      */
     private $checkoutSession;
+
+    /**
+     * @var CollectionFactory
+     */
+    private $addressCollectionFactory;
 
     /**
      * @var HydratorInterface
@@ -71,8 +77,9 @@ class PickupLocations implements SectionSourceInterface
     /**
      * PickupLocations constructor.
      * @param StoreManagerInterface $storeManager
-     * @param ModuleConfigInterface $moduleConfig
+     * @param ModuleConfigInterface $config
      * @param SessionManagerInterface $checkoutSession
+     * @param CollectionFactory $addressCollectionFactory
      * @param HydratorInterface $hydrator
      * @param PickupLocationSearchRepositoryInterface $searchRequestRepository
      * @param CartPickupLocationManagementInterface $cartPickupLocationManagement
@@ -81,8 +88,9 @@ class PickupLocations implements SectionSourceInterface
      */
     public function __construct(
         StoreManagerInterface $storeManager,
-        ModuleConfigInterface $moduleConfig,
+        ModuleConfigInterface $config,
         SessionManagerInterface $checkoutSession,
+        CollectionFactory $addressCollectionFactory,
         HydratorInterface $hydrator,
         PickupLocationSearchRepositoryInterface $searchRequestRepository,
         CartPickupLocationManagementInterface $cartPickupLocationManagement,
@@ -90,8 +98,9 @@ class PickupLocations implements SectionSourceInterface
         DistanceConverter $distanceConverter
     ) {
         $this->storeManager = $storeManager;
-        $this->moduleConfig = $moduleConfig;
+        $this->config = $config;
         $this->checkoutSession = $checkoutSession;
+        $this->addressCollectionFactory = $addressCollectionFactory;
         $this->hydrator = $hydrator;
         $this->searchRequestRepository = $searchRequestRepository;
         $this->cartPickupLocationManagement = $cartPickupLocationManagement;
@@ -112,20 +121,27 @@ class PickupLocations implements SectionSourceInterface
             $storeId = null;
         }
 
-        if (!$this->moduleConfig->isEnabled($storeId) || !$this->moduleConfig->isClickAndCollectEnabled($storeId)) {
+        $isEnabled = $this->config->isEnabled($storeId) && $this->config->isClickAndCollectEnabled($storeId);
+        $quoteId = $this->checkoutSession->getQuoteId();
+        if (!$isEnabled || empty($quoteId)) {
             return [
                 'pickup-locations' => [],
                 'search-request' => []
             ];
         }
 
-        $quote = $this->checkoutSession->getQuote();
-        $quoteAddressId = $quote->getShippingAddress()->getId();
+        // loading the quote address directly without loading the full quote brings a huge performance gain.
+        $addressCollection = $this->addressCollectionFactory->create();
+        $addressCollection->setQuoteFilter($quoteId)
+            ->addFieldToFilter('address_type', ['eq' => 'shipping'])
+            ->setPageSize(1)
+            ->setCurPage(1);
+        $shippingAddress = $addressCollection->fetchItem();
 
         try {
-            $searchRequest = $this->searchRequestRepository->get($quoteAddressId);
+            $searchRequest = $this->searchRequestRepository->get($shippingAddress->getId());
             $searchRequest = $this->hydrator->extract($searchRequest);
-            $pickupLocations = $this->cartPickupLocationManagement->getPickupLocations($quote->getId());
+            $pickupLocations = $this->cartPickupLocationManagement->getPickupLocations($quoteId);
         } catch (LocalizedException $e) {
             $searchRequest = [];
             $pickupLocations = [];

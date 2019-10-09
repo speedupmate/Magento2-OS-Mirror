@@ -2,6 +2,7 @@
 /**
  * Refer to LICENSE.txt distributed with the Temando Shipping module for notice of license
  */
+
 namespace Temando\Shipping\Model\ResourceModel\Repository;
 
 use Magento\Framework\Api\SearchCriteriaInterface;
@@ -26,7 +27,7 @@ interface QuoteCollectionPointRepositoryInterface
      * @return QuoteCollectionPointInterface
      * @throws NoSuchEntityException
      */
-    public function get($entityId);
+    public function get(int $entityId): QuoteCollectionPointInterface;
 
     /**
      * Load selected collection point for given shipping address ID.
@@ -35,7 +36,7 @@ interface QuoteCollectionPointRepositoryInterface
      * @return QuoteCollectionPointInterface
      * @throws NoSuchEntityException
      */
-    public function getSelected($addressId);
+    public function getSelected(int $addressId): QuoteCollectionPointInterface;
 
     /**
      * Save collection point.
@@ -44,7 +45,7 @@ interface QuoteCollectionPointRepositoryInterface
      * @return QuoteCollectionPointInterface
      * @throws CouldNotSaveException
      */
-    public function save(QuoteCollectionPointInterface $collectionPoint);
+    public function save(QuoteCollectionPointInterface $collectionPoint): QuoteCollectionPointInterface;
 
     /**
      * Delete collection point.
@@ -53,7 +54,7 @@ interface QuoteCollectionPointRepositoryInterface
      * @return bool
      * @throws CouldNotDeleteException
      */
-    public function delete(QuoteCollectionPointInterface $collectionPoint);
+    public function delete(QuoteCollectionPointInterface $collectionPoint): bool;
 
     /**
      * Load collection points.
@@ -61,5 +62,5 @@ interface QuoteCollectionPointRepositoryInterface
      * @param SearchCriteriaInterface $criteria
      * @return CollectionPointSearchResultInterface
      */
-    public function getList(SearchCriteriaInterface $criteria);
+    public function getList(SearchCriteriaInterface $criteria): CollectionPointSearchResultInterface;
 }

@@ -275,8 +275,9 @@ class ShipmentResponseMapper
     {
         $shipmentItems = array_map(function (Item $apiItem) {
             return $this->shipmentItemFactory->create(['data' => [
-                ShipmentItemInterface::QTY => $apiItem->getQuantity(),
+                ShipmentItemInterface::NAME => $apiItem->getProduct()->getDescription(),
                 ShipmentItemInterface::SKU => $apiItem->getProduct()->getSku(),
+                ShipmentItemInterface::QTY => $apiItem->getQuantity(),
             ]]);
         }, $apiItems);
 

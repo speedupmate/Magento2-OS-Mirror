@@ -9,6 +9,8 @@ use Magento\Framework\Api\AbstractSimpleObjectBuilder;
 use Magento\Framework\Api\ObjectFactory;
 use Magento\Framework\Exception\LocalizedException;
 use Magento\Quote\Model\Quote\Address\RateRequest;
+use Magento\Quote\Model\Quote\Item\AbstractItem;
+use Magento\Sales\Api\Data\OrderItemInterface;
 use Magento\Sales\Model\Order;
 use Temando\Shipping\Api\Data\Delivery\CollectionPointSearchRequestInterface;
 use Temando\Shipping\Api\Data\Delivery\PickupLocationSearchRequestInterface;
@@ -17,9 +19,11 @@ use Temando\Shipping\Api\Data\Delivery\QuotePickupLocationInterface;
 use Temando\Shipping\Model\Checkout\RateRequest\Extractor;
 use Temando\Shipping\Model\Order\CheckoutFieldContainerInterface;
 use Temando\Shipping\Model\Order\CheckoutFieldContainerInterfaceBuilder;
+use Temando\Shipping\Model\Order\CustomAttributesInterfaceBuilder;
 use Temando\Shipping\Model\Order\OrderBillingInterfaceBuilder;
 use Temando\Shipping\Model\Order\OrderItemInterfaceBuilder;
 use Temando\Shipping\Model\Order\OrderRecipientInterfaceBuilder;
+use Temando\Shipping\Model\Shipping\ItemExtractor;
 
 /**
  * Temando Order Interface Builder
@@ -37,6 +41,11 @@ class OrderInterfaceBuilder extends AbstractSimpleObjectBuilder
      * @var Extractor
      */
     private $rateRequestExtractor;
+
+    /**
+     * @var ItemExtractor
+     */
+    private $itemExtractor;
 
     /**
      * @var OrderBillingInterfaceBuilder
@@ -59,27 +68,38 @@ class OrderInterfaceBuilder extends AbstractSimpleObjectBuilder
     private $checkoutFieldContainerBuilder;
 
     /**
+     * @var CustomAttributesInterfaceBuilder
+     */
+    private $customAttributesBuilder;
+
+    /**
      * OrderInterfaceBuilder constructor.
      * @param ObjectFactory $objectFactory
      * @param Extractor $rateRequestExtractor
+     * @param ItemExtractor $itemExtractor
      * @param OrderBillingInterfaceBuilder $billingBuilder
      * @param OrderRecipientInterfaceBuilder $recipientBuilder
      * @param OrderItemInterfaceBuilder $orderItemBuilder
      * @param CheckoutFieldContainerInterfaceBuilder $checkoutFieldContainerBuilder
+     * @param CustomAttributesInterfaceBuilder $customAttributesBuilder
      */
     public function __construct(
         ObjectFactory $objectFactory,
         Extractor $rateRequestExtractor,
+        ItemExtractor $itemExtractor,
         OrderBillingInterfaceBuilder $billingBuilder,
         OrderRecipientInterfaceBuilder $recipientBuilder,
         OrderItemInterfaceBuilder $orderItemBuilder,
-        CheckoutFieldContainerInterfaceBuilder $checkoutFieldContainerBuilder
+        CheckoutFieldContainerInterfaceBuilder $checkoutFieldContainerBuilder,
+        CustomAttributesInterfaceBuilder $customAttributesBuilder
     ) {
         $this->rateRequestExtractor = $rateRequestExtractor;
+        $this->itemExtractor = $itemExtractor;
         $this->billingBuilder = $billingBuilder;
         $this->recipientBuilder = $recipientBuilder;
         $this->orderItemBuilder = $orderItemBuilder;
         $this->checkoutFieldContainerBuilder = $checkoutFieldContainerBuilder;
+        $this->customAttributesBuilder = $customAttributesBuilder;
 
         parent::__construct($objectFactory);
     }
@@ -149,22 +169,21 @@ class OrderInterfaceBuilder extends AbstractSimpleObjectBuilder
         $this->recipientBuilder->setRateRequest($rateRequest);
         $recipient = $this->recipientBuilder->create();
 
-        $orderItems = [];
         $rateRequestItems = $this->rateRequestExtractor->getItems($rateRequest);
-        foreach ($rateRequestItems as $quoteItem) {
-            if ($quoteItem->getParentItem()) {
-                continue;
-            }
-
+        $shippableItems = $this->itemExtractor->extractShippableQuoteItems($rateRequestItems);
+        $orderItems = array_map(function (AbstractItem $quoteItem) use ($rateRequest) {
             $this->orderItemBuilder->setRateRequest($rateRequest);
             $this->orderItemBuilder->setQuoteItem($quoteItem);
-            $orderItems[]= $this->orderItemBuilder->create();
-        }
+            return $this->orderItemBuilder->create();
+        }, $shippableItems);
 
         // add data path to checkout fields by reading definitions from config
         $this->checkoutFieldContainerBuilder->setRateRequest($rateRequest);
         /** @var CheckoutFieldContainerInterface $checkoutFieldContainer */
         $checkoutFieldContainer = $this->checkoutFieldContainerBuilder->create();
+
+        $this->customAttributesBuilder->setRateRequest($rateRequest);
+        $customAttributes = $this->customAttributesBuilder->create();
 
         $this->_set(OrderInterface::CREATED_AT, $createdAt);
         $this->_set(OrderInterface::ORDERED_AT, $orderedAt);
@@ -176,6 +195,7 @@ class OrderInterfaceBuilder extends AbstractSimpleObjectBuilder
         $this->_set(OrderInterface::CURRENCY, $currencyCode);
         $this->_set(OrderInterface::AMOUNT, $rateRequest->getPackageValueWithDiscount());
         $this->_set(OrderInterface::CHECKOUT_FIELDS, $checkoutFieldContainer->getFields());
+        $this->_set(OrderInterface::CUSTOM_ATTRIBUTES, $customAttributes);
         $this->_set(OrderInterface::SOURCE_REFERENCE, $sourceReference);
     }
 
@@ -188,25 +208,25 @@ class OrderInterfaceBuilder extends AbstractSimpleObjectBuilder
         $shippingMethod = $order->getShippingMethod(true);
         $methodCode = $shippingMethod->getData('method');
 
+        $shippingAssignments = $order->getExtensionAttributes()->getShippingAssignments();
+        if (!empty($shippingAssignments)) {
+            $orderId = $shippingAssignments[0]->getShipping()->getExtensionAttributes()->getExtOrderId();
+        } else {
+            $orderId = '';
+        }
+
         $this->billingBuilder->setOrder($order);
         $billingAddress = $this->billingBuilder->create();
 
         $this->recipientBuilder->setOrder($order);
         $recipient = $this->recipientBuilder->create();
 
-        $orderItems = [];
-
-        /** @var \Magento\Sales\Model\Order\Item $orderItem */
-        foreach ($order->getAllVisibleItems() as $orderItem) {
-            // turns out `getAllVisibleItems` is not reliable…
-            if ($orderItem->getParentItem()) {
-                continue;
-            }
-
+        $shippableItems = $this->itemExtractor->extractShippableOrderItems($order->getAllVisibleItems());
+        $orderItems = array_map(function (OrderItemInterface $orderItem) use ($order) {
             $this->orderItemBuilder->setOrder($order);
             $this->orderItemBuilder->setOrderItem($orderItem);
-            $orderItems[]= $this->orderItemBuilder->create();
-        }
+            return $this->orderItemBuilder->create();
+        }, $shippableItems);
 
         if (strpos($order->getUpdatedAt(), '0000') === 0) {
             $updatedAt = $order->getCreatedAt();
@@ -219,6 +239,10 @@ class OrderInterfaceBuilder extends AbstractSimpleObjectBuilder
         /** @var CheckoutFieldContainerInterface $checkoutFieldContainer */
         $checkoutFieldContainer = $this->checkoutFieldContainerBuilder->create();
 
+        $this->customAttributesBuilder->setOrder($order);
+        $customAttributes = $this->customAttributesBuilder->create();
+
+        $this->_set(OrderInterface::ORDER_ID, $orderId);
         $this->_set(OrderInterface::CREATED_AT, $order->getCreatedAt());
         $this->_set(OrderInterface::ORDERED_AT, $order->getCreatedAt());
         $this->_set(OrderInterface::LAST_MODIFIED_AT, $updatedAt);
@@ -229,6 +253,7 @@ class OrderInterfaceBuilder extends AbstractSimpleObjectBuilder
         $this->_set(OrderInterface::CURRENCY, $order->getBaseCurrencyCode());
         $this->_set(OrderInterface::AMOUNT, $order->getBaseGrandTotal());
         $this->_set(OrderInterface::CHECKOUT_FIELDS, $checkoutFieldContainer->getFields());
+        $this->_set(OrderInterface::CUSTOM_ATTRIBUTES, $customAttributes);
         $this->_set(OrderInterface::SOURCE_REFERENCE, $order->getIncrementId());
         $this->_set(OrderInterface::SOURCE_ID, $order->getEntityId());
         $this->_set(OrderInterface::SOURCE_INCREMENT_ID, $order->getIncrementId());

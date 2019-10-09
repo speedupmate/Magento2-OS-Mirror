@@ -19,7 +19,7 @@ class AdapterException extends RestException
 {
     /**
      * @param \Exception $cause
-     * @return static
+     * @return AdapterException
      */
     public static function create(\Exception $cause)
     {
@@ -31,7 +31,7 @@ class AdapterException extends RestException
     /**
      * @param Errors $errors
      * @param \Exception|null $cause
-     * @return static
+     * @return AdapterException
      */
     public static function errorResponse(Errors $errors, \Exception $cause = null)
     {

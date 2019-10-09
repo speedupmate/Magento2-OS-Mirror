@@ -10,3 +10,4 @@
 "Payment refund failed, please try again.","Payment refund failed, please try again."
 "%1 class doesn't implement \Klarna\Ordermanagement\Api\ApiInterface","%1 class doesn't implement \Klarna\Ordermanagement\Api\ApiInterface"
 "%1 Klarna %2 api error messages: %3","%1 Klarna %2 api error messages: %3"
+"Suspected Fraud: DO NOT SHIP. If already shipped, please attempt to stop the carrier from delivering.","Suspected Fraud: DO NOT SHIP. If already shipped, please attempt to stop the carrier from delivering."

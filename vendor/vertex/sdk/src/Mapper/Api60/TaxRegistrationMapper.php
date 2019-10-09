@@ -18,6 +18,15 @@ use Vertex\Mapper\TaxRegistrationMapperInterface;
  */
 class TaxRegistrationMapper implements TaxRegistrationMapperInterface
 {
+    /** @var int Maximum characters allowed for country code */
+    const COUNTRY_CODE_MAX = 3;
+    /** @var int Minimum characters allowed for country code */
+    const COUNTRY_CODE_MIN = 2;
+    /** @var int Maximum characters allowed for registration number */
+    const REGISTRATION_NUMBER_MAX = 40;
+    /** @var int Minimum characters allowed for registration number */
+    const REGISTRATION_NUMBER_MIN = 0;
+
     /** @var AddressMapper */
     private $addressMapper;
 
@@ -32,6 +41,54 @@ class TaxRegistrationMapper implements TaxRegistrationMapperInterface
     {
         $this->utilities = $utilities ?: new MapperUtilities();
         $this->addressMapper = $addressMapper ?: new AddressMapper();
+    }
+
+    /**
+     * @inheritDoc
+     */
+    public function getCountryCodeMaxLength()
+    {
+        return static::COUNTRY_CODE_MAX;
+    }
+
+    /**
+     * @inheritDoc
+     */
+    public function getCountryCodeMinLength()
+    {
+        return static::COUNTRY_CODE_MIN;
+    }
+
+    /**
+     * @inheritDoc
+     */
+    public function validateCountryCode($fieldValue)
+    {
+        // @TODO Implement validateCountryCode() method.
+    }
+
+    /**
+     * @inheritDoc
+     */
+    public function getRegistrationNumberMaxLength()
+    {
+        return static::REGISTRATION_NUMBER_MAX;
+    }
+
+    /**
+     * @inheritDoc
+     */
+    public function getRegistrationNumberMinLength()
+    {
+        return static::REGISTRATION_NUMBER_MIN;
+    }
+
+    /**
+     * @inheritDoc
+     */
+    public function validateRegistrationNumber($fieldValue)
+    {
+        // @TODO Implement validateRegistrationNumber() method.
     }
 
     /**
@@ -86,8 +143,8 @@ class TaxRegistrationMapper implements TaxRegistrationMapperInterface
             $map,
             $object->getRegistrationNumber(),
             'TaxRegistrationNumber',
-            0,
-            40,
+            $this->getRegistrationNumberMinLength(),
+            $this->getRegistrationNumberMaxLength(),
             true,
             'Registration Number'
         );
@@ -96,8 +153,8 @@ class TaxRegistrationMapper implements TaxRegistrationMapperInterface
             $map,
             $object->getCountryCode(),
             'isoCountryCode',
-            2,
-            3,
+            $this->getCountryCodeMinLength(),
+            $this->getCountryCodeMaxLength(),
             true,
             'Country Code'
         );

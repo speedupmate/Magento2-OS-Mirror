@@ -19,7 +19,7 @@ class ViewTest extends AbstractBackendController
      *
      * @var string
      */
-    protected $resource = 'Temando_Shipping::shipping';
+    protected $resource = 'Magento_Sales::shipment';
 
     /**
      * The uri at which to access the controller
@@ -94,7 +94,6 @@ class ViewTest extends AbstractBackendController
     }
 
     /**
-     * @test
      * @magentoDataFixture createOrderAndShipmentFixture
      */
     public function testAclHasAccess()
@@ -106,5 +105,20 @@ class ViewTest extends AbstractBackendController
         $this->getRequest()->setParam('shipment_id', $extShipmentId);
 
         parent::testAclHasAccess();
+    }
+
+    /**
+     * @test
+     * @magentoDataFixture createOrderAndShipmentFixture
+     */
+    public function testAclNoAccess()
+    {
+        $shipmentReferenceData = ShippedOrderFixture::getShipmentReferenceData();
+        $extShipmentId = $shipmentReferenceData['id'];
+
+        // existing external shipment id
+        $this->getRequest()->setParam('shipment_id', $extShipmentId);
+
+        parent::testAclNoAccess();
     }
 }

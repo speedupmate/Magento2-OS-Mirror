@@ -3,11 +3,12 @@
 namespace Dotdigitalgroup\Email\Model\Newsletter;
 
 use Magento\Framework\Exception\LocalizedException;
+use Dotdigitalgroup\Email\Model\Sync\SyncInterface;
 
 /**
  * Sync subscribers.
  */
-class Subscriber
+class Subscriber implements SyncInterface
 {
     const STATUS_SUBSCRIBED = 1;
     const STATUS_NOT_ACTIVE = 2;
@@ -99,28 +100,38 @@ class Subscriber
     }
 
     /**
+     * Sync subscribers and unsubscribes in EC
+     */
+    public function sync(\DateTime $from = null)
+    {
+        $this->runExport();
+        $this->unsubscribe();
+    }
+
+    /**
      * @return array
      */
-    public function sync()
+    public function runExport()
     {
         $response    = ['success' => true, 'message' => ''];
         $this->start = microtime(true);
-        $websites    = $this->helper->getWebsites(true);
+        $stores    = $this->helper->getStores(true);
 
-        foreach ($websites as $website) {
-            $websiteId = $website->getId();
+        foreach ($stores as $store) {
+            $websiteId = $store->getWebsiteId();
             //if subscriber is enabled and mapped
             $apiEnabled = $this->helper->isEnabled($websiteId);
             $addressBook = $this->helper->getSubscriberAddressBook($websiteId);
             $subscriberEnabled = $this->helper->isSubscriberSyncEnabled($websiteId);
+
             //enabled and mapped
             if ($apiEnabled && $addressBook && $subscriberEnabled) {
                 //ready to start sync
-                $numUpdated = $this->exportSubscribersPerWebsite($website);
+                $numUpdated = $this->exportSubscribersPerStore($store);
 
                 // show message for any number of customers
                 if ($numUpdated) {
-                    $response['message'] .= $website->getName() . ',  count = ' . $numUpdated;
+                    $response['message'] .= $store->getName() . ',  count = ' . $numUpdated;
                 }
             }
         }
@@ -137,16 +148,19 @@ class Subscriber
     }
 
     /**
-     * Export subscribers per website.
+     * Export subscribers per store.
      *
-     * @param \Magento\Store\Model\Website $website
+     * @param \Magento\Store\Api\Data\StoreInterface $store
      *
      * @return int
      *
      * @throws LocalizedException
      */
-    public function exportSubscribersPerWebsite($website)
+    public function exportSubscribersPerStore($store)
     {
+        /** @var \Magento\Store\Model\Website $website */
+        $website = $store->getWebsite();
+        $storeId = $store->getId();
         $isSubscriberSalesDataEnabled = $this->helper->getWebsiteConfig(
             \Dotdigitalgroup\Email\Helper\Config::XML_PATH_CONNECTOR_ENABLE_SUBSCRIBER_SALES_DATA,
             $website
@@ -157,10 +171,11 @@ class Subscriber
         //subscriber collection to import
         $emailContactModel = $this->contactFactory->create();
         //Customer Subscribers
-        $subscribersAreCustomers = $emailContactModel->getSubscribersToImport($website, $limit);
+        $subscribersAreCustomers = $emailContactModel->getSubscribersToImport($storeId, $limit);
         //Guest Subscribers
-        $subscribersAreGuest = $emailContactModel->getSubscribersToImport($website, $limit, false);
+        $subscribersAreGuest = $emailContactModel->getSubscribersToImport($storeId, $limit, false);
         $subscribersGuestEmails = $subscribersAreGuest->getColumnValues('email');
+
         $existInSales = [];
         //Only if subscriber with sales data enabled
         if ($isSubscriberSalesDataEnabled && ! empty($subscribersGuestEmails)) {
@@ -170,6 +185,7 @@ class Subscriber
         $emailsNotInSales = array_diff($subscribersGuestEmails, $existInSales);
         $customerSubscribers = $subscribersAreCustomers->getColumnValues('email');
         $emailsWithNoSaleData = array_merge($emailsNotInSales, $customerSubscribers);
+
         //subscriber that are customer or/and the one that do not exist in sales order table.
         $subscribersWithNoSaleData = [];
         if (! empty($emailsWithNoSaleData)) {
@@ -178,7 +194,7 @@ class Subscriber
         }
         if (! empty($subscribersWithNoSaleData)) {
             $updated += $this->subscriberExporter->exportSubscribers(
-                $website,
+                $store,
                 $subscribersWithNoSaleData
             );
             //add updated number for the website
@@ -192,7 +208,7 @@ class Subscriber
 
         if (! empty($subscribersWithSaleData)) {
             $updated += $this->subscriberWithSalesExporter->exportSubscribersWithSales(
-                $website,
+                $store,
                 $subscribersWithSaleData
             );
             //add updated number for the website
@@ -235,52 +251,21 @@ class Subscriber
                 continue;
             }
 
-            $suppressedEmails = $this->getSuppressedContacts($website);
-        }
-        //Mark suppressed contacts
-        if (! empty($suppressedEmails)) {
-            $result['customers'] = $this->emailContactResource->unsubscribe($suppressedEmails);
-        }
-        return $result;
-    }
-
-    /**
-     * @param \Magento\Store\Api\Data\WebsiteInterface $website
-     * @return array
-     */
-    private function getSuppressedContacts($website)
-    {
-        $limit = 5;
-        $maxToSelect = 1000;
-        $skip = $i = 0;
-        $contacts = [];
-        $suppressedEmails = [];
-        $date = $this->timezone->date()->sub($this->dateIntervalFactory->create(['interval_spec' => 'PT24H']));
-        $dateString = $date->format(\DateTime::W3C);
-        $client = $this->helper->getWebsiteApiClient($website);
-
-        //there is a maximum of request we need to loop to get more suppressed contacts
-        for ($i=0; $i<= $limit; $i++) {
-            $apiContacts = $client->getContactsSuppressedSinceDate($dateString, $maxToSelect, $skip);
-
-            // skip no more contacts or the api request failed
-            if (empty($apiContacts) || isset($apiContacts->message)) {
-                break;
-            }
-            $contacts = array_merge($contacts, $apiContacts);
-            $skip += 1000;
-        }
-
-        // Contacts to un-subscribe
-        foreach ($contacts as $apiContact) {
-            if (isset($apiContact->suppressedContact)) {
-                $suppressedContactEmail = $apiContact->suppressedContact->email;
-                if (!in_array($suppressedContactEmail, $suppressedEmails, true)) {
-                    $suppressedEmails[] = $suppressedContactEmail;
+            // add unique contact emails
+            foreach ($this->helper->getSuppressedContacts($website) as $suppressedContact) {
+                if (!array_key_exists($suppressedContact['email'], $suppressedEmails)) {
+                    $suppressedEmails[$suppressedContact['email']] = [
+                        'email' => $suppressedContact['email'],
+                        'removed_at' => $suppressedContact['removed_at'],
+                    ];
                 }
             }
         }
 
-        return $suppressedEmails;
+        //Mark suppressed contacts
+        if (! empty($suppressedEmails)) {
+            $result['customers'] = $this->emailContactResource->unsubscribeWithResubscriptionCheck(array_values($suppressedEmails));
+        }
+        return $result;
     }
 }

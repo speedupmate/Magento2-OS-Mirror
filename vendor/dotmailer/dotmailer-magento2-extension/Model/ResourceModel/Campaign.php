@@ -82,17 +82,21 @@ class Campaign extends \Magento\Framework\Model\ResourceModel\Db\AbstractDb
     }
 
     /**
-     * Set sent.
+     * Set a campaign as sent.
+     * The sent_at date is set via the response data from Engagement Cloud.
      *
      * @param int $sendId
+     * @param string $sendDate
      *
      * @return null
      */
-    public function setSent($sendId)
+    public function setSent($sendId, $sendDate)
     {
+        $sendDateObject = new \DateTime($sendDate, new \DateTimeZone('UTC'));
+        $sentAt = $sendDateObject->format('Y-m-d H:i:s');
         $bind = [
             'send_status' => \Dotdigitalgroup\Email\Model\Campaign::SENT,
-            'sent_at' => $this->datetime->gmtDate()
+            'sent_at' => $sentAt
         ];
         $conn = $this->getConnection();
         $conn->update(
@@ -133,5 +137,25 @@ class Campaign extends \Magento\Framework\Model\ResourceModel\Db\AbstractDb
     public function saveItem($item)
     {
         return parent::save($item);
+    }
+
+    /**
+     * @param array $ids
+     *
+     * @return null
+     */
+    public function expireCampaigns($ids)
+    {
+        $bind = [
+            'send_status' => \Dotdigitalgroup\Email\Model\Campaign::SENT,
+            'message' => 'Check sending status in Engagement Cloud',
+            'updated_at' => $this->datetime->gmtDate()
+        ];
+        $this->getConnection()
+            ->update(
+                $this->getMainTable(),
+                $bind,
+                ["id in (?)" => $ids]
+        );
     }
 }

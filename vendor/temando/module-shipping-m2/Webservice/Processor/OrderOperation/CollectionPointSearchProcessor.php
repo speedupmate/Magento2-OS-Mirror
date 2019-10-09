@@ -75,6 +75,10 @@ class CollectionPointSearchProcessor implements RatesProcessorInterface
         // persist collection points for a given search request
         $shippingAddressId = $searchRequest->getShippingAddressId();
         $collectionPoints = $responseType->getCollectionPoints();
+        if (empty($collectionPoints)) {
+            // no qualification performed or no collection points in response.
+            return [];
+        }
 
         /** @var QuoteCollectionPoint $collectionPoint */
         foreach ($collectionPoints as $collectionPoint) {

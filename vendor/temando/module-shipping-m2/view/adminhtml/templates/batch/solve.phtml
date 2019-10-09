@@ -40,7 +40,6 @@ $batch = $viewModel->getBatch();
             <thead>
             <tr>
                 <th class="data-grid-th"><?= $block->escapeHtml(__('Magento Order ID')) ?></th>
-                <th class="data-grid-th"><?= $block->escapeHtml(__('Ship-to Name')) ?></th>
                 <th class="data-grid-th"><?= $block->escapeHtml(__('Destination Address')) ?></th>
                 <th class="data-grid-th"><?= $block->escapeHtml(__('Reason')) ?></th>
                 <th class="data-grid-th"><?= $block->escapeHtml(__('Action')) ?></th>
@@ -49,9 +48,12 @@ $batch = $viewModel->getBatch();
             <tbody>
             <?php foreach ($failedShipments as $failedShipment) : ?>
                 <tr class="data-row">
+                    <?php
+                        /** @var \Temando\Shipping\Model\Shipment\Location $location */
+                        $location = $failedShipment->getDestinationLocation();
+                    ?>
                     <td><?= $block->escapeHtml($failedShipment->getOrderId()) ?></td>
-                    <td><?= $block->escapeHtml($failedShipment->getRecipientName()) ?></td>
-                    <td><?= /* @noEscape */ $failedShipment->getRecipientAddress() ?></td>
+                    <td><?= /* @noEscape */ $viewModel->getShipToAddressHtml($location) ?></td>
                     <td>
                         <?php foreach ($failedShipment->getErrors() as $error) : ?>
                             <p>
@@ -61,7 +63,7 @@ $batch = $viewModel->getBatch();
                         <?php endforeach; ?>
                     </td>
                     <td>
-                        <?php $orderUrl = $viewModel->getOrderViewUrl($failedShipment->getOrderId()) ?>
+                        <?php $orderUrl = $viewModel->getOrderViewUrl($failedShipment->getShipmentId()) ?>
                         <a href="<?= $block->escapeUrl($orderUrl) ?>"><?= $block->escapeHtml(__('View Order')) ?></a>
                     </td>
                 </tr>

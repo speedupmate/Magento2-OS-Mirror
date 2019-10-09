@@ -49,6 +49,7 @@ class Config
     const XML_PATH_ENABLED_FRONTEND_CREATE = 'msp_securitysuite_recaptcha/frontend/enabled_create';
     const XML_PATH_ENABLED_FRONTEND_REVIEW = 'msp_securitysuite_recaptcha/frontend/enabled_review';
     const XML_PATH_ENABLED_FRONTEND_NEWSLETTER = 'msp_securitysuite_recaptcha/frontend/enabled_newsletter';
+    const XML_PATH_ENABLED_FRONTEND_SENDFRIEND = 'msp_securitysuite_recaptcha/frontend/enabled_sendfriend';
 
     /**
      * @var ScopeConfigInterface
@@ -212,6 +213,22 @@ class Config
 
         return (bool) $this->scopeConfig->getValue(
             static::XML_PATH_ENABLED_FRONTEND_NEWSLETTER,
+            ScopeInterface::SCOPE_WEBSITE
+        );
+    }
+
+    /**
+     * Return true if enabled on frontend send to friend
+     * @return bool
+     */
+    public function isEnabledFrontendSendFriend()
+    {
+        if (!$this->isEnabledFrontend()) {
+            return false;
+        }
+
+        return (bool) $this->scopeConfig->getValue(
+            static::XML_PATH_ENABLED_FRONTEND_SENDFRIEND,
             ScopeInterface::SCOPE_WEBSITE
         );
     }

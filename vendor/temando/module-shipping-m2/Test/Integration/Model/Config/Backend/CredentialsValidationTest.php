@@ -362,9 +362,11 @@ class CredentialsValidationTest extends \PHPUnit\Framework\TestCase
                 ]
             ]
         ]);
+
         $this->expectException(\Magento\Framework\Validator\Exception::class);
         $this->expectExceptionMessage('Please enter a valid URL. Protocol (http://, https://) is required.');
         $backendModel->validateBeforeSave();
+
         $backendModel = Bootstrap::getObjectManager()->create(Active::class, [
             'validationRules' => $this->getValidator(),
             'data' => [
@@ -376,6 +378,7 @@ class CredentialsValidationTest extends \PHPUnit\Framework\TestCase
                 ]
             ]
         ]);
+
         $this->expectException(\Magento\Framework\Validator\Exception::class);
         $this->expectExceptionMessage('Please enter a valid URL. Protocol (http://, https://) is required.');
         $backendModel->validateBeforeSave();

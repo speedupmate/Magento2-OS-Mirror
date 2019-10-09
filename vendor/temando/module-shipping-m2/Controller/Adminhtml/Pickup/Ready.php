@@ -143,7 +143,7 @@ class Ready extends Action
         $pickupManagement = $this->pickupManagementFactory->create([
             'pickups' => $pickups,
         ]);
-        $requestedItems = $pickupManagement->getRequestedItems($requestedItems, $order->getAllVisibleItems());
+        $requestedItems = $pickupManagement->getRequestedItems($requestedItems, $order->getAllItems());
         if (empty($requestedItems)) {
             $this->messageManager->addErrorMessage('No items available to fulfill.');
             return $resultRedirect;

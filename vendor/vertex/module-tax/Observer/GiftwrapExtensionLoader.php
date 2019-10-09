@@ -64,45 +64,75 @@ class GiftwrapExtensionLoader
     /**
      * Load the Giftwrapping module Extension Attributes onto a Creditmemo
      *
-     * @param Creditmemo $creditmemo
-     * @return void
+     * @param Creditmemo $originalCreditmemo
+     * @return Creditmemo
      */
-    public function loadOnCreditmemo(Creditmemo $creditmemo)
+    public function loadOnCreditmemo(Creditmemo $originalCreditmemo)
     {
-        $extensionAttributes = $creditmemo->getExtensionAttributes();
-        if ($extensionAttributes !== null || !$this->moduleManager->isEnabled('Magento_GiftWrapping')) {
-            return;
+        if (!$this->moduleManager->isEnabled('Magento_GiftWrapping')) {
+            return $originalCreditmemo;
         }
 
-        /** @var CreditmemoExtensionInterface $extensionAttributes */
-        $extensionAttributes = $this->creditmemoExtensionFactory->create();
-        $extensionAttributes->setGwBasePrice($creditmemo->getData('gw_base_price'));
-        $extensionAttributes->setGwCardBasePrice($creditmemo->getData('gw_card_base_price'));
-        $extensionAttributes->setGwItemsBasePrice($creditmemo->getData('gw_items_base_price'));
+        /** @var Creditmemo $creditmemo */
+        $creditmemo = clone $originalCreditmemo;
 
-        $creditmemo->setExtensionAttributes($extensionAttributes);
+        if (!$originalCreditmemo->getExtensionAttributes()) {
+            /** @var CreditmemoExtensionInterface $extensionAttributes */
+            $extensionAttributes = $this->creditmemoExtensionFactory->create();
+        } else {
+            $extensionAttributes = clone $originalCreditmemo->getExtensionAttributes();
+        }
+
+        if (!$extensionAttributes->getGwBasePrice()) {
+            $extensionAttributes->setGwBasePrice($originalCreditmemo->getData('gw_base_price'));
+        }
+
+        if (!$extensionAttributes->getGwCardBasePrice()) {
+            $extensionAttributes->setGwCardBasePrice($originalCreditmemo->getData('gw_card_base_price'));
+        }
+
+        if (!$extensionAttributes->getGwItemsBasePrice()) {
+            $extensionAttributes->setGwItemsBasePrice($originalCreditmemo->getData('gw_items_base_price'));
+        }
+
+        return $creditmemo->setExtensionAttributes($extensionAttributes);
     }
 
     /**
      * Load the Giftwrapping module Extension Attributes onto an Invoice
      *
-     * @param Invoice $invoice
-     * @return void
+     * @param Invoice $originalInvoice
+     * @return Invoice
      */
-    public function loadOnInvoice(Invoice $invoice)
+    public function loadOnInvoice(Invoice $originalInvoice)
     {
-        $extensionAttributes = $invoice->getExtensionAttributes();
-        if ($extensionAttributes !== null || !$this->moduleManager->isEnabled('Magento_GiftWrapping')) {
-            return;
+        if (!$this->moduleManager->isEnabled('Magento_GiftWrapping')) {
+            return $originalInvoice;
         }
 
-        /** @var InvoiceExtensionInterface $extensionAttributes */
-        $extensionAttributes = $this->invoiceExtensionFactory->create();
-        $extensionAttributes->setGwBasePrice($invoice->getData('gw_base_price'));
-        $extensionAttributes->setGwCardBasePrice($invoice->getData('gw_card_base_price'));
-        $extensionAttributes->setGwItemsBasePrice($invoice->getData('gw_items_base_price'));
+        /** @var Invoice $invoice */
+        $invoice = clone $originalInvoice;
 
-        $invoice->setExtensionAttributes($extensionAttributes);
+        if (!$originalInvoice->getExtensionAttributes()) {
+            /** @var InvoiceExtensionInterface $extensionAttributes */
+            $extensionAttributes = $this->invoiceExtensionFactory->create();
+        } else {
+            $extensionAttributes = clone $originalInvoice->getExtensionAttributes();
+        }
+
+        if (!$extensionAttributes->getGwBasePrice()) {
+            $extensionAttributes->setGwBasePrice($originalInvoice->getData('gw_base_price'));
+        }
+
+        if (!$extensionAttributes->getGwCardBasePrice()) {
+            $extensionAttributes->setGwCardBasePrice($originalInvoice->getData('gw_card_base_price'));
+        }
+
+        if (!$extensionAttributes->getGwItemsBasePrice()) {
+            $extensionAttributes->setGwItemsBasePrice($originalInvoice->getData('gw_items_base_price'));
+        }
+
+        return $invoice->setExtensionAttributes($extensionAttributes);
     }
 
     /**

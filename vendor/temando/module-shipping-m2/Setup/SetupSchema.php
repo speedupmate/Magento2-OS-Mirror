@@ -16,6 +16,7 @@ use Temando\Shipping\Api\Data\Delivery\QuoteCollectionPointInterface;
 use Temando\Shipping\Api\Data\Delivery\QuotePickupLocationInterface;
 use Temando\Shipping\Api\Data\Order\OrderReferenceInterface;
 use Temando\Shipping\Api\Data\Shipment\ShipmentReferenceInterface;
+use Temando\Shipping\Model\Attribute\Mapping\ProductInterface;
 
 /**
  * Schema setup for use during installation / upgrade
@@ -42,6 +43,8 @@ class SetupSchema
     const TABLE_PICKUP_LOCATION_SEARCH = 'temando_pickup_location_search';
     const TABLE_QUOTE_PICKUP_LOCATION = 'temando_quote_pickup_location';
     const TABLE_ORDER_PICKUP_LOCATION = 'temando_order_pickup_location';
+
+    const TABLE_PRODUCT_ATTRIBUTE_MAPPING = 'temando_product_attribute_mapping';
 
     /**
      * @param SchemaSetupInterface|\Magento\Framework\Module\Setup $installer
@@ -889,5 +892,63 @@ class SetupSchema
                     'comment' => 'Distance in Meters'
                 ]
             );
+    }
+
+    /**
+     * Create Product Attribute Mapping Table.
+     *
+     * @param SchemaSetupInterface|\Magento\Framework\Module\Setup $installer
+     * @return void
+     * @throws \Zend_Db_Exception
+     */
+    public function createProductAttributeMapping(SchemaSetupInterface $installer)
+    {
+        $table = $installer->getConnection()->newTable(
+            $installer->getTable(self::TABLE_PRODUCT_ATTRIBUTE_MAPPING)
+        );
+
+        $table->addColumn(
+            ProductInterface::NODE_PATH_ID,
+            Table::TYPE_TEXT,
+            255,
+            ['primary' => true, 'nullable' => false],
+            'Magento shipping path'
+        );
+
+        $table->addColumn(
+            ProductInterface::LABEL,
+            Table::TYPE_TEXT,
+            255,
+            ['nullable' => false],
+            'label to be displayed to the end user'
+        );
+
+        $table->addColumn(
+            ProductInterface::DESCRIPTION,
+            Table::TYPE_TEXT,
+            null,
+            ['nullable' => true],
+            'Describes what the label and path are for'
+        );
+
+        $table->addColumn(
+            ProductInterface::MAPPED_ATTRIBUTE_ID,
+            Table::TYPE_TEXT,
+            255,
+            ['nullable' => true],
+            'Attribute ID reference that is mapped to the node path'
+        );
+
+        $table->addColumn(
+            ProductInterface::IS_DEFAULT,
+            TABLE::TYPE_BOOLEAN,
+            null,
+            ['nullable' => false, 'default' => false],
+            'Determines if the attribute is available by default'
+        );
+
+        $table->setComment('Product Attribute Mapping Entity');
+
+        $installer->getConnection()->createTable($table);
     }
 }

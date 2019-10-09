@@ -1,0 +1,80 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<actionGroups xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+              xsi:noNamespaceSchemaLocation="urn:magento:mftf:Test/etc/actionGroupSchema.xsd">
+    <actionGroup name="NavigateToProductAttributeMappingPage">
+        <click selector="{{TemandoAdminMenuSection.StoresMenuItem}}" stepKey="clickStoresMenuItem" />
+        <seeElement stepKey="seeExperiencesMenuItem" selector="{{TemandoAdminMenuSection.AttributeMappingMenuItemLink}}" />
+        <click stepKey="clickAttributeMappingMenuLink" selector="{{TemandoAdminMenuSection.AttributeMappingMenuItemLink}}" />
+        <waitForPageLoad stepKey="waitForProductAttributeMappingPage" time="30" />
+        <seeInCurrentUrl stepKey="seeProductAttributeMappingUrl" url="{{TemandoAdminProductAttributeMappingPage.url}}" />
+        <seeElement stepKey="seePageTitle" selector="{{TemandoProductAttributeMappingSection.pageTitle}}" after="seeProductAttributeMappingUrl" />
+    </actionGroup>
+    <actionGroup name="NavigateToProductAttributeMappingPageDisabled" extends="NavigateToProductAttributeMappingPage">
+        <seeElement stepKey="seeActivateLink" selector="{{TemandoProductAttributeMappingSection.activateLink}}" after="seePageTitle" />
+        <click stepKey="clickActivatelink" selector="{{TemandoProductAttributeMappingSection.activateLink}}" after="seeActivateLink" />
+        <waitForPageLoad stepKey="waitForConfigPage" after="clickActivatelink" />
+        <seeInCurrentUrl stepKey="seeShippingConfigurationUrl" url="{{TemandoAdminConfigPage.url}}" after="waitForConfigPage" />
+    </actionGroup>
+    <actionGroup name="NavigateToProductAttributeMappingPageEnabled" extends="NavigateToProductAttributeMappingPage">
+        <seeElement stepKey="seeTableColumnShippingAttribute" selector="{{TemandoProductAttributeMappingSection.tableHeaderColumn('Shipping')}}" after="seePageTitle" />
+        <seeElement stepKey="seeTableColumnProductAttribute" selector="{{TemandoProductAttributeMappingSection.tableHeaderColumn('Product')}}" after="seeTableColumnShippingAttribute" />
+        <seeElement stepKey="seeNewMappingButton" selector="{{TemandoProductAttributeMappingSection.buttonNewMapping}}" after="seeTableColumnProductAttribute" />
+    </actionGroup>
+    <actionGroup name="ClickNewMappingButton">
+        <click stepKey="clickNewMapping" selector="{{TemandoProductAttributeMappingSection.buttonNewMapping}}" />
+        <seeElement stepKey="seeNodePathIdInput" selector="{{TemandoProductAttributeMappingSection.inputNodePathId}}" />
+        <seeElement stepKey="seeDescriptionTextArea" selector="{{TemandoProductAttributeMappingSection.textareaDescription}}" />
+        <seeElement stepKey="seeAttributeDropdown" selector="{{TemandoProductAttributeMappingSection.selectAttribute}}" />
+        <seeElement stepKey="seeCancelMappingButton" selector="{{TemandoProductAttributeMappingSection.buttonCancelMapping}}" />
+    </actionGroup>
+    <actionGroup name="ClickCancelMappingButton">
+        <click stepKey="clickCancelMappingButton" selector="{{TemandoProductAttributeMappingSection.buttonCancelMapping}}" />
+        <dontSeeElement stepKey="dontSeeNodePathIdInput" selector="{{TemandoProductAttributeMappingSection.inputNodePathId}}" />
+        <dontSeeElement stepKey="dontSeeDescriptionTextArea" selector="{{TemandoProductAttributeMappingSection.textareaDescription}}" />
+        <dontSeeElement stepKey="dontSeeAttributeDropdown" selector="{{TemandoProductAttributeMappingSection.selectAttribute}}" />
+        <dontSeeElement stepKey="dontSeeCancelMappingButton" selector="{{TemandoProductAttributeMappingSection.buttonCancelMapping}}" />
+    </actionGroup>
+    <actionGroup name="SelectExistingAttributeToMap">
+        <arguments>
+            <argument name="nodePathId" type="string" defaultValue="{{TemandoDefaultProductAttributeMappingData.nodePathId}}"/>
+            <argument name="mapping" type="string" defaultValue="sku" />
+        </arguments>
+        <selectOption stepKey="selectProductAttribute" selector="{{TemandoProductAttributeMappingSection.existingSelectAttribute(nodePathId)}}" userInput="{{mapping}}" />
+    </actionGroup>
+    <actionGroup name="FillMappingFields">
+        <arguments>
+            <argument name="nodePathId" type="string" defaultValue="" />
+            <argument name="description" type="string" defaultValue="" />
+            <argument name="mapping" type="string" defaultValue="" />
+        </arguments>
+
+        <fillField stepKey="fillNodePathId" selector="{{TemandoProductAttributeMappingSection.inputNodePathId}}" userInput="{{nodePathId}}" />
+        <fillField stepKey="fillDescription" selector="{{TemandoProductAttributeMappingSection.textareaDescription}}" userInput="{{description}}" />
+        <selectOption stepKey="selectMapping" selector="{{TemandoProductAttributeMappingSection.selectAttribute}}" userInput="{{mapping}}" />
+    </actionGroup>
+    <actionGroup name="ClickSave">
+        <click stepKey="clickSaveButton" selector="{{TemandoProductAttributeMappingSection.buttonSave}}" />
+        <waitForPageLoad stepKey="waitForSave" time="30" />
+    </actionGroup>
+    <actionGroup name="SeeFieldValidationError">
+        <arguments>
+            <argument name="message" type="string" />
+        </arguments>
+        <seeElement stepKey="seeFieldValidationError" selector="{{TemandoProductAttributeMappingSection.fieldValidationMessage(message)}}" />
+    </actionGroup>
+    <actionGroup name="SeePageMessage">
+        <arguments>
+            <argument name="messageType" type="string" defaultValue="message-error" />
+            <argument name="pageMessage" type="string" />
+        </arguments>
+        <seeElement stepKey="seePageMessage" selector="{{TemandoProductAttributeMappingSection.pageMessage(messageType, pageMessage)}}" />
+    </actionGroup>
+    <actionGroup name="DeleteAttributeMapping">
+        <seeElement stepKey="seeDeleteMapapingButton" selector="{{TemandoProductAttributeMappingSection.buttonDelete}}" />
+        <click stepKey="clickDeleteButton" selector="{{TemandoProductAttributeMappingSection.buttonDelete}}" />
+        <waitForAjaxLoad stepKey="waitForAjaxDelete" time="10" />
+        <waitForLoadingMaskToDisappear stepKey="waitForSpinner" />
+        <dontSeeElement stepKey="dontSeeDeleteMapapingButton" selector="{{TemandoProductAttributeMappingSection.buttonDelete}}" />
+    </actionGroup>
+</actionGroups>

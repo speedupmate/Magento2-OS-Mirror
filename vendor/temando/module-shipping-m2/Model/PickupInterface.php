@@ -100,7 +100,11 @@ interface PickupInterface
     public function getLocationId();
 
     /**
-     * @return string[]
+     * Items contained in pickup with quantities.
+     *
+     * Format: [ <sku> => <qty>, <sku> => <qty> ]
+     *
+     * @return int[]
      */
     public function getItems();
 }

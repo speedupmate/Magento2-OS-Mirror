@@ -56,6 +56,7 @@ class QuoteCollectionPointRepository implements QuoteCollectionPointRepositoryIn
 
     /**
      * CollectionPointRepository constructor.
+     *
      * @param CollectionPointResource $resource
      * @param SearchCriteriaBuilder $searchCriteriaBuilder
      * @param QuoteCollectionPointInterfaceFactory $collectionPointFactory
@@ -83,7 +84,7 @@ class QuoteCollectionPointRepository implements QuoteCollectionPointRepositoryIn
      * @return QuoteCollectionPointInterface
      * @throws NoSuchEntityException
      */
-    public function get($entityId)
+    public function get(int $entityId): QuoteCollectionPointInterface
     {
         /** @var QuoteCollectionPoint $collectionPoint */
         $collectionPoint = $this->collectionPointFactory->create();
@@ -106,7 +107,7 @@ class QuoteCollectionPointRepository implements QuoteCollectionPointRepositoryIn
      * @return QuoteCollectionPointInterface
      * @throws NoSuchEntityException
      */
-    public function getSelected($addressId)
+    public function getSelected(int $addressId): QuoteCollectionPointInterface
     {
         $this->searchCriteriaBuilder->addFilter(
             QuoteCollectionPointInterface::RECIPIENT_ADDRESS_ID,
@@ -141,7 +142,7 @@ class QuoteCollectionPointRepository implements QuoteCollectionPointRepositoryIn
      * @return QuoteCollectionPointInterface
      * @throws CouldNotSaveException
      */
-    public function save(QuoteCollectionPointInterface $collectionPoint)
+    public function save(QuoteCollectionPointInterface $collectionPoint): QuoteCollectionPointInterface
     {
         try {
             /** @var QuoteCollectionPoint $collectionPoint */
@@ -160,7 +161,7 @@ class QuoteCollectionPointRepository implements QuoteCollectionPointRepositoryIn
      * @return bool
      * @throws CouldNotDeleteException
      */
-    public function delete(QuoteCollectionPointInterface $collectionPoint)
+    public function delete(QuoteCollectionPointInterface $collectionPoint): bool
     {
         try {
             /** @var QuoteCollectionPoint $collectionPoint */
@@ -178,7 +179,7 @@ class QuoteCollectionPointRepository implements QuoteCollectionPointRepositoryIn
      * @param SearchCriteriaInterface $criteria
      * @return CollectionPointSearchResultInterface|CollectionPointSearchResult
      */
-    public function getList(SearchCriteriaInterface $criteria)
+    public function getList(SearchCriteriaInterface $criteria): CollectionPointSearchResultInterface
     {
         /** @var CollectionPointSearchResult $searchResult */
         $searchResult = $this->collectionPointSearchResultFactory->create();

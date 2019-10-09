@@ -26,9 +26,21 @@ use Magento\Store\Model\Store;
  */
 class Config
 {
+    /**
+     * API Config debug value
+     */
     const CONFIG_XML_PATH_KLARNA_DEBUG                      = 'klarna/api/debug';
+    /**
+     * API Config test mode
+     */
     const CONFIG_XML_PATH_KLARNA_TEST_MODE                  = 'klarna/api/test_mode';
+    /**
+     * General -> Store Information -> Country
+     */
     const CONFIG_XML_PATH_GENERAL_STORE_INFORMATION_COUNTRY = 'general/store_information/country_id';
+    /**
+     * General -> Region -> State Required
+     */
     const CONFIG_XML_PATH_GENERAL_STATE_OPTIONS             = 'general/region/state_required';
 
     /**

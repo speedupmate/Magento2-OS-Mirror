@@ -6,10 +6,13 @@
 
 namespace Vertex\Tax\Model\Api\Data\InvoiceRequestBuilder;
 
+use Magento\Framework\Stdlib\StringUtils;
 use Magento\Sales\Api\Data\OrderItemExtensionInterface;
 use Magento\Sales\Api\OrderRepositoryInterface;
 use Vertex\Data\LineItemInterface;
 use Vertex\Data\LineItemInterfaceFactory;
+use Vertex\Exception\ConfigurationException;
+use Vertex\Tax\Model\Api\Utility\MapperFactoryProxy;
 use Vertex\Tax\Model\Config;
 use Vertex\Tax\Model\Repository\TaxClassNameRepository;
 
@@ -30,22 +33,34 @@ class GiftWrapProcessor
     /** @var OrderRepositoryInterface */
     private $orderRepository;
 
+    /** @var StringUtils */
+    private $stringUtilities;
+
+    /** @var MapperFactoryProxy */
+    private $mapperFactory;
+
     /**
      * @param OrderRepositoryInterface $orderRepository
      * @param Config $config
      * @param LineItemInterfaceFactory $lineItemFactory
      * @param TaxClassNameRepository $classNameRepository
+     * @param StringUtils $stringUtils
+     * @param MapperFactoryProxy $mapperFactory
      */
     public function __construct(
         OrderRepositoryInterface $orderRepository,
         Config $config,
         LineItemInterfaceFactory $lineItemFactory,
-        TaxClassNameRepository $classNameRepository
+        TaxClassNameRepository $classNameRepository,
+        StringUtils $stringUtils,
+        MapperFactoryProxy $mapperFactory
     ) {
         $this->orderRepository = $orderRepository;
         $this->config = $config;
         $this->lineItemFactory = $lineItemFactory;
         $this->classNameRepository = $classNameRepository;
+        $this->stringUtilities = $stringUtils;
+        $this->mapperFactory = $mapperFactory;
     }
 
     /**
@@ -118,15 +133,23 @@ class GiftWrapProcessor
      * @param string $sku
      * @param string|null $scopeCode
      * @return LineItemInterface
+     * @throws ConfigurationException
      */
     public function buildItem($giftWrapAmount, $sku, $scopeCode = null)
     {
         $productClass = $this->classNameRepository->getById($this->config->getGiftWrappingItemClass($scopeCode));
 
+        $lineMapper = $this->mapperFactory->getForClass(LineItemInterface::class, $scopeCode);
+
         /** @var LineItemInterface $lineItem */
         $lineItem = $this->lineItemFactory->create();
-        $lineItem->setProductCode($this->config->getGiftWrappingItemCodePrefix($scopeCode) . $sku);
-        $lineItem->setProductClass($productClass);
+        $productCode = $this->config->getGiftWrappingItemCodePrefix($scopeCode) . $sku;
+        $lineItem->setProductCode(
+            $this->stringUtilities->substr($productCode, 0, $lineMapper->getProductCodeMaxLength())
+        );
+        $lineItem->setProductClass(
+            $this->stringUtilities->substr($productClass, 0, $lineMapper->getProductTaxClassNameMaxLength())
+        );
         $lineItem->setQuantity(1);
         $lineItem->setUnitPrice($giftWrapAmount);
         $lineItem->setExtendedPrice($giftWrapAmount);
@@ -140,6 +163,7 @@ class GiftWrapProcessor
      * @param float|null $basePrice The result of the basePrice getter from the extension attributes
      * @param string|null $scopeCode
      * @return LineItemInterface|null
+     * @throws ConfigurationException
      */
     public function processOrderGiftCard($basePrice = null, $scopeCode = null)
     {
@@ -147,13 +171,19 @@ class GiftWrapProcessor
             return null;
         }
 
+        $lineMapper = $this->mapperFactory->getForClass(LineItemInterface::class, $scopeCode);
+
         $productCode = $this->config->getPrintedGiftcardCode($scopeCode);
         $productClass = $this->classNameRepository->getById($this->config->getPrintedGiftcardClass($scopeCode));
 
         /** @var LineItemInterface $lineItem */
         $lineItem = $this->lineItemFactory->create();
-        $lineItem->setProductCode($productCode);
-        $lineItem->setProductClass($productClass);
+        $lineItem->setProductCode(
+            $this->stringUtilities->substr($productCode, 0, $lineMapper->getProductCodeMaxLength())
+        );
+        $lineItem->setProductClass(
+            $this->stringUtilities->substr($productClass, 0, $lineMapper->getProductTaxClassNameMaxLength())
+        );
         $lineItem->setQuantity(1);
         $lineItem->setUnitPrice((float)$basePrice);
         $lineItem->setExtendedPrice((float)$basePrice);
@@ -167,6 +197,7 @@ class GiftWrapProcessor
      * @param float|null $basePrice The result of the basePrice getter from the extension attributes
      * @param string|null $scopeCode
      * @return LineItemInterface|null
+     * @throws ConfigurationException
      */
     public function processOrderGiftWrap($basePrice = null, $scopeCode = null)
     {
@@ -174,13 +205,19 @@ class GiftWrapProcessor
             return null;
         }
 
+        $lineMapper = $this->mapperFactory->getForClass(LineItemInterface::class, $scopeCode);
+
         $productCode = $this->config->getGiftWrappingOrderCode($scopeCode);
         $productClass = $this->classNameRepository->getById($this->config->getGiftWrappingOrderClass($scopeCode));
 
         /** @var LineItemInterface $lineItem */
         $lineItem = $this->lineItemFactory->create();
-        $lineItem->setProductCode($productCode);
-        $lineItem->setProductClass($productClass);
+        $lineItem->setProductCode(
+            $this->stringUtilities->substr($productCode, 0, $lineMapper->getProductCodeMaxLength())
+        );
+        $lineItem->setProductClass(
+            $this->stringUtilities->substr($productClass, 0, $lineMapper->getProductTaxClassNameMaxLength())
+        );
         $lineItem->setQuantity(1);
         $lineItem->setUnitPrice((float)$basePrice);
         $lineItem->setExtendedPrice((float)$basePrice);

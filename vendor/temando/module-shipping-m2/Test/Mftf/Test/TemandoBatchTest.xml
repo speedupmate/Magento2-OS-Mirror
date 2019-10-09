@@ -1,0 +1,88 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<tests xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+       xsi:noNamespaceSchemaLocation="urn:magento:mftf:Test/etc/testSchema.xsd">
+    <test name="TemandoCreateNewBatch">
+        <annotations>
+            <title value="Create New Batch" />
+            <description value="Create New Batch Of Shipments" />
+            <stories value="Create New Batch Of Shipments" />
+            <severity value="CRITICAL" />
+            <group value="Temando_Shipping_Batch" />
+            <testCaseId value="MPI-4689, MPI-4690, MPI-4691" />
+        </annotations>
+
+        <before>
+            <createData entity="SimpleSubCategory" stepKey="simplecategory" />
+            <createData entity="SimpleProduct" stepKey="simpleproduct">
+                <requiredEntity createDataKey="simplecategory" />
+            </createData>
+            <createData entity="TemandoConfigurationAdvancedSyncDisabled" stepKey="disableSync" />
+        </before>
+
+        <after>
+            <deleteData createDataKey="simpleproduct" stepKey="deleteProduct" />
+            <deleteData createDataKey="simplecategory" stepKey="deleteCategory" />
+
+            <!-- disable shipment sync -->
+            <createData entity="TemandoConfigurationAdvancedSyncDisabled" stepKey="disableSync" />
+
+            <!-- disable shipping -->
+            <actionGroup ref="AdminDisableShippingMethod" stepKey="disableShippingMethod" />
+        </after>
+
+        <!-- begin test -->
+        <actionGroup ref="LoginAsAdmin" stepKey="loginToEnableShipping" />
+
+        <!-- enable shipping -->
+        <actionGroup ref="AdminNavigateToShippingConfiguration" stepKey="navigateToShippingConfiguration" />
+        <actionGroup ref="AdminUpdateShippingConfigurationWithSave" stepKey="enableShippingMethod">
+            <argument name="isActive" value="{{TemandoConfigurationData.enableMagentoShipping}}" />
+            <argument name="apiEndpoint" value="{{_CREDS.carriers_temando_session_endpoint}}" />
+            <argument name="apiAccountId" value="{{_CREDS.carriers_temando_account_id}}" />
+            <argument name="apiBearerToken" value="{{_CREDS.carriers_temando_bearer_token}}" />
+        </actionGroup>
+
+        <!-- enable shipment sync -->
+        <actionGroup ref="AdminNavigateToAdvancedSettings" stepKey="navigateToAdvanceSettings" />
+        <actionGroup ref="AdminAdvancedSettingsEnableSyncWithSave" stepKey="enableEventSync" />
+
+        <!-- log out of admin -->
+        <amOnPage url="admin/admin/auth/logout/" stepKey="logoutFromEnablingShipping" />
+
+         <!-- place order -->
+        <actionGroup ref="TemandoAddSimpleProductToCart" stepKey="addProductToCart" />
+        <actionGroup ref="GoToCheckoutFromMinicartActionGroup" stepKey="guestGoToCheckoutFromMinicart" />
+        <actionGroup ref="TemandoCompleteShippingDetails" stepKey="fillShippingDetails" />
+        <actionGroup ref="TemandoSelectShippingMethod" stepKey="selectStandardShipping">
+            <argument name="shippingMethod" value="{{TemandoShippingMethodLabels.standard}}" />
+        </actionGroup>
+        <click stepKey="clickNext" selector="{{CheckoutShippingSection.next}}" />
+        <waitForPageLoad stepKey="waitForReviewAndPayments" />
+        <actionGroup ref="CheckoutPlaceOrderActionGroup" stepKey="guestPlaceorder">
+            <argument name="orderNumberMessage" value="CONST.successGuestCheckoutOrderNumberMessage" />
+            <argument name="emailYouMessage" value="CONST.successCheckoutEmailYouMessage" />
+        </actionGroup>
+        <grabTextFrom selector="{{CheckoutSuccessMainSection.orderNumber}}" stepKey="orderNumber" />
+
+        <!-- navigate to sales/orders -->
+        <actionGroup ref="LoginAsAdmin" stepKey="loginToViewOrder" />
+        <amOnPage url="{{AdminOrdersPage.url}}" stepKey="onOrdersPage" />
+        <waitForLoadingMaskToDisappear stepKey="waitForLoadingMaskToDisappearOnOrdersPage" />
+
+        <!-- select newly created order for batch processing -->
+        <actionGroup ref="clearFiltersAdminDataGrid" stepKey="clearGridFilter" />
+        <actionGroup ref="TemandoSelectOrderIdForBatchProcessing" stepKey="selectOrderIdToBatchProcess">
+            <argument name="orderId" value="{$orderNumber}"/>
+        </actionGroup>
+
+        <!-- complete batch process -->
+        <actionGroup ref="TemandoProcessNewBatchOrderSingleShipment" stepKey="processNewBatchOrder" />
+
+        <!-- refresh batch -->
+        <actionGroup ref="TemandoRefreshBatchList" stepKey="refreshBatchList" />
+
+        <!-- verify batch -->
+        <actionGroup ref="TemandoViewLatestBatchOrderDetails" stepKey="viewLatestBatchOrderDetails" />
+    </test>
+</tests>

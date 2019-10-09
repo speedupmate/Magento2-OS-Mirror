@@ -14,16 +14,22 @@ namespace Temando\Shipping\Model\Shipment;
  */
 interface ShipmentItemInterface
 {
-    const QTY = 'qty';
+    const NAME = 'name';
     const SKU = 'sku';
+    const QTY = 'qty';
 
     /**
-     * @return int
+     * @return string
      */
-    public function getQty();
+    public function getName();
 
     /**
      * @return string
      */
     public function getSku();
+
+    /**
+     * @return int
+     */
+    public function getQty();
 }

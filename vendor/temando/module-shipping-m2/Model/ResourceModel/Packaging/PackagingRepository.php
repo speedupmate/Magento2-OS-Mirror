@@ -4,16 +4,20 @@
  */
 namespace Temando\Shipping\Model\ResourceModel\Packaging;
 
+use Magento\Framework\Api\SearchCriteriaInterface;
 use Magento\Framework\Exception\CouldNotDeleteException;
+use Magento\Framework\Exception\LocalizedException;
 use Psr\Log\LoggerInterface;
 use Temando\Shipping\Model\PackagingInterface;
 use Temando\Shipping\Model\ResourceModel\Repository\PackagingRepositoryInterface;
 use Temando\Shipping\Rest\Adapter\ContainerApiInterface;
 use Temando\Shipping\Rest\EntityMapper\PackagingResponseMapper;
 use Temando\Shipping\Rest\Exception\AdapterException;
+use Temando\Shipping\Rest\Filter\FilterConverter;
 use Temando\Shipping\Rest\Request\ItemRequestInterfaceFactory;
 use Temando\Shipping\Rest\Request\ListRequestInterfaceFactory;
 use Temando\Shipping\Rest\Response\DataObject\Container;
+use Temando\Shipping\Webservice\Filter\CollectionFilterFactory;
 use Temando\Shipping\Webservice\Pagination\PaginationFactory;
 
 /**
@@ -58,6 +62,16 @@ class PackagingRepository implements PackagingRepositoryInterface
     private $logger;
 
     /**
+     * @var CollectionFilterFactory
+     */
+    private $filterFactory;
+
+    /**
+     * @var FilterConverter
+     */
+    private $filterConverter;
+
+    /**
      * PackagingRepository constructor.
      * @param ContainerApiInterface $apiAdapter
      * @param PaginationFactory $paginationFactory
@@ -65,6 +79,8 @@ class PackagingRepository implements PackagingRepositoryInterface
      * @param ItemRequestInterfaceFactory $itemRequestFactory
      * @param PackagingResponseMapper $packagingMapper
      * @param LoggerInterface $logger
+     * @param CollectionFilterFactory $filterFactory
+     * @param FilterConverter $filterConverter
      */
     public function __construct(
         ContainerApiInterface $apiAdapter,
@@ -72,7 +88,9 @@ class PackagingRepository implements PackagingRepositoryInterface
         ListRequestInterfaceFactory $listRequestFactory,
         ItemRequestInterfaceFactory $itemRequestFactory,
         PackagingResponseMapper $packagingMapper,
-        LoggerInterface $logger
+        LoggerInterface $logger,
+        CollectionFilterFactory $filterFactory,
+        FilterConverter $filterConverter
     ) {
         $this->apiAdapter = $apiAdapter;
         $this->paginationFactory = $paginationFactory;
@@ -80,29 +98,38 @@ class PackagingRepository implements PackagingRepositoryInterface
         $this->itemRequestFactory = $itemRequestFactory;
         $this->packagingMapper = $packagingMapper;
         $this->logger = $logger;
+        $this->filterFactory = $filterFactory;
+        $this->filterConverter = $filterConverter;
     }
 
     /**
-     * @param int|null $offset
-     * @param int|null $limit
+     * Retrieve a list of contains from the platform.
+     *
+     * @param SearchCriteriaInterface $searchCriteria
      * @return PackagingInterface[]
      */
-    public function getList($offset = null, $limit = null)
+    public function getList(SearchCriteriaInterface $searchCriteria): array
     {
         try {
             $pagination = $this->paginationFactory->create([
-                'offset' => $offset,
-                'limit' => $limit,
+                'offset' => $searchCriteria->getCurrentPage(),
+                'limit' => $searchCriteria->getPageSize(),
             ]);
+
+            $filter = $this->filterConverter->convert($searchCriteria->getFilterGroups());
 
             $request = $this->listRequestFactory->create([
                 'pagination' => $pagination,
+                'filter' => $filter,
             ]);
 
             $apiContainers = $this->apiAdapter->getContainers($request);
             $containers = array_map(function (Container $apiContainer) {
                 return $this->packagingMapper->map($apiContainer);
             }, $apiContainers);
+        } catch (LocalizedException $e) {
+            $this->logger->error($e->getMessage(), ['exception' => $e]);
+            $containers = [];
         } catch (AdapterException $e) {
             $this->logger->critical($e->getMessage(), ['exception' => $e]);
             $containers = [];
@@ -112,12 +139,13 @@ class PackagingRepository implements PackagingRepositoryInterface
     }
 
     /**
-     * @param string $packagingId
+     * Delete a container.
      *
+     * @param string $packagingId
      * @return void
      * @throws CouldNotDeleteException
      */
-    public function delete($packagingId)
+    public function delete($packagingId): void
     {
         try {
             $request = $this->itemRequestFactory->create(['entityId' => $packagingId]);

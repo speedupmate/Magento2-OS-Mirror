@@ -18,14 +18,14 @@ define([
     'ko',
     'mage/url',
     'amazonPaymentConfig',
+    'Magento_Ui/js/model/messageList',
     'amazonWidgetsLoader',
-    'bluebird',
-    'jquery/jquery-storageapi'
-], function ($, ko, url, amazonPaymentConfig) {
+    'jquery/jquery-storageapi',
+    'mage/cookies'
+], function ($, ko, url, amazonPaymentConfig, messageList) {
     'use strict';
 
-    var clientId = amazonPaymentConfig.getValue('clientId'),
-        amazonDefined = ko.observable(false),
+    var amazonDefined = ko.observable(false),
         amazonLoginError = ko.observable(false),
         accessToken = ko.observable(null),
         // Match region config to amazon.Login.Region
@@ -33,23 +33,22 @@ define([
         sandboxMode,
         region;
 
-    if (typeof amazon === 'undefined') {
-        /**
-         * Amazon login ready callback
-         */
-        window.onAmazonLoginReady = function () {
-            setClientId(clientId);  //eslint-disable-line no-use-before-define
-            doLogoutOnFlagCookie(); //eslint-disable-line no-use-before-define
+    accessToken($.mage.cookies.get('amazon_Login_accessToken'));
 
-            sandboxMode = amazonPaymentConfig.getValue('isSandboxEnabled', false);
-            amazon.Login.setSandboxMode(sandboxMode); //eslint-disable-line no-undef
+    var initAmazonLogin = function () {
+        amazon.Login.setClientId(amazonPaymentConfig.getValue('clientId')); //eslint-disable-line no-undef
+        amazon.Login.setSandboxMode(amazonPaymentConfig.getValue('isSandboxEnabled', false)); //eslint-disable-line no-undef
+        amazon.Login.setRegion(regions[amazonPaymentConfig.getValue('region')]); //eslint-disable-line no-undef
+        amazon.Login.setUseCookie(true); //eslint-disable-line no-undef
 
-            region = regions[amazonPaymentConfig.getValue('region')];
-            amazon.Login.setRegion(region); //eslint-disable-line no-undef
-        };
-    } else {
-        setClientId(clientId);  //eslint-disable-line no-use-before-define
         doLogoutOnFlagCookie(); //eslint-disable-line no-use-before-define
+        amazonDefined(true);
+    };
+
+    if (typeof amazon === 'undefined') {
+        window.onAmazonLoginReady = initAmazonLogin;
+    } else {
+        initAmazonLogin();
     }
 
     // Widgets.js ready callback
@@ -58,18 +57,10 @@ define([
     };
 
     /**
-     * Set Client ID
-     * @param {String} cid
-     */
-    function setClientId(cid) {
-        amazon.Login.setClientId(cid); //eslint-disable-line no-undef
-        amazonDefined(true);
-    }
-
-    /**
      * Log user out of amazon
      */
     function amazonLogout() {
+        $.mage.cookies.clear('amazon_Login_accessToken');
         $.ajax({
             url: url.build('amazon/logout'),
             context: this
@@ -109,39 +100,31 @@ define([
         amazonLoginError(true);
     }
 
+    function handleWidgetError(error) {
+        console.log('OffAmazonPayments.Widgets', error.getErrorCode(), error.getErrorMessage());
+        switch (error.getErrorCode()) {
+            case 'BuyerSessionExpired':
+                messageList.addErrorMessage({message: $.mage.__('Your Amazon session has expired.  Please sign in again by clicking the Amazon Pay Button.')});
+                var storage = require('Amazon_Payment/js/model/storage'); //TODO: clean up this circular dependency
+                storage.amazonlogOut();
+                break;
+            case 'ITP':
+                // ITP errors are how handled within the widget code
+                break;
+            default:
+                messageList.addErrorMessage({message: $.mage.__(error.getErrorMessage())});
+        }
+    }
+
     return {
-        /**
-         * Verify a user is logged into amazon
-         */
-        verifyAmazonLoggedIn: function () {
-            var defer  = $.Deferred(),
-                loginOptions = {
-                    scope: amazonPaymentConfig.getValue('loginScope'),
-                    popup: true,
-                    interactive: 'never'
-                };
-
-            // jscs:disable requireCamelCaseOrUpperCaseIdentifiers
-            amazon.Login.authorize(loginOptions, function (response) { //eslint-disable-line no-undef
-                if (response.error) {
-                    defer.reject(response.error);
-                } else {
-                    accessToken(response.access_token);
-                    defer.resolve(!response.error);
-                }
-            });
-            // jscs:enable requireCamelCaseOrUpperCaseIdentifiers
-
-            return defer.promise();
-        },
-
         /**
          * Log user out of Amazon
          */
         AmazonLogout: amazonLogout,
         amazonDefined: amazonDefined,
         accessToken: accessToken,
-        amazonLoginError: amazonLoginError
+        amazonLoginError: amazonLoginError,
+        handleWidgetError: handleWidgetError
     };
 
 });

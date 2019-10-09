@@ -71,6 +71,9 @@ class Uninstall implements UninstallInterface
         $eavSetup->removeAttribute(Product::ENTITY, SetupData::ATTRIBUTE_CODE_WIDTH);
         $eavSetup->removeAttribute(Product::ENTITY, SetupData::ATTRIBUTE_CODE_LENGTH);
 
+        $eavSetup->removeAttribute(Product::ENTITY, SetupData::ATTRIBUTE_CODE_PACKAGING_TYPE);
+        $eavSetup->removeAttribute(Product::ENTITY, SetupData::ATTRIBUTE_CODE_PACKAGING_ID);
+
         $configTable = $uninstaller->getTable('core_config_data');
         $defaultConnection->delete($configTable, "`path` LIKE 'carriers/temando/%'");
     }

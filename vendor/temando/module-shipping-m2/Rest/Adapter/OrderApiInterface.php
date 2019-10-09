@@ -7,7 +7,9 @@ namespace Temando\Shipping\Rest\Adapter;
 
 use Temando\Shipping\Rest\Exception\AdapterException;
 use Temando\Shipping\Rest\Request\OrderRequest;
+use Temando\Shipping\Rest\Request\UpdateRequestInterface;
 use Temando\Shipping\Rest\Response\Document\SaveOrderInterface;
+use Temando\Shipping\Rest\Response\Document\UpdateOrderInterface;
 
 /**
  * The Temando Order API interface defines the supported subset of operations
@@ -36,11 +38,20 @@ interface OrderApiInterface
     public function createOrder(OrderRequest $request);
 
     /**
-     * Update order.
+     * Replace entire order.
      *
      * @param OrderRequest $request
      * @return SaveOrderInterface
      * @throws AdapterException
      */
     public function updateOrder(OrderRequest $request);
+
+    /**
+     * Update specific order attributes.
+     *
+     * @param UpdateRequestInterface $request
+     * @return UpdateOrderInterface
+     * @throws AdapterException
+     */
+    public function patchOrder(UpdateRequestInterface $request);
 }

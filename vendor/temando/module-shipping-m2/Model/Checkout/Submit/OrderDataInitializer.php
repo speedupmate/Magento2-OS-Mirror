@@ -76,7 +76,7 @@ class OrderDataInitializer
         }
 
         try {
-            $collectionPoint = $this->collectionPointRepository->getSelected($address->getId());
+            $collectionPoint = $this->collectionPointRepository->getSelected((int) $address->getId());
             $this->orderBuilder->setCollectionPoint($collectionPoint);
         } catch (LocalizedException $exception) {
             $collectionPoint = null;
@@ -87,7 +87,7 @@ class OrderDataInitializer
         }
 
         try {
-            $pickupLocation = $this->pickupLocationRepository->getSelected($address->getId());
+            $pickupLocation = $this->pickupLocationRepository->getSelected((int) $address->getId());
             $this->orderBuilder->setPickupLocation($pickupLocation);
         } catch (LocalizedException $exception) {
             $pickupLocation = null;

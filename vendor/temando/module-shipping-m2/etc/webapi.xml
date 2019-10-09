@@ -173,4 +173,25 @@
             <parameter name="cartId" force="true">%cart_id%</parameter>
         </data>
     </route>
+
+    <route method="GET" url="/V1/attribute/product/shipping">
+        <service class="Temando\Shipping\Api\Attribute\Mapping\ProductManagementInterface" method="getShippingAttributes"/>
+        <resources>
+            <resource ref="token"/>
+        </resources>
+    </route>
+
+    <route method="GET" url="/V1/attribute/product">
+        <service class="Temando\Shipping\Api\Attribute\Mapping\ProductManagementInterface" method="getProductAttributes"/>
+        <resources>
+            <resource ref="token"/>
+        </resources>
+    </route>
+
+    <route method="POST" url="/V1/attribute/product/delete/:nodePathId">
+        <service class="Temando\Shipping\Api\Attribute\Mapping\ProductManagementInterface" method="delete"/>
+        <resources>
+            <resource ref="token"/>
+        </resources>
+    </route>
 </routes>

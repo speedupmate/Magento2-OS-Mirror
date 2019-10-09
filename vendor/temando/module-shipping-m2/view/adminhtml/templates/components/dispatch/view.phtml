@@ -33,7 +33,7 @@
                     <tr>
                         <th><?= $block->escapeHtml(__('Ready At')); ?></th>
                         <?php // @codingStandardsIgnoreLine ?>
-                        <td><?= $block->escapeHtml($block->getDate($dispatch->getReadyAtDate())->format('Y-m-d g:i a')); ?></td>
+                        <td><?= $block->escapeHtml($block->getUnconvertedDate($dispatch->getReadyAtDate())->format('Y-m-d g:i a')); ?></td>
                     </tr>
                     <tr>
                         <th><?= $block->escapeHtml(__('Number of included shipments')); ?></th>

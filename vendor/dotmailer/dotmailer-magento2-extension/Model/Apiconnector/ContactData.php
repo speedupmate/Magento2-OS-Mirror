@@ -239,8 +239,13 @@ class ContactData
                 $this->model->getWebsiteId()
             );
             $storeId = $this->model->getStoreId();
-            $this->brandValue[$id] = $this->getAttributeValue($id, $attributeCode, $storeId);
+            $brandValue = $this->getAttributeValue($id, $attributeCode, $storeId);
 
+            if (is_array($brandValue)) {
+                $this->brandValue[$id] = implode(',', $brandValue);
+            } else {
+                $this->brandValue[$id] = $brandValue;
+            }
         }
 
         return $this->brandValue[$id];
@@ -374,7 +379,8 @@ class ContactData
         if ($productId && $attributeCode) {
             $product = $this->getProduct($productId);
             if ($product->getId()) {
-                $value = $this->productResource->getAttribute($attributeCode)->getFrontend()->getValue($product);
+                $attribute = $this->productResource->getAttribute($attributeCode);
+                $value = is_object($attribute) ? $attribute->getFrontend()->getValue($product) : null;
                 if ($value) {
                     return $value;
                 }

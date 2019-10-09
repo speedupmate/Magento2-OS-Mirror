@@ -30,7 +30,7 @@ class Createdatafield extends \Magento\Config\Block\System\Config\Form\Field
     {
         parent::_prepareLayout();
         if (!$this->getTemplate()) {
-            $this->setTemplate('system/config/createdatafield.phtml');
+            $this->setTemplate('Dotdigitalgroup_Email::system/config/createdatafield.phtml');
         }
 
         return $this;
@@ -49,7 +49,10 @@ class Createdatafield extends \Magento\Config\Block\System\Config\Form\Field
         $originalData = $element->getOriginalData();
         $buttonLabel = !empty($originalData['button_label'])
             ? $originalData['button_label'] : $this->buttonLabel;
-        $url = $this->_urlBuilder->getUrl('dotdigitalgroup_email/datafield/save');
+        $url = $this->_urlBuilder->getUrl(
+            'dotdigitalgroup_email/datafield/save',
+            ['website_id' => $this->getRequest()->getParam('website', 0)]
+        );
         $this->addData(
             [
                 'button_label' => $buttonLabel,

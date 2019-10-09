@@ -170,8 +170,9 @@
                 <expire_time>24</expire_time>
             </abandoned_carts>
             <tracking>
-                <roi_enabled>0</roi_enabled>
-                <page_enabled>0</page_enabled>
+                <roi_enabled>1</roi_enabled>
+                <page_enabled>1</page_enabled>
+                <script_version></script_version>
             </tracking>
             <consent>
                 <dotmailer_consent_subscriber_enabled>0</dotmailer_consent_subscriber_enabled>
@@ -298,13 +299,6 @@
                 <debug_enabled>1</debug_enabled>
                 <api_log_time>60</api_log_time>
             </debug>
-            <feed_configuration>
-                <feed_enabled>1</feed_enabled>
-                <feed_url>dotmailerformagento.co.uk/feed.xml</feed_url>
-                <use_https>0</use_https>
-                <frequency>1</frequency>
-                <last_update></last_update>
-            </feed_configuration>
             <oauth>
                 <client_id></client_id>
                 <client_key></client_key>

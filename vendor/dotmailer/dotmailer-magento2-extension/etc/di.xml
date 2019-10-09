@@ -30,6 +30,9 @@
     <type name="Magento\Newsletter\Controller\Manage\Index">
         <plugin name="dotmailer_newsletter_plugin" type="Dotdigitalgroup\Email\Plugin\NewsletterManageIndexPlugin" sortOrder="1"/>
     </type>
+    <type name="Magento\UrlRewrite\Controller\Adminhtml\Url\Rewrite\Save">
+        <plugin name="dotmailer_url_rewrite_save_plugin" type="Dotdigitalgroup\Email\Plugin\UrlRewriteSavePlugin" sortOrder="1"/>
+    </type>
     <virtualType name="ContactCustomPrice" type="Magento\Framework\Pricing\Price\Pool">
         <arguments>
             <argument name="prices" xsi:type="array">
@@ -72,7 +75,28 @@
             </argument>
         </arguments>
     </type>
+    <type name="Magento\Framework\Console\CommandList">
+        <arguments>
+            <argument name="commands" xsi:type="array">
+                <item name="import_data" xsi:type="object">Dotdigitalgroup\Email\Console\Command\ImportDataCommand</item>
+                <item name="importer_syncs" xsi:type="object">Dotdigitalgroup\Email\Console\Command\ImporterSyncsCommand</item>
+            </argument>
+        </arguments>
+    </type>
     <preference for="Magento\Config\Model\Config\Structure\SearchInterface" type="Magento\Config\Model\Config\Structure" />
     <preference for="Magento\Sales\Api\Data\OrderSearchResultInterface" type="Magento\Sales\Model\ResourceModel\Order\Collection" />
     <preference for="Magento\SalesRule\Model\Coupon\CodegeneratorInterface" type="Dotdigitalgroup\Email\Model\SalesRule\DotmailerCouponCodeGenerator" />
+    <type name="Dotdigitalgroup\Email\Logger\Handler\ConnectorLogHandler">
+        <arguments>
+            <argument name="filesystem" xsi:type="object">Magento\Framework\Filesystem\Driver\File</argument>
+        </arguments>
+    </type>
+    <type name="Dotdigitalgroup\Email\Logger\Logger">
+        <arguments>
+            <argument name="name" xsi:type="string">dotdigital</argument>
+            <argument name="handlers"  xsi:type="array">
+                <item name="connector_log_handler" xsi:type="object">Dotdigitalgroup\Email\Logger\Handler\ConnectorLogHandler</item>
+            </argument>
+        </arguments>
+    </type>
 </config>

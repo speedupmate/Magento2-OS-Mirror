@@ -12,14 +12,15 @@
         <annotations>
             <stories value="Add Downloadable Product"/>
             <title value="Downloadable Product  assigned to Test Stock created by Admin user"/>
-            <description value="Downloadable Product  assigned to Test Stock created by Admin user"/>
-            <testCaseId value="MSI-1750"/>
+            <description value="Downloadable Product  assigned to Test Stock created by Admin user."/>
+            <testCaseId value="https://app.hiptest.com/projects/69435/test-plan/folders/457024/scenarios/1466426"/>
             <severity value="MAJOR"/>
             <group value="msi"/>
             <group value="multi_mode"/>
         </annotations>
         
         <before>
+            <magentoCLI stepKey="addDownloadableDomain" command="downloadable:domains:add static.magento.com"/>
             <createData entity="SimpleSubCategory" stepKey="simpleCategory1"/>
             <createData entity="DownloadableMsiProduct" stepKey="downloadableProduct1">
                 <requiredEntity createDataKey="simpleCategory1"/>
@@ -35,6 +36,7 @@
             <actionGroup ref="LoginAsAdmin" stepKey="loginAsAdmin1"/>
         </before>
         <after>
+            <magentoCLI stepKey="removeDownloadableDomain" command="downloadable:domains:remove static.magento.com"/>
             <actionGroup ref="logout" stepKey="logoutOfAdmin1"/>
         </after>
 

@@ -15,6 +15,7 @@ use Temando\Shipping\Model\Shipment\ShipmentProviderInterface;
 use Temando\Shipping\Plugin\Shipping\Order\ShipmentLoaderPlugin;
 use Temando\Shipping\Rest\AuthenticationInterface;
 use Temando\Shipping\Rest\RestClient;
+use Temando\Shipping\Test\Integration\Fixture\ApiTokenFixture;
 use Temando\Shipping\Test\Integration\Fixture\ShippedOrderFixture;
 use Temando\Shipping\Test\Integration\Provider\RestResponseProvider;
 use Temando\Shipping\Webservice\Exception\HttpResponseException;
@@ -22,11 +23,12 @@ use Temando\Shipping\Webservice\Exception\HttpResponseException;
 /**
  * ShipmentLoaderPluginTest
  *
- * @package  Temando\Shipping\Test\Integration
- * @author   Christoph Aßmann <christoph.assmann@netresearch.de>
- * @license  http://opensource.org/licenses/osl-3.0.php Open Software License (OSL 3.0)
- * @link     http://www.temando.com/
+ * @package Temando\Shipping\Test\Integration
+ * @author  Christoph Aßmann <christoph.assmann@netresearch.de>
+ * @license https://opensource.org/licenses/osl-3.0.php Open Software License (OSL 3.0)
+ * @link    https://www.temando.com/
  *
+ * @magentoAppArea adminhtml
  * @magentoAppIsolation enabled
  */
 class ShipmentLoaderPluginTest extends \PHPUnit\Framework\TestCase
@@ -57,19 +59,32 @@ class ShipmentLoaderPluginTest extends \PHPUnit\Framework\TestCase
     private $request;
 
     /**
-     * delegate fixtures creation to separate class.
+     * Init object manager
      */
-    public static function createOrderAndShipmentFixture()
+    protected function setUp()
     {
-        ShippedOrderFixture::createOrderAndShipmentFixture();
-    }
+        parent::setUp();
 
-    /**
-     * delegate fixtures rollback to separate class.
-     */
-    public static function createOrderAndShipmentFixtureRollback()
-    {
-        ShippedOrderFixture::createOrderAndShipmentFixtureRollback();
+        $this->objectManager = Bootstrap::getObjectManager();
+
+        $this->restClient = $this->getMockBuilder(RestClient::class)
+                                 ->setMethods(['get'])
+                                 ->disableOriginalConstructor()
+                                 ->getMock();
+        $this->objectManager->addSharedInstance($this->restClient, RestClient::class);
+
+        $this->request = $this->getMockBuilder(\Magento\TestFramework\Request::class)
+                              ->setMethods(['getModuleName', 'getControllerName', 'getActionName'])
+                              ->disableOriginalConstructor()
+                              ->getMock();
+        $plugin = $this->objectManager->create(ShipmentLoaderPlugin::class, [
+            'request' => $this->request,
+        ]);
+
+        $this->objectManager->addSharedInstance($plugin, ShipmentLoaderPlugin::class);
+
+        $this->shipmentRepository = $this->objectManager->create(ShipmentRepository::class);
+        $this->shipmentLoader = $this->objectManager->create(ShipmentLoader::class);
     }
 
     /**
@@ -81,50 +96,41 @@ class ShipmentLoaderPluginTest extends \PHPUnit\Framework\TestCase
     }
 
     /**
-     * Init object manager
+     * delegate fixtures creation to separate class.
      */
-    protected function setUp()
+    public static function createApiToken()
     {
-        parent::setUp();
-
-        /** @var SessionManagerInterface $adminSession */
-        $adminSession = Bootstrap::getObjectManager()->get(SessionManagerInterface::class);
-        $adminSession->setData(AuthenticationInterface::DATA_KEY_SESSION_TOKEN_EXPIRY, '2038-01-19T03:03:33.000Z');
-
-        $this->objectManager = Bootstrap::getObjectManager();
-
-        $this->restClient = $this->getMockBuilder(RestClient::class)
-            ->setMethods(['get'])
-            ->disableOriginalConstructor()
-            ->getMock();
-        $this->objectManager->addSharedInstance($this->restClient, RestClient::class);
-
-        $this->request = $this->getMockBuilder(\Magento\TestFramework\Request::class)
-            ->setMethods(['getModuleName', 'getControllerName', 'getActionName'])
-            ->disableOriginalConstructor()
-            ->getMock();
-        $plugin = $this->objectManager->create(ShipmentLoaderPlugin::class, [
-            'request' => $this->request,
-        ]);
-
-        $this->objectManager->addSharedInstance($plugin, ShipmentLoaderPlugin::class);
-
-        $this->shipmentRepository = $this->objectManager->create(ShipmentRepository::class);
-        $this->shipmentLoader = $this->objectManager->create(ShipmentLoader::class);
+        ApiTokenFixture::createValidToken();
     }
 
-    protected function tearDown()
+    /**
+     * delegate fixtures rollback to separate class.
+     */
+    public static function createApiTokenRollback()
     {
-        /** @var SessionManagerInterface $adminSession */
-        $adminSession = Bootstrap::getObjectManager()->get(SessionManagerInterface::class);
-        $adminSession->unsetData(AuthenticationInterface::DATA_KEY_SESSION_TOKEN_EXPIRY);
+        ApiTokenFixture::rollbackToken();
+    }
 
-        parent::tearDown();
+    /**
+     * delegate fixtures creation to separate class.
+     */
+    public static function createOrderAndShipment()
+    {
+        ShippedOrderFixture::createOrderAndShipmentFixture();
+    }
+
+    /**
+     * delegate fixtures rollback to separate class.
+     */
+    public static function createOrderAndShipmentRollback()
+    {
+        ShippedOrderFixture::createOrderAndShipmentFixtureRollback();
     }
 
     /**
      * @test
-     * @magentoAppArea adminhtml
+     *
+     * @magentoDataFixture createApiToken
      */
     public function platformShipmentIsNotLoadedIfNoShipmentIsRegistered()
     {
@@ -141,8 +147,9 @@ class ShipmentLoaderPluginTest extends \PHPUnit\Framework\TestCase
 
     /**
      * @test
-     * @magentoAppArea adminhtml
-     * @magentoDataFixture createOrderAndShipmentFixture
+     *
+     * @magentoDataFixture createApiToken
+     * @magentoDataFixture createOrderAndShipment
      */
     public function platformShipmentIsNotLoadedIfNotOnShipmentViewPage()
     {
@@ -175,8 +182,9 @@ class ShipmentLoaderPluginTest extends \PHPUnit\Framework\TestCase
 
     /**
      * @test
-     * @magentoAppArea adminhtml
-     * @magentoDataFixture createOrderAndShipmentFixture
+     *
+     * @magentoDataFixture createApiToken
+     * @magentoDataFixture createOrderAndShipment
      */
     public function platformShipmentIsNotLoadedWithDefaultCarrier()
     {
@@ -210,8 +218,9 @@ class ShipmentLoaderPluginTest extends \PHPUnit\Framework\TestCase
 
     /**
      * @test
-     * @magentoAppArea adminhtml
-     * @magentoDataFixture createOrderAndShipmentFixture
+     *
+     * @magentoDataFixture createApiToken
+     * @magentoDataFixture createOrderAndShipment
      */
     public function platformShipmentLoadingThrowsApiException()
     {
@@ -247,10 +256,13 @@ class ShipmentLoaderPluginTest extends \PHPUnit\Framework\TestCase
 
     /**
      * @test
-     * @magentoAppArea adminhtml
-     * @magentoDataFixture createOrderAndShipmentFixture
      * @dataProvider getShipmentResponseDataProvider
+     *
+     * @magentoDataFixture createApiToken
+     * @magentoDataFixture createOrderAndShipment
+     *
      * @param string $jsonResponse
+     * @throws \Magento\Framework\Exception\LocalizedException
      */
     public function platformShipmentIsLoaded($jsonResponse)
     {

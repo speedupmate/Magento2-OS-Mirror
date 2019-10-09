@@ -6,15 +6,15 @@ namespace Temando\Shipping\Model\Config\Backend\Active;
 
 use Magento\Framework\HTTP\Client\Curl;
 use Temando\Shipping\Rest\AuthenticationInterface;
-use Temando\Shipping\Rest\Request\AuthRequestInterfaceFactory;
+use Temando\Shipping\Rest\Request\AuthRequestFactory;
 
 /**
  * Simple http client for testing API authentication.
  *
- * @package  Temando\Shipping\Model
- * @author   Christoph Aßmann <christoph.assmann@netresearch.de>
- * @license  http://opensource.org/licenses/osl-3.0.php Open Software License (OSL 3.0)
- * @link     http://www.temando.com/
+ * @package Temando\Shipping\Model
+ * @author  Christoph Aßmann <christoph.assmann@netresearch.de>
+ * @license https://opensource.org/licenses/osl-3.0.php Open Software License (OSL 3.0)
+ * @link    https://www.temando.com/
  */
 class ApiConnection
 {
@@ -24,7 +24,7 @@ class ApiConnection
     private $httpClient;
 
     /**
-     * @var AuthRequestInterfaceFactory
+     * @var AuthRequestFactory
      */
     private $requestFactory;
 
@@ -32,11 +32,11 @@ class ApiConnection
      * ApiConnection constructor.
      *
      * @param Curl $httpClient
-     * @param AuthRequestInterfaceFactory $requestFactory
+     * @param AuthRequestFactory $requestFactory
      */
     public function __construct(
         Curl $httpClient,
-        AuthRequestInterfaceFactory $requestFactory
+        AuthRequestFactory $requestFactory
     ) {
         $this->httpClient = $httpClient;
         $this->requestFactory = $requestFactory;

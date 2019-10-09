@@ -27,6 +27,7 @@ class ArrayCleaner
     public function removeDuplicates(array $array, $key = 'id')
     {
         /** @noinspection CallableInLoopTerminationConditionInspection */
+        // phpcs:disable Generic.CodeAnalysis.ForLoopWithTestFunctionCall
         // The count statement is intentional as the array's size will decrease
         for ($parent_index = 0; $parent_index < count($array); $parent_index++) {
             $duplicate = null;

@@ -14,10 +14,10 @@ use Temando\Shipping\Webservice\Config\WsConfigInterface;
 /**
  * Temando Session Token Action
  *
- * @package  Temando\Shipping\Controller
- * @author   Christoph Aßmann <christoph.assmann@netresearch.de>
- * @license  http://opensource.org/licenses/osl-3.0.php Open Software License (OSL 3.0)
- * @link     http://www.temando.com/
+ * @package Temando\Shipping\Controller
+ * @author  Christoph Aßmann <christoph.assmann@netresearch.de>
+ * @license https://opensource.org/licenses/osl-3.0.php Open Software License (OSL 3.0)
+ * @link    https://www.temando.com/
  */
 class Token extends BackendAction
 {
@@ -70,7 +70,8 @@ class Token extends BackendAction
      * Print the current user's session token.
      *
      * @return \Magento\Framework\Controller\ResultInterface
-     * @throws \Magento\Framework\Exception\NotFoundException
+     * @throws \Magento\Framework\Exception\AuthenticationException
+     * @throws \Magento\Framework\Exception\InputException
      */
     public function execute()
     {

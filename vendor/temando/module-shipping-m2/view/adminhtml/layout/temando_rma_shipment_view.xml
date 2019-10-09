@@ -6,6 +6,9 @@
 -->
 <page xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="urn:magento:framework:View/Layout/etc/page_configuration.xsd">
     <body>
+        <referenceBlock name="page.actions.toolbar">
+            <block class="Temando\Shipping\Block\Adminhtml\PageAction\BackButton" name="rma_shipment_view_btn_back"/>
+        </referenceBlock>
         <referenceContainer name="content">
             <!-- container block, renders all children, adds toolbar button -->
             <block class="Temando\Shipping\Block\Adminhtml\Rma\RmaShipment\View" name="rma_shipment_view">

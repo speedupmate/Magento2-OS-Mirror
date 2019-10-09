@@ -20,11 +20,11 @@ use Magento\Framework\DataObject;
 class ShipmentItem extends DataObject implements ShipmentItemInterface
 {
     /**
-     * @return int
+     * @return string
      */
-    public function getQty()
+    public function getName()
     {
-        return $this->getData(PackageItemInterface::QTY);
+        return $this->getData(PackageItemInterface::NAME);
     }
 
     /**
@@ -33,5 +33,13 @@ class ShipmentItem extends DataObject implements ShipmentItemInterface
     public function getSku()
     {
         return $this->getData(PackageItemInterface::SKU);
+    }
+
+    /**
+     * @return int
+     */
+    public function getQty()
+    {
+        return $this->getData(PackageItemInterface::QTY);
     }
 }

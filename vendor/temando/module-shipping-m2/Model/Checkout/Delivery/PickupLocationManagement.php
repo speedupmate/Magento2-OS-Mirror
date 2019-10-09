@@ -14,7 +14,7 @@ use Temando\Shipping\Api\Data\Delivery\PickupLocationSearchRequestInterface;
 use Temando\Shipping\Api\Data\Delivery\PickupLocationSearchRequestInterfaceFactory;
 use Temando\Shipping\Api\Data\Delivery\PickupLocationSearchResultInterface;
 use Temando\Shipping\Api\Data\Delivery\QuotePickupLocationInterface;
-use Temando\Shipping\Model\Delivery\QuotePickupLocation;
+use Temando\Shipping\Model\ResourceModel\Delivery\PickupLocationMassAction;
 use Temando\Shipping\Model\ResourceModel\Repository\PickupLocationSearchRepositoryInterface;
 use Temando\Shipping\Model\ResourceModel\Repository\QuotePickupLocationRepositoryInterface;
 
@@ -59,6 +59,11 @@ class PickupLocationManagement
     private $sortOrderBuilder;
 
     /**
+     * @var PickupLocationMassAction
+     */
+    private $massAction;
+
+    /**
      * PickupLocationManagement constructor.
      *
      * @param PickupLocationSearchRepositoryInterface $searchRequestRepository
@@ -67,6 +72,7 @@ class PickupLocationManagement
      * @param SearchCriteriaBuilder $searchCriteriaBuilderFactory
      * @param FilterBuilder $filterBuilder
      * @param SortOrderBuilder $sortOrderBuilder
+     * @param PickupLocationMassAction $massAction
      */
     public function __construct(
         PickupLocationSearchRepositoryInterface $searchRequestRepository,
@@ -74,7 +80,8 @@ class PickupLocationManagement
         QuotePickupLocationRepositoryInterface $pickupLocationRepository,
         SearchCriteriaBuilder $searchCriteriaBuilderFactory,
         FilterBuilder $filterBuilder,
-        SortOrderBuilder $sortOrderBuilder
+        SortOrderBuilder $sortOrderBuilder,
+        PickupLocationMassAction $massAction
     ) {
         $this->searchRequestRepository = $searchRequestRepository;
         $this->searchRequestFactory = $searchRequestFactory;
@@ -82,6 +89,7 @@ class PickupLocationManagement
         $this->searchCriteriaBuilder = $searchCriteriaBuilderFactory;
         $this->filterBuilder = $filterBuilder;
         $this->sortOrderBuilder = $sortOrderBuilder;
+        $this->massAction = $massAction;
     }
 
     /**
@@ -163,7 +171,7 @@ class PickupLocationManagement
     }
 
     /**
-     * Delete all collect location search results for a given shipping address id.
+     * Delete all pickup location search results for a given shipping address id.
      *
      * @param int $addressId
      * @return PickupLocationSearchResultInterface
@@ -180,17 +188,7 @@ class PickupLocationManagement
         $this->searchCriteriaBuilder->addFilters([$filter]);
         $criteria = $this->searchCriteriaBuilder->create();
 
-        try {
-            $searchResult = $this->pickupLocationRepository->getList($criteria);
-            $pickupLocations = $searchResult->getItems();
-            array_walk($pickupLocations, function (QuotePickupLocationInterface $pickupLocation) {
-                $this->pickupLocationRepository->delete($pickupLocation);
-            });
-        } catch (LocalizedException $exception) {
-            throw new CouldNotDeleteException(__('Unable to delete collect locations.'), $exception);
-        }
-
-        return $searchResult;
+        return $this->massAction->deletePickupLocations($addressId, $criteria);
     }
 
     /**
@@ -203,21 +201,6 @@ class PickupLocationManagement
      */
     public function selectPickupLocation(int $addressId, string $pickupLocationId): bool
     {
-        $pickupLocations = $this->getPickupLocations($addressId);
-
-        try {
-            $updateSelection = function (QuotePickupLocationInterface $pickupLocation) use ($pickupLocationId) {
-                $isSelected = ($pickupLocationId == $pickupLocation->getPickupLocationId());
-                /** @var QuotePickupLocation $pickupLocation */
-                $pickupLocation->setData(QuotePickupLocationInterface::SELECTED, $isSelected);
-                $this->pickupLocationRepository->save($pickupLocation);
-            };
-
-            array_walk($pickupLocations, $updateSelection);
-        } catch (LocalizedException $exception) {
-            throw new CouldNotSaveException(__('Unable to select pickup location.'), $exception);
-        }
-
-        return true;
+        return $this->massAction->selectPickupLocation($addressId, $pickupLocationId);
     }
 }

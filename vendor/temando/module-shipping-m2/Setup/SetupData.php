@@ -5,8 +5,10 @@
 
 namespace Temando\Shipping\Setup;
 
+use Magento\Catalog\Api\Data\ProductInterface;
 use Magento\Catalog\Model\Product;
 use Magento\Catalog\Model\Product\Type;
+use Magento\ConfigurableProduct\Model\Product\Type\Configurable;
 use Magento\Eav\Model\Entity\Attribute\ScopedAttributeInterface;
 use Magento\Eav\Setup\EavSetup;
 use Magento\Eav\Setup\EavSetupFactory;
@@ -16,6 +18,10 @@ use Magento\Framework\App\TemplateTypesInterface;
 use Magento\Framework\Filesystem\Driver\File as Filesystem;
 use Magento\Framework\Module\Dir\Reader;
 use Magento\Framework\Setup\ModuleDataSetupInterface;
+use Temando\Shipping\Model\Attribute\Mapping\ProductInterface as ProductAttributeMappingInterface;
+use Temando\Shipping\Model\Source\Packaging;
+use Temando\Shipping\Model\Source\PackagingType;
+use Temando\Shipping\Model\ResourceModel\Product\Attribute\Source\Country;
 
 /**
  * Data setup for use during installation / upgrade
@@ -32,8 +38,12 @@ class SetupData
     const ATTRIBUTE_CODE_LENGTH = 'ts_dimensions_length';
     const ATTRIBUTE_CODE_WIDTH = 'ts_dimensions_width';
     const ATTRIBUTE_CODE_HEIGHT = 'ts_dimensions_height';
+    const ATTRIBUTE_CODE_PACKAGING_TYPE = 'ts_packaging_type';
+    const ATTRIBUTE_CODE_PACKAGING_ID = 'ts_packaging_id';
     const PICKUP_ORDER_TEMPLATE = 'order_pickup_new.html';
     const PICKUP_ORDER_GUEST_TEMPLATE = 'order_pickup_new_guest.html';
+    const ATTRIBUTE_CODE_HS_CODE = 'ts_hs_code';
+    const ATTRIBUTE_CODE_COUNTRY_OF_ORIGIN = 'ts_country_of_origin';
 
     /**
      * @var EavSetupFactory
@@ -85,6 +95,49 @@ class SetupData
     }
 
     /**
+     * Get email template directory.
+     *
+     * @return string
+     */
+    private function getDirectory()
+    {
+        $viewDir = $this->moduleReader->getModuleDir(
+            \Magento\Framework\Module\Dir::MODULE_VIEW_DIR,
+            'Temando_Shipping'
+        );
+
+        return $viewDir . '/frontend/email/';
+    }
+
+    /**
+     * Get pickup order email contents for registered orders.
+     *
+     * @return string
+     * @throws \Magento\Framework\Exception\FileSystemException
+     */
+    private function getEmailTemplate()
+    {
+        $viewDir = $this->getDirectory();
+        $templateContent = $this->fileSystemDriver->fileGetContents($viewDir . self::PICKUP_ORDER_TEMPLATE);
+
+        return $templateContent;
+    }
+
+    /**
+     * Get pickup order email contents for guest orders.
+     *
+     * @return string
+     * @throws \Magento\Framework\Exception\FileSystemException
+     */
+    private function getEmailTemplateForGuest()
+    {
+        $viewDir = $this->getDirectory();
+        $templateContent = $this->fileSystemDriver->fileGetContents($viewDir . self::PICKUP_ORDER_GUEST_TEMPLATE);
+
+        return $templateContent;
+    }
+
+    /**
      * Add dimension attributes. Need to be editable on store level due to the
      * weight unit (that dimensions unit is derived from) is configurable on
      * store level.
@@ -99,7 +152,7 @@ class SetupData
 
         $eavSetup->addAttribute(Product::ENTITY, self::ATTRIBUTE_CODE_LENGTH, [
             'type' => 'decimal',
-            'label' => 'Length',
+            'label' => 'Item Length',
             'input' => 'text',
             'required' => false,
             'class' => 'not-negative-amount',
@@ -114,7 +167,7 @@ class SetupData
 
         $eavSetup->addAttribute(Product::ENTITY, self::ATTRIBUTE_CODE_WIDTH, [
             'type' => 'decimal',
-            'label' => 'Width',
+            'label' => 'Item Width',
             'input' => 'text',
             'required' => false,
             'class' => 'not-negative-amount',
@@ -129,7 +182,7 @@ class SetupData
 
         $eavSetup->addAttribute(Product::ENTITY, self::ATTRIBUTE_CODE_HEIGHT, [
             'type' => 'decimal',
-            'label' => 'Height',
+            'label' => 'Item Height',
             'input' => 'text',
             'required' => false,
             'class' => 'not-negative-amount',
@@ -141,6 +194,40 @@ class SetupData
             'user_defined' => false,
             'apply_to' => Type::TYPE_SIMPLE
         ]);
+    }
+
+    /**
+     * Updates Shipping Dimension Attributes to Configurable Product Types
+     *
+     * @param ModuleDataSetupInterface $setup
+     * @throws \Magento\Framework\Exception\LocalizedException
+     * @throws \Zend_Validate_Exception
+     */
+    public function updateDimensionAttributes(ModuleDataSetupInterface $setup)
+    {
+        /** @var EavSetup $eavSetup */
+        $eavSetup = $this->eavSetupFactory->create(['setup' => $setup]);
+
+        $eavSetup->updateAttribute(
+            Product::ENTITY,
+            self::ATTRIBUTE_CODE_LENGTH,
+            'apply_to',
+            implode(',', [Type::TYPE_SIMPLE, Type::TYPE_BUNDLE, Configurable::TYPE_CODE])
+        );
+
+        $eavSetup->updateAttribute(
+            Product::ENTITY,
+            self::ATTRIBUTE_CODE_WIDTH,
+            'apply_to',
+            implode(',', [Type::TYPE_SIMPLE, Type::TYPE_BUNDLE, Configurable::TYPE_CODE])
+        );
+
+        $eavSetup->updateAttribute(
+            Product::ENTITY,
+            self::ATTRIBUTE_CODE_HEIGHT,
+            'apply_to',
+            implode(',', [Type::TYPE_SIMPLE, Type::TYPE_BUNDLE, Configurable::TYPE_CODE])
+        );
     }
 
     /**
@@ -188,39 +275,160 @@ class SetupData
     }
 
     /**
-     * @return string
-     * @throws \Magento\Framework\Exception\FileSystemException
+     * Add packaging attributes.
+     *
+     * @param ModuleDataSetupInterface $setup
+     * @return void
      */
-    private function getEmailTemplate()
+    public function addPackagingAttributes(ModuleDataSetupInterface $setup)
     {
-        $viewDir = $this->getDirectory();
-        $templateContent = $this->fileSystemDriver->fileGetContents($viewDir . self::PICKUP_ORDER_TEMPLATE);
+        /** @var EavSetup $eavSetup */
+        $eavSetup = $this->eavSetupFactory->create(['setup' => $setup]);
 
-        return $templateContent;
+        $eavSetup->addAttribute(Product::ENTITY, self::ATTRIBUTE_CODE_PACKAGING_TYPE, [
+            'type' => 'varchar',
+            'label' => 'Packaging Type',
+            'input' => 'select',
+            'source' => PackagingType::class,
+            'required' => false,
+            'sort_order' => 70,
+            'global' => ScopedAttributeInterface::SCOPE_GLOBAL,
+            'is_used_in_grid' => false,
+            'is_visible_in_grid' => false,
+            'is_filterable_in_grid' => false,
+            'user_defined' => false,
+            'apply_to' =>  implode(',', [Type::TYPE_SIMPLE, Type::TYPE_BUNDLE, Configurable::TYPE_CODE]),
+        ]);
+
+        $eavSetup->addAttribute(Product::ENTITY, self::ATTRIBUTE_CODE_PACKAGING_ID, [
+            'type' => 'varchar',
+            'label' => 'Packaging Name',
+            'input' => 'select',
+            'source' => Packaging::class,
+            'required' => false,
+            'sort_order' => 71,
+            'global' => ScopedAttributeInterface::SCOPE_GLOBAL,
+            'is_used_in_grid' => false,
+            'is_visible_in_grid' => false,
+            'is_filterable_in_grid' => false,
+            'user_defined' => false,
+            'apply_to' =>  implode(',', [Type::TYPE_SIMPLE, Type::TYPE_BUNDLE, Configurable::TYPE_CODE]),
+        ]);
     }
 
     /**
-     * @return string
-     * @throws \Magento\Framework\Exception\FileSystemException
+     * Create the international shipping product attributes.
+     *
+     * @param ModuleDataSetupInterface $setup
+     * @throws \Magento\Framework\Exception\LocalizedException
+     * @throws \Zend_Validate_Exception
      */
-    private function getEmailTemplateForGuest()
+    public function addInternationalShippingProductAttributes(ModuleDataSetupInterface $setup)
     {
-        $viewDir = $this->getDirectory();
-        $templateContent = $this->fileSystemDriver->fileGetContents($viewDir . self::PICKUP_ORDER_GUEST_TEMPLATE);
+        /** @var EavSetup $eavSetup */
+        $eavSetup = $this->eavSetupFactory->create(['setup' => $setup]);
 
-        return $templateContent;
+        $eavSetup->addAttribute(Product::ENTITY, self::ATTRIBUTE_CODE_HS_CODE, [
+            'type' => 'varchar',
+            'label' => 'HS Code',
+            'input' => 'text',
+            'required' => false,
+            'sort_order' => 100,
+            'global' => ScopedAttributeInterface::SCOPE_GLOBAL,
+            'is_used_in_grid' => false,
+            'is_visible_in_grid' => false,
+            'is_filterable_in_grid' => false,
+            'user_defined' => false,
+            'apply_to' =>  implode(',', [Type::TYPE_SIMPLE, Type::TYPE_BUNDLE, Configurable::TYPE_CODE])
+        ]);
+
+        $eavSetup->addAttribute(Product::ENTITY, self::ATTRIBUTE_CODE_COUNTRY_OF_ORIGIN, [
+            'type' => 'varchar',
+            'label' => 'Country of Origin',
+            'input' => 'select',
+            'required' => false,
+            'sort_order' => 101,
+            'global' => ScopedAttributeInterface::SCOPE_GLOBAL,
+            'is_used_in_grid' => false,
+            'is_visible_in_grid' => false,
+            'is_filterable_in_grid' => false,
+            'user_defined' => false,
+            'apply_to' =>  implode(',', [Type::TYPE_SIMPLE, Type::TYPE_BUNDLE, Configurable::TYPE_CODE]),
+            'source' => Country::class
+        ]);
     }
 
     /**
-     * @return string
+     * Populate Product Attribute Mapping Table with data.
+     *
+     * @param ModuleDataSetupInterface $setup
      */
-    private function getDirectory()
+    public function addMappedProductAttributes(ModuleDataSetupInterface $setup)
     {
-        $viewDir = $this->moduleReader->getModuleDir(
-            \Magento\Framework\Module\Dir::MODULE_VIEW_DIR,
-            'Temando_Shipping'
-        );
+        /**
+         * Prepare database for install
+         */
+        $setup->startSetup();
+        $table = $setup->getTable(SetupSchema::TABLE_PRODUCT_ATTRIBUTE_MAPPING);
 
-        return $viewDir . '/frontend/email/';
+        $columns = [
+            ProductAttributeMappingInterface::NODE_PATH_ID,
+            ProductAttributeMappingInterface::LABEL,
+            ProductAttributeMappingInterface::DESCRIPTION,
+            ProductAttributeMappingInterface::MAPPED_ATTRIBUTE_ID,
+            ProductAttributeMappingInterface::IS_DEFAULT
+        ];
+
+        $data = [
+            [
+                'origin.address.countryCode',
+                'Country of origin',
+                'Country of origin. Field Validation: Country as a valid ISO 3166-1 alpha-2 country code.',
+                self::ATTRIBUTE_CODE_COUNTRY_OF_ORIGIN,
+                true
+            ],
+            [
+                'manufacture.address.countryCode',
+                'Country of manufacture',
+                'Country of manufacture. Field Validation: Country as a valid ISO 3166-1 alpha-2 country code.',
+                null,
+                true
+            ],
+            [
+                'classificationCodes.eccn',
+                'ECCN',
+                'Export Control Classification Number. Field Validation: 5 maximum characters.',
+                null,
+                true
+            ],
+            [
+                'classificationCodes.scheduleBInfo',
+                'Schedule B Info',
+                'Code for exporting goods out of the United States. Field Validation: 15 maximum characters.',
+                null,
+                true
+            ],
+            [
+                'classificationCodes.hsCode',
+                'HS Code',
+                'Harmonized Commodity Description and Coding System. Field Validation: Between 2 and 5 Characters.',
+                self::ATTRIBUTE_CODE_HS_CODE,
+                true
+            ],
+            [
+                'composition',
+                'Composition',
+                'Materials product is composed of',
+                null,
+                true
+            ]
+        ];
+
+        $setup->getConnection()->insertArray($table, $columns, $data);
+
+        /**
+         * Prepare database after install
+         */
+        $setup->endSetup();
     }
 }

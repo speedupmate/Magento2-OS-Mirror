@@ -43,19 +43,19 @@ class ShipmentSummary extends DataObject implements ShipmentSummaryInterface
     }
 
     /**
-     * @return string
+     * @return ShipmentItemInterface[]
      */
-    public function getRecipientAddress()
+    public function getItems()
     {
-        return $this->getData(ShipmentSummaryInterface::RECIPIENT_ADDRESS);
+        return $this->getData(ShipmentSummaryInterface::ITEMS);
     }
 
     /**
-     * @return string
+     * @return LocationInterface
      */
-    public function getRecipientName()
+    public function getDestinationLocation()
     {
-        return $this->getData(ShipmentSummaryInterface::RECIPIENT_NAME);
+        return $this->getData(ShipmentSummaryInterface::DESTINATION_LOCATION);
     }
 
     /**

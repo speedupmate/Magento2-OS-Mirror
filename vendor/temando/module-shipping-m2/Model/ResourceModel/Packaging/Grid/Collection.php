@@ -2,6 +2,7 @@
 /**
  * Refer to LICENSE.txt distributed with the Temando Shipping module for notice of license
  */
+
 namespace Temando\Shipping\Model\ResourceModel\Packaging\Grid;
 
 use Magento\Framework\Api\FilterBuilder;
@@ -55,10 +56,7 @@ class Collection extends ApiCollection
      */
     public function fetchData(SearchCriteriaInterface $criteria)
     {
-        $containers = $this->packagingRepository->getList(
-            $criteria->getCurrentPage(),
-            $criteria->getPageSize()
-        );
+        $containers = $this->packagingRepository->getList($criteria);
 
         return $containers;
     }

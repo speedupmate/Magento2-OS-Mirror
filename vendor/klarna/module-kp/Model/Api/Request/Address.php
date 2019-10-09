@@ -77,6 +77,11 @@ class Address implements AddressInterface
     private $country;
 
     /**
+     * @var string
+     */
+    private $organization_name;
+
+    /**
      * Constructor.
      *
      * @param array $data
@@ -92,9 +97,7 @@ class Address implements AddressInterface
     }
 
     /**
-     * Title. Possible values Mr or Mrs
-     *
-     * @param string $title
+     * {@inheritDoc}
      */
     public function setTitle($title)
     {
@@ -102,29 +105,23 @@ class Address implements AddressInterface
     }
 
     /**
-     * Given name. [REQUIRED field]
-     *
-     * @param string $given_name
+     * {@inheritDoc}
      */
-    public function setGivenName($given_name)
+    public function setGivenName($givenName)
     {
-        $this->given_name = $given_name;
+        $this->given_name = $givenName;
     }
 
     /**
-     * Family name. [REQUIRED field]
-     *
-     * @param string $family_name
+     * {@inheritDoc}
      */
-    public function setFamilyName($family_name)
+    public function setFamilyName($familyName)
     {
-        $this->family_name = $family_name;
+        $this->family_name = $familyName;
     }
 
     /**
-     * E+mail address. [REQUIRED field]
-     *
-     * @param string $email
+     * {@inheritDoc}
      */
     public function setEmail($email)
     {
@@ -132,9 +129,7 @@ class Address implements AddressInterface
     }
 
     /**
-     * Phone number.
-     *
-     * @param string $phone
+     * {@inheritDoc}
      */
     public function setPhone($phone)
     {
@@ -142,29 +137,23 @@ class Address implements AddressInterface
     }
 
     /**
-     * Street address, first line. [REQUIRED field]
-     *
-     * @param string $street_address
+     * {@inheritDoc}
      */
-    public function setStreetAddress($street_address)
+    public function setStreetAddress($streetAddress)
     {
-        $this->street_address = $street_address;
+        $this->street_address = $streetAddress;
     }
 
     /**
-     * Street address, second line.
-     *
-     * @param string $street_address
+     * {@inheritDoc}
      */
-    public function setStreetAddress2($street_address)
+    public function setStreetAddress2($streetAddress)
     {
-        $this->street_address2 = $street_address;
+        $this->street_address2 = $streetAddress;
     }
 
     /**
-     * City. [REQUIRED field]
-     *
-     * @param string $city
+     * {@inheritDoc}
      */
     public function setCity($city)
     {
@@ -172,9 +161,7 @@ class Address implements AddressInterface
     }
 
     /**
-     * Region
-     *
-     * @param string $region
+     * {@inheritDoc}
      */
     public function setRegion($region)
     {
@@ -182,22 +169,28 @@ class Address implements AddressInterface
     }
 
     /**
-     * Postal/post code. [REQUIRED field]
-     *
-     * @param string $postal_code
+     * {@inheritDoc}
      */
-    public function setPostalCode($postal_code)
+    public function setPostalCode($postalCode)
     {
-        $this->postal_code = $postal_code;
+        $this->postal_code = $postalCode;
     }
 
     /**
-     * ISO 3166 alpha+2: Country. [REQUIRED field]
-     *
-     * @param string $country
+     * {@inheritDoc}
      */
     public function setCountry($country)
     {
         $this->country = $country;
+    }
+
+    /**
+     * Set organization/Company name
+     *
+     * @param string $organizationName
+     */
+    public function setOrganizationName($organizationName)
+    {
+        $this->organization_name = $organizationName;
     }
 }

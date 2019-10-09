@@ -12,10 +12,10 @@ use Temando\Shipping\Rest\AuthenticationInterface;
 /**
  * Portal URL provider
  *
- * @package  Temando\Shipping\Model
- * @author   Nathan Wilson <nathan.wilson@temando.com>
- * @license  https://opensource.org/licenses/osl-3.0.php Open Software License (OSL 3.0)
- * @link     https://www.temando.com/
+ * @package Temando\Shipping\Model
+ * @author  Nathan Wilson <nathan.wilson@temando.com>
+ * @license https://opensource.org/licenses/osl-3.0.php Open Software License (OSL 3.0)
+ * @link    https://www.temando.com/
  */
 class PortalUrl
 {
@@ -115,6 +115,38 @@ class PortalUrl
         $queryParams = $this->getQueryParams();
 
         $portalUrl = sprintf('%s%s?%s', $portalUrl, 'shipping-experiences', http_build_query($queryParams));
+
+        return $portalUrl;
+    }
+
+    /**
+     * Obtain the Shipping Portal URL, locations section.
+     *
+     * @return string
+     * @throws LocalizedException
+     */
+    public function getLocationsUrl(): string
+    {
+        $portalUrl = $this->config->getShippingPortalUrl();
+        $queryParams = $this->getQueryParams();
+
+        $portalUrl = sprintf('%s%s?%s', $portalUrl, 'locations', http_build_query($queryParams));
+
+        return $portalUrl;
+    }
+
+    /**
+     * Obtain the Shipping Portal URL, carriers section.
+     *
+     * @return string
+     * @throws LocalizedException
+     */
+    public function getCarriersUrl(): string
+    {
+        $portalUrl = $this->config->getShippingPortalUrl();
+        $queryParams = $this->getQueryParams();
+
+        $portalUrl = sprintf('%s%s?%s', $portalUrl, 'carriers', http_build_query($queryParams));
 
         return $portalUrl;
     }

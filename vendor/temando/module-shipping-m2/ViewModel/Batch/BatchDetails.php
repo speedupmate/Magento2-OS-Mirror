@@ -4,21 +4,18 @@
  */
 namespace Temando\Shipping\ViewModel\Batch;
 
-use Magento\Directory\Model\RegionFactory;
-use Magento\Framework\DataObjectFactory;
-use Magento\Framework\Exception\LocalizedException;
+use Magento\Framework\DataObject;
+use Magento\Framework\UrlInterface;
 use Magento\Framework\View\Element\Block\ArgumentInterface;
-use Magento\Sales\Api\Data\OrderAddressInterfaceFactory;
-use Magento\Sales\Api\Data\ShipmentItemInterface;
-use Magento\Sales\Model\Order\Shipment;
-use Temando\Shipping\Api\Data\Delivery\OrderCollectionPointInterface;
 use Temando\Shipping\Model\BatchInterface;
 use Temando\Shipping\Model\BatchProviderInterface;
-use Temando\Shipping\Model\ResourceModel\Repository\OrderCollectionPointRepositoryInterface;
+use Temando\Shipping\Model\Location\OrderAddressFactory;
+use Temando\Shipping\Model\Shipment\LocationInterface;
+use Temando\Shipping\Model\Shipment\ShipmentItemInterface;
+use Temando\Shipping\Model\Shipment\ShipmentSummaryInterface;
 use Temando\Shipping\ViewModel\DataProvider\BatchUrl;
 use Temando\Shipping\ViewModel\DataProvider\OrderAddress as AddressRenderer;
 use Temando\Shipping\ViewModel\DataProvider\OrderDate;
-use Temando\Shipping\ViewModel\DataProvider\OrderUrl;
 
 /**
  * View model for batch details page.
@@ -46,14 +43,9 @@ class BatchDetails implements ArgumentInterface
     private $batchUrl;
 
     /**
-     * @var OrderUrl
+     * @var OrderAddressFactory
      */
-    private $orderUrl;
-
-    /**
-     * @var DataObjectFactory
-     */
-    private $dataObjectFactory;
+    private $addressFactory;
 
     /**
      * @var AddressRenderer
@@ -61,55 +53,39 @@ class BatchDetails implements ArgumentInterface
     private $addressRenderer;
 
     /**
-     * @var OrderAddressInterfaceFactory
+     * @var UrlInterface
      */
-    private $addressFactory;
-
-    /**
-     * @var OrderCollectionPointRepositoryInterface
-     */
-    private $collectionPointRepository;
-
-    /**
-     * @var RegionFactory
-     */
-    private $regionFactory;
+    private $urlBuilder;
 
     /**
      * BatchDetails constructor.
+     *
      * @param BatchProviderInterface $batchProvider
      * @param OrderDate $orderDate
      * @param BatchUrl $batchUrl
-     * @param OrderUrl $orderUrl
-     * @param DataObjectFactory $dataObjectFactory
+     * @param OrderAddressFactory $addressFactory
      * @param AddressRenderer $addressRenderer
-     * @param OrderAddressInterfaceFactory $orderAddressInterfaceFactory
-     * @param OrderCollectionPointRepositoryInterface $collectionPointRepository
-     * @param RegionFactory $regionFactory
+     * @param UrlInterface $urlBuilder
      */
     public function __construct(
         BatchProviderInterface $batchProvider,
         OrderDate $orderDate,
         BatchUrl $batchUrl,
-        OrderUrl $orderUrl,
-        DataObjectFactory $dataObjectFactory,
+        OrderAddressFactory $addressFactory,
         AddressRenderer $addressRenderer,
-        OrderAddressInterfaceFactory $orderAddressInterfaceFactory,
-        OrderCollectionPointRepositoryInterface $collectionPointRepository,
-        RegionFactory $regionFactory
+        UrlInterface $urlBuilder
     ) {
         $this->batchProvider = $batchProvider;
         $this->orderDate = $orderDate;
         $this->batchUrl = $batchUrl;
-        $this->orderUrl = $orderUrl;
-        $this->dataObjectFactory = $dataObjectFactory;
+        $this->addressFactory = $addressFactory;
         $this->addressRenderer = $addressRenderer;
-        $this->addressFactory = $orderAddressInterfaceFactory;
-        $this->collectionPointRepository = $collectionPointRepository;
-        $this->regionFactory = $regionFactory;
+        $this->urlBuilder = $urlBuilder;
     }
 
     /**
+     * Obtain the current batch entity.
+     *
      * @return \Magento\Framework\DataObject|null
      */
     public function getBatch()
@@ -120,6 +96,8 @@ class BatchDetails implements ArgumentInterface
     }
 
     /**
+     * Obtain order date.
+     *
      * @param string $date
      * @return \DateTime
      */
@@ -161,98 +139,48 @@ class BatchDetails implements ArgumentInterface
     }
 
     /**
-     * @param string $orderId
-     * @return string
-     */
-    public function getOrderViewUrl(string $orderId): string
-    {
-        return $this->orderUrl->getViewActionUrl(['order_id' => $orderId]);
-    }
-
-    /**
-     * @param $extShipmentId
-     * @return  \Magento\Sales\Api\Data\OrderInterface | null
-     */
-    private function getSalesShipmentOrder($extShipmentId)
-    {
-        $orders = $this->batchProvider->getOrders();
-        if (isset($orders[$extShipmentId])) {
-            return $orders[$extShipmentId];
-        }
-
-        return null;
-    }
-
-    /**
-     * Returns ShipmentInfo based on extShipmentId.
-     *
-     * fixme(nr): replace by some proper piece of software
+     * Get the order view action URL by platform shipment ID.
      *
      * @param string $extShipmentId
-     * @return \Magento\Framework\DataObject
+     * @return string
      */
-    public function getShipmentInfoForGrid($extShipmentId)
+    public function getOrderViewUrl($extShipmentId): string
     {
-        $info = [];
-
-        /** @var \Magento\Sales\Model\Order $order */
-        $order = $this->getSalesShipmentOrder($extShipmentId);
-
-        if ($order) {
-            /** @var Shipment $shipment */
-            $shipment = $order->getShipmentsCollection()->getFirstItem();
-            $shippingAddress = $shipment->getShippingAddress();
-            $shippingAddressId = $shippingAddress->getId();
-
-            try {
-                /** @var OrderCollectionPointInterface $collectionPoint */
-                $collectionPoint = $this->collectionPointRepository->get($shippingAddressId);
-
-                /** @var \Magento\Directory\Model\Region $region */
-                $region = $this->regionFactory->create();
-                $region = $region->loadByCode($collectionPoint->getRegion(), $collectionPoint->getCountry());
-                $regionName = $region->getName();
-
-                $addressData = [
-                    'company'    => $collectionPoint->getName(),
-                    'street'     => $collectionPoint->getStreet(),
-                    'region'     => $regionName,
-                    'city'       => $collectionPoint->getCity(),
-                    'postcode'   => $collectionPoint->getPostcode(),
-                    'country_id' => $collectionPoint->getCountry(),
-
-                ];
-                $shippingAddress = $this->addressFactory->create($addressData);
-            } catch (LocalizedException $e) {
-                $shippingAddress = $shipment->getShippingAddress();
-            }
-
-            $formattedShippingAddress = $this->addressRenderer->getFormattedAddress($shippingAddress);
-            $itemsInfo = $this->getItemsOrderedInfo($shipment->getItems());
-            $info = [
-                'shipment_id' => $shipment->getId(),
-                'ship_to_name' => $shippingAddress->getFirstname() . ' ' . $shippingAddress->getLastname(),
-                'destination_address' => $formattedShippingAddress,
-                'items_ordered' => $itemsInfo,
-            ];
-        }
-
-        $shipmentInfo = $this->dataObjectFactory->create(['data' => $info]);
-
-        return $shipmentInfo;
+        return $this->urlBuilder->getUrl('temando/order/view', ['shipment_id' => $extShipmentId]);
     }
 
     /**
-     * @param ShipmentItemInterface[] $items
+     * Render the recipient address.
+     *
+     * @param DataObject|LocationInterface $location
      * @return string
      */
-    private function getItemsOrderedInfo($items)
+    public function getShipToAddressHtml(DataObject $location): string
     {
-        $info = '';
-        foreach ($items as $item) {
-            $info .= $item->getName() . ' x ' . (int) $item->getQty() . '<br>';
+        /** @var LocationInterface $location */
+        $shippingAddress = $this->addressFactory->createFromShipmentLocation($location);
+        return $this->addressRenderer->getFormattedAddress($shippingAddress);
+    }
+
+    /**
+     * Obtain the items shipped with the given platform shipment id.
+     *
+     * @param $extShipmentId
+     * @return DataObject[]|ShipmentItemInterface[]
+     */
+    public function getShipmentItems($extShipmentId): array
+    {
+        $batch = $this->batchProvider->getBatch();
+
+        $shipments = array_merge($batch->getFailedShipments(), $batch->getIncludedShipments());
+
+        /** @var ShipmentSummaryInterface $shipment */
+        foreach ($shipments as $shipment) {
+            if ($shipment->getShipmentId() === $extShipmentId) {
+                return $shipment->getItems();
+            }
         }
 
-        return $info;
+        return [];
     }
 }

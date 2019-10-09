@@ -27,10 +27,10 @@
         <plugin name="ConfigGroupPlugin" type="Vertex\Tax\Model\Plugin\GroupPlugin" sortOrder="1"/>
     </type>
     <type name="Magento\Customer\Model\Customer\DataProvider">
-        <plugin name="ShowCustomerCode" type="Vertex\Tax\Model\Plugin\CustomerDataProviderPlugin" />
+        <plugin name="ShowCustomerCode" type="Vertex\Tax\Model\Plugin\CustomerDataProviderPlugin"/>
     </type>
     <type name="Magento\Customer\Model\Customer\DataProviderWithDefaultAddresses">
-        <plugin name="ShowCustomerCode" type="Vertex\Tax\Model\Plugin\CustomerDataProviderPlugin" />
+        <plugin name="ShowCustomerCode" type="Vertex\Tax\Model\Plugin\CustomerDataProviderPlugin"/>
     </type>
     <type name="Vertex\Tax\Observer\OrderSavedAfterObserver">
         <arguments>
@@ -40,6 +40,39 @@
     <type name="Vertex\Tax\Observer\InvoiceSavedAfterObserver">
         <arguments>
             <argument name="showSuccessMessage" xsi:type="boolean">true</argument>
+        </arguments>
+    </type>
+
+    <virtualType name="Magento\Catalog\Ui\DataProvider\Product\Form\Modifier\Pool">
+        <arguments>
+            <argument name="modifiers" xsi:type="array">
+                <item name="vertex-flex-fields" xsi:type="array">
+                    <item name="class" xsi:type="string">Vertex\Tax\Ui\DataProvider\Product\Form\Modifier\FlexibleFields</item>
+                    <item name="sortOrder" xsi:type="number">71</item>
+                </item>
+            </argument>
+        </arguments>
+    </virtualType>
+
+    <type name="Vertex\Tax\Block\Adminhtml\Config\Form\Field\FlexibleCodeFields">
+        <arguments>
+            <argument name="data" xsi:type="array">
+                <item name="template" xsi:type="string">Vertex_Tax::config/flexible_fields.phtml</item>
+            </argument>
+        </arguments>
+    </type>
+    <type name="Vertex\Tax\Block\Adminhtml\Config\Form\Field\FlexibleDateFields">
+        <arguments>
+            <argument name="data" xsi:type="array">
+                <item name="template" xsi:type="string">Vertex_Tax::config/flexible_fields.phtml</item>
+            </argument>
+        </arguments>
+    </type>
+    <type name="Vertex\Tax\Block\Adminhtml\Config\Form\Field\FlexibleNumericFields">
+        <arguments>
+            <argument name="data" xsi:type="array">
+                <item name="template" xsi:type="string">Vertex_Tax::config/flexible_fields.phtml</item>
+            </argument>
         </arguments>
     </type>
 </config>

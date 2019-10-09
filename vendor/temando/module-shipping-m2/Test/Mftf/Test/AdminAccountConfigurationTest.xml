@@ -23,50 +23,6 @@
         <actionGroup ref="AdminShippingModuleMenuLinks" stepKey="adminMenuLinks" />
     </test>
 
-    <test name="AdminCarriersConfigurationDisabled">
-        <annotations>
-            <title value="Admin Shipping Module Carriers Configuration" />
-            <description value="Confirm messaging on carriers configuration when module is disabled." />
-            <stories value="Confirm messaging on carriers configuration when module is disabled." />
-            <severity value="MAJOR" />
-            <group value="Temando_Shipping_Account_Configuration" />
-            <testCaseId value="MPI-4444, MPI-4445" />
-        </annotations>
-        <before>
-            <actionGroup ref="AdminDisableShippingMethodFlushConfigCache" stepKey="disableShippingMethod" />
-            <actionGroup ref="LoginAsAdmin" stepKey="loginAsAdmin"/>
-        </before>
-        <after>
-            <amOnPage url="admin/admin/auth/logout/" stepKey="amOnLogoutPage"/>
-        </after>
-
-        <!-- Start testing -->
-        <actionGroup ref="AdminNavigateToCarrierConfiguration" stepKey="navigateToCarriersConfiguration" />
-        <actionGroup ref="ActivateShippingLink" stepKey="clickShippingActivationLink" />
-    </test>
-
-    <test name="AdminLocationsConfigurationDisabled">
-        <annotations>
-            <title value="Admin Shipping Module Locations Configuration" />
-            <description value="Confirm messaging on locations configuration when module is disabled." />
-            <stories value="Confirm messaging on locations configuration when module is disabled." />
-            <severity value="MAJOR" />
-            <group value="Temando_Shipping_Account_Configuration" />
-            <testCaseId value="MPI-4446, MPI-4447" />
-        </annotations>
-        <before>
-            <actionGroup ref="AdminDisableShippingMethodFlushConfigCache" stepKey="disableShippingMethod" />
-            <actionGroup ref="LoginAsAdmin" stepKey="loginAsAdmin"/>
-        </before>
-        <after>
-            <amOnPage url="admin/admin/auth/logout/" stepKey="amOnLogoutPage"/>
-        </after>
-
-        <!-- Start testing -->
-        <actionGroup ref="AdminNavigateToLocationConfiguration" stepKey="navigateToLocationsConfiguration" />
-        <actionGroup ref="ActivateShippingLink" stepKey="clickShippingActivationLink" />
-    </test>
-
     <test name="AdminPackagingConfigurationDisabled">
         <annotations>
             <title value="Admin Shipping Module Packaging Configuration" />
@@ -96,7 +52,7 @@
             <stories value="Confirm messaging on checkout view settings configuration when module is disabled." />
             <severity value="MAJOR" />
             <group value="Temando_Shipping_Account_Configuration" />
-            <testCaseId value="MPI-4452" />
+            <testCaseId value="MPI-4452, MPI-4453" />
         </annotations>
         <before>
             <actionGroup ref="AdminDisableShippingMethodFlushConfigCache" stepKey="disableShippingMethod" />
@@ -119,7 +75,7 @@
             <stories value="Confirm messaging on advanced settings configuration when module is disabled." />
             <severity value="MAJOR" />
             <group value="Temando_Shipping_Account_Configuration" />
-            <testCaseId value="MPI-4455" />
+            <testCaseId value="MPI-4554, MPI-4455" />
         </annotations>
         <before>
             <actionGroup ref="AdminDisableShippingMethodFlushConfigCache" stepKey="disableShippingMethod" />
@@ -163,7 +119,7 @@
             <stories value="Enable the shipping method without API credentials." />
             <severity value="CRITICAL" />
             <group value="Temando_Shipping_Account_Configuration" />
-            <testCaseId value="MPI-4461" />
+            <testCaseId value="MPI-4461, MPI-4532, MPI-4538" />
         </annotations>
         <before>
             <actionGroup ref="AdminDisableShippingMethodFlushConfigCache" stepKey="disableShippingMethod" />
@@ -181,7 +137,7 @@
         <click stepKey="clickSave" selector="{{MagentoShippingSection.ButtonSave}}" />
         <seeInCurrentUrl stepKey="returnToConfigurationPage" url="{{TemandoAdminConfigPage.url}}" />
         <waitForPageLoad stepKey="waitForSuccess" />
-        <see stepKey="seeErrorMessage" userInput="Please set API credentials before enabling Magento Shipping" />
+        <see stepKey="seeErrorMessage" userInput="{{ConfigurationMessages.credentials}}" />
     </test>
 
     <test name="AdminEnableShippingMethodWithAPICredentials">
@@ -191,7 +147,7 @@
             <stories value="Enable the shipping method with API credentials." />
             <severity value="CRITICAL" />
             <group value="Temando_Shipping_Account_Configuration" />
-            <testCaseId value="MPI-4450, MPI-4451, MPI-4460" />
+            <testCaseId value="MPI-4450, MPI-4451, MPI-4460, MPI-5301, MPI-4610" />
         </annotations>
         <before>
             <actionGroup ref="AdminDisableShippingMethodFlushConfigCache" stepKey="disableShippingMethod" />
@@ -291,5 +247,142 @@
         <actionGroup ref="AdminNavigateToCheckoutViewSettings" stepKey="navigateToCheckoutViewSettings6" />
         <actionGroup ref="VerifySignatureRequiredActive" stepKey="verifySignatureRequired" />
         <actionGroup ref="AdminDisableSignatureRequiredWithSave" stepKey="disableSignatureRequired" />
+    </test>
+
+    <test name="AdminAccountConfigurationEndpointOnly">
+        <annotations>
+            <title value="Admin Account Configuration Endpoint Only" />
+            <description value="Save configuration with only an endpoint" />
+            <stories value="Save configuration with only an endpoint" />
+            <severity value="AVERAGE" />
+            <group value="Temando_Shipping_Account_Configuration" />
+            <testCaseId value="MPI-4531" />
+        </annotations>
+        <before>
+            <actionGroup ref="AdminDisableShippingMethodFlushConfigCache" stepKey="disableShippingMethod" />
+            <actionGroup ref="LoginAsAdmin" stepKey="loginAsAdmin" />
+        </before>
+        <after>
+            <actionGroup ref="AdminDisableShippingMethod" stepKey="disableShippingMethod" />
+            <amOnPage url="admin/admin/auth/logout/" stepKey="amOnLogoutPage"/>
+        </after>
+
+        <!-- Start testing -->
+        <actionGroup ref="AdminNavigateToShippingConfiguration" stepKey="navigateToShippingConfiguration" />
+        <actionGroup ref="AdminUpdateShippingConfigurationWithSave" stepKey="setupConfiguration">
+            <argument name="apiEndpoint" value="{{_CREDS.carriers_temando_session_endpoint}}" />
+        </actionGroup>
+    </test>
+
+    <test name="AdminAccountConfigurationAccountAndBearerOnly">
+        <annotations>
+            <title value="Admin Account Configuration Acccount and Bearer Only" />
+            <description value="Save configuration with account ID and bearer token only" />
+            <stories value="Save configuration with account ID and bearer token only" />
+            <severity value="AVERAGE" />
+            <group value="Temando_Shipping_Account_Configuration" />
+            <testCaseId value="MPI-4533, MPI-4534" />
+        </annotations>
+        <before>
+            <actionGroup ref="AdminDisableShippingMethodFlushConfigCache" stepKey="disableShippingMethod" />
+            <actionGroup ref="LoginAsAdmin" stepKey="loginAsAdmin" />
+        </before>
+        <after>
+            <actionGroup ref="AdminDisableShippingMethod" stepKey="disableShippingMethod" />
+            <amOnPage url="admin/admin/auth/logout/" stepKey="amOnLogoutPage"/>
+        </after>
+
+        <!-- Start testing -->
+        <actionGroup ref="AdminNavigateToShippingConfiguration" stepKey="navigateToShippingConfiguration" />
+        <actionGroup ref="AdminUpdateShippingConfiguration" stepKey="enableShippingMethod">
+            <argument name="apiAccountId" value="{{_CREDS.carriers_temando_account_id}}" />
+            <argument name="apiBearerToken" value="{{_CREDS.carriers_temando_bearer_token}}" />
+        </actionGroup>
+        <click stepKey="clickSave" selector="{{MagentoShippingSection.ButtonSave}}" />
+        <seeInCurrentUrl stepKey="returnToConfigurationPage" url="{{TemandoAdminConfigPage.url}}" />
+        <waitForPageLoad stepKey="waitForReload" />
+        <see stepKey="seeErrorMessage" userInput="{{ConfigurationMessages.authenticationFailed}}" />
+    </test>
+
+    <test name="AdminAccountConfigurationValidCredentialsDisabled">
+        <annotations>
+            <title value="Admin Account Configuration With Valid Credentials but Disabled" />
+            <description value="Save configuration with valid credentials but disabled" />
+            <stories value="Save configuration with valid credentials but disabled" />
+            <severity value="AVERAGE" />
+            <group value="Temando_Shipping_Account_Configuration" />
+            <testCaseId value="MPI-4535" />
+        </annotations>
+        <before>
+            <actionGroup ref="AdminDisableShippingMethodFlushConfigCache" stepKey="disableShippingMethod" />
+            <actionGroup ref="LoginAsAdmin" stepKey="loginAsAdmin" />
+        </before>
+        <after>
+            <actionGroup ref="AdminDisableShippingMethod" stepKey="disableShippingMethod" />
+            <amOnPage url="admin/admin/auth/logout/" stepKey="amOnLogoutPage"/>
+        </after>
+
+        <!-- Start testing -->
+        <actionGroup ref="AdminNavigateToShippingConfiguration" stepKey="navigateToShippingConfiguration" />
+        <actionGroup ref="AdminUpdateShippingConfigurationWithSave" stepKey="setupConfiguration">
+            <argument name="apiEndpoint" value="{{_CREDS.carriers_temando_session_endpoint}}" />
+            <argument name="apiAccountId" value="{{_CREDS.carriers_temando_account_id}}" />
+            <argument name="apiBearerToken" value="{{_CREDS.carriers_temando_bearer_token}}" />
+        </actionGroup>
+    </test>
+
+    <test name="AdminAccountConfigurationDisabled">
+        <annotations>
+            <title value="Admin Account Configuration Disabled" />
+            <description value="Save configuration with no credentials and disabled" />
+            <stories value="Save configuration with no credentials and disabled" />
+            <severity value="AVERAGE" />
+            <group value="Temando_Shipping_Account_Configuration" />
+            <testCaseId value="MPI-4536" />
+        </annotations>
+        <before>
+            <actionGroup ref="AdminDisableShippingMethodFlushConfigCache" stepKey="disableShippingMethod" />
+            <actionGroup ref="LoginAsAdmin" stepKey="loginAsAdmin" />
+        </before>
+        <after>
+            <actionGroup ref="AdminDisableShippingMethod" stepKey="disableShippingMethod" />
+            <amOnPage url="admin/admin/auth/logout/" stepKey="amOnLogoutPage"/>
+        </after>
+
+        <!-- Start testing -->
+        <actionGroup ref="AdminNavigateToShippingConfiguration" stepKey="navigateToShippingConfiguration" />
+        <actionGroup ref="AdminUpdateShippingConfigurationWithSave" stepKey="setupConfiguration" />
+    </test>
+
+    <test name="AdminAccountConfigurationInvalidCredentials">
+        <annotations>
+            <title value="Admin Account Configuration Invalid Credentials" />
+            <description value="Save configuration with invalid credentials" />
+            <stories value="Save configuration with invalid credentials" />
+            <severity value="AVERAGE" />
+            <group value="Temando_Shipping_Account_Configuration" />
+            <testCaseId value="MPI-4537" />
+        </annotations>
+        <before>
+            <actionGroup ref="AdminDisableShippingMethodFlushConfigCache" stepKey="disableShippingMethod" />
+            <actionGroup ref="LoginAsAdmin" stepKey="loginAsAdmin" />
+        </before>
+        <after>
+            <actionGroup ref="AdminDisableShippingMethod" stepKey="disableShippingMethod" />
+            <amOnPage url="admin/admin/auth/logout/" stepKey="amOnLogoutPage"/>
+        </after>
+
+        <!-- Start testing -->
+        <actionGroup ref="AdminNavigateToShippingConfiguration" stepKey="navigateToShippingConfiguration" />
+        <actionGroup ref="AdminUpdateShippingConfiguration" stepKey="enableShippingMethod">
+            <argument name="isActive" value="{{TemandoConfigurationData.enableMagentoShipping}}" />
+            <argument name="apiEndpoint" value="{{_CREDS.carriers_temando_session_endpoint}}" />
+            <argument name="apiAccountId" value="{{TemandoConfigurationData.accountIdInvalid}}" />
+            <argument name="apiBearerToken" value="{{TemandoConfigurationData.bearerTokenInvalid}}" />
+        </actionGroup>
+        <click stepKey="clickSave" selector="{{MagentoShippingSection.ButtonSave}}" />
+        <seeInCurrentUrl stepKey="returnToConfigurationPage" url="{{TemandoAdminConfigPage.url}}" />
+        <waitForPageLoad stepKey="waitForReload" />
+        <see stepKey="seeErrorMessage" userInput="{{ConfigurationMessages.authenticationFailed}}" />
     </test>
 </tests>

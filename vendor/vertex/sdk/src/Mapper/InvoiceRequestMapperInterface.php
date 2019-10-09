@@ -33,4 +33,27 @@ interface InvoiceRequestMapperInterface
      * @throws ValidationException
      */
     public function map(RequestInterface $object);
+
+    /**
+     * Returns maximum length for location code field
+     *
+     * @return int
+     */
+    public function getLocationCodeMaxLength();
+
+    /**
+     * Returns minimum length for location code field
+     *
+     * @return int
+     */
+    public function getLocationCodeMinLength();
+
+    /**
+     * Validates location code field value
+     *
+     * @param string $fieldValue
+     * @return true
+     * @throws ValidationException
+     */
+    public function validateLocationCode($fieldValue);
 }

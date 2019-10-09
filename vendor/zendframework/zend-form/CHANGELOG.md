@@ -2,6 +2,52 @@
 
 All notable changes to this project will be documented in this file, in reverse chronological order by release.
 
+## 2.14.1 - 2019-02-26
+
+### Added
+
+- Nothing.
+
+### Changed
+
+- Nothing.
+
+### Deprecated
+
+- Nothing.
+
+### Removed
+
+- Nothing.
+
+### Fixed
+
+- [#230](https://github.com/zendframework/zend-form/pull/230) fixes the "`__clone` method called on non-object" error that happens when
+  the `$targetElement` is `null` within a `Collection` instance. It now properly
+  sets the data to an empty array in such circumstances.
+
+## 2.14.0 - 2019-01-07
+
+### Added
+
+- [#228](https://github.com/zendframework/zend-form/pull/228) adds support for PHP 7.3.
+
+### Changed
+
+- Nothing.
+
+### Deprecated
+
+- Nothing.
+
+### Removed
+
+- [#228](https://github.com/zendframework/zend-form/pull/228) removes support for zend-stdlib v2 releases.
+
+### Fixed
+
+- Nothing.
+
 ## 2.13.0 - 2018-12-11
 
 ### Added

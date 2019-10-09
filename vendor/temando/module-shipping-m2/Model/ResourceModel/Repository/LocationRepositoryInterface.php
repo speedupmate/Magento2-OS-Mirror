@@ -4,8 +4,6 @@
  */
 namespace Temando\Shipping\Model\ResourceModel\Repository;
 
-use Magento\Framework\Exception\CouldNotDeleteException;
-
 /**
  * Temando Location Repository Interface.
  *
@@ -19,17 +17,11 @@ use Magento\Framework\Exception\CouldNotDeleteException;
 interface LocationRepositoryInterface
 {
     /**
+     * Load locations listing.
+     *
      * @param int|null $offset
      * @param int|null $limit
      * @return \Temando\Shipping\Model\LocationInterface[]
      */
     public function getList($offset = null, $limit = null);
-
-    /**
-     * @param string $locationId
-     *
-     * @return void
-     * @throws CouldNotDeleteException
-     */
-    public function delete($locationId);
 }

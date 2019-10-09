@@ -1,4 +1,43 @@
 
+6.3.4 / 2019-08-28
+==================
+
+  * MAGE-383: Fix issue preventing placing an order after changing billing country
+  * MAGE-518: Fix issue preventing re-order when replacing cart items
+
+6.3.3 / 2019-08-14
+==================
+
+  * Add MFTF tests and custom suite
+
+6.3.2 / 2019-08-02
+==================
+
+  * MAGE-1177: Replace separate style files with one module source
+
+6.3.1 / 2019-08-02
+==================
+
+  * MAGE-803 Fix issue where billing address changes weren't always used
+  * MAGE-1005 Convert CSS to LESS
+  * Some misc checkstyle cleanup
+  * Update PHP versions supported
+
+6.3.0 / 2019-07-02
+==================
+
+  * MAGE-484 Converted to declarative database schema
+
+6.2.0 / 2019-06-10
+==================
+
+  * MAGE-58 Fix issues reported by static tests
+  * MAGE-69 Added option and support to enable B2B payments
+  * MAGE-250 Change coding standards to use Marketplace version
+  * MAGE-315 Add translations
+  * MAGE-398 Add css rules to swap logo and text
+  * MAGE-668 Fix issue with saving organization name
+
 6.1.1 / 2019-04-24
 ================
 

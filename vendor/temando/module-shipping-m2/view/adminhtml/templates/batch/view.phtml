@@ -13,7 +13,7 @@ $shipmentViewModel = $block->getData('shipmentViewModel');
 /** @var \Temando\Shipping\Model\Batch $batch */
 $batch = $viewModel->getBatch();
 ?>
-<?php if ($batch) : ?>
+<?php if ($batch !== null) : ?>
     <section class="admin__page-section">
         <div class="admin__page-section-title">
             <span class="title"><?= $block->escapeHtml(__('Batch Information')); ?></span>
@@ -83,36 +83,44 @@ $batch = $viewModel->getBatch();
             </table>
         </div>
     </section>
-    <section class="admin__page-section">
-        <div class="admin__data-grid-wrap batch-shipments">
-            <table class="data-grid">
-                <thead>
-                <tr>
-                    <th class="data-grid-th"><?= $block->escapeHtml(__('Shipment')); ?></th>
-                    <th class="data-grid-th"><?= $block->escapeHtml(__('Ship to Name')); ?></th>
-                    <th class="data-grid-th"><?= $block->escapeHtml(__('Destination Address')); ?></th>
-                    <th class="data-grid-th"><?= $block->escapeHtml(__('Items Ordered')); ?></th>
-                    <th class="data-grid-th"><?= $block->escapeHtml(__('Action')); ?></th>
-                </tr>
-                </thead>
-                <tbody>
-                <?php foreach ($batch->getIncludedShipments() as $includedShipment) : ?>
-                    <?php $shipmentInfo = $viewModel->getShipmentInfoForGrid($includedShipment->getShipmentId())?>
-                    <?php if ($shipmentInfo->getData('shipment_id')) : ?>
-                        <tr class="data-row">
-                            <td><?= $block->escapeHtml($shipmentInfo->getData('shipment_id')) ?></td>
-                            <td><?= $block->escapeHtml($shipmentInfo->getData('ship_to_name')) ?></td>
-                            <td><?= /* @noEscape */ $shipmentInfo->getData('destination_address') ?></td>
-                            <td><?= /* @noEscape */ $shipmentInfo->getData('items_ordered') ?></td>
-                            <td>
-                                <?php $url = $shipmentViewModel->getViewActionUrl($includedShipment->getShipmentId()) ?>
-                                <a href="<?= $block->escapeUrl($url) ?>"><?= $block->escapeHtml(__('View')) ?></a>
-                            </td>
-                        </tr>
-                    <?php endif;?>
-                <?php endforeach; ?>
-                </tbody>
-            </table>
-        </div>
-    </section>
+    <?php if (!empty($batch->getIncludedShipments())) : ?>
+        <section class="admin__page-section">
+            <div class="admin__data-grid-wrap batch-shipments">
+                <table class="data-grid">
+                    <thead>
+                    <tr>
+                        <th class="data-grid-th"><?= $block->escapeHtml(__('Shipment')); ?></th>
+                        <th class="data-grid-th"><?= $block->escapeHtml(__('Destination Address')); ?></th>
+                        <th class="data-grid-th"><?= $block->escapeHtml(__('Items Ordered')); ?></th>
+                        <th class="data-grid-th"><?= $block->escapeHtml(__('Action')); ?></th>
+                    </tr>
+                    </thead>
+                    <tbody>
+                        <?php foreach ($batch->getIncludedShipments() as $includedShipment) : ?>
+                            <tr class="data-row">
+                                <?php
+                                    /** @var \Temando\Shipping\Model\Shipment\Location $location */
+                                    $location = $includedShipment->getDestinationLocation();
+                                ?>
+                                <td><?= $block->escapeHtml($includedShipment->getShipmentId()) ?></td>
+                                <td><?= /* @noEscape */ $viewModel->getShipToAddressHtml($location) ?></td>
+                                <td>
+                                    <?php $items = $viewModel->getShipmentItems($includedShipment->getShipmentId()) ?>
+                                    <?php foreach ($items as $item) : ?>
+                                        <?= $block->escapeHtml($item->getName()) ?>
+                                        (<?= $block->escapeHtml($item->getSku()) ?>) x
+                                        <?= $block->escapeHtml($item->getQty()) ?>
+                                    <?php endforeach; ?>
+                                </td>
+                                <td>
+                                    <?php $url = $shipmentViewModel->getViewActionUrl($includedShipment->getShipmentId()) ?>
+                                    <a href="<?= $block->escapeUrl($url) ?>"><?= $block->escapeHtml(__('View')) ?></a>
+                                </td>
+                            </tr>
+                        <?php endforeach; ?>
+                    </tbody>
+                </table>
+            </div>
+        </section>
+    <?php endif; ?>
 <?php endif; ?>

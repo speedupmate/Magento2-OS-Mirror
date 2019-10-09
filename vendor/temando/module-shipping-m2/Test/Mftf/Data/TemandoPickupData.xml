@@ -1,0 +1,24 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<entities xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+          xsi:noNamespaceSchemaLocation="urn:magento:mftf:DataGenerator/etc/dataProfileSchema.xsd">
+    <entity name="TemandoPickupData">
+        <data key="pickupIdInvalid">123456</data>
+    </entity>
+    <entity name="TemandoPickupMessages">
+        <data key="singlePickupFound">1 records found</data>
+        <data key="invalidPickupId">Invalid Pickup ID</data>
+        <data key="readyForPickup">Pickup is ready for collection</data>
+        <data key="pickupCollected">Pickup was collected.</data>
+        <data key="pickupCancelled">Pickup was cancelled</data>
+    </entity>
+    <entity name="TemandoPickupStates">
+        <data key="requested">Pickup Requested</data>
+        <data key="requestedLower">pickup requested</data>
+        <data key="prepare">Prepare for Pickup</data>
+        <data key="ready">Ready For Pickup</data>
+        <data key="readyForPickup">Ready for Pickup</data>
+        <data key="pickedUp">Picked Up</data>
+        <data key="cancelled">Cancelled</data>
+    </entity>
+</entities>

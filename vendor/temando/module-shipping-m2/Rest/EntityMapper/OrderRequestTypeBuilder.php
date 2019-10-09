@@ -6,6 +6,7 @@ namespace Temando\Shipping\Rest\EntityMapper;
 
 use Temando\Shipping\Api\Data\Delivery\QuoteCollectionPointInterface;
 use Temando\Shipping\Model\Checkout\Attribute\CheckoutFieldInterface;
+use Temando\Shipping\Model\Order\CustomAttributesInterface;
 use Temando\Shipping\Model\Order\OrderBillingInterface;
 use Temando\Shipping\Model\Order\OrderItemInterface;
 use Temando\Shipping\Model\Order\OrderRecipientInterface;
@@ -13,15 +14,20 @@ use Temando\Shipping\Model\OrderInterface;
 use Temando\Shipping\Model\ResourceModel\Repository\OrderPickupLocationRepositoryInterface;
 use Temando\Shipping\Rest\Request\Type\ExtensibleTypeAttribute;
 use Temando\Shipping\Rest\Request\Type\ExtensibleTypeAttributeFactory;
+use Temando\Shipping\Rest\Request\Type\Generic\AddressFactory;
 use Temando\Shipping\Rest\Request\Type\Generic\DimensionsFactory;
 use Temando\Shipping\Rest\Request\Type\Generic\MonetaryValueFactory;
 use Temando\Shipping\Rest\Request\Type\Generic\WeightFactory;
+use Temando\Shipping\Rest\Request\Type\Order\CustomAttributes;
+use Temando\Shipping\Rest\Request\Type\Order\CustomAttributesFactory;
 use Temando\Shipping\Rest\Request\Type\Order\Customer;
 use Temando\Shipping\Rest\Request\Type\Order\CustomerFactory;
 use Temando\Shipping\Rest\Request\Type\Order\Experience\DescriptionFactory;
 use Temando\Shipping\Rest\Request\Type\Order\ExperienceFactory;
 use Temando\Shipping\Rest\Request\Type\Order\OrderItem;
 use Temando\Shipping\Rest\Request\Type\Order\OrderItem\ClassificationCodesFactory;
+use Temando\Shipping\Rest\Request\Type\Order\OrderItem\ManufactureFactory;
+use Temando\Shipping\Rest\Request\Type\Order\OrderItem\OriginFactory;
 use Temando\Shipping\Rest\Request\Type\Order\OrderItemFactory;
 use Temando\Shipping\Rest\Request\Type\Order\Recipient;
 use Temando\Shipping\Rest\Request\Type\Order\RecipientFactory;
@@ -33,11 +39,11 @@ use Temando\Shipping\Rest\Request\Type\OrderRequestTypeInterfaceFactory;
 /**
  * Prepare the request type for order manifestation at the Temando platform.
  *
- * @package  Temando\Shipping\Rest
- * @author   Christoph Aßmann <christoph.assmann@netresearch.de>
- * @author   Sebastian Ertner <sebastian.ertner@netresearch.de>
- * @license  http://opensource.org/licenses/osl-3.0.php Open Software License (OSL 3.0)
- * @link     http://www.temando.com/
+ * @package Temando\Shipping\Rest
+ * @author  Christoph Aßmann <christoph.assmann@netresearch.de>
+ * @author  Sebastian Ertner <sebastian.ertner@netresearch.de>
+ * @license https://opensource.org/licenses/osl-3.0.php Open Software License (OSL 3.0)
+ * @link    https://www.temando.com/
  */
 class OrderRequestTypeBuilder
 {
@@ -65,6 +71,21 @@ class OrderRequestTypeBuilder
      * @var OrderItemFactory
      */
     private $orderItemFactory;
+
+    /**
+     * @var OriginFactory
+     */
+    private $originFactory;
+
+    /**
+     * @var ManufactureFactory
+     */
+    private $manufactureFactory;
+
+    /**
+     * @var AddressFactory
+     */
+    private $addressFactory;
 
     /**
      * @var ClassificationCodesFactory
@@ -107,12 +128,20 @@ class OrderRequestTypeBuilder
     private $orderPickUpLocation;
 
     /**
+     * @var CustomAttributesFactory
+     */
+    private $customAttributesFactory;
+
+    /**
      * OrderRequestTypeBuilder constructor.
      * @param OrderRequestTypeInterfaceFactory $requestTypeFactory
      * @param CustomerFactory $customerFactory
      * @param RecipientFactory $recipientFactory
      * @param ShipmentDetailsFactory $shipmentDetailsFactory
      * @param OrderItemFactory $orderItemFactory
+     * @param OriginFactory $originFactory
+     * @param ManufactureFactory $manufactureFactory
+     * @param AddressFactory $addressFactory
      * @param ClassificationCodesFactory $classificationCodesFactory
      * @param DimensionsFactory $dimensionsFactory
      * @param MonetaryValueFactory $monetaryValueFactory
@@ -121,6 +150,7 @@ class OrderRequestTypeBuilder
      * @param DescriptionFactory $descriptionFactory
      * @param ExtensibleTypeAttributeFactory $attributeFactory
      * @param OrderPickupLocationRepositoryInterface $orderPickUpLocation
+     * @param CustomAttributesFactory $customAttributesFactory
      */
     public function __construct(
         OrderRequestTypeInterfaceFactory $requestTypeFactory,
@@ -128,6 +158,9 @@ class OrderRequestTypeBuilder
         RecipientFactory $recipientFactory,
         ShipmentDetailsFactory $shipmentDetailsFactory,
         OrderItemFactory $orderItemFactory,
+        OriginFactory $originFactory,
+        ManufactureFactory $manufactureFactory,
+        AddressFactory $addressFactory,
         ClassificationCodesFactory $classificationCodesFactory,
         DimensionsFactory $dimensionsFactory,
         MonetaryValueFactory $monetaryValueFactory,
@@ -135,13 +168,17 @@ class OrderRequestTypeBuilder
         ExperienceFactory $experienceFactory,
         DescriptionFactory $descriptionFactory,
         ExtensibleTypeAttributeFactory $attributeFactory,
-        OrderPickupLocationRepositoryInterface $orderPickUpLocation
+        OrderPickupLocationRepositoryInterface $orderPickUpLocation,
+        CustomAttributesFactory $customAttributesFactory
     ) {
         $this->requestTypeFactory = $requestTypeFactory;
         $this->customerFactory = $customerFactory;
         $this->recipientFactory = $recipientFactory;
         $this->shipmentDetailsFactory = $shipmentDetailsFactory;
         $this->orderItemFactory = $orderItemFactory;
+        $this->originFactory = $originFactory;
+        $this->manufactureFactory =  $manufactureFactory;
+        $this->addressFactory = $addressFactory;
         $this->classificationCodesFactory = $classificationCodesFactory;
         $this->dimensionsFactory = $dimensionsFactory;
         $this->monetaryValueFactory = $monetaryValueFactory;
@@ -150,6 +187,7 @@ class OrderRequestTypeBuilder
         $this->descriptionFactory = $descriptionFactory;
         $this->attributeFactory = $attributeFactory;
         $this->orderPickUpLocation = $orderPickUpLocation;
+        $this->customAttributesFactory = $customAttributesFactory;
     }
 
     /**
@@ -228,6 +266,20 @@ class OrderRequestTypeBuilder
         }
 
         return $recipientType;
+    }
+
+    /**
+     * @param CustomAttributesInterface $customAttributes
+     * @return CustomAttributes
+     */
+    private function getCustomAttributesType(CustomAttributesInterface $customAttributes)
+    {
+        $customAttributesType = $this->customAttributesFactory->create([
+            'storeCode' => $customAttributes->getStoreCode(),
+            'customerGroupCode' => $customAttributes->getCustomerGroupCode()
+        ]);
+
+        return $customAttributesType;
     }
 
     /**
@@ -346,14 +398,25 @@ class OrderRequestTypeBuilder
                 'isFragile' => $orderItem->isFragile(),
                 'isVirtual' => $orderItem->isVirtual(),
                 'isPrePackaged' => $orderItem->isPrePackaged(),
+                'packageId' => $orderItem->getPackageId(),
                 'canRotateVertical' => $orderItem->canRotateVertically(),
-                'countryOfOrigin' => $orderItem->getCountryOfOrigin(),
-                'countryOfManufacture' => $orderItem->getCountryOfManufacture(),
+                'origin' => $this->originFactory->create([
+                    'address' => $this->addressFactory->create([
+                        'countryCode' => $orderItem->getCountryOfOrigin(),
+                    ]),
+                ]),
+                'manufacture' => $this->manufactureFactory->create([
+                    'address' => $this->addressFactory->create([
+                        'countryCode' => $orderItem->getCountryOfManufacture(),
+                    ]),
+                ]),
                 'classificationCodes' => $this->classificationCodesFactory->create([
                     'eccn' => $orderItem->getEccn(),
                     'scheduleBinfo' => $orderItem->getScheduleBinfo(),
                     'hsCode' => $orderItem->getHsCode(),
                 ]),
+                'composition' => $orderItem->getComposition(),
+                'customAttributes' => $orderItem->getCustomAttributes(),
             ]);
             $itemTypes[] = $itemType;
         }
@@ -402,6 +465,7 @@ class OrderRequestTypeBuilder
             'recipient' => $this->getRecipientType($order->getRecipient(), $order->getCollectionPoint()),
             'shipmentDetails' => $this->getShipmentDetailsType($order->getRecipient(), $order->getCollectionPoint()),
             'items' => $this->getItemTypes($order->getOrderItems()),
+            'customAttributes' => $this->getCustomAttributesType($order->getCustomAttributes()),
             'aliases' => [
                 'magento' => $order->getSourceId(),
                 'magentoincrement' => $order->getSourceIncrementId(),

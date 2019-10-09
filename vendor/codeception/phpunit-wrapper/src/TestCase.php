@@ -132,11 +132,6 @@ abstract class TestCase extends \PHPUnit\Framework\TestCase
         \Codeception\PHPUnit\TestCase::assertInternalType('callable', $actual, $message);
     }
 
-    public static function assertIsIterable($actual, $message = '')
-    {
-        \Codeception\PHPUnit\TestCase::assertInternalType('iterable', $actual, $message);
-    }
-
     public static function assertIsNotArray($actual, $message = '')
     {
         \Codeception\PHPUnit\TestCase::assertNotInternalType('array', $actual, $message);
@@ -190,5 +185,35 @@ abstract class TestCase extends \PHPUnit\Framework\TestCase
     public static function assertIsNotIterable($actual, $message = '')
     {
         \Codeception\PHPUnit\TestCase::assertNotInternalType('iterable', $actual, $message);
+    }
+
+    public static function assertEqualsCanonicalizing($expected, $actual, $message = '')
+    {
+        \Codeception\PHPUnit\TestCase::assertEquals($expected, $actual, $message, 0.0, 10, true, false);
+    }
+
+    public static function assertNotEqualsCanonicalizing($expected, $actual, $message = '')
+    {
+        \Codeception\PHPUnit\TestCase::assertNotEquals($expected, $actual, $message, 0.0, 10, true, false);
+    }
+
+    public static function assertEqualsIgnoringCase($expected, $actual, $message = '')
+    {
+        \Codeception\PHPUnit\TestCase::assertEquals($expected, $actual, $message, 0.0, 10, false, true);
+    }
+
+    public static function assertNotEqualsIgnoringCase($expected, $actual, $message = '')
+    {
+        \Codeception\PHPUnit\TestCase::assertNotEquals($expected, $actual, $message, 0.0, 10, false, true);
+    }
+
+    public static function assertEqualsWithDelta($expected, $actual, $delta, $message = '')
+    {
+        \Codeception\PHPUnit\TestCase::assertEquals($expected, $actual, $message, $delta, 10, false, false);
+    }
+
+    public static function assertNotEqualsWithDelta($expected, $actual, $delta, $message = '')
+    {
+        \Codeception\PHPUnit\TestCase::assertNotEquals($expected, $actual, $message, $delta, 10, false, false);
     }
 }
