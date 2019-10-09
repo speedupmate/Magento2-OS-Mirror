@@ -9,7 +9,6 @@ namespace Vertex\Tax\Model;
 use Magento\Framework\Exception\AlreadyExistsException;
 use Magento\Framework\Exception\NoSuchEntityException;
 use Magento\Sales\Api\Data\InvoiceInterface;
-use Psr\Log\LoggerInterface;
 use Vertex\Tax\Model\Data\InvoiceSent;
 use Vertex\Tax\Model\Data\InvoiceSentFactory;
 use Vertex\Tax\Model\Repository\InvoiceSentRepository;
@@ -30,18 +29,18 @@ class InvoiceSentRegistry
     /** @var bool[] Indexed by Invoice ID */
     private $isSentCache = [];
 
-    /** @var LoggerInterface */
+    /** @var ExceptionLogger */
     private $logger;
 
     /**
      * @param InvoiceSentRepository $repository
      * @param InvoiceSentFactory $invoiceSentFactory
-     * @param LoggerInterface $logger
+     * @param ExceptionLogger $logger
      */
     public function __construct(
         InvoiceSentRepository $repository,
         InvoiceSentFactory $invoiceSentFactory,
-        LoggerInterface $logger
+        ExceptionLogger $logger
     ) {
         $this->repository = $repository;
         $this->invoiceSentFactory = $invoiceSentFactory;
@@ -93,7 +92,7 @@ class InvoiceSentRegistry
         } catch (AlreadyExistsException $exception) {
             // Too many cooks - or requests, as the case may be.  Perfectly acceptable
         } catch (\Exception $exception) {
-            $this->logger->critical($exception->getMessage() . PHP_EOL . $exception->getTraceAsString());
+            $this->logger->critical($exception);
         }
     }
 

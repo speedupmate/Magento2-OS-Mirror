@@ -1,20 +1,33 @@
 <?php
 
+/*
+ * Copyright 2013 Johannes M. Schmitt <schmittjoh@gmail.com>
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *     http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
+
 namespace JMS\Serializer;
 
-use JMS\Serializer\Construction\ObjectConstructorInterface;
-use JMS\Serializer\EventDispatcher\EventDispatcherInterface;
 use JMS\Serializer\EventDispatcher\ObjectEvent;
 use JMS\Serializer\EventDispatcher\PreDeserializeEvent;
 use JMS\Serializer\EventDispatcher\PreSerializeEvent;
-use JMS\Serializer\Exception\ExpressionLanguageRequiredException;
-use JMS\Serializer\Exception\InvalidArgumentException;
 use JMS\Serializer\Exception\RuntimeException;
-use JMS\Serializer\Exclusion\ExpressionLanguageExclusionStrategy;
-use JMS\Serializer\Expression\ExpressionEvaluatorInterface;
+use JMS\Serializer\Construction\ObjectConstructorInterface;
 use JMS\Serializer\Handler\HandlerRegistryInterface;
+use JMS\Serializer\EventDispatcher\EventDispatcherInterface;
 use JMS\Serializer\Metadata\ClassMetadata;
 use Metadata\MetadataFactoryInterface;
+use JMS\Serializer\Exception\InvalidArgumentException;
 
 /**
  * Handles traversal along the object graph.
@@ -24,12 +37,10 @@ use Metadata\MetadataFactoryInterface;
  *
  * @author Johannes M. Schmitt <schmittjoh@gmail.com>
  */
-final class GraphNavigator implements GraphNavigatorInterface
+final class GraphNavigator
 {
-    /**
-     * @var ExpressionLanguageExclusionStrategy
-     */
-    private $expressionExclusionStrategy;
+    const DIRECTION_SERIALIZATION = 1;
+    const DIRECTION_DESERIALIZATION = 2;
 
     private $dispatcher;
     private $metadataFactory;
@@ -57,21 +68,12 @@ final class GraphNavigator implements GraphNavigatorInterface
         }
     }
 
-    public function __construct(
-        MetadataFactoryInterface $metadataFactory,
-        HandlerRegistryInterface $handlerRegistry,
-        ObjectConstructorInterface $objectConstructor,
-        EventDispatcherInterface $dispatcher = null,
-        ExpressionEvaluatorInterface $expressionEvaluator = null
-    )
+    public function __construct(MetadataFactoryInterface $metadataFactory, HandlerRegistryInterface $handlerRegistry, ObjectConstructorInterface $objectConstructor, EventDispatcherInterface $dispatcher = null)
     {
         $this->dispatcher = $dispatcher;
         $this->metadataFactory = $metadataFactory;
         $this->handlerRegistry = $handlerRegistry;
         $this->objectConstructor = $objectConstructor;
-        if ($expressionEvaluator) {
-            $this->expressionExclusionStrategy = new ExpressionLanguageExclusionStrategy($expressionEvaluator);
-        }
     }
 
     /**
@@ -79,7 +81,7 @@ final class GraphNavigator implements GraphNavigatorInterface
      *
      * @param mixed $data the data depends on the direction, and type of visitor
      * @param null|array $type array has the format ["name" => string, "params" => array]
-     * @param Context $context
+     *
      * @return mixed the return value depends on the direction, and type of visitor
      */
     public function accept($data, array $type = null, Context $context)
@@ -93,9 +95,9 @@ final class GraphNavigator implements GraphNavigatorInterface
                 throw new RuntimeException('The type must be given for all properties when deserializing.');
             }
 
-            $typeName = \gettype($data);
+            $typeName = gettype($data);
             if ('object' === $typeName) {
-                $typeName = \get_class($data);
+                $typeName = get_class($data);
             }
 
             $type = array('name' => $typeName, 'params' => array());
@@ -103,11 +105,6 @@ final class GraphNavigator implements GraphNavigatorInterface
         // If the data is null, we have to force the type to null regardless of the input in order to
         // guarantee correct handling of null values, and not have any internal auto-casting behavior.
         else if ($context instanceof SerializationContext && null === $data) {
-            $type = array('name' => 'NULL', 'params' => array());
-        }
-        // Sometimes data can convey null but is not of a null type.
-        // Visitors can have the power to add this custom null evaluation
-        if ($visitor instanceof NullAwareVisitorInterface && $visitor->isNull($data) === true) {
             $type = array('name' => 'NULL', 'params' => array());
         }
 
@@ -118,11 +115,9 @@ final class GraphNavigator implements GraphNavigatorInterface
             case 'string':
                 return $visitor->visitString($data, $type, $context);
 
-            case 'int':
             case 'integer':
                 return $visitor->visitInteger($data, $type, $context);
 
-            case 'bool':
             case 'boolean':
                 return $visitor->visitBoolean($data, $type, $context);
 
@@ -136,7 +131,7 @@ final class GraphNavigator implements GraphNavigatorInterface
             case 'resource':
                 $msg = 'Resources are not supported in serialized data.';
                 if ($context instanceof SerializationContext && null !== $path = $context->getPath()) {
-                    $msg .= ' Path: ' . $path;
+                    $msg .= ' Path: '.$path;
                 }
 
                 throw new RuntimeException($msg);
@@ -149,14 +144,6 @@ final class GraphNavigator implements GraphNavigatorInterface
                             return null;
                         }
                         $context->startVisiting($data);
-                    }
-
-                    // If we're serializing a polymorphic type, then we'll be interested in the
-                    // metadata for the actual type of the object, not the base class.
-                    if (class_exists($type['name'], false) || interface_exists($type['name'], false)) {
-                        if (is_subclass_of($data, $type['name'], false)) {
-                            $type = array('name' => \get_class($data), 'params' => array());
-                        }
                     }
                 } elseif ($context instanceof DeserializationContext) {
                     $context->increaseDepth();
@@ -181,7 +168,7 @@ final class GraphNavigator implements GraphNavigatorInterface
                 // before loading metadata because the type name might not be a class, but
                 // could also simply be an artifical type.
                 if (null !== $handler = $this->handlerRegistry->getHandler($context->getDirection(), $type['name'], $context->getFormat())) {
-                    $rs = \call_user_func($handler, $visitor, $data, $type, $context);
+                    $rs = call_user_func($handler, $visitor, $data, $type, $context);
                     $this->leaveScope($context, $data);
 
                     return $rs;
@@ -192,12 +179,8 @@ final class GraphNavigator implements GraphNavigatorInterface
                 /** @var $metadata ClassMetadata */
                 $metadata = $this->metadataFactory->getMetadataForClass($type['name']);
 
-                if ($metadata->usingExpression && !$this->expressionExclusionStrategy) {
-                    throw new ExpressionLanguageRequiredException("To use conditional exclude/expose in {$metadata->name} you must configure the expression language.");
-                }
-
-                if ($context instanceof DeserializationContext && !empty($metadata->discriminatorMap) && $type['name'] === $metadata->discriminatorBaseClass) {
-                    $metadata = $this->resolveMetadata($data, $metadata);
+                if ($context instanceof DeserializationContext && ! empty($metadata->discriminatorMap) && $type['name'] === $metadata->discriminatorBaseClass) {
+                    $metadata = $this->resolveMetadata($context, $data, $metadata);
                 }
 
                 if (null !== $exclusionStrategy && $exclusionStrategy->shouldSkipClass($metadata, $context)) {
@@ -236,10 +219,6 @@ final class GraphNavigator implements GraphNavigatorInterface
                         continue;
                     }
 
-                    if (null !== $this->expressionExclusionStrategy && $this->expressionExclusionStrategy->shouldSkipProperty($propertyMetadata, $context)) {
-                        continue;
-                    }
-
                     if ($context instanceof DeserializationContext && $propertyMetadata->readOnly) {
                         continue;
                     }
@@ -262,31 +241,15 @@ final class GraphNavigator implements GraphNavigatorInterface
         }
     }
 
-    private function resolveMetadata($data, ClassMetadata $metadata)
+    private function resolveMetadata(DeserializationContext $context, $data, ClassMetadata $metadata)
     {
         switch (true) {
-            case \is_array($data) && isset($data[$metadata->discriminatorFieldName]):
-                $typeValue = (string)$data[$metadata->discriminatorFieldName];
+            case is_array($data) && isset($data[$metadata->discriminatorFieldName]):
+                $typeValue = (string) $data[$metadata->discriminatorFieldName];
                 break;
 
-            // Check XML attribute without namespace for discriminatorFieldName
-            case \is_object($data) && $metadata->xmlDiscriminatorAttribute && null === $metadata->xmlDiscriminatorNamespace && isset($data->attributes()->{$metadata->discriminatorFieldName}):
-                $typeValue = (string)$data->attributes()->{$metadata->discriminatorFieldName};
-                break;
-
-            // Check XML attribute with namespace for discriminatorFieldName
-            case \is_object($data) && $metadata->xmlDiscriminatorAttribute && null !== $metadata->xmlDiscriminatorNamespace && isset($data->attributes($metadata->xmlDiscriminatorNamespace)->{$metadata->discriminatorFieldName}):
-                $typeValue = (string)$data->attributes($metadata->xmlDiscriminatorNamespace)->{$metadata->discriminatorFieldName};
-                break;
-
-            // Check XML element with namespace for discriminatorFieldName
-            case \is_object($data) && !$metadata->xmlDiscriminatorAttribute && null !== $metadata->xmlDiscriminatorNamespace && isset($data->children($metadata->xmlDiscriminatorNamespace)->{$metadata->discriminatorFieldName}):
-                $typeValue = (string)$data->children($metadata->xmlDiscriminatorNamespace)->{$metadata->discriminatorFieldName};
-                break;
-
-            // Check XML element for discriminatorFieldName
-            case \is_object($data) && isset($data->{$metadata->discriminatorFieldName}):
-                $typeValue = (string)$data->{$metadata->discriminatorFieldName};
+            case is_object($data) && isset($data->{$metadata->discriminatorFieldName}):
+                $typeValue = (string) $data->{$metadata->discriminatorFieldName};
                 break;
 
             default:
@@ -297,7 +260,7 @@ final class GraphNavigator implements GraphNavigatorInterface
                 ));
         }
 
-        if (!isset($metadata->discriminatorMap[$typeValue])) {
+        if ( ! isset($metadata->discriminatorMap[$typeValue])) {
             throw new \LogicException(sprintf(
                 'The type value "%s" does not exist in the discriminator map of class "%s". Available types: %s',
                 $typeValue,

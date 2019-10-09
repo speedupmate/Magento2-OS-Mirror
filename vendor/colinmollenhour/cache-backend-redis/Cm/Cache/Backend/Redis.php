@@ -112,6 +112,13 @@ class Cm_Cache_Backend_Redis extends Zend_Cache_Backend implements Zend_Cache_Ba
     protected $_luaMaxCStack = 5000;
 
     /**
+     * If 'retry_reads_on_master' is truthy then reads will be retried against master when slave returns "(nil)" value
+     *
+     * @var boolean
+     */
+    protected $_retryReadsOnMaster = false;
+
+    /**
      * @var stdClass
      */
     protected $_clientOptions;
@@ -232,7 +239,8 @@ class Cm_Cache_Backend_Redis extends Zend_Cache_Backend implements Zend_Cache_Ba
             unset($sentinel);
         }
 
-        elseif (class_exists('Credis_Cluster') && array_key_exists('cluster', $options) && !empty($options['cluster'])) {
+        // Instantiate Credis_Cluster
+        else if ( ! empty($options['cluster'])) {
             $this->_setupReadWriteCluster($options);
         }
 
@@ -283,6 +291,9 @@ class Cm_Cache_Backend_Redis extends Zend_Cache_Backend implements Zend_Cache_Ba
 
         if ( isset($options['compress_threshold'])) {
             $this->_compressThreshold = (int) $options['compress_threshold'];
+            if ($this->_compressThreshold < 1) {
+                $this->_compressThreshold = 1;
+            }
         }
 
         if ( isset($options['automatic_cleaning_factor']) ) {
@@ -306,6 +317,15 @@ class Cm_Cache_Backend_Redis extends Zend_Cache_Backend implements Zend_Cache_Ba
             }
             $this->_compressionLib = 'l4z';
         }
+        else if ( function_exists('zstd_compress')) {
+            $version = phpversion("zstd");
+            if (version_compare($version, "0.4.13") < 0)
+            {
+                $this->_compressTags = $this->_compressTags > 1 ? true : false;
+                $this->_compressData = $this->_compressData > 1 ? true : false;
+            }
+            $this->_compressionLib = 'zstd';
+        }
         else if ( function_exists('lzf_compress') ) {
             $this->_compressionLib = 'lzf';
         }
@@ -324,6 +344,10 @@ class Cm_Cache_Backend_Redis extends Zend_Cache_Backend implements Zend_Cache_Ba
 
         if (isset($options['lua_max_c_stack'])) {
             $this->_luaMaxCStack = (int) $options['lua_max_c_stack'];
+        }
+
+        if (isset($options['retry_reads_on_master'])) {
+            $this->_retryReadsOnMaster = (bool) $options['retry_reads_on_master'];
         }
 
         if (isset($options['auto_expire_lifetime'])) {
@@ -428,6 +452,11 @@ class Cm_Cache_Backend_Redis extends Zend_Cache_Backend implements Zend_Cache_Ba
     {
         if ($this->_slave) {
             $data = $this->_slave->hGet(self::PREFIX_KEY.$id, self::FIELD_DATA);
+
+            // Prevent compounded effect of cache flood on asynchronously replicating master/slave setup
+            if ($this->_retryReadsOnMaster && $data === false) {
+                $data = $this->_redis->hGet(self::PREFIX_KEY.$id, self::FIELD_DATA);
+            }
         } else {
             $data = $this->_redis->hGet(self::PREFIX_KEY.$id, self::FIELD_DATA);
         }
@@ -465,6 +494,25 @@ class Cm_Cache_Backend_Redis extends Zend_Cache_Backend implements Zend_Cache_Ba
     }
 
     /**
+     * Get the life time
+     *
+     * if $specificLifetime is not false, the given specific life time is used
+     * else, the global lifetime is used
+     *
+     * @param  int $specificLifetime
+     * @return int Cache life time
+     */
+    public function getLifetime($specificLifetime)
+    {
+        // Lifetimes set via Layout XMLs get parsed as string so bool(false) becomes string("false")
+        if ($specificLifetime === 'false') {
+            $specificLifetime = false;
+        }
+
+        return parent::getLifetime($specificLifetime);
+    }
+
+    /**
      * Save some string datas into a cache record
      *
      * Note : $data is always "string" (serialization is done by the
@@ -484,7 +532,7 @@ class Cm_Cache_Backend_Redis extends Zend_Cache_Backend implements Zend_Cache_Ba
         else
             $tags = array_flip(array_flip($tags));
 
-        $lifetime = $this->_getAutoExpiringLifetime($this->getLifetime($specificLifetime), $id);
+        $lifetime = (int)$this->_getAutoExpiringLifetime($this->getLifetime($specificLifetime), $id);
 
         if ($this->_useLua) {
             $sArgs = array(
@@ -1168,6 +1216,7 @@ class Cm_Cache_Backend_Redis extends Zend_Cache_Backend implements Zend_Cache_Ba
                 case 'snappy': $data = snappy_compress($data); break;
                 case 'lzf':    $data = lzf_compress($data); break;
                 case 'l4z':    $data = lz4_compress($data, $level); break;
+                case 'zstd':   $data = zstd_compress($data, $level); break;
                 case 'gzip':   $data = gzcompress($data, $level); break;
                 default:       throw new CredisException("Unrecognized 'compression_lib'.");
             }
@@ -1190,6 +1239,7 @@ class Cm_Cache_Backend_Redis extends Zend_Cache_Backend implements Zend_Cache_Ba
                 case 'sn': return snappy_uncompress(substr($data,5));
                 case 'lz': return lzf_decompress(substr($data,5));
                 case 'l4': return lz4_uncompress(substr($data,5));
+                case 'zs': return zstd_uncompress(substr($data,5));
                 case 'gz': case 'zc': return gzuncompress(substr($data,5));
             }
         }

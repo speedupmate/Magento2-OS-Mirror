@@ -21,13 +21,13 @@ class AcceptHeaderItem
     private $value;
     private $quality = 1.0;
     private $index = 0;
-    private $attributes = [];
+    private $attributes = array();
 
     /**
      * @param string $value
      * @param array  $attributes
      */
-    public function __construct($value, array $attributes = [])
+    public function __construct($value, array $attributes = array())
     {
         $this->value = $value;
         foreach ($attributes as $name => $value) {
@@ -46,7 +46,7 @@ class AcceptHeaderItem
     {
         $bits = preg_split('/\s*(?:;*("[^"]+");*|;*(\'[^\']+\');*|;+)\s*/', $itemValue, 0, PREG_SPLIT_NO_EMPTY | PREG_SPLIT_DELIM_CAPTURE);
         $value = array_shift($bits);
-        $attributes = [];
+        $attributes = array();
 
         $lastNullAttribute = null;
         foreach ($bits as $bit) {

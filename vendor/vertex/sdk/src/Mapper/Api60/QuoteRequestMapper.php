@@ -93,6 +93,30 @@ class QuoteRequestMapper implements QuoteRequestMapperInterface
     }
 
     /**
+     * @inheritDoc
+     */
+    public function getLocationCodeMaxLength()
+    {
+        return static::LOCATION_CODE_MAX;
+    }
+
+    /**
+     * @inheritDoc
+     */
+    public function getLocationCodeMinLength()
+    {
+        return static::LOCATION_CODE_MIN;
+    }
+
+    /**
+     * @inheritDoc
+     */
+    public function validateLocationCode($fieldValue)
+    {
+        // TODO: Implement validateLocationCode() method.
+    }
+
+    /**
      * @inheritdoc
      * @SuppressWarnings(PHPMD.CyclomaticComplexity)
      * @SuppressWarnings(PHPMD.NPathComplexity)

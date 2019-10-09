@@ -4,44 +4,64 @@ namespace Vertex\Tax\Test\Unit\Observer;
 
 use Magento\Framework\Event;
 use Magento\Framework\Event\Observer;
+use Magento\Framework\Exception\NoSuchEntityException;
 use Magento\Framework\Message\ManagerInterface;
 use Magento\Sales\Model\Order;
 use Magento\Sales\Model\Order\Creditmemo;
 use Magento\Store\Model\Store;
 use Vertex\Services\Invoice\Request;
+use Vertex\Services\Invoice\Response;
+use Vertex\Services\Invoice\ResponseInterface;
+use Vertex\Tax\Model\Api\Data\InvoiceRequestBuilder;
 use Vertex\Tax\Model\Config;
 use Vertex\Tax\Model\ConfigurationValidator;
 use Vertex\Tax\Model\CountryGuard;
+use Vertex\Tax\Model\OrderHasInvoiceDeterminer;
+use Vertex\Tax\Model\Repository\OrderInvoiceStatusRepository;
 use Vertex\Tax\Model\TaxInvoice;
 use Vertex\Tax\Observer\CreditMemoObserver;
+use Vertex\Tax\Observer\GiftwrapExtensionLoader;
 use Vertex\Tax\Test\Unit\TestCase;
+use PHPUnit_Framework_MockObject_MockObject as MockObject;
 
 class CreditMemoObserverTest extends TestCase
 {
-    /** @var \PHPUnit_Framework_MockObject_MockObject|Config */
+    /** @var MockObject|Config */
     private $configMock;
 
-    /** @var \PHPUnit_Framework_MockObject_MockObject|ConfigurationValidator */
+    /** @var MockObject|ConfigurationValidator */
     private $configValidatorMock;
 
-    /** @var \PHPUnit_Framework_MockObject_MockObject|CountryGuard */
+    /** @var MockObject|CountryGuard */
     private $countryGuardMock;
 
     /** @var CreditMemoObserver */
-    private $creditMemoObserverMock;
+    private $creditMemoObserver;
 
-    /** @var \PHPUnit_Framework_MockObject_MockObject|ManagerInterface */
+    /** @var MockObject|ManagerInterface */
     private $managerInterfaceMock;
 
-    /** @var \PHPUnit_Framework_MockObject_MockObject|TaxInvoice */
+    /** @var MockObject|TaxInvoice */
     private $taxInvoiceMock;
+
+    /** @var MockObject|InvoiceRequestBuilder */
+    private $invoiceRequestBuilderMock;
+
+    /** @var MockObject|OrderHasInvoiceDeterminer */
+    private $hasInvoiceDeterminer;
+
+    /** @var MockObject|OrderInvoiceStatusRepository */
+    private $orderInvoiceStatusRepositoryMock;
+
+    /** @var MockObject|GiftwrapExtensionLoader */
+    private $extensionLoaderMock;
 
     protected function setUp()
     {
         parent::setUp();
 
         $this->configMock = $this->getMockBuilder(Config::class)
-            ->setMethods(['isVertexActive'])
+            ->setMethods(['isVertexActive', 'invoiceOrderStatus'])
             ->disableOriginalConstructor()
             ->getMock();
 
@@ -51,7 +71,7 @@ class CreditMemoObserverTest extends TestCase
             ->getMock();
 
         $this->taxInvoiceMock = $this->getMockBuilder(TaxInvoice::class)
-            ->setMethods(['prepareInvoiceData', 'sendRefundRequest'])
+            ->setMethods(['sendInvoiceRequest', 'sendRefundRequest'])
             ->disableOriginalConstructor()
             ->getMock();
 
@@ -61,7 +81,7 @@ class CreditMemoObserverTest extends TestCase
             ->getMockForAbstractClass();
 
         $this->configValidatorMock = $this->getMockBuilder(ConfigurationValidator::class)
-            ->setMethods(['execute'])
+            ->setMethods(['execute', 'isValid'])
             ->disableOriginalConstructor()
             ->getMockForAbstractClass();
         $result = new ConfigurationValidator\Result();
@@ -69,7 +89,37 @@ class CreditMemoObserverTest extends TestCase
         $this->configValidatorMock->method('execute')
             ->willReturn($result);
 
-        $this->creditMemoObserverMock = $this->getObject(
+        $this->invoiceRequestBuilderMock = $this->getMockBuilder(InvoiceRequestBuilder::class)
+            ->setMethods(['buildFromCreditmemo'])
+            ->disableOriginalConstructor()
+            ->getMock();
+
+        $this->hasInvoiceDeterminer = $this->getMockBuilder(OrderHasInvoiceDeterminer::class)
+            ->setMethods(['hasinvoice'])
+            ->disableOriginalConstructor()
+            ->getMock();
+        $this->orderInvoiceStatusRepositoryMock = $this->getMockBuilder(OrderInvoiceStatusRepository::class)
+            ->setMethods(['getByOrderId'])
+            ->disableOriginalConstructor()
+            ->getMock();
+
+        $this->orderInvoiceStatusRepositoryMock
+            ->method('getByOrderId')
+            ->willThrowException(new NoSuchEntityException(__('No Such Entity')));
+
+        $this->extensionLoaderMock = $this->getMockBuilder(GiftwrapExtensionLoader::class)
+            ->setMethods(['loadOnCreditmemo'])
+            ->disableOriginalConstructor()
+            ->getMock();
+
+        $this->extensionLoaderMock->method('loadOnCreditmemo')
+            ->willReturnCallback(
+                static function ($creditMemo) {
+                    return $creditMemo;
+                }
+            );
+
+        $this->creditMemoObserver = $this->getObject(
             CreditMemoObserver::class,
             [
                 'config' => $this->configMock,
@@ -77,28 +127,41 @@ class CreditMemoObserverTest extends TestCase
                 'taxInvoice' => $this->taxInvoiceMock,
                 'messageManager' => $this->managerInterfaceMock,
                 'configValidator' => $this->configValidatorMock,
+                'invoiceRequestBuilder' => $this->invoiceRequestBuilderMock,
+                'hasInvoiceDeterminer' => $this->hasInvoiceDeterminer,
+                'extensionLoader' => $this->extensionLoaderMock,
+                'orderInvoiceStatusRepository' => $this->orderInvoiceStatusRepositoryMock,
             ]
         );
     }
 
+    /**
+     * Test if creditmemo is sent to Vertex
+     *
+     * @return void
+     */
     public function testSendRefundRequest()
     {
-        /** @var \PHPUnit_Framework_MockObject_MockObject|Event $eventMock */
+        /** @var MockObject|Event $eventMock */
         $eventMock = $this->createPartialMock(Event::class, ['getCreditmemo']);
 
-        /** @var \PHPUnit_Framework_MockObject_MockObject|Observer $observerMock */
+        /** @var MockObject|Observer $observerMock */
         $observerMock = $this->createPartialMock(Observer::class, ['getEvent']);
 
-        /** @var \PHPUnit_Framework_MockObject_MockObject|Creditmemo $creditMemoMock */
-        $creditMemoMock = $this->createMock(Creditmemo::class);
-
-        /** @var \PHPUnit_Framework_MockObject_MockObject|Order $orderMock */
-        $orderMock = $this->createMock(Order::class);
-
-        /** @var \PHPUnit_Framework_MockObject_MockObject|Store $storeMock */
+        /** @var MockObject|Store $storeMock */
         $storeMock = $this->createMock(Store::class);
 
-        $request = new Request();
+        /** @var MockObject|Order $orderMock */
+        $orderMock = $this->createPartialMock(Order::class, ['getStore', 'getId', 'getStatus']);
+        $orderMock->method('getStore')->willReturn($storeMock);
+
+        /** @var MockObject|Creditmemo $creditMemoMock */
+        $creditMemoMock = $this->createMock(Creditmemo::class);
+        $creditMemoMock->method('getOrder')->willReturn($orderMock);
+
+        /** @var MockObject|ResponseInterface $responseMock */
+        $responseMock = $this->createPartialMock(Response::class, ['getItems']);
+        $responseMock->method('getItems')->willReturn([]);
 
         $observerMock->expects($this->once())
             ->method('getEvent')
@@ -108,17 +171,13 @@ class CreditMemoObserverTest extends TestCase
             ->method('getCreditmemo')
             ->willReturn($creditMemoMock);
 
-        $creditMemoMock->expects($this->once())
-            ->method('getOrder')
-            ->willReturn($orderMock);
-
-        $orderMock->expects($this->once())
-            ->method('getStore')
-            ->willReturn($storeMock);
-
         $this->configMock->expects($this->once())
             ->method('isVertexActive')
-            ->with($storeMock)
+            ->with(null)
+            ->willReturn(true);
+
+        $this->hasInvoiceDeterminer->expects($this->once())
+            ->method('hasInvoice')
             ->willReturn(true);
 
         $this->countryGuardMock->expects($this->once())
@@ -126,21 +185,26 @@ class CreditMemoObserverTest extends TestCase
             ->with($orderMock)
             ->willReturn(true);
 
-        $this->taxInvoiceMock->expects($this->once())
-            ->method('prepareInvoiceData')
-            ->with($creditMemoMock, 'refund')
+        $this->configValidatorMock
+            ->method('isValid')
+            ->willReturn(true);
+
+        $request = new Request();
+        $this->invoiceRequestBuilderMock->expects($this->once())
+            ->method('buildFromCreditmemo')
+            ->with($creditMemoMock)
             ->willReturn($request);
 
         $this->taxInvoiceMock->expects($this->once())
             ->method('sendRefundRequest')
             ->with($request, $orderMock)
-            ->willReturn(true);
+            ->willReturn($responseMock);
 
         $this->managerInterfaceMock->expects($this->once())
             ->method('addSuccessMessage')
             ->with('The Vertex invoice has been refunded.')
             ->willReturn($this->managerInterfaceMock);
 
-        $this->creditMemoObserverMock->execute($observerMock);
+        $this->creditMemoObserver->execute($observerMock);
     }
 }

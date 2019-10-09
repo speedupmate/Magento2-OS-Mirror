@@ -13,13 +13,16 @@ use Magento\Sales\Model\Order;
  */
 class CountryGuard
 {
-    const USA_ISO2 = 'US';
-    const CAN_ISO2 = 'CA';
+    /** @var Config */
+    private $config;
 
-    private $serviceableCountries = [
-        self::USA_ISO2,
-        self::CAN_ISO2
-    ];
+    /**
+     * @param Config $config
+     */
+    public function __construct(Config $config)
+    {
+        $this->config = $config;
+    }
 
     /**
      * Determine if an Order can be serviced by Vertex
@@ -46,6 +49,6 @@ class CountryGuard
      */
     public function isCountryIdServiceableByVertex($countryId)
     {
-        return in_array($countryId, $this->serviceableCountries, false);
+        return in_array($countryId, $this->config->getAllowedCountries(), false);
     }
 }

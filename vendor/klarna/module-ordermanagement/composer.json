@@ -3,7 +3,7 @@
     "description": "Klarna Order Management Magento 2 Extension",
     "type": "magento2-module",
     "license": "Apache-2.0",
-    "version": "4.4.1",
+    "version": "4.4.4",
     "authors": [
         {
             "name": "Joe Constant",
@@ -46,7 +46,7 @@
         "jakub-onderka/php-parallel-lint": "^0.9.2",
         "jakub-onderka/php-console-highlighter": "^0.3.2",
         "magento/framework": "^101.0.0",
-        "magento-ecg/coding-standard": "^3.1"
+        "magento/marketplace-eqp": "^2.0"
     },
     "autoload": {
         "psr-4": {

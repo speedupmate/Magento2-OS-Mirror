@@ -17,6 +17,7 @@ define(
     'Klarna_Kp/js/model/config',
     'Klarna_Kp/js/model/klarna',
     'Magento_Checkout/js/model/quote',
+    'Magento_Checkout/js/model/payment/additional-validators',
     'Klarna_Kp/js/view/payments',
     'Klarna_Kp/js/model/debug'
   ],
@@ -29,6 +30,7 @@ define(
             config,
             klarna,
             quote,
+            additionalValidators,
             kp,
             debug) {
     'use strict';
@@ -189,27 +191,29 @@ define(
       authorize: function () {
         var self = this;
 
-        self.showButton(false);
-        if (this.hasMessage()) {
-          return;
-        }
-        klarna.authorize(self.getCategoryId(), klarna.getUpdateData(), function (res) {
-          debug.log(res);
-          if (res.approved) {
-            if (res.finalize_required) {
-              self.finalize();
-              return;
+        if (additionalValidators.validate()) {
+          self.showButton(false);
+          if (this.hasMessage()) {
+            return;
+          }
+          klarna.authorize(self.getCategoryId(), klarna.getUpdateData(), function (res) {
+            debug.log(res);
+            if (res.approved) {
+              if (res.finalize_required) {
+                self.finalize();
+                return;
+              }
+              self.placeOrder();
             }
-            self.placeOrder();
-          }
 
-          if (res.show_form === false) {
-            self.showButton(false);
-          } else {
-            self.showButton(true);
-          }
+            if (res.show_form === false) {
+              self.showButton(false);
+            } else {
+              self.showButton(true);
+            }
 
-        });
+          });
+        }
       },
       finalize: function () {
         var self = this;

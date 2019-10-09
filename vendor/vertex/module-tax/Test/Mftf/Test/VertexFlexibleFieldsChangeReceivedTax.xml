@@ -1,0 +1,252 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!--
+ /**
+  * @copyright  Vertex. All rights reserved.  https://www.vertexinc.com/
+  * @author     Mediotype                     https://www.mediotype.com/
+  */
+-->
+<tests xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="urn:magento:mftf:Test/etc/testSchema.xsd">
+    <test name="VertexAsRegisteredCustomerCheckTaxWhenFlexibleFieldIsSentForEcoProducts">
+        <annotations>
+            <features value="Vertex"/>
+            <features value="VertexFlexField"/>
+            <group value="Vertex"/>
+            <group value="VertexFlexField"/>
+
+            <stories value="As a merchant, I should be able to send extra information to the Vertex Tax Engine to ensure accuracy of my taxes"/>
+            <description value="Validate that the jurisdictions of an order have changed due to a flexible field being sent to the Vertex Tax Engine"/>
+            <title value="Validate Taxes in Minicart, Registered Customer, Flexible Field Product with Flexible Field Set"/>
+
+            <severity value="MAJOR"/>
+        </annotations>
+        <before>
+            <createData entity="_defaultCategory" stepKey="createCategory"/>
+            <createData entity="productYesNoAttribute" stepKey="createProductAttribute"/>
+            <createData entity="VertexProductAttributeInSet" stepKey="addAttributeToSet">
+                <field key="attributecode">$$createProductAttribute.attribute_code$$</field>
+            </createData>
+            <createData entity="_defaultProduct" stepKey="createProduct">
+                <field key="price">{{Vertex_EcoProduct_Values.price}}</field>
+                <requiredEntity createDataKey="createCategory"/>
+            </createData>
+
+            <actionGroup ref="LoginAsAdmin" stepKey="loginAsAdmin"/>
+
+            <actionGroup ref="goToProductPageViaID" stepKey="viewCreatedProduct">
+                <argument name="productId" value="$$createProduct.id$$" />
+            </actionGroup>
+            <click selector="//div[contains(@class, 'admin__field')][.//*[contains(text(), '$$createProductAttribute.default_frontend_label$$')]]/div/div/label" stepKey="enableEcoAttribute"/>
+            <actionGroup ref="saveProductForm" stepKey="saveCreatedProduct"/>
+
+            <actionGroup ref="VertexTaxDefaultConfig" stepKey="setupDefaultVertexTestConfiguration"/>
+            <createData entity="VertexTaxConfigILSeller" stepKey="setupVertexILSeller"/>
+            <createData entity="VertexTaxSummaryByJurisdiction" stepKey="setupVertexSummaryByJurisdiction"/>
+            <magentoCLI stepKey="setupFlexFieldConfig" command="config:set" arguments='tax/vertex_flexfields/code "[{\\"field_id\\":1,\\"field_source\\":\\"product.custom.$$createProductAttribute.attribute_code$$\\"}]"' />
+
+            <createData entity="Vertex_Customer_BuckeyeIllinois" stepKey="createCustomer"/>
+
+            <actionGroup ref="ClearCacheActionGroup" stepKey="clearCache"/>
+            <actionGroup ref="LoginToStorefrontActionGroup" stepKey="customerLogin">
+                <argument name="Customer" value="$$createCustomer$$"/>
+            </actionGroup>
+            <actionGroup ref="AddSimpleProductToCart" stepKey="addProductToCart">
+                <argument name="product" value="$$createProduct$$" />
+            </actionGroup>
+            <actionGroup ref="StorefrontOpenCartFromMinicartActionGroup" stepKey="gotoCart"/>
+        </before>
+
+        <actionGroup ref="VertexCheckJurisdictionPercentageInCart" stepKey="checkCartJurisdictionIL">
+            <argument name="name" value="{{Vertex_Jurisdiction_IL.label}}" />
+            <argument name="percentage" value="{{Vertex_Jurisdiction_IL.percent}}"/>
+        </actionGroup>
+        <actionGroup ref="VertexCheckJurisdictionPercentageInCart" stepKey="checkCartJurisdictionILVermilion">
+            <argument name="name" value="{{Vertex_Jurisdiction_IL_Vermilion.label}}" />
+            <argument name="percentage" value="{{Vertex_Jurisdiction_IL_Vermilion.percent}}"/>
+        </actionGroup>
+        <actionGroup ref="VertexCheckJurisdictionPercentageInCart" stepKey="checkCartJurisdictionILDanville">
+            <argument name="name" value="{{Vertex_Jurisdiction_IL_Danville.label}}" />
+            <argument name="percentage" value="{{Vertex_Jurisdiction_IL_Danville.percent}}"/>
+        </actionGroup>
+
+        <actionGroup ref="GoToCheckoutFromMinicartActionGroup" stepKey="gotoCheckout"/>
+
+        <actionGroup ref="CheckoutSelectFlatRateShippingMethodActionGroup" stepKey="selectShippingMethod"/>
+
+        <waitForElement selector="{{CheckoutShippingSection.next}}" stepKey="waitForNextButton"/>
+        <click selector="{{CheckoutShippingSection.next}}" stepKey="clickNext"/>
+
+        <waitForElement selector="{{CheckoutPaymentSection.paymentSectionTitle}}" stepKey="waitForPaymentSectionLoaded"/>
+        <seeInCurrentUrl url="{{CheckoutPage.url}}/#payment" stepKey="assertCheckoutPaymentUrl"/>
+
+        <actionGroup ref="VertexCheckJurisdictionPercentageInCheckout" stepKey="checkCheckoutJurisdictionIL">
+            <argument name="name" value="{{Vertex_Jurisdiction_IL.label}}" />
+            <argument name="percentage" value="{{Vertex_Jurisdiction_IL.percent}}"/>
+        </actionGroup>
+        <actionGroup ref="VertexCheckJurisdictionPercentageInCheckout" stepKey="checkCheckoutJurisdictionILVermilion">
+            <argument name="name" value="{{Vertex_Jurisdiction_IL_Vermilion.label}}" />
+            <argument name="percentage" value="{{Vertex_Jurisdiction_IL_Vermilion.percent}}"/>
+        </actionGroup>
+        <actionGroup ref="VertexCheckJurisdictionPercentageInCheckout" stepKey="checkCheckoutJurisdictionILDanville">
+            <argument name="name" value="{{Vertex_Jurisdiction_IL_Danville.label}}" />
+            <argument name="percentage" value="{{Vertex_Jurisdiction_IL_Danville.percent}}"/>
+        </actionGroup>
+
+        <waitForElementVisible selector="{{CheckoutPaymentSection.placeOrder}}" stepKey="waitForPlaceOrderButton"/>
+        <click selector="{{CheckoutPaymentSection.placeOrder}}" stepKey="clickPlaceOrder"/>
+        <see selector="{{CheckoutSuccessMainSection.successTitle}}" userInput="Thank you for your purchase!" stepKey="waitForLoadSuccessPage"/>
+
+        <grabTextFrom selector="{{CheckoutSuccessMainSection.orderNumber22}}" stepKey="orderNumber"/>
+
+        <amOnPage url="{{AdminOrdersPage.url}}" stepKey="goToAdminOrder"/>
+        <actionGroup ref="AdminOrdersGridClearFiltersActionGroup" stepKey="clearFilters"/>
+        <actionGroup ref="OpenOrderById" stepKey="openOrder">
+            <argument name="orderId" value="$orderNumber"/>
+        </actionGroup>
+
+        <actionGroup ref="goToInvoiceIntoOrder" stepKey="createInvoice"/>
+        <actionGroup ref="submitInvoiceIntoOrder" stepKey="submitInvoice"/>
+
+        <actionGroup ref="VertexCheckInvoiceSuccessMessage" stepKey="checkSuccessMessage"/>
+        <actionGroup ref="VertexCheckInvoiceSuccessNote" stepKey="checkSuccessNote">
+            <argument name="amount" value="{{Vertex_EcoProduct_Totals.tax}}"/>
+        </actionGroup>
+
+        <after>
+            <deleteData stepKey="deleteCategory" createDataKey="createCategory"/>
+            <deleteData stepKey="deleteProductAttribute" createDataKey="createProductAttribute"/>
+            <deleteData stepKey="deleteProduct" createDataKey="createProduct"/>
+            <deleteData stepKey="deleteCustomer" createDataKey="createCustomer"/>
+
+            <createData entity="DefaultTaxConfig" stepKey="defaultConf"/>
+            <magentoCLI stepKey="setupFlexFieldConfig" command="config:set" arguments='tax/vertex_flexfields/code []' />
+            <actionGroup ref="logout" stepKey="logoutOfAdmin"/>
+            <actionGroup ref="StorefrontCustomerLogoutActionGroup" stepKey="customerLogout"/>
+        </after>
+    </test>
+    <test name="VertexAsRegisteredCustomerCheckTaxWhenFlexibleFieldIsSentForElectronicProducts">
+        <annotations>
+            <features value="Vertex"/>
+            <features value="VertexFlexField"/>
+            <group value="Vertex"/>
+            <group value="VertexFlexField"/>
+
+            <stories value="As a merchant, I should be able to send extra information to the Vertex Tax Engine to ensure accuracy of my taxes"/>
+            <description value="Validate that the jurisdictions of an order have changed due to a flexible field being sent to the Vertex Tax Engine"/>
+            <title value="Validate Taxes in Minicart, Registered Customer, Flexible Field Product with Text-Entry Flexible Field Set"/>
+
+            <severity value="MAJOR"/>
+        </annotations>
+        <before>
+            <createData entity="_defaultCategory" stepKey="createCategory"/>
+            <createData entity="productAttributeText" stepKey="createProductAttribute"/>
+            <createData entity="VertexProductAttributeInSet" stepKey="addAttributeToSet">
+                <field key="attributecode">$$createProductAttribute.attribute_code$$</field>
+            </createData>
+            <createData entity="_defaultProduct" stepKey="createProduct">
+                <field key="price">{{Vertex_ElectronicProduct_Values.price}}</field>
+                <requiredEntity createDataKey="createCategory"/>
+            </createData>
+
+            <actionGroup ref="LoginAsAdmin" stepKey="loginAsAdmin"/>
+
+            <actionGroup ref="goToProductPageViaID" stepKey="viewCreatedProduct">
+                <argument name="productId" value="$$createProduct.id$$" />
+            </actionGroup>
+            <fillField selector="//div[contains(@class, 'admin__field')][.//*[contains(text(), '$$createProductAttribute.default_frontend_label$$')]]/div/input"
+                       userInput="Electronic"
+                       stepKey="enableElectronicAttribute"/>
+            <actionGroup ref="saveProductForm" stepKey="saveCreatedProduct"/>
+
+            <actionGroup ref="VertexTaxDefaultConfig" stepKey="setupDefaultVertexTestConfiguration"/>
+            <createData entity="VertexTaxConfigILSeller" stepKey="setupVertexILSeller"/>
+            <createData entity="VertexTaxSummaryByJurisdiction" stepKey="setupVertexSummaryByJurisdiction"/>
+            <magentoCLI stepKey="setupFlexFieldConfig" command="config:set" arguments='tax/vertex_flexfields/code "[{\\"field_id\\":1,\\"field_source\\":\\"product.custom.$$createProductAttribute.attribute_code$$\\"}]"' />
+
+            <createData entity="Vertex_Customer_BuckeyeIllinois" stepKey="createCustomer"/>
+
+            <actionGroup ref="ClearCacheActionGroup" stepKey="clearCache"/>
+            <actionGroup ref="LoginToStorefrontActionGroup" stepKey="customerLogin">
+                <argument name="Customer" value="$$createCustomer$$"/>
+            </actionGroup>
+            <actionGroup ref="AddSimpleProductToCart" stepKey="addProductToCart">
+                <argument name="product" value="$$createProduct$$" />
+            </actionGroup>
+            <actionGroup ref="StorefrontOpenCartFromMinicartActionGroup" stepKey="gotoCart"/>
+        </before>
+
+        <actionGroup ref="VertexCheckJurisdictionPercentageInCart" stepKey="checkCartJurisdictionIL">
+            <argument name="name" value="{{Vertex_Jurisdiction_IL.label}}" />
+            <argument name="percentage" value="{{Vertex_Jurisdiction_IL.percent}}"/>
+        </actionGroup>
+        <actionGroup ref="VertexCheckJurisdictionPercentageInCart" stepKey="checkCartJurisdictionILCook">
+            <argument name="name" value="{{Vertex_Jurisdiction_IL_Cook.label}}" />
+            <argument name="percentage" value="{{Vertex_Jurisdiction_IL_Cook.percent}}"/>
+        </actionGroup>
+        <actionGroup ref="VertexCheckJurisdictionPercentageInCart" stepKey="checkCartJurisdictionILRiverGrove">
+            <argument name="name" value="{{Vertex_Jurisdiction_IL_River_Grove.label}}" />
+            <argument name="percentage" value="{{Vertex_Jurisdiction_IL_River_Grove.percent}}"/>
+        </actionGroup>
+        <actionGroup ref="VertexCheckJurisdictionPercentageInCart" stepKey="checkCartJurisdictionILCookRTA">
+            <argument name="name" value="{{Vertex_Jurisdiction_IL_Cook_RTA.label}}" />
+            <argument name="percentage" value="{{Vertex_Jurisdiction_IL_Cook_RTA.percent}}"/>
+        </actionGroup>
+
+        <actionGroup ref="GoToCheckoutFromMinicartActionGroup" stepKey="gotoCheckout"/>
+
+        <actionGroup ref="CheckoutSelectFlatRateShippingMethodActionGroup" stepKey="selectShippingMethod"/>
+
+        <waitForElement selector="{{CheckoutShippingSection.next}}" stepKey="waitForNextButton"/>
+        <click selector="{{CheckoutShippingSection.next}}" stepKey="clickNext"/>
+
+        <waitForElement selector="{{CheckoutPaymentSection.paymentSectionTitle}}" stepKey="waitForPaymentSectionLoaded"/>
+        <seeInCurrentUrl url="{{CheckoutPage.url}}/#payment" stepKey="assertCheckoutPaymentUrl"/>
+
+        <actionGroup ref="VertexCheckJurisdictionPercentageInCheckout" stepKey="checkCheckoutJurisdictionIL">
+            <argument name="name" value="{{Vertex_Jurisdiction_IL.label}}" />
+            <argument name="percentage" value="{{Vertex_Jurisdiction_IL.percent}}"/>
+        </actionGroup>
+        <actionGroup ref="VertexCheckJurisdictionPercentageInCheckout" stepKey="checkCheckoutJurisdictionILCook">
+            <argument name="name" value="{{Vertex_Jurisdiction_IL_Cook.label}}" />
+            <argument name="percentage" value="{{Vertex_Jurisdiction_IL_Cook.percent}}"/>
+        </actionGroup>
+        <actionGroup ref="VertexCheckJurisdictionPercentageInCheckout" stepKey="checkCheckoutJurisdictionILRiverGrove">
+            <argument name="name" value="{{Vertex_Jurisdiction_IL_River_Grove.label}}" />
+            <argument name="percentage" value="{{Vertex_Jurisdiction_IL_River_Grove.percent}}"/>
+        </actionGroup>
+        <actionGroup ref="VertexCheckJurisdictionPercentageInCheckout" stepKey="checkCheckoutJurisdictionILCookRTA">
+            <argument name="name" value="{{Vertex_Jurisdiction_IL_Cook_RTA.label}}" />
+            <argument name="percentage" value="{{Vertex_Jurisdiction_IL_Cook_RTA.percent}}"/>
+        </actionGroup>
+        <waitForElementVisible selector="{{CheckoutPaymentSection.placeOrder}}" stepKey="waitForPlaceOrderButton"/>
+        <click selector="{{CheckoutPaymentSection.placeOrder}}" stepKey="clickPlaceOrder"/>
+        <see selector="{{CheckoutSuccessMainSection.successTitle}}" userInput="Thank you for your purchase!" stepKey="waitForLoadSuccessPage"/>
+
+        <grabTextFrom selector="{{CheckoutSuccessMainSection.orderNumber22}}" stepKey="orderNumber"/>
+
+        <amOnPage url="{{AdminOrdersPage.url}}" stepKey="goToAdminOrder"/>
+        <actionGroup ref="AdminOrdersGridClearFiltersActionGroup" stepKey="clearFilters"/>
+        <actionGroup ref="OpenOrderById" stepKey="openOrder">
+            <argument name="orderId" value="$orderNumber"/>
+        </actionGroup>
+
+        <actionGroup ref="goToInvoiceIntoOrder" stepKey="createInvoice"/>
+        <actionGroup ref="submitInvoiceIntoOrder" stepKey="submitInvoice"/>
+
+        <actionGroup ref="VertexCheckInvoiceSuccessMessage" stepKey="checkSuccessMessage"/>
+        <actionGroup ref="VertexCheckInvoiceSuccessNote" stepKey="checkSuccessNote">
+            <argument name="amount" value="{{Vertex_ElectronicProduct_Totals.tax}}"/>
+        </actionGroup>
+
+        <after>
+            <deleteData stepKey="deleteCategory" createDataKey="createCategory"/>
+            <deleteData stepKey="deleteProductAttribute" createDataKey="createProductAttribute"/>
+            <deleteData stepKey="deleteProduct" createDataKey="createProduct"/>
+            <deleteData stepKey="deleteCustomer" createDataKey="createCustomer"/>
+
+            <createData entity="DefaultTaxConfig" stepKey="defaultConf"/>
+            <magentoCLI stepKey="setupFlexFieldConfig" command="config:set" arguments='tax/vertex_flexfields/code []' />
+            <actionGroup ref="logout" stepKey="logoutOfAdmin"/>
+            <actionGroup ref="StorefrontCustomerLogoutActionGroup" stepKey="customerLogout"/>
+        </after>
+    </test>
+</tests>

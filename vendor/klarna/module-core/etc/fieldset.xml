@@ -43,6 +43,9 @@
             <field name="email">
                 <aspect name="to_klarna" />
             </field>
+            <field name="company">
+                <aspect name="to_klarna" targetField="organization_name"/>
+            </field>
         </fieldset>
     </scope>
 </config>

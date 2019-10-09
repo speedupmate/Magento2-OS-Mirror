@@ -33,4 +33,50 @@ interface LineItemMapperInterface
      * @throws ValidationException
      */
     public function map(LineItemInterface $object);
+
+    /**
+     * Retrieve the maximum length allowed for the Value Field
+     *
+     * @return int
+     */
+    public function getProductCodeMaxLength();
+
+    /**
+     * Retrieve the minimum length allowed for the Value Field
+     *
+     * @return int
+     */
+    public function getProductCodeMinLength();
+
+    /**
+     * Validate the content of the value field
+     *
+     * @param string $fieldValue
+     * @return true
+     * @throws ValidationException
+     */
+    public function validateProductCode($fieldValue);
+
+    /**
+     * Retrieve maximum length allowed for the product tax class name
+     *
+     * @return int
+     */
+    public function getProductTaxClassNameMaxLength();
+
+    /**
+     * Retrieve minimum length allowed for the product tax class name
+     *
+     * @return int
+     */
+    public function getProductTaxClassNameMinLength();
+
+    /**
+     * Validate product tax class name value
+     *
+     * @param string $fieldValue
+     * @return true
+     * @throws ValidationException
+     */
+    public function validateProductTaxClassName($fieldValue);
 }

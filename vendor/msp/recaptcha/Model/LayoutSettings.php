@@ -57,6 +57,7 @@ class LayoutSettings
                 'contact' => $this->config->isEnabledFrontendContact(),
                 'review' => $this->config->isEnabledFrontendReview(),
                 'newsletter' => $this->config->isEnabledFrontendNewsletter(),
+                'sendfriend' => $this->config->isEnabledFrontendSendFriend(),
             ]
         ];
     }

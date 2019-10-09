@@ -125,6 +125,23 @@ class LogEntryRepository implements LogEntryRepositoryInterface
     }
 
     /**
+     * @inheritdoc
+     */
+    public function deleteByCriteria(SearchCriteriaInterface $searchCriteria)
+    {
+        /** @var Collection $collection */
+        $collection = $this->collectionFactory->create();
+        $this->collectionProcessor->process($searchCriteria, $collection);
+        try {
+            $this->resourceModel->deleteByCollection($collection);
+        } catch (\Exception $e) {
+            throw new CouldNotDeleteException(__('Could not delete log entries'), $e);
+        }
+
+        return true;
+    }
+
+    /**
      * Convert a LogEntryInterface into a LogEntry model
      *
      * @param LogEntryInterface $logEntry

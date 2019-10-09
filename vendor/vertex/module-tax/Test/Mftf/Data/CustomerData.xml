@@ -1,0 +1,143 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!--
+ /**
+  * @copyright  Vertex. All rights reserved.  https://www.vertexinc.com/
+  * @author     Mediotype                     https://www.mediotype.com/
+  */
+-->
+<entities xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+          xsi:noNamespaceSchemaLocation="urn:magento:mftf:DataGenerator/etc/dataProfileSchema.xsd">
+    <entity name="Vertex_Customer_BobSaget" type="customer">
+        <data key="group_id">1</data>
+        <data key="email" unique="prefix">Bob.Saget@example.com</data>
+        <data key="firstname">Bob</data>
+        <data key="lastname">Saget</data>
+        <data key="fullname">Bob Saget</data>
+        <data key="password">bobSaget123!</data>
+        <data key="store_id">0</data>
+        <data key="website_id">0</data>
+        <requiredEntity type="address">Vertex_Customer_BobSaget_Address</requiredEntity>
+    </entity>
+
+    <entity name="Vertex_Customer_JacindaArdern" type="customer">
+        <data key="group_id">1</data>
+        <data key="email" unique="prefix">Jacinda.Ardern@example.com</data>
+        <data key="firstname">Jacinda</data>
+        <data key="lastname">Ardern</data>
+        <data key="fullname">Jacinda Ardern</data>
+        <data key="password">jarcindaArdern123!</data>
+        <data key="store_id">0</data>
+        <data key="website_id">0</data>
+        <requiredEntity type="address">Vertex_Customer_JacindaArdern_Address</requiredEntity>
+    </entity>
+
+    <entity name="Vertex_Customer_JohnWinston" type="customer">
+        <data key="group_id">1</data>
+        <data key="email" unique="prefix">John.Winston@example.com</data>
+        <data key="firstname">John</data>
+        <data key="lastname">Winston</data>
+        <data key="fullname">John Winston</data>
+        <data key="password">johnWinston123!</data>
+        <data key="store_id">0</data>
+        <data key="website_id">0</data>
+        <requiredEntity type="address">Vertex_Customer_JohnWinston_BillingAddress</requiredEntity>
+        <requiredEntity type="address">Vertex_Customer_JohnWinston_ShippingAddress</requiredEntity>
+        <requiredEntity type="customer_extension_attribute">Vertex_Customer_JohnWinston_VertexCustomerCode</requiredEntity>
+    </entity>
+    <entity name="Vertex_Customer_JohnWinston_VertexCustomerCode" type="customer_extension_attribute">
+        <data key="vertex_customer_code">John Winston</data>
+    </entity>
+
+    <entity name="Vertex_Customer_JeffGoldblum" type="customer">
+        <data key="group_id">1</data>
+        <data key="email" unique="prefix">Jeff.Goldblum@example.com</data>
+        <data key="firstname">Jeff</data>
+        <data key="lastname">Goldblum</data>
+        <data key="fullname">Jeff Goldblum</data>
+        <data key="password">jeffGoldblum123!</data>
+        <data key="store_id">0</data>
+        <data key="website_id">0</data>
+        <requiredEntity type="address">Vertex_Customer_JeffGoldblum_BillingAddress</requiredEntity>
+        <requiredEntity type="address">Vertex_Customer_JeffGoldblum_ShippingAddress</requiredEntity>
+    </entity>
+
+    <entity name="Vertex_Customer_SteveBuscemi" type="customer">
+        <data key="group_id">1</data>
+        <data key="email" unique="prefix">Steve.Buscemi@example.com</data>
+        <data key="firstname">Steve</data>
+        <data key="lastname">Buscemi</data>
+        <data key="fullname">Steve Buscemi</data>
+        <data key="password">steveBuscemi123!</data>
+        <data key="store_id">0</data>
+        <data key="website_id">0</data>
+        <requiredEntity type="address">Vertex_Customer_SteveBuscemi_BillingAddress</requiredEntity>
+        <requiredEntity type="address">Vertex_Customer_SteveBuscemi_ShippingAddress</requiredEntity>
+    </entity>
+
+    <entity name="Vertex_Customer_CatrinaAragon" type="customer">
+        <data key="group_id">1</data>
+        <data key="email" unique="prefix">Catrina.Aragon@example.com</data>
+        <data key="firstname">Catrina</data>
+        <data key="lastname">Aragon</data>
+        <data key="fullname">Catrina Aragon</data>
+        <data key="password">catrinaAragon123!</data>
+        <data key="store_id">0</data>
+        <data key="website_id">0</data>
+        <requiredEntity type="address">Vertex_Customer_CatrinaAragon_Address</requiredEntity>
+    </entity>
+
+    <entity name="Vertex_Customer_CateDeMedici" type="customer">
+        <data key="group_id">1</data>
+        <data key="email" unique="prefix">Cate.DeMedici@example.com</data>
+        <data key="firstname">Cate</data>
+        <data key="lastname">DeMedici</data>
+        <data key="fullname">Cate DeMedici</data>
+        <data key="password">cateDeMedici123!</data>
+        <data key="store_id">0</data>
+        <data key="website_id">0</data>
+        <requiredEntity type="address">Vertex_Customer_CateDeMedici_Address</requiredEntity>
+    </entity>
+
+    <entity name="Vertex_Customer_JohnLucCarre" type="customer">
+        <data key="group_id">1</data>
+        <data key="email" unique="prefix">JohnLuc.Carre@example.com</data>
+        <data key="firstname">John-Luc</data>
+        <data key="lastname">Carre</data>
+        <data key="fullname">John-Luc Carre</data>
+        <data key="password">johnLucCarre123!</data>
+        <data key="store_id">0</data>
+        <data key="website_id">0</data>
+        <requiredEntity type="address">Vertex_Customer_JohnLucCarre_Address</requiredEntity>
+        <requiredEntity type="customer_extension_attribute">Vertex_Customer_JohnLucCarre_VertexCustomerCode</requiredEntity>
+    </entity>
+    <entity name="Vertex_Customer_JohnLucCarre_VertexCustomerCode" type="customer_extension_attribute">
+        <data key="vertex_customer_code">Mar123</data>
+    </entity>
+
+    <entity name="Vertex_Customer_GhostStark" type="customer">
+        <data key="group_id">1</data>
+        <data key="email" unique="prefix">Ghost.Stark@example.com</data>
+        <data key="firstname">Ghost</data>
+        <data key="lastname">Stark</data>
+        <data key="fullname">Ghost Stark</data>
+        <data key="password">ghostStark123!</data>
+        <data key="store_id">0</data>
+        <data key="website_id">0</data>
+        <requiredEntity type="address">Vertex_Customer_GhostStark_Address</requiredEntity>
+        <requiredEntity type="customer_extension_attribute">Vertex_Customer_GhostStark_VertexCustomerCode</requiredEntity>
+    </entity>
+    <entity name="Vertex_Customer_GhostStark_VertexCustomerCode" type="customer_extension_attribute">
+        <data key="vertex_customer_code">Job Code VD</data>
+    </entity>
+
+    <entity name="Vertex_Customer_BuckeyeIllinois" type="customer">
+        <data key="group_id">1</data>
+        <data key="email" unique="prefix">Buckeye.Illinois@example.com</data>
+        <data key="firstname">Buckeye</data>
+        <data key="lastname">Illinois</data>
+        <data key="password">123123q!</data>
+        <data key="store_id">0</data>
+        <data key="website_id">0</data>
+        <requiredEntity type="address">Vertex_Customer_BuckeyeIllinois_Address</requiredEntity>
+    </entity>
+</entities>

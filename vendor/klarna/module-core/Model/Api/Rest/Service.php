@@ -122,7 +122,12 @@ class Service implements ServiceInterface
             if ($e->hasResponse()) {
                 $errorResponse = $e->getResponse();
                 $this->log->error($errorResponse->getStatusCode() . ' ' . $errorResponse->getReasonPhrase());
-                $body = $this->processResponse($errorResponse);
+                try {
+                    $body = $this->processResponse($errorResponse);
+                } catch (\Exception $e) {
+                    $this->log->error('Exception: ' . $e->getMessage());
+                    $response['exception_code'] = $e->getCode();
+                }
                 $response = array_merge($response, $body);
             }
             $response['exception_code'] = $e->getCode();

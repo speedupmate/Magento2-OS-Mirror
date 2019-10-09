@@ -1,4 +1,33 @@
 
+5.5.6 / 2019-08-28
+==================
+
+  * MAGE-1216: Fix issue preventing re-order when replacing cart items
+
+5.5.5 / 2019-01-15
+================
+
+  * PPI-583 Cleanup install/upgrade scripts
+  * MAGE-142 Ensure website T&Cs have been agreed to (checkbox checked) before authorizing payment
+
+5.5.4 / 2018-10-15
+==================
+
+  * PPI-559 Allow OM module to be version 4.x or 5.x
+  * PPI-579 Fix system configuration to remove unused settings
+
+5.5.3 / 2018-10-09
+==================
+
+  * PPI-557 Fix issue with running under Magento Commerce with split DB
+  * PPI-577 Fix MFTF test
+
+5.5.2 / 2018-09-27
+==================
+
+  * PPI-557 Fix checkout doesn't work after enabling Klarna
+  * PPI-561 Fix composer requirements after 2.3.0 change
+
 5.5.1 / 2018-08-31
 ==================
 

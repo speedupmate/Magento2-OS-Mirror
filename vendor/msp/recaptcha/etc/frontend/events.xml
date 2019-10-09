@@ -43,4 +43,7 @@
     <event name="controller_action_predispatch_newsletter_subscriber_new">
         <observer name="msp_captcha" instance="MSP\ReCaptcha\Observer\Frontend\NewsletterObserver" />
     </event>
+    <event name="controller_action_predispatch_sendfriend_product_sendmail">
+        <observer name="msp_captcha" instance="MSP\ReCaptcha\Observer\Frontend\SendFriendObserver" />
+    </event>
 </config>

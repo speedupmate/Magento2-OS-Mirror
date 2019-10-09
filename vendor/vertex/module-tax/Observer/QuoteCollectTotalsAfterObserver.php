@@ -6,7 +6,6 @@
 
 namespace Vertex\Tax\Observer;
 
-use Vertex\Tax\Model\Calculation\VertexCalculator;
 use Vertex\Tax\Model\TaxRegistry;
 use Magento\Framework\Event\Observer;
 use Magento\Framework\Event\ObserverInterface;

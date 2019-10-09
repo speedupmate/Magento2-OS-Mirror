@@ -21,6 +21,7 @@ use Magento\Quote\Model\Quote;
 use Magento\Sales\Api\Data\OrderInterface;
 use Magento\Store\Api\Data\StoreInterface;
 use Psr\Log\LoggerInterface;
+use Magento\Store\Model\StoreManagerInterface;
 
 /**
  * Class CancelOrder
@@ -66,6 +67,11 @@ class CancelOrder implements ObserverInterface
     private $mageOrderRepository;
 
     /**
+     * @var \Magento\Store\Model\StoreManagerInterface
+     */
+    private $storeManager;
+
+    /**
      * CancelOrder constructor.
      *
      * @param LoggerInterface          $log
@@ -81,7 +87,8 @@ class CancelOrder implements ObserverInterface
         Factory $omFactory,
         OrderRepositoryInterface $orderRepository,
         \Magento\Quote\Model\ResourceModel\Quote $quoteResourceModel,
-        \Magento\Sales\Api\OrderRepositoryInterface $mageOrderRepository
+        \Magento\Sales\Api\OrderRepositoryInterface $mageOrderRepository,
+        StoreManagerInterface $storeManager
     ) {
         $this->log = $log;
         $this->orderManagement = $orderManagement;
@@ -90,6 +97,7 @@ class CancelOrder implements ObserverInterface
         $this->orderRepository = $orderRepository;
         $this->quoteResourceModel = $quoteResourceModel;
         $this->mageOrderRepository = $mageOrderRepository;
+        $this->storeManager = $storeManager;
     }
 
     /**
@@ -122,7 +130,7 @@ class CancelOrder implements ObserverInterface
 
     /**
      * @param Observer $observer
-     * @return StoreInterface|null
+     * @return StoreInterface
      */
     private function getStore(Observer $observer)
     {
@@ -132,10 +140,9 @@ class CancelOrder implements ObserverInterface
         }
         $quote = $observer->getQuote();
         if ($quote) {
-            return
-                $quote->getStore();
+            return $quote->getStore();
         }
-        return null;
+        return $this->storeManager->getStore();
     }
 
     /**

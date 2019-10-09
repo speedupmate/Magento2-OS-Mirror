@@ -45,4 +45,28 @@ class QuoteRequestMapper implements QuoteRequestMapperInterface
     {
         return $this->parentMapper->map($object);
     }
+
+    /**
+     * @inheritDoc
+     */
+    public function getLocationCodeMaxLength()
+    {
+        return $this->parentMapper->getLocationCodeMaxLength();
+    }
+
+    /**
+     * @inheritDoc
+     */
+    public function getLocationCodeMinLength()
+    {
+        return $this->parentMapper->getLocationCodeMinLength();
+    }
+
+    /**
+     * @inheritDoc
+     */
+    public function validateLocationCode($fieldValue)
+    {
+        return $this->parentMapper->validateLocationCode($fieldValue);
+    }
 }

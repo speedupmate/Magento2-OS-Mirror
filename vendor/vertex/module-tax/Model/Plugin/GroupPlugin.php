@@ -7,6 +7,7 @@
 namespace Vertex\Tax\Model\Plugin;
 
 use Magento\Config\Model\Config\Structure\Element\Group;
+use Vertex\Tax\Model\Config;
 use Vertex\Tax\Model\ModuleManager;
 
 /**
@@ -16,24 +17,27 @@ use Vertex\Tax\Model\ModuleManager;
  */
 class GroupPlugin
 {
+    /** @var Config */
+    private $config;
+
     /** @var ModuleManager */
     private $moduleManager;
 
     /**
      * @param ModuleManager $moduleManager
+     * @param Config $config
      */
-    public function __construct(ModuleManager $moduleManager)
+    public function __construct(ModuleManager $moduleManager, Config $config)
     {
         $this->moduleManager = $moduleManager;
+        $this->config = $config;
     }
 
     /**
      * Hides likely unused tax classes
-     *
      * MEQP2 Warning: Unused Parameter $subject necessary for plugins
      *
      * @see Group::setData()
-     *
      * @param Group $subject
      * @param \Closure $proceed
      * @param array $data
@@ -43,6 +47,9 @@ class GroupPlugin
      */
     public function aroundSetData(Group $subject, \Closure $proceed, $data, $scope)
     {
+        if (!$this->config->isVertexActive() || !$this->config->isTaxCalculationEnabled()) {
+            return $proceed($data, $scope);
+        }
         $taxClasses = isset($data['path'], $data['id']) && $data['path'] === 'tax' && $data['id'] === 'classes';
         if ($taxClasses && !$this->moduleManager->isEnabled('Magento_GiftWrapping')) {
             $this->hide(

@@ -18,7 +18,7 @@ class InvoiceSent extends AbstractDb
     const FIELD_SENT = 'sent_to_vertex';
 
     /**
-     * {@inheritdoc}
+     * @inheritdoc
      *
      * MEQP2 Warning: Protected method.  Needed to override AbstractDb's _construct
      */

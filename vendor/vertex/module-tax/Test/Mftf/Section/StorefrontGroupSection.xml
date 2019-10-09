@@ -1,0 +1,13 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!--
+ /**
+  * @copyright  Vertex. All rights reserved.  https://www.vertexinc.com/
+  * @author     Mediotype                     https://www.mediotype.com/
+  */
+-->
+<sections xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+          xsi:noNamespaceSchemaLocation="urn:magento:mftf:Page/etc/SectionObject.xsd">
+    <section name="StorefrontGroupSection">
+        <element name="childProductQty" type="input" selector="//strong[@class='product-item-name'][contains(text(),'{{name}}')]/parent::td/parent::tr/td[contains(@class, 'qty')]//input[@type='number']" parameterized="true"/>
+    </section>
+</sections>

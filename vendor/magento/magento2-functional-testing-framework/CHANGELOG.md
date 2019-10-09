@@ -1,6 +1,83 @@
 Magento Functional Testing Framework Changelog
 ================================================
 
+2.4.5
+-----
+### Fixes
+* Fixed an issue where `.credentials` was required when using `<createData>` actions with field overrides.
+
+2.4.4
+-----
+### Fixes
+* Fixed an issue where `_CREDS` could not be resolved when used in a suite.
+
+2.4.3
+-----
+* Customizability
+    * Use of `_CREDS` has been extended to `<magentoCLI>` and `<createData>` actions
+* Traceability
+    * A Test step is now generated and injected in the allure report when a test is reported as `BROKEN`. 
+
+### Fixes
+* `static-checks` command now properly returns `1` if any static check failed.
+* MFTF Console Printer class correctly utilizes `--steps` and other flags passed directly to `codecept commands`.
+* `*source` actions correctly print when using `userInput` or `html` attributes.
+* XML Comments should no longer throw an error in parsing when used outside `test/actionGroup`
+
+### GitHub Issues/Pull requests:
+* [#703](https://github.com/magento/magento2-functional-testing-framework/pull/403) -- SMALL_CHANGE: Minor change suggested
+
+2.4.2
+-----
+* Traceability
+    * Test action `stepKey`s are now included in both console output and Allure report.
+    * XML Comments are now automatically converted into a `<comment>` action.
+
+### Fixes
+* Moved `epfremme/swagger-php` dependency to `suggests` block due to a conflict with Magento extensions.
+
+2.4.1
+-----
+* Traceability
+    * XSD Schema validation is now enabled by default in `generate:tests`, `run:test`, `run:failed`, `run:group`
+    * `--debug` option for the above commands has been updated to include different debug levels
+        * See DevDocs for details
+
+### Fixes
+* Fixed an issue where `skipReadiness` attribute would cause false XSD Schema validation errors.
+
+2.4.0
+-----
+### Enhancements
+* Maintainability
+    * Added new `mftf static-checks` command to run new static checks against the attached test codebase
+        * See DevDocs for details
+    * Added new `mftf generate:docs` command that generates documentation about attached test codebase
+        * See DevDocs for details
+* Traceability
+    * Allure reports for tests now contain collapsible sections for `actionGroup`s used in execution.
+
+### Fixes
+* Fixed an issue where `magentoCli` would treat `argument="0"` as a null value.
+* Fixed an issue where `amOnPage` and `waitForPwaElementVisible` would not utilize the `timeout` attribute correctly when MagentoPwaWebDriver is enabled.
+* Fixed an issue where invalid XML characters would cause Allure to throw an exception without a resulting report.
+* Fixed `codeception.dist.yml` configuration for keeping previous test run results.
+* PHP Notices are no longer thrown when XML is missing non-necessary attributes.
+* Removed unusable `fillSecretField` action from schema.
+
+### GitHub Issues/Pull requests:
+* [#338](https://github.com/magento/magento2-functional-testing-framework/pull/338) -- Return exit codes of process started by 'run:test', 'run:group' or 'run:failed' command
+* [#333](https://github.com/magento/magento2-functional-testing-framework/pull/333) -- Added Nginx specific settings to getting started doc
+* [#332](https://github.com/magento/magento2-functional-testing-framework/pull/332) -- executeInSelenium action does not generate proper code
+* [#318](https://github.com/magento/magento2-functional-testing-framework/pull/318) -- Reduce cyclomatic complexity in Problem Methods
+* [#287](https://github.com/magento/magento2-functional-testing-framework/pull/287) -- Update requirements to include php7.3 support
+
+2.3.14
+-----
+### Enhancements
+* Maintainability
+    * `command.php` is now configured with an `idleTimeout` of `60` seconds, which will allow tests to continue execution if a CLI command is hanging indefinitely.
+
 2.3.13
 -----
 ### Enhancements

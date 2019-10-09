@@ -20,49 +20,90 @@ class UpgradeSchema implements UpgradeSchemaInterface
     /**
      * Upgrades DB schema for a module
      *
-     * @param SchemaSetupInterface   $setup
+     * @param SchemaSetupInterface   $installer
      * @param ModuleContextInterface $context
      * @return void
      */
-    public function upgrade(SchemaSetupInterface $setup, ModuleContextInterface $context)
+    public function upgrade(SchemaSetupInterface $installer, ModuleContextInterface $context)
     {
-        $installer = $setup;
-
         $installer->startSetup();
 
         if (version_compare($context->getVersion(), '4.0.3', '<')) {
-            $table = $installer->getTable('klarna_payments_quote');
-
-            $ddl = $installer->getConnection()->describeTable($table);
-            if (!isset($ddl['payment_methods'])) {
-                $installer->getConnection()
-                    ->addColumn(
-                        $table,
-                        'payment_methods',
-                        [
-                            'type'    => Table::TYPE_TEXT,
-                            'length'  => 255,
-                            'comment' => 'Payment Method Categories'
-                        ]
-                    );
-            }
+            $this->addPaymentMethodsColumn($installer);
         }
         if (version_compare($context->getVersion(), '5.3.1', '<')) {
-            $table = $installer->getTable('klarna_payments_quote');
+            $this->addPaymentMethodInfoColumn($installer);
+        }
 
-            $ddl = $installer->getConnection()->describeTable($table);
-            if (!isset($ddl['payment_method_info'])) {
-                $installer->getConnection()
-                    ->addColumn(
-                        $table,
-                        'payment_method_info',
-                        [
-                            'type'    => Table::TYPE_TEXT,
-                            'length'  => 4096,
-                            'comment' => 'Payment Method Category Info'
-                        ]
-                    );
-            }
-        }        $installer->endSetup();
+        if (version_compare($context->getVersion(), '5.5.3', '<')) {
+            $this->dropForeignKeyInQuote($installer);
+        }
+        $installer->endSetup();
+    }
+
+    /**
+     * Adding the payment_methods column to the klarna quote table
+     *
+     * @param SchemaSetupInterface $installer
+     */
+    private function addPaymentMethodsColumn(SchemaSetupInterface $installer)
+    {
+        $table = $installer->getTable('klarna_payments_quote');
+
+        $ddl = $installer->getConnection()->describeTable($table);
+        if (!isset($ddl['payment_methods'])) {
+            $installer->getConnection()
+                ->addColumn(
+                    $table,
+                    'payment_methods',
+                    [
+                        'type'    => Table::TYPE_TEXT,
+                        'length'  => 255,
+                        'comment' => 'Payment Method Categories'
+                    ]
+                );
+        }
+    }
+
+    /**
+     * Adding the payment_method_info column to the klarna quote table
+     *
+     * @param SchemaSetupInterface $installer
+     */
+    private function addPaymentMethodInfoColumn(SchemaSetupInterface $installer)
+    {
+        $table = $installer->getTable('klarna_payments_quote');
+
+        $ddl = $installer->getConnection()->describeTable($table);
+        if (!isset($ddl['payment_method_info'])) {
+            $installer->getConnection()
+                ->addColumn(
+                    $table,
+                    'payment_method_info',
+                    [
+                        'type'    => Table::TYPE_TEXT,
+                        'length'  => 4096,
+                        'comment' => 'Payment Method Category Info'
+                    ]
+                );
+        }
+    }
+
+    /**
+     * Dropping a foreign key in the klarna quote table
+     *
+     * @param SchemaSetupInterface $installer
+     */
+    private function dropForeignKeyInQuote(SchemaSetupInterface $installer)
+    {
+        $installer->getConnection()->dropForeignKey(
+            $installer->getTable('klarna_payments_quote'),
+            $installer->getFkName(
+                'klarna_payments_quote',
+                'quote_id',
+                'quote',
+                'entity_id'
+            )
+        );
     }
 }

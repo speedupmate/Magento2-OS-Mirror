@@ -254,7 +254,7 @@ abstract class AbstractLine implements OrderLineInterface
         $request = $this->calculator->getRateRequest(
             $object->getShippingAddress(),
             $object->getBillingAddress(),
-            null,
+            $object->getCustomerTaxClassId(),
             $store
         );
         $taxRateId = $this->config->getValue(

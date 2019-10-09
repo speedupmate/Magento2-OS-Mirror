@@ -5,7 +5,7 @@
   -->
 <config xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
         xsi:noNamespaceSchemaLocation="urn:magento:framework:Module/etc/module.xsd">
-    <module name="Vertex_Tax" setup_version="100.2.1">
+    <module name="Vertex_Tax" setup_version="100.4.0">
         <sequence>
             <module name="Magento_Tax"/>
             <module name="Magento_Quote"/>
@@ -22,6 +22,7 @@
             <module name="Magento_Eav"/>
             <module name="Magento_Shipping"/>
             <module name="Magento_Multishipping"/>
+            <module name="Magento_Ui"/>
         </sequence>
     </module>
 </config> 

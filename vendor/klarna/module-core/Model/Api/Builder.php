@@ -508,6 +508,10 @@ abstract class Builder extends DataObject implements BuilderInterface
         $resultObject->setStreetAddress($street_address[0]);
         $resultObject->setData('street_address2', $street_address[1]);
 
+        if (isset($result['email'])) {
+            $resultObject->setEmail($result['email']);
+        }
+
         return array_filter($resultObject->toArray());
     }
 

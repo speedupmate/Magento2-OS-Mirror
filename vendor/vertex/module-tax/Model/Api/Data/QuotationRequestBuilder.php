@@ -6,15 +6,21 @@
 
 namespace Vertex\Tax\Model\Api\Data;
 
+use Magento\Framework\Exception\LocalizedException;
+use Magento\Framework\Exception\NoSuchEntityException;
+use Magento\Framework\Stdlib\StringUtils;
 use Magento\Store\Model\ScopeInterface;
+use Magento\Store\Model\StoreManagerInterface;
 use Magento\Tax\Api\Data\QuoteDetailsInterface;
 use Magento\Tax\Api\Data\QuoteDetailsItemInterface;
 use Magento\Tax\Api\Data\TaxClassKeyInterface;
 use Vertex\Data\LineItemInterface;
+use Vertex\Exception\ConfigurationException;
 use Vertex\Services\Quote\RequestInterface;
 use Vertex\Services\Quote\RequestInterfaceFactory;
 use Vertex\Tax\Model\AddressDeterminer;
 use Vertex\Tax\Model\Api\Utility\DeliveryTerm;
+use Vertex\Tax\Model\Api\Utility\MapperFactoryProxy;
 use Vertex\Tax\Model\Config;
 use Vertex\Tax\Model\DateTimeImmutableFactory;
 
@@ -49,6 +55,15 @@ class QuotationRequestBuilder
     /** @var SellerBuilder */
     private $sellerBuilder;
 
+    /** @var StoreManagerInterface */
+    private $storeManager;
+
+    /** @var StringUtils */
+    private $stringUtilities;
+
+    /** @var MapperFactoryProxy */
+    private $mapperFactory;
+
     /**
      * @param LineItemBuilder $lineItemBuilder
      * @param RequestInterfaceFactory $requestFactory
@@ -58,6 +73,9 @@ class QuotationRequestBuilder
      * @param DeliveryTerm $deliveryTerm
      * @param DateTimeImmutableFactory $dateTimeFactory
      * @param AddressDeterminer $addressDeterminer
+     * @param StoreManagerInterface $storeManager
+     * @param StringUtils $stringUtils
+     * @param MapperFactoryProxy $mapperFactory
      */
     public function __construct(
         LineItemBuilder $lineItemBuilder,
@@ -67,7 +85,10 @@ class QuotationRequestBuilder
         Config $config,
         DeliveryTerm $deliveryTerm,
         DateTimeImmutableFactory $dateTimeFactory,
-        AddressDeterminer $addressDeterminer
+        AddressDeterminer $addressDeterminer,
+        StoreManagerInterface $storeManager,
+        StringUtils $stringUtils,
+        MapperFactoryProxy $mapperFactory
     ) {
         $this->lineItemBuilder = $lineItemBuilder;
         $this->requestFactory = $requestFactory;
@@ -77,6 +98,9 @@ class QuotationRequestBuilder
         $this->deliveryTerm = $deliveryTerm;
         $this->dateTimeFactory = $dateTimeFactory;
         $this->addressDeterminer = $addressDeterminer;
+        $this->storeManager = $storeManager;
+        $this->stringUtilities = $stringUtils;
+        $this->mapperFactory = $mapperFactory;
     }
 
     /**
@@ -85,17 +109,22 @@ class QuotationRequestBuilder
      * @param QuoteDetailsInterface $quoteDetails
      * @param string|null $scopeCode
      * @return RequestInterface
-     * @throws \Magento\Framework\Exception\LocalizedException
-     * @throws \Magento\Framework\Exception\NoSuchEntityException
+     * @throws LocalizedException
+     * @throws NoSuchEntityException
+     * @throws ConfigurationException
      */
     public function buildFromQuoteDetails(QuoteDetailsInterface $quoteDetails, $scopeCode = null)
     {
+        $quoteMapper = $this->mapperFactory->getForClass(RequestInterface::class, $scopeCode);
+
         /** @var RequestInterface $request */
         $request = $this->requestFactory->create();
+        $request->setShouldReturnAssistedParameters(true);
         $request->setDocumentDate($this->dateTimeFactory->create());
         $request->setTransactionType(static::TRANSACTION_TYPE);
+        $request->setCurrencyCode($this->storeManager->getStore($scopeCode)->getBaseCurrencyCode());
 
-        $taxLineItems = $this->getLineItemData($quoteDetails->getItems());
+        $taxLineItems = $this->getLineItemData($quoteDetails->getItems(), $scopeCode);
         $request->setLineItems($taxLineItems);
 
         $address = $this->addressDeterminer->determineAddress(
@@ -113,7 +142,7 @@ class QuotationRequestBuilder
 
         $taxClassKey = $quoteDetails->getCustomerTaxClassKey();
         if ($taxClassKey && $taxClassKey->getType() === TaxClassKeyInterface::TYPE_ID) {
-            $customerTaxClassId = $quoteDetails->getCustomerTaxClassKey()->getValue();
+            $customerTaxClassId = $taxClassKey->getValue();
         } else {
             $customerTaxClassId = $quoteDetails->getCustomerTaxClassId();
         }
@@ -129,8 +158,11 @@ class QuotationRequestBuilder
 
         $this->deliveryTerm->addIfApplicable($request);
 
-        if ($this->config->getLocationCode($scopeCode)) {
-            $request->setLocationCode($this->config->getLocationCode($scopeCode));
+        $configLocationCode = $this->config->getLocationCode($scopeCode);
+
+        if ($configLocationCode) {
+            $locationCode = $this->stringUtilities->substr($configLocationCode, 0, $quoteMapper->getLocationCodeMaxLength());
+            $request->setLocationCode($locationCode);
         }
 
         return $request;
@@ -140,9 +172,11 @@ class QuotationRequestBuilder
      * Build Line Items for the Request
      *
      * @param QuoteDetailsItemInterface[] $items
+     * @param null $scopeCode
      * @return LineItemInterface[]
+     * @throws ConfigurationException
      */
-    private function getLineItemData(array $items)
+    private function getLineItemData(array $items, $scopeCode = null)
     {
         // The resulting LineItemInterface[] to be used with Vertex
         $taxLineItems = [];
@@ -173,7 +207,7 @@ class QuotationRequestBuilder
                 ? $item->getQuantity() * $itemMap[$item->getParentCode()]->getQuantity()
                 : $item->getQuantity();
 
-            $taxLineItems[] = $this->lineItemBuilder->buildFromQuoteDetailsItem($item, $quantity);
+            $taxLineItems[] = $this->lineItemBuilder->buildFromQuoteDetailsItem($item, $quantity, $scopeCode);
             $processedItems[] = $item->getCode();
         }
 
@@ -193,6 +227,7 @@ class QuotationRequestBuilder
                 return false;
             }
         }
+
         return true;
     }
 }

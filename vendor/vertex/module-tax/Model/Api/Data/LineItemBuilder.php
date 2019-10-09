@@ -6,11 +6,14 @@
 
 namespace Vertex\Tax\Model\Api\Data;
 
+use Magento\Framework\Stdlib\StringUtils;
 use Magento\Tax\Api\Data\QuoteDetailsItemInterface;
 use Magento\Tax\Api\Data\TaxClassKeyInterface;
 use Vertex\Data\LineItemInterface;
 use Vertex\Data\LineItemInterfaceFactory;
-use Vertex\Tax\Model\Config;
+use Vertex\Exception\ConfigurationException;
+use Vertex\Tax\Model\Api\Data\FlexFieldBuilder;
+use Vertex\Tax\Model\Api\Utility\MapperFactoryProxy;
 use Vertex\Tax\Model\Repository\TaxClassNameRepository;
 
 /**
@@ -21,19 +24,37 @@ class LineItemBuilder
     /** @var LineItemInterfaceFactory */
     private $factory;
 
+    /** @var FlexFieldBuilder */
+    private $flexFieldBuilder;
+
     /** @var TaxClassNameRepository */
     private $taxClassNameRepository;
+
+    /** @var StringUtils */
+    private $stringUtilities;
+
+    /** @var MapperFactoryProxy */
+    private $mapperFactory;
 
     /**
      * @param TaxClassNameRepository $taxClassNameRepository
      * @param LineItemInterfaceFactory $factory
+     * @param \Vertex\Tax\Model\Api\Data\FlexFieldBuilder $flexFieldBuilder
+     * @param StringUtils $stringUtil
+     * @param MapperFactoryProxy $mapperFactory
      */
     public function __construct(
         TaxClassNameRepository $taxClassNameRepository,
-        LineItemInterfaceFactory $factory
+        LineItemInterfaceFactory $factory,
+        FlexFieldBuilder $flexFieldBuilder,
+        StringUtils $stringUtil,
+        MapperFactoryProxy $mapperFactory
     ) {
         $this->taxClassNameRepository = $taxClassNameRepository;
         $this->factory = $factory;
+        $this->flexFieldBuilder = $flexFieldBuilder;
+        $this->stringUtilities = $stringUtil;
+        $this->mapperFactory = $mapperFactory;
     }
 
     /**
@@ -41,26 +62,33 @@ class LineItemBuilder
      *
      * @param QuoteDetailsItemInterface $item
      * @param int|null $qtyOverride
+     * @param null $scopeCode
      * @return LineItemInterface
+     * @throws ConfigurationException
      */
-    public function buildFromQuoteDetailsItem(QuoteDetailsItemInterface $item, $qtyOverride = null)
+    public function buildFromQuoteDetailsItem(QuoteDetailsItemInterface $item, $qtyOverride = null, $scopeCode = null)
     {
         $lineItem = $this->createLineItem();
+        $lineMapper = $this->mapperFactory->getForClass(LineItemInterface::class, $scopeCode);
 
         $sku = $item->getExtensionAttributes() !== null
             ? $item->getExtensionAttributes()->getVertexProductCode()
             : null;
 
         if ($sku !== null) {
-            $lineItem->setProductCode(substr($sku, 0, Config::MAX_CHAR_PRODUCT_CODE_ALLOWED));
+            $lineItem->setProductCode(
+                $this->stringUtilities->substr($sku, 0, $lineMapper->getProductCodeMaxLength())
+            );
         }
 
         $taxClassId = $item->getTaxClassKey() && $item->getTaxClassKey()->getType() === TaxClassKeyInterface::TYPE_ID
             ? $item->getTaxClassKey()->getValue()
             : $item->getTaxClassId();
 
+        $taxClassName = $this->taxClassNameRepository->getById($taxClassId);
+
         $lineItem->setProductClass(
-            $this->taxClassNameRepository->getById($taxClassId)
+            $this->stringUtilities->substr($taxClassName, 0, $lineMapper->getProductTaxClassNameMaxLength())
         );
 
         $quantity = (float)($qtyOverride ?: $item->getQuantity());
@@ -73,9 +101,10 @@ class LineItemBuilder
         $lineItem->setExtendedPrice($rowTotal - $item->getDiscountAmount());
         $lineItem->setLineItemId($item->getCode());
 
+        $lineItem->setFlexibleFields($this->flexFieldBuilder->buildAllFromQuoteDetailsItem($item));
+
         return $lineItem;
     }
-
 
     /**
      * Create a {@see LineItemInterface}

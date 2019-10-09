@@ -312,11 +312,7 @@ class Zend_Validate_File_Size extends Zend_Validate_Abstract
             }
         }
 
-        if (count($this->_messages) > 0) {
-            return false;
-        }
-
-        return true;
+        return empty($this->_messages);
     }
 
     /**

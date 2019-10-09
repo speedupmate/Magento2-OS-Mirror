@@ -6,16 +6,22 @@ use Magento\Framework\DataObject;
 use Magento\Framework\Event;
 use Magento\Framework\Exception\NoSuchEntityException;
 use Magento\Framework\Message\ManagerInterface;
+use Magento\Sales\Api\Data\OrderExtension;
 use Magento\Sales\Model\Order;
 use Vertex\Services\Invoice\Request;
+use Vertex\Services\Invoice\Response;
+use Vertex\Tax\Model\Api\Data\InvoiceRequestBuilder;
 use Vertex\Tax\Model\Config;
 use Vertex\Tax\Model\ConfigurationValidator;
 use Vertex\Tax\Model\CountryGuard;
 use Vertex\Tax\Model\Data\OrderInvoiceStatus;
 use Vertex\Tax\Model\Data\OrderInvoiceStatusFactory;
+use Vertex\Tax\Model\ModuleManager;
 use Vertex\Tax\Model\Repository\OrderInvoiceStatusRepository;
 use Vertex\Tax\Model\TaxInvoice;
+use Vertex\Tax\Observer\GiftwrapExtensionLoader;
 use Vertex\Tax\Observer\OrderSavedAfterObserver;
+use Vertex\Tax\Observer\ShippingAssignmentExtensionLoader;
 use Vertex\Tax\Test\Unit\TestCase;
 
 /**
@@ -37,6 +43,9 @@ class OrderSaveAfterObserverTest extends TestCase
     /** @var \PHPUnit_Framework_MockObject_MockObject|OrderInvoiceStatusFactory */
     private $factoryMock;
 
+    /** @var \PHPUnit_Framework_MockObject_MockObject|GiftwrapExtensionLoader */
+    private $giftwrapExtensionMock;
+
     /** @var \PHPUnit_Framework_MockObject_MockObject|ManagerInterface */
     private $managerInterfaceMock;
 
@@ -55,8 +64,17 @@ class OrderSaveAfterObserverTest extends TestCase
     /** @var \PHPUnit_Framework_MockObject_MockObject|OrderInvoiceStatusRepository */
     private $repositoryMock;
 
+    /** @var \PHPUnit_Framework_MockObject_MockObject|ShippingAssignmentExtensionLoader */
+    private $shipmentExtensionLoader;
+
     /** @var \PHPUnit_Framework_MockObject_MockObject|TaxInvoice */
     private $taxInvoiceMock;
+
+    /** @var \PHPUnit_Framework_MockObject_MockObject|OrderExtension */
+    private $orderExtensionMock;
+
+    /** @var \PHPUnit_Framework_MockObject_MockObject|InvoiceRequestBuilder */
+    private $invoiceRequestBuilderMock;
 
     /**
      * @inheritdoc
@@ -66,7 +84,7 @@ class OrderSaveAfterObserverTest extends TestCase
         parent::setUp();
 
         $this->configMock = $this->getMockBuilder(Config::class)
-            ->setMethods(['isVertexActive', 'requestByOrderStatus', 'invoiceOrderStatus'])
+            ->setMethods(['isVertexActive', 'requestByOrderStatus', 'invoiceOrderStatus', 'isTaxCalculationEnabled'])
             ->disableOriginalConstructor()
             ->getMock();
 
@@ -95,6 +113,11 @@ class OrderSaveAfterObserverTest extends TestCase
             ->disableOriginalConstructor()
             ->getMock();
 
+        $this->invoiceRequestBuilderMock = $this->getMockBuilder(InvoiceRequestBuilder::class)
+            ->setMethods(['buildFromOrder'])
+            ->disableOriginalConstructor()
+            ->getMock();
+
         $this->orderInvoiceStatusMock = $this->getMockBuilder(OrderInvoiceStatus::class)
             ->setMethods(['setId', 'setIsSent'])
             ->disableOriginalConstructor()
@@ -104,7 +127,7 @@ class OrderSaveAfterObserverTest extends TestCase
             ->willReturn($this->orderInvoiceStatusMock);
 
         $this->orderMock = $this->getMockBuilder(Order::class)
-            ->setMethods(['getStore', 'getId', 'getStatus'])
+            ->setMethods(['getStore', 'getId', 'getStatus', 'getExtensionAttributes'])
             ->disableOriginalConstructor()
             ->getMock();
 
@@ -113,10 +136,30 @@ class OrderSaveAfterObserverTest extends TestCase
             ->disableOriginalConstructor()
             ->getMock();
 
+        $this->orderExtensionMock = $this->getMockBuilder(OrderExtension::class)
+            ->setMethods(['getShippingAssignments'])
+            ->disableOriginalConstructor()
+            ->getMock();
+
+        $this->giftwrapExtensionMock = $this->getMockBuilder(GiftwrapExtensionLoader::class)
+            ->setMethods(['loadOnOrder'])
+            ->disableOriginalConstructor()
+            ->getMock();
+
+        $this->shipmentExtensionLoader = $this->getMockBuilder(ShippingAssignmentExtensionLoader::class)
+            ->setMethods(['loadOnOrder'])
+            ->disableOriginalConstructor()
+            ->getMock();
+
         $this->orderId = rand();
 
         $this->orderMock->method('getId')
             ->willReturn($this->orderId);
+
+        $this->orderMock
+            ->method('getExtensionAttributes')
+            ->willReturn($this->orderExtensionMock);
+        $this->orderExtensionMock->method('getShippingAssignments')->willReturn(true);
 
         $this->orderSavedAfterObserver = $this->getObject(
             OrderSavedAfterObserver::class,
@@ -128,6 +171,10 @@ class OrderSaveAfterObserverTest extends TestCase
                 'repository' => $this->repositoryMock,
                 'factory' => $this->factoryMock,
                 'configValidator' => $this->configValidatorMock,
+                'invoiceRequestBuilder' => $this->invoiceRequestBuilderMock,
+                'giftwrapExtensionLoader' => $this->giftwrapExtensionMock,
+                'shipmentExtensionLoader' => $this->shipmentExtensionLoader,
+                'showSuccessMessage' => true
             ]
         );
     }
@@ -274,10 +321,34 @@ class OrderSaveAfterObserverTest extends TestCase
         $this->setupRequestByOrderFlag();
         $this->setConfigValid();
 
+        $response = new Response();
+
         // Assert Invoice is Sent
         $this->taxInvoiceMock->expects($this->once())
             ->method('sendInvoiceRequest')
-            ->willReturn(true);
+            ->willReturn($response);
+
+        $this->shipmentExtensionLoader->expects($this->once())
+            ->method('loadOnOrder')
+            ->with(
+                $this->callback(
+                    function ($order) {
+                        return $order->getId() === $this->orderId;
+                    }
+                )
+            )
+            ->willReturn($this->orderMock);
+
+        $this->giftwrapExtensionMock->expects($this->once())
+            ->method('loadOnOrder')
+            ->with(
+                $this->callback(
+                    function ($order) {
+                        return $order->getId() === $this->orderId;
+                    }
+                )
+            )
+            ->willReturn($this->orderMock);
 
         // Assert success message is added
         $this->managerInterfaceMock->expects($this->once())
@@ -298,6 +369,18 @@ class OrderSaveAfterObserverTest extends TestCase
         $this->repositoryMock->expects($this->once())
             ->method('save')
             ->with($this->orderInvoiceStatusMock);
+
+        $request = new Request();
+        $this->invoiceRequestBuilderMock->expects($this->once())
+            ->method('buildFromOrder')
+            ->with(
+                $this->callback(
+                    function ($order) {
+                        return $order->getId() === $this->orderId;
+                    }
+                )
+            )
+            ->willReturn($request);
 
         $observer = $this->createObserver();
         $this->orderSavedAfterObserver->execute($observer);
@@ -377,13 +460,16 @@ class OrderSaveAfterObserverTest extends TestCase
     }
 
     /**
-     * Register that the Vertex module is enabled
+     * Register that the Vertex module and tax calculation are enabled
      *
      * @return void
      */
     private function setVertexActive()
     {
         $this->configMock->method('isVertexActive')
+            ->willReturn(true);
+
+        $this->configMock->method('isTaxCalculationEnabled')
             ->willReturn(true);
     }
 

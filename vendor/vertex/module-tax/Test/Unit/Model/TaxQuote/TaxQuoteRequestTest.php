@@ -43,9 +43,13 @@ class TaxQuoteRequestTest extends TestCase
         $versionDeterminerMock = $this->createMock(VersionDeterminer::class);
         $versionDeterminerMock->method('execute')
             ->willReturn('60');
-
-        $configBuilderMock = $this->createMock(ConfigBuilder::class);
-        $configBuilderMock->method('setStoreCode')
+        $configBuilderMock = $this->getMockBuilder(ConfigBuilder::class)
+            ->setMethods(['setScopeType','setScopeCode', 'build'])
+            ->disableOriginalConstructor()
+            ->getMock();
+        $configBuilderMock->method('setScopeType')
+            ->willReturnSelf();
+        $configBuilderMock->method('setScopeCode')
             ->willReturnSelf();
         $configBuilderMock->method('build')
             ->willReturn($this->createMock(ConfigurationInterface::class));

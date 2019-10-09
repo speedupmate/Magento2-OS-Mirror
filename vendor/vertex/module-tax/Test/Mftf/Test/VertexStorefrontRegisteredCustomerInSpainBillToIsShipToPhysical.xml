@@ -1,0 +1,328 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!--
+ /**
+  * @copyright  Vertex. All rights reserved.  https://www.vertexinc.com/
+  * @author     Mediotype                     https://www.mediotype.com/
+  */
+-->
+<tests xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+       xsi:noNamespaceSchemaLocation="urn:magento:mftf:Test/etc/testSchema.xsd">
+    <test name="VertexAsRegisteredCustomerFromStorefrontWithSpanishBillToAndShipToTheSameCheckPhysicalProductTaxInMinicart">
+        <annotations>
+            <features value="Vertex"/>
+            <group value="Vertex"/>
+
+            <stories value="As a store owner, I must have accurate taxes calculated for a registered customer"/>
+            <title value="Validate Taxes in Minicart, Registered Customer, Physical Product, Ship-To=Bill-To, VAT Spain"/>
+            <description value="Validate that a registered customer with a bill-to and a ship-to address that are the same and are in Spain and that having a cart with a simple product have taxes calculated when the customer opens the minicart"/>
+
+            <severity value="AVERAGE"/>
+        </annotations>
+        <before>
+            <actionGroup ref="VertexCreateBundleProduct" stepKey="Bundle">
+                <argument name="basePrice" value="{{Vertex_Bundle_Valencia_Values.price}}"/>
+                <argument name="ballPrice" value="{{Vertex_Bundle_Valencia_Ball_Values.price}}"/>
+                <argument name="brickPrice" value="{{Vertex_Bundle_Valencia_Brick_Values.price}}"/>
+                <argument name="strapPrice" value="{{Vertex_Bundle_Valencia_Strap_Values.price}}"/>
+                <argument name="rollerPrice" value="{{Vertex_Bundle_Valencia_Roller_Values.price}}"/>
+            </actionGroup>
+
+            <actionGroup ref="LoginAsAdmin" stepKey="loginAsAdmin"/>
+            <actionGroup ref="VertexTaxDefaultConfig" stepKey="setupDefaultVertexTestConfiguration"/>
+            <actionGroup ref="ClearCacheActionGroup" stepKey="clearCache"/>
+
+            <createData entity="Vertex_Customer_CatrinaAragon" stepKey="createCustomer"/>
+            <actionGroup ref="LoginToStorefrontActionGroup" stepKey="customerLogin">
+                <argument name="Customer" value="$$createCustomer$$"/>
+            </actionGroup>
+
+            <actionGroup ref="VertexAddBundleProductToCart" stepKey="addBundleToCart">
+                <argument name="product" value="$$createBundleBundle$$"/>
+            </actionGroup>
+
+            <click stepKey="showMinicart" selector="{{StorefrontMinicartSection.showCart}}"/>
+        </before>
+        <after>
+            <deleteData stepKey="deleteBall" createDataKey="createBall" actionGroup="Bundle"/>
+            <deleteData stepKey="deleteBrick" createDataKey="createBrick" actionGroup="Bundle"/>
+            <deleteData stepKey="deleteStrap" createDataKey="createStrap" actionGroup="Bundle"/>
+            <deleteData stepKey="deleteRoller" createDataKey="createRoller" actionGroup="Bundle"/>
+            <deleteData stepKey="deleteBundle" createDataKey="createBundle" actionGroup="Bundle"/>
+            <deleteData stepKey="deleteCategory" createDataKey="createCategory" actionGroup="Bundle"/>
+            <createData entity="DefaultTaxConfig" stepKey="defaultConf"/>
+            <actionGroup ref="logout" stepKey="logoutOfAdmin"/>
+            <actionGroup ref="StorefrontCustomerLogoutActionGroup" stepKey="customerLogout"/>
+        </after>
+
+        <actionGroup ref="VertexCheckProductPricingInMiniCart" stepKey="checkBundleInMinicart">
+            <argument name="product" value="$$createBundleBundle$$"/>
+            <argument name="priceExclTax" value="{{Vertex_Bundle_Valencia_Totals.subtotal}}"/>
+            <argument name="priceInclTax" value="{{Vertex_Bundle_Valencia_Totals.subtotalInclTax}}"/>
+        </actionGroup>
+
+        <actionGroup ref="VertexCheckSubtotalInMiniCart" stepKey="checkSubtotalInMinicart">
+            <argument name="subtotalExclTax" value="{{Vertex_Bundle_Valencia_Totals.subtotal}}"/>
+            <argument name="subtotalInclTax" value="{{Vertex_Bundle_Valencia_Totals.subtotalInclTax}}"/>
+        </actionGroup>
+    </test>
+    <test name="VertexAsRegisteredCustomerFromStorefrontWithSpanishBillToAndShipToTheSameCheckPhysicalProductTaxOnShoppingCartPage">
+        <annotations>
+            <features value="Vertex"/>
+            <group value="Vertex"/>
+
+            <stories value="As a store owner, I must have accurate taxes calculated for a registered customer"/>
+            <title value="Validate Taxes on Cart Page, Registered Customer, Physical Product, Ship-To=Bill-To, VAT Spain"/>
+            <description value="Validate that a registered customer with a bill-to and a ship-to address that are the same and are in Spain with a cart containing a bundle product have taxes calculated when the customer visits the cart page"/>
+
+            <severity value="AVERAGE"/>
+        </annotations>
+        <before>
+            <actionGroup ref="VertexCreateBundleProduct" stepKey="Bundle">
+                <argument name="basePrice" value="{{Vertex_Bundle_Valencia_Values.price}}"/>
+                <argument name="ballPrice" value="{{Vertex_Bundle_Valencia_Ball_Values.price}}"/>
+                <argument name="brickPrice" value="{{Vertex_Bundle_Valencia_Brick_Values.price}}"/>
+                <argument name="strapPrice" value="{{Vertex_Bundle_Valencia_Strap_Values.price}}"/>
+                <argument name="rollerPrice" value="{{Vertex_Bundle_Valencia_Roller_Values.price}}"/>
+            </actionGroup>
+
+            <actionGroup ref="LoginAsAdmin" stepKey="loginAsAdmin"/>
+            <actionGroup ref="VertexTaxDefaultConfig" stepKey="setupDefaultVertexTestConfiguration"/>
+            <actionGroup ref="ClearCacheActionGroup" stepKey="clearCache"/>
+
+            <createData entity="Vertex_Customer_CatrinaAragon" stepKey="createCustomer"/>
+            <actionGroup ref="LoginToStorefrontActionGroup" stepKey="customerLogin">
+                <argument name="Customer" value="$$createCustomer$$"/>
+            </actionGroup>
+
+            <actionGroup ref="VertexAddBundleProductToCart" stepKey="addBundleToCart">
+                <argument name="product" value="$$createBundleBundle$$"/>
+            </actionGroup>
+
+            <actionGroup ref="StorefrontOpenCartFromMinicartActionGroup" stepKey="gotoCart"/>
+        </before>
+        <after>
+            <deleteData stepKey="deleteBall" createDataKey="createBall" actionGroup="Bundle"/>
+            <deleteData stepKey="deleteBrick" createDataKey="createBrick" actionGroup="Bundle"/>
+            <deleteData stepKey="deleteStrap" createDataKey="createStrap" actionGroup="Bundle"/>
+            <deleteData stepKey="deleteRoller" createDataKey="createRoller" actionGroup="Bundle"/>
+            <deleteData stepKey="deleteBundle" createDataKey="createBundle" actionGroup="Bundle"/>
+            <deleteData stepKey="deleteCategory" createDataKey="createCategory" actionGroup="Bundle"/>
+            <createData entity="DefaultTaxConfig" stepKey="defaultConf"/>
+            <actionGroup ref="logout" stepKey="logoutOfAdmin"/>
+            <actionGroup ref="StorefrontCustomerLogoutActionGroup" stepKey="customerLogout"/>
+        </after>
+
+        <actionGroup ref="VertexCheckProductPricingOnCart" stepKey="checkBundleOnCart">
+            <argument name="product" value="$$createBundleBundle$$"/>
+            <argument name="priceExclTax" value="{{Vertex_Bundle_Valencia_Totals.subtotal}}"/>
+            <argument name="priceInclTax" value="{{Vertex_Bundle_Valencia_Totals.subtotalInclTax}}"/>
+            <argument name="subtotalExclTax" value="{{Vertex_Bundle_Valencia_Totals.subtotal}}"/>
+            <argument name="subtotalInclTax" value="{{Vertex_Bundle_Valencia_Totals.subtotalInclTax}}"/>
+        </actionGroup>
+    </test>
+    <test name="VertexAsRegisteredCustomerFromStorefrontWithSpanishBillToAndShipToTheSameCheckPhysicalProductTaxOnShoppingCartPageSummary">
+        <annotations>
+            <features value="Vertex"/>
+            <group value="Vertex"/>
+
+            <stories value="As a store owner, I must have accurate taxes calculated for a registered customer"/>
+            <title value="Validate Taxes on Cart Summary, Registered Customer, Physical Product, Bill-To=Ship-To, VAT Spain"/>
+            <description value="Validate that a registered customer with a bill-to and a ship-to address that are the same and are in Spain with a cart containing a bundle product receives taxes when estimating shipping &amp; tax"/>
+
+            <severity value="MAJOR"/>
+        </annotations>
+        <before>
+            <actionGroup ref="VertexCreateBundleProduct" stepKey="Bundle">
+                <argument name="basePrice" value="{{Vertex_Bundle_Valencia_Values.price}}"/>
+                <argument name="ballPrice" value="{{Vertex_Bundle_Valencia_Ball_Values.price}}"/>
+                <argument name="brickPrice" value="{{Vertex_Bundle_Valencia_Brick_Values.price}}"/>
+                <argument name="strapPrice" value="{{Vertex_Bundle_Valencia_Strap_Values.price}}"/>
+                <argument name="rollerPrice" value="{{Vertex_Bundle_Valencia_Roller_Values.price}}"/>
+            </actionGroup>
+
+            <actionGroup ref="LoginAsAdmin" stepKey="loginAsAdmin"/>
+            <actionGroup ref="VertexTaxDefaultConfig" stepKey="setupDefaultVertexTestConfiguration"/>
+            <actionGroup ref="ClearCacheActionGroup" stepKey="clearCache"/>
+
+            <createData entity="Vertex_Customer_CatrinaAragon" stepKey="createCustomer"/>
+            <actionGroup ref="LoginToStorefrontActionGroup" stepKey="customerLogin">
+                <argument name="Customer" value="$$createCustomer$$"/>
+            </actionGroup>
+
+            <actionGroup ref="VertexAddBundleProductToCart" stepKey="addBundleToCart">
+                <argument name="product" value="$$createBundleBundle$$"/>
+            </actionGroup>
+
+            <actionGroup ref="StorefrontOpenCartFromMinicartActionGroup" stepKey="gotoCart"/>
+
+            <actionGroup ref="FillShippingZipForm" stepKey="fillEstimateShippingInformation">
+                <argument name="address" value="Vertex_Customer_CatrinaAragon_Address"/>
+            </actionGroup>
+        </before>
+        <after>
+            <deleteData stepKey="deleteBall" createDataKey="createBall" actionGroup="Bundle"/>
+            <deleteData stepKey="deleteBrick" createDataKey="createBrick" actionGroup="Bundle"/>
+            <deleteData stepKey="deleteStrap" createDataKey="createStrap" actionGroup="Bundle"/>
+            <deleteData stepKey="deleteRoller" createDataKey="createRoller" actionGroup="Bundle"/>
+            <deleteData stepKey="deleteBundle" createDataKey="createBundle" actionGroup="Bundle"/>
+            <deleteData stepKey="deleteCategory" createDataKey="createCategory" actionGroup="Bundle"/>
+            <createData entity="DefaultTaxConfig" stepKey="defaultConf"/>
+            <actionGroup ref="logout" stepKey="logoutOfAdmin"/>
+            <actionGroup ref="StorefrontCustomerLogoutActionGroup" stepKey="customerLogout"/>
+        </after>
+
+        <actionGroup ref="VertexCheckTotalsInCart" stepKey="checkTotalsInCartPageSummary">
+            <argument name="subtotalExclTax" value="{{Vertex_Bundle_Valencia_Totals.subtotal}}" />
+            <argument name="subtotalInclTax" value="{{Vertex_Bundle_Valencia_Totals.subtotalInclTax}}" />
+            <argument name="shippingExclTax" value="{{Vertex_Bundle_Valencia_Totals.shipping}}" />
+            <argument name="shippingInclTax" value="{{Vertex_Bundle_Valencia_Totals.shippingInclTax}}" />
+            <argument name="tax" value="{{Vertex_Bundle_Valencia_Totals.tax}}" />
+            <argument name="totalExclTax" value="{{Vertex_Bundle_Valencia_Totals.total}}" />
+            <argument name="totalInclTax" value="{{Vertex_Bundle_Valencia_Totals.totalInclTax}}" />
+        </actionGroup>
+        <actionGroup ref="VertexCheckProductAndShippingTaxTotalsInCart" stepKey="checkTaxSummaryInCartPageSummary">
+            <argument name="product" value="{{Vertex_Bundle_Valencia_Totals.productTax}}" />
+            <argument name="shipping" value="{{Vertex_Bundle_Valencia_Totals.shippingTax}}" />
+        </actionGroup>
+    </test>
+    <test name="VertexAsRegisteredCustomerFromStorefrontWithSpanishBillToAndShipToTheSameCheckPhysicalProductTaxInCheckout">
+        <annotations>
+            <features value="Vertex"/>
+            <group value="Vertex"/>
+
+            <stories value="As a store owner, I must have accurate taxes calculated for a registered customer"/>
+            <title value="Validate Taxes in Checkout, Registered Customer, Physical Product, Bill-To=Ship-To, VAT Spain"/>
+            <description value="Validate that a registered customer with a bill-to and a ship-to address that are the same and are in Spain with a cart containing a bundle product receives taxes during checkout"/>
+
+            <severity value="CRITICAL"/>
+        </annotations>
+        <before>
+            <actionGroup ref="VertexCreateBundleProduct" stepKey="Bundle">
+                <argument name="basePrice" value="{{Vertex_Bundle_Valencia_Values.price}}"/>
+                <argument name="ballPrice" value="{{Vertex_Bundle_Valencia_Ball_Values.price}}"/>
+                <argument name="brickPrice" value="{{Vertex_Bundle_Valencia_Brick_Values.price}}"/>
+                <argument name="strapPrice" value="{{Vertex_Bundle_Valencia_Strap_Values.price}}"/>
+                <argument name="rollerPrice" value="{{Vertex_Bundle_Valencia_Roller_Values.price}}"/>
+            </actionGroup>
+
+            <actionGroup ref="LoginAsAdmin" stepKey="loginAsAdmin"/>
+            <actionGroup ref="VertexTaxDefaultConfig" stepKey="setupDefaultVertexTestConfiguration"/>
+            <actionGroup ref="ClearCacheActionGroup" stepKey="clearCache"/>
+
+            <createData entity="Vertex_Customer_CatrinaAragon" stepKey="createCustomer"/>
+            <actionGroup ref="LoginToStorefrontActionGroup" stepKey="customerLogin">
+                <argument name="Customer" value="$$createCustomer$$"/>
+            </actionGroup>
+
+            <actionGroup ref="VertexAddBundleProductToCart" stepKey="addBundleToCart">
+                <argument name="product" value="$$createBundleBundle$$"/>
+            </actionGroup>
+
+            <actionGroup ref="GoToCheckoutFromMinicartActionGroup" stepKey="gotoCheckout"/>
+
+            <actionGroup ref="CheckoutSelectFlatRateShippingMethodActionGroup" stepKey="selectShippingMethod"/>
+
+            <waitForElement selector="{{CheckoutShippingSection.next}}" stepKey="waitForNextButton"/>
+            <click selector="{{CheckoutShippingSection.next}}" stepKey="clickNext"/>
+
+            <waitForElement selector="{{CheckoutPaymentSection.paymentSectionTitle}}" stepKey="waitForPaymentSectionLoaded"/>
+            <seeInCurrentUrl url="{{CheckoutPage.url}}/#payment" stepKey="assertCheckoutPaymentUrl"/>
+        </before>
+        <after>
+            <deleteData stepKey="deleteBall" createDataKey="createBall" actionGroup="Bundle"/>
+            <deleteData stepKey="deleteBrick" createDataKey="createBrick" actionGroup="Bundle"/>
+            <deleteData stepKey="deleteStrap" createDataKey="createStrap" actionGroup="Bundle"/>
+            <deleteData stepKey="deleteRoller" createDataKey="createRoller" actionGroup="Bundle"/>
+            <deleteData stepKey="deleteBundle" createDataKey="createBundle" actionGroup="Bundle"/>
+            <deleteData stepKey="deleteCategory" createDataKey="createCategory" actionGroup="Bundle"/>
+            <createData entity="DefaultTaxConfig" stepKey="defaultConf"/>
+            <actionGroup ref="logout" stepKey="logoutOfAdmin"/>
+            <actionGroup ref="StorefrontCustomerLogoutActionGroup" stepKey="customerLogout"/>
+        </after>
+
+        <actionGroup ref="VertexCheckTotalsInCheckout" stepKey="checkTotals">
+            <argument name="subtotalExclTax" value="{{Vertex_Bundle_Valencia_Totals.subtotal}}" />
+            <argument name="subtotalInclTax" value="{{Vertex_Bundle_Valencia_Totals.subtotalInclTax}}" />
+            <argument name="shippingExclTax" value="{{Vertex_Bundle_Valencia_Totals.shipping}}" />
+            <argument name="shippingInclTax" value="{{Vertex_Bundle_Valencia_Totals.shippingInclTax}}" />
+            <argument name="tax" value="{{Vertex_Bundle_Valencia_Totals.tax}}" />
+            <argument name="totalExclTax" value="{{Vertex_Bundle_Valencia_Totals.total}}" />
+            <argument name="totalInclTax" value="{{Vertex_Bundle_Valencia_Totals.totalInclTax}}" />
+        </actionGroup>
+        <actionGroup ref="VertexCheckProductAndShippingTaxTotalsInCheckout" stepKey="checkTaxSummary">
+            <argument name="product" value="{{Vertex_Bundle_Valencia_Totals.productTax}}" />
+            <argument name="shipping" value="{{Vertex_Bundle_Valencia_Totals.shippingTax}}" />
+        </actionGroup>
+    </test>
+    <test name="VertexAsRegisteredCustomerFromStorefrontWithSpanishBillToAndShipToTheSameCheckPhysicalProductTaxOnOrderReviewPage">
+        <annotations>
+            <features value="Vertex"/>
+            <group value="Vertex"/>
+
+            <stories value="As a store owner, I must have accurate taxes calculated for a registered customer"/>
+            <title value="Validate Taxes on Order, Registered Customer, Physical Product, Bill-To=Ship-To, VAT Spain"/>
+            <description value="Validate that a registered customer with a bill-to and a ship-to address that are the same and are in Spain with a cart containing a bundle product receives taxes on their order"/>
+
+            <severity value="BLOCKER"/>
+        </annotations>
+        <before>
+            <actionGroup ref="VertexCreateBundleProduct" stepKey="Bundle">
+                <argument name="basePrice" value="{{Vertex_Bundle_Valencia_Values.price}}"/>
+                <argument name="ballPrice" value="{{Vertex_Bundle_Valencia_Ball_Values.price}}"/>
+                <argument name="brickPrice" value="{{Vertex_Bundle_Valencia_Brick_Values.price}}"/>
+                <argument name="strapPrice" value="{{Vertex_Bundle_Valencia_Strap_Values.price}}"/>
+                <argument name="rollerPrice" value="{{Vertex_Bundle_Valencia_Roller_Values.price}}"/>
+            </actionGroup>
+
+            <actionGroup ref="LoginAsAdmin" stepKey="loginAsAdmin"/>
+            <actionGroup ref="VertexTaxDefaultConfig" stepKey="setupDefaultVertexTestConfiguration"/>
+            <actionGroup ref="ClearCacheActionGroup" stepKey="clearCache"/>
+
+            <createData entity="Vertex_Customer_CatrinaAragon" stepKey="createCustomer"/>
+            <actionGroup ref="LoginToStorefrontActionGroup" stepKey="customerLogin">
+                <argument name="Customer" value="$$createCustomer$$"/>
+            </actionGroup>
+
+            <actionGroup ref="VertexAddBundleProductToCart" stepKey="addBundleToCart">
+                <argument name="product" value="$$createBundleBundle$$"/>
+            </actionGroup>
+
+            <actionGroup ref="StorefrontOpenCartFromMinicartActionGroup" stepKey="gotoCart"/>
+            <actionGroup ref="PlaceOrderWithLoggedUserActionGroup" stepKey="placeOrder"/>
+            <click stepKey="clickOrderNumber" selector="{{CheckoutSuccessMainSection.orderLink}}"/>
+        </before>
+        <after>
+            <deleteData stepKey="deleteBall" createDataKey="createBall" actionGroup="Bundle"/>
+            <deleteData stepKey="deleteBrick" createDataKey="createBrick" actionGroup="Bundle"/>
+            <deleteData stepKey="deleteStrap" createDataKey="createStrap" actionGroup="Bundle"/>
+            <deleteData stepKey="deleteRoller" createDataKey="createRoller" actionGroup="Bundle"/>
+            <deleteData stepKey="deleteBundle" createDataKey="createBundle" actionGroup="Bundle"/>
+            <deleteData stepKey="deleteCategory" createDataKey="createCategory" actionGroup="Bundle"/>
+            <createData entity="DefaultTaxConfig" stepKey="defaultConf"/>
+            <actionGroup ref="logout" stepKey="logoutOfAdmin"/>
+            <actionGroup ref="StorefrontCustomerLogoutActionGroup" stepKey="customerLogout"/>
+        </after>
+        
+        <actionGroup ref="VertexCheckProductPricingOnStorefrontOrderReview" stepKey="checkBundle">
+            <argument name="product" value="$$createBundleBundle$$" />
+            <argument name="priceExclTax" value="{{Vertex_Bundle_Valencia_Totals.subtotal}}" />
+            <argument name="priceInclTax" value="{{Vertex_Bundle_Valencia_Totals.subtotalInclTax}}" />
+            <argument name="subtotalExclTax" value="{{Vertex_Bundle_Valencia_Totals.subtotal}}" />
+            <argument name="subtotalInclTax" value="{{Vertex_Bundle_Valencia_Totals.subtotalInclTax}}" />
+        </actionGroup>
+
+        <actionGroup ref="VertexCheckTotalsOnStorefrontOrderReview" stepKey="checkTotals">
+            <argument name="subtotalExclTax" value="{{Vertex_Bundle_Valencia_Totals.subtotal}}" />
+            <argument name="subtotalInclTax" value="{{Vertex_Bundle_Valencia_Totals.subtotalInclTax}}" />
+            <argument name="shippingExclTax" value="{{Vertex_Bundle_Valencia_Totals.shipping}}" />
+            <argument name="shippingInclTax" value="{{Vertex_Bundle_Valencia_Totals.shippingInclTax}}" />
+            <argument name="tax" value="{{Vertex_Bundle_Valencia_Totals.tax}}" />
+            <argument name="totalExclTax" value="{{Vertex_Bundle_Valencia_Totals.total}}" />
+            <argument name="totalInclTax" value="{{Vertex_Bundle_Valencia_Totals.totalInclTax}}" />
+        </actionGroup>
+        <actionGroup ref="VertexCheckProductAndShippingTaxTotalsOnStorefrontOrderReview" stepKey="checkTaxSummary">
+            <argument name="product" value="{{Vertex_Bundle_Valencia_Totals.productTax}}" />
+            <argument name="shipping" value="{{Vertex_Bundle_Valencia_Totals.shippingTax}}" />
+        </actionGroup>
+    </test>
+</tests>

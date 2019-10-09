@@ -9,7 +9,6 @@ namespace Vertex\Tax\Model\Plugin;
 use Magento\Quote\Api\Data\ShippingAssignmentInterface;
 use Magento\Quote\Model\Quote;
 use Magento\Tax\Api\Data\QuoteDetailsItemInterface;
-use Magento\Tax\Api\Data\QuoteDetailsItemInterfaceFactory;
 use Magento\Tax\Model\Sales\Total\Quote\Subtotal;
 use Vertex\Tax\Model\VertexUsageDeterminer;
 
@@ -52,13 +51,12 @@ class SubtotalPlugin
         ShippingAssignmentInterface $shippingAssignment,
         Quote\Address\Total $total
     ) {
-        $storeId = $quote->getStoreId();
-        $address = $shippingAssignment->getShipping()->getAddress();
         if (!$this->usageDeterminer->shouldUseVertex(
-            $storeId,
-            $address,
+            $quote->getStoreId(),
+            $shippingAssignment->getShipping()->getAddress(),
             $quote->getCustomerId(),
-            $quote->isVirtual()
+            $quote->isVirtual(),
+            true
         )) {
             // Allows forward compatibility with argument additions
             $arguments = func_get_args();

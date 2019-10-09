@@ -6,8 +6,11 @@
 
 namespace Vertex\Tax\Model\Api\Data;
 
+use Magento\Framework\Stdlib\StringUtils;
 use Vertex\Data\SellerInterface;
 use Vertex\Data\SellerInterfaceFactory;
+use Vertex\Exception\ConfigurationException;
+use Vertex\Tax\Model\Api\Utility\MapperFactoryProxy;
 use Vertex\Tax\Model\Config;
 
 /**
@@ -30,27 +33,44 @@ class SellerBuilder
     /** @var string */
     private $scopeType;
 
+    /** @var MapperFactoryProxy */
+    private $mapperFactory;
+
+    /** @var StringUtils */
+    private $stringUtilities;
+
     /**
      * @param SellerInterfaceFactory $sellerFactory
      * @param Config $config
      * @param AddressBuilder $addressBuilder
+     * @param MapperFactoryProxy $mapperFactory
+     * @param StringUtils $stringUtils
      */
-    public function __construct(SellerInterfaceFactory $sellerFactory, Config $config, AddressBuilder $addressBuilder)
-    {
+    public function __construct(
+        SellerInterfaceFactory $sellerFactory,
+        Config $config,
+        AddressBuilder $addressBuilder,
+        MapperFactoryProxy $mapperFactory,
+        StringUtils $stringUtils
+    ) {
         $this->sellerFactory = $sellerFactory;
         $this->config = $config;
         $this->addressBuilder = $addressBuilder;
+        $this->mapperFactory = $mapperFactory;
+        $this->stringUtilities = $stringUtils;
     }
 
     /**
      * Create a {@see SellerInterface} from store configuration
      *
      * @return SellerInterface
+     * @throws ConfigurationException
      */
     public function build()
     {
         /** @var SellerInterface $seller */
         $seller = $this->sellerFactory->create();
+        $sellerMapper = $this->mapperFactory->getForClass(SellerInterface::class, $this->scopeCode);
 
         $street = [
             $this->config->getCompanyStreet1($this->scopeCode, $this->scopeType),
@@ -58,6 +78,7 @@ class SellerBuilder
         ];
 
         $address = $this->addressBuilder
+            ->setScopeCode($this->scopeCode)
             ->setStreet($street)
             ->setCity($this->config->getCompanyCity($this->scopeCode, $this->scopeType))
             ->setRegionId($this->config->getCompanyRegionId($this->scopeCode, $this->scopeType))
@@ -67,8 +88,12 @@ class SellerBuilder
 
         $seller->setPhysicalOrigin($address);
 
-        if ($this->config->getCompanyCode($this->scopeCode, $this->scopeType)) {
-            $seller->setCompanyCode($this->config->getCompanyCode($this->scopeCode, $this->scopeType));
+        $configCompanyCode = $this->config->getCompanyCode($this->scopeCode, $this->scopeType);
+
+        if ($configCompanyCode) {
+            $companyCode = $this->stringUtilities->substr($configCompanyCode, 0, $sellerMapper->getCompanyCodeMaxLength());
+
+            $seller->setCompanyCode($companyCode);
         }
 
         return $seller;

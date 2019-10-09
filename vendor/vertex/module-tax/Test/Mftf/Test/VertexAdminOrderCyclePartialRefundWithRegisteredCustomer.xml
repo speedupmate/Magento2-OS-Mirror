@@ -1,0 +1,393 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!--
+ /**
+  * @copyright  Vertex. All rights reserved.  https://www.vertexinc.com/
+  * @author     Mediotype                     https://www.mediotype.com/
+  */
+-->
+<tests xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+       xsi:noNamespaceSchemaLocation="urn:magento:mftf:Test/etc/testSchema.xsd">
+    <test name="VertexAsRegisteredCustomerWithBillToAndShipToTheSameCheckMultipleQtyBundleTaxAmountOnAdminOrderCreate">
+        <annotations>
+            <features value="Vertex"/>
+            <group value="Vertex"/>
+
+            <stories value="As a store owner, I must have accurate taxes calculated for a registered customer"/>
+            <title value="Validate Taxes during Admin Order Create, Registered User, Bundle Product, Bill-To=Ship-To, Multiple Qty"/>
+            <description value="Validate that a registered customer with a bill-to and a ship-to that are the same receives properly calculated taxes on an order with multiple bundled products during admin order creation"/>
+
+            <severity value="MAJOR"/>
+        </annotations>
+        <before>
+            <actionGroup ref="VertexCreateBundleProduct" stepKey="InBundle">
+                <argument name="basePrice" value="{{Vertex_Bundle_Valencia_Values.price}}"/>
+                <argument name="ballPrice" value="{{Vertex_Bundle_PA_Values_Ball_Qty3.price}}"/>
+                <argument name="brickPrice" value="{{Vertex_Bundle_PA_Values_Brick_Qty3.price}}"/>
+                <argument name="strapPrice" value="{{Vertex_Bundle_PA_Values_Strap_Qty3.price}}"/>
+                <argument name="rollerPrice" value="{{Vertex_Bundle_PA_Values_Roller_Qty3.price}}"/>
+            </actionGroup>
+            <createData entity="Vertex_Customer_GhostStark" stepKey="createCustomer"/>
+
+            <actionGroup ref="LoginAsAdmin" stepKey="loginAsAdmin"/>
+            <actionGroup ref="VertexTaxDefaultConfig" stepKey="setupDefaultVertexTestConfiguration"/>
+            <actionGroup ref="ClearCacheActionGroup" stepKey="clearCache"/>
+
+            <actionGroup ref="navigateToNewOrderPageExistingCustomer" stepKey="startNewOrder">
+                <argument name="customer" value="$$createCustomer$$"/>
+            </actionGroup>
+
+            <actionGroup ref="beginAddingBundleProductToOrder" stepKey="beginAddingBundle">
+                <argument name="product" value="$$createBundleInBundle$$"/>
+                <argument name="exampleChild" value="$$createBallInBundle$$"/>
+            </actionGroup>
+            <actionGroup ref="selectBundledProductOptionDuringOrderCreate" stepKey="addBall">
+                <argument name="option" value="$$createBallInBundle$$"/>
+            </actionGroup>
+            <actionGroup ref="selectBundledProductOptionDuringOrderCreate" stepKey="addBrick">
+                <argument name="option" value="$$createBrickInBundle$$"/>
+            </actionGroup>
+            <actionGroup ref="selectBundledProductOptionDuringOrderCreate" stepKey="addStrap">
+                <argument name="option" value="$$createStrapInBundle$$"/>
+            </actionGroup>
+            <actionGroup ref="selectBundledProductOptionDuringOrderCreate" stepKey="addRoller">
+                <argument name="option" value="$$createRollerInBundle$$"/>
+            </actionGroup>
+            <actionGroup ref="setBundledProductQtyDuringOrderCreate" stepKey="setBundleQuantity">
+                <argument name="quantity" value="3"/>
+            </actionGroup>
+            <actionGroup ref="finishAddingBundledProductToOrder" stepKey="finishAddingBundle"/>
+
+            <actionGroup ref="orderSelectShippingBillingSameAddress" stepKey="selectShippingAddress">
+                <argument name="addressId" value="$$createCustomer.addresses[1][id]$$"/>
+            </actionGroup>
+
+            <actionGroup ref="orderSelectFlatRateShipping" stepKey="selectShipping"/>
+
+            <actionGroup ref="SelectCheckMoneyPaymentMethod" stepKey="selectPayment"/>
+        </before>
+        <after>
+            <deleteData stepKey="deleteBundle" createDataKey="createBundle" actionGroup="InBundle"/>
+            <deleteData stepKey="deleteBrick" createDataKey="createBrick" actionGroup="InBundle"/>
+            <deleteData stepKey="deleteStrap" createDataKey="createStrap" actionGroup="InBundle"/>
+            <deleteData stepKey="deleteRoller" createDataKey="createRoller" actionGroup="InBundle"/>
+            <deleteData stepKey="deleteBall" createDataKey="createBall" actionGroup="InBundle"/>
+            <deleteData stepKey="deleteCategory" createDataKey="createCategory" actionGroup="InBundle"/>
+            <deleteData stepKey="deleteCustomer" createDataKey="createCustomer"/>
+            <actionGroup ref="logout" stepKey="logoutOfAdmin"/>
+        </after>
+
+        <actionGroup ref="VertexCheckProductPricingInAdminCreate" stepKey="checkBundlePricing">
+            <argument name="product" value="$$createBundleInBundle$$"/>
+            <argument name="priceExclTax" value="{{Vertex_Bundle_PA_Values_Qty3.price}}"/>
+            <argument name="priceInclTax" value="{{Vertex_Bundle_PA_Values_Qty3.priceInclTax}}"/>
+            <argument name="subtotalExclTax" value="{{Vertex_Bundle_PA_Values_Qty3.rowTotal}}"/>
+            <argument name="subtotalInclTax" value="{{Vertex_Bundle_PA_Values_Qty3.rowTotalInclTax}}"/>
+            <argument name="rowSubtotalExclTax" value="{{Vertex_Bundle_PA_Values_Qty3.rowTotal}}"/>
+            <argument name="rowSubtotalInclTax" value="{{Vertex_Bundle_PA_Values_Qty3.rowTotalInclTax}}"/>
+        </actionGroup>
+        <actionGroup ref="VertexCheckTotalsInAdminCreate" stepKey="checkTotals">
+            <argument name="subtotalExclTax" value="{{Vertex_Bundle_PA_Totals_Qty3.subtotal}}"/>
+            <argument name="subtotalInclTax" value="{{Vertex_Bundle_PA_Totals_Qty3.subtotalInclTax}}"/>
+            <argument name="shippingExclTax" value="{{Vertex_Bundle_PA_Totals_Qty3.shipping}}"/>
+            <argument name="shippingInclTax" value="{{Vertex_Bundle_PA_Totals_Qty3.shippingInclTax}}"/>
+            <argument name="tax" value="{{Vertex_Bundle_PA_Totals_Qty3.tax}}"/>
+            <argument name="totalExclTax" value="{{Vertex_Bundle_PA_Totals_Qty3.total}}"/>
+            <argument name="totalInclTax" value="{{Vertex_Bundle_PA_Totals_Qty3.totalInclTax}}"/>
+        </actionGroup>
+    </test>
+
+    <test name="VertexAsRegisteredCustomerWithBillToAndShipToTheSameCheckMultipleQtyBundleTaxAmountAfterAdminOrderCreate">
+        <annotations>
+            <features value="Vertex"/>
+            <group value="Vertex"/>
+
+            <stories value="As a store owner, I must have accurate taxes calculated for a registered customer"/>
+            <title value="Validate Taxes after Admin Order Create, Registered User, Bundle Product, Bill-To=Ship-To, Multiple Qty"/>
+            <description value="Validate that a registered customer with a bill-to and a ship-to that are the same receives properly calculated taxes on an order with multiple bundled products"/>
+
+            <severity value="CRITICAL"/>
+        </annotations>
+        <before>
+            <actionGroup ref="VertexCreateBundleProduct" stepKey="InBundle">
+                <argument name="basePrice" value="{{Vertex_Bundle_Valencia_Values.price}}"/>
+                <argument name="ballPrice" value="{{Vertex_Bundle_PA_Values_Ball_Qty3.price}}"/>
+                <argument name="brickPrice" value="{{Vertex_Bundle_PA_Values_Brick_Qty3.price}}"/>
+                <argument name="strapPrice" value="{{Vertex_Bundle_PA_Values_Strap_Qty3.price}}"/>
+                <argument name="rollerPrice" value="{{Vertex_Bundle_PA_Values_Roller_Qty3.price}}"/>
+            </actionGroup>
+            <createData entity="Vertex_Customer_GhostStark" stepKey="createCustomer"/>
+
+            <actionGroup ref="LoginAsAdmin" stepKey="loginAsAdmin"/>
+            <actionGroup ref="VertexTaxDefaultConfig" stepKey="setupDefaultVertexTestConfiguration"/>
+            <actionGroup ref="ClearCacheActionGroup" stepKey="clearCache"/>
+
+            <actionGroup ref="navigateToNewOrderPageExistingCustomer" stepKey="startNewOrder">
+                <argument name="customer" value="$$createCustomer$$"/>
+            </actionGroup>
+
+            <actionGroup ref="beginAddingBundleProductToOrder" stepKey="beginAddingBundle">
+                <argument name="product" value="$$createBundleInBundle$$"/>
+                <argument name="exampleChild" value="$$createBallInBundle$$"/>
+            </actionGroup>
+            <actionGroup ref="selectBundledProductOptionDuringOrderCreate" stepKey="addBall">
+                <argument name="option" value="$$createBallInBundle$$"/>
+            </actionGroup>
+            <actionGroup ref="selectBundledProductOptionDuringOrderCreate" stepKey="addBrick">
+                <argument name="option" value="$$createBrickInBundle$$"/>
+            </actionGroup>
+            <actionGroup ref="selectBundledProductOptionDuringOrderCreate" stepKey="addStrap">
+                <argument name="option" value="$$createStrapInBundle$$"/>
+            </actionGroup>
+            <actionGroup ref="selectBundledProductOptionDuringOrderCreate" stepKey="addRoller">
+                <argument name="option" value="$$createRollerInBundle$$"/>
+            </actionGroup>
+            <actionGroup ref="setBundledProductQtyDuringOrderCreate" stepKey="setBundleQuantity">
+                <argument name="quantity" value="3"/>
+            </actionGroup>
+            <actionGroup ref="finishAddingBundledProductToOrder" stepKey="finishAddingBundle"/>
+
+            <actionGroup ref="orderSelectShippingBillingSameAddress" stepKey="selectShippingAddress">
+                <argument name="addressId" value="$$createCustomer.addresses[1][id]$$"/>
+            </actionGroup>
+
+            <actionGroup ref="orderSelectFlatRateShipping" stepKey="selectShipping"/>
+
+            <actionGroup ref="SelectCheckMoneyPaymentMethod" stepKey="selectPayment"/>
+
+            <click stepKey="submitOrder" selector="{{AdminOrderFormActionSection.submitOrder}}"/>
+        </before>
+        <after>
+            <deleteData stepKey="deleteBundle" createDataKey="createBundle" actionGroup="InBundle"/>
+            <deleteData stepKey="deleteBrick" createDataKey="createBrick" actionGroup="InBundle"/>
+            <deleteData stepKey="deleteStrap" createDataKey="createStrap" actionGroup="InBundle"/>
+            <deleteData stepKey="deleteRoller" createDataKey="createRoller" actionGroup="InBundle"/>
+            <deleteData stepKey="deleteBall" createDataKey="createBall" actionGroup="InBundle"/>
+            <deleteData stepKey="deleteCategory" createDataKey="createCategory" actionGroup="InBundle"/>
+            <deleteData stepKey="deleteCustomer" createDataKey="createCustomer"/>
+            <actionGroup ref="logout" stepKey="logoutOfAdmin"/>
+        </after>
+
+        <actionGroup ref="VertexCheckProductPricingInAdminOrderView" stepKey="checkBallPricing">
+            <argument name="product" value="$$createBallInBundle$$"/>
+            <argument name="priceExclTax" value="{{Vertex_Bundle_PA_Values_Ball_Qty3.price}}"/>
+            <argument name="priceInclTax" value="{{Vertex_Bundle_PA_Values_Ball_Qty3.priceInclTax}}"/>
+            <argument name="subtotalExclTax" value="{{Vertex_Bundle_PA_Values_Ball_Qty3.rowTotal}}"/>
+            <argument name="subtotalInclTax" value="{{Vertex_Bundle_PA_Values_Ball_Qty3.rowTotalInclTax}}"/>
+            <argument name="tax" value="{{Vertex_Bundle_PA_Values_Ball_Qty3.rowTax}}"/>
+            <argument name="taxPercent" value="{{Vertex_Bundle_PA_Values_Ball_Qty3.taxPercent}}"/>
+            <argument name="rowTotal" value="{{Vertex_Bundle_PA_Values_Ball_Qty3.rowTotalInclTax}}"/>
+        </actionGroup>
+        <actionGroup ref="VertexCheckProductPricingInAdminOrderView" stepKey="checkBrickPricing">
+            <argument name="product" value="$$createBrickInBundle$$"/>
+            <argument name="priceExclTax" value="{{Vertex_Bundle_PA_Values_Brick_Qty3.price}}"/>
+            <argument name="priceInclTax" value="{{Vertex_Bundle_PA_Values_Brick_Qty3.priceInclTax}}"/>
+            <argument name="subtotalExclTax" value="{{Vertex_Bundle_PA_Values_Brick_Qty3.rowTotal}}"/>
+            <argument name="subtotalInclTax" value="{{Vertex_Bundle_PA_Values_Brick_Qty3.rowTotalInclTax}}"/>
+            <argument name="tax" value="{{Vertex_Bundle_PA_Values_Brick_Qty3.rowTax}}"/>
+            <argument name="taxPercent" value="{{Vertex_Bundle_PA_Values_Brick_Qty3.taxPercent}}"/>
+            <argument name="rowTotal" value="{{Vertex_Bundle_PA_Values_Brick_Qty3.rowTotalInclTax}}"/>
+        </actionGroup>
+        <actionGroup ref="VertexCheckProductPricingInAdminOrderView" stepKey="checkStrapPricing">
+            <argument name="product" value="$$createStrapInBundle$$"/>
+            <argument name="priceExclTax" value="{{Vertex_Bundle_PA_Values_Strap_Qty3.price}}"/>
+            <argument name="priceInclTax" value="{{Vertex_Bundle_PA_Values_Strap_Qty3.priceInclTax}}"/>
+            <argument name="subtotalExclTax" value="{{Vertex_Bundle_PA_Values_Strap_Qty3.rowTotal}}"/>
+            <argument name="subtotalInclTax" value="{{Vertex_Bundle_PA_Values_Strap_Qty3.rowTotalInclTax}}"/>
+            <argument name="tax" value="{{Vertex_Bundle_PA_Values_Strap_Qty3.rowTax}}"/>
+            <argument name="taxPercent" value="{{Vertex_Bundle_PA_Values_Strap_Qty3.taxPercent}}"/>
+            <argument name="rowTotal" value="{{Vertex_Bundle_PA_Values_Strap_Qty3.rowTotalInclTax}}"/>
+        </actionGroup>
+        <actionGroup ref="VertexCheckProductPricingInAdminOrderView" stepKey="checkRollerPricing">
+            <argument name="product" value="$$createRollerInBundle$$"/>
+            <argument name="priceExclTax" value="{{Vertex_Bundle_PA_Values_Roller_Qty3.price}}"/>
+            <argument name="priceInclTax" value="{{Vertex_Bundle_PA_Values_Roller_Qty3.priceInclTax}}"/>
+            <argument name="subtotalExclTax" value="{{Vertex_Bundle_PA_Values_Roller_Qty3.rowTotal}}"/>
+            <argument name="subtotalInclTax" value="{{Vertex_Bundle_PA_Values_Roller_Qty3.rowTotalInclTax}}"/>
+            <argument name="tax" value="{{Vertex_Bundle_PA_Values_Roller_Qty3.rowTax}}"/>
+            <argument name="taxPercent" value="{{Vertex_Bundle_PA_Values_Roller_Qty3.taxPercent}}"/>
+            <argument name="rowTotal" value="{{Vertex_Bundle_PA_Values_Roller_Qty3.rowTotalInclTax}}"/>
+        </actionGroup>
+        <actionGroup ref="VertexCheckTotalsInAdminOrderView" stepKey="checkTotals">
+            <argument name="subtotalExclTax" value="{{Vertex_Bundle_PA_Totals_Qty3.subtotal}}"/>
+            <argument name="subtotalInclTax" value="{{Vertex_Bundle_PA_Totals_Qty3.subtotalInclTax}}"/>
+            <argument name="shippingExclTax" value="{{Vertex_Bundle_PA_Totals_Qty3.shipping}}"/>
+            <argument name="shippingInclTax" value="{{Vertex_Bundle_PA_Totals_Qty3.shippingInclTax}}"/>
+            <argument name="tax" value="{{Vertex_Bundle_PA_Totals_Qty3.tax}}"/>
+            <argument name="totalExclTax" value="{{Vertex_Bundle_PA_Totals_Qty3.total}}"/>
+            <argument name="totalInclTax" value="{{Vertex_Bundle_PA_Totals_Qty3.totalInclTax}}"/>
+        </actionGroup>
+        <actionGroup ref="VertexCheckTaxTotalsInAdminOrderView" stepKey="checkTaxTotals">
+            <argument name="product" value="{{Vertex_Bundle_PA_Totals_Qty3.productTax}}"/>
+            <argument name="shipping" value="{{Vertex_Bundle_PA_Totals_Qty3.shippingTax}}"/>
+        </actionGroup>
+    </test>
+
+    <test name="VertexAsRegisteredCustomerWithBillToAndShipToTheSameCheckMultipleQtyBundleTaxJournalOnInvoice">
+        <annotations>
+            <features value="Vertex"/>
+            <group value="Vertex"/>
+
+            <stories value="As a store owner, I must have accurate taxes committed to the tax journal"/>
+            <title value="Validate Tax Journal during Invoicing, Registered User, Bundle Product, Bill-To=Ship-To, Multiple Qty"/>
+            <description value="Validate accurate taxes are committed to the Vertex Tax Journal during invoicing of an order with multiple quantity of a bundle product"/>
+
+            <severity value="CRITICAL"/>
+        </annotations>
+        <before>
+            <actionGroup ref="VertexCreateBundleProduct" stepKey="InBundle">
+                <argument name="basePrice" value="{{Vertex_Bundle_Valencia_Values.price}}"/>
+                <argument name="ballPrice" value="{{Vertex_Bundle_PA_Values_Ball_Qty3.price}}"/>
+                <argument name="brickPrice" value="{{Vertex_Bundle_PA_Values_Brick_Qty3.price}}"/>
+                <argument name="strapPrice" value="{{Vertex_Bundle_PA_Values_Strap_Qty3.price}}"/>
+                <argument name="rollerPrice" value="{{Vertex_Bundle_PA_Values_Roller_Qty3.price}}"/>
+            </actionGroup>
+            <createData entity="Vertex_Customer_GhostStark" stepKey="createCustomer"/>
+
+            <actionGroup ref="LoginAsAdmin" stepKey="loginAsAdmin"/>
+            <actionGroup ref="VertexTaxDefaultConfig" stepKey="setupDefaultVertexTestConfiguration"/>
+            <actionGroup ref="ClearCacheActionGroup" stepKey="clearCache"/>
+
+            <actionGroup ref="navigateToNewOrderPageExistingCustomer" stepKey="startNewOrder">
+                <argument name="customer" value="$$createCustomer$$"/>
+            </actionGroup>
+
+            <actionGroup ref="beginAddingBundleProductToOrder" stepKey="beginAddingBundle">
+                <argument name="product" value="$$createBundleInBundle$$"/>
+                <argument name="exampleChild" value="$$createBallInBundle$$"/>
+            </actionGroup>
+            <actionGroup ref="selectBundledProductOptionDuringOrderCreate" stepKey="addBall">
+                <argument name="option" value="$$createBallInBundle$$"/>
+            </actionGroup>
+            <actionGroup ref="selectBundledProductOptionDuringOrderCreate" stepKey="addBrick">
+                <argument name="option" value="$$createBrickInBundle$$"/>
+            </actionGroup>
+            <actionGroup ref="selectBundledProductOptionDuringOrderCreate" stepKey="addStrap">
+                <argument name="option" value="$$createStrapInBundle$$"/>
+            </actionGroup>
+            <actionGroup ref="selectBundledProductOptionDuringOrderCreate" stepKey="addRoller">
+                <argument name="option" value="$$createRollerInBundle$$"/>
+            </actionGroup>
+            <actionGroup ref="setBundledProductQtyDuringOrderCreate" stepKey="setBundleQuantity">
+                <argument name="quantity" value="3"/>
+            </actionGroup>
+            <actionGroup ref="finishAddingBundledProductToOrder" stepKey="finishAddingBundle"/>
+
+            <actionGroup ref="orderSelectShippingBillingSameAddress" stepKey="selectShippingAddress">
+                <argument name="addressId" value="$$createCustomer.addresses[1][id]$$"/>
+            </actionGroup>
+
+            <actionGroup ref="orderSelectFlatRateShipping" stepKey="selectShipping"/>
+
+            <actionGroup ref="SelectCheckMoneyPaymentMethod" stepKey="selectPayment"/>
+
+            <click stepKey="submitOrder" selector="{{AdminOrderFormActionSection.submitOrder}}"/>
+
+            <actionGroup ref="goToInvoiceIntoOrder" stepKey="createInvoice"/>
+            <actionGroup ref="submitInvoiceIntoOrder" stepKey="submitInvoice"/>
+        </before>
+        <after>
+            <deleteData stepKey="deleteBundle" createDataKey="createBundle" actionGroup="InBundle"/>
+            <deleteData stepKey="deleteBrick" createDataKey="createBrick" actionGroup="InBundle"/>
+            <deleteData stepKey="deleteStrap" createDataKey="createStrap" actionGroup="InBundle"/>
+            <deleteData stepKey="deleteRoller" createDataKey="createRoller" actionGroup="InBundle"/>
+            <deleteData stepKey="deleteBall" createDataKey="createBall" actionGroup="InBundle"/>
+            <deleteData stepKey="deleteCategory" createDataKey="createCategory" actionGroup="InBundle"/>
+            <deleteData stepKey="deleteCustomer" createDataKey="createCustomer"/>
+            <actionGroup ref="logout" stepKey="logoutOfAdmin"/>
+        </after>
+
+        <actionGroup ref="VertexCheckInvoiceSuccessMessage" stepKey="checkSuccessMessage"/>
+        <actionGroup ref="VertexCheckInvoiceSuccessNote" stepKey="checkSuccessNote">
+            <argument name="amount" value="{{Vertex_Bundle_PA_Totals_Qty3.tax}}"/>
+        </actionGroup>
+    </test>
+
+    <test name="VertexAsRegisteredCustomerWithBillToAndShipToTheSameCheckMultipleQtyBundleTaxJournalOnPartialRefund">
+        <annotations>
+            <features value="Vertex"/>
+            <group value="Vertex"/>
+
+            <stories value="As a store owner, I must have accurate taxes committed to the tax journal"/>
+            <title value="Validate Tax Journal during Partial Credit Memo, Registered User, Bundle Product, Bill-To=Ship-To, Multiple Qty"/>
+            <description value="Validate accurate taxes are committed to the Vertex Tax Journal during a partial credit memo of an order with multiple quantity of a bundle product"/>
+
+            <severity value="CRITICAL"/>
+        </annotations>
+        <before>
+            <actionGroup ref="VertexCreateBundleProduct" stepKey="InBundle">
+                <argument name="basePrice" value="{{Vertex_Bundle_Valencia_Values.price}}"/>
+                <argument name="ballPrice" value="{{Vertex_Bundle_PA_Values_Ball_Qty3.price}}"/>
+                <argument name="brickPrice" value="{{Vertex_Bundle_PA_Values_Brick_Qty3.price}}"/>
+                <argument name="strapPrice" value="{{Vertex_Bundle_PA_Values_Strap_Qty3.price}}"/>
+                <argument name="rollerPrice" value="{{Vertex_Bundle_PA_Values_Roller_Qty3.price}}"/>
+            </actionGroup>
+            <createData entity="Vertex_Customer_GhostStark" stepKey="createCustomer"/>
+
+            <actionGroup ref="LoginAsAdmin" stepKey="loginAsAdmin"/>
+            <actionGroup ref="VertexTaxDefaultConfig" stepKey="setupDefaultVertexTestConfiguration"/>
+            <actionGroup ref="ClearCacheActionGroup" stepKey="clearCache"/>
+
+            <actionGroup ref="navigateToNewOrderPageExistingCustomer" stepKey="startNewOrder">
+                <argument name="customer" value="$$createCustomer$$"/>
+            </actionGroup>
+
+            <actionGroup ref="beginAddingBundleProductToOrder" stepKey="beginAddingBundle">
+                <argument name="product" value="$$createBundleInBundle$$"/>
+                <argument name="exampleChild" value="$$createBallInBundle$$"/>
+            </actionGroup>
+            <actionGroup ref="selectBundledProductOptionDuringOrderCreate" stepKey="addBall">
+                <argument name="option" value="$$createBallInBundle$$"/>
+            </actionGroup>
+            <actionGroup ref="selectBundledProductOptionDuringOrderCreate" stepKey="addBrick">
+                <argument name="option" value="$$createBrickInBundle$$"/>
+            </actionGroup>
+            <actionGroup ref="selectBundledProductOptionDuringOrderCreate" stepKey="addStrap">
+                <argument name="option" value="$$createStrapInBundle$$"/>
+            </actionGroup>
+            <actionGroup ref="selectBundledProductOptionDuringOrderCreate" stepKey="addRoller">
+                <argument name="option" value="$$createRollerInBundle$$"/>
+            </actionGroup>
+            <actionGroup ref="setBundledProductQtyDuringOrderCreate" stepKey="setBundleQuantity">
+                <argument name="quantity" value="3"/>
+            </actionGroup>
+            <actionGroup ref="finishAddingBundledProductToOrder" stepKey="finishAddingBundle"/>
+
+            <actionGroup ref="orderSelectShippingBillingSameAddress" stepKey="selectShippingAddress">
+                <argument name="addressId" value="$$createCustomer.addresses[1][id]$$"/>
+            </actionGroup>
+
+            <actionGroup ref="orderSelectFlatRateShipping" stepKey="selectShipping"/>
+
+            <actionGroup ref="SelectCheckMoneyPaymentMethod" stepKey="selectPayment"/>
+
+            <click stepKey="submitOrder" selector="{{AdminOrderFormActionSection.submitOrder}}"/>
+
+            <actionGroup ref="goToInvoiceIntoOrder" stepKey="createInvoice"/>
+            <actionGroup ref="submitInvoiceIntoOrder" stepKey="submitInvoice"/>
+
+            <actionGroup ref="goToCreditMemoFromOrder" stepKey="createCreditMemo"/>
+            <fillField stepKey="fillBall" selector="{{AdminCreditMemoItemsSection.itemQtyToRefundByName($$createBallInBundle.name$$)}}" userInput="1"/>
+            <fillField stepKey="fillBrick" selector="{{AdminCreditMemoItemsSection.itemQtyToRefundByName($$createBrickInBundle.name$$)}}" userInput="1"/>
+            <fillField stepKey="fillRoller" selector="{{AdminCreditMemoItemsSection.itemQtyToRefundByName($$createRollerInBundle.name$$)}}" userInput="1"/>
+            <fillField stepKey="fillStrap" selector="{{AdminCreditMemoItemsSection.itemQtyToRefundByName($$createStrapInBundle.name$$)}}" userInput="1"/>
+            <click stepKey="updateQty" selector="{{AdminCreditMemoItemsSection.updateQty}}"/>
+            <waitForAjaxLoad stepKey="waitForQtyUpdate"/>
+            <actionGroup ref="submitCreditMemoIntoOrder" stepKey="submitCreditMemo"/>
+        </before>
+        <after>
+            <deleteData stepKey="deleteBundle" createDataKey="createBundle" actionGroup="InBundle"/>
+            <deleteData stepKey="deleteBrick" createDataKey="createBrick" actionGroup="InBundle"/>
+            <deleteData stepKey="deleteStrap" createDataKey="createStrap" actionGroup="InBundle"/>
+            <deleteData stepKey="deleteRoller" createDataKey="createRoller" actionGroup="InBundle"/>
+            <deleteData stepKey="deleteBall" createDataKey="createBall" actionGroup="InBundle"/>
+            <deleteData stepKey="deleteCategory" createDataKey="createCategory" actionGroup="InBundle"/>
+            <deleteData stepKey="deleteCustomer" createDataKey="createCustomer"/>
+            <actionGroup ref="logout" stepKey="logoutOfAdmin"/>
+        </after>
+
+        <actionGroup ref="VertexCheckCreditMemoSuccessMessage" stepKey="checkSuccessMessage"/>
+        <actionGroup ref="VertexCheckCreditMemoSuccessNote" stepKey="checkSuccessNote">
+            <argument name="amount" value="-{{Vertex_Bundle_PA_Totals_Qty1.tax}}"/>
+        </actionGroup>
+    </test>
+</tests>

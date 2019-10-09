@@ -1,7 +1,24 @@
 <?php
 
+/*
+ * Copyright 2013 Johannes M. Schmitt <schmittjoh@gmail.com>
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *     http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
+
 namespace JMS\Serializer;
 
+use JMS\Serializer\Exception\LogicException;
 use JMS\Serializer\Exception\RuntimeException;
 use Metadata\MetadataFactoryInterface;
 
@@ -12,11 +29,6 @@ class SerializationContext extends Context
 
     /** @var \SplStack */
     private $visitingStack;
-
-    /**
-     * @var string
-     */
-    private $initialType;
 
     public static function create()
     {
@@ -36,18 +48,12 @@ class SerializationContext extends Context
 
     public function startVisiting($object)
     {
-        if (!\is_object($object)) {
-            return;
-        }
         $this->visitingSet->attach($object);
         $this->visitingStack->push($object);
     }
 
     public function stopVisiting($object)
     {
-        if (!\is_object($object)) {
-            return;
-        }
         $this->visitingSet->detach($object);
         $poppedObject = $this->visitingStack->pop();
 
@@ -58,8 +64,8 @@ class SerializationContext extends Context
 
     public function isVisiting($object)
     {
-        if (!\is_object($object)) {
-            return false;
+        if (! is_object($object)) {
+            throw new LogicException('Expected object but got ' . gettype($object) . '. Do you have the wrong @Type mapping or could this be a Doctrine many-to-many relation?');
         }
 
         return $this->visitingSet->contains($object);
@@ -69,10 +75,10 @@ class SerializationContext extends Context
     {
         $path = array();
         foreach ($this->visitingStack as $obj) {
-            $path[] = \get_class($obj);
+            $path[] = get_class($obj);
         }
 
-        if (!$path) {
+        if ( ! $path) {
             return null;
         }
 
@@ -102,26 +108,5 @@ class SerializationContext extends Context
     public function getVisitingSet()
     {
         return $this->visitingSet;
-    }
-
-    /**
-     * @param string $type
-     * @return $this
-     */
-    public function setInitialType($type)
-    {
-        $this->initialType = $type;
-        $this->attributes->set('initial_type', $type);
-        return $this;
-    }
-
-    /**
-     * @return string|null
-     */
-    public function getInitialType()
-    {
-        return $this->initialType
-            ? $this->initialType
-            : $this->attributes->containsKey('initial_type') ? $this->attributes->get('initial_type')->get() : null;
     }
 }

@@ -7,6 +7,7 @@
 namespace Vertex\Tax\Model\Plugin;
 
 use Magento\Framework\App\ActionInterface;
+use Vertex\Tax\Model\Config;
 use Vertex\Tax\Model\ErrorMessageDisplayState;
 
 /**
@@ -14,15 +15,22 @@ use Vertex\Tax\Model\ErrorMessageDisplayState;
  */
 class MultishippingErrorMessageSupport
 {
+    /** @var Config */
+    private $config;
+
     /** @var ErrorMessageDisplayState */
     private $messageDisplayState;
 
     /**
      * @param ErrorMessageDisplayState $messageDisplayState
+     * @param Config $config
      */
-    public function __construct(ErrorMessageDisplayState $messageDisplayState)
-    {
+    public function __construct(
+        ErrorMessageDisplayState $messageDisplayState,
+        Config $config
+    ) {
         $this->messageDisplayState = $messageDisplayState;
+        $this->config = $config;
     }
 
     /**
@@ -34,6 +42,8 @@ class MultishippingErrorMessageSupport
      */
     public function beforeExecute(ActionInterface $subject)
     {
-        $this->messageDisplayState->enable();
+        if ($this->config->isVertexActive()) {
+            $this->messageDisplayState->enable();
+        }
     }
 }

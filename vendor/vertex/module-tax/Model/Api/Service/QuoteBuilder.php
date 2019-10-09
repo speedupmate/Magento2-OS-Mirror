@@ -9,6 +9,7 @@ namespace Vertex\Tax\Model\Api\Service;
 use Vertex\Services\Quote;
 use Vertex\Services\QuoteFactory as SdkQuoteFactory;
 use Vertex\Tax\Model\Api\ConfigBuilder;
+use Vertex\Utility\ServiceActionPerformerFactory;
 
 /**
  * Create a {@see Quote} service class
@@ -27,16 +28,21 @@ class QuoteBuilder
     /** @var string */
     private $storeCode;
 
+    /** @var ServiceActionPerformerFactory */
+    private $serviceActionPerformerFactory;
+
     /**
      * @param ConfigBuilder $configBuilder
      * @param SdkQuoteFactory $sdkFactory
      */
     public function __construct(
         ConfigBuilder $configBuilder,
-        SdkQuoteFactory $sdkFactory
+        SdkQuoteFactory $sdkFactory,
+        ServiceActionPerformerFactory $serviceActionPerformerFactory
     ) {
         $this->configBuilder = $configBuilder;
         $this->sdkFactory = $sdkFactory;
+        $this->serviceActionPerformerFactory = $serviceActionPerformerFactory;
     }
 
     /**
@@ -54,6 +60,7 @@ class QuoteBuilder
         return $this->sdkFactory->create(
             [
                 'configuration' => $config,
+                'actionPerformerFactory'  => $this->serviceActionPerformerFactory
             ]
         );
     }

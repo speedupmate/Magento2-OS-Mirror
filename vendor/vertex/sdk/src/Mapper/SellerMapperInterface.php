@@ -33,4 +33,27 @@ interface SellerMapperInterface
      * @throws ValidationException
      */
     public function map(SellerInterface $object);
+
+    /**
+     * Return maximum length allowed for the company code value
+     *
+     * @return int
+     */
+    public function getCompanyCodeMaxLength();
+
+    /**
+     * Return minimum length allowed for the company code value
+     *
+     * @return int
+     */
+    public function getCompanyCodeMinLength();
+
+    /**
+     * Validates company code value
+     *
+     * @param string $fieldValue
+     * @return true
+     * @throws ValidationException
+     */
+    public function validateCompanyCode($fieldValue);
 }

@@ -1,4 +1,49 @@
 
+4.5.9 / 2019-01-15
+==================
+
+  * Allowing ramsey version 3.6.1.
+  * PPI-254 Change types for the specific order line items
+  * PPI-583 Cleanup install/upgrade scripts
+  * MAGE-128 Added a try-catch block around checking customer default addresses
+  * MAGE-147 Fix error with virtual products
+
+4.5.8 / 2018-11-07
+==================
+
+  * PI-509 Ensure company name is sent to Klarna API
+
+4.5.7 / 2018-11-01
+==================
+
+  * PPI-592 Remove merchant portal link in confirmation email
+
+4.5.6 / 2018-10-22
+==================
+
+  * PPI-582 Removed the check for a virtual quote.
+  * PPI-580 Force billing and shipping address to have same email address
+
+4.5.5 / 2018-10-17
+==================
+
+  * PPI-581 Fix DB upgrade script for table prefixes
+
+4.5.4 / 2018-10-09
+==================
+
+  * PPI-557 Fix issue with running under Magento Commerce with split DB
+  * PPI-573 Fix issue with fixed product tax
+
+4.5.3 / 2018-09-27
+==================
+
+  * PI-471 Fix customer VAT calculation on shipping
+  * PI-473 Add shipping line to API even when shipping costs are 0
+  * PI-488 Add index to klarna_core_order table for is_acknowledged
+  * PPI-557 Fix checkout doesn't work after enabling Klarna
+  * PPI-561 Fix composer requirements after 2.3.0 change
+
 4.5.2 / 2018-08-31
 ==================
 

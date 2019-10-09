@@ -2,6 +2,32 @@
 
 All notable changes to this project will be documented in this file, in reverse chronological order by release.
 
+## 2.9.2 - 2019-08-19
+
+### Added
+
+- Nothing.
+
+### Changed
+
+- Nothing.
+
+### Deprecated
+
+- Nothing.
+
+### Removed
+
+- Nothing.
+
+### Fixed
+
+- [#89](https://github.com/zendframework/zend-filter/pull/89) fixes infinite
+  loop on malformed HTML comments in StripTags filter.
+
+- [#92](https://github.com/zendframework/zend-filter/pull/92) fixes Tar adapter
+  to not require `archive` in options when decompressing.
+
 ## 2.9.1 - 2018-12-17
 
 ### Added

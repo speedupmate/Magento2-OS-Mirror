@@ -12,18 +12,22 @@ use Magento\Framework\Message\ManagerInterface;
 use Magento\Sales\Model\Order;
 use Magento\Sales\Model\Order\Creditmemo;
 use Magento\Store\Model\ScopeInterface;
-use Magento\Store\Model\Store;
 use Vertex\Tax\Model\Api\Data\InvoiceRequestBuilder;
 use Vertex\Tax\Model\Config;
 use Vertex\Tax\Model\ConfigurationValidator;
 use Vertex\Tax\Model\CountryGuard;
+use Vertex\Tax\Model\OrderHasInvoiceDeterminer;
 use Vertex\Tax\Model\TaxInvoice;
+use Vertex\Tax\Model\VertexTaxAttributeManager;
 
 /**
  * Observes when a Creditmemo is issued to fire off data to the Vertex Tax Log
  */
 class CreditMemoObserver implements ObserverInterface
 {
+    /** @var VertexTaxAttributeManager */
+    private $attributeManager;
+
     /** @var Config */
     private $config;
 
@@ -35,6 +39,9 @@ class CreditMemoObserver implements ObserverInterface
 
     /** @var GiftwrapExtensionLoader */
     private $extensionLoader;
+
+    /** @var OrderHasInvoiceDeterminer */
+    private $hasInvoiceDeterminer;
 
     /** @var InvoiceRequestBuilder */
     private $invoiceRequestBuilder;
@@ -53,6 +60,8 @@ class CreditMemoObserver implements ObserverInterface
      * @param ConfigurationValidator $configValidator
      * @param InvoiceRequestBuilder $invoiceRequestBuilder
      * @param GiftwrapExtensionLoader $extensionLoader
+     * @param VertexTaxAttributeManager $attributeManager
+     * @param OrderHasInvoiceDeterminer $hasInvoiceDeterminer
      */
     public function __construct(
         Config $config,
@@ -61,7 +70,9 @@ class CreditMemoObserver implements ObserverInterface
         ManagerInterface $messageManager,
         ConfigurationValidator $configValidator,
         InvoiceRequestBuilder $invoiceRequestBuilder,
-        GiftwrapExtensionLoader $extensionLoader
+        GiftwrapExtensionLoader $extensionLoader,
+        VertexTaxAttributeManager $attributeManager,
+        OrderHasInvoiceDeterminer $hasInvoiceDeterminer
     ) {
         $this->config = $config;
         $this->countryGuard = $countryGuard;
@@ -70,6 +81,8 @@ class CreditMemoObserver implements ObserverInterface
         $this->configValidator = $configValidator;
         $this->invoiceRequestBuilder = $invoiceRequestBuilder;
         $this->extensionLoader = $extensionLoader;
+        $this->hasInvoiceDeterminer = $hasInvoiceDeterminer;
+        $this->attributeManager = $attributeManager;
     }
 
     /**
@@ -82,30 +95,37 @@ class CreditMemoObserver implements ObserverInterface
     {
         /** @var Creditmemo $creditMemo */
         $creditMemo = $observer->getEvent()->getCreditmemo();
-        $this->extensionLoader->loadOnCreditmemo($creditMemo);
+        if (!$this->config->isVertexActive($creditMemo->getStoreId())) {
+            return;
+        }
 
         /** @var Order $order */
         $order = $creditMemo->getOrder();
 
-        /** @var Store $store */
-        $store = $order->getStore();
-
-        /** @var boolean $isActive */
-        $isActive = $this->config->isVertexActive($store);
-
-        /** @var boolean $canService */
-        $canService = $this->countryGuard->isOrderServiceableByVertex($order);
-
-        /** @var boolean $configValid */
-        $configValid = $this->configValidator->execute(ScopeInterface::SCOPE_STORE, $creditMemo->getStoreId(), true)
-            ->isValid();
-
-        if ($isActive && $canService && $configValid) {
+        if ($this->canSend($creditMemo, $order) && $this->hasInvoiceDeterminer->hasInvoice($order->getId())) {
+            $creditMemo = $this->extensionLoader->loadOnCreditmemo($creditMemo);
             $request = $this->invoiceRequestBuilder->buildFromCreditmemo($creditMemo);
+            $response = $this->taxInvoice->sendRefundRequest($request, $order);
 
-            if ($this->taxInvoice->sendRefundRequest($request, $order)) {
+            if ($response) {
+                $this->attributeManager->saveAllVertexAttributes($response->getLineItems());
                 $this->messageManager->addSuccessMessage(__('The Vertex invoice has been refunded.')->render());
             }
         }
+    }
+
+    /**
+     * Verify if creditmemo can be sent
+     *
+     * @param Creditmemo $creditMemo
+     * @param Order $order
+     * @return bool
+     */
+    private function canSend(Creditmemo $creditMemo, Order $order)
+    {
+        return $this->countryGuard->isOrderServiceableByVertex($order)
+            && $this->configValidator
+                ->execute(ScopeInterface::SCOPE_STORE, $creditMemo->getStoreId(), true)
+                ->isValid();
     }
 }

@@ -6,9 +6,13 @@ use Magento\Catalog\Api\Data\ProductInterface;
 use Magento\Catalog\Api\ProductRepositoryInterface;
 use Magento\Framework\Api\SearchCriteriaBuilder;
 use Magento\Framework\Api\SearchCriteriaBuilderFactory;
+use Magento\Framework\Stdlib\StringUtils;
 use Magento\Sales\Api\Data\OrderInterface;
+use Vertex\Data\LineItemInterface;
 use Vertex\Data\LineItemInterfaceFactory;
 use Vertex\Services\Invoice\RequestInterface;
+use Vertex\Tax\Model\Api\Utility\MapperFactoryProxy;
+use Vertex\Tax\Model\Api\Data\FlexFieldBuilder;
 use Vertex\Tax\Model\Repository\TaxClassNameRepository;
 
 /**
@@ -28,22 +32,40 @@ class OrderItemProcessor implements OrderProcessorInterface
     /** @var ProductRepositoryInterface */
     private $productRepository;
 
+    /** @var StringUtils */
+    private $stringUtilities;
+
+    /** @var MapperFactoryProxy */
+    private $mapperFactory;
+
+    /** @var FlexFieldBuilder */
+    private $flexFieldBuilder;
+
     /**
      * @param LineItemInterfaceFactory $lineItemFactory
      * @param ProductRepositoryInterface $productRepository
      * @param SearchCriteriaBuilderFactory $criteriaBuilderFactory
      * @param TaxClassNameRepository $classNameRepository
+     * @param StringUtils $stringUtils
+     * @param MapperFactoryProxy $mapperFactory
+     * @param FlexFieldBuilder $flexFieldBuilder
      */
     public function __construct(
         LineItemInterfaceFactory $lineItemFactory,
         ProductRepositoryInterface $productRepository,
         SearchCriteriaBuilderFactory $criteriaBuilderFactory,
-        TaxClassNameRepository $classNameRepository
+        TaxClassNameRepository $classNameRepository,
+        StringUtils $stringUtils,
+        MapperFactoryProxy $mapperFactory,
+        FlexFieldBuilder $flexFieldBuilder
     ) {
         $this->lineItemFactory = $lineItemFactory;
         $this->productRepository = $productRepository;
         $this->criteriaBuilderFactory = $criteriaBuilderFactory;
         $this->classNameRepository = $classNameRepository;
+        $this->stringUtilities = $stringUtils;
+        $this->mapperFactory = $mapperFactory;
+        $this->flexFieldBuilder = $flexFieldBuilder;
     }
 
     /**
@@ -57,6 +79,11 @@ class OrderItemProcessor implements OrderProcessorInterface
         $productIds = [];
         /** @var int[] $taxClasses Key is OrderItem ID, Value is Tax Class ID */
         $taxClasses = [];
+
+        /** @var int|null $storeId */
+        $storeId = $order->getStoreId();
+
+        $lineItemMapper = $this->mapperFactory->getForClass(LineItemInterface::class, $storeId);
 
         foreach ($order->getItems() as $item) {
             if ($item->getBaseRowTotal() === null) {
@@ -91,12 +118,15 @@ class OrderItemProcessor implements OrderProcessorInterface
             $taxClasses[$item->getItemId()] = $taxClassId;
 
             $lineItem = $this->lineItemFactory->create();
-            $lineItem->setProductCode($item->getSku());
+            $lineItem->setProductCode(
+                $this->stringUtilities->substr($item->getSku(), 0, $lineItemMapper->getProductCodeMaxLength())
+            );
             $lineItem->setQuantity($item->getQtyOrdered());
             $lineItem->setUnitPrice($unitPrice);
             $lineItem->setExtendedPrice($extendedPrice);
             $lineItem->setLineItemId($item->getItemId());
 
+            $lineItem->setFlexibleFields($this->flexFieldBuilder->buildAllFromOrderItem($item, $storeId));
             $lineItems[] = $lineItem;
         }
 
@@ -107,7 +137,9 @@ class OrderItemProcessor implements OrderProcessorInterface
             $lineItemId = $lineItem->getLineItemId();
             $taxClass = $taxClasses[$lineItemId];
             $taxClassName = $taxClassNames[$taxClass];
-            $lineItem->setProductClass($taxClassName);
+            $lineItem->setProductClass(
+                $this->stringUtilities->substr($taxClassName, 0, $lineItemMapper->getProductTaxClassNameMaxLength())
+            );
         }
 
         $request->setLineItems(array_merge($request->getLineItems(), $lineItems));

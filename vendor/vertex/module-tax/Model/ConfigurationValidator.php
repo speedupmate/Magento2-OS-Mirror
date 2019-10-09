@@ -12,6 +12,7 @@ use Vertex\Services\TaxAreaLookup\RequestInterface;
 use Vertex\Services\TaxAreaLookup\RequestInterfaceFactory;
 use Vertex\Tax\Api\QuoteInterface;
 use Vertex\Tax\Api\TaxAreaLookupInterface;
+use Vertex\Tax\Model\Api\Data\AddressBuilder;
 use Vertex\Tax\Model\ConfigurationValidator\Result;
 use Vertex\Tax\Model\ConfigurationValidator\ResultFactory;
 use Vertex\Tax\Model\ConfigurationValidator\ValidSampleRequestBuilder;
@@ -21,7 +22,7 @@ use Vertex\Tax\Model\ConfigurationValidator\ValidSampleRequestBuilder;
  */
 class ConfigurationValidator
 {
-    /** @var \Vertex\Tax\Model\Api\Data\AddressBuilder */
+    /** @var AddressBuilder */
     private $addressBuilder;
 
     /** @var Config */
@@ -44,7 +45,7 @@ class ConfigurationValidator
 
     /**
      * @param Config $config
-     * @param \Vertex\Tax\Model\Api\Data\AddressBuilder $addressBuilder
+     * @param AddressBuilder $addressBuilder
      * @param ValidSampleRequestBuilder $sampleRequestFactory
      * @param ResultFactory $resultFactory
      * @param QuoteInterface $quote
@@ -76,6 +77,7 @@ class ConfigurationValidator
      * @param string|int $scopeCode
      * @param bool $withoutCallValidation Skip validation that calls Vertex APIs
      * @return Result
+     * @throws ConfigurationException
      */
     public function execute($scopeType, $scopeCode, $withoutCallValidation = false)
     {
@@ -156,32 +158,35 @@ class ConfigurationValidator
      * @param string $scopeType
      * @param string|int $scopeCode
      * @return Result
+     * @throws ConfigurationException
      */
     private function validateAddressLookup(Result $result, $scopeType, $scopeCode)
     {
+        $result->setValid(false);
         $street = [
             $this->config->getCompanyStreet1($scopeCode, $scopeType),
             $this->config->getCompanyStreet2($scopeCode, $scopeType)
         ];
-        $address = $this->addressBuilder->setStreet($street)
-            ->setCity($this->config->getCompanyCity($scopeCode, $scopeType))
-            ->setRegionId($this->config->getCompanyRegionId($scopeCode, $scopeType))
-            ->setPostalCode($this->config->getCompanyPostalCode($scopeCode, $scopeType))
-            ->setCountryCode($this->config->getCompanyCountry($scopeCode, $scopeType))
-            ->build();
-
-        if ($address->getCountry() !== 'USA') {
-            // skip validation for non-US countries
-            $result->setValid(true);
-            return $result;
-        }
-
-        /** @var RequestInterface $request */
-        $request = $this->lookupRequestFactory->create();
-        $request->setPostalAddress($address);
-
-        $result->setValid(false);
         try {
+            $address = $this->addressBuilder
+                ->setScopeCode($scopeCode)
+                ->setStreet($street)
+                ->setCity($this->config->getCompanyCity($scopeCode, $scopeType))
+                ->setRegionId($this->config->getCompanyRegionId($scopeCode, $scopeType))
+                ->setPostalCode($this->config->getCompanyPostalCode($scopeCode, $scopeType))
+                ->setCountryCode($this->config->getCompanyCountry($scopeCode, $scopeType))
+                ->build();
+
+            if ($address->getCountry() !== 'USA') {
+                // skip validation for non-US countries
+                $result->setValid(true);
+                return $result;
+            }
+
+            /** @var RequestInterface $request */
+            $request = $this->lookupRequestFactory->create();
+            $request->setPostalAddress($address);
+
             $this->taxAreaLookup->lookup($request, $scopeCode, $scopeType);
             $result->setValid(true);
         } catch (ConfigurationException $e) {
@@ -205,14 +210,13 @@ class ConfigurationValidator
      */
     private function validateCalculationService(Result $result, $scopeType, $scopeCode)
     {
-        $request = $this->sampleRequestFactory
-            ->setScopeType($scopeType)
-            ->setScopeCode($scopeCode)
-            ->build();
-
         $result->setValid(false);
-
         try {
+            $request = $this->sampleRequestFactory
+                ->setScopeType($scopeType)
+                ->setScopeCode($scopeCode)
+                ->build();
+
             $this->quote->request($request, $scopeCode, $scopeType);
             $result->setValid(true);
         } catch (ConfigurationException $e) {

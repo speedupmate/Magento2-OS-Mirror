@@ -27,10 +27,15 @@ class NativeFileSessionHandlerTest extends TestCase
 {
     public function testConstruct()
     {
-        $storage = new NativeSessionStorage(['name' => 'TESTING'], new NativeFileSessionHandler(sys_get_temp_dir()));
+        $storage = new NativeSessionStorage(array('name' => 'TESTING'), new NativeFileSessionHandler(sys_get_temp_dir()));
 
-        $this->assertEquals('files', $storage->getSaveHandler()->getSaveHandlerName());
-        $this->assertEquals('user', ini_get('session.save_handler'));
+        if (\PHP_VERSION_ID < 50400) {
+            $this->assertEquals('files', $storage->getSaveHandler()->getSaveHandlerName());
+            $this->assertEquals('files', ini_get('session.save_handler'));
+        } else {
+            $this->assertEquals('files', $storage->getSaveHandler()->getSaveHandlerName());
+            $this->assertEquals('user', ini_get('session.save_handler'));
+        }
 
         $this->assertEquals(sys_get_temp_dir(), ini_get('session.save_path'));
         $this->assertEquals('TESTING', ini_get('session.name'));
@@ -52,11 +57,11 @@ class NativeFileSessionHandlerTest extends TestCase
     {
         $base = sys_get_temp_dir();
 
-        return [
-            ["$base/foo", "$base/foo", "$base/foo"],
-            ["5;$base/foo", "5;$base/foo", "$base/foo"],
-            ["5;0600;$base/foo", "5;0600;$base/foo", "$base/foo"],
-        ];
+        return array(
+            array("$base/foo", "$base/foo", "$base/foo"),
+            array("5;$base/foo", "5;$base/foo", "$base/foo"),
+            array("5;0600;$base/foo", "5;0600;$base/foo", "$base/foo"),
+        );
     }
 
     /**
@@ -70,7 +75,7 @@ class NativeFileSessionHandlerTest extends TestCase
     public function testConstructDefault()
     {
         $path = ini_get('session.save_path');
-        $storage = new NativeSessionStorage(['name' => 'TESTING'], new NativeFileSessionHandler());
+        $storage = new NativeSessionStorage(array('name' => 'TESTING'), new NativeFileSessionHandler());
 
         $this->assertEquals($path, ini_get('session.save_path'));
     }

@@ -18,7 +18,6 @@ use Magento\Framework\App\Action\Action;
 use Magento\Framework\App\Action\Context;
 use Magento\Framework\Controller\Result\JsonFactory;
 use Magento\Framework\DataObjectFactory;
-use Magento\Framework\Webapi\Exception as WebException;
 use Magento\Sales\Model\Order;
 use Magento\Sales\Model\Order\Payment;
 use Magento\Sales\Model\OrderRepository as MageOrderRepository;
@@ -116,11 +115,14 @@ class Notification extends Action
 
             /** @var \Klarna\Core\Model\Order $klarnaOrder */
             $klarnaOrder = $this->orderRepository->getByKlarnaOrderId($checkoutId);
+            if (!$klarnaOrder->getId()) {
+                throw new KlarnaException(__('Klarna order not found'));
+            }
+
             /** @var Order $order */
             $order = $this->mageOrderRepository->get($klarnaOrder->getOrderId());
-
             if (!$order->getId()) {
-                throw new KlarnaException(__('Order not found'));
+                throw new KlarnaException(__('Magento order not found'));
             }
 
             /** @var Payment $payment */
@@ -129,7 +131,7 @@ class Notification extends Action
             switch ($notification->getEventType()) {
                 case Ordermanagement::ORDER_NOTIFICATION_FRAUD_STOPPED:
                     // Intentionally fall through as logic is the same
-                    $order->addStatusHistoryComment(__('Suspected Fraud: DO NOT SHIP. If already shipped, 
+                    $order->addCommentToStatusHistory(__('Suspected Fraud: DO NOT SHIP. If already shipped,
                     please attempt to stop the carrier from delivering.'));
                     $payment->setNotificationResult(true);
                     $payment->setIsFraudDetected(true);
@@ -179,7 +181,7 @@ class Notification extends Action
         }
 
         if (Order::STATE_PROCESSING === $order->getState()) {
-            $order->addStatusHistoryComment(__('Order processed by Klarna.'), $status);
+            $order->addCommentToStatusHistory(__('Order processed by Klarna.'), $status);
         }
     }
 }

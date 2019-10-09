@@ -154,13 +154,13 @@ abstract class AbstractCommand extends DataObject implements CommandInterface
      */
     public function getFullErrorMessage($response, $errorMessage, $type)
     {
-        $apiMessage = implode($response->getErrorMessages(), '<br/>');
+        $apiMessage = implode($response->getErrorMessages(), ',');
         if (!empty($apiMessage)) {
             $errorMessage = __(
                 '%1 Klarna %2 api error messages: %3',
-                "$errorMessage<br/><br/>",
+                $errorMessage,
                 $type,
-                '<br/><i>' . $apiMessage . '</i>'
+                $apiMessage
             );
         }
 

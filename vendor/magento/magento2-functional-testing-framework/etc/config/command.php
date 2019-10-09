@@ -12,13 +12,8 @@ if (!empty($_POST['token']) && !empty($_POST['command'])) {
     $tokenModel = $magentoObjectManager->get(\Magento\Integration\Model\Oauth\Token::class);
 
     $tokenPassedIn = urldecode($_POST['token']);
-    $command = urldecode($_POST['command']);
-
-    if (!empty($_POST['arguments'])) {
-        $arguments = urldecode($_POST['arguments']);
-    } else {
-        $arguments = null;
-    }
+    $command = str_replace([';', '&', '|'], '', urldecode($_POST['command']));
+    $arguments = str_replace([';', '&', '|'], '', urldecode($_POST['arguments']));
 
     // Token returned will be null if the token we passed in is invalid
     $tokenFromMagento = $tokenModel->loadByToken($tokenPassedIn)->getToken();
@@ -27,17 +22,32 @@ if (!empty($_POST['token']) && !empty($_POST['command'])) {
         $magentoBinary = $php . ' -f ../../../../bin/magento';
         $valid = validateCommand($magentoBinary, $command);
         if ($valid) {
-            exec(
-                escapeCommand($magentoBinary . " $command" . " $arguments") . " 2>&1",
-                $output,
-                $exitCode
-            );
-            if ($exitCode == 0) {
+            $process = new Symfony\Component\Process\Process($magentoBinary . " $command" . " $arguments");
+            $process->setIdleTimeout(60);
+            $process->setTimeout(0);
+            $idleTimeout = false;
+            try {
+                $process->run();
+                $output = $process->getOutput();
+                if (!$process->isSuccessful()) {
+                    $output = $process->getErrorOutput();
+                }
+                if (empty($output)) {
+                    $output = "CLI did not return output.";
+                }
+
+            } catch (Symfony\Component\Process\Exception\ProcessTimedOutException $exception) {
+                $output = "CLI command timed out, no output available.";
+                $idleTimeout = true;
+            }
+            $exitCode = $process->getExitCode();
+
+            if ($exitCode == 0 || $idleTimeout) {
                 http_response_code(202);
             } else {
                 http_response_code(500);
             }
-            echo implode("\n", $output);
+            echo $output;
         } else {
             http_response_code(403);
             echo "Given command not found valid in Magento CLI Command list.";

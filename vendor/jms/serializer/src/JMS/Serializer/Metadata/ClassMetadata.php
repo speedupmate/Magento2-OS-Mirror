@@ -1,11 +1,27 @@
 <?php
 
+/*
+ * Copyright 2013 Johannes M. Schmitt <schmittjoh@gmail.com>
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *     http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
+
 namespace JMS\Serializer\Metadata;
 
 use JMS\Serializer\Exception\InvalidArgumentException;
-use Metadata\MergeableClassMetadata;
 use Metadata\MergeableInterface;
 use Metadata\MethodMetadata;
+use Metadata\MergeableClassMetadata;
 use Metadata\PropertyMetadata as BasePropertyMetadata;
 
 /**
@@ -33,7 +49,6 @@ class ClassMetadata extends MergeableClassMetadata
     public $xmlNamespaces = array();
     public $accessorOrder;
     public $customOrder;
-    public $usingExpression = false;
     public $handlerCallbacks = array();
 
     public $discriminatorDisabled = false;
@@ -41,13 +56,8 @@ class ClassMetadata extends MergeableClassMetadata
     public $discriminatorFieldName;
     public $discriminatorValue;
     public $discriminatorMap = array();
-    public $discriminatorGroups = array();
 
-    public $xmlDiscriminatorAttribute = false;
-    public $xmlDiscriminatorCData = true;
-    public $xmlDiscriminatorNamespace;
-
-    public function setDiscriminator($fieldName, array $map, array $groups = array())
+    public function setDiscriminator($fieldName, array $map)
     {
         if (empty($fieldName)) {
             throw new \InvalidArgumentException('The $fieldName cannot be empty.');
@@ -60,9 +70,6 @@ class ClassMetadata extends MergeableClassMetadata
         $this->discriminatorBaseClass = $this->name;
         $this->discriminatorFieldName = $fieldName;
         $this->discriminatorMap = $map;
-        $this->discriminatorGroups = $groups;
-
-        $this->handleDiscriminatorProperty();
     }
 
     /**
@@ -81,7 +88,7 @@ class ClassMetadata extends MergeableClassMetadata
         }
 
         foreach ($customOrder as $name) {
-            if (!\is_string($name)) {
+            if (!is_string($name)) {
                 throw new InvalidArgumentException(sprintf('$customOrder is expected to be a list of strings, but got element of value %s.', json_encode($name)));
             }
         }
@@ -95,9 +102,6 @@ class ClassMetadata extends MergeableClassMetadata
     {
         parent::addPropertyMetadata($metadata);
         $this->sortProperties();
-        if ($metadata instanceof PropertyMetadata && $metadata->excludeIf) {
-            $this->usingExpression = true;
-        }
     }
 
     public function addPreSerializeMethod(MethodMetadata $method)
@@ -127,7 +131,7 @@ class ClassMetadata extends MergeableClassMetadata
 
     public function merge(MergeableInterface $object)
     {
-        if (!$object instanceof ClassMetadata) {
+        if ( ! $object instanceof ClassMetadata) {
             throw new InvalidArgumentException('$object must be an instance of ClassMetadata.');
         }
         parent::merge($object);
@@ -154,34 +158,49 @@ class ClassMetadata extends MergeableClassMetadata
                 $this->discriminatorBaseClass,
                 $this->discriminatorBaseClass
             ));
-        } elseif (!$this->discriminatorFieldName && $object->discriminatorFieldName) {
-            $this->discriminatorFieldName = $object->discriminatorFieldName;
-            $this->discriminatorMap = $object->discriminatorMap;
         }
 
-        if ($object->discriminatorDisabled !== null) {
-            $this->discriminatorDisabled = $object->discriminatorDisabled;
-        }
+        if ($this->discriminatorMap && ! $this->reflection->isAbstract()) {
+            if (false === $typeValue = array_search($this->name, $this->discriminatorMap, true)) {
+                throw new \LogicException(sprintf(
+                    'The sub-class "%s" is not listed in the discriminator of the base class "%s".',
+                    $this->name,
+                    $this->discriminatorBaseClass
+                ));
+            }
 
-        if ($object->discriminatorMap) {
-            $this->discriminatorFieldName = $object->discriminatorFieldName;
-            $this->discriminatorMap = $object->discriminatorMap;
-            $this->discriminatorBaseClass = $object->discriminatorBaseClass;
-        }
+            $this->discriminatorValue = $typeValue;
 
-        $this->handleDiscriminatorProperty();
+            if (isset($this->propertyMetadata[$this->discriminatorFieldName])
+                    && ! $this->propertyMetadata[$this->discriminatorFieldName] instanceof StaticPropertyMetadata) {
+                throw new \LogicException(sprintf(
+                    'The discriminator field name "%s" of the base-class "%s" conflicts with a regular property of the sub-class "%s".',
+                    $this->discriminatorFieldName,
+                    $this->discriminatorBaseClass,
+                    $this->name
+                ));
+            }
+
+            $discriminatorProperty = new StaticPropertyMetadata(
+                $this->name,
+                $this->discriminatorFieldName,
+                $typeValue
+            );
+            $discriminatorProperty->serializedName = $this->discriminatorFieldName;
+            $this->propertyMetadata[$this->discriminatorFieldName] = $discriminatorProperty;
+        }
 
         $this->sortProperties();
     }
 
     public function registerNamespace($uri, $prefix = null)
     {
-        if (!\is_string($uri)) {
+        if (!is_string($uri)) {
             throw new InvalidArgumentException(sprintf('$uri is expected to be a strings, but got value %s.', json_encode($uri)));
         }
 
-        if ($prefix !== null) {
-            if (!\is_string($prefix)) {
+        if ($prefix !== null ) {
+            if (!is_string($prefix)) {
                 throw new InvalidArgumentException(sprintf('$prefix is expected to be a strings, but got value %s.', json_encode($prefix)));
             }
         } else {
@@ -211,20 +230,12 @@ class ClassMetadata extends MergeableClassMetadata
             $this->discriminatorFieldName,
             $this->discriminatorValue,
             $this->discriminatorMap,
-            $this->discriminatorGroups,
             parent::serialize(),
-            'discriminatorGroups' => $this->discriminatorGroups,
-            'xmlDiscriminatorAttribute' => $this->xmlDiscriminatorAttribute,
-            'xmlDiscriminatorCData' => $this->xmlDiscriminatorCData,
-            'usingExpression' => $this->usingExpression,
-            'xmlDiscriminatorNamespace' => $this->xmlDiscriminatorNamespace,
         ));
     }
 
     public function unserialize($str)
     {
-        $unserialized = unserialize($str);
-
         list(
             $this->preSerializeMethods,
             $this->postSerializeMethods,
@@ -240,77 +251,10 @@ class ClassMetadata extends MergeableClassMetadata
             $this->discriminatorFieldName,
             $this->discriminatorValue,
             $this->discriminatorMap,
-            $this->discriminatorGroups,
             $parentStr
-            ) = $unserialized;
-
-        if (isset($unserialized['discriminatorGroups'])) {
-            $this->discriminatorGroups = $unserialized['discriminatorGroups'];
-        }
-        if (isset($unserialized['usingExpression'])) {
-            $this->usingExpression = $unserialized['usingExpression'];
-        }
-
-        if (isset($unserialized['xmlDiscriminatorAttribute'])) {
-            $this->xmlDiscriminatorAttribute = $unserialized['xmlDiscriminatorAttribute'];
-        }
-
-        if (isset($unserialized['xmlDiscriminatorNamespace'])) {
-            $this->xmlDiscriminatorNamespace = $unserialized['xmlDiscriminatorNamespace'];
-        }
-
-        if (isset($unserialized['xmlDiscriminatorCData'])) {
-            $this->xmlDiscriminatorCData = $unserialized['xmlDiscriminatorCData'];
-        }
+        ) = unserialize($str);
 
         parent::unserialize($parentStr);
-    }
-
-    private function handleDiscriminatorProperty()
-    {
-        if ($this->discriminatorMap && !$this->reflection->isAbstract() && !$this->reflection->isInterface()) {
-            if (false === $typeValue = array_search($this->name, $this->discriminatorMap, true)) {
-                if ($this->discriminatorBaseClass === $this->name) {
-                    @trigger_error(
-                        'Discriminator map was configured on non-abstract parent class but parent class'
-                        .' was not included into discriminator map. It will throw exception in next major version.'
-                        .' Either declare parent as abstract class or add it into discriminator map.',
-                        E_USER_DEPRECATED
-                    );
-                } else {
-                    throw new \LogicException(sprintf(
-                        'The sub-class "%s" is not listed in the discriminator of the base class "%s".',
-                        $this->name,
-                        $this->discriminatorBaseClass
-                    ));
-                }
-            }
-
-            $this->discriminatorValue = $typeValue;
-
-            if (isset($this->propertyMetadata[$this->discriminatorFieldName])
-                && !$this->propertyMetadata[$this->discriminatorFieldName] instanceof StaticPropertyMetadata
-            ) {
-                throw new \LogicException(sprintf(
-                    'The discriminator field name "%s" of the base-class "%s" conflicts with a regular property of the sub-class "%s".',
-                    $this->discriminatorFieldName,
-                    $this->discriminatorBaseClass,
-                    $this->name
-                ));
-            }
-
-            $discriminatorProperty = new StaticPropertyMetadata(
-                $this->name,
-                $this->discriminatorFieldName,
-                $typeValue,
-                $this->discriminatorGroups
-            );
-            $discriminatorProperty->serializedName = $this->discriminatorFieldName;
-            $discriminatorProperty->xmlAttribute = $this->xmlDiscriminatorAttribute;
-            $discriminatorProperty->xmlElementCData = $this->xmlDiscriminatorCData;
-            $discriminatorProperty->xmlNamespace = $this->xmlDiscriminatorNamespace;
-            $this->propertyMetadata[$this->discriminatorFieldName] = $discriminatorProperty;
-        }
     }
 
     private function sortProperties()
@@ -322,13 +266,12 @@ class ClassMetadata extends MergeableClassMetadata
 
             case self::ACCESSOR_ORDER_CUSTOM:
                 $order = $this->customOrder;
-                $currentSorting = $this->propertyMetadata ? array_combine(array_keys($this->propertyMetadata), range(1, \count($this->propertyMetadata))) : [];
-                uksort($this->propertyMetadata, function ($a, $b) use ($order, $currentSorting) {
+                uksort($this->propertyMetadata, function($a, $b) use ($order) {
                     $existsA = isset($order[$a]);
                     $existsB = isset($order[$b]);
 
                     if (!$existsA && !$existsB) {
-                        return $currentSorting[$a] - $currentSorting[$b];
+                        return 0;
                     }
 
                     if (!$existsA) {

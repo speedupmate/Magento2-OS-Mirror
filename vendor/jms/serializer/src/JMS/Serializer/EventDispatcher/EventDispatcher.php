@@ -1,7 +1,22 @@
 <?php
 
-namespace JMS\Serializer\EventDispatcher;
+/*
+ * Copyright 2013 Johannes M. Schmitt <schmittjoh@gmail.com>
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *     http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
 
+namespace JMS\Serializer\EventDispatcher;
 use JMS\Serializer\Exception\InvalidArgumentException;
 
 /**
@@ -19,7 +34,7 @@ class EventDispatcher implements EventDispatcherInterface
 
     public static function getDefaultMethodName($eventName)
     {
-        return 'on' . str_replace(array('_', '.'), '', $eventName);
+        return 'on'.str_replace(array('_', '.'), '', $eventName);
     }
 
     /**
@@ -42,7 +57,7 @@ class EventDispatcher implements EventDispatcherInterface
     public function addSubscriber(EventSubscriberInterface $subscriber)
     {
         foreach ($subscriber->getSubscribedEvents() as $eventData) {
-            if (!isset($eventData['event'])) {
+            if ( ! isset($eventData['event'])) {
                 throw new InvalidArgumentException(sprintf('Each event must have a "event" key.'));
             }
 
@@ -56,12 +71,12 @@ class EventDispatcher implements EventDispatcherInterface
 
     public function hasListeners($eventName, $class, $format)
     {
-        if (!isset($this->listeners[$eventName])) {
+        if ( ! isset($this->listeners[$eventName])) {
             return false;
         }
 
         $loweredClass = strtolower($class);
-        if (!isset($this->classListeners[$eventName][$loweredClass][$format])) {
+        if ( ! isset($this->classListeners[$eventName][$loweredClass][$format])) {
             $this->classListeners[$eventName][$loweredClass][$format] = $this->initializeListeners($eventName, $loweredClass, $format);
         }
 
@@ -70,22 +85,17 @@ class EventDispatcher implements EventDispatcherInterface
 
     public function dispatch($eventName, $class, $format, Event $event)
     {
-        if (!isset($this->listeners[$eventName])) {
+        if ( ! isset($this->listeners[$eventName])) {
             return;
         }
 
         $loweredClass = strtolower($class);
-        if (!isset($this->classListeners[$eventName][$loweredClass][$format])) {
+        if ( ! isset($this->classListeners[$eventName][$loweredClass][$format])) {
             $this->classListeners[$eventName][$loweredClass][$format] = $this->initializeListeners($eventName, $loweredClass, $format);
         }
 
         foreach ($this->classListeners[$eventName][$loweredClass][$format] as $listener) {
-
-            if ($event->isPropagationStopped()) {
-                break;
-            }
-
-            \call_user_func($listener, $event, $eventName, $loweredClass, $format, $this);
+            call_user_func($listener, $event);
         }
     }
 

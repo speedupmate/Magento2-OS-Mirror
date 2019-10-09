@@ -33,43 +33,63 @@ class UpgradeData implements UpgradeDataInterface
         $installer->startSetup();
 
         if (version_compare($context->getVersion(), '2.0.0', '<')) {
-            $configTable = $installer->getTable('core_config_data');
-
-            $oldKeys = [
-                'payment/klarna_kco/merchant_id',
-                'payment/klarna_kco/shared_secret',
-                'payment/klarna_kco/api_version',
-                'payment/klarna_kco/test_mode',
-                'payment/klarna_kco/debug',
-            ];
-
-            $newKeys = [
-                'klarna/api/merchant_id',
-                'klarna/api/shared_secret',
-                'klarna/api/api_version',
-                'klarna/api/test_mode',
-                'klarna/api/debug',
-            ];
-            foreach ($oldKeys as $id => $oldKey) {
-                $newKey = $newKeys[$id];
-                $installer->getConnection()->update($configTable, ['path' => $newKey], "`path`='{$oldKey}'");
-            }
-
-            $keys = '\'' . implode('\',\'', $oldKeys) . '\'';
-            $keys = str_replace('klarna_kco', 'klarna_kp', $keys);
-            $installer->getConnection()->delete($configTable, "`path` in ({$keys})");
+            $this->updateKlarnaKcoApiPathKeys($installer);
         }
         if (version_compare($context->getVersion(), '4.0.7', '<')) {
-            $configTable = $installer->getTable('core_config_data');
-            $installer->getConnection()->forUpdate(
-                "INSERT INTO ($configTable) (`scope`, `scope_id`, `path`, `value`) "
-                . "SELECT 'websites', `scope_id`, `path`, `value` FROM `($configTable)` AS `b` "
-                . "WHERE `path`='klarna/api/api_version' AND `scope`='stores' "
-                . "ON DUPLICATE KEY UPDATE `value`=`b`.`value`;"
-            );
-
-            $installer->getConnection()->delete($configTable, "`path`='klarna/api/api_version' AND `scope`='stores'");
+            $this->updateKlarnaApiVersion($installer);
         }
         $installer->endSetup();
+    }
+
+    /**
+     * Updating the klarna api version
+     *
+     * @param ModuleDataSetupInterface $installer
+     */
+    private function updateKlarnaApiVersion(ModuleDataSetupInterface $installer)
+    {
+        $configTable = $installer->getTable('core_config_data');
+        $installer->getConnection()->forUpdate(
+            "INSERT INTO ($configTable) (`scope`, `scope_id`, `path`, `value`) "
+            . "SELECT 'websites', `scope_id`, `path`, `value` FROM `($configTable)` AS `b` "
+            . "WHERE `path`='klarna/api/api_version' AND `scope`='stores' "
+            . "ON DUPLICATE KEY UPDATE `value`=`b`.`value`;"
+        );
+
+        $installer->getConnection()->delete($configTable, "`path`='klarna/api/api_version' AND `scope`='stores'");
+    }
+
+    /**
+     * Updating the klarna api path keys
+     *
+     * @param ModuleDataSetupInterface $installer
+     */
+    private function updateKlarnaKcoApiPathKeys(ModuleDataSetupInterface $installer)
+    {
+        $configTable = $installer->getTable('core_config_data');
+
+        $oldKeys = [
+            'payment/klarna_kco/merchant_id',
+            'payment/klarna_kco/shared_secret',
+            'payment/klarna_kco/api_version',
+            'payment/klarna_kco/test_mode',
+            'payment/klarna_kco/debug',
+        ];
+
+        $newKeys = [
+            'klarna/api/merchant_id',
+            'klarna/api/shared_secret',
+            'klarna/api/api_version',
+            'klarna/api/test_mode',
+            'klarna/api/debug',
+        ];
+        foreach ($oldKeys as $id => $oldKey) {
+            $newKey = $newKeys[$id];
+            $installer->getConnection()->update($configTable, ['path' => $newKey], "`path`='{$oldKey}'");
+        }
+
+        $keys = '\'' . implode('\',\'', $oldKeys) . '\'';
+        $keys = str_replace('klarna_kco', 'klarna_kp', $keys);
+        $installer->getConnection()->delete($configTable, "`path` in ({$keys})");
     }
 }

@@ -33,6 +33,30 @@ class InvoiceRequestMapper implements InvoiceRequestMapperInterface
     /**
      * @inheritDoc
      */
+    public function getLocationCodeMaxLength()
+    {
+        return $this->parentMapper->getLocationCodeMaxLength();
+    }
+
+    /**
+     * @inheritDoc
+     */
+    public function getLocationCodeMinLength()
+    {
+        return $this->parentMapper->getLocationCodeMinLength();
+    }
+
+    /**
+     * @inheritDoc
+     */
+    public function validateLocationCode($fieldValue)
+    {
+        // TODO: Implement validateLocationCode() method.
+    }
+
+    /**
+     * @inheritDoc
+     */
     public function build(\stdClass $map)
     {
         return $this->parentMapper->build($map);

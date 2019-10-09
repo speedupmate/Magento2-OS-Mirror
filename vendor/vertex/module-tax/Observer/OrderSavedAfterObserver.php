@@ -10,24 +10,29 @@ use Magento\Framework\Event\Observer;
 use Magento\Framework\Event\ObserverInterface;
 use Magento\Framework\Exception\NoSuchEntityException;
 use Magento\Framework\Message\ManagerInterface;
-use Magento\Sales\Api\OrderRepositoryInterface;
-use Magento\Sales\Model\Order;
 use Magento\Store\Model\ScopeInterface;
-use Psr\Log\LoggerInterface;
+use Vertex\Data\LineItemInterface;
+use Vertex\Services\Invoice\ResponseInterface;
 use Vertex\Tax\Model\Api\Data\InvoiceRequestBuilder;
 use Vertex\Tax\Model\Config;
 use Vertex\Tax\Model\ConfigurationValidator;
 use Vertex\Tax\Model\CountryGuard;
 use Vertex\Tax\Model\Data\OrderInvoiceStatus;
 use Vertex\Tax\Model\Data\OrderInvoiceStatusFactory;
+use Vertex\Tax\Model\ExceptionLogger;
+use Vertex\Tax\Model\GuestAfterPaymentWorkaroundService;
 use Vertex\Tax\Model\Repository\OrderInvoiceStatusRepository;
 use Vertex\Tax\Model\TaxInvoice;
+use Vertex\Tax\Model\VertexTaxAttributeManager;
 
 /**
  * Observes when an Order is saved to determine if we need to commit data to the Vertex Tax Log
  */
 class OrderSavedAfterObserver implements ObserverInterface
 {
+    /** @var VertexTaxAttributeManager */
+    private $attributeManager;
+
     /** @var Config */
     private $config;
 
@@ -37,28 +42,35 @@ class OrderSavedAfterObserver implements ObserverInterface
     /** @var CountryGuard */
     private $countryGuard;
 
-    /** @var GiftwrapExtensionLoader */
-    private $extensionLoader;
-
     /** @var OrderInvoiceStatusFactory */
     private $factory;
+
+    /** @var GiftwrapExtensionLoader */
+    private $giftwrapExtensionLoader;
 
     /** @var InvoiceRequestBuilder */
     private $invoiceRequestBuilder;
 
-    /** @var LoggerInterface */
+    /** @var ExceptionLogger */
     private $logger;
 
     /** @var ManagerInterface */
     private $messageManager;
-    /** @var OrderRepositoryInterface */
-    private $orderRepository;
 
     /** @var OrderInvoiceStatusRepository */
     private $repository;
 
+    /** @var ShippingAssignmentExtensionLoader */
+    private $shipmentExtensionLoader;
+
+    /** @var bool */
+    private $showSuccessMessage;
+
     /** @var TaxInvoice */
     private $taxInvoice;
+
+    /** @var GuestAfterPaymentWorkaroundService */
+    private $workaroundService;
 
     /**
      * @param Config $config
@@ -67,11 +79,14 @@ class OrderSavedAfterObserver implements ObserverInterface
      * @param ManagerInterface $messageManager
      * @param OrderInvoiceStatusRepository $repository
      * @param OrderInvoiceStatusFactory $factory
-     * @param LoggerInterface $logger
+     * @param ExceptionLogger $logger
      * @param ConfigurationValidator $configValidator
      * @param InvoiceRequestBuilder $invoiceRequestBuilder
-     * @param GiftwrapExtensionLoader $extensionLoader
-     * @param OrderRepositoryInterface $orderRepository
+     * @param GiftwrapExtensionLoader $giftwrapExtensionLoader
+     * @param ShippingAssignmentExtensionLoader $shipmentExtensionLoader
+     * @param VertexTaxAttributeManager $attributeManager
+     * @param GuestAfterPaymentWorkaroundService $workaroundService
+     * @param bool $showSuccessMessage
      */
     public function __construct(
         Config $config,
@@ -80,11 +95,14 @@ class OrderSavedAfterObserver implements ObserverInterface
         ManagerInterface $messageManager,
         OrderInvoiceStatusRepository $repository,
         OrderInvoiceStatusFactory $factory,
-        LoggerInterface $logger,
+        ExceptionLogger $logger,
         ConfigurationValidator $configValidator,
         InvoiceRequestBuilder $invoiceRequestBuilder,
-        GiftwrapExtensionLoader $extensionLoader,
-        OrderRepositoryInterface $orderRepository
+        GiftwrapExtensionLoader $giftwrapExtensionLoader,
+        ShippingAssignmentExtensionLoader $shipmentExtensionLoader,
+        VertexTaxAttributeManager $attributeManager,
+        GuestAfterPaymentWorkaroundService $workaroundService,
+        $showSuccessMessage = false
     ) {
         $this->config = $config;
         $this->countryGuard = $countryGuard;
@@ -95,8 +113,11 @@ class OrderSavedAfterObserver implements ObserverInterface
         $this->logger = $logger;
         $this->configValidator = $configValidator;
         $this->invoiceRequestBuilder = $invoiceRequestBuilder;
-        $this->extensionLoader = $extensionLoader;
-        $this->orderRepository = $orderRepository;
+        $this->giftwrapExtensionLoader = $giftwrapExtensionLoader;
+        $this->shipmentExtensionLoader = $shipmentExtensionLoader;
+        $this->attributeManager = $attributeManager;
+        $this->showSuccessMessage = $showSuccessMessage;
+        $this->workaroundService = $workaroundService;
     }
 
     /**
@@ -106,19 +127,19 @@ class OrderSavedAfterObserver implements ObserverInterface
      * will commit it's data to the Vertex Tax Log
      *
      * @param Observer $observer
-     * @return $this
+     * @return void
      */
     public function execute(Observer $observer)
     {
+        $this->workaroundService->clearOrders();
+
         /** @var \Magento\Sales\Model\Order $order */
         $order = $observer->getEvent()->getOrder();
-
-        /** @var boolean $isActive */
-        $isActive = $this->config->isVertexActive($order->getStore());
-
-        if ($this->hasInvoice($order->getId())) {
-            // Exit out early if an Invoice has already be lodged for this Order as a whole
-            return $this;
+        if (!$this->config->isVertexActive($order->getStoreId())
+            || $this->hasInvoice($order->getId())
+            || !$this->config->isTaxCalculationEnabled($order->getStoreId())
+        ) {
+            return;
         }
 
         /** @var boolean $requestByOrder */
@@ -131,20 +152,34 @@ class OrderSavedAfterObserver implements ObserverInterface
         $configValid = $this->configValidator->execute(ScopeInterface::SCOPE_STORE, $order->getStoreId(), true)
             ->isValid();
 
-        if ($isActive && $requestByOrder && $canService && $configValid) {
-            $extensionAttributes = $order->getExtensionAttributes();
-            if ($extensionAttributes === null || !$extensionAttributes->getShippingAssignments()) {
-                $this->loadShippingAssignments($order);
+        if ($requestByOrder && $canService && $configValid) {
+            // We perform a cloning operation here to prevent tampering with the original order during placement
+            $order = clone $order;
+            if ($order->getExtensionAttributes()) {
+                $order->setExtensionAttributes(clone $order->getExtensionAttributes());
             }
-            $this->extensionLoader->loadOnOrder($order);
-            $request = $this->invoiceRequestBuilder->buildFromOrder($order);
-            if ($this->taxInvoice->sendInvoiceRequest($request, $order)) {
-                $this->messageManager->addSuccessMessage(__('The Vertex invoice has been sent.')->render());
-                $this->setHasInvoice($order->getId());
-            }
-        }
 
-        return $this;
+            $order = $this->shipmentExtensionLoader->loadOnOrder($order);
+            $order = $this->giftwrapExtensionLoader->loadOnOrder($order);
+            $request = $this->invoiceRequestBuilder->buildFromOrder($order);
+
+            /** @var ResponseInterface */
+            $response = $this->taxInvoice->sendInvoiceRequest($request, $order);
+
+            $this->processResponse($response, $order->getId());
+        }
+    }
+
+    /**
+     * Notify administrator that the invoice has been committed to the tax log
+     *
+     * @return void
+     */
+    private function addSuccessMessage()
+    {
+        if ($this->showSuccessMessage) {
+            $this->messageManager->addSuccessMessage(__('The Vertex invoice has been sent.')->render());
+        }
     }
 
     /**
@@ -164,23 +199,21 @@ class OrderSavedAfterObserver implements ObserverInterface
     }
 
     /**
-     * Load shipping assignments through Magento
+     * Process vertex response
      *
-     * None of the builders are public API, so this is the route we have to take to make Magento load the shipping
-     * assignments into the extension attributes if it is not already.
-     *
-     * @param Order $order
+     * @param ResponseInterface|null $response
+     * @param int $orderId
      * @return void
      */
-    private function loadShippingAssignments(Order $order)
+    private function processResponse($response, $orderId)
     {
-        $loadedOrder = $this->orderRepository->get($order->getEntityId());
-        if ($order->getExtensionAttributes() === null) {
-            $order->setExtensionAttributes($loadedOrder->getExtensionAttributes());
-        } elseif ($loadedOrder->getExtensionAttributes() !== null) {
-            $order->getExtensionAttributes()->setShippingAssignments(
-                $loadedOrder->getExtensionAttributes()->getShippingAssignments()
-            );
+        if ($response) {
+            /** @var LineItemInterface[] $items */
+            if ($items = $response->getLineItems()) {
+                $this->attributeManager->saveAllVertexAttributes($items);
+            }
+            $this->addSuccessMessage();
+            $this->setHasInvoice($orderId);
         }
     }
 
@@ -217,7 +250,7 @@ class OrderSavedAfterObserver implements ObserverInterface
         try {
             $this->repository->save($orderInvoiceStatus);
         } catch (\Exception $exception) {
-            $this->logger->critical($exception->getMessage() . PHP_EOL . $exception->getTraceAsString());
+            $this->logger->critical($exception);
         }
     }
 }

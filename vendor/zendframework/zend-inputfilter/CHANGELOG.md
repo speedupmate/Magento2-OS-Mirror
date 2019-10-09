@@ -2,6 +2,38 @@
 
 All notable changes to this project will be documented in this file, in reverse chronological order by release.
 
+## 2.10.1 - 2019-08-28
+
+### Added
+
+- Nothing.
+
+### Changed
+
+- Nothing.
+
+### Deprecated
+
+- Nothing.
+
+### Removed
+
+- Nothing.
+
+### Fixed
+
+- [#185](https://github.com/zendframework/zend-inputfilter/pull/185) fixes
+  validation response on invalid file upload request.
+
+- [#181](https://github.com/zendframework/zend-inputfilter/pull/181) fixes
+  missing abstract service factory registration in `Module` as per the
+  [latest documentation](https://docs.zendframework.com/zend-inputfilter/specs/#setup).
+  In particular, it ensures that the `InputFilterAbstractFactory` is registered
+  under the `input_filters` configuration.
+
+- [#180](https://github.com/zendframework/zend-inputfilter/pull/180) fixes
+  attaching validators on creation of InputFilter - `priority` value is now used.
+
 ## 2.10.0 - 2019-01-30
 
 ### Added

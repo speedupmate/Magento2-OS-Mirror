@@ -1,0 +1,20 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!--
+ /**
+  * @copyright  Vertex. All rights reserved.  https://www.vertexinc.com/
+  * @author     Mediotype                     https://www.mediotype.com/
+  */
+-->
+<actionGroups xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+              xsi:noNamespaceSchemaLocation="urn:magento:mftf:Test/etc/actionGroupSchema.xsd">
+    <actionGroup name="goToCreditMemoFromOrder">
+        <click selector="{{AdminOrderDetailsMainActionsSection.creditMemo}}" stepKey="clickCreditMemoAction"/>
+        <seeInCurrentUrl url="{{AdminCreditMemoNewPage.url}}" stepKey="seeCreditMemoUrl"/>
+        <see selector="{{AdminHeaderSection.pageTitle}}" userInput="New Memo" stepKey="seePageNameNewCreditMemoPage"/>
+    </actionGroup>
+    <actionGroup name="submitCreditMemoIntoOrder">
+        <click selector="{{AdminCreditMemoMainActionsSection.submitCreditMemo}}" stepKey="clickSubmitCreditMemo"/>
+        <seeInCurrentUrl url="sales/order/view/order_id/" stepKey="seeViewOrderPageCreditMemo"/>
+        <see selector="{{AdminOrderDetailsMessagesSection.successMessage}}" userInput="You created the credit memo." stepKey="seeCreditMemoCreateSuccess" />
+    </actionGroup>
+</actionGroups>

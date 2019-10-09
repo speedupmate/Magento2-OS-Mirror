@@ -10,8 +10,11 @@ use Magento\Directory\Api\CountryInformationAcquirerInterface;
 use Magento\Directory\Api\Data\CountryInformationInterface;
 use Magento\Directory\Api\Data\CountryInformationInterfaceFactory;
 use Magento\Framework\Exception\NoSuchEntityException;
+use Magento\Framework\Stdlib\StringUtils;
 use Vertex\Data\AddressInterface;
 use Vertex\Data\AddressInterfaceFactory;
+use Vertex\Exception\ConfigurationException;
+use Vertex\Tax\Model\Api\Utility\MapperFactoryProxy;
 use Vertex\Tax\Model\ZipCodeFixer;
 
 /**
@@ -40,57 +43,88 @@ class AddressBuilder
     /** @var string */
     private $regionId;
 
+    /** @var string */
+    private $region;
+
     /** @var string[] */
     private $street;
 
     /** @var ZipCodeFixer */
     private $zipCodeFixer;
 
+    /** @var StringUtils */
+    private $stringUtilities;
+
+    /** @var MapperFactoryProxy */
+    private $mapperFactory;
+
+    /** @var string */
+    private $scopeCode;
+
     /**
      * @param CountryInformationAcquirerInterface $countryInformationAcquirer
      * @param CountryInformationInterfaceFactory $countryInformationFactory
      * @param ZipCodeFixer $zipCodeFixer
      * @param AddressInterfaceFactory $addressFactory
+     * @param StringUtils $stringUtils
+     * @param MapperFactoryProxy $mapperFactory
      */
     public function __construct(
         CountryInformationAcquirerInterface $countryInformationAcquirer,
         CountryInformationInterfaceFactory $countryInformationFactory,
         ZipCodeFixer $zipCodeFixer,
-        AddressInterfaceFactory $addressFactory
+        AddressInterfaceFactory $addressFactory,
+        StringUtils $stringUtils,
+        MapperFactoryProxy $mapperFactory
     ) {
         $this->countryInformationAcquirer = $countryInformationAcquirer;
         $this->countryInformationFactory = $countryInformationFactory;
         $this->zipCodeFixer = $zipCodeFixer;
         $this->addressFactory = $addressFactory;
+        $this->stringUtilities = $stringUtils;
+        $this->mapperFactory = $mapperFactory;
     }
 
     /**
      * Build an {@see AddressInterface}
      *
      * @return AddressInterface
+     * @throws ConfigurationException
      */
     public function build()
     {
         $country = $this->getCountryInformation($this->countryCode);
-        $companyState = $this->getRegionCodeByCountryAndId($country, $this->regionId);
+        $companyState = $this->region ?: $this->getRegionCodeByCountryAndId($country, $this->regionId);
         $countryName = $country->getThreeLetterAbbreviation();
+        $addressMapper = $this->mapperFactory->getForClass(AddressInterface::class, $this->scopeCode);
 
         /** @var AddressInterface $address */
         $address = $this->addressFactory->create();
+
         if (!empty($this->street)) {
+            foreach ($this->street as $key => $streetLine) {
+                $street = $this->stringUtilities->substr($streetLine, 0, $addressMapper->getStreetAddressMaxLength());
+                $this->street[$key] = $street;
+            }
+
             $address->setStreetAddress($this->street);
         }
         if (!empty($this->city)) {
-            $address->setCity($this->city);
+            $city = $this->stringUtilities->substr($this->city, 0, $addressMapper->getCityMaxLength());
+            $address->setCity($city);
         }
         if ($companyState !== null) {
-            $address->setMainDivision($companyState);
+            $mainDivision = $this->stringUtilities->substr($companyState, 0, $addressMapper->getMainDivisionMaxLength());
+            $address->setMainDivision($mainDivision);
         }
         if (!empty($this->postalCode)) {
-            $address->setPostalCode($this->zipCodeFixer->fix($this->postalCode));
+            $postal = $this->zipCodeFixer->fix($this->postalCode);
+            $postalCode = $this->stringUtilities->substr($postal, 0, $addressMapper->getPostalCodeMaxLength());
+            $address->setPostalCode($postalCode);
         }
         if (!empty($countryName)) {
-            $address->setCountry($countryName);
+            $country = $this->stringUtilities->substr($countryName, 0, $addressMapper->getCountryMaxLength());
+            $address->setCountry($country);
         }
 
         return $address;
@@ -133,6 +167,18 @@ class AddressBuilder
     }
 
     /**
+     * Set the Region string
+     *
+     * @param string $region
+     * @return AddressBuilder
+     */
+    public function setRegion($region)
+    {
+        $this->region = $region;
+        return $this;
+    }
+
+    /**
      * Set the Region ID
      *
      * @param string $regionId
@@ -141,6 +187,18 @@ class AddressBuilder
     public function setRegionId($regionId)
     {
         $this->regionId = $regionId;
+        return $this;
+    }
+
+    /**
+     * Set the Scope Code
+     *
+     * @param string|null $scopeCode
+     * @return AddressBuilder
+     */
+    public function setScopeCode($scopeCode)
+    {
+        $this->scopeCode = $scopeCode;
         return $this;
     }
 

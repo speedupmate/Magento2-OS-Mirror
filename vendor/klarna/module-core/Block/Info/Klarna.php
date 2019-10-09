@@ -16,6 +16,7 @@ use Magento\Framework\DataObjectFactory;
 use Magento\Framework\Exception\NoSuchEntityException;
 use Magento\Framework\Locale\Resolver;
 use Magento\Framework\View\Element\Template\Context;
+use Magento\Framework\App\State;
 
 /**
  * Class Klarna
@@ -47,6 +48,11 @@ class Klarna extends \Magento\Payment\Block\Info
     private $merchantPortal;
 
     /**
+     * @var State
+     */
+    private $appState;
+
+    /**
      * Klarna constructor.
      *
      * @param Context           $context
@@ -70,6 +76,7 @@ class Klarna extends \Magento\Payment\Block\Info
         $this->locale = $locale;
         $this->merchantPortal = $merchantPortal;
         $this->dataObjectFactory = $dataObjectFactory;
+        $this->appState = $context->getAppState();
     }
 
     /**
@@ -138,13 +145,15 @@ class Klarna extends \Magento\Payment\Block\Info
      */
     private function addMerchantPortalLinkToDisplay($transport, $order, $klarnaOrder)
     {
-        //get merchant portal link
-        $merchantPortalLink = $this->merchantPortal->getOrderMerchantPortalLink($order, $klarnaOrder);
-        if ($merchantPortalLink) {
-            $transport->setData(
-                (string)__('Merchant Portal'),
-                $this->merchantPortal->getOrderMerchantPortalLink($order, $klarnaOrder)
-            );
+         //get merchant link only in admin
+        if ($this->appState->getAreaCode() === \Magento\Framework\App\Area::AREA_ADMINHTML) {
+            $merchantPortalLink = $this->merchantPortal->getOrderMerchantPortalLink($order, $klarnaOrder);
+            if ($merchantPortalLink) {
+                $transport->setData(
+                    (string)__('Merchant Portal'),
+                    $this->merchantPortal->getOrderMerchantPortalLink($order, $klarnaOrder)
+                );
+            }
         }
     }
 

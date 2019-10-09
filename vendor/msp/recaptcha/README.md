@@ -20,9 +20,15 @@ php bin/magento module:enable MSP_ReCaptcha
 php bin/magento setup:upgrade
 ```
 
-**2. Enable and configure from your Magento backend config**
+**2. Generate public and secret site keys at Google**
 
-<img src="https://raw.githubusercontent.com/magespecialist/m2-MSP_ReCaptcha/master/screenshots/config.png" />
+https://www.google.com/recaptcha/admin
+
+**3. Enable and configure from your Magento backend config**
+
+Stores > Configuration > Security > Google reCaptcha
+
+![Google reCaptcha Config](screenshots/config.png "Admin Configuration"){:width="900px" height="auto"}
 
 ## Frontend:
 
@@ -31,6 +37,7 @@ MSP reCaptcha adds a recaptcha control to:
 - Register
 - Contact form
 - Forgot password
+- Send to Friend
 
 ### Standard reCaptcha v2
 

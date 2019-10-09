@@ -1,0 +1,13 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!--
+ /**
+  * @copyright  Vertex. All rights reserved.  https://www.vertexinc.com/
+  * @author     Mediotype                     https://www.mediotype.com/
+  */
+-->
+<sections xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+          xsi:noNamespaceSchemaLocation="urn:magento:mftf:Page/etc/SectionObject.xsd">
+    <section name="AdminOrderFormConfigureProductSection">
+        <element name="bundleOptionQty" type="input" selector="//fieldset[@id='catalog_product_composite_configure_fields_bundle']//span[@class='product-name'][contains(text(), '{{sku}}')]/parent::div//input[contains(@name, 'qty')]" parameterized="true"/>
+    </section>
+</sections>

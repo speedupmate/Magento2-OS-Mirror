@@ -1,41 +1,51 @@
 <?php
 
+/*
+ * Copyright 2013 Johannes M. Schmitt <schmittjoh@gmail.com>
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *     http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
+
 namespace JMS\Serializer;
 
-use Doctrine\Common\Annotations\AnnotationReader;
-use Doctrine\Common\Annotations\CachedReader;
-use Doctrine\Common\Annotations\Reader;
-use Doctrine\Common\Cache\FilesystemCache;
-use JMS\Serializer\Accessor\AccessorStrategyInterface;
-use JMS\Serializer\Accessor\DefaultAccessorStrategy;
-use JMS\Serializer\Accessor\ExpressionAccessorStrategy;
 use JMS\Serializer\Builder\DefaultDriverFactory;
 use JMS\Serializer\Builder\DriverFactoryInterface;
-use JMS\Serializer\Construction\ObjectConstructorInterface;
-use JMS\Serializer\Construction\UnserializeObjectConstructor;
-use JMS\Serializer\ContextFactory\CallableDeserializationContextFactory;
-use JMS\Serializer\ContextFactory\CallableSerializationContextFactory;
-use JMS\Serializer\ContextFactory\DeserializationContextFactoryInterface;
-use JMS\Serializer\ContextFactory\SerializationContextFactoryInterface;
-use JMS\Serializer\EventDispatcher\EventDispatcher;
-use JMS\Serializer\EventDispatcher\Subscriber\DoctrineProxySubscriber;
-use JMS\Serializer\Exception\InvalidArgumentException;
-use JMS\Serializer\Exception\RuntimeException;
-use JMS\Serializer\Expression\ExpressionEvaluatorInterface;
-use JMS\Serializer\Handler\ArrayCollectionHandler;
-use JMS\Serializer\Handler\DateHandler;
-use JMS\Serializer\Handler\HandlerRegistry;
 use JMS\Serializer\Handler\PhpCollectionHandler;
 use JMS\Serializer\Handler\PropelCollectionHandler;
-use JMS\Serializer\Handler\StdClassHandler;
-use JMS\Serializer\Naming\AdvancedNamingStrategyInterface;
+use JMS\Serializer\Exception\RuntimeException;
+use Metadata\Driver\DriverInterface;
+use Metadata\MetadataFactory;
+use JMS\Serializer\Metadata\Driver\AnnotationDriver;
+use JMS\Serializer\Handler\HandlerRegistry;
+use JMS\Serializer\Construction\UnserializeObjectConstructor;
+use PhpCollection\Map;
+use JMS\Serializer\EventDispatcher\EventDispatcher;
+use Metadata\Driver\DriverChain;
+use JMS\Serializer\Metadata\Driver\YamlDriver;
+use JMS\Serializer\Metadata\Driver\XmlDriver;
+use Metadata\Driver\FileLocator;
+use JMS\Serializer\Handler\DateHandler;
+use JMS\Serializer\Handler\ArrayCollectionHandler;
+use JMS\Serializer\Construction\ObjectConstructorInterface;
+use JMS\Serializer\EventDispatcher\Subscriber\DoctrineProxySubscriber;
 use JMS\Serializer\Naming\CamelCaseNamingStrategy;
 use JMS\Serializer\Naming\PropertyNamingStrategyInterface;
-use JMS\Serializer\Naming\SerializedNameAnnotationStrategy;
-use Metadata\Cache\CacheInterface;
+use Doctrine\Common\Annotations\Reader;
+use Doctrine\Common\Annotations\AnnotationReader;
+use Doctrine\Common\Annotations\FileCacheReader;
 use Metadata\Cache\FileCache;
-use Metadata\MetadataFactory;
-use PhpCollection\Map;
+use JMS\Serializer\Naming\SerializedNameAnnotationStrategy;
+use JMS\Serializer\Exception\InvalidArgumentException;
 
 /**
  * Builder for serializer instances.
@@ -62,23 +72,6 @@ class SerializerBuilder
     private $annotationReader;
     private $includeInterfaceMetadata = false;
     private $driverFactory;
-    private $serializationContextFactory;
-    private $deserializationContextFactory;
-
-    /**
-     * @var ExpressionEvaluatorInterface
-     */
-    private $expressionEvaluator;
-
-    /**
-     * @var AccessorStrategyInterface
-     */
-    private $accessorStrategy;
-
-    /**
-     * @var CacheInterface
-     */
-    private $metadataCache;
 
     public static function create()
     {
@@ -94,30 +87,6 @@ class SerializerBuilder
         $this->deserializationVisitors = new Map();
     }
 
-    public function setAccessorStrategy(AccessorStrategyInterface $accessorStrategy)
-    {
-        $this->accessorStrategy = $accessorStrategy;
-    }
-
-    protected function getAccessorStrategy()
-    {
-        if (!$this->accessorStrategy) {
-            $this->accessorStrategy = new DefaultAccessorStrategy();
-
-            if ($this->expressionEvaluator) {
-                $this->accessorStrategy = new ExpressionAccessorStrategy($this->expressionEvaluator, $this->accessorStrategy);
-            }
-        }
-        return $this->accessorStrategy;
-    }
-
-    public function setExpressionEvaluator(ExpressionEvaluatorInterface $expressionEvaluator)
-    {
-        $this->expressionEvaluator = $expressionEvaluator;
-
-        return $this;
-    }
-
     public function setAnnotationReader(Reader $reader)
     {
         $this->annotationReader = $reader;
@@ -127,17 +96,17 @@ class SerializerBuilder
 
     public function setDebug($bool)
     {
-        $this->debug = (boolean)$bool;
+        $this->debug = (boolean) $bool;
 
         return $this;
     }
 
     public function setCacheDir($dir)
     {
-        if (!is_dir($dir)) {
+        if ( ! is_dir($dir)) {
             $this->createDir($dir);
         }
-        if (!is_writable($dir)) {
+        if ( ! is_writable($dir)) {
             throw new InvalidArgumentException(sprintf('The cache directory "%s" is not writable.', $dir));
         }
 
@@ -150,7 +119,6 @@ class SerializerBuilder
     {
         $this->handlersConfigured = true;
         $this->handlerRegistry->registerSubscribingHandler(new DateHandler());
-        $this->handlerRegistry->registerSubscribingHandler(new StdClassHandler());
         $this->handlerRegistry->registerSubscribingHandler(new PhpCollectionHandler());
         $this->handlerRegistry->registerSubscribingHandler(new ArrayCollectionHandler());
         $this->handlerRegistry->registerSubscribingHandler(new PropelCollectionHandler());
@@ -196,13 +164,6 @@ class SerializerBuilder
         return $this;
     }
 
-    public function setAdvancedNamingStrategy(AdvancedNamingStrategyInterface $advancedNamingStrategy)
-    {
-        $this->propertyNamingStrategy = $advancedNamingStrategy;
-
-        return $this;
-    }
-
     public function setSerializationVisitor($format, VisitorInterface $visitor)
     {
         $this->visitorsAdded = true;
@@ -225,9 +186,9 @@ class SerializerBuilder
 
         $this->visitorsAdded = true;
         $this->serializationVisitors->setAll(array(
-            'xml' => new XmlSerializationVisitor($this->propertyNamingStrategy, $this->getAccessorStrategy()),
-            'yml' => new YamlSerializationVisitor($this->propertyNamingStrategy, $this->getAccessorStrategy()),
-            'json' => new JsonSerializationVisitor($this->propertyNamingStrategy, $this->getAccessorStrategy()),
+            'xml' => new XmlSerializationVisitor($this->propertyNamingStrategy),
+            'yml' => new YamlSerializationVisitor($this->propertyNamingStrategy),
+            'json' => new JsonSerializationVisitor($this->propertyNamingStrategy),
         ));
 
         return $this;
@@ -253,7 +214,7 @@ class SerializerBuilder
      */
     public function includeInterfaceMetadata($include)
     {
-        $this->includeInterfaceMetadata = (Boolean)$include;
+        $this->includeInterfaceMetadata = (Boolean) $include;
 
         return $this;
     }
@@ -263,7 +224,7 @@ class SerializerBuilder
      *
      * This method overrides any previously defined directories.
      *
-     * @param array <string,string> $namespacePrefixToDirMap
+     * @param array<string,string> $namespacePrefixToDirMap
      *
      * @return SerializerBuilder
      *
@@ -272,7 +233,7 @@ class SerializerBuilder
     public function setMetadataDirs(array $namespacePrefixToDirMap)
     {
         foreach ($namespacePrefixToDirMap as $dir) {
-            if (!is_dir($dir)) {
+            if ( ! is_dir($dir)) {
                 throw new InvalidArgumentException(sprintf('The directory "%s" does not exist.', $dir));
             }
         }
@@ -310,7 +271,7 @@ class SerializerBuilder
      */
     public function addMetadataDir($dir, $namespacePrefix = '')
     {
-        if (!is_dir($dir)) {
+        if ( ! is_dir($dir)) {
             throw new InvalidArgumentException(sprintf('The directory "%s" does not exist.', $dir));
         }
 
@@ -326,7 +287,7 @@ class SerializerBuilder
     /**
      * Adds a map of namespace prefixes to directories.
      *
-     * @param array <string,string> $namespacePrefixToDirMap
+     * @param array<string,string> $namespacePrefixToDirMap
      *
      * @return SerializerBuilder
      */
@@ -352,11 +313,11 @@ class SerializerBuilder
      */
     public function replaceMetadataDir($dir, $namespacePrefix = '')
     {
-        if (!is_dir($dir)) {
+        if ( ! is_dir($dir)) {
             throw new InvalidArgumentException(sprintf('The directory "%s" does not exist.', $dir));
         }
 
-        if (!isset($this->metadataDirs[$namespacePrefix])) {
+        if ( ! isset($this->metadataDirs[$namespacePrefix])) {
             throw new InvalidArgumentException(sprintf('There is no directory configured for namespace prefix "%s". Please use addMetadataDir() for adding new directories.', $namespacePrefix));
         }
 
@@ -368,59 +329,6 @@ class SerializerBuilder
     public function setMetadataDriverFactory(DriverFactoryInterface $driverFactory)
     {
         $this->driverFactory = $driverFactory;
-
-        return $this;
-    }
-
-    /**
-     * @param SerializationContextFactoryInterface|callable $serializationContextFactory
-     *
-     * @return self
-     */
-    public function setSerializationContextFactory($serializationContextFactory)
-    {
-        if ($serializationContextFactory instanceof SerializationContextFactoryInterface) {
-            $this->serializationContextFactory = $serializationContextFactory;
-        } elseif (is_callable($serializationContextFactory)) {
-            $this->serializationContextFactory = new CallableSerializationContextFactory(
-                $serializationContextFactory
-            );
-        } else {
-            throw new InvalidArgumentException('expected SerializationContextFactoryInterface or callable.');
-        }
-
-        return $this;
-    }
-
-    /**
-     * @param DeserializationContextFactoryInterface|callable $deserializationContextFactory
-     *
-     * @return self
-     */
-    public function setDeserializationContextFactory($deserializationContextFactory)
-    {
-        if ($deserializationContextFactory instanceof DeserializationContextFactoryInterface) {
-            $this->deserializationContextFactory = $deserializationContextFactory;
-        } elseif (is_callable($deserializationContextFactory)) {
-            $this->deserializationContextFactory = new CallableDeserializationContextFactory(
-                $deserializationContextFactory
-            );
-        } else {
-            throw new InvalidArgumentException('expected DeserializationContextFactoryInterface or callable.');
-        }
-
-        return $this;
-    }
-
-    /**
-     * @param CacheInterface $cache
-     *
-     * @return self
-     */
-    public function setMetadataCache(CacheInterface $cache)
-    {
-        $this->metadataCache = $cache;
-        return $this;
     }
 
     public function build()
@@ -430,9 +338,8 @@ class SerializerBuilder
             $annotationReader = new AnnotationReader();
 
             if (null !== $this->cacheDir) {
-                $this->createDir($this->cacheDir . '/annotations');
-                $annotationsCache = new FilesystemCache($this->cacheDir . '/annotations');
-                $annotationReader = new CachedReader($annotationReader, $annotationsCache, $this->debug);
+                $this->createDir($this->cacheDir.'/annotations');
+                $annotationReader = new FileCacheReader($annotationReader, $this->cacheDir.'/annotations', $this->debug);
             }
         }
 
@@ -441,46 +348,32 @@ class SerializerBuilder
 
         $metadataFactory->setIncludeInterfaces($this->includeInterfaceMetadata);
 
-        if ($this->metadataCache !== null) {
-            $metadataFactory->setCache($this->metadataCache);
-        } elseif (null !== $this->cacheDir) {
-            $this->createDir($this->cacheDir . '/metadata');
-            $metadataFactory->setCache(new FileCache($this->cacheDir . '/metadata'));
+        if (null !== $this->cacheDir) {
+            $this->createDir($this->cacheDir.'/metadata');
+            $metadataFactory->setCache(new FileCache($this->cacheDir.'/metadata'));
         }
 
-        if (!$this->handlersConfigured) {
+        if ( ! $this->handlersConfigured) {
             $this->addDefaultHandlers();
         }
 
-        if (!$this->listenersConfigured) {
+        if ( ! $this->listenersConfigured) {
             $this->addDefaultListeners();
         }
 
-        if (!$this->visitorsAdded) {
+        if ( ! $this->visitorsAdded) {
             $this->addDefaultSerializationVisitors();
             $this->addDefaultDeserializationVisitors();
         }
 
-        $serializer = new Serializer(
+        return new Serializer(
             $metadataFactory,
             $this->handlerRegistry,
             $this->objectConstructor ?: new UnserializeObjectConstructor(),
             $this->serializationVisitors,
             $this->deserializationVisitors,
-            $this->eventDispatcher,
-            null,
-            $this->expressionEvaluator
+            $this->eventDispatcher
         );
-
-        if (null !== $this->serializationContextFactory) {
-            $serializer->setSerializationContextFactory($this->serializationContextFactory);
-        }
-
-        if (null !== $this->deserializationContextFactory) {
-            $serializer->setDeserializationContextFactory($this->deserializationContextFactory);
-        }
-
-        return $serializer;
     }
 
     private function initializePropertyNamingStrategy()
@@ -498,7 +391,7 @@ class SerializerBuilder
             return;
         }
 
-        if (false === @mkdir($dir, 0777, true) && false === is_dir($dir)) {
+        if (false === @mkdir($dir, 0777, true)) {
             throw new RuntimeException(sprintf('Could not create directory "%s".', $dir));
         }
     }

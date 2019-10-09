@@ -18,6 +18,11 @@ use Klarna\Core\Api\BuilderInterface;
 class Reward extends AbstractLine
 {
     /**
+     * Checkout item type
+     */
+    const ITEM_TYPE_REWARD = 'discount';
+
+    /**
      * Collect totals process.
      *
      * @param BuilderInterface $checkout
@@ -59,7 +64,7 @@ class Reward extends AbstractLine
     {
         if ($checkout->getRewardTotalAmount()) {
             $checkout->addOrderLine([
-                'type'             => Discount::ITEM_TYPE_DISCOUNT,
+                'type'             => self::ITEM_TYPE_REWARD,
                 'reference'        => $checkout->getRewardReference(),
                 'name'             => $checkout->getRewardTitle(),
                 'quantity'         => 1,

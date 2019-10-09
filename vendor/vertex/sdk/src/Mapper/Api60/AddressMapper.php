@@ -89,6 +89,126 @@ class AddressMapper implements AddressMapperInterface
     }
 
     /**
+     * @inheritDoc
+     */
+    public function getCityMaxLength()
+    {
+        return static::CITY_MAX;
+    }
+
+    /**
+     * @inheritDoc
+     */
+    public function getCityMinLength()
+    {
+        return static::CITY_MIN;
+    }
+
+    /**
+     * @inheritDoc
+     */
+    public function validateCity($fieldValue)
+    {
+        // TODO: Implement validateCity() method.
+    }
+
+    /**
+     * @inheritDoc
+     */
+    public function getCountryMaxLength()
+    {
+        return static::COUNTRY_MAX;
+    }
+
+    /**
+     * @inheritDoc
+     */
+    public function getCountryMinLength()
+    {
+        return static::COUNTRY_MIN;
+    }
+
+    /**
+     * @inheritDoc
+     */
+    public function validateCountry($fieldValue)
+    {
+        // TODO: Implement validateCountry() method.
+    }
+
+    /**
+     * @inheritDoc
+     */
+    public function getMainDivisionMaxLength()
+    {
+        return static::MAIN_DIVISION_MAX;
+    }
+
+    /**
+     * @inheritDoc
+     */
+    public function getMainDivisionMinLength()
+    {
+        return static::MAIN_DIVISION_MIN;
+    }
+
+    /**
+     * @inheritDoc
+     */
+    public function validateMainDivision($fieldValue)
+    {
+        // TODO: Implement validateMainDivision() method.
+    }
+
+    /**
+     * @inheritDoc
+     */
+    public function getStreetAddressMaxLength()
+    {
+        return static::STREET_ADDRESS_MAX;
+    }
+
+    /**
+     * @inheritDoc
+     */
+    public function getStreetAddressMinLength()
+    {
+        return static::STREET_ADDRESS_MIN;
+    }
+
+    /**
+     * @inheritDoc
+     */
+    public function validateStreetAddress($fieldValue)
+    {
+        // TODO: Implement validateStreetAddress() method.
+    }
+
+    /**
+     * @inheritDoc
+     */
+    public function getPostalCodeMaxLength()
+    {
+        return static::POSTAL_CODE_MAX;
+    }
+
+    /**
+     * @inheritDoc
+     */
+    public function getPostalCodeMinLength()
+    {
+        return static::POSTAL_CODE_MIN;
+    }
+
+    /**
+     * @inheritDoc
+     */
+    public function validatePostalCode($fieldValue)
+    {
+        // TODO: Implement validatePostalCode() method.
+    }
+
+    /**
      * @inheritdoc
      */
     public function build(\stdClass $map)
@@ -137,16 +257,16 @@ class AddressMapper implements AddressMapperInterface
             $map,
             $object->getCity(),
             'City',
-            static::CITY_MIN,
-            static::CITY_MAX,
+            $this->getCityMinLength(),
+            $this->getCityMaxLength(),
             true
         );
         $map = $this->utilities->addToMapWithLengthValidation(
             $map,
             $object->getMainDivision(),
             'MainDivision',
-            static::MAIN_DIVISION_MIN,
-            static::MAIN_DIVISION_MAX,
+            $this->getMainDivisionMinLength(),
+            $this->getMainDivisionMaxLength(),
             true,
             'Main Division'
         );
@@ -163,8 +283,8 @@ class AddressMapper implements AddressMapperInterface
             $map,
             $object->getPostalCode(),
             'PostalCode',
-            static::POSTAL_CODE_MIN,
-            static::POSTAL_CODE_MAX,
+            $this->getPostalCodeMinLength(),
+            $this->getPostalCodeMaxLength(),
             true,
             'Postal Code'
         );
@@ -172,8 +292,8 @@ class AddressMapper implements AddressMapperInterface
             $map,
             $object->getCountry(),
             'Country',
-            static::COUNTRY_MIN,
-            static::COUNTRY_MAX,
+            $this->getCountryMinLength(),
+            $this->getCountryMaxLength(),
             true
         );
 
@@ -207,8 +327,8 @@ class AddressMapper implements AddressMapperInterface
                 $mapping,
                 $streetLine,
                 "StreetAddress{$key}",
-                static::STREET_ADDRESS_MIN,
-                static::STREET_ADDRESS_MAX,
+                $this->getStreetAddressMinLength(),
+                $this->getStreetAddressMaxLength(),
                 true,
                 "Street Address Line {$key}"
             );

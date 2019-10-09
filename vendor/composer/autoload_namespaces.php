@@ -6,9 +6,9 @@ $vendorDir = dirname(dirname(__FILE__));
 $baseDir = dirname($vendorDir);
 
 return array(
+    'org\\bovigo\\vfs\\' => array($vendorDir . '/mikey179/vfsstream/src/main/php'),
     'Zend_' => array($vendorDir . '/magento/zendframework1/library'),
-    'Yandex' => array($vendorDir . '/allure-framework/allure-php-api/src', $vendorDir . '/allure-framework/allure-php-api/test', $vendorDir . '/allure-framework/allure-codeception/src'),
-    'Prophecy\\' => array($vendorDir . '/phpspec/prophecy/src'),
+    'Yandex' => array($vendorDir . '/allure-framework/allure-php-api/src', $vendorDir . '/allure-framework/allure-php-api/test', $vendorDir . '/allure-framework/allure-codeception/src', $vendorDir . '/allure-framework/allure-phpunit/src'),
     'PhpOption\\' => array($vendorDir . '/phpoption/phpoption/src'),
     'PhpCollection' => array($vendorDir . '/phpcollection/phpcollection/src'),
     'PHPMD\\' => array($vendorDir . '/phpmd/phpmd/src/main/php'),
@@ -23,7 +23,6 @@ return array(
     'JMS\\' => array($vendorDir . '/jms/parser-lib/src'),
     'Flow\\JSONPath\\Test' => array($vendorDir . '/flow/jsonpath/tests'),
     'Flow\\JSONPath' => array($vendorDir . '/flow/jsonpath/src'),
-    'Doctrine\\Common\\Collections\\' => array($vendorDir . '/doctrine/collections/lib'),
     'Dflydev\\DotAccessData' => array($vendorDir . '/dflydev/dot-access-data/src'),
     'Cm\\RedisSession\\' => array($vendorDir . '/colinmollenhour/php-redis-session-abstract/src'),
     'Braintree' => array($vendorDir . '/braintree/braintree_php/lib'),

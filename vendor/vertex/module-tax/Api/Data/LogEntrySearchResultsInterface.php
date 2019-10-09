@@ -6,12 +6,14 @@
 
 namespace Vertex\Tax\Api\Data;
 
+use Magento\Framework\Api\SearchResultsInterface;
+
 /**
  * Data model representing a result from a search against the Vertex API Log
  *
  * @api
  */
-interface LogEntrySearchResultsInterface extends \Magento\Framework\Api\SearchResultsInterface
+interface LogEntrySearchResultsInterface extends SearchResultsInterface
 {
     /**
      * Get log entry list.

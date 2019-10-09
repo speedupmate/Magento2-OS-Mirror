@@ -45,6 +45,30 @@ class SellerMapper implements SellerMapperInterface
     }
 
     /**
+     * @inheritDoc
+     */
+    public function getCompanyCodeMaxLength()
+    {
+        return static::COMPANY_CODE_MAX;
+    }
+
+    /**
+     * @inheritDoc
+     */
+    public function getCompanyCodeMinLength()
+    {
+        return static::COMPANY_CODE_MIN;
+    }
+
+    /**
+     * @inheritDoc
+     */
+    public function validateCompanyCode($fieldValue)
+    {
+        // TODO: Implement validateCompanyCode() method.
+    }
+
+    /**
      * @inheritdoc
      */
     public function build(\stdClass $map)
@@ -77,8 +101,8 @@ class SellerMapper implements SellerMapperInterface
             $map,
             $object->getCompanyCode(),
             'Company',
-            self::COMPANY_CODE_MIN,
-            self::COMPANY_CODE_MAX,
+            $this->getCompanyCodeMinLength(),
+            $this->getCompanyCodeMaxLength(),
             true
         );
 

@@ -1,3 +1,21 @@
+## [1.3.14] - 2019-08-20
+### Fixed
+
+- Add context to configurable object whitelist
+
+## [1.3.13] - 2019-08-16
+### Fixed
+
+- Fix rendering of tooltips on order ship
+
+## [1.3.12] - 2019-08-05
+### Fixed
+
+- Rounding pre-filled package weights
+- Display duties and taxes on quotes where applicable
+- Link to return shipment when solving errors for return shipment dispatches
+- PHP version constraint
+
 ## [1.3.11] - 2019-05-16
 ### Fixed
 

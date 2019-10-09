@@ -9,6 +9,7 @@ namespace Vertex\Tax\Model\Api\Service;
 use Vertex\Services\Invoice;
 use Vertex\Services\InvoiceFactory as SdkInvoiceFactory;
 use Vertex\Tax\Model\Api\ConfigBuilder;
+use Vertex\Utility\ServiceActionPerformerFactory;
 
 /**
  * Build an {@see Invoice} service class
@@ -27,16 +28,21 @@ class InvoiceBuilder
     /** @var SdkInvoiceFactory */
     private $sdkFactory;
 
+    /** @var ServiceActionPerformerFactory */
+    private $serviceActionPerformerFactory;
+
     /**
      * @param ConfigBuilder $configBuilder
      * @param SdkInvoiceFactory $sdkFactory
      */
     public function __construct(
         ConfigBuilder $configBuilder,
-        SdkInvoiceFactory $sdkFactory
+        SdkInvoiceFactory $sdkFactory,
+        ServiceActionPerformerFactory $serviceActionPerformerFactory
     ) {
         $this->configBuilder = $configBuilder;
         $this->sdkFactory = $sdkFactory;
+        $this->serviceActionPerformerFactory =$serviceActionPerformerFactory;
     }
 
     /**
@@ -54,6 +60,7 @@ class InvoiceBuilder
         return $this->sdkFactory->create(
             [
                 'configuration' => $config,
+                'actionPerformerFactory'  => $this->serviceActionPerformerFactory
             ]
         );
     }

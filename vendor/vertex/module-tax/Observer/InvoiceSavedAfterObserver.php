@@ -9,19 +9,26 @@ namespace Vertex\Tax\Observer;
 use Magento\Framework\Event\Observer;
 use Magento\Framework\Event\ObserverInterface;
 use Magento\Framework\Message\ManagerInterface;
+use Magento\Sales\Model\Order\Invoice;
 use Magento\Store\Model\ScopeInterface;
+use Vertex\Services\Invoice\ResponseInterface;
 use Vertex\Tax\Model\Api\Data\InvoiceRequestBuilder;
 use Vertex\Tax\Model\Config;
 use Vertex\Tax\Model\ConfigurationValidator;
 use Vertex\Tax\Model\CountryGuard;
+use Vertex\Tax\Model\GuestAfterPaymentWorkaroundService;
 use Vertex\Tax\Model\InvoiceSentRegistry;
 use Vertex\Tax\Model\TaxInvoice;
+use Vertex\Tax\Model\VertexTaxAttributeManager;
 
 /**
  * Observes when an Invoice is issued to fire off data to the Vertex Tax Log
  */
 class InvoiceSavedAfterObserver implements ObserverInterface
 {
+    /** @var VertexCalculationExtensionLoader */
+    private $vertexExtensionLoader;
+
     /** @var Config */
     private $config;
 
@@ -46,6 +53,15 @@ class InvoiceSavedAfterObserver implements ObserverInterface
     /** @var TaxInvoice */
     private $taxInvoice;
 
+    /** @var VertexTaxAttributeManager */
+    private $attributeManager;
+
+    /** @var bool */
+    private $showSuccessMessage;
+
+    /** @var GuestAfterPaymentWorkaroundService */
+    private $workaroundService;
+
     /**
      * @param Config $config
      * @param CountryGuard $countryGuard
@@ -55,6 +71,10 @@ class InvoiceSavedAfterObserver implements ObserverInterface
      * @param ConfigurationValidator $configValidator
      * @param InvoiceRequestBuilder $invoiceRequestBuilder
      * @param GiftwrapExtensionLoader $extensionLoader
+     * @param VertexTaxAttributeManager $attributeManager
+     * @param VertexCalculationExtensionLoader $vertexExtensionLoader
+     * @param GuestAfterPaymentWorkaroundService $workaroundService
+     * @param bool $showSuccessMessage
      */
     public function __construct(
         Config $config,
@@ -64,7 +84,11 @@ class InvoiceSavedAfterObserver implements ObserverInterface
         InvoiceSentRegistry $invoiceSentRegistry,
         ConfigurationValidator $configValidator,
         InvoiceRequestBuilder $invoiceRequestBuilder,
-        GiftwrapExtensionLoader $extensionLoader
+        GiftwrapExtensionLoader $extensionLoader,
+        VertexTaxAttributeManager $attributeManager,
+        VertexCalculationExtensionLoader $vertexExtensionLoader,
+        GuestAfterPaymentWorkaroundService $workaroundService,
+        $showSuccessMessage = false
     ) {
         $this->config = $config;
         $this->countryGuard = $countryGuard;
@@ -74,6 +98,10 @@ class InvoiceSavedAfterObserver implements ObserverInterface
         $this->configValidator = $configValidator;
         $this->invoiceRequestBuilder = $invoiceRequestBuilder;
         $this->extensionLoader = $extensionLoader;
+        $this->attributeManager = $attributeManager;
+        $this->showSuccessMessage = $showSuccessMessage;
+        $this->vertexExtensionLoader = $vertexExtensionLoader;
+        $this->workaroundService = $workaroundService;
     }
 
     /**
@@ -82,21 +110,27 @@ class InvoiceSavedAfterObserver implements ObserverInterface
      * Only when Request by Invoice Creation is turned on
      *
      * @param Observer $observer
+     * @return void
      */
     public function execute(Observer $observer)
     {
-        /** @var \Magento\Sales\Model\Order\Invoice $invoice */
+        $this->workaroundService->clearInvoices();
+
+        /** @var Invoice $invoice */
         $invoice = $observer->getEvent()->getInvoice();
-        $this->extensionLoader->loadOnInvoice($invoice);
+        $storeId = $invoice->getStoreId();
+        if (!$this->config->isVertexActive($storeId) || !$this->config->isTaxCalculationEnabled($storeId)) {
+            return;
+        }
+
+        /** @var Invoice $invoice */
+        $invoice = $this->extensionLoader->loadOnInvoice($invoice);
 
         /** @var \Magento\Sales\Model\Order $order */
         $order = $invoice->getOrder();
 
         /** @var boolean $isInvoiceSent */
         $isInvoiceSent = $this->invoiceSentRegistry->hasInvoiceBeenSentToVertex($invoice);
-
-        /** @var boolean $isActive */
-        $isActive = $this->config->isVertexActive($invoice->getStore());
 
         /** @var boolean $requestByInvoice */
         $requestByInvoice = $this->config->requestByInvoiceCreation($invoice->getStore());
@@ -108,16 +142,40 @@ class InvoiceSavedAfterObserver implements ObserverInterface
         $configValid = $this->configValidator->execute(ScopeInterface::SCOPE_STORE, $invoice->getStoreId(), true)
             ->isValid();
 
-        if (!$isInvoiceSent && $isActive && $requestByInvoice && $canService && $configValid) {
+        if (!$isInvoiceSent && $requestByInvoice && $canService && $configValid) {
+            // During checkout for authorize & capture, the invoice will not have the address IDs
+            $invoice = $this->vertexExtensionLoader->loadOnInvoice($invoice);
             $request = $this->invoiceRequestBuilder->buildFromInvoice($invoice);
+            $response = $this->taxInvoice->sendInvoiceRequest($request, $invoice->getOrder());
+            $this->processResponse($response, $invoice);
+        }
+    }
 
-            /** @var boolean $sendInvoice */
-            $sendInvoice = $this->taxInvoice->sendInvoiceRequest($request, $invoice->getOrder());
+    /**
+     * Process response
+     *
+     * @param null|ResponseInterface $response
+     * @param Invoice $invoice
+     * @return void
+     */
+    private function processResponse($response, $invoice)
+    {
+        if ($response) {
+            $this->attributeManager->saveAllVertexAttributes($response->getLineItems());
+            $this->invoiceSentRegistry->setInvoiceHasBeenSentToVertex($invoice);
+            $this->addSuccessMessage();
+        }
+    }
 
-            if ($sendInvoice) {
-                $this->invoiceSentRegistry->setInvoiceHasBeenSentToVertex($invoice);
-                $this->messageManager->addSuccessMessage(__('The Vertex invoice has been sent.')->render());
-            }
+    /**
+     * Notify administrator that the order has been committed to the tax log
+     *
+     * @return void
+     */
+    private function addSuccessMessage()
+    {
+        if ($this->showSuccessMessage) {
+            $this->messageManager->addSuccessMessage(__('The Vertex invoice has been sent.')->render());
         }
     }
 }

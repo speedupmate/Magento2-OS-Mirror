@@ -164,9 +164,6 @@ class Session
         $data = $this->getGeneratedCreateRequest();
         $klarnaResponse = $this->initKlarnaQuote($data);
 
-        if (!$klarnaResponse->isSuccessfull()) {
-            throw new KlarnaApiException(__('Unable to initialize Klarna payments session'));
-        }
         return $klarnaResponse;
     }
 
@@ -178,6 +175,7 @@ class Session
      */
     private function getGeneratedCreateRequest()
     {
+        $this->getQuote()->collectTotals();
         return $this->builder->setObject($this->getQuote())->generateRequest(BuilderInterface::GENERATE_TYPE_CREATE)
             ->getRequest();
     }
@@ -292,6 +290,10 @@ class Session
      */
     private function createNewQuote(ResponseInterface $resp)
     {
+        if (!$this->getQuote()->getId()) {
+            throw new KlarnaApiException(__('Unable to initialize Klarna payments session'));
+        }
+
         /** @var QuoteInterface $klarnaQuote */
         $klarnaQuote = $this->klarnaQuoteFactory->create();
         $klarnaQuote->setSessionId($resp->getSessionId());

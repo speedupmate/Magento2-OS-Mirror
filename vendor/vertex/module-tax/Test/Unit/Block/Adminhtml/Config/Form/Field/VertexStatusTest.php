@@ -72,6 +72,10 @@ class VertexStatusTest extends TestCase
             ->method('isVertexActive')
             ->willReturn(true);
 
+        $this->configMock->expects($this->once())
+            ->method('isTaxCalculationEnabled')
+            ->willReturn(true);
+
         $credentialResult = $this->getObject(ConfigurationValidator\Result::class)
             ->setValid(false)
             ->setMessage('Invalid')
@@ -90,6 +94,10 @@ class VertexStatusTest extends TestCase
         $expected = '<span class="grid-severity-notice"><span>Valid</span></span>';
         $this->configMock->expects($this->once())
             ->method('isVertexActive')
+            ->willReturn(true);
+
+        $this->configMock->expects($this->once())
+            ->method('isTaxCalculationEnabled')
             ->willReturn(true);
 
         $credentialResult = $this->getObject(ConfigurationValidator\Result::class)

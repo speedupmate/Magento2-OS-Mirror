@@ -52,6 +52,18 @@ class MapperFactory
                     '60' => 'Vertex\Mapper\Api60\CustomerMapper',
                     '70' => 'Vertex\Mapper\Api70\CustomerMapper',
                 ],
+                'Vertex\Data\FlexibleCodeFieldInterface' => [
+                    '60' => 'Vertex\Mapper\Api60\FlexibleCodeFieldMapper',
+                    '70' => 'Vertex\Mapper\Api60\FlexibleCodeFieldMapper',
+                ],
+                'Vertex\Data\FlexibleDateFieldInterface' => [
+                    '60' => 'Vertex\Mapper\Api60\FlexibleDateFieldMapper',
+                    '70' => 'Vertex\Mapper\Api60\FlexibleDateFieldMapper',
+                ],
+                'Vertex\Data\FlexibleNumericFieldInterface' => [
+                    '60' => 'Vertex\Mapper\Api60\FlexibleNumericFieldMapper',
+                    '70' => 'Vertex\Mapper\Api70\FlexibleNumericFieldMapper',
+                ],
                 'Vertex\Data\JurisdictionInterface' => [
                     '60' => 'Vertex\Mapper\Api60\JurisdictionMapper',
                     '70' => 'Vertex\Mapper\Api60\JurisdictionMapper',

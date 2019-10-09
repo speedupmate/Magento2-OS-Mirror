@@ -35,6 +35,54 @@ class TaxRegistrationMapper implements TaxRegistrationMapperInterface
     /**
      * @inheritDoc
      */
+    public function getCountryCodeMaxLength()
+    {
+        return $this->parentMapper->getCountryCodeMaxLength();
+    }
+
+    /**
+     * @inheritDoc
+     */
+    public function getCountryCodeMinLength()
+    {
+        return $this->parentMapper->getCountryCodeMinLength();
+    }
+
+    /**
+     * @inheritDoc
+     */
+    public function validateCountryCode($fieldValue)
+    {
+        return $this->parentMapper->validateCountryCode($fieldValue);
+    }
+
+    /**
+     * @inheritDoc
+     */
+    public function getRegistrationNumberMaxLength()
+    {
+        return $this->parentMapper->getRegistrationNumberMaxLength();
+    }
+
+    /**
+     * @inheritDoc
+     */
+    public function getRegistrationNumberMinLength()
+    {
+        return $this->parentMapper->getRegistrationNumberMinLength();
+    }
+
+    /**
+     * @inheritDoc
+     */
+    public function validateRegistrationNumber($fieldValue)
+    {
+        return $this->parentMapper->validateRegistrationNumber($fieldValue);
+    }
+
+    /**
+     * @inheritDoc
+     */
     public function build(\stdClass $map)
     {
         $registration = $this->parentMapper->build($map);

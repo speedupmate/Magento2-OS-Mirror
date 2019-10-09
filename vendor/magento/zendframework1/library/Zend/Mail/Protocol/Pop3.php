@@ -122,7 +122,8 @@ class Zend_Mail_Protocol_Pop3
 
         if ($ssl === 'TLS') {
             $this->request('STLS');
-            $result = stream_socket_enable_crypto($this->_socket, true, STREAM_CRYPTO_METHOD_TLS_CLIENT);
+            // TODO: Add STREAM_CRYPTO_METHOD_TLSv1_3_CLIENT in the future when it is supported by PHP
+            $result = stream_socket_enable_crypto($this->_socket, true, STREAM_CRYPTO_METHOD_TLSv1_2_CLIENT);
             if (!$result) {
                 /**
                  * @see Zend_Mail_Protocol_Exception

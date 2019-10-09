@@ -7,9 +7,6 @@
 namespace Vertex\Tax\Test\Integration\ApiValidation;
 
 use Magento\Catalog\Api\Data\ProductInterface;
-use Magento\Catalog\Model\Product\Attribute\Source\Status;
-use Magento\Catalog\Model\Product\Type;
-use Magento\Catalog\Model\Product\Visibility;
 use Magento\Checkout\Api\Data\TotalsInformationInterface;
 use Magento\Checkout\Api\Data\TotalsInformationInterfaceFactory;
 use Magento\Checkout\Api\TotalsInformationManagementInterface;
@@ -156,7 +153,6 @@ class CustomerTaxClassSentToVertexTest extends TestCase
      *
      * @param int|string $taxClassId
      * @return CustomerInterface
-     * @throws \Magento\Framework\Exception\CouldNotSaveException
      * @throws \Magento\Framework\Exception\InputException
      * @throws \Magento\Framework\Exception\NoSuchEntityException
      * @throws \Magento\Framework\Exception\StateException
@@ -167,13 +163,9 @@ class CustomerTaxClassSentToVertexTest extends TestCase
     {
         $groupId = $this->createCustomerGroup($taxClassId);
 
-        return $this->customerBuilder->createCustomer(
+        return $this->customerBuilder->createExampleCustomer(
             function (CustomerInterface $customer) use ($groupId) {
-                $customer->setFirstname('John');
-                $customer->setLastname('Doe');
-                $customer->setEmail('jdoe@host.local');
                 $customer->setGroupId($groupId);
-
                 return $customer;
             }
         );
@@ -211,15 +203,8 @@ class CustomerTaxClassSentToVertexTest extends TestCase
      */
     private function createProduct($taxClassId)
     {
-        return $this->productBuilder->createProduct(
+        return $this->productBuilder->createExampleProduct(
             function (ProductInterface $product) use ($taxClassId) {
-                $product->setName('Example Product');
-                $product->setSku('TEST');
-                $product->setPrice(5.00);
-                $product->setVisibility(Visibility::VISIBILITY_BOTH);
-                $product->setStatus(Status::STATUS_ENABLED);
-                $product->setTypeId(Type::TYPE_SIMPLE);
-                $product->setAttributeSetId(4);
                 $product->setCustomAttribute('tax_class_id', $taxClassId);
 
                 return $product;

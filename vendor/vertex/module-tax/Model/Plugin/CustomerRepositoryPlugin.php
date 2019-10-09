@@ -12,10 +12,10 @@ use Magento\Customer\Api\Data\CustomerExtensionInterfaceFactory;
 use Magento\Customer\Api\Data\CustomerInterface;
 use Magento\Customer\Api\Data\CustomerSearchResultsInterface;
 use Magento\Framework\Exception\NoSuchEntityException;
-use Psr\Log\LoggerInterface;
-use Vertex\Tax\Model\Config\State;
+use Vertex\Tax\Model\Config;
 use Vertex\Tax\Model\Data\CustomerCode;
 use Vertex\Tax\Model\Data\CustomerCodeFactory;
+use Vertex\Tax\Model\ExceptionLogger;
 use Vertex\Tax\Model\Repository\CustomerCodeRepository;
 
 /**
@@ -25,42 +25,43 @@ use Vertex\Tax\Model\Repository\CustomerCodeRepository;
  */
 class CustomerRepositoryPlugin
 {
-    /** @var CustomerCodeRepository */
-    private $repository;
+    /** @var CustomerCodeFactory */
+    private $codeFactory;
+
+    /** @var Config */
+    private $config;
 
     /** @var CustomerExtensionInterfaceFactory */
     private $extensionFactory;
 
-    /** @var CustomerCodeFactory */
-    private $codeFactory;
+    /** @var CustomerCodeRepository */
+    private $repository;
 
-    /** @var LoggerInterface */
+    /** @var ExceptionLogger */
     private $logger;
 
     /** @var bool[] */
     private $currentlySaving = [];
 
-    /** @var State */
-    private $state;
-
     /**
      * @param CustomerCodeRepository $repository
      * @param CustomerExtensionInterfaceFactory $extensionFactory
      * @param CustomerCodeFactory $codeFactory
-     * @param LoggerInterface $logger
+     * @param ExceptionLogger $logger
+     * @param Config $config
      */
     public function __construct(
-        State $state,
         CustomerCodeRepository $repository,
         CustomerExtensionInterfaceFactory $extensionFactory,
         CustomerCodeFactory $codeFactory,
-        LoggerInterface $logger
+        ExceptionLogger $logger,
+        Config $config
     ) {
-        $this->state = $state;
         $this->repository = $repository;
         $this->extensionFactory = $extensionFactory;
         $this->codeFactory = $codeFactory;
         $this->logger = $logger;
+        $this->config = $config;
     }
 
     /**
@@ -74,11 +75,7 @@ class CustomerRepositoryPlugin
      */
     public function afterGetList(CustomerRepositoryInterface $subject, $results)
     {
-        if (!$this->state->isActive()) {
-            return $results;
-        }
-
-        if ($results->getTotalCount() <= 0) {
+        if (!$this->config->isVertexActive() || $results->getTotalCount() <= 0) {
             return $results;
         }
 
@@ -97,7 +94,7 @@ class CustomerRepositoryPlugin
             }
 
             $extensionAttributes = $this->getExtensionAttributes($customer);
-            $extensionAttributes->setVertexCustomerCode($customerCodes[$customer->getId()]);
+            $extensionAttributes->setVertexCustomerCode($customerCodes[$customer->getId()]->getCustomerCode());
         }
 
         return $results;
@@ -115,11 +112,7 @@ class CustomerRepositoryPlugin
      */
     public function afterGetById(CustomerRepositoryInterface $subject, CustomerInterface $result)
     {
-        if (!$this->state->isActive()) {
-            return $result;
-        }
-
-        if ($this->isCurrentlySaving($result)) {
+        if (!$this->config->isVertexActive($result->getStoreId()) || $this->isCurrentlySaving($result)) {
             return $result;
         }
 
@@ -131,7 +124,7 @@ class CustomerRepositoryPlugin
         } catch (NoSuchEntityException $exception) {
             $extensionAttributes->setVertexCustomerCode(null);
         } catch (\Exception $exception) {
-            $this->logger->critical($exception->getMessage() . PHP_EOL . $exception->getTraceAsString());
+            $this->logger->critical($exception);
         }
 
         return $result;
@@ -171,16 +164,14 @@ class CustomerRepositoryPlugin
         CustomerInterface $customer,
         $passwordHash = null
     ) {
+        if (!$this->config->isVertexActive($customer->getStoreId())) {
+            return $proceed($customer, $passwordHash);
+        }
         $this->setCurrentlySaving($customer);
-
         if ($customer->getExtensionAttributes()) {
             $customerCode = $customer->getExtensionAttributes()->getVertexCustomerCode();
             /** @var CustomerInterface $result */
             $result = $proceed($customer, $passwordHash);
-
-            if (!$this->state->isActive()) {
-                return $result;
-            }
 
             if ($customerCode) {
                 $codeModel = $this->getCodeModel($result->getId());
@@ -188,7 +179,7 @@ class CustomerRepositoryPlugin
                 try {
                     $this->repository->save($codeModel);
                 } catch (\Exception $e) {
-                    $this->logger->critical($e->getMessage() . PHP_EOL . $e->getTraceAsString());
+                    $this->logger->critical($e);
                 }
             } else {
                 $this->deleteByCustomerId($result->getId());
@@ -219,11 +210,7 @@ class CustomerRepositoryPlugin
         $customerId = $customer->getId();
         $result = $proceed($customer);
 
-        if (!$this->state->isActive()) {
-            return $result;
-        }
-
-        if ($result) {
+        if (!$this->config->isVertexActive() && $result) {
             $this->deleteByCustomerId($customerId);
         }
 
@@ -246,11 +233,7 @@ class CustomerRepositoryPlugin
     {
         $result = $proceed($customerId);
 
-        if (!$this->state->isActive()) {
-            return $result;
-        }
-
-        if ($result) {
+        if (!$this->config->isVertexActive() && $result) {
             $this->deleteByCustomerId($customerId);
         }
 
@@ -286,7 +269,7 @@ class CustomerRepositoryPlugin
         try {
             $this->repository->deleteByCustomerId($customerId);
         } catch (\Exception $exception) {
-            $this->logger->critical($exception->getMessage() . PHP_EOL . $exception->getTraceAsString());
+            $this->logger->critical($exception);
         }
     }
 
@@ -313,6 +296,7 @@ class CustomerRepositoryPlugin
      * This is used to prevent loading the attribute during a save procedure
      *
      * @param CustomerInterface $customer
+     * @return void
      */
     private function setCurrentlySaving(CustomerInterface $customer)
     {
@@ -338,6 +322,7 @@ class CustomerRepositoryPlugin
      * Declare that we are no longer currently saving a specific customer
      *
      * @param CustomerInterface $customer
+     * @return void
      */
     private function unsetCurrentlySaving(CustomerInterface $customer)
     {

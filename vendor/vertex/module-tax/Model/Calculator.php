@@ -6,6 +6,7 @@
 
 namespace Vertex\Tax\Model;
 
+use Magento\Framework\Message\ManagerInterface;
 use Magento\Framework\Pricing\PriceCurrencyInterface;
 use Magento\Tax\Api\Data\AppliedTaxInterface;
 use Magento\Tax\Api\Data\AppliedTaxInterfaceFactory;
@@ -17,10 +18,10 @@ use Magento\Tax\Api\Data\TaxDetailsInterface;
 use Magento\Tax\Api\Data\TaxDetailsInterfaceFactory;
 use Magento\Tax\Api\Data\TaxDetailsItemInterface;
 use Magento\Tax\Api\Data\TaxDetailsItemInterfaceFactory;
-use Psr\Log\LoggerInterface;
 use Vertex\Data\LineItemInterface;
 use Vertex\Data\TaxInterface;
 use Vertex\Tax\Model\Api\Data\QuotationRequestBuilder;
+use Vertex\Tax\Model\Config\Source\SummarizeTax;
 use Vertex\Tax\Model\TaxQuote\TaxQuoteRequest;
 
 /**
@@ -28,14 +29,28 @@ use Vertex\Tax\Model\TaxQuote\TaxQuoteRequest;
  */
 class Calculator
 {
+    const TAX_TYPE_PRINTED_CARD_GW = 'printed_card_gw';
+    const TAX_TYPE_QUOTE_GW = 'quote_gw';
+    const TAX_TYPE_SHIPPING = 'shipping';
+    const MESSAGE_KEY = 'vertex-messages';
+
+    /** @var bool */
+    private $addMessageToVertexGroup;
+
     /** @var AppliedTaxInterfaceFactory */
     private $appliedTaxFactory;
 
     /** @var AppliedTaxRateInterfaceFactory */
     private $appliedTaxRateFactory;
 
-    /** @var LoggerInterface */
+    /** @var Config */
+    private $config;
+
+    /** @var ExceptionLogger */
     private $logger;
+
+    /** @var ManagerInterface */
+    private $messageManager;
 
     /** @var PriceCurrencyInterface */
     private $priceCurrency;
@@ -60,7 +75,10 @@ class Calculator
      * @param AppliedTaxInterfaceFactory $appliedTaxFactory
      * @param AppliedTaxRateInterfaceFactory $appliedTaxRateFactory
      * @param PriceCurrencyInterface $priceCurrency
-     * @param LoggerInterface $logger
+     * @param ExceptionLogger $logger
+     * @param Config $config
+     * @param ManagerInterface $messageManager
+     * @param bool $addMessageToVertexGroup
      */
     public function __construct(
         TaxDetailsInterfaceFactory $taxDetailsFactory,
@@ -70,7 +88,10 @@ class Calculator
         AppliedTaxInterfaceFactory $appliedTaxFactory,
         AppliedTaxRateInterfaceFactory $appliedTaxRateFactory,
         PriceCurrencyInterface $priceCurrency,
-        LoggerInterface $logger
+        ExceptionLogger $logger,
+        Config $config,
+        ManagerInterface $messageManager,
+        $addMessageToVertexGroup = true
     ) {
         $this->taxDetailsFactory = $taxDetailsFactory;
         $this->requestFactory = $requestFactory;
@@ -80,6 +101,9 @@ class Calculator
         $this->appliedTaxRateFactory = $appliedTaxRateFactory;
         $this->priceCurrency = $priceCurrency;
         $this->logger = $logger;
+        $this->config = $config;
+        $this->messageManager = $messageManager;
+        $this->addMessageToVertexGroup = $addMessageToVertexGroup;
     }
 
     /**
@@ -111,7 +135,14 @@ class Calculator
             // Send to Vertex!
             $result = $this->quoteRequest->taxQuote($request, $scopeCode);
         } catch (\Exception $e) {
-            $this->logger->critical($e->getMessage() . PHP_EOL . $e->getTraceAsString());
+            $this->logger->critical($e);
+            $group = $this->addMessageToVertexGroup ? self::MESSAGE_KEY : null;
+            // Clear previous Vertex error messages
+            $this->messageManager->getMessages(true, $group);
+            $this->messageManager->addErrorMessage(
+                __('Unable to calculate taxes. This could be caused by an invalid address provided in checkout.'),
+                $group
+            );
             return $this->createEmptyDetails($quoteDetails);
         }
 
@@ -157,8 +188,8 @@ class Calculator
 
                     $resultItem = $resultItems[$child->getCode()];
                     $processedItem = $resultItem
-                        ? $this->createTaxDetailsItem($item, $resultItem, $round)
-                        : $this->createEmptyDetailsTaxItem($item);
+                        ? $this->createTaxDetailsItem($child, $resultItem, $round)
+                        : $this->createEmptyDetailsTaxItem($child);
 
                     // Add this item's tax information to the quote aggregate
                     $this->aggregateTaxData($taxDetails, $processedItem);
@@ -189,7 +220,6 @@ class Calculator
                     ->setRowTotal($this->optionalRound($rowTotal, $round))
                     ->setRowTotalInclTax($this->optionalRound($rowTotalInclTax, $round))
                     ->setRowTax($this->optionalRound($rowTax, $round));
-
                 // Aggregation to $taxDetails takes place on the child level
             } else {
                 $resultItem = $resultItems[$item->getCode()];
@@ -260,17 +290,25 @@ class Calculator
      */
     private function createAppliedTaxes(array $taxes, $lineItemId)
     {
-        $taxDetailType = 'Sales and Use';
-        if ($lineItemId === 'shipping') {
-            $taxDetailType = 'Shipping';
-        } elseif ($lineItemId === 'quote_gw'
-            || $lineItemId === 'printed_card_gw'
+        $taxDetailType = SummarizeTax::PRODUCT_AND_SHIPPING;
+        if ($lineItemId === static::TAX_TYPE_SHIPPING) {
+            $taxDetailType = static::TAX_TYPE_SHIPPING;
+        } elseif ($lineItemId === static::TAX_TYPE_QUOTE_GW
+            || $lineItemId === static::TAX_TYPE_PRINTED_CARD_GW
             || strpos($lineItemId, 'item_gw') === 0) {
-            $taxDetailType = 'Gift Options';
+            $taxDetailType = static::TAX_TYPE_QUOTE_GW;
         }
 
         $appliedTaxes = [];
         foreach ($taxes as $tax) {
+            $jurisdiction = $tax->getJurisdiction();
+            if (!$jurisdiction) {
+                continue;
+            }
+            if ($this->config->getSummarizeTax() === SummarizeTax::JURISDICTION) {
+                $taxDetailType = $jurisdiction->getName();
+            }
+
             /** @var AppliedTaxInterface $appliedTax */
             /** @var AppliedTaxRateInterface $rate */
             if (isset($appliedTaxes[$taxDetailType])) {
@@ -283,16 +321,11 @@ class Calculator
 
                 $rate = $this->appliedTaxRateFactory->create();
                 $rate->setPercent(0)
-                    ->setCode($taxDetailType)
-                    ->setTitle($taxDetailType);
+                    ->setCode($taxDetailType);
 
+                $rate->setTitle($this->getTaxLabel($taxDetailType));
                 $appliedTax->setRates([$rate]);
                 $appliedTaxes[$taxDetailType] = $appliedTax;
-            }
-
-            $jurisdiction = $tax->getJurisdiction();
-            if (!$jurisdiction) {
-                continue;
             }
 
             $rate = $appliedTax->getRates()[0];
@@ -415,7 +448,7 @@ class Calculator
             ->setRowTotalInclTax($this->optionalRound($extendedPrice + $vertexLineItem->getTotalTax(), $round))
             ->setDiscountTaxCompensationAmount(0)
             ->setAssociatedItemCode($quoteDetailsItem->getAssociatedItemCode())
-            ->setTaxPercent($effectiveRate)
+            ->setTaxPercent($effectiveRate * 100)
             ->setAppliedTaxes(
                 $this->createAppliedTaxes(
                     $vertexLineItem->getTaxes(),
@@ -439,6 +472,7 @@ class Calculator
                 return false;
             }
         }
+
         return true;
     }
 
@@ -452,5 +486,32 @@ class Calculator
     private function optionalRound($number, $round = true)
     {
         return $round ? $this->priceCurrency->round($number) : $number;
+    }
+
+    /**
+     * Retrieve tax label
+     *
+     * @param $code
+     * @return string
+     */
+    private function getTaxLabel($code)
+    {
+        switch ($code) {
+            case SummarizeTax::PRODUCT_AND_SHIPPING:
+                $title = __('Sales and Use')->render();
+                break;
+            case static::TAX_TYPE_QUOTE_GW:
+            case static::TAX_TYPE_PRINTED_CARD_GW:
+                $title = __('Gift Options')->render();
+                break;
+            case static::TAX_TYPE_SHIPPING:
+                $title = __('Shipping')->render();
+                break;
+            default:
+                $title = $code;
+                break;
+        }
+
+        return $title;
     }
 }

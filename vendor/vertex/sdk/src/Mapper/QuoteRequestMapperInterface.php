@@ -33,4 +33,27 @@ interface QuoteRequestMapperInterface
      * @throws ValidationException
      */
     public function map(RequestInterface $object);
+
+    /**
+     * Return maximum character length for location code field
+     *
+     * @return int
+     */
+    public function getLocationCodeMaxLength();
+
+    /**
+     * Return maximum character length for location code field
+     *
+     * @return int
+     */
+    public function getLocationCodeMinLength();
+
+    /**
+     * Validates location code field value
+     *
+     * @param string $fieldValue
+     * @return true
+     * @throws ValidationException
+     */
+    public function validateLocationCode($fieldValue);
 }

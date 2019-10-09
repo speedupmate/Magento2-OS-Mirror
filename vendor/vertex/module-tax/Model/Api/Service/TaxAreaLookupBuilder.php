@@ -9,6 +9,7 @@ namespace Vertex\Tax\Model\Api\Service;
 use Vertex\Services\TaxAreaLookup;
 use Vertex\Services\TaxAreaLookupFactory as SdkTaxAreaLookupFactory;
 use Vertex\Tax\Model\Api\ConfigBuilder;
+use Vertex\Utility\ServiceActionPerformerFactory;
 
 /**
  * Create a {@see TaxAreaLookup} service class
@@ -27,16 +28,21 @@ class TaxAreaLookupBuilder
     /** @var SdkTaxAreaLookupFactory */
     private $sdkFactory;
 
+    /** @var ServiceActionPerformerFactory */
+    private $serviceActionPerformerFactory;
+
     /**
      * @param ConfigBuilder $configBuilder
      * @param SdkTaxAreaLookupFactory $sdkFactory
      */
     public function __construct(
         ConfigBuilder $configBuilder,
-        SdkTaxAreaLookupFactory $sdkFactory
+        SdkTaxAreaLookupFactory $sdkFactory,
+        ServiceActionPerformerFactory $serviceActionPerformerFactory
     ) {
         $this->configBuilder = $configBuilder;
         $this->sdkFactory = $sdkFactory;
+        $this->serviceActionPerformerFactory =$serviceActionPerformerFactory;
     }
 
     /**
@@ -54,6 +60,7 @@ class TaxAreaLookupBuilder
         return $this->sdkFactory->create(
             [
                 'configuration' => $config,
+                'actionPerformerFactory'  => $this->serviceActionPerformerFactory
             ]
         );
     }

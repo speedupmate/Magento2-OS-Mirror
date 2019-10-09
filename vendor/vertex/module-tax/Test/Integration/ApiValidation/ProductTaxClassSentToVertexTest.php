@@ -27,7 +27,7 @@ use Vertex\Tax\Test\Integration\TestCase;
  */
 class ProductTaxClassSentToVertexTest extends TestCase
 {
-    const PRODUCT_SKU = 'TEST';
+    const PRODUCT_SKU = ProductBuilder::EXAMPLE_PRODUCT_SKU;
     const TAX_CLASS_NAME = 'Testable Tax Class';
 
     /** @var AddressInterfaceFactory */
@@ -151,15 +151,8 @@ class ProductTaxClassSentToVertexTest extends TestCase
      */
     private function createProduct($taxClassId)
     {
-        return $this->productBuilder->createProduct(
+        return $this->productBuilder->createExampleProduct(
             function (ProductInterface $product) use ($taxClassId) {
-                $product->setName('Example Product');
-                $product->setSku(static::PRODUCT_SKU);
-                $product->setPrice(5.00);
-                $product->setVisibility(Visibility::VISIBILITY_BOTH);
-                $product->setStatus(Status::STATUS_ENABLED);
-                $product->setTypeId(\Magento\Catalog\Model\Product\Type::TYPE_SIMPLE);
-                $product->setAttributeSetId(4);
                 $product->setCustomAttribute('tax_class_id', $taxClassId);
 
                 return $product;

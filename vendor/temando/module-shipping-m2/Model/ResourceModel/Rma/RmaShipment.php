@@ -7,20 +7,43 @@ namespace Temando\Shipping\Model\ResourceModel\Rma;
 
 use Magento\Framework\Model\AbstractModel;
 use Magento\Framework\Model\ResourceModel\Db\AbstractDb;
+use Psr\Log\LoggerInterface;
 use Temando\Shipping\Setup\RmaSetupSchema;
 
 /**
  * The RMA Shipment Resource Model grants access to the RMA-Shipment associations.
  *
- * @package  Temando\Shipping\Model
- * @author   Benjamin Heuer <benjamin.heuer@netresearch.de>
- * @license  http://opensource.org/licenses/osl-3.0.php Open Software License (OSL 3.0)
- * @link     http://www.temando.com/
+ * @package Temando\Shipping\Model
+ * @author  Benjamin Heuer <benjamin.heuer@netresearch.de>
+ * @license https://opensource.org/licenses/osl-3.0.php Open Software License (OSL 3.0)
+ * @link    https://www.temando.com/
  */
 class RmaShipment extends AbstractDb
 {
     const RMA_ID = 'rma_id';
     const RMA_SHIPMENT_ID = 'ext_shipment_id';
+
+    /**
+     * @var LoggerInterface
+     */
+    private $logger;
+
+    /**
+     * RmaShipment constructor.
+     *
+     * @param \Magento\Framework\Model\ResourceModel\Db\Context $context
+     * @param null $connectionName
+     * @param LoggerInterface|null $logger
+     */
+    public function __construct(
+        \Magento\Framework\Model\ResourceModel\Db\Context $context,
+        $connectionName = null,
+        LoggerInterface $logger = null
+    ) {
+        $this->logger = $logger ?: \Magento\Framework\App\ObjectManager::getInstance()->get(LoggerInterface::class);
+
+        parent::__construct($context, $connectionName);
+    }
 
     /**
      * Resource initialization
@@ -34,10 +57,11 @@ class RmaShipment extends AbstractDb
 
     /**
      * @param AbstractModel $object
-     * @param int           $value
-     * @param null          $field
+     * @param int $value
+     * @param null $field
      *
      * @return $this
+     * @throws \Exception
      */
     public function load(AbstractModel $object, $value, $field = null)
     {
@@ -84,6 +108,7 @@ class RmaShipment extends AbstractDb
      * @param int $rmaId
      *
      * @return string[]
+     * @throws \Exception
      */
     public function getShipmentIds($rmaId)
     {
@@ -102,6 +127,7 @@ class RmaShipment extends AbstractDb
      * @param int $rmaId
      * @param string[] $shipmentIds
      * @return int Number of saved entries
+     * @throws \Exception
      */
     public function saveShipmentIds($rmaId, array $shipmentIds)
     {
@@ -122,6 +148,7 @@ class RmaShipment extends AbstractDb
      * @param int $rmaId
      * @param string[] $shipmentIds
      * @return int Number of dropped entries
+     * @throws \Exception
      */
     public function deleteShipmentIds($rmaId, array $shipmentIds)
     {
@@ -140,5 +167,32 @@ class RmaShipment extends AbstractDb
         $where = array_combine($conditions, $terms);
 
         return $connection->delete($table, $where);
+    }
+
+    /**
+     * Query primary key by given platform shipment id.
+     *
+     * @param string $extShipmentId
+     * @return int|null
+     */
+    public function getIdByExtShipmentId($extShipmentId)
+    {
+        try {
+            $connection = $this->getConnection();
+            $tableName = $this->getMainTable();
+            $table = $this->getTable($tableName);
+
+            $select = $connection->select()
+                                 ->from($table, self::RMA_ID)
+                                 ->where('ext_shipment_id = :ext_shipment_id');
+
+            $bind = [':ext_shipment_id' => (string)$extShipmentId];
+            $entityId = $connection->fetchOne($select, $bind);
+
+            return $entityId ? (int)$entityId : null;
+        } catch (\Exception $exception) {
+            $this->logger->error($exception->getMessage(), ['exception' => $exception]);
+            return null;
+        }
     }
 }
