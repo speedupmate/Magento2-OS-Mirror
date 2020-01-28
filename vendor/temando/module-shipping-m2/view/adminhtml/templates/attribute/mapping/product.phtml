@@ -1,0 +1,63 @@
+<?php
+/**
+ * Refer to LICENSE.txt distributed with the Temando Shipping module for notice of license
+ */
+?>
+
+<?php
+/** @var \Magento\Backend\Block\Template $block */
+/** @var \Temando\Shipping\ViewModel\Attribute\Mapping\Product $viewModel */
+$viewModel = $block->getData('mappingViewModel');
+
+$urlSave = $block->escapeUrl($viewModel->getSaveProductAttributeMappingUrl($block->getRequest()->getParams()));
+$urlShippingAttributes = $block->escapeUrl($viewModel->getShippingAttributesUrl());
+$urlProductAttributes = $block->escapeUrl($viewModel->getProductAttributesUrl());
+$urlDelete = $block->escapeUrl($viewModel->getDeleteMappingUrl());
+$adminToken = $viewModel->getAdminToken();
+?>
+<div id="product-attribute-mapping">
+    <div id="block-product-attribute-mapping" data-bind="scope:'product-attribute-mapping'" class="block">
+        <form data-mage-init='{"validation": {}, "loader": {"texts": "", "template": "#custom-loader-template"}}'
+              id="product_attribute_mapping_form"
+              method="post"
+              action="<?= $urlSave ?>">
+            <?= $block->getBlockHtml('formkey') ?>
+            <fieldset class="fieldset admin__fieldset " id="base_fieldset">
+                <legend class="admin__legend legend">
+                    <span><?= __('General Attributes') ?></span>
+                </legend>
+                <p><?= __('Match the Magento shipping attributes with your Magento product attributes') ?></p>
+                <!-- ko template: getTemplate() --><!-- /ko -->
+            </fieldset>
+        </form>
+    </div>
+</div>
+
+<script type="text/x-magento-init">
+    {
+        "#block-product-attribute-mapping": {
+            "Magento_Ui/js/core/app": {
+                "components": {
+                    "product-attribute-mapping": {
+                        "component": "Temando_Shipping/js/view/attribute/mapping/product",
+                        "config": {
+                            "template": "Temando_Shipping/attribute/mapping/product"
+                        },
+                        "getShippingAttributesUrl": "<?= $block->escapeJs($urlShippingAttributes) ?>",
+                        "getProductAttributesUrl": "<?= $block->escapeJs($urlProductAttributes) ?>",
+                        "deleteUrl": "<?= $block->escapeJs($urlDelete) ?>",
+                        "token": "<?= $adminToken ?>"
+                    }
+                }
+            }
+        }
+    }
+</script>
+
+<script id="custom-loader-template" type="text/x-magento-template">
+    <div data-role="spinner" class="admin__data-grid-loading-mask">
+        <div class="spinner">
+            <span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span>
+        </div>
+    </div>
+</script>

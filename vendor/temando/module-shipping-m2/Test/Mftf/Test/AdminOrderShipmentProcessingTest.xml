@@ -1,0 +1,63 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<tests xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+       xsi:noNamespaceSchemaLocation="urn:magento:mftf:Test/etc/testSchema.xsd">
+    <test name="AdminCreateOrderWithTemandoShippingRates">
+        <annotations>
+            <title value="Admin Create Order With Shipping Rates" />
+            <description value="Confirm shipping rates appear for admin orders." />
+            <stories value="Confirm shipping rates appear for admin orders." />
+            <severity value="CRITICAL" />
+            <group value="Temando_Shipping_Admin_Processing" />
+            <skip>
+                <issueId value="MPI-4443"/>
+            </skip>
+            <testCaseId value="MPI-4494" />
+        </annotations>
+        <before>
+            <createData entity="SimpleSubCategory" stepKey="simplecategory" />
+            <createData entity="SimpleProduct" stepKey="simpleproduct">
+                <requiredEntity createDataKey="simplecategory" />
+            </createData>
+            <createData entity="Simple_US_Customer" stepKey="simpleuscustomer" />
+
+            <actionGroup ref="LoginAsAdmin" stepKey="loginAsAdmin" />
+            <actionGroup ref="AdminEnableShippingMethod" stepKey="enableShippingMethod" />
+
+            <actionGroup ref="AdminCreateStoreViewActionGroup" stepKey="createStoreView" />
+        </before>
+        <after>
+            <deleteData createDataKey="simpleproduct" stepKey="deleteProduct" />
+            <deleteData createDataKey="simplecategory" stepKey="deleteCategory" />
+            <deleteData createDataKey="simpleuscustomer" stepKey="deleteCustomer" />
+
+            <actionGroup ref="AdminDeleteStoreViewActionGroup" stepKey="AdminDeleteStoreViewActionGroup" />
+            <amOnPage url="admin/admin/auth/logout/" stepKey="amOnLogoutPage" />
+            <actionGroup ref="AdminDisableShippingMethodFlushConfigCache" stepKey="disableShippingMethod" />
+        </after>
+
+        <!-- Start testing -->
+        <!-- Place order -->
+        <actionGroup ref="TemandoNavigateToNewOrderExistingCustomerCustomStoreView" stepKey="navigateToOrdersPage" />
+
+        <actionGroup ref="addSimpleProductToOrder" stepKey="addProductToOrder">
+            <argument name="product" value="$$simpleproduct$$" />
+        </actionGroup>
+
+        <actionGroup ref="AdminOrderSelectStandardShipping" stepKey="selectStandardShipping" />
+
+        <click stepKey="clickSubmitOrder" selector="button#submit_order_top_button" />
+        <waitForPageLoad stepKey="waitForOrderCreation" />
+
+        <actionGroup ref="verifyCreatedOrderInformation" stepKey="verifyOrderCreated" />
+        <see stepKey="seeShippingOrderId" userInput="Magento Shipping Order ID" />
+
+        <grabTextFrom selector="div.page-title-wrapper h1.page-title" stepKey="grabOrderId" />
+        <executeJS function="return jQuery('h1.page-title').html().split('#').pop();" stepKey="orderId" />
+
+        <!-- Ship order -->
+        <actionGroup ref="TemandoShipOrder" stepKey="shipOrder">
+            <argument name="orderId" value="{$orderId}" />
+        </actionGroup>
+    </test>
+</tests>

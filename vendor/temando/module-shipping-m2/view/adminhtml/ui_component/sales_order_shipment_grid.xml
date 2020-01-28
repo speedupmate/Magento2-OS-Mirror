@@ -1,0 +1,37 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!--
+/**
+ * Refer to LICENSE.txt distributed with the Temando Shipping module for notice of license
+ */
+-->
+<listing xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="urn:magento:module:Magento_Ui:etc/ui_configuration.xsd">
+    <listingToolbar name="listing_top">
+        <filters name="listing_filters">
+            <settings>
+                <templates>
+                    <filters>
+                        <select>
+                            <param name="template" xsi:type="string">ui/grid/filters/elements/ui-select</param>
+                            <param name="component" xsi:type="string">Magento_Ui/js/form/element/ui-select</param>
+                        </select>
+                    </filters>
+                </templates>
+            </settings>
+        </filters>
+    </listingToolbar>
+    <columns name="sales_order_shipment_columns">
+        <column name="temando_shipment_status" component="Magento_Ui/js/grid/columns/select">
+            <settings>
+                <label translate="true">Shipment Status</label>
+                <filter>select</filter>
+                <options class="Temando\Shipping\Ui\Component\Listing\Column\ShipmentStatus\Options"/>
+                <dataType>select</dataType>
+                <editor>
+                    <editorType>select</editorType>
+                </editor>
+                <visible>false</visible>
+                <sortable>false</sortable>
+            </settings>
+        </column>
+    </columns>
+</listing>

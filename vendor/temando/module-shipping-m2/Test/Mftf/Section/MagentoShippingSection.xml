@@ -1,0 +1,43 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<sections xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+          xsi:noNamespaceSchemaLocation="urn:magento:mftf:Page/etc/SectionObject.xsd">
+    <section name="MagentoShippingSection">
+        <element name="sectionHead" type="text" selector="#carriers_temando-head"/>
+        <element name="isClickAndCollectEnabled" type="select" selector="#carriers_temando_clickandcollect_enabled"/>
+        <element name="isTemandoActive" type="select" selector="#carriers_temando_active"/>
+        <element name="sessionEndpoint" type="text" selector="#carriers_temando_session_endpoint"/>
+        <element name="accountId" type="text" selector="#carriers_temando_account_id"/>
+        <element name="bearerToken" type="text" selector="#carriers_temando_bearer_token"/>
+
+        <element name="CheckoutViewSettingsButton" type="button" selector="input#carriers_temando_checkout_view_settings"/>
+        <element name="AdvancedSettingsButton" type="button" selector="input#carriers_temando_advanced_settings"/>
+        <element name="GettingStartedSection" type="text" selector="#carriers_temando_getting_started" />
+        <element name="GettingStartedLocationsButtonDisabled" type="text" selector="ol.getting-started-actions li:nth-child(1) a.disabled" />
+        <element name="GettingStartedCarriersButtonDisabled" type="text" selector="ol.getting-started-actions li:nth-child(2) a.disabled" />
+        <element name="GettingStartedPackagingButtonDisabled" type="text" selector="ol.getting-started-actions li:nth-child(3) a.disabled" />
+        <element name="GettingStartedShippingExperiencesButtonDisabled" type="text" selector="ol.getting-started-actions li:nth-child(4) a.disabled" />
+        <element name="ButtonSave" type="button" selector="#save" />
+
+        <element name="CollectionPointsEnabled" type="select" selector="#carriers_temando_collectionpoints_enabled" />
+        <element name="CollectionPointCountries" type="select" selector="#carriers_temando_collectionpoints_countries" />
+
+        <element name="ClickAndCollectionEnabled" type="select" selector="#carriers_temando_clickandcollect_enabled" />
+    </section>
+    <section name="AdvancedSettingsSection">
+        <element name="SyncEnabled" type="text" selector="label[for=sync_enable]" />
+        <element name="SyncShipment" type="checkbox" selector="#sync_shipment" />
+        <element name="ButtonSave" type="button" selector="#save" />
+    </section>
+    <section name="CheckoutViewSettingsSection">
+        <element name="AddressType" type="checkbox" selector="#showAddressTypeField-form--checkoutFields" />
+        <element name="AuthorityToLeave" type="checkbox" selector="#showAuthorityToLeaveField-form--checkoutFields" />
+        <element name="SignatureRequired" type="checkbox" selector="#showSignatureRequiredField-form--checkoutFields" />
+
+        <element name="DropdownLabel" type="text" selector="//input[@name='addressTypeLabel']" />
+        <element name="DropdownOptions" type="select" selector="#addressTypeOptions-form--checkoutFields" />
+        <element name="DefaultValue" type="select" selector="#addressTypeDefaultValue-form--checkoutFields" />
+        <element name="AuthorityToLeaveCheckboxLabel" type="input" selector="#authorityToLeaveLabel-form--checkoutFields" />
+        <element name="SignatureRequiredCheckboxLabel" type="input" selector="#signatureRequiredLabel-form--checkoutFields" />
+    </section>
+</sections>

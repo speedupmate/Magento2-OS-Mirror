@@ -1,0 +1,71 @@
+<?php
+/**
+ * MageSpecialist
+ *
+ * NOTICE OF LICENSE
+ *
+ * This source file is subject to the Open Software License (OSL 3.0)
+ * that is bundled with this package in the file LICENSE.txt.
+ * It is also available through the world-wide-web at this URL:
+ * http://opensource.org/licenses/osl-3.0.php
+ * If you did not receive a copy of the license and are unable to
+ * obtain it through the world-wide-web, please send an email
+ * to info@magespecialist.it so we can send you a copy immediately.
+ *
+ * @category   MSP
+ * @package    MSP_ReCaptcha
+ * @copyright  Copyright (c) 2017 Skeeller srl (http://www.magespecialist.it)
+ * @license    http://opensource.org/licenses/osl-3.0.php  Open Software License (OSL 3.0)
+ */
+
+/** @var $block MSP\ReCaptcha\Block\Adminhtml\ReCaptcha */
+$class = $block->getSize() === 'invisible' ? 'field-invisible-recaptcha' : 'field-recaptcha';
+?>
+<?php if ($block->canDisplayCaptcha()) : ?>
+<div class="admin__field <?= /* @noEscape */ $class ?>">
+    <div id="admin-recaptcha"></div>
+</div>
+
+<script type="text/javascript">
+    require([
+        'jquery'
+    ], function (
+        $
+    ) {
+        const element = document.createElement('script');
+        const scriptTag = document.getElementsByTagName('script')[0];
+
+        element.async = true;
+        element.src = 'https://www.google.com/recaptcha/api.js'
+            + '?onload=globalOnRecaptchaOnLoadCallback&render=explicit';
+
+        window.globalOnRecaptchaOnLoadCallback = function () {
+            let token = '';
+
+            this.widgetId = grecaptcha.render('admin-recaptcha', {
+                'sitekey': '<?= $block->escapeJs($block->getPublicKey()) ?>',
+                'size': '<?= $block->escapeJs($block->getSize()) ?>',
+                'badge': 'inline',
+                'callback': function (token) { // jscs:ignore jsDoc
+                    <?php if ($block->getSize() === 'invisible') : ?>
+                    this.token = token;
+                    $('#login-form').submit();
+                    <?php endif; ?>
+                }.bind(this)
+            });
+
+            <?php if ($block->getSize() === 'invisible') : ?>
+            $('#login-form').submit(function (event) {
+                if (!this.token) {
+                    event.preventDefault(event);
+                    event.stopImmediatePropagation();
+                    grecaptcha.execute(this.widgetId);
+                }
+            }.bind(this));
+            <?php endif; ?>
+        }.bind(this);
+
+        scriptTag.parentNode.insertBefore(element, scriptTag);
+    });
+</script>
+<?php endif; ?>

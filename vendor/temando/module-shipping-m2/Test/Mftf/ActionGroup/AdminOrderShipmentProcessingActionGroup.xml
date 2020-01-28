@@ -1,0 +1,463 @@
+<actionGroups xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+              xsi:noNamespaceSchemaLocation="urn:magento:mftf:Test/etc/actionGroupSchema.xsd">
+    <!-- Navigate to new order -->
+    <actionGroup name="TemandoNavigateToNewOrderExistingCustomerCustomStoreView">
+        <amOnPage url="{{AdminOrdersPage.url}}" stepKey="navigateToOrderIndexPage"/>
+        <waitForPageLoad stepKey="waitForIndexPageLoad"/>
+        <see selector="{{AdminHeaderSection.pageTitle}}" userInput="Orders" stepKey="seeIndexPageTitle"/>
+        <click selector="{{AdminOrdersGridSection.createNewOrder}}" stepKey="clickCreateNewOrder"/>
+        <waitForPageLoad stepKey="waitForCustomerGridLoad"/>
+        <fillField userInput="$$simpleuscustomer.email$$" selector="{{AdminOrderCustomersGridSection.emailInput}}" stepKey="filterEmail"/>
+        <click selector="{{AdminOrderCustomersGridSection.apply}}" stepKey="applyFilter"/>
+        <waitForPageLoad stepKey="waitForFilteredCustomerGridLoad"/>
+        <click selector="{{AdminOrderCustomersGridSection.firstRow}}" stepKey="clickOnCustomer"/>
+        <waitForPageLoad stepKey="waitForCreateOrderPageLoad" />
+        <seeElement stepKey="seeSelectAStore" selector="{{TemandoSalesOrderSection.SelectAStore}}" />
+        <conditionalClick selector="{{TemandoSalesOrderSection.CustomStoreLabel(customStore.name)}}"
+                          dependentSelector="{{TemandoSalesOrderSection.SelectAStore}}"
+                          visible="true"
+                          stepKey="clickStoreView" />
+        <waitForPageLoad stepKey="waitForNewOrderPage" />
+    </actionGroup>
+    <!-- Select standard shipping -->
+    <actionGroup name="AdminOrderSelectStandardShipping">
+        <click selector="{{AdminOrderFormPaymentSection.header}}" stepKey="unfocus"/>
+        <waitForPageLoad stepKey="waitForJavascriptToFinish"/>
+        <click selector="{{AdminOrderFormPaymentSection.getShippingMethods}}" stepKey="clickShippingMethods"/>
+        <waitForElementVisible selector="{{TemandoSalesOrderSection.shippingMethods}}" stepKey="waitForShippingOptions"/>
+        <see stepKey="seeMagentoShippingItems" userInput="Magento Shipping" />
+        <selectOption selector="{{TemandoSalesOrderSection.standardShippingOption}}" userInput="Standard Shipping" stepKey="selectStandardShipping" />
+        <waitForLoadingMaskToDisappear stepKey="waitForStandardShippingSelection" />
+    </actionGroup>
+    <!-- Verify the order was placed -->
+    <actionGroup name="TemandoVerifyOrderWasPlaced">
+        <arguments>
+            <argument name="orderId" type="string" />
+        </arguments>
+        <fillField selector="{{AdminOrdersGridSection.search}}" userInput="{{orderId}}" stepKey="fillOrderNum"/>
+        <click selector="{{AdminOrdersGridSection.submitSearch}}" stepKey="submitSearchOrderNum"/>
+        <waitForLoadingMaskToDisappear stepKey="waitForLoadingMaskToDisappearOnSearch"/>
+        <click selector="{{AdminOrdersGridSection.firstRow}}" stepKey="clickOrderRow"/>
+        <waitForPageLoad stepKey="waitForOrderToLoad" />
+        <see stepKey="seeShippingOrderId" userInput="Magento Shipping Order ID" />
+    </actionGroup>
+    <!-- Verify Magento order was placed -->
+    <actionGroup name="TemandoVerifyMagentoOrderWasPlaced">
+        <arguments>
+            <argument name="orderId" type="string" />
+        </arguments>
+        <fillField selector="{{AdminOrdersGridSection.search}}" userInput="{{orderId}}" stepKey="fillOrderNum"/>
+        <click selector="{{AdminOrdersGridSection.submitSearch}}" stepKey="submitSearchOrderNum"/>
+        <waitForLoadingMaskToDisappear stepKey="waitForLoadingMaskToDisappearOnSearch"/>
+        <click selector="{{AdminOrdersGridSection.firstRow}}" stepKey="clickOrderRow"/>
+        <waitForPageLoad stepKey="waitForOrderToLoad" />
+        <dontSeeElement stepKey="dontSeeShippingOrderId" selector="{{TemandoSalesOrderSection.shippingOrderIdLabel}}" />
+    </actionGroup>
+    <!-- Ship Magento order -->
+    <actionGroup name="TemandoShipMagentoOrder">
+        <click stepKey="clickShipOrder" selector="{{TemandoSalesOrderSection.buttonShip}}" />
+        <seeInCurrentUrl stepKey="seeShipmentPageUrl" url="{{AdminShipmentNewPage.url}}" />
+        <waitForPageLoad stepKey="waitForNewShipmentPage" />
+        <dontSeeElement stepKey="dontSeeTemandoShippingForm" selector="{{TemandoShipmentSection.originLocation}}" />
+        <seeElement stepKey="seeSubmitShipmentButton" selector="{{TemandoShipmentSection.magentoSubmitShipment}}" />
+        <click stepKey="clickSubmitShipment" selector="{{TemandoShipmentSection.magentoSubmitShipment}}" />
+        <waitForPageLoad stepKey="waitForShipment" />
+        <seeInCurrentUrl stepKey="seeOrderPage" url="{{AdminOrderDetailsPage.url}}" />
+        <see selector="{{AdminOrderDetailsMessagesSection.successMessage}}" userInput="The shipment has been created." stepKey="seeShipmentCreateSuccess"/>
+    </actionGroup>
+    <!-- Lick the stamp and send it -->
+    <actionGroup name="TemandoShipOrder">
+        <arguments>
+            <argument name="orderId" type="string" />
+            <argument name="originLocation" type="string" defaultValue="{{TemandoLocationLabels.US}}" />
+            <argument name="packageType" type="string" defaultValue="{{TemandoPackageLabels.SmallBox}}" />
+            <argument name="packageWeight" type="string" defaultValue="1" />
+            <argument name="packageDimensionsUnit" type="string" defaultValue="{{TemandoPackageDimensionsUnits.inches}}" />
+            <argument name="carrier" defaultValue="{{TemandoCarriers.generic}}" type="string" />
+            <argument name="externalTransactionNumber" type="string" defaultValue="{{TemandoShippingInternational.externalTransactionNumber}}" />
+            <argument name="product" defaultValue="{{SimpleProduct}}"/>
+        </arguments>
+
+        <click stepKey="clickShipOrder" selector="{{TemandoSalesOrderSection.buttonShip}}" />
+        <seeInCurrentUrl stepKey="seeShipmentPageUrl" url="{{AdminShipmentNewPage.url}}" />
+        <waitForPageLoad stepKey="waitForNewShipmentPage" />
+        <waitForLoadingMaskToDisappear stepKey="waitForShipmentForm" />
+
+        <scrollTo stepKey="scrollToShipmentReference" selector="{{TemandoShipmentSection.customerReference}}" y="-85" />
+        <seeInField stepKey="seeCustomerReference" selector="{{TemandoShipmentSection.customerReference}}" userInput="{{orderId}}" />
+
+        <waitForElementVisible selector="{{TemandoShipmentSection.originLocation}}" stepKey="waitForOriginLocations" />
+        <seeOptionIsSelected selector="{{TemandoShipmentSection.originLocation}}" userInput="{{TemandoLocationLabels.US}}" stepKey="seeDefaultLocationSelected" />
+        <selectOption selector="{{TemandoShipmentSection.originLocation}}" userInput="{{originLocation}}" stepKey="selectOriginLocation" />
+
+        <waitForElementVisible selector="{{TemandoShipmentSection.packageType('0')}}" stepKey="waitForPackages" time="20" />
+        <selectOption selector="{{TemandoShipmentSection.packageType('0')}}" userInput="{{packageType}}" stepKey="selectPackageType" />
+        <selectOption selector="{{TemandoShipmentSection.packageDimensionUnits('0')}}" stepKey="selectPackageDimensionsUnits" userInput="{{packageDimensionsUnit}}" />
+        <fillField stepKey="fillPackageWeight" selector="{{TemandoShipmentSection.packageWeight('0')}}" userInput="{{packageWeight}}" />
+
+        <scrollTo stepKey="scrollToGetQuotes" selector="{{TemandoShipmentSection.getQuotes}}" y="-85" />
+        <seeCheckboxIsChecked selector="{{TemandoShipmentSection.useCustomerExperience}}" stepKey="seeCustomersChoiceIsSelected" />
+        <click stepKey="clickGetQuotes" selector="{{TemandoShipmentSection.getQuotes}}" />
+        <waitForLoadingMaskToDisappear stepKey="waitForQuotes" />
+
+        <dontSee stepKey="dontSeeNoQuotes" userInput="{{TemandoQuoteResponses.NoEligibleQuotes}}" />
+        <dontSee stepKey="dontSeeError" userInput="{{TemandoQuoteResponses.APIError}}" />
+        <checkOption selector="{{TemandoShipmentSection.carrierFirst(carrier)}}" stepKey="selectCarrierService" />
+
+        <click stepKey="clickBookShipment" selector="{{TemandoShipmentSection.bookShipment}}" />
+        <waitForLoadingMaskToDisappear stepKey="waitForBookShipment" />
+
+        <seeInCurrentUrl stepKey="onViewShipmentPage" url="{{TemandoViewShipmentPage.url}}" />
+        <waitForPageLoad stepKey="waitForViewShipment" />
+        <see stepKey="seeMagentoOrderId" userInput="Order # {{orderId}}" />
+    </actionGroup>
+    <!-- International shipment -->
+    <actionGroup name="TemandoShipOrderInternational" extends="TemandoShipOrder">
+        <conditionalClick stepKey="expandInternationalItemDetails" selector="{{TemandoShipmentSection.headerInternationalItemDetails}}" dependentSelector="{{TemandoShipmentSection.itemWeight}}" visible="false" after="fillPackageWeight" />
+        <waitForElement stepKey="waitForInternationalItemDetails" selector="{{TemandoShipmentSection.hsCode}}" after="expandInternationalItemDetails" />
+        <seeInField stepKey="seeHSCodeIsPopulated" selector="{{TemandoShipmentSection.hsCode}}" userInput="{{product.custom_attributes[ts_hs_code]}}" after="waitForInternationalItemDetails" />
+        <fillField stepKey="fillInternationalItemWeight" selector="{{TemandoShipmentSection.itemWeight}}" userInput="{{packageWeight}}" after="seeHSCodeIsPopulated" />
+        <seeOptionIsSelected stepKey="seeCountryOfOriginIsPopulated" selector="{{TemandoShipmentSection.countryOfOrigin}}" userInput="{{InternationalProductUS.countryOfOrigin}}" before="scrollToGetQuotes" />
+    </actionGroup>
+    <actionGroup name="TemandoShipOrderWithTrackingPopup" extends="TemandoShipOrder">
+        <grabValueFrom stepKey="shipmentId" selector="{{TemandoShipmentSection.titleShipmentId}}" after="seeMagentoOrderId" />
+        <click stepKey="clickTrackingLink" selector="{{TemandoShipmentSection.linkTrackShipment}}" />
+
+        <waitForPageLoad stepKey="waitForTrackingPopup" />
+        <switchToWindow stepKey="switchToTrackingPopup" userInput="trackshipment" />
+        <seeElement stepKey="seeShipmentIdInPopup" selector="{{TemandoShipmentTrackingPopupSection.shipmentId({$shipmentId})}}" />
+        <closeTab stepKey="closeTrackingWindow" />
+
+        <grabValueFrom stepKey="trackingNumber" selector="{{TemandoShipmentSection.linkTrackingNumberFirst}}" />
+        <click stepKey="clickTrackingNumber" selector="{{TemandoShipmentSection.linkTrackingNumberFirst}}" />
+        <waitForPageLoad stepKey="waitForTrackingNumberPopup" />
+        <switchToWindow stepKey="switchToTrackingPopupAgain" userInput="trackorder" />
+        <dontSeeElement selector="{{TemandoShipmentTrackingPopupSection.shipmentId({$shipmentId})}}" stepKey="dontSeeShipmentIdInPopup" />
+        <seeElement stepKey="seeTrackingNumberInPopup" selector="{{TemandoShipmentTrackingPopupSection.trackingNumber}}" />
+        <closeTab stepKey="closeTrackingWindowAgain" />
+    </actionGroup>
+    <actionGroup name="TemandoShipOrderUsingPreFilledPackageDetails" >
+        <arguments>
+            <argument name="orderId" type="string" />
+            <argument name="originLocation" type="string" defaultValue="{{TemandoLocationLabels.US}}" />
+            <argument name="packageType" type="string" defaultValue="{{TemandoPackageLabels.PrePackaged}}" />
+            <argument name="carrier" defaultValue="{{TemandoCarriers.generic}}" type="string" />
+            <argument name="externalTransactionNumber" type="string" defaultValue="{{TemandoShippingInternational.externalTransactionNumber}}" />
+        </arguments>
+
+        <click stepKey="clickShipOrder" selector="{{TemandoSalesOrderSection.buttonShip}}" />
+        <seeInCurrentUrl stepKey="seeShipmentPageUrl" url="{{AdminShipmentNewPage.url}}" />
+        <waitForPageLoad stepKey="waitForNewShipmentPage" />
+        <waitForLoadingMaskToDisappear stepKey="waitForShipmentForm" />
+
+        <scrollTo stepKey="scrollToShipmentReference" selector="{{TemandoShipmentSection.customerReference}}" y="-85" />
+        <seeInField stepKey="seeCustomerReference" selector="{{TemandoShipmentSection.customerReference}}" userInput="{{orderId}}" />
+
+        <waitForElementVisible selector="{{TemandoShipmentSection.originLocation}}" stepKey="waitForOriginLocations" />
+        <seeOptionIsSelected selector="{{TemandoShipmentSection.originLocation}}" userInput="{{TemandoLocationLabels.US}}" stepKey="seeDefaultLocationSelected" />
+        <selectOption selector="{{TemandoShipmentSection.originLocation}}" userInput="{{originLocation}}" stepKey="selectOriginLocation" />
+
+        <waitForElementVisible selector="{{TemandoShipmentSection.packageType('0')}}" stepKey="waitForPackages" time="20" />
+        <seeInField selector="{{TemandoShipmentSection.packageType('0')}}" userInput="{{packageType}}" stepKey="seePrePackagedOptionSelected" />
+
+        <scrollTo stepKey="scrollToGetQuotes" selector="{{TemandoShipmentSection.getQuotes}}" y="-85" />
+        <seeCheckboxIsChecked selector="{{TemandoShipmentSection.useCustomerExperience}}" stepKey="seeCustomersChoiceIsSelected" />
+        <click stepKey="clickGetQuotes" selector="{{TemandoShipmentSection.getQuotes}}" />
+        <waitForLoadingMaskToDisappear stepKey="waitForQuotes" />
+
+        <dontSee stepKey="dontSeeNoQuotes" userInput="{{TemandoQuoteResponses.NoEligibleQuotes}}" />
+        <dontSee stepKey="dontSeeError" userInput="{{TemandoQuoteResponses.APIError}}" />
+        <checkOption selector="{{TemandoShipmentSection.carrierFirst(carrier)}}" stepKey="selectCarrierService" />
+
+        <click stepKey="clickBookShipment" selector="{{TemandoShipmentSection.bookShipment}}" />
+        <waitForLoadingMaskToDisappear stepKey="waitForBookShipment" />
+
+        <seeInCurrentUrl stepKey="onViewShipmentPage" url="{{TemandoViewShipmentPage.url}}" />
+        <waitForPageLoad stepKey="waitForViewShipment" />
+        <see stepKey="seeMagentoOrderId" userInput="Order # {{orderId}}" />
+    </actionGroup>
+    <!-- Verify Temando shipment -->
+    <actionGroup name="TemandoVerifyShipment">
+        <seeElement stepKey="seeTemandoOrderId" selector="{{TemandoShipmentSection.labelOrderId}}" />
+        <seeElement stepKey="seeTemandoShipmentId" selector="{{TemandoShipmentSection.temandoShippingId}}" />
+        <seeElement stepKey="seeOriginLocationAddress" selector="{{TemandoShipmentSection.originLocationLabel}}" />
+        <seeElement stepKey="seeDocumentation" selector="{{TemandoShipmentSection.documentationLabel}}" />
+        <click stepKey="clickFirstDocumentLink" selector="{{TemandoShipmentSection.firstDocumentLink}}" />
+        <switchToNextTab stepKey="switchToDocumentTab" />
+        <waitForPageLoad stepKey="waitForDocument" />
+        <closeTab stepKey="closeDocumentTab" />
+    </actionGroup>
+    <!-- Verify batch print shipment label -->
+    <actionGroup name="TemandoBatchPrintShippingLabel">
+        <arguments>
+            <argument name="orderId" type="string" />
+            <argument name="shipmentId" type="string" />
+        </arguments>
+        <amOnPage stepKey="goToShipmentGrid" url="{{TemandoShipmentGridPage.url}}" />
+        <waitForPageLoad stepKey="waitForShipmentsGrid" />
+
+        <click stepKey="clickFiltersButton" selector="{{AdminGridFilterControls.filters}}" />
+        <waitForAjaxLoad stepKey="waitForFiltersToLoad" />
+        <fillField userInput="{{orderId}}" selector="{{TemandoShipmentGrid.filterOrderId}}" stepKey="fillOrderId" />
+        <click stepKey="clickApplyFilters" selector="{{TemandoPickupGridSection.buttonApplyFilters}}" />
+        <waitForLoadingMaskToDisappear stepKey="waitForFiltersToApply" />
+
+        <checkOption stepKey="checkShipment" selector="{{TemandoShipmentGrid.checkboxShipment(shipmentId)}}" />
+        <click stepKey="clickActionDropdown" selector="{{TemandoShipmentGrid.dropdownAction}}" />
+        <click stepKey="clickPrintShippingLabels" selector="{{TemandoShipmentGrid.actionPrintShippingLabels}}" />
+        <waitForPageLoad stepKey="waitForShippingLabels" />
+        <dontSeeElement stepKey="dontSeeError" selector="{{TemandoShipmentGrid.errorNoShippingLabels}}" />
+    </actionGroup>
+    <!-- Partial shipment -->
+    <actionGroup name="TemandoShipOneOfTwoProducts" extends="TemandoShipOrder">
+        <arguments>
+            <argument name="product1qty" defaultValue="1" type="string" />
+            <argument name="product2qty" defaultValue="0" type="string" />
+        </arguments>
+
+        <grabAttributeFrom selector="{{TemandoShipmentSection.firstProductQtyLabel}}" userInput="for" stepKey="fieldIdProduct1" after="fillPackageWeight" />
+        <fillField stepKey="fillFirstProductQty" selector="{{TemandoShipmentSection.productQty({$fieldIdProduct1})}}" userInput="{{product1qty}}" after="fieldIdProduct1" />
+
+        <grabAttributeFrom selector="{{TemandoShipmentSection.secondProductQtyLabel}}" userInput="for" stepKey="fieldIdProduct2" after="fillFirstProductQty" />
+        <fillField stepKey="fillSecondProductQty" selector="{{TemandoShipmentSection.productQty({$fieldIdProduct2})}}" userInput="{{product2qty}}" before="scrollToGetQuotes" />
+    </actionGroup>
+    <!-- Multi-package Shipment -->
+    <actionGroup name="TemandoTwoPackageShipment" extends="TemandoShipOrder">
+        <fillField stepKey="firstPackageSecondProduct" selector="{{TemandoShipmentSection.packageContentsQty('0', '2')}}" userInput="0" after="fillPackageWeight" />
+        <click stepKey="clickAddAnotherPackage" selector="{{TemandoShipmentSection.addAnotherPackageLink}}" after="firstPackageSecondProduct" />
+
+        <waitForElementVisible selector="{{TemandoShipmentSection.packageType('1')}}" stepKey="waitForNextPackage" after="clickAddAnotherPackage" />
+        <selectOption selector="{{TemandoShipmentSection.packageType('1')}}" userInput="{{packageType}}" stepKey="selectNextPackageType" after="waitForNextPackage" />
+        <selectOption selector="{{TemandoShipmentSection.packageDimensionUnits('1')}}" stepKey="selectNextPackageDimensionsUnits" userInput="{{packageDimensionsUnit}}" after="selectNextPackageType" />
+        <fillField stepKey="fillNextPackageWeight" selector="{{TemandoShipmentSection.packageWeight('1')}}" userInput="{{packageWeight}}" before="scrollToGetQuotes" />
+    </actionGroup>
+    <!-- Verify order shipments -->
+    <actionGroup name="TemandoVerifyOrderShipments">
+        <arguments>
+            <argument name="orderStatus" type="string" defaultValue="{{OrderStatus.processing}}" />
+            <argument name="expectedShipments" type="string" defaultValue="1" />
+        </arguments>
+        <click stepKey="clickInformationTab" selector="{{TemandoSalesOrderSection.infoTab}}" />
+        <waitForPageLoad stepKey="waitForInfoSection" />
+        <seeElement stepKey="seeOrderStatus" selector="{{TemandoSalesOrderSection.orderStatus(orderStatus)}}" />
+        <click stepKey="clickShipmentsTab" selector="{{TemandoSalesOrderSection.shipmentsTab}}" />
+        <waitForPageLoad stepKey="waitForShipments" />
+        <see stepKey="seeRecordsFound" userInput="{{expectedShipments}} records found" />
+    </actionGroup>
+    <actionGroup name="TemandoVerifyOrderShipmentsFromShipment" extends="TemandoVerifyOrderShipments">
+        <click stepKey="clickOrderLink" selector="{{TemandoShipmentSection.orderLink}}" before="clickInformationTab" />
+        <waitForPageLoad stepKey="waitForOrderPage" after="clickOrderLink" />
+    </actionGroup>
+    <!-- Verify Magento shipment -->
+    <actionGroup name="TemandoVerifyMagentoShipment">
+        <click stepKey="clickViewShipment" selector="{{TemandoSalesOrderSection.firstViewLink}}" />
+        <waitForPageLoad stepKey="waitForShipmentPage" />
+        <dontSeeElement stepKey="dontSeeOriginLocation" selector="{{TemandoShipmentSection.originLocationLabel}}" />
+        <dontSeeElement stepKey="dontSeeDocumentation" selector="{{TemandoShipmentSection.documentationLabel}}" />
+    </actionGroup>
+    <!-- Verify AOP order comment -->
+    <actionGroup name="TemandoVerifyOrderComment">
+        <arguments>
+            <argument name="comment" type="string" defaultValue="" />
+        </arguments>
+        <click stepKey="clickCommentsTab" selector="{{AdminOrderDetailsOrderViewSection.commentsHistory}}" />
+        <waitForPageLoad stepKey="waitForCommentsSection" />
+        <seeElement stepKey="seeAOPSuccessMessage" selector="{{TemandoSalesOrderSection.orderComment(comment)}}" />
+    </actionGroup>
+    <!-- Ship collection point order -->
+    <actionGroup name="TemandoShipCollectionPointOrder" extends="TemandoShipOrder">
+        <dontSeeElement selector="{{TemandoShipmentSection.addOns}}" stepKey="dontSeeAddOns" before="scrollToGetQuotes" />
+    </actionGroup>
+    <!-- Pickup grid forwarding -->
+    <actionGroup name="TemandoPickupGridForwardForm">
+        <arguments>
+            <argument name="pickupId" type="string" />
+        </arguments>
+        <seeElement stepKey="seeGoToPickupField" selector="{{TemandoPickupGridSection.inputPID}}" />
+
+        <!-- Invalid -->
+        <fillField stepKey="fillGoToPickupFieldInvalid" selector="{{TemandoPickupGridSection.inputPID}}" userInput="{{TemandoPickupData.pickupIdInvalid}}" />
+        <pressKey selector="{{TemandoPickupGridSection.inputPID}}" parameterArray="[\Facebook\WebDriver\WebDriverKeys::RETURN_KEY]" stepKey="pressEnterKeyInvalid" />
+        <seeElement stepKey="seePickupError" selector="{{TemandoPickupGridSection.inputPIDError(TemandoPickupMessages.invalidPickupId)}}" />
+
+        <!-- Valid -->
+        <fillField stepKey="fillGoToPickupFieldValid" selector="{{TemandoPickupGridSection.inputPID}}" userInput="PID{{pickupId}}" />
+        <pressKey selector="{{TemandoPickupGridSection.inputPID}}" parameterArray="[\Facebook\WebDriver\WebDriverKeys::RETURN_KEY]" stepKey="pressEnterKeyValid" />
+
+        <waitForPageLoad stepKey="waitForPickupToLoad" />
+    </actionGroup>
+    <!-- Load pickups grid -->
+    <actionGroup name="TemandoLoadPickupsGrid">
+        <amOnPage url="{{TemandoPickupGridPage.url}}" stepKey="goToPickupsGrid" />
+        <waitForPageLoad stepKey="waitForPickupsGridPage" />
+        <click selector="{{AdminDataGridHeaderSection.bookmarkToggle}}" stepKey="openViewBookmarks"/>
+        <click selector="{{AdminDataGridHeaderSection.bookmarkOption('Default View')}}" stepKey="selectDefaultGridView"/>
+        <see selector="{{AdminDataGridHeaderSection.bookmarkToggle}}" userInput="Default View" stepKey="seeDefaultViewSelected"/>
+        <click stepKey="clickSortByOrderDateDesc" selector="{{TemandoPickupGridSection.gridHeaderOrderDate}}" />
+        <waitForLoadingMaskToDisappear stepKey="waitForGridSort" />
+    </actionGroup>
+    <!-- Open pickups tab on order -->
+    <actionGroup name="TemandoOrderOpenPickupsTab">
+        <arguments>
+            <argument name="records" type="string" defaultValue="1" />
+        </arguments>
+        <click stepKey="clickPickupsTab" selector="{{TemandoSalesOrderSection.pickupTab}}" />
+        <waitForAjaxLoad stepKey="waitForPickupsGrid" />
+        <seeElement stepKey="seePickupRecordsFound" selector="{{TemandoSalesOrderSection.pickupsGridRecordsFound(records)}}" />
+    </actionGroup>
+    <!-- Click through pickup on order view -->
+    <actionGroup name="TemandoClickThroughPickupOnOrder">
+        <arguments>
+            <argument name="status" type="string" defaultValue="{{TemandoPickupStates.requestedLower}}" />
+        </arguments>
+        <seeElement stepKey="seePickupStatus" selector="{{TemandoSalesOrderSection.pickupsGridStatus(status)}}" />
+        <click stepKey="clickPickupStatus" selector="{{TemandoSalesOrderSection.pickupsGridStatusView(status)}}" />
+    </actionGroup>
+    <!-- Prepare single pickup -->
+    <actionGroup name="TemandoPrepareSinglePickup">
+        <seeInCurrentUrl stepKey="seePickupPrepage" url="{{TemandoPickupPreparePage.url}}" />
+        <waitForPageLoad stepKey="waitForPickupPrepare" />
+        <see stepKey="seePrepareForPickup" userInput="{{TemandoPickupStates.prepare}}" />
+
+        <scrollTo stepKey="scrollToItemsOrdered" selector="{{TemandoPickupViewSection.itemsOrdered}}" />
+        <click stepKey="clickReadyForPickup" selector="{{TemandoPickupViewSection.buttonReadyForPickup}}" />
+
+        <waitForPageLoad stepKey="waitForReadyForPickup" />
+        <seeInCurrentUrl stepKey="backOnPickupGrid" url="{{TemandoPickupGridPage.url}}" />
+        <see stepKey="seeReadyForCollection" userInput="{{TemandoPickupMessages.readyForPickup}}" />
+    </actionGroup>
+    <!-- Prepare partial pickup -->
+    <actionGroup name="TemandoPreparePartialPickup" extends="TemandoPrepareSinglePickup">
+        <arguments>
+            <argument name="qtyFirstItem" defaultValue="1" type="string" />
+            <argument name="qtySecondItem" defaultValue="0" type="string" />
+        </arguments>
+
+        <fillField stepKey="fillQtyPackedFirst" selector="{{TemandoPickupViewSection.qtyPacked('1')}}" userInput="{{qtyFirstItem}}" after="scrollToItemsOrdered" />
+        <fillField stepKey="fillQtyPackedSecond" selector="{{TemandoPickupViewSection.qtyPacked('2')}}" userInput="{{qtySecondItem}}" before="clickReadyForPickup" />
+    </actionGroup>
+    <!-- Verify pickup is prepared -->
+    <actionGroup name="TemandoVerifyPickupPrepared">
+        <seeInCurrentUrl stepKey="seeViewPickupPage" url="{{TemandoPickupViewPage.url}}" />
+        <seeElement stepKey="seePickupState" selector="{{TemandoPickupViewSection.pickupState(TemandoFieldLabels.pickupState, TemandoPickupStates.ready)}}" />
+    </actionGroup>
+    <!-- Verify pickup state -->
+    <actionGroup name="TemandoVerifyPickupState">
+        <arguments>
+            <argument name="url" type="string" />
+            <argument name="state" type="string" />
+        </arguments>
+
+        <seeInCurrentUrl stepKey="seeViewPickupPage" url="{{url}}" />
+        <seeElement stepKey="seePickupState" selector="{{TemandoPickupViewSection.pickupState(TemandoFieldLabels.pickupState, state)}}" />
+    </actionGroup>
+    <!-- Reset pickup grid filters -->
+    <actionGroup name="TemandoResetPickupFilters">
+        <conditionalClick selector="{{TemandoGridFiltersSection.buttonClearFilters}}"
+                          dependentSelector="{{TemandoGridFiltersSection.activeFilters}}"
+                          visible="true"
+                          stepKey="clickClearPickupFilters" />
+        <waitForLoadingMaskToDisappear stepKey="waitForFiltersCleared" />
+    </actionGroup>
+    <!-- Reset pickup grid filters to default -->
+    <actionGroup name="TemandoResetPickupFiltersToDefault" extends="TemandoResetPickupFilters">
+        <click stepKey="clickFiltersButton" selector="{{AdminGridFilterControls.filters}}" after="waitForFiltersCleared" />
+        <waitForAjaxLoad stepKey="waitForFiltersToLoad" />
+
+        <click stepKey="clickStatusSelect" selector="{{TemandoPickupGridSection.filterStatus}}" />
+        <click stepKey="selectPickupRequestedFilter" selector="{{TemandoPickupGridSection.filterStatusOption(TemandoPickupStates.requested)}}" />
+        <click stepKey="selectReadyForPickupFilter" selector="{{TemandoPickupGridSection.filterStatusOption(TemandoPickupStates.readyForPickup)}}" />
+        <click stepKey="clickDoneButton" selector="{{TemandoPickupGridSection.statusFilterDone}}" />
+        <click stepKey="clickApplyFilters" selector="{{TemandoPickupGridSection.buttonApplyFilters}}" />
+
+        <waitForLoadingMaskToDisappear stepKey="waitForFiltersToApply" />
+    </actionGroup>
+    <!-- Mark pickup as picked up -->
+    <actionGroup name="TemandoMarkPickupAsPickedUp">
+        <click stepKey="clickMarkAsPickedUp" selector="{{TemandoPickupViewSection.buttonMarkAsPickedUp}}" />
+        <waitForPageLoad stepKey="waitForPickupGridAfterPickup" />
+        <seeInCurrentUrl stepKey="seeProductGridAfterPickup" url="{{TemandoPickupGridPage.url}}" />
+        <see stepKey="seePickWasCollected" userInput="{{TemandoPickupMessages.pickupCollected}}" />
+        <dontSeeElement stepKey="dontSeePickupInGrid" selector="{{TemandoPickupGridSection.pickupId({$newPickupId})}}" />
+    </actionGroup>
+    <!-- Cancel single pickup -->
+    <actionGroup name="TemandoCancelSinglePickup">
+        <waitForPageLoad stepKey="waitForPickup" />
+        <seeElement stepKey="seeCancelPickupButton" selector="{{TemandoPickupViewSection.buttonCancelPickup}}" />
+        <click stepKey="clickCancelPickup" selector="{{TemandoPickupViewSection.buttonCancelPickup}}" />
+        <waitForElementVisible stepKey="waitForConfirmationModal" selector="{{TemandoPickupViewSection.modalCancelConfirmation}}" />
+        <seeElement stepKey="seeConfirmationModal" selector="{{TemandoPickupViewSection.modalCancelConfirmation}}" />
+        <click stepKey="clickConfirmationAccept" selector="{{TemandoPickupViewSection.modalCancelConfirmationAccept}}" />
+        <waitForPageLoad stepKey="waitForCancelPickup" />
+        <seeInCurrentUrl stepKey="seePickupGridPage" url="{{TemandoPickupGridPage.url}}" />
+        <see stepKey="seeConfirmationMessage" userInput="{{TemandoPickupMessages.pickupCancelled}}" />
+    </actionGroup>
+    <!-- Cancel single shipment -->
+    <actionGroup name="TemandoCancelSingleShipment">
+        <seeElement stepKey="seeCancelShipmentButton" selector="{{TemandoShipmentSection.buttonCancel}}" />
+        <click stepKey="clickCancelShipment" selector="{{TemandoShipmentSection.buttonCancel}}" />
+        <waitForElementVisible selector="{{TemandoShipmentSection.modalCancellation}}" stepKey="waitForCancelModal" />
+        <click stepKey="clickModalConfirmation" selector="{{TemandoShipmentSection.modalCancellationAccept}}" />
+        <waitForPageLoad stepKey="waitForShipmentCancellation" />
+        <seeInCurrentUrl stepKey="seeShipmentViewPage" url="{{TemandoViewShipmentPage.url}}" />
+        <see stepKey="seeSuccessfullyCancelled" userInput="{{TemandoShipmentMessages.cancelled}}" />
+    </actionGroup>
+    <!-- Verify collection point address -->
+    <actionGroup name="TemandoVerifyCollectionPointAddress">
+        <scrollTo stepKey="scrollToAddresses" selector="{{TemandoSalesOrderSection.addressSection}}" />
+        <seeElement stepKey="seeCollectionPointAddress" selector="{{TemandoSalesOrderSection.CollectionPointAddressSubtitle}}" />
+    </actionGroup>
+    <!-- Create dispatch -->
+    <actionGroup name="TemandoCreateDispatch">
+        <arguments>
+            <argument name="carrier" defaultValue="{{TemandoCarriers.generic}}" type="string" />
+            <argument name="location" defaultValue="{{TemandoLocationLabels.US}}" type="string" />
+            <argument name="shipmentId" defaultValue="99999999-9999-ABCD-DEFG-999999999999" type="string" />
+        </arguments>
+
+        <amOnPage url="{{TemandoDispatchGridPage.url}}" stepKey="loadDispatchGrid" />
+        <waitForPageLoad stepKey="waitForDispatchGrid" />
+        <click stepKey="clickCreateDispatch" selector="{{TemandoDispatchGridSection.buttonCreateDispatch}}" />
+        <waitForPageLoad stepKey="waitForNewDispatch" />
+
+        <waitForElementNotVisible selector="{{TemandoDispatchWorkflow.selectLocationsLoading}}" stepKey="waitForLocationsToLoad" />
+        <selectOption selector="{{TemandoDispatchWorkflow.selectLocation}}" stepKey="selectLocation" userInput="{{location}}" />
+        <waitForElementNotVisible selector="{{TemandoDispatchWorkflow.selectCarriersLoading}}" stepKey="waitForCarriersToLoad" />
+        <selectOption selector="{{TemandoDispatchWorkflow.selectCarrier}}" stepKey="selectCarrier" userInput="{{carrier}}" />
+        <click stepKey="clickDispatchNext" selector="{{TemandoDispatchWorkflow.buttonNext}}" />
+        <waitForPageLoad stepKey="waitForConfirmShipments" />
+
+        <executeJS stepKey="clickNextPageButton" function="while(!document.getElementsByClassName('action-next')[0].disabled &amp;&amp; !document.getElementById('{{shipmentId}}')) {document.getElementsByClassName('action-next')[0].click()}" />
+
+        <dontSeeElement selector="{{TemandoDispatchWorkflow.recordsFound}}" stepKey="dontSeeZeroRecords" />
+        <click stepKey="clickMultiAction" selector="{{TemandoDispatchWorkflow.gridMultiAction}}" />
+        <click stepKey="deselectAll" selector="{{TemandoDispatchWorkflow.deselectAll}}" />
+        <checkOption selector="{{TemandoDispatchWorkflow.labelCheckboxShipment(shipmentId)}}" stepKey="selectShipment" />
+        <click stepKey="clickShipmentsNext" selector="{{TemandoDispatchWorkflow.buttonNext}}" />
+        <waitForPageLoad stepKey="waitForDispatchDetails" />
+
+        <dontSeeElement stepKey="seeNumberOfShipments" selector="{{TemandoDispatchWorkflow.numberOfShipments('0')}}" />
+
+        <generateDate date="last monday" format="m/d/Y g:i A" stepKey="invalidDate" />
+        <fillField stepKey="fillInvalidReadyAt" selector="{{TemandoDispatchWorkflow.readyAt}}" userInput="{$invalidDate}" />
+        <click stepKey="clickInvalidFinish" selector="{{TemandoDispatchWorkflow.buttonFinish}}" />
+        <waitForPageLoad stepKey="waitForErrorResponse" />
+        <seeElement stepKey="seeError" selector="{{TemandoDispatchWorkflow.invalidDate}}" />
+
+        <generateDate date="next monday 16:00" format="m/d/Y g:i A" stepKey="readyDate" />
+        <fillField stepKey="fillReadyAt" selector="{{TemandoDispatchWorkflow.readyAt}}" userInput="{$readyDate}" />
+        <click stepKey="clickFinish" selector="{{TemandoDispatchWorkflow.buttonFinish}}" />
+
+        <waitForPageLoad stepKey="waitForDispatchProcessing" />
+        <seeInCurrentUrl stepKey="seeDispatchGrid" url="{{TemandoDispatchGridPage.url}}" />
+
+        <waitForElementVisible selector="{{TemandoDispatchGridSection.columnStatus('processed')}}" stepKey="waitForProcessed" time="120" />
+    </actionGroup>
+    <!-- Verify dispatch -->
+    <actionGroup name="TemandoVerifyDispatch">
+        <click stepKey="clickViewDispatch" selector="{{TemandoDispatchGridSection.linkView}}" />
+        <waitForPageLoad stepKey="waitForViewDispatch" />
+
+        <dontSeeElement stepKey="seeNumberOfIncludedShipments" selector="{{TemandoDispatchView.includedShipments('0')}}" />
+    </actionGroup>
+</actionGroups>

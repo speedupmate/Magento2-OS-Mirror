@@ -1,0 +1,44 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<entities xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+        xsi:noNamespaceSchemaLocation="urn:magento:mftf:DataGenerator/etc/dataProfileSchema.xsd">
+    <entity name="TemandoConfigurationData" type="configurations">
+        <data key="disableMagentoShipping">0</data>
+        <data key="enableMagentoShipping">1</data>
+        <data key="emptyMagentoShippingCredentials"/>
+        <data key="enableClickAndCollectValue">1</data>
+        <data key="enableClickAndCollectString">Yes</data>
+        <data key="disableClickAndCollectValue">0</data>
+        <data key="disableClickAndCollectString">No</data>
+        <data key="clickAndCollectCountries">['US', 'AU']</data>
+        <data key="enableCollectionPoints">1</data>
+        <data key="accountIdInvalid">12345678-ABCD-1234-ABCD-1234567890AB</data>
+        <data key="bearerTokenInvalid">01234567890123456789012345678901234567890123456789</data>
+    </entity>
+
+    <entity name="TemandoConfigurationAdvancedSyncEnabled" type="advancedConfigSync">
+        <data key="sync_enable">1</data>
+        <data key="sync_shipment">1</data>
+    </entity>
+
+    <entity name="TemandoConfigurationAdvancedSyncDisabled" type="advancedConfigSync">
+        <data key="sync_enable">0</data>
+        <data key="sync_shipment">0</data>
+    </entity>
+
+    <entity name="TemandoConfigurationCheckoutViewSettingsDisabled" type="checkoutViewSettings">
+        <data key="fields"></data>
+    </entity>
+
+    <entity name="ConfigurationMessages">
+        <data key="saved">You saved the configuration.</data>
+        <data key="credentials">Please set API credentials before enabling Magento Shipping</data>
+        <data key="authenticationFailed">Magento Shipping authentication failed. Please check your credentials</data>
+    </entity>
+
+    <entity name="TemandoPackagingType">
+        <data key="Assigned">Assigned</data>
+        <data key="Prepackaged">Pre-packaged</data>
+        <data key="None">None</data>
+    </entity>
+</entities>

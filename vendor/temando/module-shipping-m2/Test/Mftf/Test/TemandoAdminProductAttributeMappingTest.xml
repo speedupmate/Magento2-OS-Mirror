@@ -1,0 +1,118 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<tests xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+       xsi:noNamespaceSchemaLocation="urn:magento:mftf:Test/etc/testSchema.xsd">
+    <test name="TemandoProductAttributeMapping">
+        <annotations>
+            <title value="Temando Product Attribute Mapping" />
+            <description value="Configure product attribute mappings." />
+            <stories value="Configure product attribute mappings" />
+            <severity value="CRITICAL" />
+            <group value="Temando_Shipping_Attribute_Mapping" />
+            <skip>
+                <issueId value="MPI-4443"/>
+            </skip>
+            <testCaseId value="MPI-136" />
+        </annotations>
+        <before>
+            <actionGroup ref="AdminDisableShippingMethodFlushConfigCache" stepKey="disableShippingMethod" />
+            <actionGroup ref="LoginAsAdmin" stepKey="loginAsAdmin" />
+        </before>
+        <after>
+            <actionGroup ref="AdminDisableShippingMethod" stepKey="disableShippingMethod" />
+        </after>
+
+        <!-- Start testing -->
+        <actionGroup ref="NavigateToProductAttributeMappingPageDisabled" stepKey="navigateToProductAttributeMappingPageDisabled" />
+
+        <!-- Enable shipping -->
+        <actionGroup ref="AdminNavigateToShippingConfiguration" stepKey="navigateToShippingConfiguration" />
+        <actionGroup ref="AdminUpdateShippingConfigurationWithSave" stepKey="enableShippingMethod">
+            <argument name="isActive" value="{{TemandoConfigurationData.enableMagentoShipping}}" />
+            <argument name="apiEndpoint" value="{{_CREDS.carriers_temando_session_endpoint}}" />
+            <argument name="apiAccountId" value="{{_CREDS.carriers_temando_account_id}}" />
+            <argument name="apiBearerToken" value="{{_CREDS.carriers_temando_bearer_token}}" />
+        </actionGroup>
+
+        <!-- Navigate to product attribute mapping page -->
+        <actionGroup ref="NavigateToProductAttributeMappingPageEnabled" stepKey="navigateToProductAttributeMappingPage" />
+
+        <!-- Set an existing value -->
+        <actionGroup ref="SelectExistingAttributeToMap" stepKey="selectExistingAttributeToMap" />
+        <actionGroup ref="ClickSave" stepKey="clickSaveButtonForExistingAttribute" />
+
+        <!-- Cancel mapping -->
+        <actionGroup ref="ClickNewMappingButton" stepKey="clickNewMapping1" />
+        <actionGroup ref="ClickCancelMappingButton" stepKey="clickCancelMapping" />
+
+        <!-- Required field validation -->
+        <actionGroup ref="ClickNewMappingButton" stepKey="clickNewMapping2" />
+        <actionGroup ref="ClickSave" stepKey="clickSaveButtonWithNoDdata" />
+
+        <actionGroup ref="SeeFieldValidationError" stepKey="seeRequiredFieldError">
+            <argument name="message" value="{{TemandoProductAttributeMappingMessages.errorRequired}}" />
+        </actionGroup>
+
+        <!-- Too long field validation -->
+        <actionGroup ref="FillMappingFields" stepKey="fillMappingFieldsWithTooLongNodePath">
+            <argument name="nodePathId" value="{{TemandoProductAttributeMappingDataTooLongNodePath.nodePathId}}" />
+        </actionGroup>
+        <actionGroup ref="ClickSave" stepKey="clickSaveButtonWithTooLongData" />
+
+        <actionGroup ref="SeeFieldValidationError" stepKey="seeTooLongFieldError">
+            <argument name="message" value="{{TemandoProductAttributeMappingMessages.errorLength}}" />
+        </actionGroup>
+
+        <!-- Invalid node path ID validation -->
+        <actionGroup ref="FillMappingFields" stepKey="fillMappingFieldsWithInvalidNodePath">
+            <argument name="nodePathId" value="{{TemandoProductAttributeMappingDataInvalidNodePath.nodePathId}}" />
+        </actionGroup>
+        <actionGroup ref="ClickSave" stepKey="clickSaveButtonWithInvalidData" />
+
+        <actionGroup ref="SeePageMessage" stepKey="seeInvalidNodePathError">
+            <argument name="pageMessage" value="{{TemandoProductAttributeMappingMessages.errorInvalidNodePath}}" />
+        </actionGroup>
+
+        <!-- Invalid mapping -->
+        <actionGroup ref="ClickNewMappingButton" stepKey="clickNewMapping3" />
+
+        <actionGroup ref="FillMappingFields" stepKey="fillMappingFieldsWithInvalidMapping">
+            <argument name="nodePathId" value="{{TemandoProductAttributeMappingDataInvalidMapping.nodePathId}}" />
+            <argument name="description" value="{{TemandoProductAttributeMappingDataInvalidMapping.description}}" />
+            <argument name="mapping" value="{{TemandoProductAttributeMappingDataInvalidMapping.mapping}}" />
+        </actionGroup>
+
+        <actionGroup ref="ClickSave" stepKey="clickSaveButtonWithInvalidMapping" />
+        <actionGroup ref="SeePageMessage" stepKey="seeInvalidMappingError">
+            <argument name="pageMessage" value="{{TemandoProductAttributeMappingMessages.alreadyMapped}}" />
+        </actionGroup>
+
+        <!-- Valid mapping -->
+        <actionGroup ref="ClickNewMappingButton" stepKey="clickNewMapping4" />
+
+        <actionGroup ref="FillMappingFields" stepKey="fillMappingFields">
+            <argument name="nodePathId" value="{{TemandoProductAttributeMappingData.nodePathId}}" />
+            <argument name="description" value="{{TemandoProductAttributeMappingData.description}}" />
+            <argument name="mapping" value="{{TemandoProductAttributeMappingData.mapping}}" />
+        </actionGroup>
+
+        <actionGroup ref="ClickSave" stepKey="clickSave" />
+        <actionGroup ref="SeePageMessage" stepKey="seeSuccessMessage">
+            <argument name="messageType" value="message-success" />
+            <argument name="pageMessage" value="{{TemandoProductAttributeMappingMessages.saveSuccess}}" />
+        </actionGroup>
+
+        <!-- Delete mapping -->
+        <actionGroup ref="DeleteAttributeMapping" stepKey="deleteAttributeMapping" />
+        <actionGroup ref="SeePageMessage" stepKey="seeSuccessDeleteMessage">
+            <argument name="messageType" value="message-success" />
+            <argument name="pageMessage" value="{{TemandoProductAttributeMappingMessages.deleteSuccess}}" />
+        </actionGroup>
+
+        <!-- Reset existing mapping -->
+        <actionGroup ref="SelectExistingAttributeToMap" stepKey="selectExistingAttributeToReset">
+            <argument name="mapping" value="" />
+        </actionGroup>
+        <actionGroup ref="ClickSave" stepKey="clickSaveButtonToResetExistingAttribute" />
+    </test>
+</tests>

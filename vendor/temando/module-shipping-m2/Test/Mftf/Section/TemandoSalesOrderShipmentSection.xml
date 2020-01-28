@@ -1,0 +1,172 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<sections xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+          xsi:noNamespaceSchemaLocation="urn:magento:mftf:Page/etc/SectionObject.xsd">
+    <section name="TemandoSalesOrderGridSection">
+        <element name="specificOrderId" type="text" selector="//div[@id='container']//td[div[contains(., '{{orderId}}')]]" parameterized="true"/>
+        <element name="selectCheckBoxOfOrderId" type="checkbox" selector="//div[@id='container']//td[div[contains(., '{{orderId}}')]]/preceding-sibling::td[*[input[@type='checkbox']]]" parameterized="true" />
+        <element name="massActionDropdown" type="button" selector="//*[@id='container']//button[@class='action-select']" />
+        <element name="batchProcess" type="text" selector="//*[@id='container']//*[@class='action-menu-item' and contains(., 'Batch Process')]" />
+    </section>
+    <section name="TemandoSalesOrderSection">
+        <element name="SelectAStore" type="text" selector="//span[@class='title' and contains(., 'Please select a store')]" />
+        <element name="CustomStoreLabel" type="text" selector="//label[contains(., '{{storeName}}')]" parameterized="true" />
+        <element name="shippingMethods" type="text" selector="#order-shipping-method-choose" />
+        <element name="standardShippingOption" type="text" selector=".admin__field-label" />
+        <element name="buttonShip" type="button" selector="button#order_ship" />
+        <element name="pickupTab" type="text" selector="a#sales_order_view_tabs_temando_sales_order_pickup" />
+        <element name="firstViewLink" type="text" selector="(//tr[@class='data-row'])[1]//a[@class='action-menu-item' and contains(., 'View')]" />
+        <element name="addressSection" type="text" selector="//section[contains(@class, 'order-addresses')]" />
+        <element name="CollectionPointAddressSubtitle" type="text" selector="//div[contains(@class, 'order-shipping-address')]//div[contains(@class ,'order-shipping-primary-address')]//span[@class='subtitle' and contains(., 'Collection Point')]" />
+        <element name="shipmentsTab" type="text" selector="a#sales_order_view_tabs_order_shipments" />
+        <element name="infoTab" type="text" selector="a#sales_order_view_tabs_order_info" />
+        <element name="orderStatus" type="text" selector="//table[contains(@class, 'order-information-table')]//td/span[@id='order_status' and contains(., '{{status}}')]" parameterized="true" />
+        <element name="orderComment" type="text" selector="//div[@class='edit-order-comments-block']//div[@class='comments-block-item-comment' and contains(., '{{comment}}')]" parameterized="true" />
+        <element name="shippingOrderIdLabel" type="text" selector="//table[contains(@class, 'order-information-table')]//td[contains(., 'Magento Shipping Order ID')]" />
+        <element name="pickupsGridStatus" type="text" selector="//table[contains(@class, 'data-grid')]//tr[@class='data-row']//td/div[@class='data-grid-cell-content' and contains(., '{{status}}')]" parameterized="true" />
+        <element name="pickupsGridStatusView" type="text" selector="//table[contains(@class, 'data-grid')]//tr[@class='data-row']//td/div[@class='data-grid-cell-content' and contains(., '{{status}}')]/../../td[@class='data-grid-actions-cell']/a[contains(., 'View')]" parameterized="true" />
+        <element name="pickupsGridRecordsFound" type="text" selector="//div[@id='sales_order_view_tabs_temando_sales_order_pickup_content']//div[@class='admin__data-grid-header']//div[contains(@class, 'row-gutter')]//div[@class='admin__control-support-text' and contains(., '{{records}} records found')]" parameterized="true" />
+    </section>
+    <section name="TemandoShipmentSection">
+        <element name="customerReference" type="input" selector="input#customerReference" />
+        <element name="originLocation" type="select" selector="select#originLocation" />
+        <element name="packageType" type="select" selector="//select[contains(@id, 'packages[{{row}}].packageType')]" parameterized="true" />
+        <element name="packageDimensionUnits" type="select" selector="//select[contains(@id, 'packages[{{row}}].dimensionUnits')]" parameterized="true" />
+        <element name="packageWeight" type="input" selector="//input[contains(@id, 'packages[{{row}}].weight')]" parameterized="true" />
+        <element name="packageContentsQty" type="input" selector="(//input[contains(@id, 'packages[{{package}}].contentsByItemId') and contains(@id, 'quantity')])[{{product}}]" parameterized="true" />
+        <element name="addAnotherPackageLink" type="button" selector="//button/span[contains(., 'Add Another Package')]" />
+        <element name="getQuotes" type="button" selector="//button[contains(., 'Get Quotes')]" />
+        <element name="useCustomerExperience" type="checkbox" selector="input#useCustomerExperience" />
+        <element name="bookShipment" type="button" selector="//button[contains(., 'Book Shipment')]" />
+        <element name="buttonCancel" type="button" selector="button#cancel" />
+        <element name="modalCancellation" type="text" selector="//div[@class='modal-content' and contains(., 'Are you sure you want to cancel this shipment?')]" />
+        <element name="modalCancellationAccept" type="button" selector="//footer[@class='modal-footer']//button[contains(@class, 'action-accept') and contains(., 'OK')]" />
+        <element name="orderLink" type="text" selector="//div[contains(@class, 'order-information')]//div[@class='admin__page-section-item-title']//span[@class='title']//a[contains(., 'Order #')]" />
+        <element name="addOns" type="text" selector="//span[contains(., 'Add-Ons')]" />
+        <element name="firstProductQtyLabel" type="text" selector="(//label[contains(@for, 'contentsByItemId') and contains(@for, 'quantity')])[1]" />
+        <element name="secondProductQtyLabel" type="text" selector="(//label[contains(@for, 'contentsByItemId') and contains(@for, 'quantity')])[2]" />
+        <element name="productQty" type="input" selector="//input[@id='{{id}}']" parameterized="true" />
+        <element name="carrierFirst" type="text" selector="(//th[contains(., 'Connection Nickname')]/../../..//tbody//td[contains(., '{{carrier}}')])[1]/..//input[@type='radio']" parameterized="true" />
+        <element name="headerInternationalItemDetails" type="text" selector="(//span[contains(., 'International Item Details')])[1]" />
+        <element name="hsCode" type="input" selector="(//input[@name='hsCode'])[1]" />
+        <element name="itemWeight" type="input" selector="(//input[@name='weight'])[1]" />
+        <element name="countryOfOrigin" type="select" selector="(//select[@name='countryOfOrigin'])[1]" />
+        <element name="invoiceNumber" type="input" selector="//input[@name='invoiceNumber']" />
+        <element name="invoiceDate" type="input" selector="//input[@name='invoiceDate']" />
+        <element name="externalTransactionNumber" type="input" selector="//input[@name='externalTransactionNumber']" />
+        <element name="titleShipmentId" type="text" selector="//h1[@class='page-title']" />
+        <element name="temandoShippingId" type="text" selector="//table[contains(@class, 'order-information-table')]//th[contains(., 'Magento Shipping Shipment ID')]/../td" />
+        <element name="linkTrackShipment" type="text" selector="//div[contains(@class, 'order-shipping-address')]//div[@class='admin__page-section-item-title' and contains(., 'Shipping and Tracking Information')]/../div[@class='admin__page-section-item-content']//a[contains(., 'Track this shipment')]" />
+        <element name="linkTrackingNumberFirst" type="text" selector="(//table[@id='shipment_tracking_info']//tbody//tr)[1]//td[@class='col-number']//a" />
+        <element name="magentoSubmitShipment" type="text" selector="//button[@data-ui-id='order-items-submit-button']/span[contains(., 'Submit Shipment')]" />
+        <element name="originLocationLabel" type="text" selector="//div[contains(@class, 'order-shipping-origin-address')]/span[contains(., 'Origin Location')]" />
+        <element name="documentationLabel" type="text" selector="//div[@class='admin__page-section-title']/span[@class='title' and contains(., 'Documentation')]" />
+        <element name="firstDocumentLink" type="text" selector="//div[contains(@class, 'shipment-documentation')]//table[contains(@class, 'data-table')]//tbody/tr[1]/td[4]/a" />
+        <element name="labelOrderId" type="text" selector="//table[contains(@class, 'order-information-table')]//th[text()='Magento Shipping Order ID']" />
+    </section>
+    <section name="TemandoShipmentGrid">
+        <element name="filterOrderId" type="text" selector="//input[@name='order_increment_id']" />
+        <element name="checkboxShipment" type="checkbox" selector="//input[@data-action='select-row' and @type='checkbox' and @value='{{shipmentId}}']" parameterized="true" />
+        <element name="dropdownAction" type="text" selector="//div[@class='admin__data-grid-header']//button[@class='action-select']" />
+        <element name="actionPrintShippingLabels" type="text" selector="//ul[contains(@class, 'action-menu')]//span[@class='action-menu-item' and text()='Print Shipping Labels']" />
+        <element name="errorNoShippingLabels" type="text" selector="//div[@id='messages']//div[@data-ui-id='messages-message-error' and text()='There are no shipping labels related to selected shipments.']" />
+    </section>
+    <section name="TemandoShipmentTrackingPopupSection">
+        <element name="shipmentId" type="text" selector="//div[contains(@class, 'tracking')]/div[contains(@class, 'order') and contains(., 'Shipment #{$shipmentId}')]" />
+        <element name="trackingNumber" type="text" selector="(//table[contains(@class, 'tracking')]//tbody//tr)[1]//td[contains(., '{$trackingNumber}')]" />
+    </section>
+    <section name="TemandoCheckoutSection">
+        <element name="ShippingMethodsTable" type="text" selector="table.table-checkout-shipping-method" />
+        <element name="ShippingMethodLabel" type="text" selector="//td[contains(., '{{ShippingLabel}}')]" parameterized="true" />
+        <element name="DeliveryOptions" type="text" selector="div.checkout-shipping-method" />
+        <element name="DeliveryOption" type="text" selector="//dl[@class='delivery-options']/dd[@class='item-options']/label[contains(., '{{deliveryOption}}')]" parameterized="true" />
+        <element name="DeliveryLocationList" type="text" selector="//div[@class='delivery-locations-list']" />
+        <element name="DeliveryLocation" type="text" selector="//form[@id='pickup-locations-form']//label[contains(., '{{storeLabel}}')]" parameterized="true" />
+        <element name="DeliveryLocationShippingRates" type="text" selector="//table[@class='table-checkout-shipping-method']//input[@type='radio' and contains(@value, 'temando')]" />
+        <element name="CollectionPointForm" type="text" selector="//form[@id='collection-points-form']" />
+        <element name="CollectionPointError" type="text" selector="//form[@id='collection-points-form']//div[@class='field-error' and contains(., 'No collection points found.')]" />
+        <element name="CollectionPointCountrySelect" type="select" selector="//select[@id='collection-point-countries']" />
+        <element name="CollectionPointPostcode" type="input" selector="//input[@id='collection-points-postal-code']" />
+        <element name="CollectionPointSearchButton" type="button" selector="//form[@id='collection-points-form']//button[@type='submit' and contains(., 'Search')]" />
+        <element name="CollectionPointList" type="text" selector="//div[@class='delivery-locations-list']" />
+        <element name="CollectionPointFirst" type="radio" selector="(//table[@class='location']//tr)[1]/td[@class='first-column']/input[@type='radio']" />
+        <element name="NonDefaultAddressShipHereButton" type="button" selector="(//button[contains(@class, 'action-select-shipping-item')]//span[contains(., 'Ship Here')])[1]" />
+        <element name="NonDefaultAddress" type="text" selector="//div[contains(@class, 'shipping-address-item') and contains(@class, 'not-selected-item') and contains(., '{{street}}')]" parameterized="true" />
+        <element name="NonDefaultAddressSelected" type="text" selector="//div[contains(@class, 'shipping-address-item') and contains(@class, 'selected-item') and contains(., '{{street}}')]" parameterized="true" />
+    </section>
+    <section name="TemandoPickupViewSection">
+        <element name="itemsOrdered" type="text" selector="//span[contains(., 'Items Ordered')]" />
+        <element name="buttonReadyForPickup" type="button" selector="//button[contains(., 'Ready for Pickup')]" />
+        <element name="buttonMarkAsPickedUp" type="button" selector="//button[contains(., 'Mark as Picked Up')]" />
+        <element name="pickupState" type="text" selector="//th[contains(., '{{label}}')]/../td[contains(., '{{state}}')]" parameterized="true" />
+        <element name="buttonCancelPickup" type="button" selector="button#pickup-view-cancel-button" />
+        <element name="modalCancelConfirmation" type="text" selector="//div[@class='modal-content' and contains(., 'Are you sure you want to cancel this pickup?')]" />
+        <element name="modalCancelConfirmationAccept" type="button" selector="//button[contains(@class, 'action-accept') and contains(., 'OK')]" />
+        <element name="qtyPacked" type="input" selector="(//td[@class='col-qty'])[{{row}}]//input[contains(@id, 'pickup-qty-packed')]" parameterized="true" />
+    </section>
+    <section name="TemandoPickupGridSection">
+        <element name="inputPID" type="input" selector="input#pid" />
+        <element name="inputPIDError" type="text" selector="//form[@id='pickup-forward-form']//div[@class='admin__field-error']//span[contains(., '{{message}}')]" parameterized="true" />
+        <element name="filterStatus" type="text" selector="//label[@class='admin__form-field-label']/span[contains(., 'Status')]/../..//div[@class='admin__action-multiselect-text']" />
+        <element name="filterStatusOption" type="text" selector="//label[@class='admin__action-multiselect-label']/span[contains(., '{{option}}')]" parameterized="true" />
+        <element name="statusFilterDone" type="button" selector="//label[contains(., 'Status')]/..//button[@class='action-default' and contains(., 'Done')]" />
+        <element name="buttonApplyFilters" type="button" selector="//button[contains(., 'Apply Filters')]" />
+        <element name="pickupId" type="text" selector="//table[contains(@class, 'data-grid')]//td/div[text()='{{pickupId}}']" parameterized="true" />
+        <element name="gridHeaderOrderDate" type="text" selector="//table[contains(@class, 'data-grid')]/thead/tr/th/span[contains(., 'Order Date')]" />
+    </section>
+    <section name="TemandoGridFiltersSection">
+        <element name="buttonClearFilters" type="button" selector="(//*[contains(@class, 'admin__data-grid-header')][contains(@data-bind, 'afterRender: \$data.setToolbarNode')]//button[contains(@data-action, 'reset')])[1]" />
+        <element name="activeFilters" type="text" selector="(//*[contains(@class, 'admin__data-grid-header')][contains(@data-bind, 'afterRender: \$data.setToolbarNode')]//*[contains(@class, 'admin__data-grid-filters-current')][contains(@class, '_show')])[1]" />
+    </section>
+    <section name="TemandoDispatchGridSection">
+        <element name="buttonCreateDispatch" type="button" selector="//button[contains(., 'Create Dispatch')]" />
+        <element name="columnStatus" type="text" selector="((//tr[contains(@class, 'data-row')])[1]//td)[8]//div[contains(., '{{status}}')]" parameterized="true" />
+        <element name="linkView" type="text" selector="((//tr[contains(@class, 'data-row')])[1]/td)[9]//a[contains(., 'View')]" />
+    </section>
+    <section name="TemandoDispatchWorkflow">
+        <element name="selectCarriersLoading" type="select" selector="//select[@id='carrier-workflow--dispatchCreate']/option[contains(., 'Loading...')]" />
+        <element name="selectLocationsLoading" type="select" selector="//select[@id='location-workflow--dispatchCreate']/option[contains(., 'Loading...')]" />
+        <element name="selectCarrier" type="select" selector="//select[@id='carrier-workflow--dispatchCreate']" />
+        <element name="selectLocation" type="select" selector="//select[@id='location-workflow--dispatchCreate']" />
+        <element name="buttonNext" type="button" selector="//button[contains(., 'Next')]" />
+        <element name="recordsFound" type="text" selector="//span[./text()='0 records found']" />
+        <element name="gridMultiAction" type="button" selector="//button[@class='action-multicheck-toggle']" />
+        <element name="deselectAll" type="text" selector="//ul[@class='action-menu']/li/a[@class='action-menu-item' and contains(., 'Deselect All')]" />
+        <element name="checkboxShipment" type="checkbox" selector="//input[@id='{{shipmentId}}']" parameterized="true" />
+        <element name="labelCheckboxShipment" type="checkbox" selector="//label[@for='{{shipmentId}}' and @class='data-grid-checkbox-cell-inner']" parameterized="true" />
+        <element name="numberOfShipments" type="text" selector="//label[@for='numberOfShipments']/..//span[contains(., '{{shipments}}')]" parameterized="true" />
+        <element name="invalidDate" type="text" selector="//div[@class='messages-message-error' and contains(., 'Invalid time: Ready time must be at least 30 minutes in the future')]" />
+        <element name="readyAt" type="input" selector="//input[@id='readyAt-workflow--dispatchCreate']" />
+        <element name="buttonFinish" type="button" selector="//button[contains(., 'Finish')]" />
+    </section>
+    <section name="TemandoDispatchView">
+        <element name="includedShipments" type="text" selector="//div[contains(@class, 'dispatch-information')]//th[contains(., 'Number of included shipments')]/../td[contains(., '{{shipments}}')]" parameterized="true"/>
+        <element name="headerDocuments" type="text" selector="//section[@class='admin__page-section']//span[@class='title' and contains(., 'Documentation')]" />
+        <element name="linkDownloadFirst" type="text" selector="(//div[contains(@class, 'shipment-documentation')]//tbody//tr)[1]//td//a[contains(., 'Download')]" />
+    </section>
+    <section name="TemandoBundleProductPage">
+        <element name="buttonAddToCart" type="text" selector="//button[@id='product-addtocart-button']" timeout="30" />
+        <element name="buttonCustomise" type="text" selector="//*[@id='bundle-slide']/span" />
+    </section>
+    <section name="TemandoCustomerAccount">
+        <element name="orderGridOrderId" type="text" selector="//table[@id='my-orders-table']//td[@data-th='Order #' and contains(., '{{orderId}}')]" parameterized="true" />
+        <element name="orderGridViewOrderLink" type="text" selector="//table[@id='my-orders-table']//td[@data-th='Order #' and contains(., '{{orderId}}')]/../td[@data-th='Actions']/a[contains(@class, 'view') and contains(., 'View Order')]" parameterized="true" />
+        <element name="orderShipmentsTab" type="text" selector="//ul[contains(@class, 'order-links')]/li/a[contains(., 'Order Shipments')]" />
+        <element name="firstTrackingLink" type="text" selector="(//dl[@class='order-tracking']/dd[@class='tracking-content']/a[contains(@class, 'track')])[1]//span" />
+        <element name="trackAllShipmentsLink" type="text" selector="//div[@class='actions-toolbar']/a[contains(@class, 'track')]/span[contains(., 'Track All Shipments')]" />
+        <element name="trackingPopupTrackingNumber" type="text" selector="//table[contains(@class, 'tracking')]//th[contains(., 'Tracking Number')]/../td[text()='{{trackingNumber}}']" parameterized="true" />
+        <element name="trackingPopupCarrierLabel" type="text" selector="//table[contains(@class, 'tracking')]//th[contains(., 'Carrier')]" />
+    </section>
+    <section name="TemandoProductView">
+        <element name="ShippingSection" type="text" selector="//div[@class='fieldset-wrapper-title' and contains(., 'Shipping')]" />
+        <element name="DimensionsLength" type="input" selector="//input[@name='product[ts_dimensions_length]']" />
+        <element name="DimensionsWidth" type="input" selector="//input[@name='product[ts_dimensions_width]']" />
+        <element name="DimensionsHeight" type="input" selector="//input[@name='product[ts_dimensions_height]']" />
+        <element name="Weight" type="input" selector="//input[@name='product[weight]']" />
+        <element name="PackagingType" type="select" selector="//select[@name='product[ts_packaging_type]']" />
+        <element name="PackageId" type="select" selector="//select[@name='product[ts_packaging_id]']" />
+        <element name="ButtonSave" type="button" selector="//button[@id='save-button']" />
+        <element name="MessageSuccess" type="text" selector="//div[@id='messages' and contains(., 'You saved the product')]" />
+        <element name="FieldValidation" type="text" selector="//label[@class='admin__field-error' and contains(@for, '{{fieldId}}')]" parameterized="true" />
+    </section>
+</sections>

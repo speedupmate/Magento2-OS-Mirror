@@ -1,0 +1,30 @@
+{
+    "name": "csharpru/vault-php",
+    "description": "Best Vault client for PHP that you can find",
+    "type": "library",
+    "license": "MIT",
+    "authors": [
+        {
+            "name": "Yaroslav Lukyanov",
+            "email": "c_sharp@mail.ru"
+        }
+    ],
+    "autoload": {
+        "psr-4": {"Vault\\": "src/"}
+    },
+    "require": {
+        "psr/cache": "^1.0",
+        "psr/log": "^1.0",
+        "cache/cache": "^0.4.0",
+        "guzzlehttp/psr7": "^1.4",
+        "guzzlehttp/promises": "^1.3",
+        "doctrine/inflector": "~1.1.0",
+        "weew/helpers-array": "^1.3"
+    },
+    "require-dev": {
+        "codeception/codeception": "^2.2",
+        "csharpru/vault-php-guzzle6-transport": "~2.0",
+        "php-vcr/php-vcr": "^1.3",
+        "codacy/coverage": "^1.1"
+    }
+}

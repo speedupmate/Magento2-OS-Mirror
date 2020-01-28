@@ -1,0 +1,112 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<entities xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+          xsi:noNamespaceSchemaLocation="urn:magento:mftf:DataGenerator/etc/dataProfileSchema.xsd">
+    <!-- Custom Product Attributes -->
+    <!-- Shipment Type -->
+    <entity name="TemandoShipmentTypeSeparately" type="custom_attribute">
+        <data key="attribute_code">shipment_type</data>
+        <data key="value">1</data>
+    </entity>
+    <entity name="TemandoShipmentTypeTogether" type="custom_attribute">
+        <data key="attribute_code">shipment_type</data>
+        <data key="value">0</data>
+    </entity>
+    <!-- HS Code -->
+    <entity name="TemandoHSCode" type="custom_attribute">
+        <data key="attribute_code">ts_hs_code</data>
+        <data key="value">12345</data>
+    </entity>
+    <!-- Country of Origin -->
+    <entity name="TemandoCountryOfOrigin" type="custom_attribute">
+        <data key="attribute_code">ts_country_of_origin</data>
+        <data key="value">US</data>
+    </entity>
+
+    <!-- Bundle Product -->
+    <entity name="TemandoApiBundleProduct" type="temandobundleproduct">
+        <data key="name" unique="suffix">TemandoBundleProduct</data>
+        <data key="sku" unique="suffix">temando-bundle-product</data>
+        <data key="type_id">bundle</data>
+        <data key="attribute_set_id">4</data>
+        <data key="visibility">4</data>
+        <data key="status">1</data>
+        <data key="urlKey" unique="suffix">temando-bundle-product</data>
+        <requiredEntity type="product_extension_attribute">EavStockItem</requiredEntity>
+        <requiredEntity type="custom_attribute">ApiProductDescription</requiredEntity>
+        <requiredEntity type="custom_attribute">ApiProductShortDescription</requiredEntity>
+        <requiredEntity type="custom_attribute">CustomAttributeDynamicPrice</requiredEntity>
+        <requiredEntity type="custom_attribute">CustomAttributePriceView</requiredEntity>
+        <requiredEntity type="custom_attribute">TemandoShipmentTypeSeparately</requiredEntity>
+    </entity>
+    <!-- Bundle Product -->
+    <entity name="TemandoApiBundleTogetherProduct" type="temandobundleproduct">
+        <data key="name" unique="suffix">TemandoBundleProduct</data>
+        <data key="sku" unique="suffix">temando-bundle-product</data>
+        <data key="type_id">bundle</data>
+        <data key="attribute_set_id">4</data>
+        <data key="visibility">4</data>
+        <data key="status">1</data>
+        <data key="urlKey" unique="suffix">temando-bundle-product</data>
+        <requiredEntity type="product_extension_attribute">EavStockItem</requiredEntity>
+        <requiredEntity type="custom_attribute">ApiProductDescription</requiredEntity>
+        <requiredEntity type="custom_attribute">ApiProductShortDescription</requiredEntity>
+        <requiredEntity type="custom_attribute">CustomAttributeDynamicPrice</requiredEntity>
+        <requiredEntity type="custom_attribute">CustomAttributePriceView</requiredEntity>
+        <requiredEntity type="custom_attribute">TemandoShipmentTypeTogether</requiredEntity>
+    </entity>
+    <!-- Bundle Option -->
+    <entity name="TemandoDropDownBundleOption" type="bundle_option">
+        <data key="title" unique="suffix">bundle-option-dropdown</data>
+        <data key="required">true</data>
+        <data key="type">select</data>
+        <data key="position">0</data>
+        <var key="sku" entityKey="sku" entityType="temandobundleproduct"/>
+    </entity>
+    <!-- Simple Product -->
+    <entity name="TemandoSimpleProductNoWeight" type="product">
+        <data key="sku" unique="suffix">TemandoSimpleProduct</data>
+        <data key="type_id">simple</data>
+        <data key="attribute_set_id">4</data>
+        <data key="name" unique="suffix">TemandoSimpleProduct</data>
+        <data key="price">123.00</data>
+        <data key="visibility">4</data>
+        <data key="status">1</data>
+        <data key="quantity">1000</data>
+        <data key="urlKey" unique="suffix">temandosimpleproduct</data>
+        <requiredEntity type="product_extension_attribute">EavStockItem</requiredEntity>
+        <requiredEntity type="custom_attribute_array">CustomAttributeCategoryIds</requiredEntity>
+    </entity>
+    <!-- Configurable Product -->
+    <entity name="TemandoConfigurableProduct" type="product">
+        <data key="sku" unique="suffix">configurable</data>
+        <data key="type_id">configurable</data>
+        <data key="attribute_set_id">4</data>
+        <data key="visibility">4</data>
+        <data key="name" unique="suffix">configurable</data>
+        <data key="price">123.00</data>
+        <data key="urlKey" unique="suffix">configurableurlkey</data>
+        <data key="status">1</data>
+        <data key="quantity">1000</data>
+        <requiredEntity type="product_extension_attribute">EavStockItem</requiredEntity>
+        <requiredEntity type="custom_attribute_array">CustomAttributeCategoryIds</requiredEntity>
+    </entity>
+    <!-- Simple international product -->
+    <entity name="TemandoSimpleProductInternational" type="temandointernationalproduct">
+        <data key="sku" unique="suffix">TemandoInternationalProduct</data>
+        <data key="type_id">simple</data>
+        <data key="attribute_set_id">4</data>
+        <data key="name" unique="suffix">TemandoInternationalProduct</data>
+        <data key="price">34.35</data>
+        <data key="visibility">4</data>
+        <data key="status">1</data>
+        <data key="quantity">1000</data>
+        <data key="urlKey" unique="suffix">temandointernationalproduct</data>
+        <requiredEntity type="product_extension_attribute">EavStockItem</requiredEntity>
+        <requiredEntity type="custom_attribute_array">CustomAttributeCategoryIds</requiredEntity>
+        <requiredEntity type="custom_attribute">TemandoHSCode</requiredEntity>
+        <requiredEntity type="custom_attribute">TemandoCountryOfOrigin</requiredEntity>
+    </entity>
+    <entity name="InternationalProductUS">
+        <data key="countryOfOrigin">United States</data>
+    </entity>
+</entities>

@@ -1,0 +1,53 @@
+{
+    "name": "vertex/module-address-validation",
+    "description": "Vertex Address Validation module for Magento 2",
+    "type": "magento2-module",
+    "license": "proprietary",
+    "version": "1.0.0",
+    "require": {
+        "php": "^7.0",
+        "ext-soap": "*",
+        "ext-simplexml": "*",
+        "ext-json": "*",
+        "magento/module-config": "^101",
+        "magento/framework": "^100|^101|^102",
+        "magento/module-store": "^100|^101",
+        "magento/module-quote": "^100|^101",
+        "magento/module-tax": "^100",
+        "magento/module-checkout": "^100",
+        "vertex/module-tax": "^3.3.0"
+    },
+    "repositories": [
+        {
+            "type": "composer",
+            "url": "https://repo.magento.com/"
+        }
+    ],
+    "require-dev": {
+        "magento/marketplace-eqp": "^1.0",
+        "magento/module-offline-shipping": "^100.2",
+        "magento/module-usps": "^100.2",
+        "ext-simplexml": "*",
+        "ext-dom": "*"
+    },
+    "autoload": {
+        "files": [
+            "registration.php"
+        ],
+        "psr-4": {
+            "Vertex\\AddressValidation\\": ""
+        }
+    },
+    "scripts": {
+        "test:phpcs": [
+            "phpcs --runtime-set ignore_warnings_on_exit 1 --runtime-set installed_paths vendor/magento/marketplace-eqp --standard=MEQP2 --ignore=vendor/* --ignore=Test/tmp ."
+        ]
+    },
+    "archive": {
+        "exclude": [
+            "/Vertex for Magento 2 Installation.docx",
+            ".gitignore",
+            ".gitattributes"
+        ]
+    }
+}

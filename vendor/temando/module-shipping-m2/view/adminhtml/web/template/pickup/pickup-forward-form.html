@@ -1,0 +1,19 @@
+<!--
+/**
+ * Refer to LICENSE.txt distributed with the Temando Shipping module for notice of license
+ */
+-->
+<form id="pickup-forward-form" autocomplete="off" data-bind="submit: submit" data-mage-init='{"validation": {}}'>
+    <label for="pid" data-bind="i18n: 'Go to Pickup'"></label>
+    <input class="input-text required-entry" type="text" id="pid" name="pid"
+           data-bind="
+            textInput: pickupId,
+            attr: {
+                placeholder: placeholder
+            }"
+           data-validate="{required: true, 'validate-pickup-forward': true}"
+           autofocus
+    />
+    <div class="admin__field-error" data-bind="visible: messages.error()"><span data-bind="text: messages.error"></span></div>
+    <div class="admin__field-note" data-bind="visible: messages.note()"><span data-bind="text: messages.note"></span></div>
+</form>

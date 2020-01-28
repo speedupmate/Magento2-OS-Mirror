@@ -1,0 +1,524 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!--
+ /**
+  * @copyright  Vertex. All rights reserved.  https://www.vertexinc.com/
+  * @author     Mediotype                     https://www.mediotype.com/
+  */
+-->
+<actionGroups xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="urn:magento:mftf:Test/etc/actionGroupSchema.xsd">
+    <!-- Usage of this action group requires usage of LoginAsAdmin prior & VertexDefaultConfig -->
+    <actionGroup name="VertexTaxDefaultConfig">
+        <createData entity="VertexTaxConfigAll" stepKey="setDefaultVertexTestConfiguration"/>
+        <createData entity="VertexGlobalDeliveryTermSUP" stepKey="setGlobalVertexDeliveryTermToSUP"/>
+        <createData entity="VertexTaxAllowedCountriesUsCaIrItNoSp" stepKey="setVertexAllowedCountries"/>
+        <createData entity="VertexTaxSummaryByProductAndShipping" stepKey="setVertexTaxSummary"/>
+
+        <amOnPage url="{{AdminTaxConfigPage.url('vertex_settings')}}" stepKey="loadVertexConfig"/>
+
+        <!-- Vertex Settings -->
+        <conditionalClick selector="{{AdminVertexSettingsConfigSection.vertexSettingsHeader}}" dependentSelector="{{AdminVertexSettingsConfigSection.enableVertex}}" visible="false" stepKey="openVertexConfiguration"/>
+        <fillField stepKey="setCalculationWsdl" selector="{{AdminVertexSettingsConfigSection.calculationWsdlUrl}}" userInput="{{_CREDS.vertex_config_calculation_wsdl}}"/>
+        <fillField stepKey="setAddressValidationWsdl" selector="{{AdminVertexSettingsConfigSection.addressValidationWsdlUrl}}" userInput="{{_CREDS.vertex_config_address_validation_wsdl}}"/>
+        <fillField stepKey="setTrustedId" selector="{{AdminVertexSettingsConfigSection.trustedId}}" userInput="{{_CREDS.vertex_config_trusted_id}}"/>
+
+        <!-- Vertex Company Information -->
+        <conditionalClick selector="{{AdminVertexSellerSettingsConfigSection.vertexCompanyInformationHeader}}" dependentSelector="{{AdminVertexSellerSettingsConfigSection.companyCode}}" visible="false" stepKey="openVertexCompanyInformation"/>
+        <fillField stepKey="setCompanyCode" selector="{{AdminVertexSellerSettingsConfigSection.companyCode}}" userInput="{{_CREDS.vertex_seller_company_code}}"/>
+
+        <click selector="#save" stepKey="saveVertexConfiguration"/>
+    </actionGroup>
+
+    <actionGroup name="VertexTaxConfigOrderStatusPending">
+        <createData entity="VertexTaxConfigStatusChangeOrderStatusPending" stepKey="setTaxConfigOrderStatusPending"/>
+    </actionGroup>
+
+    <actionGroup name="VertexTaxConfigOrderStatusProcessing">
+        <createData entity="VertexTaxConfigStatusChangeOrderStatusProcessing" stepKey="setTaxConfigOrderStatusProcessing"/>
+    </actionGroup>
+
+    <actionGroup name="VertexCheckProductPricingInMiniCart">
+        <arguments>
+            <argument name="product"/>
+            <argument type="string" name="priceInclTax"/>
+            <argument type="string" name="priceExclTax"/>
+        </arguments>
+
+        <see stepKey="seeProductPriceExclTax" userInput="${{priceExclTax}}" selector="{{StorefrontMinicartSection.productPriceExclTaxByName(product.name)}}"/>
+        <see stepKey="seeProductPriceInclTax" userInput="${{priceInclTax}}" selector="{{StorefrontMinicartSection.productPriceInclTaxByName(product.name)}}"/>
+    </actionGroup>
+
+    <actionGroup name="VertexCheckSubtotalInMiniCart">
+        <arguments>
+            <argument name="subtotalInclTax" type="string"/>
+            <argument name="subtotalExclTax" type="string"/>
+        </arguments>
+
+        <see selector="{{StorefrontMinicartSection.subtotalExclTax}}" stepKey="seeSubtotalExclTax" userInput="${{subtotalExclTax}}"/>
+        <see selector="{{StorefrontMinicartSection.subtotalInclTax}}" stepKey="seeSubtotalInclTax" userInput="${{subtotalInclTax}}"/>
+    </actionGroup>
+
+    <actionGroup name="VertexCheckProductPricingOnCart">
+        <arguments>
+            <argument name="product"/>
+            <argument type="string" name="priceInclTax"/>
+            <argument type="string" name="priceExclTax"/>
+            <argument type="string" name="subtotalExclTax"/>
+            <argument type="string" name="subtotalInclTax"/>
+        </arguments>
+
+        <see stepKey="seeProductPriceExclTax" userInput="${{priceExclTax}}" selector="{{CheckoutCartProductSection.ProductPriceExclTaxByName(product.name)}}"/>
+        <see stepKey="seeProductPriceInclTax" userInput="${{priceInclTax}}" selector="{{CheckoutCartProductSection.ProductPriceInclTaxByName(product.name)}}"/>
+
+        <see stepKey="seeProductSubtotalExclTax" userInput="${{subtotalExclTax}}" selector="{{CheckoutCartProductSection.ProductSubtotalExclTaxByName(product.name)}}"/>
+        <see stepKey="seeProductSubtotalInclTax" userInput="${{subtotalInclTax}}" selector="{{CheckoutCartProductSection.ProductSubtotalInclTaxByName(product.name)}}"/>
+    </actionGroup>
+    <actionGroup name="VertexCheckTotalsInCart">
+        <arguments>
+            <argument type="string" name="subtotalExclTax"/>
+            <argument type="string" name="subtotalInclTax"/>
+            <argument type="string" name="shippingExclTax"/>
+            <argument type="string" name="shippingInclTax"/>
+            <argument type="string" name="totalExclTax"/>
+            <argument type="string" name="totalInclTax"/>
+            <argument type="string" name="tax"/>
+        </arguments>
+        <see stepKey="seeSubtotalExclTax" selector="{{CheckoutCartSummarySection.subtotalExclTax}}" userInput="${{subtotalExclTax}}"/>
+        <see stepKey="seeSubtotalInclTax" selector="{{CheckoutCartSummarySection.subtotalInclTax}}" userInput="${{subtotalInclTax}}"/>
+        <see stepKey="seeShippingExclTax" selector="{{CheckoutCartSummarySection.shippingExclTax}}" userInput="${{shippingExclTax}}"/>
+        <see stepKey="seeShippingInclTax" selector="{{CheckoutCartSummarySection.shippingInclTax}}" userInput="${{shippingInclTax}}"/>
+        <see stepKey="seeTax" selector="{{CheckoutCartSummarySection.taxAmount}}" userInput="${{tax}}"/>
+        <see stepKey="seeTotalExclTax" selector="{{CheckoutCartSummarySection.totalExclTax}}" userInput="${{totalExclTax}}"/>
+        <see stepKey="seeTotalInclTax" selector="{{CheckoutCartSummarySection.totalInclTax}}" userInput="${{totalInclTax}}"/>
+    </actionGroup>
+    <actionGroup name="VertexCheckDigitalTotalsInCart">
+        <arguments>
+            <argument type="string" name="subtotalExclTax"/>
+            <argument type="string" name="subtotalInclTax"/>
+            <argument type="string" name="totalExclTax"/>
+            <argument type="string" name="totalInclTax"/>
+            <argument type="string" name="tax"/>
+        </arguments>
+        <see stepKey="seeSubtotalExclTax" selector="{{CheckoutCartSummarySection.subtotalExclTax}}" userInput="${{subtotalExclTax}}"/>
+        <see stepKey="seeSubtotalInclTax" selector="{{CheckoutCartSummarySection.subtotalInclTax}}" userInput="${{subtotalInclTax}}"/>
+        <see stepKey="seeTax" selector="{{CheckoutCartSummarySection.taxAmount}}" userInput="${{tax}}"/>
+        <see stepKey="seeTotalExclTax" selector="{{CheckoutCartSummarySection.totalExclTax}}" userInput="${{totalExclTax}}"/>
+        <see stepKey="seeTotalInclTax" selector="{{CheckoutCartSummarySection.totalInclTax}}" userInput="${{totalInclTax}}"/>
+    </actionGroup>
+    <actionGroup name="VertexCheckProductAndShippingTaxTotalsInCart">
+        <arguments>
+            <argument name="product" type="string"/>
+            <argument name="shipping" type="string"/>
+        </arguments>
+
+        <conditionalClick selector="{{CheckoutCartSummarySection.taxSummary}}" dependentSelector="{{CheckoutCartSummarySection.taxRateByName('Sales and Use')}}" visible="false" stepKey="showTaxSummary"/>
+
+        <see stepKey="seeSalesAndUseTax" selector="{{CheckoutCartSummarySection.taxRateByName('Sales and Use')}}" userInput="${{product}}"/>
+        <see stepKey="seeShippingTax" selector="{{CheckoutCartSummarySection.taxRateByName('Shipping')}}" userInput="${{shipping}}"/>
+    </actionGroup>
+    <actionGroup name="VertexCheckJurisdictionPercentageInCart">
+        <arguments>
+            <argument name="name" type="string"/>
+            <argument name="percentage" type="string"/>
+        </arguments>
+
+        <conditionalClick selector="{{CheckoutCartSummarySection.taxSummary}}" dependentSelector="{{CheckoutCartSummarySection.taxRateLabelByName(name)}}" visible="false" stepKey="showTaxSummary"/>
+
+        <see stepKey="seeJurisdiction" selector="{{CheckoutCartSummarySection.taxRateLabelByName(name)}}" userInput="({{percentage}}%)"/>
+    </actionGroup>
+    <actionGroup name="VertexCheckDigitalProductTaxTotalInCart">
+        <arguments>
+            <argument name="product" type="string"/>
+        </arguments>
+
+        <conditionalClick selector="{{CheckoutCartSummarySection.taxSummary}}" dependentSelector="{{CheckoutCartSummarySection.taxRateByName('Sales and Use')}}" visible="false" stepKey="showTaxSummary"/>
+
+        <see stepKey="seeSalesAndUseTax" selector="{{CheckoutCartSummarySection.taxRateByName('Sales and Use')}}" userInput="${{product}}"/>
+    </actionGroup>
+
+    <actionGroup name="VertexCheckTotalsInCheckout">
+        <arguments>
+            <argument type="string" name="subtotalExclTax"/>
+            <argument type="string" name="subtotalInclTax"/>
+            <argument type="string" name="shippingExclTax"/>
+            <argument type="string" name="shippingInclTax"/>
+            <argument type="string" name="totalExclTax"/>
+            <argument type="string" name="totalInclTax"/>
+            <argument type="string" name="tax"/>
+        </arguments>
+
+        <see stepKey="seeSubtotalExclTax" selector="{{CheckoutPaymentSection.orderSubtotalExcluding}}" userInput="${{subtotalExclTax}}"/>
+        <see stepKey="seeSubtotalInclTax" selector="{{CheckoutPaymentSection.orderSubtotalIncluding}}" userInput="${{subtotalInclTax}}"/>
+        <see stepKey="seeShippingExclTax" selector="{{CheckoutPaymentSection.orderShippingTotalExcluding}}" userInput="${{shippingExclTax}}"/>
+        <see stepKey="seeShippingInclTax" selector="{{CheckoutPaymentSection.orderShippingTotalIncluding}}" userInput="${{shippingInclTax}}"/>
+        <see stepKey="seeTax" selector="{{CheckoutPaymentSection.tax}}" userInput="${{tax}}"/>
+        <see stepKey="seeTotalExclTax" selector="{{CheckoutPaymentSection.orderSummaryTotalExcluding}}" userInput="${{totalExclTax}}"/>
+        <see stepKey="seeTotalInclTax" selector="{{CheckoutPaymentSection.orderSummaryTotalIncluding}}" userInput="${{totalInclTax}}"/>
+    </actionGroup>
+    <actionGroup name="VertexCheckDigitalTotalsInCheckout">
+        <arguments>
+            <argument type="string" name="subtotalExclTax"/>
+            <argument type="string" name="subtotalInclTax"/>
+            <argument type="string" name="totalExclTax"/>
+            <argument type="string" name="totalInclTax"/>
+            <argument type="string" name="tax"/>
+        </arguments>
+
+        <see stepKey="seeSubtotalExclTax" selector="{{CheckoutPaymentSection.orderSubtotalExcluding}}" userInput="${{subtotalExclTax}}"/>
+        <see stepKey="seeSubtotalInclTax" selector="{{CheckoutPaymentSection.orderSubtotalIncluding}}" userInput="${{subtotalInclTax}}"/>
+        <see stepKey="seeTax" selector="{{CheckoutPaymentSection.tax}}" userInput="${{tax}}"/>
+        <see stepKey="seeTotalExclTax" selector="{{CheckoutPaymentSection.orderSummaryTotalExcluding}}" userInput="${{totalExclTax}}"/>
+        <see stepKey="seeTotalInclTax" selector="{{CheckoutPaymentSection.orderSummaryTotalIncluding}}" userInput="${{totalInclTax}}"/>
+    </actionGroup>
+    <actionGroup name="VertexCheckJurisdictionPercentageInCheckout">
+        <arguments>
+            <argument name="name" type="string"/>
+            <argument name="percentage" type="string"/>
+        </arguments>
+
+        <conditionalClick selector="{{CheckoutPaymentSection.taxSummary}}" dependentSelector="{{CheckoutPaymentSection.taxRateLabelByName(name)}}" visible="false" stepKey="showTaxSummary"/>
+
+        <see stepKey="seeJurisdiction" selector="{{CheckoutPaymentSection.taxRateLabelByName(name)}}" userInput="({{percentage}}%)"/>
+    </actionGroup>
+    <actionGroup name="VertexCheckProductAndShippingTaxTotalsInCheckout">
+        <arguments>
+            <argument name="product" type="string"/>
+            <argument name="shipping" type="string"/>
+        </arguments>
+
+        <conditionalClick selector="{{CheckoutPaymentSection.taxSummary}}" dependentSelector="{{CheckoutCartSummarySection.taxRateByName('Sales and Use')}}" visible="false" stepKey="showTaxSummary"/>
+
+        <see stepKey="seeSalesAndUseTax" selector="{{CheckoutPaymentSection.taxRateByName('Sales and Use')}}" userInput="${{product}}"/>
+        <see stepKey="seeShippingTax" selector="{{CheckoutPaymentSection.taxRateByName('Shipping')}}" userInput="${{shipping}}"/>
+    </actionGroup>
+    <actionGroup name="VertexCheckDigitalProductTaxTotalInCheckout">
+        <arguments>
+            <argument name="product" type="string"/>
+        </arguments>
+
+        <conditionalClick selector="{{CheckoutPaymentSection.taxSummary}}" dependentSelector="{{CheckoutCartSummarySection.taxRateByName('Sales and Use')}}" visible="false" stepKey="showTaxSummary"/>
+
+        <see stepKey="seeSalesAndUseTax" selector="{{CheckoutPaymentSection.taxRateByName('Sales and Use')}}" userInput="${{product}}"/>
+    </actionGroup>
+
+    <actionGroup name="VertexCheckProductPricingOnStorefrontOrderReview">
+        <arguments>
+            <argument name="product"/>
+            <argument type="string" name="priceInclTax"/>
+            <argument type="string" name="priceExclTax"/>
+            <argument type="string" name="subtotalExclTax"/>
+            <argument type="string" name="subtotalInclTax"/>
+        </arguments>
+
+        <see stepKey="seeProductPriceExclTax" userInput="${{priceExclTax}}" selector="{{StorefrontCustomerOrderViewSection.productPriceExclTaxByName(product.name)}}"/>
+        <see stepKey="seeProductPriceInclTax" userInput="${{priceInclTax}}" selector="{{StorefrontCustomerOrderViewSection.productPriceInclTaxByName(product.name)}}"/>
+
+        <see stepKey="seeProductSubtotalExclTax" userInput="${{subtotalExclTax}}" selector="{{StorefrontCustomerOrderViewSection.productSubtotalExclTaxByName(product.name)}}"/>
+        <see stepKey="seeProductSubtotalInclTax" userInput="${{subtotalInclTax}}" selector="{{StorefrontCustomerOrderViewSection.productSubtotalInclTaxByName(product.name)}}"/>
+    </actionGroup>
+    <actionGroup name="VertexCheckTotalsOnStorefrontOrderReview">
+        <arguments>
+            <argument type="string" name="subtotalExclTax"/>
+            <argument type="string" name="subtotalInclTax"/>
+            <argument type="string" name="shippingExclTax"/>
+            <argument type="string" name="shippingInclTax"/>
+            <argument type="string" name="totalExclTax"/>
+            <argument type="string" name="totalInclTax"/>
+            <argument type="string" name="tax"/>
+        </arguments>
+        <see stepKey="seeSubtotalExclTax" userInput="${{subtotalExclTax}}" selector="{{StorefrontCustomerOrderViewSection.totalByName('Subtotal (Excl.Tax)')}}"/>
+        <see stepKey="seeSubtotalInclTax" userInput="${{subtotalInclTax}}" selector="{{StorefrontCustomerOrderViewSection.totalByName('Subtotal (Incl.Tax)')}}"/>
+        <see stepKey="seeShippingExclTax" userInput="${{shippingExclTax}}" selector="{{StorefrontCustomerOrderViewSection.totalByName('Shipping &amp; Handling (Excl.Tax)')}}"/>
+        <see stepKey="seeShippingInclTax" userInput="${{shippingInclTax}}" selector="{{StorefrontCustomerOrderViewSection.totalByName('Shipping &amp; Handling (Incl.Tax)')}}"/>
+        <see stepKey="seeTotalExclTax" userInput="${{totalExclTax}}" selector="{{StorefrontCustomerOrderViewSection.totalByName('Grand Total (Excl.Tax)')}}"/>
+        <see stepKey="seeTotalInclTax" userInput="${{totalInclTax}}" selector="{{StorefrontCustomerOrderViewSection.totalByName('Grand Total (Incl.Tax)')}}"/>
+        <see stepKey="seeTax" userInput="${{tax}}" selector="{{StorefrontCustomerOrderViewSection.totalByStrictName('Tax')}}"/>
+    </actionGroup>
+    <actionGroup name="VertexCheckDigitalTotalsOnStorefrontOrderReview">
+        <arguments>
+            <argument type="string" name="subtotalExclTax"/>
+            <argument type="string" name="subtotalInclTax"/>
+            <argument type="string" name="totalExclTax"/>
+            <argument type="string" name="totalInclTax"/>
+            <argument type="string" name="tax"/>
+        </arguments>
+        <see stepKey="seeSubtotalExclTax" userInput="${{subtotalExclTax}}" selector="{{StorefrontCustomerOrderViewSection.totalByName('Subtotal (Excl.Tax)')}}"/>
+        <see stepKey="seeSubtotalInclTax" userInput="${{subtotalInclTax}}" selector="{{StorefrontCustomerOrderViewSection.totalByName('Subtotal (Incl.Tax)')}}"/>
+        <see stepKey="seeTotalExclTax" userInput="${{totalExclTax}}" selector="{{StorefrontCustomerOrderViewSection.totalByName('Grand Total (Excl.Tax)')}}"/>
+        <see stepKey="seeTotalInclTax" userInput="${{totalInclTax}}" selector="{{StorefrontCustomerOrderViewSection.totalByName('Grand Total (Incl.Tax)')}}"/>
+        <see stepKey="seeTax" userInput="${{tax}}" selector="{{StorefrontCustomerOrderViewSection.totalByStrictName('Tax')}}"/>
+    </actionGroup>
+    <actionGroup name="VertexCheckProductAndShippingTaxTotalsOnStorefrontOrderReview">
+        <arguments>
+            <argument type="string" name="product"/>
+            <argument type="string" name="shipping"/>
+        </arguments>
+        <see stepKey="seeSalesAndUseTax" userInput="${{product}}" selector="{{StorefrontCustomerOrderViewSection.totalByName('Sales and Use')}}"/>
+        <see stepKey="seeShippingTax" userInput="${{shipping}}" selector="{{StorefrontCustomerOrderViewSection.totalByName('Shipping')}}"/>
+    </actionGroup>
+    <actionGroup name="VertexCheckJurisdictionPercentageOnStorefrontOrderReview">
+        <arguments>
+            <argument name="name" type="string"/>
+            <argument name="percentage" type="string"/>
+        </arguments>
+
+        <see stepKey="seeJurisdiction" selector="{{StorefrontCustomerOrderViewSection.totalLabelByName(name)}}" userInput="({{percentage}}%)"/>
+    </actionGroup>
+    <actionGroup name="VertexCheckDigitalProductTaxTotalOnStorefrontOrderReview">
+        <arguments>
+            <argument type="string" name="product"/>
+        </arguments>
+        <see stepKey="seeSalesAndUseTax" userInput="${{product}}" selector="{{StorefrontCustomerOrderViewSection.totalByName('Sales and Use')}}"/>
+    </actionGroup>
+
+    <actionGroup name="VertexCheckProductPricingInAdminCreate">
+        <arguments>
+            <argument name="product"/>
+            <argument type="string" name="priceExclTax"/>
+            <argument type="string" name="priceInclTax"/>
+            <argument type="string" name="subtotalExclTax"/>
+            <argument type="string" name="subtotalInclTax"/>
+            <argument type="string" name="rowSubtotalExclTax"/>
+            <argument type="string" name="rowSubtotalInclTax"/>
+        </arguments>
+
+        <see stepKey="seePriceExclTax" userInput="${{priceExclTax}}" selector="{{AdminOrderFormItemsSection.productPriceExclTax(product.name)}}"/>
+        <see stepKey="seePriceInclTax" userInput="${{priceInclTax}}" selector="{{AdminOrderFormItemsSection.productPriceInclTax(product.name)}}"/>
+        <see stepKey="seeSubtotalExclTax" userInput="${{subtotalExclTax}}" selector="{{AdminOrderFormItemsSection.productSubtotalExclTax(product.name)}}"/>
+        <see stepKey="seeSubtotalInclTax" userInput="${{subtotalInclTax}}" selector="{{AdminOrderFormItemsSection.productSubtotalInclTax(product.name)}}"/>
+        <see stepKey="seeRowSubtotalExclTax" userInput="${{rowSubtotalExclTax}}" selector="{{AdminOrderFormItemsSection.productRowSubtotalExclTax(product.name)}}"/>
+        <see stepKey="seeRowSubtotalInclTax" userInput="${{rowSubtotalInclTax}}" selector="{{AdminOrderFormItemsSection.productRowSubtotalInclTax(product.name)}}"/>
+    </actionGroup>
+    <actionGroup name="VertexCheckTotalsInAdminCreate">
+        <arguments>
+            <argument type="string" name="subtotalExclTax"/>
+            <argument type="string" name="subtotalInclTax"/>
+            <argument type="string" name="shippingExclTax"/>
+            <argument type="string" name="shippingInclTax"/>
+            <argument type="string" name="totalExclTax"/>
+            <argument type="string" name="totalInclTax"/>
+            <argument type="string" name="tax"/>
+        </arguments>
+
+        <see stepKey="seeSubtotalExclTax" userInput="${{subtotalExclTax}}" selector="{{AdminOrderFormTotalsSection.totalByName('Subtotal (Excl. Tax)')}}"/>
+        <see stepKey="seeSubtotalInclTax" userInput="${{subtotalInclTax}}" selector="{{AdminOrderFormTotalsSection.totalByName('Subtotal (Incl. Tax)')}}"/>
+        <see stepKey="seeShippingExclTax" userInput="${{shippingExclTax}}" selector="{{AdminOrderFormTotalsSection.totalByName('Shipping Excl. Tax')}}"/>
+        <see stepKey="seeShippingInclTax" userInput="${{shippingInclTax}}" selector="{{AdminOrderFormTotalsSection.totalByName('Shipping Incl. Tax')}}"/>
+        <see stepKey="seeTotalExclTax" userInput="${{totalExclTax}}" selector="{{AdminOrderFormTotalsSection.totalByName('Grand Total Excl. Tax')}}"/>
+        <see stepKey="seeTotalInclTax" userInput="${{totalInclTax}}" selector="{{AdminOrderFormTotalsSection.totalByName('Grand Total Incl. Tax')}}"/>
+        <see stepKey="seeTax" userInput="${{tax}}" selector="{{AdminOrderFormTotalsSection.totalByStrictName('Tax')}}"/>
+    </actionGroup>
+    <actionGroup name="VertexCheckTaxTotalsInAdminCreate">
+        <arguments>
+            <argument type="string" name="product"/>
+            <argument type="string" name="shipping"/>
+        </arguments>
+
+        <conditionalClick selector="{{AdminOrderFormTotalsSection.taxSummary}}" dependentSelector="{{AdminOrderFormTotalsSection.totalByName('Sales and Use')}}" visible="false" stepKey="showTaxSummary"/>
+
+        <see stepKey="seeProductTax" userInput="${{product}}" selector="{{AdminOrderFormTotalsSection.totalByName('Sales and Use')}}"/>
+        <see stepKey="seeShippingTax" userInput="${{shipping}}" selector="{{AdminOrderFormTotalsSection.totalByName('Shipping (')}}"/>
+    </actionGroup>
+
+    <actionGroup name="VertexCheckProductPricingInAdminOrderView">
+        <arguments>
+            <argument name="product"/>
+            <argument type="string" name="tax"/>
+            <argument type="string" name="taxPercent"/>
+            <argument type="string" name="priceExclTax"/>
+            <argument type="string" name="priceInclTax"/>
+            <argument type="string" name="subtotalExclTax"/>
+            <argument type="string" name="subtotalInclTax"/>
+            <argument type="string" name="rowTotal"/>
+        </arguments>
+
+        <see stepKey="seePriceExclTax" userInput="${{priceExclTax}}" selector="{{AdminOrderItemsOrderedSection.itemPriceExclTaxByName(product.name)}}"/>
+        <see stepKey="seePriceInclTax" userInput="${{priceInclTax}}" selector="{{AdminOrderItemsOrderedSection.itemPriceInclTaxByName(product.name)}}"/>
+        <see stepKey="seeSubtotalExclTax" userInput="${{subtotalExclTax}}" selector="{{AdminOrderItemsOrderedSection.itemSubtotalExclTaxByName(product.name)}}"/>
+        <see stepKey="seeSubtotalInclTax" userInput="${{subtotalInclTax}}" selector="{{AdminOrderItemsOrderedSection.itemSubtotalInclTaxByName(product.name)}}"/>
+        <see stepKey="seeTax" userInput="${{tax}}" selector="{{AdminOrderItemsOrderedSection.itemTaxByName(product.name)}}"/>
+        <see stepKey="seeTaxPercent" userInput="{{taxPercent}}%" selector="{{AdminOrderItemsOrderedSection.itemTaxPercentByName(product.name)}}"/>
+        <see stepKey="seeRowTotal" userInput="${{rowTotal}}" selector="{{AdminOrderItemsOrderedSection.itemTotalByName(product.name)}}"/>
+    </actionGroup>
+    <actionGroup name="VertexCheckTotalsInAdminOrderView">
+        <arguments>
+            <argument type="string" name="subtotalExclTax"/>
+            <argument type="string" name="subtotalInclTax"/>
+            <argument type="string" name="shippingExclTax"/>
+            <argument type="string" name="shippingInclTax"/>
+            <argument type="string" name="totalExclTax"/>
+            <argument type="string" name="totalInclTax"/>
+            <argument type="string" name="tax"/>
+        </arguments>
+
+        <see stepKey="seeSubtotalExclTax" userInput="${{subtotalExclTax}}" selector="{{AdminOrderTotalSection.totalByName('Subtotal (Excl.Tax)')}}"/>
+        <see stepKey="seeSubtotalInclTax" userInput="${{subtotalInclTax}}" selector="{{AdminOrderTotalSection.totalByName('Subtotal (Incl.Tax)')}}"/>
+        <see stepKey="seeShippingExclTax" userInput="${{shippingExclTax}}" selector="{{AdminOrderTotalSection.totalByName('Shipping &amp; Handling (Excl.Tax)')}}"/>
+        <see stepKey="seeShippingInclTax" userInput="${{shippingInclTax}}" selector="{{AdminOrderTotalSection.totalByName('Shipping &amp; Handling (Incl.Tax)')}}"/>
+        <see stepKey="seeTotalExclTax" userInput="${{totalExclTax}}" selector="{{AdminOrderTotalSection.totalByName('Grand Total (Excl.Tax)')}}"/>
+        <see stepKey="seeTotalInclTax" userInput="${{totalInclTax}}" selector="{{AdminOrderTotalSection.totalByName('Grand Total (Incl.Tax)')}}"/>
+        <see stepKey="seeTax" userInput="${{tax}}" selector="{{AdminOrderTotalSection.totalByName('Total Tax')}}"/>
+    </actionGroup>
+    <actionGroup name="VertexCheckTaxTotalsInAdminOrderView">
+        <arguments>
+            <argument type="string" name="product"/>
+            <argument type="string" name="shipping"/>
+        </arguments>
+
+        <conditionalClick selector="{{AdminOrderTotalSection.taxSummary}}" dependentSelector="{{AdminOrderTotalSection.totalByName('Sales and Use')}}" visible="false" stepKey="showTaxSummary"/>
+
+        <see stepKey="seeProductTax" userInput="${{product}}" selector="{{AdminOrderTotalSection.totalByName('Sales and Use')}}"/>
+        <see stepKey="seeShippingTax" userInput="${{shipping}}" selector="{{AdminOrderTotalSection.totalByName('Shipping (')}}"/>
+    </actionGroup>
+    <actionGroup name="VertexCheckJurisdictionPercentageInAdminOrderView">
+        <arguments>
+            <argument name="name" type="string"/>
+            <argument name="percentage" type="string"/>
+        </arguments>
+
+        <conditionalClick selector="{{AdminOrderTotalSection.taxSummary}}" dependentSelector="{{AdminOrderTotalSection.totalLabelByName(name)}}" visible="false" stepKey="showTaxSummary"/>
+
+        <see stepKey="seeJurisdiction" selector="{{AdminOrderTotalSection.totalLabelByName(name)}}" userInput="({{percentage}}%)"/>
+    </actionGroup>
+    <actionGroup name="VertexCheckDigitalTotalsInAdminCreate">
+        <arguments>
+            <argument type="string" name="subtotalExclTax"/>
+            <argument type="string" name="subtotalInclTax"/>
+            <argument type="string" name="totalExclTax"/>
+            <argument type="string" name="totalInclTax"/>
+            <argument type="string" name="tax"/>
+        </arguments>
+
+        <see stepKey="seeSubtotalExclTax" userInput="${{subtotalExclTax}}" selector="{{AdminOrderFormTotalsSection.totalByName('Subtotal (Excl. Tax)')}}"/>
+        <see stepKey="seeSubtotalInclTax" userInput="${{subtotalInclTax}}" selector="{{AdminOrderFormTotalsSection.totalByName('Subtotal (Incl. Tax)')}}"/>
+        <see stepKey="seeTotalExclTax" userInput="${{totalExclTax}}" selector="{{AdminOrderFormTotalsSection.totalByName('Grand Total Excl. Tax')}}"/>
+        <see stepKey="seeTotalInclTax" userInput="${{totalInclTax}}" selector="{{AdminOrderFormTotalsSection.totalByName('Grand Total Incl. Tax')}}"/>
+        <see stepKey="seeTax" userInput="${{tax}}" selector="{{AdminOrderFormTotalsSection.totalByStrictName('Tax')}}"/>
+    </actionGroup>
+    <actionGroup name="VertexCheckDigitalTaxTotalInAdminCreate">
+        <arguments>
+            <argument type="string" name="product"/>
+        </arguments>
+
+        <conditionalClick selector="{{AdminOrderFormTotalsSection.taxSummary}}" dependentSelector="{{AdminOrderFormTotalsSection.totalByName('Sales and Use')}}" visible="false" stepKey="showTaxSummary"/>
+
+        <see stepKey="seeProductTax" userInput="${{product}}" selector="{{AdminOrderFormTotalsSection.totalByName('Sales and Use')}}"/>
+    </actionGroup>
+
+    <actionGroup name="VertexCheckDigitalTotalsInAdminOrderView">
+        <arguments>
+            <argument type="string" name="subtotalExclTax"/>
+            <argument type="string" name="subtotalInclTax"/>
+            <argument type="string" name="totalExclTax"/>
+            <argument type="string" name="totalInclTax"/>
+            <argument type="string" name="tax"/>
+        </arguments>
+
+        <see stepKey="seeSubtotalExclTax" userInput="${{subtotalExclTax}}" selector="{{AdminOrderTotalSection.totalByName('Subtotal (Excl.Tax)')}}"/>
+        <see stepKey="seeSubtotalInclTax" userInput="${{subtotalInclTax}}" selector="{{AdminOrderTotalSection.totalByName('Subtotal (Incl.Tax)')}}"/>
+        <see stepKey="seeTotalExclTax" userInput="${{totalExclTax}}" selector="{{AdminOrderTotalSection.totalByName('Grand Total (Excl.Tax)')}}"/>
+        <see stepKey="seeTotalInclTax" userInput="${{totalInclTax}}" selector="{{AdminOrderTotalSection.totalByName('Grand Total (Incl.Tax)')}}"/>
+        <see stepKey="seeTax" userInput="${{tax}}" selector="{{AdminOrderTotalSection.totalByName('Total Tax')}}"/>
+    </actionGroup>
+    <actionGroup name="VertexCheckDigitalTaxTotalInAdminOrderView">
+        <arguments>
+            <argument type="string" name="product"/>
+        </arguments>
+
+        <conditionalClick selector="{{AdminOrderTotalSection.taxSummary}}" dependentSelector="{{AdminOrderTotalSection.totalByName('Sales and Use')}}" visible="false" stepKey="showTaxSummary"/>
+
+        <see stepKey="seeProductTax" userInput="${{product}}" selector="{{AdminOrderTotalSection.totalByName('Sales and Use')}}"/>
+    </actionGroup>
+    <actionGroup name="VertexCheckItemTotalsInAdminCreditMemoCreate">
+        <arguments>
+            <argument name="product"/>
+            <argument type="string" name="tax"/>
+            <argument type="string" name="priceExclTax"/>
+            <argument type="string" name="priceInclTax"/>
+            <argument type="string" name="subtotalExclTax"/>
+            <argument type="string" name="subtotalInclTax"/>
+            <argument type="string" name="rowTotal"/>
+        </arguments>
+
+        <see stepKey="seePriceExclTax" selector="{{AdminCreditMemoItemsSection.itemPriceExclTaxByName(product.name)}}" userInput="${{priceExclTax}}"/>
+        <see stepKey="seePriceInclTax" selector="{{AdminCreditMemoItemsSection.itemPriceInclTaxByName(product.name)}}" userInput="${{priceInclTax}}"/>
+        <see stepKey="seeSubtotalExclTax" selector="{{AdminCreditMemoItemsSection.itemSubtotalExclTaxByName(product.name)}}" userInput="${{subtotalExclTax}}"/>
+        <see stepKey="seeSubtotalInclTax" selector="{{AdminCreditMemoItemsSection.itemSubtotalInclTaxByName(product.name)}}" userInput="${{subtotalInclTax}}"/>
+        <see stepKey="seeItemTax" selector="{{AdminCreditMemoItemsSection.itemTaxByName(product.name)}}" userInput="${{tax}}"/>
+        <see stepKey="seeRowTotal" selector="{{AdminCreditMemoItemsSection.itemTotalByName(product.name)}}" userInput="${{rowTotal}}"/>
+    </actionGroup>
+    <actionGroup name="VertexCheckTotalsInAdminCreditMemoCreate">
+        <arguments>
+            <argument type="string" name="tax"/>
+            <argument type="string" name="subtotalExclTax"/>
+            <argument type="string" name="subtotalInclTax"/>
+            <argument type="string" name="totalExclTax"/>
+            <argument type="string" name="totalInclTax"/>
+        </arguments>
+
+        <see stepKey="seeSubtotalExclTax" selector="{{AdminCreditMemoTotalSection.total('Subtotal (Excl.Tax)')}}" userInput="${{subtotalExclTax}}"/>
+        <see stepKey="seeSubtotalInclTax" selector="{{AdminCreditMemoTotalSection.total('Subtotal (Incl.Tax)')}}" userInput="${{subtotalInclTax}}"/>
+        <see stepKey="seeTax" selector="{{AdminCreditMemoTotalSection.total('Total Tax')}}" userInput="${{tax}}"/>
+        <see stepKey="seeTotalExclTax" selector="{{AdminCreditMemoTotalSection.total('Grand Total (Excl.Tax)')}}" userInput="${{totalExclTax}}"/>
+        <see stepKey="seeTotalInclTax" selector="{{AdminCreditMemoTotalSection.total('Grand Total (Incl.Tax)')}}" userInput="${{totalInclTax}}"/>
+    </actionGroup>
+    <actionGroup name="VertexCheckDigitalTotalsInAdminCreditMemoCreate">
+        <arguments>
+            <argument type="string" name="tax"/>
+            <argument type="string" name="subtotalExclTax"/>
+            <argument type="string" name="subtotalInclTax"/>
+            <argument type="string" name="totalExclTax"/>
+            <argument type="string" name="totalInclTax"/>
+        </arguments>
+
+        <see stepKey="seeSubtotalExclTax" selector="{{AdminCreditMemoTotalSection.total('Subtotal (Excl.Tax)')}}" userInput="${{subtotalExclTax}}"/>
+        <see stepKey="seeSubtotalInclTax" selector="{{AdminCreditMemoTotalSection.total('Subtotal (Incl.Tax)')}}" userInput="${{subtotalInclTax}}"/>
+        <see stepKey="seeTax" selector="{{AdminCreditMemoTotalSection.total('Total Tax')}}" userInput="${{tax}}"/>
+        <see stepKey="seeTotalExclTax" selector="{{AdminCreditMemoTotalSection.total('Grand Total (Excl.Tax)')}}" userInput="${{totalExclTax}}"/>
+        <see stepKey="seeTotalInclTax" selector="{{AdminCreditMemoTotalSection.total('Grand Total (Incl.Tax)')}}" userInput="${{totalInclTax}}"/>
+    </actionGroup>
+    <actionGroup name="VertexCheckTaxTotalsInAdminCreditMemoCreate">
+        <arguments>
+            <argument type="string" name="product"/>
+            <argument type="string" name="shipping"/>
+        </arguments>
+
+        <conditionalClick selector="{{AdminCreditMemoTotalSection.taxSummary}}" dependentSelector="{{AdminCreditMemoTotalSection.total('Sales and Use')}}" visible="false" stepKey="showTaxSummary"/>
+
+        <see stepKey="seeProductTax" userInput="${{product}}" selector="{{AdminCreditMemoTotalSection.total('Sales and Use')}}"/>
+        <see stepKey="seeShippingTax" userInput="${{shipping}}" selector="{{AdminCreditMemoTotalSection.total('Shipping (')}}"/>
+    </actionGroup>
+    <actionGroup name="VertexCheckDigitalTaxTotalsInAdminCreditMemoCreate">
+        <arguments>
+            <argument type="string" name="product"/>
+        </arguments>
+
+        <conditionalClick selector="{{AdminOrderTotalSection.taxSummary}}" dependentSelector="{{AdminCreditMemoTotalSection.total('Sales and Use')}}" visible="false" stepKey="showTaxSummary"/>
+
+        <see stepKey="seeProductTax" userInput="${{product}}" selector="{{AdminCreditMemoTotalSection.total('Sales and Use')}}"/>
+    </actionGroup>
+
+    <actionGroup name="VertexCheckInvoiceSuccessMessage">
+        <see stepKey="seeVertexSuccessMessage" selector="{{AdminOrderDetailsMessagesSection.vertexSuccessMessage}}" userInput="The Vertex invoice has been sent."/>
+    </actionGroup>
+    <actionGroup name="VertexCheckNoInvoiceSuccessMessage">
+        <see stepKey="seeNoVertexSuccessMessage" selector="{{AdminOrderDetailsMessagesSection.vertexSuccessMessage}}" userInput=""/>
+    </actionGroup>
+    <actionGroup name="VertexCheckInvoiceSuccessNote">
+        <arguments>
+            <argument type="string" name="amount"/>
+        </arguments>
+
+        <see stepKey="seeNote" selector="{{AdminOrderNotesSection.noteContaining('Vertex Invoice sent successfully.')}}" userInput="${{amount}}"/>
+    </actionGroup>
+
+    <actionGroup name="VertexCheckCreditMemoSuccessMessage">
+        <see stepKey="seeVertexSuccessMessage" selector="{{AdminOrderDetailsMessagesSection.vertexSuccessMessage}}" userInput="The Vertex invoice has been refunded."/>
+    </actionGroup>
+    <actionGroup name="VertexCheckCreditMemoSuccessNote">
+        <arguments>
+            <argument type="string" name="amount"/>
+        </arguments>
+
+        <see stepKey="seeNote" selector="{{AdminOrderNotesSection.noteContaining('Vertex Invoice refunded successfully.')}}" userInput="${{amount}}"/>
+    </actionGroup>
+</actionGroups>

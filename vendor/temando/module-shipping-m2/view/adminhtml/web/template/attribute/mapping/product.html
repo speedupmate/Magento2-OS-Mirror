@@ -1,0 +1,58 @@
+<table class="data-grid" id="product_attribute_mapping_table">
+    <thead>
+        <tr>
+            <th class="data-grid-th" data-bind="i18n: 'Magento Shipping Attribute'"></th>
+            <th class="data-grid-th" data-bind="i18n: 'Magento Product Attribute'"></th>
+        </tr>
+    </thead>
+    <tbody data-bind="foreach: getListShippingAttributes()">
+        <tr data-role="row" data-bind="css: { '_odd-row': $index() % 2 === 1}">
+            <!-- ko ifnot: $parent.isNewMapping(id) -->
+            <td class="a-left product-attribute-mapping-column-padding">
+                <div class="admin__field">
+                    <label class="label admin__field-label">
+                        <span data-bind="text: id"></span>
+                    </label>
+                </div>
+                <span data-bind="text: description"></span>
+            </td>
+            <!-- /ko -->
+            <!-- ko if: $parent.isNewMapping(id) -->
+            <td class="a-left product-attribute-mapping-column-new" >
+                <div class="admin__field _required">
+                    <label class="admin__field-label"><span>product.customAttributes</span></label>
+                    <input class="input-text admin__control-text required-text maximum-length-255" type="text" data-bind="attr: {name: 'mapping['+id+'][id]'}" data-validate="{'required-entry':true, 'validate-length': true}" placeholder="node path" />
+                </div>
+                <div class="admin__field">
+                    <textarea class=" textarea admin__control-textarea" data-bind="attr: {name: 'mapping['+id+'][description]'}" placeholder="description"></textarea>
+                </div>
+            </td>
+            <!-- /ko -->
+            <td class="a-left product-attribute-mapping-column-select">
+                <select class="select admin__control-select" data-bind="
+                        attr: {name: 'mapping['+$data.id+'][mapped_attribute]'},
+                        options: $data.attributes,
+                        optionsText: 'label',
+                        optionsValue: 'code',
+                        value: $data.mapped_attribute,
+                        optionsCaption: ' - Select a Magento product attribute -'
+                        ">
+                </select>
+                <!-- ko if: $parent.isNewMapping(id) -->
+                <button data-bind="click: $parent.removeMapping, i18n: 'Cancel', attr: {id: 'remove-mapping-'+id, name: 'mapping['+id+'][remove]'}"></button>
+                <!-- /ko -->
+                <!-- ko if: $parent.canDelete(id, is_default) -->
+                <button type="button" data-bind="click: function () { $parent.deleteMapping(id, $parent.deleteUrl, $parent.token); }, i18n: 'Delete'"></button>
+                <!-- /ko -->
+            </td>
+        </tr>
+    </tbody>
+</table>
+
+<div class="admin__data-grid-filters-wrap _show">
+    <div class="admin__data-grid-filters-footer">
+        <div class="admin__footer-main-actions">
+            <button data-bind="click: newMapping, i18n: 'New Mapping'"></button>
+        </div>
+    </div>
+</div>

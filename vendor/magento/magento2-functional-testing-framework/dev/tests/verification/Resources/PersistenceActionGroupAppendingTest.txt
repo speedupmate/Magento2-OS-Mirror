@@ -1,0 +1,110 @@
+<?php
+namespace Magento\AcceptanceTest\_default\Backend;
+
+use Magento\FunctionalTestingFramework\AcceptanceTester;
+use Magento\FunctionalTestingFramework\DataGenerator\Handlers\CredentialStore;
+use Magento\FunctionalTestingFramework\DataGenerator\Handlers\PersistedObjectHandler;
+use \Codeception\Util\Locator;
+use Yandex\Allure\Adapter\Annotation\Features;
+use Yandex\Allure\Adapter\Annotation\Stories;
+use Yandex\Allure\Adapter\Annotation\Title;
+use Yandex\Allure\Adapter\Annotation\Description;
+use Yandex\Allure\Adapter\Annotation\Parameter;
+use Yandex\Allure\Adapter\Annotation\Severity;
+use Yandex\Allure\Adapter\Model\SeverityLevel;
+use Yandex\Allure\Adapter\Annotation\TestCaseId;
+
+/**
+ * @Description("<br><br><b><font size=+0.9>Test files</font></b><br><br>verification/TestModule/Test/PersistenceActionGroupAppendingTest.xml<br>")
+ */
+class PersistenceActionGroupAppendingTestCest
+{
+	/**
+	  * @param AcceptanceTester $I
+	  * @throws \Exception
+	  */
+	public function _before(AcceptanceTester $I)
+	{
+		$I->comment("Entering Action Group [ACTIONGROUPBEFORE] DataPersistenceAppendingActionGroup");
+		$I->comment("[createDataACTIONGROUPBEFORE] create 'entity' entity");
+		PersistedObjectHandler::getInstance()->createEntity(
+			"createDataACTIONGROUPBEFORE",
+			"hook",
+			"entity",
+			[],
+			[]
+		);
+
+		$I->comment("[updateDataACTIONGROUPBEFORE] update 'createDataACTIONGROUPBEFORE' entity to 'newEntity'");
+		PersistedObjectHandler::getInstance()->updateEntity(
+			"createDataACTIONGROUPBEFORE",
+			"hook",
+			"newEntity",
+			[]
+		);
+
+		$I->comment("[deleteDataACTIONGROUPBEFORE] delete entity 'createDataACTIONGROUPBEFORE'");
+		PersistedObjectHandler::getInstance()->deleteEntity(
+			"createDataACTIONGROUPBEFORE",
+			"hook"
+		);
+
+		$I->comment("[getDataACTIONGROUPBEFORE] get 'someEneity' entity");
+		PersistedObjectHandler::getInstance()->getEntity(
+			"getDataACTIONGROUPBEFORE",
+			"hook",
+			"someEneity",
+			[],
+			null
+		);
+
+		$I->comment(PersistedObjectHandler::getInstance()->retrieveEntityField('createData', 'field', 'hook'));
+		$I->comment("Exiting Action Group [ACTIONGROUPBEFORE] DataPersistenceAppendingActionGroup");
+	}
+
+	/**
+	 * @Features({"TestModule"})
+	 * @Parameter(name = "AcceptanceTester", value="$I")
+	 * @param AcceptanceTester $I
+	 * @return void
+	 * @throws \Exception
+	 */
+	public function PersistenceActionGroupAppendingTest(AcceptanceTester $I)
+	{
+		$I->comment("Entering Action Group [ACTIONGROUP] DataPersistenceAppendingActionGroup");
+		$I->comment("[createDataACTIONGROUP] create 'entity' entity");
+		PersistedObjectHandler::getInstance()->createEntity(
+			"createDataACTIONGROUP",
+			"test",
+			"entity",
+			[],
+			[]
+		);
+
+		$I->comment("[updateDataACTIONGROUP] update 'createDataACTIONGROUP' entity to 'newEntity'");
+		PersistedObjectHandler::getInstance()->updateEntity(
+			"createDataACTIONGROUP",
+			"test",
+			"newEntity",
+			[]
+		);
+
+		$I->comment("[deleteDataACTIONGROUP] delete entity 'createDataACTIONGROUP'");
+		PersistedObjectHandler::getInstance()->deleteEntity(
+			"createDataACTIONGROUP",
+			"test"
+		);
+
+		$I->comment("[getDataACTIONGROUP] get 'someEneity' entity");
+		PersistedObjectHandler::getInstance()->getEntity(
+			"getDataACTIONGROUP",
+			"test",
+			"someEneity",
+			[],
+			null
+		);
+
+		$I->comment(PersistedObjectHandler::getInstance()->retrieveEntityField('createDataACTIONGROUP', 'field', 'test'));
+		$I->comment("Exiting Action Group [ACTIONGROUP] DataPersistenceAppendingActionGroup");
+	}
+}

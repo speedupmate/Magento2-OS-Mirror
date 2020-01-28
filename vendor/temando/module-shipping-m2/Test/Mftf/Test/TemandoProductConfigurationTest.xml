@@ -1,0 +1,110 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<tests xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+       xsi:noNamespaceSchemaLocation="urn:magento:mftf:Test/etc/testSchema.xsd">
+    <test name="TemandoProductConfigurationAssigned">
+        <annotations>
+            <title value="Product Configuration Assigned" />
+            <description value="Configure a product assigned to a package" />
+            <stories value="Configure a product assigned to a package" />
+            <severity value="CRITICAL" />
+            <group value="Temando_Shipping_Product_Configuration" />
+            <skip>
+                <issueId value="MPI-4443"/>
+            </skip>
+            <testCaseId value="MG-64" />
+        </annotations>
+        <before>
+            <createData entity="SimpleSubCategory" stepKey="simplecategory" />
+            <createData entity="SimpleProduct" stepKey="simpleproduct">
+                <requiredEntity createDataKey="simplecategory" />
+            </createData>
+        </before>
+        <after>
+            <deleteData createDataKey="simpleproduct" stepKey="deleteProduct" />
+            <deleteData createDataKey="simplecategory" stepKey="deleteCategory" />
+            <actionGroup ref="AdminDisableShippingMethod" stepKey="disableShippingMethod" />
+        </after>
+
+        <!-- Start testing -->
+        <!-- Enable shipping -->
+        <actionGroup ref="AdminEnableShippingMethod" stepKey="enableShippingMethod" />
+        <actionGroup ref="LoginAsAdmin" stepKey="loginToReconfigureEnabledShipping" />
+
+        <!-- Navigate to product -->
+        <actionGroup ref="NavigateToProductShippingSection" stepKey="navigateToProductShippingSection">
+            <argument name="product" value="$$simpleproduct$$" />
+        </actionGroup>
+
+        <!-- Set packaging type -->
+        <actionGroup ref="SetPackagingTypeAssigned" stepKey="setPackagingType">
+            <argument name="product" value="$$simpleproduct$$" />
+        </actionGroup>
+        <actionGroup ref="VerifyPackagingTypeAndPackage" stepKey="verifyPackagingType" />
+
+        <!-- Reset packaging type -->
+        <actionGroup ref="SetPackagingType" stepKey="resetPackagingType">
+            <argument name="product" value="$$simpleproduct$$" />
+            <argument name="packagingType" value="{{TemandoPackagingType.None}}" />
+        </actionGroup>
+        <actionGroup ref="VerifyPackagingType" stepKey="verifyResetPackagingType">
+            <argument name="packagingType" value="{{TemandoPackagingType.None}}" />
+        </actionGroup>
+
+        <amOnPage url="admin/admin/auth/logout/" stepKey="amOnLogoutPage" />
+    </test>
+
+    <test name="TemandoProductConfigurationPrePackaged">
+        <annotations>
+            <title value="Product Configuration Pre-Packaged" />
+            <description value="Configure a product set to pre-packaged" />
+            <stories value="Configure a product set to pre-packaged" />
+            <severity value="CRITICAL" />
+            <group value="Temando_Shipping_Product_Configuration" />
+            <skip>
+                <issueId value="MPI-4443"/>
+            </skip>
+            <testCaseId value="MG-30" />
+        </annotations>
+        <before>
+            <createData entity="SimpleSubCategory" stepKey="simplecategory" />
+            <createData entity="TemandoSimpleProductNoWeight" stepKey="simpleproduct">
+                <requiredEntity createDataKey="simplecategory" />
+            </createData>
+        </before>
+        <after>
+            <deleteData createDataKey="simpleproduct" stepKey="deleteProduct" />
+            <deleteData createDataKey="simplecategory" stepKey="deleteCategory" />
+            <actionGroup ref="AdminDisableShippingMethod" stepKey="disableShippingMethod" />
+        </after>
+
+        <!-- Start testing -->
+        <!-- Enable shipping -->
+        <actionGroup ref="AdminEnableShippingMethod" stepKey="enableShippingMethod" />
+        <actionGroup ref="LoginAsAdmin" stepKey="loginToReconfigureEnabledShipping" />
+
+        <!-- Navigate to product -->
+        <actionGroup ref="NavigateToProductShippingSection" stepKey="navigateToProductShippingSection">
+            <argument name="product" value="$$simpleproduct$$" />
+        </actionGroup>
+
+        <!-- Set packaging type -->
+        <actionGroup ref="SetPackagingTypePrepackaged" stepKey="setPackagingType">
+            <argument name="product" value="$$simpleproduct$$" />
+        </actionGroup>
+        <actionGroup ref="VerifyPackagingType" stepKey="verifyPackagingType">
+            <argument name="packagingType" value="{{TemandoPackagingType.Prepackaged}}" />
+        </actionGroup>
+
+        <!-- Reset packaging type -->
+        <actionGroup ref="SetPackagingTypeAndResetSizeFields" stepKey="resetPackagingType">
+            <argument name="product" value="$$simpleproduct$$" />
+            <argument name="packagingType" value="{{TemandoPackagingType.None}}" />
+        </actionGroup>
+        <actionGroup ref="VerifyPackagingType" stepKey="verifyResetPackagingType">
+            <argument name="packagingType" value="{{TemandoPackagingType.None}}" />
+        </actionGroup>
+
+        <amOnPage url="admin/admin/auth/logout/" stepKey="amOnLogoutPage" />
+    </test>
+</tests>

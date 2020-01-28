@@ -1,0 +1,97 @@
+<?xml version="1.0"?>
+<!--
+/**
+ * Refer to LICENSE.txt distributed with the Temando Shipping module for notice of license
+ */
+-->
+<config xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="urn:magento:module:Magento_Backend:etc/menu.xsd">
+    <menu>
+        <add id="Temando_Shipping::shipping"
+             title="Shipping"
+             translate="title"
+             module="Temando_Shipping"
+             sortOrder="45"
+             dependsOnModule="Temando_Shipping"
+             resource="Temando_Shipping::shipping"
+             parent="Magento_Backend::stores"
+             dependsOnConfig="carriers/temando/active"
+        />
+        <add id="Temando_Shipping::carriers"
+             title="Carriers"
+             module="Temando_Shipping"
+             sortOrder="20"
+             resource="Temando_Shipping::portal"
+             parent="Temando_Shipping::shipping"
+             action="temando/configuration_portal/carriers"
+             target="_blank"
+             dependsOnConfig="carriers/temando/active"
+        />
+        <add id="Temando_Shipping::locations"
+             title="Locations"
+             module="Temando_Shipping"
+             sortOrder="22"
+             resource="Temando_Shipping::portal"
+             parent="Temando_Shipping::shipping"
+             action="temando/configuration_portal/location"
+             target="_blank"
+             dependsOnConfig="carriers/temando/active"
+        />
+        <add id="Temando_Shipping::packaging"
+             title="Packaging"
+             module="Temando_Shipping"
+             sortOrder="23"
+             resource="Temando_Shipping::packaging"
+             parent="Temando_Shipping::shipping"
+             action="temando/configuration_packaging/index"
+             dependsOnConfig="carriers/temando/active"
+        />
+        <add id="Temando_Shipping::experiences"
+             title="Experiences"
+             module="Temando_Shipping"
+             sortOrder="24"
+             resource="Temando_Shipping::portal"
+             parent="Temando_Shipping::shipping"
+             action="temando/configuration_portal/experience"
+             target="_blank"
+             dependsOnConfig="carriers/temando/active"
+        />
+        <add id="Temando_Shipping::pickups"
+             title="Pickups"
+             module="Temando_Shipping"
+             sortOrder="30"
+             resource="Temando_Shipping::pickups"
+             parent="Magento_Sales::sales_operation"
+             action="temando/pickup/index"
+             dependsOnConfig="carriers/temando/active"
+        />
+        <add id="Temando_Shipping::dispatches"
+             title="Dispatches"
+             module="Temando_Shipping"
+             sortOrder="35"
+             resource="Temando_Shipping::dispatches"
+             parent="Magento_Sales::sales_operation"
+             action="temando/dispatch/index"
+             dependsOnConfig="carriers/temando/active"
+        />
+        <add id="Temando_Shipping::batches"
+             title="Batches"
+             module="Temando_Shipping"
+             sortOrder="37"
+             resource="Temando_Shipping::batches"
+             parent="Magento_Sales::sales_operation"
+             action="temando/batch/index"
+             dependsOnConfig="carriers/temando/active"
+        />
+        <add id="Temando_Shipping::product"
+             title="Attribute Mapping"
+             translate="title"
+             module="Temando_Shipping"
+             sortOrder="40"
+             dependsOnModule="Temando_Shipping"
+             resource="Temando_Shipping::product"
+             parent="Temando_Shipping::shipping"
+             action="temando/attribute_mapping_product/edit"
+             dependsOnConfig="carriers/temando/active"
+        />
+    </menu>
+</config>

@@ -1,0 +1,21 @@
+<?xml version="1.0" encoding="utf-8"?>
+
+<pages xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+       xsi:noNamespaceSchemaLocation="urn:magento:mftf:Page/etc/PageObject.xsd">
+    <page name="TemandoAdminOrderPage" url="sales/order" area="admin" module="Sales_Order">
+        <section name="TemandoSalesOrderSection" />
+    </page>
+    <page name="TemandoShipmentGridPage" url="sales/shipment" area="admin" module="Magento_Shipping">
+        <section name="TemandoShipmentGrid" />
+    </page>
+    <page name="TemandoViewShipmentPage" url="sales/shipment/view/shipment_id" area="admin" module="Magento_Shipping" >
+        <section name="TemandoSalesOrderShipmentSection" />
+    </page>
+    <page name="TemandoPickupGridPage" url="temando/pickup/index" area="admin" module="Temando_Shipping" />
+    <page name="TemandoPickupPreparePage" url="temando/pickup/prepare" area="admin" module="Temando_Shipping" />
+    <page name="TemandoPickupViewPage" url="temando/pickup/view" area="admin" module="Temando_Shipping" />
+    <page name="TemandoDispatchGridPage" url="temando/dispatch/index" area="admin" module="Temando_Shipping" />
+    <page name="TemandoCustomerOrderHistory" url="sales/order/history" area="storefront" module="Magento_Customer">
+        <section name="TemandoCustomerAccount" />
+    </page>
+</pages>

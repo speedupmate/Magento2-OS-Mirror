@@ -1,0 +1,20 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<sections xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+          xsi:noNamespaceSchemaLocation="urn:magento:mftf:Page/etc/SectionObject.xsd">
+    <section name="TemandoProductAttributeMappingSection">
+        <element name="pageTitle" type="text" selector="//h1[@class='page-title' and text()='Product Attribute Mapping']" />
+        <element name="activateLink" type="text" selector="//p[contains(., 'To add and manage attribute mappings')]/a[text()='Activate Magento Shipping']" />
+        <element name="tableHeaderColumn" type="text" selector="//table[@id='product_attribute_mapping_table']//th[@class='data-grid-th' and contains(., 'Magento {{type}} Attribute')]" parameterized="true" />
+        <element name="buttonNewMapping" type="button" selector="//div[@class='admin__footer-main-actions']//button[text()='New Mapping']" />
+        <element name="inputNodePathId" type="input" selector="//table[@id='product_attribute_mapping_table']//td[contains(@class, 'product-attribute-mapping-column-new')]//input[contains(@name, 'mapping') and contains(@name, '[NEW_') and contains(@name, '[id]')]" />
+        <element name="textareaDescription" type="textarea" selector="//table[@id='product_attribute_mapping_table']//td[contains(@class, 'product-attribute-mapping-column-new')]//textarea[contains(@name, 'mapping') and contains(@name, '[NEW_') and contains(@name, '[description]')]" />
+        <element name="selectAttribute" type="select" selector="//table[@id='product_attribute_mapping_table']//td[contains(@class, 'product-attribute-mapping-column-select')]//select[contains(@name, 'mapping') and contains(@name, '[NEW_') and contains(@name, '[mapped_attribute]')]" />
+        <element name="existingSelectAttribute" type="select" selector="//select[@name='mapping[{{nodePathId}}][mapped_attribute]']" parameterized="true" />
+        <element name="buttonCancelMapping" type="button" selector="//table[@id='product_attribute_mapping_table']//td[contains(@class, 'product-attribute-mapping-column-select')]//button[contains(@name, 'mapping') and contains(@name, '[NEW_') and contains(@name, '[remove]')]" />
+        <element name="buttonSave" type="button" selector="//button[@id='save-mapping']" />
+        <element name="fieldValidationMessage" type="text" selector="//table[@id='product_attribute_mapping_table']//td[contains(@class, 'product-attribute-mapping-column-new')]//label[@class='mage-error' and text()='{{message}}']" parameterized="true" />
+        <element name="pageMessage" type="text" selector="//div[contains(@class, 'message') and contains(@class, '{{type}}')]//div[text()='{{message}}']" parameterized="true" />
+        <element name="buttonDelete" type="button" selector="//table[@id='product_attribute_mapping_table']//td[contains(@class, 'product-attribute-mapping-column-select')]//button[text()='Delete']" />
+    </section>
+</sections>

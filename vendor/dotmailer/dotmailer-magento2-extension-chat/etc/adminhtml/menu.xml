@@ -1,0 +1,7 @@
+<?xml version="1.0"?>
+<config xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="urn:magento:module:Magento_Backend:etc/menu.xsd">
+    <menu>
+        <add id="Dotdigitalgroup_Email::chat" title="Chat" module="Dotdigitalgroup_Email" sortOrder="125" action="dotdigitalgroup_chat/studio"
+             resource="Dotdigitalgroup_Email::chat" parent="Dotdigitalgroup_Email::marketing_automation" />
+    </menu>
+</config>

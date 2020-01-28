@@ -1,0 +1,561 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!--
+ /**
+  * @copyright  Vertex. All rights reserved.  https://www.vertexinc.com/
+  * @author     Mediotype                     https://www.mediotype.com/
+  */
+-->
+<tests xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+       xsi:noNamespaceSchemaLocation="urn:magento:mftf:Test/etc/testSchema.xsd">
+    <test name="VertexAsRegisteredCustomerInCanadaWithBillToAndShipToTheSameCheckPhysicalProductTaxInAdminCreateOrder">
+        <annotations>
+            <features value="Vertex"/>
+            <group value="Vertex"/>
+
+            <stories value="As a store owner, I must have accurate taxes calculated for a registered customer"/>
+            <title value="Validate Taxes after Admin Order Create, Registered User, Physical Product, Bill-To=Ship-To, Canada VAT"/>
+            <description value="Validate that a registered customer with a bill-to and a ship-to that are the same and in Canada receives properly calculated taxes during admin order create"/>
+
+            <severity value="MAJOR"/>
+
+            <skip>
+                <issueId value="VRTX-569"/>
+            </skip>
+        </annotations>
+        <before>
+            <actionGroup ref="VertexCreateGroupedProduct" stepKey="InGroup">
+                <argument name="basePrice" value="{{Vertex_Grouped_Product_Values.price}}"/>
+                <argument name="firstPrice" value="{{Vertex_Grouped_First_Values.price}}"/>
+                <argument name="secondPrice" value="{{Vertex_Grouped_Second_Values.price}}"/>
+                <argument name="thirdPrice" value="{{Vertex_Grouped_Third_Values.price}}"/>
+            </actionGroup>
+            <createData entity="VertexCustomerClass_GvtK" stepKey="createTaxClass"/>
+            <createData entity="Vertex_CustomerGroup_BlanKetException" stepKey="createCustomerGroup">
+                <field key="tax_class_id">$$createTaxClass.return$$</field>
+            </createData>
+            <createData entity="Vertex_Customer_JohnLucCarre" stepKey="createCustomer">
+                <field key="group_id">$$createCustomerGroup.id$$</field>
+            </createData>
+
+            <actionGroup ref="LoginAsAdmin" stepKey="loginAsAdmin"/>
+            <actionGroup ref="VertexTaxDefaultConfig" stepKey="setupDefaultVertexTestConfiguration"/>
+            <actionGroup ref="ClearCacheActionGroup" stepKey="clearCache"/>
+
+            <actionGroup ref="navigateToNewOrderPageExistingCustomer" stepKey="startNewOrder">
+                <argument name="customer" value="$$createCustomer$$"/>
+            </actionGroup>
+
+            <actionGroup ref="beginAddingGroupedProductToOrder" stepKey="startGroupedProduct">
+                <argument name="product" value="$$createGroupInGroup$$"/>
+                <argument name="exampleOption" value="$$createFirstInGroup$$"/>
+            </actionGroup>
+            <actionGroup ref="selectGroupedProductOptionDuringOrderCreate" stepKey="addFirstToOrder">
+                <argument name="option" value="$$createFirstInGroup$$"/>
+            </actionGroup>
+            <actionGroup ref="selectGroupedProductOptionDuringOrderCreate" stepKey="addSecondToOrder">
+                <argument name="option" value="$$createSecondInGroup$$"/>
+            </actionGroup>
+            <actionGroup ref="selectGroupedProductOptionDuringOrderCreate" stepKey="addThirdToOrder">
+                <argument name="option" value="$$createThirdInGroup$$"/>
+            </actionGroup>
+            <actionGroup ref="finishAddingGroupedProductToOrder" stepKey="finishGroupedProduct"/>
+
+            <actionGroup ref="orderSelectShippingBillingSameAddress" stepKey="selectShippingAddress">
+                <argument name="addressId" value="$$createCustomer.addresses[1][id]$$"/>
+            </actionGroup>
+
+            <actionGroup ref="orderSelectFlatRateShipping" stepKey="selectShipping"/>
+
+            <actionGroup ref="SelectCheckMoneyPaymentMethod" stepKey="selectPayment"/>
+        </before>
+        <after>
+            <deleteData stepKey="deleteFirst" createDataKey="createFirst" actionGroup="InGroup"/>
+            <deleteData stepKey="deleteSecond" createDataKey="createSecond" actionGroup="InGroup"/>
+            <deleteData stepKey="deleteThird" createDataKey="createThird" actionGroup="InGroup"/>
+            <deleteData stepKey="deleteGroup" createDataKey="createGroup" actionGroup="InGroup"/>
+            <deleteData stepKey="deleteCategory" createDataKey="createCategory" actionGroup="InGroup"/>
+            <deleteData stepKey="deleteCustomerGroup" createDataKey="createCustomerGroup"/>
+            <deleteData stepKey="deleteTaxClass" createDataKey="createTaxClass"/>
+            <deleteData stepKey="deleteCustomer" createDataKey="createCustomer"/>
+            <actionGroup ref="logout" stepKey="logoutOfAdmin"/>
+        </after>
+
+        <actionGroup ref="VertexCheckProductPricingInAdminCreate" stepKey="checkFirstPricing">
+            <argument name="product" value="$$createFirstInGroup$$"/>
+            <argument name="priceExclTax" value="{{Vertex_Grouped_CAN_First_Values.price}}"/>
+            <argument name="priceInclTax" value="{{Vertex_Grouped_CAN_First_Values.priceInclTax}}"/>
+            <argument name="subtotalExclTax" value="{{Vertex_Grouped_CAN_First_Values.subtotal}}"/>
+            <argument name="subtotalInclTax" value="{{Vertex_Grouped_CAN_First_Values.subtotalInclTax}}"/>
+            <argument name="rowSubtotalExclTax" value="{{Vertex_Grouped_CAN_First_Values.subtotal}}"/>
+            <argument name="rowSubtotalInclTax" value="{{Vertex_Grouped_CAN_First_Values.subtotalInclTax}}"/>
+        </actionGroup>
+        <actionGroup ref="VertexCheckProductPricingInAdminCreate" stepKey="checkSecondPricing">
+            <argument name="product" value="$$createSecondInGroup$$"/>
+            <argument name="priceExclTax" value="{{Vertex_Grouped_CAN_Second_Values.price}}"/>
+            <argument name="priceInclTax" value="{{Vertex_Grouped_CAN_Second_Values.priceInclTax}}"/>
+            <argument name="subtotalExclTax" value="{{Vertex_Grouped_CAN_Second_Values.subtotal}}"/>
+            <argument name="subtotalInclTax" value="{{Vertex_Grouped_CAN_Second_Values.subtotalInclTax}}"/>
+            <argument name="rowSubtotalExclTax" value="{{Vertex_Grouped_CAN_Second_Values.subtotal}}"/>
+            <argument name="rowSubtotalInclTax" value="{{Vertex_Grouped_CAN_Second_Values.subtotalInclTax}}"/>
+        </actionGroup>
+        <actionGroup ref="VertexCheckProductPricingInAdminCreate" stepKey="checkThirdPricing">
+            <argument name="product" value="$$createThirdInGroup$$"/>
+            <argument name="priceExclTax" value="{{Vertex_Grouped_CAN_Third_Values.price}}"/>
+            <argument name="priceInclTax" value="{{Vertex_Grouped_CAN_Third_Values.priceInclTax}}"/>
+            <argument name="subtotalExclTax" value="{{Vertex_Grouped_CAN_Third_Values.subtotal}}"/>
+            <argument name="subtotalInclTax" value="{{Vertex_Grouped_CAN_Third_Values.subtotalInclTax}}"/>
+            <argument name="rowSubtotalExclTax" value="{{Vertex_Grouped_CAN_Third_Values.subtotal}}"/>
+            <argument name="rowSubtotalInclTax" value="{{Vertex_Grouped_CAN_Third_Values.subtotalInclTax}}"/>
+        </actionGroup>
+        <actionGroup ref="VertexCheckTotalsInAdminCreate" stepKey="checkTotals">
+            <argument name="subtotalExclTax" value="{{Vertex_Grouped_CAN_Product_Totals.subtotal}}"/>
+            <argument name="subtotalInclTax" value="{{Vertex_Grouped_CAN_Product_Totals.subtotalInclTax}}"/>
+            <argument name="shippingExclTax" value="{{Vertex_Grouped_CAN_Product_Totals.shipping}}"/>
+            <argument name="shippingInclTax" value="{{Vertex_Grouped_CAN_Product_Totals.shippingInclTax}}"/>
+            <argument name="tax" value="{{Vertex_Grouped_CAN_Product_Totals.tax}}"/>
+            <argument name="totalExclTax" value="{{Vertex_Grouped_CAN_Product_Totals.total}}"/>
+            <argument name="totalInclTax" value="{{Vertex_Grouped_CAN_Product_Totals.totalInclTax}}"/>
+        </actionGroup>
+    </test>
+
+    <test name="VertexAsRegisteredCustomerInCanadaWithBillToAndShipToTheSameCheckPhysicalProductTaxInAdminPostCreateOrder">
+        <annotations>
+            <features value="Vertex"/>
+            <group value="Vertex"/>
+
+            <stories value="As a store owner, I must have accurate taxes calculated for a registered customer"/>
+            <title value="Validate Taxes during Admin Order Create, Registered User, Physical Product, Bill-To=Ship-To, VAT Canada"/>
+            <description value="Validate that a registered customer with a bill-to and a ship-to that are the same and in Canada receives properly calculated taxes after admin order create"/>
+
+            <severity value="CRITICAL"/>
+        </annotations>
+        <before>
+            <actionGroup ref="VertexCreateGroupedProduct" stepKey="InGroup">
+                <argument name="basePrice" value="{{Vertex_Grouped_Product_Values.price}}"/>
+                <argument name="firstPrice" value="{{Vertex_Grouped_First_Values.price}}"/>
+                <argument name="secondPrice" value="{{Vertex_Grouped_Second_Values.price}}"/>
+                <argument name="thirdPrice" value="{{Vertex_Grouped_Third_Values.price}}"/>
+            </actionGroup>
+            <createData entity="VertexCustomerClass_GvtK" stepKey="createTaxClass"/>
+            <createData entity="Vertex_CustomerGroup_BlanKetException" stepKey="createCustomerGroup">
+                <field key="tax_class_id">$$createTaxClass.return$$</field>
+            </createData>
+            <createData entity="Vertex_Customer_JohnLucCarre" stepKey="createCustomer">
+                <field key="group_id">$$createCustomerGroup.id$$</field>
+            </createData>
+
+            <actionGroup ref="LoginAsAdmin" stepKey="loginAsAdmin"/>
+            <actionGroup ref="VertexTaxDefaultConfig" stepKey="setupDefaultVertexTestConfiguration"/>
+            <actionGroup ref="ClearCacheActionGroup" stepKey="clearCache"/>
+
+            <actionGroup ref="navigateToNewOrderPageExistingCustomer" stepKey="startNewOrder">
+                <argument name="customer" value="$$createCustomer$$"/>
+            </actionGroup>
+
+            <actionGroup ref="beginAddingGroupedProductToOrder" stepKey="startGroupedProduct">
+                <argument name="product" value="$$createGroupInGroup$$"/>
+                <argument name="exampleOption" value="$$createFirstInGroup$$"/>
+            </actionGroup>
+            <actionGroup ref="selectGroupedProductOptionDuringOrderCreate" stepKey="addFirstToOrder">
+                <argument name="option" value="$$createFirstInGroup$$"/>
+            </actionGroup>
+            <actionGroup ref="selectGroupedProductOptionDuringOrderCreate" stepKey="addSecondToOrder">
+                <argument name="option" value="$$createSecondInGroup$$"/>
+            </actionGroup>
+            <actionGroup ref="selectGroupedProductOptionDuringOrderCreate" stepKey="addThirdToOrder">
+                <argument name="option" value="$$createThirdInGroup$$"/>
+            </actionGroup>
+            <actionGroup ref="finishAddingGroupedProductToOrder" stepKey="finishGroupedProduct"/>
+
+            <actionGroup ref="orderSelectShippingBillingSameAddress" stepKey="selectShippingAddress">
+                <argument name="addressId" value="$$createCustomer.addresses[1][id]$$"/>
+            </actionGroup>
+
+            <actionGroup ref="orderSelectFlatRateShipping" stepKey="selectShipping"/>
+
+            <actionGroup ref="SelectCheckMoneyPaymentMethod" stepKey="selectPayment"/>
+
+            <click stepKey="submitOrder" selector="{{AdminOrderFormActionSection.submitOrder}}"/>
+        </before>
+        <after>
+            <deleteData stepKey="deleteFirst" createDataKey="createFirst" actionGroup="InGroup"/>
+            <deleteData stepKey="deleteSecond" createDataKey="createSecond" actionGroup="InGroup"/>
+            <deleteData stepKey="deleteThird" createDataKey="createThird" actionGroup="InGroup"/>
+            <deleteData stepKey="deleteGroup" createDataKey="createGroup" actionGroup="InGroup"/>
+            <deleteData stepKey="deleteCategory" createDataKey="createCategory" actionGroup="InGroup"/>
+            <deleteData stepKey="deleteCustomerGroup" createDataKey="createCustomerGroup"/>
+            <deleteData stepKey="deleteTaxClass" createDataKey="createTaxClass"/>
+            <deleteData stepKey="deleteCustomer" createDataKey="createCustomer"/>
+            <actionGroup ref="logout" stepKey="logoutOfAdmin"/>
+        </after>
+
+        <actionGroup ref="VertexCheckProductPricingInAdminOrderView" stepKey="checkFirstPricing">
+            <argument name="product" value="$$createFirstInGroup$$"/>
+            <argument name="priceExclTax" value="{{Vertex_Grouped_CAN_First_Values.price}}"/>
+            <argument name="priceInclTax" value="{{Vertex_Grouped_CAN_First_Values.priceInclTax}}"/>
+            <argument name="subtotalExclTax" value="{{Vertex_Grouped_CAN_First_Values.subtotal}}"/>
+            <argument name="subtotalInclTax" value="{{Vertex_Grouped_CAN_First_Values.subtotalInclTax}}"/>
+            <argument name="tax" value="{{Vertex_Grouped_CAN_First_Values.tax}}"/>
+            <argument name="taxPercent" value="{{Vertex_Grouped_CAN_First_Values.taxPercent}}"/>
+            <argument name="rowTotal" value="{{Vertex_Grouped_CAN_First_Values.subtotalInclTax}}"/>
+        </actionGroup>
+        <actionGroup ref="VertexCheckProductPricingInAdminOrderView" stepKey="checkSecondPricing">
+            <argument name="product" value="$$createSecondInGroup$$"/>
+            <argument name="priceExclTax" value="{{Vertex_Grouped_CAN_Second_Values.price}}"/>
+            <argument name="priceInclTax" value="{{Vertex_Grouped_CAN_Second_Values.priceInclTax}}"/>
+            <argument name="subtotalExclTax" value="{{Vertex_Grouped_CAN_Second_Values.subtotal}}"/>
+            <argument name="subtotalInclTax" value="{{Vertex_Grouped_CAN_Second_Values.subtotalInclTax}}"/>
+            <argument name="tax" value="{{Vertex_Grouped_CAN_Second_Values.tax}}"/>
+            <argument name="taxPercent" value="{{Vertex_Grouped_CAN_Second_Values.taxPercent}}"/>
+            <argument name="rowTotal" value="{{Vertex_Grouped_CAN_Second_Values.subtotalInclTax}}"/>
+        </actionGroup>
+        <actionGroup ref="VertexCheckProductPricingInAdminOrderView" stepKey="checkThirdPricing">
+            <argument name="product" value="$$createThirdInGroup$$"/>
+            <argument name="priceExclTax" value="{{Vertex_Grouped_CAN_Third_Values.price}}"/>
+            <argument name="priceInclTax" value="{{Vertex_Grouped_CAN_Third_Values.priceInclTax}}"/>
+            <argument name="subtotalExclTax" value="{{Vertex_Grouped_CAN_Third_Values.subtotal}}"/>
+            <argument name="subtotalInclTax" value="{{Vertex_Grouped_CAN_Third_Values.subtotalInclTax}}"/>
+            <argument name="tax" value="{{Vertex_Grouped_CAN_Third_Values.tax}}"/>
+            <argument name="taxPercent" value="{{Vertex_Grouped_CAN_Third_Values.taxPercent}}"/>
+            <argument name="rowTotal" value="{{Vertex_Grouped_CAN_Third_Values.subtotalInclTax}}"/>
+        </actionGroup>
+        <actionGroup ref="VertexCheckTotalsInAdminOrderView" stepKey="checkTotals">
+            <argument name="subtotalExclTax" value="{{Vertex_Grouped_CAN_Product_Totals.subtotal}}"/>
+            <argument name="subtotalInclTax" value="{{Vertex_Grouped_CAN_Product_Totals.subtotalInclTax}}"/>
+            <argument name="shippingExclTax" value="{{Vertex_Grouped_CAN_Product_Totals.shipping}}"/>
+            <argument name="shippingInclTax" value="{{Vertex_Grouped_CAN_Product_Totals.shippingInclTax}}"/>
+            <argument name="tax" value="{{Vertex_Grouped_CAN_Product_Totals.tax}}"/>
+            <argument name="totalExclTax" value="{{Vertex_Grouped_CAN_Product_Totals.total}}"/>
+            <argument name="totalInclTax" value="{{Vertex_Grouped_CAN_Product_Totals.totalInclTax}}"/>
+        </actionGroup>
+    </test>
+
+    <test name="VertexAsRegisteredCustomerInCanadaWithBillToAndShipToTheSameCheckPhysicalProductVertexTaxJournalOnInvoice">
+        <annotations>
+            <features value="Vertex"/>
+            <group value="Vertex"/>
+
+            <stories value="As a store owner, I must have accurate taxes committed to the tax journal"/>
+            <title value="Validate Tax Journal during Invoicing, Registered User, Physical Product, Bill-To=Ship-To, VAT Canada"/>
+            <description value="Validate accurate taxes are committed the Vertex Tax Journal during invoicing of an order with a registered user who has a bill-to the same as the ship-to and in Canada and containing physical products"/>
+
+            <severity value="CRITICAL"/>
+        </annotations>
+        <before>
+            <actionGroup ref="VertexCreateGroupedProduct" stepKey="InGroup">
+                <argument name="basePrice" value="{{Vertex_Grouped_Product_Values.price}}"/>
+                <argument name="firstPrice" value="{{Vertex_Grouped_First_Values.price}}"/>
+                <argument name="secondPrice" value="{{Vertex_Grouped_Second_Values.price}}"/>
+                <argument name="thirdPrice" value="{{Vertex_Grouped_Third_Values.price}}"/>
+            </actionGroup>
+            <createData entity="VertexCustomerClass_GvtK" stepKey="createTaxClass"/>
+            <createData entity="Vertex_CustomerGroup_BlanKetException" stepKey="createCustomerGroup">
+                <field key="tax_class_id">$$createTaxClass.return$$</field>
+            </createData>
+            <createData entity="Vertex_Customer_JohnLucCarre" stepKey="createCustomer">
+                <field key="group_id">$$createCustomerGroup.id$$</field>
+            </createData>
+
+            <actionGroup ref="LoginAsAdmin" stepKey="loginAsAdmin"/>
+            <actionGroup ref="VertexTaxDefaultConfig" stepKey="setupDefaultVertexTestConfiguration"/>
+            <actionGroup ref="ClearCacheActionGroup" stepKey="clearCache"/>
+
+            <actionGroup ref="navigateToNewOrderPageExistingCustomer" stepKey="startNewOrder">
+                <argument name="customer" value="$$createCustomer$$"/>
+            </actionGroup>
+
+            <actionGroup ref="beginAddingGroupedProductToOrder" stepKey="startGroupedProduct">
+                <argument name="product" value="$$createGroupInGroup$$"/>
+                <argument name="exampleOption" value="$$createFirstInGroup$$"/>
+            </actionGroup>
+            <actionGroup ref="selectGroupedProductOptionDuringOrderCreate" stepKey="addFirstToOrder">
+                <argument name="option" value="$$createFirstInGroup$$"/>
+            </actionGroup>
+            <actionGroup ref="selectGroupedProductOptionDuringOrderCreate" stepKey="addSecondToOrder">
+                <argument name="option" value="$$createSecondInGroup$$"/>
+            </actionGroup>
+            <actionGroup ref="selectGroupedProductOptionDuringOrderCreate" stepKey="addThirdToOrder">
+                <argument name="option" value="$$createThirdInGroup$$"/>
+            </actionGroup>
+            <actionGroup ref="finishAddingGroupedProductToOrder" stepKey="finishGroupedProduct"/>
+
+            <actionGroup ref="orderSelectShippingBillingSameAddress" stepKey="selectShippingAddress">
+                <argument name="addressId" value="$$createCustomer.addresses[1][id]$$"/>
+            </actionGroup>
+
+            <actionGroup ref="orderSelectFlatRateShipping" stepKey="selectShipping"/>
+
+            <actionGroup ref="SelectCheckMoneyPaymentMethod" stepKey="selectPayment"/>
+
+            <click stepKey="submitOrder" selector="{{AdminOrderFormActionSection.submitOrder}}"/>
+
+            <actionGroup ref="goToInvoiceIntoOrder" stepKey="createInvoice"/>
+            <actionGroup ref="submitInvoiceIntoOrder" stepKey="submitInvoice"/>
+        </before>
+        <after>
+            <deleteData stepKey="deleteFirst" createDataKey="createFirst" actionGroup="InGroup"/>
+            <deleteData stepKey="deleteSecond" createDataKey="createSecond" actionGroup="InGroup"/>
+            <deleteData stepKey="deleteThird" createDataKey="createThird" actionGroup="InGroup"/>
+            <deleteData stepKey="deleteGroup" createDataKey="createGroup" actionGroup="InGroup"/>
+            <deleteData stepKey="deleteCategory" createDataKey="createCategory" actionGroup="InGroup"/>
+            <deleteData stepKey="deleteCustomerGroup" createDataKey="createCustomerGroup"/>
+            <deleteData stepKey="deleteTaxClass" createDataKey="createTaxClass"/>
+            <deleteData stepKey="deleteCustomer" createDataKey="createCustomer"/>
+            <actionGroup ref="logout" stepKey="logoutOfAdmin"/>
+        </after>
+
+        <actionGroup ref="VertexCheckInvoiceSuccessMessage" stepKey="checkSuccessMessage"/>
+        <actionGroup ref="VertexCheckInvoiceSuccessNote" stepKey="checkSuccessNote">
+            <argument name="amount" value="{{Vertex_Grouped_CAN_Product_Totals.tax}}"/>
+        </actionGroup>
+    </test>
+
+    <test name="VertexAsRegisteredCustomerInCanadaWithBillToAndShipToTheSameCheckInvoiceForOrderStatusPending">
+        <annotations>
+            <features value="Vertex"/>
+            <group value="Vertex"/>
+
+            <stories value="As a store owner, I must have accurate taxes committed to the tax journal"/>
+            <title value="Validate Tax Journal during Credit Memo for taxes sent on order status pending, Registered User, Physical Product, Bill-To=Ship-To, VAT Canada"/>
+            <description value="Validate accurate taxes are committed the Vertex Tax Journal after credit memo of an order with taxes committed during order status change to pending with a registered user who has a bill-to the same as the ship-to and in Canada and containing physical products"/>
+
+            <severity value="CRITICAL"/>
+        </annotations>
+        <before>
+            <actionGroup ref="VertexCreateGroupedProduct" stepKey="InGroup">
+                <argument name="basePrice" value="{{Vertex_Grouped_Product_Values.price}}"/>
+                <argument name="firstPrice" value="{{Vertex_Grouped_First_Values.price}}"/>
+                <argument name="secondPrice" value="{{Vertex_Grouped_Second_Values.price}}"/>
+                <argument name="thirdPrice" value="{{Vertex_Grouped_Third_Values.price}}"/>
+            </actionGroup>
+            <createData entity="VertexCustomerClass_GvtK" stepKey="createTaxClass"/>
+            <createData entity="Vertex_CustomerGroup_BlanKetException" stepKey="createCustomerGroup">
+                <field key="tax_class_id">$$createTaxClass.return$$</field>
+            </createData>
+            <createData entity="Vertex_Customer_JohnLucCarre" stepKey="createCustomer">
+                <field key="group_id">$$createCustomerGroup.id$$</field>
+            </createData>
+
+            <actionGroup ref="LoginAsAdmin" stepKey="loginAsAdmin"/>
+            <actionGroup ref="VertexTaxDefaultConfig" stepKey="setupDefaultVertexTestConfiguration"/>
+            <actionGroup ref="VertexTaxConfigOrderStatusPending" stepKey="setupTaxConfigOrderStatusPending"/>
+            <actionGroup ref="ClearCacheActionGroup" stepKey="clearCache"/>
+
+            <actionGroup ref="navigateToNewOrderPageExistingCustomer" stepKey="startNewOrder">
+                <argument name="customer" value="$$createCustomer$$"/>
+            </actionGroup>
+
+            <actionGroup ref="beginAddingGroupedProductToOrder" stepKey="startGroupedProduct">
+                <argument name="product" value="$$createGroupInGroup$$"/>
+                <argument name="exampleOption" value="$$createFirstInGroup$$"/>
+            </actionGroup>
+            <actionGroup ref="selectGroupedProductOptionDuringOrderCreate" stepKey="addFirstToOrder">
+                <argument name="option" value="$$createFirstInGroup$$"/>
+            </actionGroup>
+            <actionGroup ref="selectGroupedProductOptionDuringOrderCreate" stepKey="addSecondToOrder">
+                <argument name="option" value="$$createSecondInGroup$$"/>
+            </actionGroup>
+            <actionGroup ref="selectGroupedProductOptionDuringOrderCreate" stepKey="addThirdToOrder">
+                <argument name="option" value="$$createThirdInGroup$$"/>
+            </actionGroup>
+            <actionGroup ref="finishAddingGroupedProductToOrder" stepKey="finishGroupedProduct"/>
+
+            <actionGroup ref="orderSelectShippingBillingSameAddress" stepKey="selectShippingAddress">
+                <argument name="addressId" value="$$createCustomer.addresses[1][id]$$"/>
+            </actionGroup>
+
+            <actionGroup ref="orderSelectFlatRateShipping" stepKey="selectShipping"/>
+
+            <actionGroup ref="SelectCheckMoneyPaymentMethod" stepKey="selectPayment"/>
+
+            <click stepKey="submitOrder" selector="{{AdminOrderFormActionSection.submitOrder}}"/>
+        </before>
+        <after>
+            <deleteData stepKey="deleteFirst" createDataKey="createFirst" actionGroup="InGroup"/>
+            <deleteData stepKey="deleteSecond" createDataKey="createSecond" actionGroup="InGroup"/>
+            <deleteData stepKey="deleteThird" createDataKey="createThird" actionGroup="InGroup"/>
+            <deleteData stepKey="deleteGroup" createDataKey="createGroup" actionGroup="InGroup"/>
+            <deleteData stepKey="deleteCategory" createDataKey="createCategory" actionGroup="InGroup"/>
+            <deleteData stepKey="deleteCustomerGroup" createDataKey="createCustomerGroup"/>
+            <deleteData stepKey="deleteTaxClass" createDataKey="createTaxClass"/>
+            <deleteData stepKey="deleteCustomer" createDataKey="createCustomer"/>
+            <actionGroup ref="logout" stepKey="logoutOfAdmin"/>
+        </after>
+
+        <actionGroup ref="VertexCheckInvoiceSuccessMessage" stepKey="checkSuccessMessage"/>
+        <actionGroup ref="VertexCheckInvoiceSuccessNote" stepKey="checkSuccessNote">
+            <argument name="amount" value="{{Vertex_Grouped_CAN_Product_Totals.tax}}"/>
+        </actionGroup>
+
+        <actionGroup ref="goToInvoiceIntoOrder" stepKey="createInvoice"/>
+        <actionGroup ref="submitInvoiceIntoOrder" stepKey="submitInvoice"/>
+
+        <actionGroup ref="VertexCheckNoInvoiceSuccessMessage" stepKey="checkNoSuccessMessage"/>
+    </test>
+
+    <test name="VertexAsRegisteredCustomerInCanadaWithBillToAndShipToTheSameAndInvoiceOnOrderStatusPendingCheckTaxJournalOnCreditMemo">
+        <annotations>
+            <features value="Vertex"/>
+            <group value="Vertex"/>
+
+            <stories value="As a store owner, I should be able to choose at what stage during an order's creation taxes are committed to the Vertex Tax Journal"/>
+            <title value="Validate Taxes Sent during Invoice Order Status Pending, Registered User, Physical Product, Bill-To=Ship-To, VAT Canada"/>
+            <description value="Validate accurate taxes are committed to the Vertex Tax Journal when set to commit during order status change to pending on an order with a registered user who has a bill-to the same as the ship-to and in Canada and containing physical products"/>
+
+            <severity value="CRITICAL"/>
+        </annotations>
+        <before>
+            <actionGroup ref="VertexCreateGroupedProduct" stepKey="InGroup">
+                <argument name="basePrice" value="{{Vertex_Grouped_Product_Values.price}}"/>
+                <argument name="firstPrice" value="{{Vertex_Grouped_First_Values.price}}"/>
+                <argument name="secondPrice" value="{{Vertex_Grouped_Second_Values.price}}"/>
+                <argument name="thirdPrice" value="{{Vertex_Grouped_Third_Values.price}}"/>
+            </actionGroup>
+            <createData entity="VertexCustomerClass_GvtK" stepKey="createTaxClass"/>
+            <createData entity="Vertex_CustomerGroup_BlanKetException" stepKey="createCustomerGroup">
+                <field key="tax_class_id">$$createTaxClass.return$$</field>
+            </createData>
+            <createData entity="Vertex_Customer_JohnLucCarre" stepKey="createCustomer">
+                <field key="group_id">$$createCustomerGroup.id$$</field>
+            </createData>
+
+            <actionGroup ref="LoginAsAdmin" stepKey="loginAsAdmin"/>
+            <actionGroup ref="VertexTaxDefaultConfig" stepKey="setupDefaultVertexTestConfiguration"/>
+            <actionGroup ref="VertexTaxConfigOrderStatusPending" stepKey="setupTaxConfigOrderStatusPending"/>
+            <actionGroup ref="ClearCacheActionGroup" stepKey="clearCache"/>
+
+            <actionGroup ref="navigateToNewOrderPageExistingCustomer" stepKey="startNewOrder">
+                <argument name="customer" value="$$createCustomer$$"/>
+            </actionGroup>
+
+            <actionGroup ref="beginAddingGroupedProductToOrder" stepKey="startGroupedProduct">
+                <argument name="product" value="$$createGroupInGroup$$"/>
+                <argument name="exampleOption" value="$$createFirstInGroup$$"/>
+            </actionGroup>
+            <actionGroup ref="selectGroupedProductOptionDuringOrderCreate" stepKey="addFirstToOrder">
+                <argument name="option" value="$$createFirstInGroup$$"/>
+            </actionGroup>
+            <actionGroup ref="selectGroupedProductOptionDuringOrderCreate" stepKey="addSecondToOrder">
+                <argument name="option" value="$$createSecondInGroup$$"/>
+            </actionGroup>
+            <actionGroup ref="selectGroupedProductOptionDuringOrderCreate" stepKey="addThirdToOrder">
+                <argument name="option" value="$$createThirdInGroup$$"/>
+            </actionGroup>
+            <actionGroup ref="finishAddingGroupedProductToOrder" stepKey="finishGroupedProduct"/>
+
+            <actionGroup ref="orderSelectShippingBillingSameAddress" stepKey="selectShippingAddress">
+                <argument name="addressId" value="$$createCustomer.addresses[1][id]$$"/>
+            </actionGroup>
+
+            <actionGroup ref="orderSelectFlatRateShipping" stepKey="selectShipping"/>
+
+            <actionGroup ref="SelectCheckMoneyPaymentMethod" stepKey="selectPayment"/>
+
+            <click stepKey="submitOrder" selector="{{AdminOrderFormActionSection.submitOrder}}"/>
+
+            <actionGroup ref="goToInvoiceIntoOrder" stepKey="createInvoice"/>
+            <actionGroup ref="submitInvoiceIntoOrder" stepKey="submitInvoice"/>
+            <actionGroup ref="goToCreditMemoFromOrder" stepKey="createCreditMemo"/>
+            <actionGroup ref="submitCreditMemoIntoOrder" stepKey="submitCreditMemo"/>
+        </before>
+        <after>
+            <deleteData stepKey="deleteFirst" createDataKey="createFirst" actionGroup="InGroup"/>
+            <deleteData stepKey="deleteSecond" createDataKey="createSecond" actionGroup="InGroup"/>
+            <deleteData stepKey="deleteThird" createDataKey="createThird" actionGroup="InGroup"/>
+            <deleteData stepKey="deleteGroup" createDataKey="createGroup" actionGroup="InGroup"/>
+            <deleteData stepKey="deleteCategory" createDataKey="createCategory" actionGroup="InGroup"/>
+            <deleteData stepKey="deleteCustomerGroup" createDataKey="createCustomerGroup"/>
+            <deleteData stepKey="deleteTaxClass" createDataKey="createTaxClass"/>
+            <deleteData stepKey="deleteCustomer" createDataKey="createCustomer"/>
+            <actionGroup ref="logout" stepKey="logoutOfAdmin"/>
+        </after>
+
+        <actionGroup ref="VertexCheckCreditMemoSuccessMessage" stepKey="checkSuccessMessage"/>
+        <actionGroup ref="VertexCheckCreditMemoSuccessNote" stepKey="checkSuccessNote">
+            <argument name="amount" value="-{{Vertex_Grouped_CAN_Product_Totals.tax}}"/>
+        </actionGroup>
+    </test>
+
+    <test name="VertexAsRegisteredCustomerInCanadaWithBillToAndShipToTheSameCheckPhysicalProductVertexTaxJournalOnCreditMemo">
+        <annotations>
+            <features value="Vertex"/>
+            <group value="Vertex"/>
+
+            <stories value="As a store owner, I must have accurate taxes committed to the tax journal"/>
+            <title value="Validate Tax Journal during Credit Memo, Registered User, Physical Product, Bill-To=Ship-To, VAT Canada"/>
+            <description value="Validate accurate taxes are committed the Vertex Tax Journal after credit memo of an order with a registered user who has a bill-to the same as the ship-to and in Canada and containing physical products"/>
+
+            <severity value="CRITICAL"/>
+        </annotations>
+        <before>
+            <actionGroup ref="VertexCreateGroupedProduct" stepKey="InGroup">
+                <argument name="basePrice" value="{{Vertex_Grouped_Product_Values.price}}"/>
+                <argument name="firstPrice" value="{{Vertex_Grouped_First_Values.price}}"/>
+                <argument name="secondPrice" value="{{Vertex_Grouped_Second_Values.price}}"/>
+                <argument name="thirdPrice" value="{{Vertex_Grouped_Third_Values.price}}"/>
+            </actionGroup>
+            <createData entity="VertexCustomerClass_GvtK" stepKey="createTaxClass"/>
+            <createData entity="Vertex_CustomerGroup_BlanKetException" stepKey="createCustomerGroup">
+                <field key="tax_class_id">$$createTaxClass.return$$</field>
+            </createData>
+            <createData entity="Vertex_Customer_JohnLucCarre" stepKey="createCustomer">
+                <field key="group_id">$$createCustomerGroup.id$$</field>
+            </createData>
+
+            <actionGroup ref="LoginAsAdmin" stepKey="loginAsAdmin"/>
+            <actionGroup ref="VertexTaxDefaultConfig" stepKey="setupDefaultVertexTestConfiguration"/>
+            <actionGroup ref="ClearCacheActionGroup" stepKey="clearCache"/>
+
+            <actionGroup ref="navigateToNewOrderPageExistingCustomer" stepKey="startNewOrder">
+                <argument name="customer" value="$$createCustomer$$"/>
+            </actionGroup>
+
+            <actionGroup ref="beginAddingGroupedProductToOrder" stepKey="startGroupedProduct">
+                <argument name="product" value="$$createGroupInGroup$$"/>
+                <argument name="exampleOption" value="$$createFirstInGroup$$"/>
+            </actionGroup>
+            <actionGroup ref="selectGroupedProductOptionDuringOrderCreate" stepKey="addFirstToOrder">
+                <argument name="option" value="$$createFirstInGroup$$"/>
+            </actionGroup>
+            <actionGroup ref="selectGroupedProductOptionDuringOrderCreate" stepKey="addSecondToOrder">
+                <argument name="option" value="$$createSecondInGroup$$"/>
+            </actionGroup>
+            <actionGroup ref="selectGroupedProductOptionDuringOrderCreate" stepKey="addThirdToOrder">
+                <argument name="option" value="$$createThirdInGroup$$"/>
+            </actionGroup>
+            <actionGroup ref="finishAddingGroupedProductToOrder" stepKey="finishGroupedProduct"/>
+
+            <actionGroup ref="orderSelectShippingBillingSameAddress" stepKey="selectShippingAddress">
+                <argument name="addressId" value="$$createCustomer.addresses[1][id]$$"/>
+            </actionGroup>
+
+            <actionGroup ref="orderSelectFlatRateShipping" stepKey="selectShipping"/>
+
+            <actionGroup ref="SelectCheckMoneyPaymentMethod" stepKey="selectPayment"/>
+
+            <click stepKey="submitOrder" selector="{{AdminOrderFormActionSection.submitOrder}}"/>
+
+            <actionGroup ref="goToInvoiceIntoOrder" stepKey="createInvoice"/>
+            <actionGroup ref="submitInvoiceIntoOrder" stepKey="submitInvoice"/>
+
+            <actionGroup ref="goToCreditMemoFromOrder" stepKey="createCreditMemo"/>
+            <actionGroup ref="submitCreditMemoIntoOrder" stepKey="submitCreditMemo"/>
+        </before>
+        <after>
+            <deleteData stepKey="deleteFirst" createDataKey="createFirst" actionGroup="InGroup"/>
+            <deleteData stepKey="deleteSecond" createDataKey="createSecond" actionGroup="InGroup"/>
+            <deleteData stepKey="deleteThird" createDataKey="createThird" actionGroup="InGroup"/>
+            <deleteData stepKey="deleteGroup" createDataKey="createGroup" actionGroup="InGroup"/>
+            <deleteData stepKey="deleteCategory" createDataKey="createCategory" actionGroup="InGroup"/>
+            <deleteData stepKey="deleteCustomerGroup" createDataKey="createCustomerGroup"/>
+            <deleteData stepKey="deleteTaxClass" createDataKey="createTaxClass"/>
+            <deleteData stepKey="deleteCustomer" createDataKey="createCustomer"/>
+            <actionGroup ref="logout" stepKey="logoutOfAdmin"/>
+        </after>
+
+        <actionGroup ref="VertexCheckCreditMemoSuccessMessage" stepKey="checkSuccessMessage"/>
+        <actionGroup ref="VertexCheckCreditMemoSuccessNote" stepKey="checkSuccessNote">
+            <argument name="amount" value="-{{Vertex_Grouped_CAN_Product_Totals.tax}}"/>
+        </actionGroup>
+    </test>
+</tests>

@@ -1,0 +1,33 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<entities xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+          xsi:noNamespaceSchemaLocation="urn:magento:mftf:DataGenerator/etc/dataProfileSchema.xsd">
+    <entity name="TemandoProductAttributeMappingDataTooLongNodePath">
+        <data key="nodePathId">01234567890123456789012345678901234567890123456789012345678901234567890123456789012345678901234567890123456789012345678901234567890123456789012345678901234567890123456789012345678901234567890123456789012345678901234567890123456789012345678901234567890123456789</data>
+    </entity>
+    <entity name="TemandoProductAttributeMappingDataInvalidNodePath">
+        <data key="nodePathId">this is an invalid ID!</data>
+        <data key="description">This is a test description.</data>
+    </entity>
+    <entity name="TemandoProductAttributeMappingDataInvalidMapping">
+        <data key="nodePathId">test.test</data>
+        <data key="description">This is a test description.</data>
+        <data key="mapping">sku</data>
+    </entity>
+    <entity name="TemandoProductAttributeMappingData">
+        <data key="nodePathId">test.test</data>
+        <data key="description">This is a test description.</data>
+        <data key="mapping">description</data>
+    </entity>
+    <entity name="TemandoDefaultProductAttributeMappingData">
+        <data key="nodePathId">product.classificationCodes.eccn</data>
+    </entity>
+    <entity name="TemandoProductAttributeMappingMessages">
+        <data key="saveSuccess">Product attribute mappings saved.</data>
+        <data key="deleteSuccess">Successfully deleted attribute mapping</data>
+        <data key="errorInvalidNodePath">Could not save product attribute mapping, invalid node path.</data>
+        <data key="errorLength">Please enter less or equal than 255 symbols.</data>
+        <data key="errorRequired">This is a required field.</data>
+        <data key="alreadyMapped">Could not save product attribute mapping for attribute test.test. sku is already mapped to another shipping attribute.</data>
+    </entity>
+</entities>

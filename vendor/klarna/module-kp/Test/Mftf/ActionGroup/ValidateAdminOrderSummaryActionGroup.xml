@@ -1,0 +1,47 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!--
+ /**
+  * Copyright © Magento, Inc. All rights reserved.
+  * See COPYING.txt for license details.
+  *
+  * This file is part of the Klarna KP module
+  *
+  * (c) Klarna Bank AB (publ)
+  *
+  * For the full copyright and license information, please view the NOTICE
+  * and LICENSE files that were distributed with this source code.
+  */
+-->
+<actionGroups xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+              xsi:noNamespaceSchemaLocation="urn:magento:mftf:Test/etc/actionGroupSchema.xsd">
+    <actionGroup name="ValidateAdminKlarnaOrderSummaryGrandTotal">
+        <arguments>
+            <argument name="orderNumber" type="string"/>
+            <argument name="grandTotalAmount" type="string"/>
+        </arguments>
+
+        <amOnPage url="{{AdminOrderPage.url(orderNumber)}}" stepKey="navigateToAdminOrderPage"/>
+        <waitForPageLoad stepKey="waitForAdminOrderPage"/>
+        <see userInput="{{grandTotalAmount}}" selector="{{AdminOrderTotalSection.grandTotal}}" stepKey="seeGrandTotalMatchesAdminTotal"/>
+    </actionGroup>
+
+    <actionGroup name="ValidateAdminKlarnaOrderSummaryWithShipping" extends="ValidateAdminKlarnaOrderSummaryGrandTotal">
+        <arguments>
+            <argument name="shippingAmount" type="string"/>
+        </arguments>
+
+        <see userInput="{{shippingAmount}}" selector="{{AdminOrderTotalSection.shippingAndHandling}}" stepKey="seeShippingAndHandling" after="seeGrandTotalMatchesAdminTotal"/>
+    </actionGroup>
+
+    <actionGroup name="ValidateAdminKlarnaOrderSummaryWithoutShipping" extends="ValidateAdminKlarnaOrderSummaryGrandTotal">
+        <dontSeeElement selector="{{AdminOrderTotalSection.shippingAndHandling}}" stepKey="dontSeeShippingAndHandling" after="seeGrandTotalMatchesAdminTotal"/>
+    </actionGroup>
+
+    <actionGroup name="ValidateAdminKlarnaOrderSummaryWithGiftCard" extends="ValidateAdminKlarnaOrderSummaryGrandTotal">
+        <arguments>
+            <argument name="giftCardAmount" type="string"/>
+        </arguments>
+
+        <see userInput="{{giftCardAmount}}" selector="{{AdminOrderTotalSection.giftCardAccountDiscount}}" stepKey="seeGiftCardAmountMatchesAdminAmount"  after="seeGrandTotalMatchesAdminTotal"/>
+    </actionGroup>
+</actionGroups>

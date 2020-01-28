@@ -1,0 +1,20 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<entities xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+          xsi:noNamespaceSchemaLocation="urn:magento:mftf:DataGenerator/etc/dataProfileSchema.xsd">
+    <entity name="TemandoCollectionPointSearchData">
+        <data key="countryUS">United States</data>
+        <data key="postcodeUS">77096</data>
+        <data key="postcodeInvalid">99999</data>
+    </entity>
+    <entity name="TemandoCollectionPointUS">
+        <data key="country">US</data>
+        <data key="postcode">77096</data>
+    </entity>
+    <entity name="TemandoCollectionPointUSInvalid">
+        <data key="country">US</data>
+        <data key="postcode">99999</data>
+    </entity>
+</entities>
+
+

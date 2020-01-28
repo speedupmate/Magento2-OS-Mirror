@@ -1,0 +1,29 @@
+<?xml version="1.0"?>
+<!--
+  @copyright  Vertex. All rights reserved.  https://www.vertexinc.com/
+  @author     Mediotype                     https://www.mediotype.com/
+  -->
+<page xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="urn:magento:framework:View/Layout/etc/page_configuration.xsd">
+    <body>
+        <referenceBlock name="checkout.cart.totals">
+            <arguments>
+                <argument name="jsLayout" xsi:type="array">
+                    <item name="components" xsi:type="array">
+                        <item name="block-totals" xsi:type="array">
+                            <item name="children" xsi:type="array">
+                                <item name="vertex-messages" xsi:type="array">
+                                    <item name="component" xsi:type="string">Vertex_Tax/js/view/checkout/summary/tax-messages</item>
+                                    <item name="config" xsi:type="array">
+                                        <item name="template" xsi:type="string">Vertex_Tax/checkout/cart/totals/tax-messages</item>
+                                        <item name="title" xsi:type="string" translate="true">Vertex Messages</item>
+                                    </item>
+                                </item>
+                            </item>
+                        </item>
+                    </item>
+                </argument>
+            </arguments>
+        </referenceBlock>
+    </body>
+</page>
+

@@ -1,0 +1,69 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<entities xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+          xsi:noNamespaceSchemaLocation="urn:magento:mftf:DataGenerator/etc/dataProfileSchema.xsd">
+    <entity name="TemandoCheckoutLabels">
+        <data key="SelectPickupLocation">Select Pickup Location</data>
+    </entity>
+    <entity name="TemandoDeliveryOptions">
+        <data key="shipping">Send To Address</data>
+        <data key="pickup">Pick up in Store</data>
+        <data key="collectionpoint">Send To Collection Point</data>
+    </entity>
+    <entity name="TemandoShippingMethodLabels" type="configurations">
+        <data key="standard">Standard Shipping</data>
+        <data key="collectionpoint">Collection Point</data>
+        <data key="aopUS">AOP US</data>
+        <data key="aopUK">AOP UK</data>
+        <data key="flat">Flat Rate</data>
+    </entity>
+    <entity name="TemandoLocationLabels" type="configurations">
+        <data key="US">US Store</data>
+        <data key="AU">AU Store</data>
+        <data key="UK">UK Store</data>
+    </entity>
+    <entity name="TemandoPackageLabels" type="configurations">
+        <data key="SmallBox">Small Box</data>
+        <data key="MediumBox">Medium Box</data>
+        <data key="LargeBox">Large Box</data>
+        <data key="PrePackaged">Pre-Packaging</data>
+    </entity>
+    <entity name="TemandoPackageDimensionsUnits">
+        <data key="inches">in</data>
+        <data key="feet">ft</data>
+        <data key="centimetres">cm</data>
+        <data key="millimetres">mm</data>
+        <data key="metres">m</data>
+    </entity>
+    <entity name="TemandoQuoteResponses">
+        <data key="NoEligibleQuotes">No eligible quotes for current selection.</data>
+        <data key="APIError">Something went wrong.</data>
+    </entity>
+    <entity name="TemandoFieldLabels">
+        <data key="pickupState">Pickup State</data>
+    </entity>
+    <entity name="TemandoShipmentMessages">
+        <data key="cancelled">Shipment was successfully cancelled</data>
+        <data key="aopSuccess">This shipment was automatically created with Magento Shipping</data>
+    </entity>
+    <entity name="TemandoCarriers">
+        <data key="ups">UPS</data>
+        <data key="generic">Generic Carrier</data>
+        <data key="fedex">FedEx</data>
+        <data key="fedexInternational">FedEx US International</data>
+        <data key="upsInternational">UPS UK International</data>
+    </entity>
+    <entity name="TemandoShippingInternational">
+        <data key="externalTransactionNumber">ABC123</data>
+    </entity>
+    <entity name="TemandoShippingExperiences">
+        <data key="batch">[MFTF] Batch Processing - Cheapest</data>
+        <data key="standard">[MFTF] Standard Shipping with Free Shipping $150</data>
+        <data key="collectionPoints">[MFTF] Collection Points</data>
+    </entity>
+    <entity name="TemandoAddressTypes">
+        <data key="business">Business</data>
+        <data key="pobox">Post office box</data>
+        <data key="residential">Residential</data>
+    </entity>
+</entities>

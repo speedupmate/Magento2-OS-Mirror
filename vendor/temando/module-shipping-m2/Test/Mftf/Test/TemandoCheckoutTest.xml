@@ -1,0 +1,1286 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<tests xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+       xsi:noNamespaceSchemaLocation="urn:magento:mftf:Test/etc/testSchema.xsd">
+    <test name="TemandoGuestCheckoutWithStandardDomesticShipping">
+        <annotations>
+            <title value="Temando Guest Checkout With Standard Domestic Shipping" />
+            <description value="Checkout as a guest with standard shipping option for US source and destination." />
+            <stories value="Checkout as a guest with standard shipping option for US source and destination." />
+            <severity value="CRITICAL" />
+            <group value="Temando_Shipping_Checkout" />
+            <skip>
+                <issueId value="MPI-4443"/>
+            </skip>
+            <testCaseId value="MPI-4484, MPI-4486, MPI-4487, MPI-4490, MPI-4497, MPI-4499, MPI-4500, MPI-4505, MPI-4507, MPI-4508, MPI-4513, MPI-4514, MPI-4515" />
+        </annotations>
+        <before>
+            <createData entity="SimpleSubCategory" stepKey="simplecategory" />
+            <createData entity="SimpleProduct" stepKey="simpleproduct">
+                <requiredEntity createDataKey="simplecategory" />
+            </createData>
+        </before>
+        <after>
+            <deleteData createDataKey="simpleproduct" stepKey="deleteProduct" />
+            <deleteData createDataKey="simplecategory" stepKey="deleteCategory" />
+            <actionGroup ref="AdminDisableShippingMethod" stepKey="disableShippingMethod" />
+        </after>
+
+        <!-- Start testing -->
+        <!-- Enable shipping -->
+        <actionGroup ref="AdminEnableShippingMethod" stepKey="enableShippingMethod" />
+        <actionGroup ref="LoginAsAdmin" stepKey="loginToEnableShipping" />
+        <actionGroup ref="AdminNavigateToShippingConfiguration" stepKey="navigateToShippingConfiguration" />
+        <amOnPage url="admin/admin/auth/logout/" stepKey="logoutFromEnablingShipping" />
+
+        <!-- Place order -->
+        <actionGroup ref="TemandoAddSimpleProductToCart" stepKey="addProductToCart" />
+        <actionGroup ref="GoToCheckoutFromMinicartActionGroup" stepKey="guestGoToCheckoutFromMinicart" />
+
+        <actionGroup ref="TemandoCompleteShippingDetails" stepKey="fillShippingDetails" />
+        <actionGroup ref="TemandoSelectShippingMethod" stepKey="selectStandardShipping">
+            <argument name="shippingMethod" value="{{TemandoShippingMethodLabels.standard}}" />
+        </actionGroup>
+
+        <click stepKey="clickNext" selector="{{CheckoutShippingSection.next}}" />
+        <waitForPageLoad stepKey="waitForReviewAndPayments" />
+
+        <actionGroup ref="CheckoutPlaceOrderActionGroup" stepKey="guestPlaceorder">
+            <argument name="orderNumberMessage" value="CONST.successGuestCheckoutOrderNumberMessage" />
+            <argument name="emailYouMessage" value="CONST.successCheckoutEmailYouMessage" />
+        </actionGroup>
+        <grabTextFrom selector="{{CheckoutSuccessMainSection.orderNumber}}" stepKey="orderNumber" />
+
+        <!-- Verify order -->
+        <actionGroup ref="LoginAsAdmin" stepKey="loginAsAdmin1" />
+        <amOnPage url="{{AdminOrdersPage.url}}" stepKey="onOrdersPage" />
+        <waitForLoadingMaskToDisappear stepKey="waitForLoadingMaskToDisappearOnOrdersPage" />
+        <actionGroup ref="clearFiltersAdminDataGrid" stepKey="clearGridFilter" />
+
+        <actionGroup ref="TemandoVerifyOrderWasPlaced" stepKey="verifyOrder">
+            <argument name="orderId" value="{$orderNumber}" />
+        </actionGroup>
+
+        <!-- Ship order -->
+        <actionGroup ref="TemandoShipOrderWithTrackingPopup" stepKey="shipOrder">
+            <argument name="orderId" value="{$orderNumber}" />
+        </actionGroup>
+
+        <!-- Dispatch order and verify -->
+        <grabTextFrom stepKey="shipmentId" selector="{{TemandoShipmentSection.temandoShippingId}}" />
+        <actionGroup ref="TemandoCreateDispatch" stepKey="createDispatch">
+            <argument name="shipmentId" value="{$shipmentId}" />
+        </actionGroup>
+        <actionGroup ref="TemandoVerifyDispatch" stepKey="verifyDispatch" />
+
+        <amOnPage url="admin/admin/auth/logout/" stepKey="amOnLogoutPage" />
+    </test>
+
+    <test name="TemandoGuestCheckoutWithStandardDomesticShippingAndShippingLabels">
+        <annotations>
+            <title value="Temando Guest Checkout With Standard Domestic Shipping" />
+            <description value="Checkout as a guest with standard shipping option for US source and destination with shipping labels." />
+            <stories value="Checkout as a guest with standard shipping option for US source and destination with shipping labels." />
+            <severity value="CRITICAL" />
+            <group value="Temando_Shipping_Checkout" />
+            <skip>
+                <issueId value="MPI-4443"/>
+            </skip>
+            <testCaseId value="MPI-4506, MPI-4510, MPI-4511" />
+        </annotations>
+        <before>
+            <createData entity="SimpleSubCategory" stepKey="simplecategory" />
+            <createData entity="SimpleProduct" stepKey="simpleproduct">
+                <requiredEntity createDataKey="simplecategory" />
+            </createData>
+        </before>
+        <after>
+            <deleteData createDataKey="simpleproduct" stepKey="deleteProduct" />
+            <deleteData createDataKey="simplecategory" stepKey="deleteCategory" />
+            <actionGroup ref="AdminDisableShippingMethod" stepKey="disableShippingMethod" />
+        </after>
+
+        <!-- Start testing -->
+        <!--  Enable shipping-->
+        <actionGroup ref="AdminEnableShippingMethod" stepKey="enableShippingMethod" />
+
+        <!-- Place order -->
+        <actionGroup ref="TemandoAddSimpleProductToCart" stepKey="addProductToCart" />
+        <actionGroup ref="GoToCheckoutFromMinicartActionGroup" stepKey="guestGoToCheckoutFromMinicart" />
+
+        <actionGroup ref="TemandoCompleteShippingDetails" stepKey="fillShippingDetails" />
+        <actionGroup ref="TemandoSelectShippingMethod" stepKey="selectStandardShipping">
+            <argument name="shippingMethod" value="{{TemandoShippingMethodLabels.standard}}" />
+        </actionGroup>
+
+        <click stepKey="clickNext" selector="{{CheckoutShippingSection.next}}" />
+        <waitForPageLoad stepKey="waitForReviewAndPayments" />
+
+        <actionGroup ref="CheckoutPlaceOrderActionGroup" stepKey="guestPlaceorder">
+            <argument name="orderNumberMessage" value="CONST.successGuestCheckoutOrderNumberMessage" />
+            <argument name="emailYouMessage" value="CONST.successCheckoutEmailYouMessage" />
+        </actionGroup>
+        <grabTextFrom selector="{{CheckoutSuccessMainSection.orderNumber}}" stepKey="orderNumber" />
+
+        <!-- Verify order -->
+        <actionGroup ref="LoginAsAdmin" stepKey="loginAsAdmin1" />
+        <amOnPage url="{{AdminOrdersPage.url}}" stepKey="onOrdersPage" />
+        <waitForLoadingMaskToDisappear stepKey="waitForLoadingMaskToDisappearOnOrdersPage" />
+        <actionGroup ref="clearFiltersAdminDataGrid" stepKey="clearGridFilter" />
+
+        <actionGroup ref="TemandoVerifyOrderWasPlaced" stepKey="verifyOrder">
+            <argument name="orderId" value="{$orderNumber}" />
+        </actionGroup>
+
+        <!-- Ship order -->
+        <actionGroup ref="TemandoShipOrder" stepKey="shipOrder">
+            <argument name="orderId" value="{$orderNumber}" />
+            <argument name="carrier" value="{{TemandoCarriers.fedex}}" />
+        </actionGroup>
+        <grabTextFrom stepKey="shipmentId" selector="{{TemandoShipmentSection.temandoShippingId}}" />
+
+        <!-- Verify shipment -->
+        <actionGroup ref="TemandoVerifyShipment" stepKey="verifyShipment" />
+
+        <!-- Batch print shipping labels -->
+        <grabFromCurrentUrl stepKey="magShipmentId" regex="/sales\/shipment\/view\/shipment_id\/([0-9]+)\//" />
+        <actionGroup ref="TemandoBatchPrintShippingLabel" stepKey="batchPrintShippingLabels">
+            <argument name="orderId" value="{$orderNumber}" />
+            <argument name="shipmentId" value="{$magShipmentId}" />
+        </actionGroup>
+
+        <amOnPage url="admin/admin/auth/logout/" stepKey="amOnLogoutPage" />
+    </test>
+
+    <test name="TemandoLoggedInCheckoutWithStandardInternationalShipping">
+        <annotations>
+            <title value="Temando Checkout With Standard International Shipping" />
+            <description value="Checkout as a logged in customer with standard shipping option for US source and UK destination." />
+            <stories value="Checkout as a logged in customer with standard shipping option for US source and UK destination." />
+            <severity value="CRITICAL" />
+            <group value="Temando_Shipping_Checkout" />
+            <skip>
+                <issueId value="MPI-4443"/>
+            </skip>
+            <testCaseId value="MPI-4488, MPI-4489, MPI-4491, MPI-4497, MPI-4501, MPI-4502, MPI-4513, MPI-4514, MPI-4515, MPI-4517" />
+        </annotations>
+        <before>
+            <actionGroup ref="AdminDisableShippingMethodFlushConfigCache" stepKey="disableShippingMethod" />
+            <createData entity="SimpleSubCategory" stepKey="simplecategory" />
+            <createData entity="TemandoSimpleProductInternational" stepKey="simpleproduct">
+                <requiredEntity createDataKey="simplecategory" />
+            </createData>
+            <createData entity="Simple_US_Customer_Multiple_Addresses" stepKey="customer" />
+        </before>
+        <after>
+            <deleteData createDataKey="simpleproduct" stepKey="deleteProduct" />
+            <deleteData createDataKey="simplecategory" stepKey="deleteCategory" />
+            <deleteData createDataKey="customer" stepKey="deleteCustomer" />
+            <actionGroup ref="AdminDisableShippingMethod" stepKey="disableShippingMethod" />
+        </after>
+
+        <!-- Start testing -->
+        <!-- Enable shipping -->
+        <actionGroup ref="AdminEnableShippingMethod" stepKey="enableShippingMethod" />
+
+        <!-- Login customer -->
+        <actionGroup ref="LoginToStorefrontActionGroup" stepKey="customerLogin">
+            <argument name="Customer" value="$$customer$$" />
+        </actionGroup>
+
+        <!-- Place order -->
+        <actionGroup ref="TemandoAddSimpleProductToCartFromProductPage" stepKey="addProductToCart">
+            <argument name="product" value="$$simpleproduct$$" />
+        </actionGroup>
+        <actionGroup ref="GoToCheckoutFromMinicartActionGroup" stepKey="guestGoToCheckoutFromMinicart" />
+
+        <!-- Change to non-default UK address -->
+        <actionGroup ref="TemandoChangeShippingAddress" stepKey="changeShippingAddresses">
+            <argument name="addressStreet" value="{{UK_Not_Default_Address.street[0]}}" />
+        </actionGroup>
+
+        <!-- Select standard shipping -->
+        <actionGroup ref="TemandoSelectShippingMethod" stepKey="selectStandardShipping">
+            <argument name="shippingMethod" value="{{TemandoShippingMethodLabels.standard}}" />
+        </actionGroup>
+
+        <click stepKey="clickNext" selector="{{CheckoutShippingSection.next}}" />
+        <waitForPageLoad stepKey="waitForReviewAndPayments" />
+
+        <actionGroup ref="CheckoutPlaceOrderActionGroup" stepKey="guestPlaceorder">
+            <argument name="orderNumberMessage" value="CONST.successCheckoutOrderNumberMessage" />
+            <argument name="emailYouMessage" value="CONST.successCheckoutEmailYouMessage" />
+        </actionGroup>
+        <grabTextFrom selector="{{CheckoutSuccessMainSection.orderNumber22}}" stepKey="orderNumber" />
+
+        <!-- Verify order -->
+        <actionGroup ref="LoginAsAdmin" stepKey="loginAsAdmin1" />
+        <amOnPage url="{{AdminOrdersPage.url}}" stepKey="onOrdersPage" />
+        <waitForLoadingMaskToDisappear stepKey="waitForLoadingMaskToDisappearOnOrdersPage" />
+        <actionGroup ref="clearFiltersAdminDataGrid" stepKey="clearGridFilter" />
+
+        <actionGroup ref="TemandoVerifyOrderWasPlaced" stepKey="verifyOrder">
+            <argument name="orderId" value="{$orderNumber}" />
+        </actionGroup>
+
+        <!-- Ship order -->
+        <actionGroup ref="TemandoShipOrderInternational" stepKey="shipOrder">
+            <argument name="orderId" value="{$orderNumber}" />
+            <argument name="carrier" value="{{TemandoCarriers.fedexInternational}}" />
+            <argument name="originLocation" value="{{TemandoLocationLabels.US}}" />
+            <argument name="product" value="$$simpleproduct$$" />
+        </actionGroup>
+
+        <amOnPage url="admin/admin/auth/logout/" stepKey="amOnLogoutPage" />
+
+        <!-- Verify customer tracking popup -->
+        <actionGroup ref="TemandoCustomerAccountOrder" stepKey="goToCustomerAccountOrders">
+            <argument name="orderId" value="{$orderNumber}" />
+        </actionGroup>
+
+        <grabTextFrom stepKey="trackingNumber" selector="{{TemandoCustomerAccount.firstTrackingLink}}" />
+
+        <actionGroup ref="TemandoCustomerOrderTrackingPopup" stepKey="shipmentTrackingPopup">
+            <argument name="trackingNumber" value="{$trackingNumber}" />
+        </actionGroup>
+    </test>
+
+    <test name="TemandoGuestCheckoutWithPickupInStore">
+        <annotations>
+            <title value="Temando Guest Checkout With Pickup In Store" />
+            <description value="Checkout as a guest with pickup in store." />
+            <stories value="Checkout as a guest with pickup in store." />
+            <severity value="CRITICAL" />
+            <group value="Temando_Shipping_Checkout" />
+            <skip>
+                <issueId value="MPI-4443"/>
+            </skip>
+            <testCaseId value="MPI-5302, MPI-5304, MPI-5303, MPI-5307, MPI-5306, MPI-5309, MPI-5310, MPI-5311, MPI-5312, MPI-5314" />
+        </annotations>
+        <before>
+            <createData entity="SimpleSubCategory" stepKey="simplecategory" />
+            <createData entity="SimpleProduct" stepKey="simpleproduct">
+                <requiredEntity createDataKey="simplecategory" />
+            </createData>
+        </before>
+        <after>
+            <deleteData createDataKey="simpleproduct" stepKey="deleteProduct" />
+            <deleteData createDataKey="simplecategory" stepKey="deleteCategory" />
+            <actionGroup ref="AdminDisableShippingMethod" stepKey="disableShippingMethod" />
+        </after>
+
+        <!-- Start testing -->
+        <!-- Enable shipping -->
+        <actionGroup ref="AdminEnableShippingMethod" stepKey="enableShippingMethod" />
+        <actionGroup ref="AdminEnableClickAndCollect" stepKey="enableClickAndCollect">
+            <argument name="isActive" value="1" />
+        </actionGroup>
+        <actionGroup ref="SaveConfiguration" stepKey="saveConfiguration" />
+        <amOnPage url="admin/admin/auth/logout/" stepKey="logoutFromEnablingShipping" />
+
+        <magentoCLI command="cache:flush" stepKey="flushCache" />
+
+        <!-- Place order -->
+        <actionGroup ref="TemandoAddSimpleProductToCart" stepKey="addProductToCart" />
+        <actionGroup ref="GoToCheckoutFromMinicartActionGroup" stepKey="guestGoToCheckoutFromMinicart" />
+
+        <actionGroup ref="TemandoCompleteShippingDetails" stepKey="fillShippingDetails" />
+
+        <!-- Select pickup location -->
+        <actionGroup ref="TemandoSelectDeliveryOption" stepKey="selectPickupInStore">
+            <argument name="deliveryOption" value="{{TemandoDeliveryOptions.pickup}}" />
+        </actionGroup>
+
+        <actionGroup ref="TemandoSelectPickupLocation" stepKey="selectPickupLocation" />
+
+        <!-- Complete order -->
+        <click stepKey="clickNext" selector="{{CheckoutShippingSection.next}}" />
+        <waitForPageLoad stepKey="waitForReviewAndPayments" />
+
+        <actionGroup ref="CheckoutPlaceOrderActionGroup" stepKey="guestPlaceOrder">
+            <argument name="orderNumberMessage" value="CONST.successGuestCheckoutOrderNumberMessage" />
+            <argument name="emailYouMessage" value="CONST.successCheckoutEmailYouMessage" />
+        </actionGroup>
+        <grabTextFrom selector="{{CheckoutSuccessMainSection.orderNumber}}" stepKey="orderNumber" />
+
+        <!-- Verify order -->
+        <actionGroup ref="LoginAsAdmin" stepKey="loginAsAdmin1" />
+        <amOnPage url="{{AdminOrdersPage.url}}" stepKey="onOrdersPage" />
+        <waitForLoadingMaskToDisappear stepKey="waitForLoadingMaskToDisappearOnOrdersPage" />
+        <actionGroup ref="clearFiltersAdminDataGrid" stepKey="clearGridFilter" />
+
+        <actionGroup ref="TemandoVerifyOrderWasPlaced" stepKey="verifyOrder">
+            <argument name="orderId" value="{$orderNumber}" />
+        </actionGroup>
+
+        <!-- Sales order pickup grid -->
+        <actionGroup ref="TemandoOrderOpenPickupsTab" stepKey="openPickupsTab" />
+        <actionGroup ref="TemandoClickThroughPickupOnOrder" stepKey="clickPickup" />
+
+        <grabFromCurrentUrl stepKey="pickupId" regex="/pickup_id\/([0-9]*)\//" />
+
+        <actionGroup ref="TemandoLoadPickupsGrid" stepKey="loadPickupsGrid" />
+
+        <!-- Reset filters -->
+        <actionGroup ref="TemandoResetPickupFiltersToDefault" stepKey="resetPickupGridFiltersToDefault" />
+
+        <!-- Mark pickup as ready -->
+        <actionGroup ref="TemandoPickupGridForwardForm" stepKey="pickupForwardForm">
+            <argument name="pickupId" value="{$pickupId}" />
+        </actionGroup>
+
+        <actionGroup ref="TemandoPrepareSinglePickup" stepKey="preparePickup" />
+
+        <actionGroup ref="TemandoPickupGridForwardForm" stepKey="pickupForwardForm2">
+            <argument name="pickupId" value="{$pickupId}" />
+        </actionGroup>
+
+        <actionGroup ref="TemandoVerifyPickupState" stepKey="verifyPickupPrepared">
+            <argument name="url" value="{{TemandoPickupViewPage.url}}" />
+            <argument name="state" value="{{TemandoPickupStates.ready}}" />
+        </actionGroup>
+
+        <!-- Mark pickup as picked up -->
+        <click stepKey="clickMarkAsPickedUp" selector="{{TemandoPickupViewSection.buttonMarkAsPickedUp}}" />
+        <waitForPageLoad stepKey="waitForPickupGridAfterPickup" />
+        <seeInCurrentUrl stepKey="seeProductGridAfterPickup" url="{{TemandoPickupGridPage.url}}" />
+        <see stepKey="seePickWasCollected" userInput="{{TemandoPickupMessages.pickupCollected}}" />
+        <dontSeeElement selector="{{TemandoPickupGridSection.pickupId({$pickupId})}}" stepKey="dontSeePickupInGrid" />
+
+        <actionGroup ref="TemandoResetPickupFilters" stepKey="resetPickupGridFilters" />
+
+        <seeElement stepKey="seePickedUpPickupInGrid" selector="{{TemandoPickupGridSection.pickupId({$pickupId})}}" />
+
+        <actionGroup ref="TemandoPickupGridForwardForm" stepKey="pickupForwardForm3">
+            <argument name="pickupId" value="{$pickupId}" />
+        </actionGroup>
+
+        <!-- Verify marked as pickup -->
+        <actionGroup ref="TemandoVerifyPickupState" stepKey="verifyPickedUp">
+            <argument name="url" value="{{TemandoPickupViewPage.url}}" />
+            <argument name="state" value="{{TemandoPickupStates.pickedUp}}" />
+        </actionGroup>
+
+        <amOnPage url="admin/admin/auth/logout/" stepKey="amOnLogoutPage" />
+    </test>
+
+    <test name="TemandoGuestCheckoutWithPickupInStoreAndCancel">
+        <annotations>
+            <title value="Temando Guest Checkout With Pickup In Store and Cancel Pickup" />
+            <description value="Checkout as a guest with pickup in store and cancel the pickup." />
+            <stories value="Checkout as a guest with pickup in store and cancel the pickup." />
+            <severity value="CRITICAL" />
+            <group value="Temando_Shipping_Checkout" />
+            <skip>
+                <issueId value="MPI-4443"/>
+            </skip>
+            <testCaseId value="MPI-5313" />
+        </annotations>
+        <before>
+            <createData entity="SimpleSubCategory" stepKey="simplecategory" />
+            <createData entity="SimpleProduct" stepKey="simpleproduct">
+                <requiredEntity createDataKey="simplecategory" />
+            </createData>
+        </before>
+        <after>
+            <deleteData createDataKey="simpleproduct" stepKey="deleteProduct" />
+            <deleteData createDataKey="simplecategory" stepKey="deleteCategory" />
+            <actionGroup ref="AdminDisableShippingMethod" stepKey="disableShippingMethod" />
+        </after>
+
+        <!-- Start testing -->
+        <!-- Enable shipping -->
+        <actionGroup ref="AdminEnableShippingMethod" stepKey="enableShippingMethod" />
+        <actionGroup ref="LoginAsAdmin" stepKey="loginToReconfigureEnabledShipping" />
+        <actionGroup ref="AdminNavigateToShippingConfiguration" stepKey="navigateToShippingConfiguration" />
+        <actionGroup ref="AdminEnableClickAndCollect" stepKey="enableClickAndCollect">
+            <argument name="isActive" value="1" />
+        </actionGroup>
+        <actionGroup ref="SaveConfiguration" stepKey="saveConfiguration" />
+        <amOnPage url="admin/admin/auth/logout/" stepKey="logoutFromEnablingShipping" />
+
+        <!-- Place order -->
+        <actionGroup ref="TemandoAddSimpleProductToCart" stepKey="addProductToCart" />
+        <actionGroup ref="GoToCheckoutFromMinicartActionGroup" stepKey="guestGoToCheckoutFromMinicart" />
+
+        <actionGroup ref="TemandoCompleteShippingDetails" stepKey="fillShippingDetails" />
+
+        <!-- Select pickup location -->
+        <actionGroup ref="TemandoSelectDeliveryOption" stepKey="selectPickupInStore">
+            <argument name="deliveryOption" value="{{TemandoDeliveryOptions.pickup}}" />
+        </actionGroup>
+
+        <actionGroup ref="TemandoSelectPickupLocation" stepKey="selectPickupLocation" />
+
+        <!-- Complete order -->
+        <click stepKey="clickNext" selector="{{CheckoutShippingSection.next}}" />
+        <waitForPageLoad stepKey="waitForReviewAndPayments" />
+
+        <actionGroup ref="CheckoutPlaceOrderActionGroup" stepKey="guestPlaceOrder">
+            <argument name="orderNumberMessage" value="CONST.successGuestCheckoutOrderNumberMessage" />
+            <argument name="emailYouMessage" value="CONST.successCheckoutEmailYouMessage" />
+        </actionGroup>
+        <grabTextFrom selector="{{CheckoutSuccessMainSection.orderNumber}}" stepKey="orderNumber" />
+
+        <!-- Verify order -->
+        <actionGroup ref="LoginAsAdmin" stepKey="loginAsAdmin1" />
+        <amOnPage url="{{AdminOrdersPage.url}}" stepKey="onOrdersPage" />
+        <waitForLoadingMaskToDisappear stepKey="waitForLoadingMaskToDisappearOnOrdersPage" />
+        <actionGroup ref="clearFiltersAdminDataGrid" stepKey="clearGridFilter" />
+
+        <actionGroup ref="TemandoVerifyOrderWasPlaced" stepKey="verifyOrder">
+            <argument name="orderId" value="{$orderNumber}" />
+        </actionGroup>
+
+        <!-- Sales order pickup grid -->
+        <click stepKey="clickPickups" selector="{{TemandoSalesOrderSection.pickupTab}}" />
+        <waitForAjaxLoad stepKey="waitForPickupsGrid" />
+        <see stepKey="seePickup" userInput="{{TemandoPickupMessages.singlePickupFound}}" />
+        <click stepKey="clickPickupView" selector="{{TemandoSalesOrderSection.firstViewLink}}" />
+        <grabFromCurrentUrl stepKey="pickupId" regex="/pickup_id\/([0-9]*)\//" />
+        <amOnPage url="{{TemandoPickupGridPage.url}}" stepKey="goToPickupsGrid" />
+        <waitForPageLoad stepKey="waitForPickupsGridPage" />
+
+        <!-- Reset filters -->
+        <actionGroup ref="TemandoResetPickupFiltersToDefault" stepKey="resetPickupGridFiltersToDefault" />
+
+        <!-- Cancel pickup -->
+        <actionGroup ref="TemandoPickupGridForwardForm" stepKey="pickupForwardForm">
+            <argument name="pickupId" value="{$pickupId}" />
+        </actionGroup>
+
+        <actionGroup ref="TemandoCancelSinglePickup" stepKey="cancelPickup" />
+
+        <actionGroup ref="TemandoPickupGridForwardForm" stepKey="pickupForwardForm2">
+            <argument name="pickupId" value="{$pickupId}" />
+        </actionGroup>
+
+        <actionGroup ref="TemandoVerifyPickupState" stepKey="verifyPickupCancelled">
+            <argument name="url" value="{{TemandoPickupViewPage.url}}" />
+            <argument name="state" value="{{TemandoPickupStates.cancelled}}" />
+        </actionGroup>
+
+        <amOnPage url="admin/admin/auth/logout/" stepKey="amOnLogoutPage" />
+    </test>
+
+    <test name="TemandoStandardDomesticShippingCancellation">
+        <annotations>
+            <title value="Temando Guest Checkout With Standard Domestic Shipping and Cancellation" />
+            <description value="Checkout as a guest with standard shipping option for US source and destination and cancel shipment." />
+            <stories value="Checkout as a guest with standard shipping option for US source and destination and cancel shipment." />
+            <severity value="CRITICAL" />
+            <group value="Temando_Shipping_Checkout" />
+            <skip>
+                <issueId value="MPI-4443"/>
+            </skip>
+            <testCaseId value="MG-7" />
+        </annotations>
+        <before>
+            <createData entity="SimpleSubCategory" stepKey="simplecategory" />
+            <createData entity="SimpleProduct" stepKey="simpleproduct">
+                <requiredEntity createDataKey="simplecategory" />
+            </createData>
+        </before>
+        <after>
+            <deleteData createDataKey="simpleproduct" stepKey="deleteProduct" />
+            <deleteData createDataKey="simplecategory" stepKey="deleteCategory" />
+            <actionGroup ref="AdminDisableShippingMethod" stepKey="disableShippingMethod" />
+        </after>
+
+        <!-- Start testing -->
+        <!-- Enable shipping -->
+        <actionGroup ref="AdminEnableShippingMethod" stepKey="enableShippingMethod" />
+
+        <!-- Place order -->
+        <actionGroup ref="TemandoAddSimpleProductToCart" stepKey="addProductToCart" />
+        <actionGroup ref="GoToCheckoutFromMinicartActionGroup" stepKey="guestGoToCheckoutFromMinicart" />
+
+        <actionGroup ref="TemandoCompleteShippingDetails" stepKey="fillShippingDetails" />
+        <actionGroup ref="TemandoSelectShippingMethod" stepKey="selectStandardShipping">
+            <argument name="shippingMethod" value="{{TemandoShippingMethodLabels.standard}}" />
+        </actionGroup>
+
+        <click stepKey="clickNext" selector="{{CheckoutShippingSection.next}}" />
+        <waitForPageLoad stepKey="waitForReviewAndPayments" />
+
+        <actionGroup ref="CheckoutPlaceOrderActionGroup" stepKey="guestPlaceorder">
+            <argument name="orderNumberMessage" value="CONST.successGuestCheckoutOrderNumberMessage" />
+            <argument name="emailYouMessage" value="CONST.successCheckoutEmailYouMessage" />
+        </actionGroup>
+        <grabTextFrom selector="{{CheckoutSuccessMainSection.orderNumber}}" stepKey="orderNumber" />
+
+        <!-- Verify order -->
+        <actionGroup ref="LoginAsAdmin" stepKey="loginAsAdmin1" />
+        <amOnPage url="{{AdminOrdersPage.url}}" stepKey="onOrdersPage" />
+        <waitForLoadingMaskToDisappear stepKey="waitForLoadingMaskToDisappearOnOrdersPage" />
+        <actionGroup ref="clearFiltersAdminDataGrid" stepKey="clearGridFilter" />
+
+        <actionGroup ref="TemandoVerifyOrderWasPlaced" stepKey="verifyOrder">
+            <argument name="orderId" value="{$orderNumber}" />
+        </actionGroup>
+
+        <!-- Ship order -->
+        <actionGroup ref="TemandoShipOrder" stepKey="shipOrder">
+            <argument name="orderId" value="{$orderNumber}" />
+            <argument name="carrier" value="{{TemandoCarriers.fedex}}" />
+        </actionGroup>
+
+        <!-- Cancel shipment -->
+        <actionGroup ref="TemandoCancelSingleShipment" stepKey="cancelShipment" />
+
+        <amOnPage url="admin/admin/auth/logout/" stepKey="amOnLogoutPage" />
+    </test>
+
+    <test name="TemandoGuestCheckoutWithCollectionPoint">
+        <annotations>
+            <title value="Temando Guest Checkout With Collection Point Shipping" />
+            <description value="Checkout as a guest with collection point option for US collection point." />
+            <stories value="Checkout as a guest with collection point option for US collection point." />
+            <severity value="CRITICAL" />
+            <group value="Temando_Shipping_Checkout" />
+            <skip>
+                <issueId value="MPI-4443"/>
+            </skip>
+            <testCaseId value="MPI-4602, MPI-4604, MPI-4605, MPI-4606, MPI-4607, MPI-4608, MPI-4609, MPI-4611, MPI-4612, MPI-4613, MPI-4614, MPI-4615, MPI-4616" />
+        </annotations>
+        <before>
+            <createData entity="SimpleSubCategory" stepKey="simplecategory" />
+            <createData entity="SimpleProduct" stepKey="simpleproduct">
+                <requiredEntity createDataKey="simplecategory" />
+            </createData>
+        </before>
+        <after>
+            <deleteData createDataKey="simpleproduct" stepKey="deleteProduct" />
+            <deleteData createDataKey="simplecategory" stepKey="deleteCategory" />
+            <actionGroup ref="AdminDisableShippingMethod" stepKey="disableShippingMethod" />
+        </after>
+
+        <!-- Start testing -->
+        <!-- Enable shipping and collection points -->
+        <actionGroup ref="AdminEnableShippingMethod" stepKey="enableShippingMethod" />
+        <actionGroup ref="LoginAsAdmin" stepKey="loginToReconfigureEnabledShipping" />
+        <actionGroup ref="AdminNavigateToShippingConfiguration" stepKey="navigateToShippingConfiguration" />
+
+        <actionGroup ref="AdminEnableCollectionPoints" stepKey="enableCollectionPoints">
+            <argument name="isActive" value="{{TemandoConfigurationData.enableCollectionPoints}}" />
+            <argument name="countries" value="{{TemandoConfigurationData.clickAndCollectCountries}}" />
+        </actionGroup>
+
+        <actionGroup ref="SaveConfiguration" stepKey="saveConfiguration" />
+        <amOnPage url="admin/admin/auth/logout/" stepKey="logoutFromEnablingShipping" />
+
+        <!-- Add products to cart -->
+        <actionGroup ref="TemandoAddProductToCart" stepKey="addProduct1ToCart">
+            <argument name="product" value="$$simpleproduct$$" />
+            <argument name="category" value="$$simplecategory$$" />
+        </actionGroup>
+
+        <!-- Checkout -->
+        <actionGroup ref="GoToCheckoutFromMinicartActionGroup" stepKey="guestGoToCheckoutFromMinicart" />
+
+        <actionGroup ref="TemandoCompleteShippingDetails" stepKey="fillShippingDetails" />
+        <actionGroup ref="TemandoSelectDeliveryOption" stepKey="selectCollectionPoints">
+            <argument name="deliveryOption" value="{{TemandoDeliveryOptions.collectionpoint}}" />
+        </actionGroup>
+
+        <actionGroup ref="TemandoSelectCollectionPoint" stepKey="selectCollectionPoint" />
+
+        <actionGroup ref="TemandoSelectShippingMethod" stepKey="selectStandardShipping">
+            <argument name="shippingMethod" value="{{TemandoShippingMethodLabels.collectionpoint}}" />
+        </actionGroup>
+
+        <click stepKey="clickNext" selector="{{CheckoutShippingSection.next}}" />
+        <waitForPageLoad stepKey="waitForReviewAndPayments" />
+
+        <!-- Place order -->
+        <actionGroup ref="CheckoutPlaceOrderActionGroup" stepKey="guestPlaceorder">
+            <argument name="orderNumberMessage" value="CONST.successGuestCheckoutOrderNumberMessage" />
+            <argument name="emailYouMessage" value="CONST.successCheckoutEmailYouMessage" />
+        </actionGroup>
+        <grabTextFrom selector="{{CheckoutSuccessMainSection.orderNumber}}" stepKey="orderNumber" />
+
+        <!-- Verify order -->
+        <actionGroup ref="LoginAsAdmin" stepKey="loginAsAdmin1" />
+        <amOnPage url="{{AdminOrdersPage.url}}" stepKey="onOrdersPage" />
+        <waitForLoadingMaskToDisappear stepKey="waitForLoadingMaskToDisappearOnOrdersPage" />
+        <actionGroup ref="clearFiltersAdminDataGrid" stepKey="clearGridFilter" />
+
+        <actionGroup ref="TemandoVerifyOrderWasPlaced" stepKey="verifyOrder">
+            <argument name="orderId" value="{$orderNumber}" />
+        </actionGroup>
+
+        <actionGroup ref="TemandoVerifyCollectionPointAddress" stepKey="verifyCollectionPointAddress" />
+
+        <!-- Ship order -->
+        <actionGroup ref="TemandoShipCollectionPointOrder" stepKey="shipOrder">
+            <argument name="orderId" value="{$orderNumber}" />
+            <argument name="carrier" value="{{TemandoCarriers.fedex}}" />
+        </actionGroup>
+
+        <amOnPage url="admin/admin/auth/logout/" stepKey="amOnLogoutPage" />
+    </test>
+
+    <test name="TemandoGuestCheckoutWithPartialShipment">
+        <annotations>
+            <title value="Temando Guest Checkout With Partial Shipment" />
+            <description value="Checkout as a guest and partially ship order." />
+            <stories value="Checkout as a guest and partially ship order." />
+            <severity value="CRITICAL" />
+            <group value="Temando_Shipping_Checkout" />
+            <skip>
+                <issueId value="MPI-4443"/>
+            </skip>
+            <testCaseId value="MPI-4503, MPI-4504" />
+        </annotations>
+        <before>
+            <createData entity="SimpleSubCategory" stepKey="simplecategory1" />
+            <createData entity="SimpleProduct" stepKey="simpleproduct1">
+                <field key="price">32.33</field>
+                <requiredEntity createDataKey="simplecategory1" />
+            </createData>
+
+            <createData entity="SimpleSubCategory" stepKey="simplecategory2">
+                <field key="name">AnotherSimpleCategory</field>
+            </createData>
+            <createData entity="SimpleProduct" stepKey="simpleproduct2">
+                <field key="name">AnotherSimpleProduct</field>
+                <field key="price">34.35</field>
+                <requiredEntity createDataKey="simplecategory2" />
+            </createData>
+        </before>
+        <after>
+            <deleteData createDataKey="simpleproduct1" stepKey="deleteProduct1" />
+            <deleteData createDataKey="simplecategory1" stepKey="deleteCategory1" />
+            <deleteData createDataKey="simpleproduct2" stepKey="deleteProduct2" />
+            <deleteData createDataKey="simplecategory2" stepKey="deleteCategory2" />
+            <actionGroup ref="AdminDisableShippingMethod" stepKey="disableShippingMethod" />
+        </after>
+
+        <!-- Start testing -->
+        <!-- Enable shipping -->
+        <actionGroup ref="AdminEnableShippingMethod" stepKey="enableShippingMethod" />
+        <actionGroup ref="LoginAsAdmin" stepKey="loginToReconfigureEnabledShipping" />
+        <actionGroup ref="AdminNavigateToShippingConfiguration" stepKey="navigateToShippingConfiguration" />
+
+        <actionGroup ref="AdminEnableCollectionPoints" stepKey="enableCollectionPoints">
+            <argument name="isActive" value="{{TemandoConfigurationData.enableCollectionPoints}}" />
+            <argument name="countries" value="{{TemandoConfigurationData.clickAndCollectCountries}}" />
+        </actionGroup>
+
+        <actionGroup ref="SaveConfiguration" stepKey="saveConfiguration" />
+        <amOnPage url="admin/admin/auth/logout/" stepKey="logoutFromEnablingShipping" />
+
+        <!-- Add products to cart -->
+        <actionGroup ref="TemandoAddProductToCart" stepKey="addProduct1ToCart">
+            <argument name="product" value="$$simpleproduct1$$" />
+            <argument name="category" value="$$simplecategory1$$" />
+        </actionGroup>
+
+        <actionGroup ref="TemandoAddProductToCart" stepKey="addProduct2ToCart">
+            <argument name="product" value="$$simpleproduct2$$" />
+            <argument name="category" value="$$simplecategory2$$" />
+        </actionGroup>
+
+        <actionGroup ref="GoToCheckoutFromMinicartActionGroup" stepKey="guestGoToCheckoutFromMinicart" />
+
+        <!--Place order-->
+        <actionGroup ref="TemandoCompleteShippingDetails" stepKey="fillShippingDetails" />
+        <actionGroup ref="TemandoSelectShippingMethod" stepKey="selectStandardShipping">
+            <argument name="shippingMethod" value="{{TemandoShippingMethodLabels.standard}}" />
+        </actionGroup>
+
+        <click stepKey="clickNext" selector="{{CheckoutShippingSection.next}}" />
+        <waitForPageLoad stepKey="waitForReviewAndPayments" />
+
+        <actionGroup ref="CheckoutPlaceOrderActionGroup" stepKey="guestPlaceorder">
+            <argument name="orderNumberMessage" value="CONST.successGuestCheckoutOrderNumberMessage" />
+            <argument name="emailYouMessage" value="CONST.successCheckoutEmailYouMessage" />
+        </actionGroup>
+        <grabTextFrom selector="{{CheckoutSuccessMainSection.orderNumber}}" stepKey="orderNumber" />
+
+        <!-- Verify order -->
+        <actionGroup ref="LoginAsAdmin" stepKey="loginAsAdmin1" />
+        <amOnPage url="{{AdminOrdersPage.url}}" stepKey="onOrdersPage" />
+        <waitForLoadingMaskToDisappear stepKey="waitForLoadingMaskToDisappearOnOrdersPage" />
+        <actionGroup ref="clearFiltersAdminDataGrid" stepKey="clearGridFilter" />
+
+        <actionGroup ref="TemandoVerifyOrderWasPlaced" stepKey="verifyOrder">
+            <argument name="orderId" value="{$orderNumber}" />
+        </actionGroup>
+
+        <!-- Ship first item -->
+        <actionGroup ref="TemandoShipOneOfTwoProducts" stepKey="shipFirstPackage">
+            <argument name="orderId" value="{$orderNumber}" />
+            <argument name="product1qty" value="1" />
+            <argument name="product2qty" value="0" />
+        </actionGroup>
+
+        <!-- Verify order after first shipment -->
+        <actionGroup ref="TemandoVerifyOrderShipmentsFromShipment" stepKey="verify1Shipment">
+            <argument name="expectedShipments" value="1" />
+        </actionGroup>
+
+        <!-- Ship second item -->
+        <actionGroup ref="TemandoShipOneOfTwoProducts" stepKey="shipSecondPackage">
+            <argument name="orderId" value="{$orderNumber}" />
+            <argument name="product1qty" value="0" />
+            <argument name="product2qty" value="1" />
+        </actionGroup>
+
+        <!-- Verify order after second shipment -->
+        <actionGroup ref="TemandoVerifyOrderShipmentsFromShipment" stepKey="verify2Shipments">
+            <argument name="expectedShipments" value="2" />
+        </actionGroup>
+
+        <amOnPage url="admin/admin/auth/logout/" stepKey="amOnLogoutPage" />
+    </test>
+
+    <test name="TemandoGuestCheckoutWithAOPShipping">
+        <annotations>
+            <title value="Temando Guest Checkout With AOP Shipping" />
+            <description value="Checkout as a guest with AOP shipping option for US source and destination." />
+            <stories value="Checkout as a guest with AOP shipping option for US source and destination." />
+            <severity value="CRITICAL" />
+            <group value="Temando_Shipping_Checkout" />
+            <skip>
+                <issueId value="MPI-4443"/>
+            </skip>
+            <testCaseId value="MG-28, MPI-4589" />
+        </annotations>
+        <before>
+            <createData entity="SimpleSubCategory" stepKey="simplecategory" />
+            <createData entity="SimpleProduct" stepKey="simpleproduct">
+                <requiredEntity createDataKey="simplecategory" />
+            </createData>
+        </before>
+        <after>
+            <deleteData createDataKey="simpleproduct" stepKey="deleteProduct" />
+            <deleteData createDataKey="simplecategory" stepKey="deleteCategory" />
+            <actionGroup ref="AdminDisableShippingMethod" stepKey="disableShippingMethod" />
+        </after>
+
+        <!-- Start testing -->
+        <!-- Enable shipping -->
+        <actionGroup ref="AdminEnableShippingMethod" stepKey="enableShippingMethod" />
+
+        <!-- Place order -->
+        <actionGroup ref="TemandoAddSimpleProductToCart" stepKey="addProductToCart" />
+        <actionGroup ref="GoToCheckoutFromMinicartActionGroup" stepKey="guestGoToCheckoutFromMinicart" />
+
+        <actionGroup ref="TemandoCompleteShippingDetails" stepKey="fillShippingDetails" />
+        <actionGroup ref="TemandoSelectShippingMethod" stepKey="selectStandardShipping">
+            <argument name="shippingMethod" value="{{TemandoShippingMethodLabels.aopUS}}" />
+        </actionGroup>
+
+        <click stepKey="clickNext" selector="{{CheckoutShippingSection.next}}" />
+        <waitForPageLoad stepKey="waitForReviewAndPayments" />
+
+        <actionGroup ref="CheckoutPlaceOrderActionGroup" stepKey="guestPlaceorder">
+            <argument name="orderNumberMessage" value="CONST.successGuestCheckoutOrderNumberMessage" />
+            <argument name="emailYouMessage" value="CONST.successCheckoutEmailYouMessage" />
+        </actionGroup>
+        <grabTextFrom selector="{{CheckoutSuccessMainSection.orderNumber}}" stepKey="orderNumber" />
+
+        <!-- Verify order -->
+        <actionGroup ref="LoginAsAdmin" stepKey="loginAsAdmin1" />
+        <amOnPage url="{{AdminOrdersPage.url}}" stepKey="onOrdersPage" />
+        <waitForLoadingMaskToDisappear stepKey="waitForLoadingMaskToDisappearOnOrdersPage" />
+        <actionGroup ref="clearFiltersAdminDataGrid" stepKey="clearGridFilter" />
+
+        <actionGroup ref="TemandoVerifyOrderWasPlaced" stepKey="verifyOrder">
+            <argument name="orderId" value="{$orderNumber}" />
+        </actionGroup>
+
+        <!-- Verify shipment was created -->
+        <actionGroup ref="TemandoVerifyOrderShipments" stepKey="verifyShipment" />
+
+        <!-- Verify order comment -->
+        <actionGroup ref="TemandoVerifyOrderComment" stepKey="verifyOrderComment">
+            <argument name="comment" value="{{TemandoShipmentMessages.aopSuccess}}" />
+        </actionGroup>
+
+        <amOnPage url="admin/admin/auth/logout/" stepKey="amOnLogoutPage" />
+    </test>
+
+    <test name="TemandoGuestCheckoutWithFlatRateShipping">
+        <annotations>
+            <title value="Temando Guest Checkout With Flat Rate Shipping" />
+            <description value="Checkout as a guest with flat rate shipping option for US source and destination." />
+            <stories value="Checkout as a guest with flat rate shipping option for US source and destination." />
+            <severity value="CRITICAL" />
+            <group value="Temando_Shipping_Checkout" />
+            <skip>
+                <issueId value="MPI-4443"/>
+            </skip>
+            <testCaseId value="MG-9, MPI-4485, MPI-4498, MPI-4512" />
+        </annotations>
+        <before>
+            <createData entity="SimpleSubCategory" stepKey="simplecategory" />
+            <createData entity="SimpleProduct" stepKey="simpleproduct">
+                <requiredEntity createDataKey="simplecategory" />
+            </createData>
+        </before>
+        <after>
+            <deleteData createDataKey="simpleproduct" stepKey="deleteProduct" />
+            <deleteData createDataKey="simplecategory" stepKey="deleteCategory" />
+            <actionGroup ref="AdminDisableShippingMethod" stepKey="disableShippingMethod" />
+        </after>
+
+        <!-- Start testing -->
+        <!-- Enable shipping -->
+        <actionGroup ref="AdminEnableShippingMethod" stepKey="enableShippingMethod" />
+
+        <!-- Place order -->
+        <actionGroup ref="TemandoAddSimpleProductToCart" stepKey="addProductToCart" />
+        <actionGroup ref="GoToCheckoutFromMinicartActionGroup" stepKey="guestGoToCheckoutFromMinicart" />
+
+        <actionGroup ref="TemandoCompleteShippingDetails" stepKey="fillShippingDetails" />
+        <actionGroup ref="TemandoSelectShippingMethod" stepKey="selectStandardShipping">
+            <argument name="shippingMethod" value="{{TemandoShippingMethodLabels.flat}}" />
+        </actionGroup>
+
+        <click stepKey="clickNext" selector="{{CheckoutShippingSection.next}}" />
+        <waitForPageLoad stepKey="waitForReviewAndPayments" />
+
+        <actionGroup ref="CheckoutPlaceOrderActionGroup" stepKey="guestPlaceorder">
+            <argument name="orderNumberMessage" value="CONST.successGuestCheckoutOrderNumberMessage" />
+            <argument name="emailYouMessage" value="CONST.successCheckoutEmailYouMessage" />
+        </actionGroup>
+        <grabTextFrom selector="{{CheckoutSuccessMainSection.orderNumber}}" stepKey="orderNumber" />
+
+        <!-- Verify order -->
+        <actionGroup ref="LoginAsAdmin" stepKey="loginAsAdmin1" />
+        <amOnPage url="{{AdminOrdersPage.url}}" stepKey="onOrdersPage" />
+        <waitForLoadingMaskToDisappear stepKey="waitForLoadingMaskToDisappearOnOrdersPage" />
+        <actionGroup ref="clearFiltersAdminDataGrid" stepKey="clearGridFilter" />
+
+        <actionGroup ref="TemandoVerifyMagentoOrderWasPlaced" stepKey="verifyOrder">
+            <argument name="orderId" value="{$orderNumber}" />
+        </actionGroup>
+
+        <!-- Ship order -->
+        <actionGroup ref="TemandoShipMagentoOrder" stepKey="sendIt" />
+
+        <!-- Verify shipment -->
+        <actionGroup ref="TemandoVerifyOrderShipments" stepKey="verifyShipment" />
+        <actionGroup ref="TemandoVerifyMagentoShipment" stepKey="verifyMagentoShipment" />
+
+        <amOnPage url="admin/admin/auth/logout/" stepKey="amOnLogoutPage" />
+    </test>
+
+    <test name="TemandoGuestCheckoutWithBundleProductAndStandardDomesticShipping">
+        <annotations>
+            <title value="Temando Guest Checkout With Bundle Product and Standard Domestic Shipping" />
+            <description value="Checkout as a guest with a bundle product and standard shipping option for US source and destination." />
+            <stories value="Checkout as a guest with a bundle product and standard shipping option for US source and destination." />
+            <severity value="CRITICAL" />
+            <group value="Temando_Shipping_Checkout" />
+            <skip>
+                <issueId value="MPI-4443"/>
+            </skip>
+            <testCaseId value="MG-45" />
+        </annotations>
+
+        <before>
+            <createData entity="ApiProductWithDescription" stepKey="simple1">
+                <field key="sku">temando-simple-product-1</field>
+                <field key="price">32.33</field>
+                <field key="name">TemandoSimpleProduct1</field>
+                <field key="weight">1</field>
+            </createData>
+            <createData entity="ApiProductWithDescription" stepKey="simple2">
+                <field key="sku">temando-simple-product-2</field>
+                <field key="price">34.35</field>
+                <field key="name">TemandoSimpleProduct2</field>
+                <field key="weight">1</field>
+            </createData>
+
+            <createData entity="TemandoApiBundleProduct" stepKey="bundleproduct" />
+
+            <createData entity="TemandoDropDownBundleOption" stepKey="bundleOption1">
+                <requiredEntity createDataKey="bundleproduct" />
+            </createData>
+
+            <createData entity="TemandoDropDownBundleOption" stepKey="bundleOption2">
+                <requiredEntity createDataKey="bundleproduct" />
+            </createData>
+
+            <createData entity="ApiBundleLink" stepKey="createBundleLink1">
+                <requiredEntity createDataKey="bundleproduct" />
+                <requiredEntity createDataKey="bundleOption1" />
+                <requiredEntity createDataKey="simple1" />
+            </createData>
+
+            <createData entity="ApiBundleLink" stepKey="createBundleLink2">
+                <requiredEntity createDataKey="bundleproduct" />
+                <requiredEntity createDataKey="bundleOption2" />
+                <requiredEntity createDataKey="simple2" />
+            </createData>
+
+            <magentoCLI command="indexer:reindex" stepKey="reindex" />
+            <magentoCLI command="cache:flush" stepKey="flushCache" />
+        </before>
+        <after>
+            <deleteData createDataKey="simple1" stepKey="deleteSimple1" />
+            <deleteData createDataKey="simple2" stepKey="deleteSimple2" />
+            <deleteData stepKey="deleteBundle" createDataKey="bundleproduct" />
+            <actionGroup ref="AdminDisableShippingMethod" stepKey="disableShippingMethod" />
+        </after>
+
+        <!-- Start testing -->
+        <!-- Enable shipping -->
+        <actionGroup ref="AdminEnableShippingMethod" stepKey="enableShippingMethod" />
+        <actionGroup ref="LoginAsAdmin" stepKey="loginToReconfigureEnabledShipping" />
+        <actionGroup ref="AdminNavigateToShippingConfiguration" stepKey="navigateToShippingConfiguration" />
+
+        <actionGroup ref="AdminEnableClickAndCollect" stepKey="enableClickAndCollect">
+            <argument name="isActive" value="1" />
+        </actionGroup>
+        <actionGroup ref="SaveConfiguration" stepKey="saveConfiguration" />
+        <amOnPage url="admin/admin/auth/logout/" stepKey="logoutFromEnablingShipping" />
+
+        <magentoCLI command="cache:flush" stepKey="flushCache" />
+
+        <!-- Place order -->
+        <actionGroup ref="TemandoAddBundleProductToCart" stepKey="addProductToCart">
+            <argument name="product" value="$$bundleproduct$$" />
+        </actionGroup>
+        <actionGroup ref="GoToCheckoutFromMinicartActionGroup" stepKey="guestGoToCheckoutFromMinicart" />
+
+        <actionGroup ref="TemandoCompleteShippingDetails" stepKey="fillShippingDetails" />
+        <actionGroup ref="TemandoSelectShippingMethod" stepKey="selectStandardShipping">
+            <argument name="shippingMethod" value="{{TemandoShippingMethodLabels.standard}}" />
+        </actionGroup>
+
+        <click stepKey="clickNext" selector="{{CheckoutShippingSection.next}}" />
+        <waitForPageLoad stepKey="waitForReviewAndPayments" />
+
+        <actionGroup ref="CheckoutPlaceOrderActionGroup" stepKey="guestPlaceorder">
+            <argument name="orderNumberMessage" value="CONST.successGuestCheckoutOrderNumberMessage" />
+            <argument name="emailYouMessage" value="CONST.successCheckoutEmailYouMessage" />
+        </actionGroup>
+        <grabTextFrom selector="{{CheckoutSuccessMainSection.orderNumber}}" stepKey="orderNumber" />
+
+        <!-- Verify order -->
+        <actionGroup ref="LoginAsAdmin" stepKey="loginAsAdmin1" />
+        <amOnPage url="{{AdminOrdersPage.url}}" stepKey="onOrdersPage" />
+        <waitForLoadingMaskToDisappear stepKey="waitForLoadingMaskToDisappearOnOrdersPage" />
+        <actionGroup ref="clearFiltersAdminDataGrid" stepKey="clearGridFilter" />
+
+        <actionGroup ref="TemandoVerifyOrderWasPlaced" stepKey="verifyOrder">
+            <argument name="orderId" value="{$orderNumber}" />
+        </actionGroup>
+
+        <!-- Ship order -->
+        <actionGroup ref="TemandoTwoPackageShipment" stepKey="shipOrder">
+            <argument name="orderId" value="{$orderNumber}" />
+        </actionGroup>
+
+        <amOnPage url="admin/admin/auth/logout/" stepKey="amOnLogoutPage" />
+    </test>
+
+    <test name="TemandoGuestCheckoutWithBundleProductAndClickAndCollect">
+        <annotations>
+            <title value="Temando Guest Checkout With Bundle Product and Click and Collect" />
+            <description value="Checkout as a guest with a bundle product and click and collect." />
+            <stories value="Checkout as a guest with a bundle product and click and collect" />
+            <severity value="CRITICAL" />
+            <group value="Temando_Shipping_Checkout" />
+            <skip>
+                <issueId value="MPI-4443"/>
+            </skip>
+            <testCaseId value="MG-51" />
+        </annotations>
+
+        <before>
+            <createData entity="ApiProductWithDescription" stepKey="simple1">
+                <field key="sku">temando-simple-product-1</field>
+                <field key="price">32.33</field>
+                <field key="name">TemandoSimpleProduct1</field>
+            </createData>
+            <createData entity="ApiProductWithDescription" stepKey="simple2">
+                <field key="sku">temando-simple-product-2</field>
+                <field key="price">34.35</field>
+                <field key="name">TemandoSimpleProduct2</field>
+            </createData>
+
+            <createData entity="TemandoApiBundleProduct" stepKey="bundleproduct" />
+
+            <createData entity="TemandoDropDownBundleOption" stepKey="bundleOption1">
+                <requiredEntity createDataKey="bundleproduct" />
+            </createData>
+
+            <createData entity="TemandoDropDownBundleOption" stepKey="bundleOption2">
+                <requiredEntity createDataKey="bundleproduct" />
+            </createData>
+
+            <createData entity="ApiBundleLink" stepKey="createBundleLink1">
+                <requiredEntity createDataKey="bundleproduct" />
+                <requiredEntity createDataKey="bundleOption1" />
+                <requiredEntity createDataKey="simple1" />
+            </createData>
+
+            <createData entity="ApiBundleLink" stepKey="createBundleLink2">
+                <requiredEntity createDataKey="bundleproduct" />
+                <requiredEntity createDataKey="bundleOption2" />
+                <requiredEntity createDataKey="simple2" />
+            </createData>
+
+            <magentoCLI command="indexer:reindex" stepKey="reindex" />
+            <magentoCLI command="cache:flush" stepKey="flushCache" />
+        </before>
+        <after>
+            <deleteData createDataKey="simple1" stepKey="deleteSimple1" />
+            <deleteData createDataKey="simple2" stepKey="deleteSimple2" />
+            <deleteData stepKey="deleteBundle" createDataKey="bundleproduct" />
+            <actionGroup ref="AdminDisableShippingMethod" stepKey="disableShippingMethod" />
+        </after>
+
+        <!-- Start testing -->
+        <!-- Enable shipping -->
+        <actionGroup ref="AdminEnableShippingMethod" stepKey="enableShippingMethod" />
+        <actionGroup ref="LoginAsAdmin" stepKey="loginToReconfigureEnabledShipping" />
+        <actionGroup ref="AdminNavigateToShippingConfiguration" stepKey="navigateToShippingConfiguration" />
+        <actionGroup ref="AdminEnableClickAndCollect" stepKey="setClickAndCollect">
+            <argument name="isActive" value="{{TemandoConfigurationData.enableClickAndCollectValue}}" />
+        </actionGroup>
+        <actionGroup ref="SaveConfiguration" stepKey="saveConfiguration" />
+        <amOnPage url="admin/admin/auth/logout/" stepKey="logoutFromEnablingShipping" />
+
+        <!-- Place order -->
+        <actionGroup ref="TemandoAddBundleProductToCart" stepKey="addProductToCart">
+            <argument name="product" value="$$bundleproduct$$" />
+        </actionGroup>
+        <actionGroup ref="GoToCheckoutFromMinicartActionGroup" stepKey="guestGoToCheckoutFromMinicart" />
+
+        <actionGroup ref="TemandoCompleteShippingDetails" stepKey="fillShippingDetails" />
+
+        <!-- Select pickup location -->
+        <actionGroup ref="TemandoSelectDeliveryOption" stepKey="selectPickupInStore">
+            <argument name="deliveryOption" value="{{TemandoDeliveryOptions.pickup}}" />
+        </actionGroup>
+
+        <actionGroup ref="TemandoSelectPickupLocation" stepKey="selectPickupLocation" />
+
+        <!-- Complete order -->
+        <click stepKey="clickNext" selector="{{CheckoutShippingSection.next}}" />
+        <waitForPageLoad stepKey="waitForReviewAndPayments" />
+
+        <actionGroup ref="CheckoutPlaceOrderActionGroup" stepKey="guestPlaceOrder">
+            <argument name="orderNumberMessage" value="CONST.successGuestCheckoutOrderNumberMessage" />
+            <argument name="emailYouMessage" value="CONST.successCheckoutEmailYouMessage" />
+        </actionGroup>
+        <grabTextFrom selector="{{CheckoutSuccessMainSection.orderNumber}}" stepKey="orderNumber" />
+
+        <!-- Verify order -->
+        <actionGroup ref="LoginAsAdmin" stepKey="loginAsAdmin1" />
+        <amOnPage url="{{AdminOrdersPage.url}}" stepKey="onOrdersPage" />
+        <waitForLoadingMaskToDisappear stepKey="waitForLoadingMaskToDisappearOnOrdersPage" />
+        <actionGroup ref="clearFiltersAdminDataGrid" stepKey="clearGridFilter" />
+
+        <actionGroup ref="TemandoVerifyOrderWasPlaced" stepKey="verifyOrder">
+            <argument name="orderId" value="{$orderNumber}" />
+        </actionGroup>
+
+        <!-- Sales order pickup grid -->
+        <actionGroup ref="TemandoOrderOpenPickupsTab" stepKey="openPickupsTab" />
+
+        <click stepKey="clickPickupView" selector="{{TemandoSalesOrderSection.firstViewLink}}" />
+        <grabFromCurrentUrl stepKey="pickupId" regex="/pickup_id\/([0-9]*)\//" />
+
+        <actionGroup ref="TemandoLoadPickupsGrid" stepKey="loadPickupGrid" />
+        <actionGroup ref="TemandoResetPickupFiltersToDefault" stepKey="resetPickupGridFiltersToDefault" />
+
+        <!-- Mark first pickup as ready -->
+        <actionGroup ref="TemandoPickupGridForwardForm" stepKey="pickupForwardForm">
+            <argument name="pickupId" value="{$pickupId}" />
+        </actionGroup>
+
+        <actionGroup ref="TemandoPreparePartialPickup" stepKey="preparePickup" />
+
+        <actionGroup ref="TemandoPickupGridForwardForm" stepKey="pickupForwardForm2">
+            <argument name="pickupId" value="{$pickupId}" />
+        </actionGroup>
+
+        <!-- Verify first pickup status -->
+        <actionGroup ref="TemandoVerifyPickupState" stepKey="verifyPickupPrepared">
+            <argument name="url" value="{{TemandoPickupViewPage.url}}" />
+            <argument name="state" value="{{TemandoPickupStates.ready}}" />
+        </actionGroup>
+
+        <!-- Return to order -->
+        <click stepKey="clickOrderId" selector="//span[@class='title']/a[contains(., '{$orderNumber}')]" />
+        <waitForPageLoad stepKey="waitForProductPageReload" />
+
+        <!-- Sales order pickup grid - 2 pickups -->
+        <actionGroup ref="TemandoOrderOpenPickupsTab" stepKey="openPickupsTabAgain">
+            <argument name="records" value="2" />
+        </actionGroup>
+
+        <!-- Verify second pickup exists -->
+        <actionGroup ref="TemandoClickThroughPickupOnOrder" stepKey="clickThroughSecondPickup" />
+
+        <grabFromCurrentUrl stepKey="newPickupId" regex="/pickup_id\/([0-9]*)\//" />
+
+        <actionGroup ref="TemandoLoadPickupsGrid" stepKey="loadPickupGridAfterFirstPickup" />
+        <actionGroup ref="TemandoResetPickupFiltersToDefault" stepKey="resetPickupGridFiltersToDefaultAgain" />
+
+        <!-- Mark second pickup as ready -->
+        <actionGroup ref="TemandoPickupGridForwardForm" stepKey="pickupForwardForm3">
+            <argument name="pickupId" value="{$newPickupId}" />
+        </actionGroup>
+
+        <actionGroup ref="TemandoPreparePartialPickup" stepKey="prepareSecondPickup">
+            <argument name="qtyFirstItem" value="0" />
+            <argument name="qtySecondItem" value="1" />
+        </actionGroup>
+
+        <!-- Verify second pickup status -->
+        <actionGroup ref="TemandoPickupGridForwardForm" stepKey="pickupForwardForm4">
+            <argument name="pickupId" value="{$newPickupId}" />
+        </actionGroup>
+
+        <actionGroup ref="TemandoVerifyPickupState" stepKey="verifySecondPickupPrepared">
+            <argument name="url" value="{{TemandoPickupViewPage.url}}" />
+            <argument name="state" value="{{TemandoPickupStates.ready}}" />
+        </actionGroup>
+
+        <!-- Mark second pickup as picked up -->
+        <actionGroup ref="TemandoMarkPickupAsPickedUp" stepKey="markAsPickedUp" />
+        <actionGroup ref="TemandoResetPickupFilters" stepKey="resetPickupGridFilters" />
+
+        <seeElement stepKey="seePickedUpPickupInGrid" selector="{{TemandoPickupGridSection.pickupId({$pickupId})}}" />
+
+        <actionGroup ref="TemandoPickupGridForwardForm" stepKey="pickupForwardForm5">
+            <argument name="pickupId" value="{$newPickupId}" />
+        </actionGroup>
+
+        <!-- Verify marked as pickup -->
+        <actionGroup ref="TemandoVerifyPickupState" stepKey="verifyPickedUp">
+            <argument name="url" value="{{TemandoPickupViewPage.url}}" />
+            <argument name="state" value="{{TemandoPickupStates.pickedUp}}" />
+        </actionGroup>
+
+        <amOnPage url="admin/admin/auth/logout/" stepKey="amOnLogoutPage" />
+    </test>
+
+    <test name="TemandoGuestCheckoutWithBundleProductAndCollectionPointShipping">
+        <annotations>
+            <title value="Temando Guest Checkout With Bundle Product and Collection Point Shipping" />
+            <description value="Checkout as a guest with a bundle product and collection point option for US source and destination." />
+            <stories value="Checkout as a guest with a bundle product and collection point option for US source and destination." />
+            <severity value="CRITICAL" />
+            <group value="Temando_Shipping_Checkout" />
+            <skip>
+                <issueId value="MPI-4443"/>
+            </skip>
+            <testCaseId value="MG-46" />
+        </annotations>
+
+        <before>
+            <createData entity="ApiProductWithDescription" stepKey="simple1">
+                <field key="sku">temando-simple-product-1</field>
+                <field key="price">32.33</field>
+                <field key="name">TemandoSimpleProduct1</field>
+                <field key="weight">1</field>
+            </createData>
+            <createData entity="ApiProductWithDescription" stepKey="simple2">
+                <field key="sku">temando-simple-product-2</field>
+                <field key="price">34.35</field>
+                <field key="name">TemandoSimpleProduct2</field>
+                <field key="weight">1</field>
+            </createData>
+
+            <createData entity="TemandoApiBundleProduct" stepKey="bundleproduct" />
+
+            <createData entity="TemandoDropDownBundleOption" stepKey="bundleOption1">
+                <requiredEntity createDataKey="bundleproduct" />
+            </createData>
+
+            <createData entity="TemandoDropDownBundleOption" stepKey="bundleOption2">
+                <requiredEntity createDataKey="bundleproduct" />
+            </createData>
+
+            <createData entity="ApiBundleLink" stepKey="createBundleLink1">
+                <requiredEntity createDataKey="bundleproduct" />
+                <requiredEntity createDataKey="bundleOption1" />
+                <requiredEntity createDataKey="simple1" />
+            </createData>
+
+            <createData entity="ApiBundleLink" stepKey="createBundleLink2">
+                <requiredEntity createDataKey="bundleproduct" />
+                <requiredEntity createDataKey="bundleOption2" />
+                <requiredEntity createDataKey="simple2" />
+            </createData>
+
+            <magentoCLI command="indexer:reindex" stepKey="reindex" />
+            <magentoCLI command="cache:flush" stepKey="flushCache" />
+        </before>
+        <after>
+            <deleteData createDataKey="simple1" stepKey="deleteSimple1" />
+            <deleteData createDataKey="simple2" stepKey="deleteSimple2" />
+            <deleteData stepKey="deleteBundle" createDataKey="bundleproduct" />
+            <actionGroup ref="AdminDisableShippingMethod" stepKey="disableShippingMethod" />
+        </after>
+
+        <!-- Start testing -->
+        <!-- Enable shipping and collection points -->
+        <actionGroup ref="AdminEnableShippingMethod" stepKey="enableShippingMethod" />
+        <actionGroup ref="LoginAsAdmin" stepKey="loginToReconfigureEnabledShipping" />
+        <actionGroup ref="AdminNavigateToShippingConfiguration" stepKey="navigateToShippingConfiguration" />
+
+        <actionGroup ref="AdminEnableCollectionPoints" stepKey="enableCollectionPoints">
+            <argument name="isActive" value="{{TemandoConfigurationData.enableCollectionPoints}}" />
+            <argument name="countries" value="{{TemandoConfigurationData.clickAndCollectCountries}}" />
+        </actionGroup>
+
+        <actionGroup ref="SaveConfiguration" stepKey="saveConfiguration" />
+        <amOnPage url="admin/admin/auth/logout/" stepKey="logoutFromEnablingShipping" />
+
+        <!-- Place order -->
+        <actionGroup ref="TemandoAddBundleProductToCart" stepKey="addProductToCart">
+            <argument name="product" value="$$bundleproduct$$" />
+        </actionGroup>
+        <actionGroup ref="GoToCheckoutFromMinicartActionGroup" stepKey="guestGoToCheckoutFromMinicart" />
+
+        <actionGroup ref="TemandoCompleteShippingDetails" stepKey="fillShippingDetails" />
+        <actionGroup ref="TemandoSelectDeliveryOption" stepKey="selectCollectionPoints">
+            <argument name="deliveryOption" value="{{TemandoDeliveryOptions.collectionpoint}}" />
+        </actionGroup>
+
+        <actionGroup ref="TemandoSelectCollectionPoint" stepKey="selectCollectionPoint" />
+
+        <actionGroup ref="TemandoSelectShippingMethod" stepKey="selectStandardShipping">
+            <argument name="shippingMethod" value="{{TemandoShippingMethodLabels.collectionpoint}}" />
+        </actionGroup>
+
+        <click stepKey="clickNext" selector="{{CheckoutShippingSection.next}}" />
+        <waitForPageLoad stepKey="waitForReviewAndPayments" />
+
+        <actionGroup ref="CheckoutPlaceOrderActionGroup" stepKey="guestPlaceorder">
+            <argument name="orderNumberMessage" value="CONST.successGuestCheckoutOrderNumberMessage" />
+            <argument name="emailYouMessage" value="CONST.successCheckoutEmailYouMessage" />
+        </actionGroup>
+        <grabTextFrom selector="{{CheckoutSuccessMainSection.orderNumber}}" stepKey="orderNumber" />
+
+        <!-- Verify order -->
+        <actionGroup ref="LoginAsAdmin" stepKey="loginAsAdmin1" />
+        <amOnPage url="{{AdminOrdersPage.url}}" stepKey="onOrdersPage" />
+        <waitForLoadingMaskToDisappear stepKey="waitForLoadingMaskToDisappearOnOrdersPage" />
+        <actionGroup ref="clearFiltersAdminDataGrid" stepKey="clearGridFilter" />
+
+        <actionGroup ref="TemandoVerifyOrderWasPlaced" stepKey="verifyOrder">
+            <argument name="orderId" value="{$orderNumber}" />
+        </actionGroup>
+
+        <actionGroup ref="TemandoVerifyCollectionPointAddress" stepKey="verifyCollectionPointAddress" />
+
+        <!-- Ship order -->
+        <actionGroup ref="TemandoTwoPackageShipment" stepKey="shipOrder">
+            <argument name="orderId" value="{$orderNumber}" />
+            <argument name="carrier" value="{{TemandoCarriers.fedex}}" />
+        </actionGroup>
+
+        <amOnPage url="admin/admin/auth/logout/" stepKey="amOnLogoutPage" />
+    </test>
+</tests>

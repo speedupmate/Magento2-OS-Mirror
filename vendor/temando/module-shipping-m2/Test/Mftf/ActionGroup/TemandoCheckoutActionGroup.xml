@@ -1,0 +1,169 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<actionGroups xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+              xsi:noNamespaceSchemaLocation="urn:magento:mftf:Test/etc/actionGroupSchema.xsd">
+    <!-- Add simple product to cart -->
+    <actionGroup name="TemandoAddSimpleProductToCart">
+        <amOnPage url="{{StorefrontCategoryPage.url($$simplecategory.name$$)}}" stepKey="onCategoryPage" />
+        <waitForPageLoad stepKey="waitForCategoryPage" />
+        <moveMouseOver selector="{{StorefrontCategoryMainSection.ProductItemInfo}}" stepKey="hoverProduct" />
+        <click selector="{{StorefrontCategoryMainSection.AddToCartBtn}}" stepKey="addToCart" />
+        <waitForElementVisible selector="{{StorefrontCategoryMainSection.SuccessMsg}}" time="30" stepKey="waitForProductAdded" />
+        <see selector="{{StorefrontCategoryMainSection.SuccessMsg}}" userInput="You added $$simpleproduct.name$$ to your shopping cart." stepKey="seeAddedToCartMessage" />
+        <see selector="{{StorefrontMinicartSection.quantity}}" userInput="1" stepKey="seeCartQuantity" />
+    </actionGroup>
+    <!-- Add product to cart -->
+    <actionGroup name="TemandoAddProductToCart">
+        <arguments>
+            <argument name="product" defaultValue="{{SimpleProduct}}" type="entity" />
+            <argument name="category" defaultValue="{{SimpleSubCategory}}" type="entity" />
+        </arguments>
+        <amOnPage url="{{StorefrontCategoryPage.url(category.name)}}" stepKey="onCategoryPage" />
+        <waitForPageLoad stepKey="waitForCategoryPage" />
+        <moveMouseOver selector="{{StorefrontCategoryMainSection.ProductItemInfo}}" stepKey="hoverProduct" />
+        <click selector="{{StorefrontCategoryMainSection.AddToCartBtn}}" stepKey="addToCart" />
+        <waitForElementVisible selector="{{StorefrontCategoryMainSection.SuccessMsg}}" time="30" stepKey="waitForProductAdded" />
+        <see selector="{{StorefrontCategoryMainSection.SuccessMsg}}" userInput="You added {{product.name}} to your shopping cart." stepKey="seeAddedToCartMessage" />
+    </actionGroup>
+
+    <actionGroup name="TemandoAddConfigurableProductToCart" extends="TemandoAddProductToCart">
+        <arguments>
+            <argument name="productOption" type="string"/>
+            <argument name="productAttribute" type="string" />
+        </arguments>
+        <waitForPageLoad stepKey="waitForProductPage" after="addToCart" />
+        <selectOption userInput="{{productOption}}" selector="{{TemandoStorefrontProductSection.productAttribute(productAttribute)}}" stepKey="selectAttribute" after="waitForProductPage" />
+        <click selector="{{StorefrontCategoryMainSection.AddToCartBtn}}" stepKey="addConfigurableProductToCart" after="selectAttribute" />
+    </actionGroup>
+
+    <!-- Add bundle product to cart -->
+    <actionGroup name="TemandoAddBundleProductToCart">
+        <arguments>
+            <argument name="product" type="entity" defaultValue="{{BundleProduct}}" />
+        </arguments>
+        <amOnPage url="{{StorefrontProductPage.url(product.name)}}" stepKey="onProductPage" />
+        <waitForPageLoad stepKey="waitForProductPage" />
+        <click stepKey="clickCustomise" selector="{{TemandoBundleProductPage.buttonCustomise}}" />
+        <waitForElementVisible selector="{{TemandoBundleProductPage.buttonAddToCart}}" stepKey="waitForAddToCartButton" />
+        <click stepKey="clickAddToCart" selector="{{TemandoBundleProductPage.buttonAddToCart}}" />
+        <waitForElementVisible selector="{{StorefrontCategoryMainSection.SuccessMsg}}" time="30" stepKey="waitForProductAdded" />
+        <see selector="{{StorefrontCategoryMainSection.SuccessMsg}}" userInput="You added {{product.name}} to your shopping cart." stepKey="seeAddedToCartMessage" />
+    </actionGroup>
+
+    <!-- Add Product to Cart from the product page and check message and product count in Minicart -->
+    <actionGroup name="TemandoAddSimpleProductToCartFromProductPage">
+        <arguments>
+            <argument name="product" type="entity" defaultValue="{{SimpleProduct}}"/>
+        </arguments>
+        <amOnPage url="{{StorefrontProductPage.url(product.name)}}" stepKey="onProductPage" />
+        <waitForPageLoad stepKey="waitForProductPage" />
+        <click selector="{{StorefrontProductInfoMainSection.AddToCart}}" stepKey="clickAddToCart" />
+        <waitForElementVisible selector="{{StorefrontCategoryMainSection.SuccessMsg}}" stepKey="waitForSuccessMessage" />
+        <see selector="{{StorefrontProductPageSection.messagesBlock}}" userInput="You added {{product.name}} to your shopping cart." stepKey="assertSuccessMessage"/>
+    </actionGroup>
+
+    <!-- Enter shipping details at checkout -->
+    <actionGroup name="TemandoCompleteShippingDetails">
+        <fillField selector="{{CheckoutShippingSection.email}}" userInput="{{CustomerEntityOne.email}}" stepKey="enterEmail"/>
+        <fillField selector="{{CheckoutShippingSection.firstName}}" userInput="{{CustomerEntityOne.firstname}}" stepKey="enterFirstName"/>
+        <fillField selector="{{CheckoutShippingSection.lastName}}" userInput="{{CustomerEntityOne.lastname}}" stepKey="enterLastName"/>
+        <fillField selector="{{CheckoutShippingSection.street}}" userInput="{{CustomerAddressSimple.street[0]}}" stepKey="enterStreet"/>
+        <fillField selector="{{CheckoutShippingSection.city}}" userInput="{{CustomerAddressSimple.city}}" stepKey="enterCity"/>
+        <selectOption selector="{{CheckoutShippingSection.region}}" userInput="{{CustomerAddressSimple.state}}" stepKey="selectRegion"/>
+        <fillField selector="{{CheckoutShippingSection.postcode}}" userInput="{{CustomerAddressSimple.postcode}}" stepKey="enterPostcode"/>
+        <fillField selector="{{CheckoutShippingSection.telephone}}" userInput="{{CustomerAddressSimple.telephone}}" stepKey="enterTelephone"/>
+        <waitForLoadingMaskToDisappear stepKey="waitForLoadingMask"/>
+    </actionGroup>
+    <!-- Select a shipping method at checkout -->
+    <actionGroup name="TemandoSelectShippingMethod">
+        <arguments>
+            <argument name="shippingMethod" type="string" />
+        </arguments>
+        <scrollTo stepKey="scrollToShippingMethods" selector="{{TemandoCheckoutSection.ShippingMethodsTable}}" />
+        <seeElement stepKey="seeShippingMethod" selector="{{TemandoCheckoutSection.ShippingMethodLabel(shippingMethod)}}" />
+        <grabTextFrom selector="{{TemandoCheckoutSection.ShippingMethodLabel(shippingMethod)}}" stepKey="shippingLabel" />
+        <click selector="{{CheckoutShippingMethodsSection.checkShippingMethodByName('{$shippingLabel}')}}" stepKey="selectStandardShipping" />
+        <waitForLoadingMaskToDisappear stepKey="waitForShippingMethod" />
+    </actionGroup>
+    <!-- Select pickup location -->
+    <actionGroup name="TemandoSelectPickupLocation">
+        <waitForElementVisible selector="{{TemandoCheckoutSection.DeliveryLocationList}}" stepKey="waitForLocationList" time="45" />
+
+        <see stepKey="seePickupLocations" userInput="{{TemandoCheckoutLabels.SelectPickupLocation}}" />
+        <scrollTo stepKey="scrollToUSStore" selector="{{TemandoCheckoutSection.DeliveryLocation(TemandoLocationLabels.US)}}" />
+        <click stepKey="clickUSStorePickupLocation" selector="{{TemandoCheckoutSection.DeliveryLocation(TemandoLocationLabels.US)}}" />
+        <waitForLoadingMaskToDisappear stepKey="waitForPickupShippingRates" />
+
+        <seeElement stepKey="seePickupShippingRates" selector="{{TemandoCheckoutSection.DeliveryLocationShippingRates}}" />
+        <click stepKey="clickPickupShippingRate" selector="{{TemandoCheckoutSection.DeliveryLocationShippingRates}}" />
+        <waitForLoadingMaskToDisappear stepKey="waitForPickupShippingRate" />
+    </actionGroup>
+    <!-- Select delivery option -->
+    <actionGroup name="TemandoSelectDeliveryOption">
+        <arguments>
+            <argument name="deliveryOption" type="string" defaultValue="{{TemandoDeliveryOptions.shipping}}" />
+        </arguments>
+        <scrollTo stepKey="scrollToShippingMethods" selector="{{TemandoCheckoutSection.DeliveryOptions}}" />
+        <seeElement stepKey="seePickupInStore" selector="{{TemandoCheckoutSection.DeliveryOption(deliveryOption)}}" />
+        <click stepKey="clickPickupInStore" selector="{{TemandoCheckoutSection.DeliveryOption(deliveryOption)}}" />
+        <waitForAjaxLoad stepKey="waitForPickupLocations" />
+    </actionGroup>
+    <!-- Change addresses -->
+    <actionGroup name="TemandoChangeShippingAddress">
+        <arguments>
+            <argument name="addressStreet" type="string" defaultValue="" />
+        </arguments>
+        <waitForElementVisible selector="{{TemandoCheckoutSection.NonDefaultAddressShipHereButton}}" stepKey="waitForNonDefaultButton" />
+        <seeElement stepKey="seeNonDefaultAddress" selector="{{TemandoCheckoutSection.NonDefaultAddress(addressStreet)}}" />
+        <click stepKey="clickShipHere" selector="{{TemandoCheckoutSection.NonDefaultAddressShipHereButton}}" />
+        <seeElement stepKey="seeNonDefaultAddressSelected" selector="{{TemandoCheckoutSection.NonDefaultAddressSelected(addressStreet)}}" />
+        <waitForPageLoad stepKey="waitForAddressChange" time="30" />
+    </actionGroup>
+    <!-- Select collection point -->
+    <actionGroup name="TemandoSelectCollectionPoint">
+        <arguments>
+            <argument name="country" type="string" defaultValue="{{TemandoCollectionPointUS.country}}" />
+            <argument name="postcode" type="string" defaultValue="{{TemandoCollectionPointUS.postcode}}" />
+        </arguments>
+        <waitForPageLoad stepKey="waitForCollectionPointForm" />
+        <seeElement stepKey="seeCollectionPointsForm" selector="{{TemandoCheckoutSection.CollectionPointForm}}" />
+
+        <selectOption selector="{{TemandoCheckoutSection.CollectionPointCountrySelect}}" stepKey="selectInvalidCountry" userInput="{{TemandoCollectionPointUSInvalid.country}}" />
+        <fillField stepKey="enterInvalidPostcode" selector="{{TemandoCheckoutSection.CollectionPointPostcode}}" userInput="{{TemandoCollectionPointUSInvalid.postcode}}" />
+        <click stepKey="clickSearchInvalid" selector="{{TemandoCheckoutSection.CollectionPointSearchButton}}" />
+        <waitForElementVisible stepKey="waitForInvalidSearchResults" selector="{{TemandoCheckoutSection.CollectionPointError}}" time="60" />
+
+        <selectOption selector="{{TemandoCheckoutSection.CollectionPointCountrySelect}}" stepKey="selectCountry" userInput="{{country}}" />
+        <fillField stepKey="enterPostCode" selector="{{TemandoCheckoutSection.CollectionPointPostcode}}" userInput="{{postcode}}" />
+        <click stepKey="clickSearch" selector="{{TemandoCheckoutSection.CollectionPointSearchButton}}" />
+        <waitForElementVisible selector="{{TemandoCheckoutSection.CollectionPointList}}" stepKey="waitForCollectionPoints" time="60" />
+
+        <checkOption stepKey="clickFirstCollectionPoint" selector="{{TemandoCheckoutSection.CollectionPointFirst}}" />
+        <waitForElementVisible selector="{{TemandoCheckoutSection.ShippingMethodsTable}}" stepKey="waitForCollectionPointMethods" />
+    </actionGroup>
+    <!-- Customer account orders -->
+    <actionGroup name="TemandoCustomerAccountOrder">
+        <arguments>
+            <argument name="orderId" type="string" />
+        </arguments>
+        <amOnPage url="{{TemandoCustomerOrderHistory.url}}" stepKey="goToCustomerAccountOrderPage" />
+        <seeElement stepKey="seeOrderId" selector="{{TemandoCustomerAccount.orderGridOrderId(orderId)}}" />
+        <click stepKey="clickViewOrder" selector="{{TemandoCustomerAccount.orderGridViewOrderLink(orderId)}}" />
+        <waitForPageLoad stepKey="waitForCustomerOrder" />
+        <seeElement stepKey="seeOrderShipments" selector="{{TemandoCustomerAccount.orderShipmentsTab}}" />
+        <click stepKey="clickOrderShipments" selector="{{TemandoCustomerAccount.orderShipmentsTab}}" />
+        <waitForPageLoad stepKey="waitForOrderShipments" />
+    </actionGroup>
+    <!-- Customer order tracking popup -->
+    <actionGroup name="TemandoCustomerOrderTrackingPopup">
+        <arguments>
+            <argument name="trackingNumber" type="string" />
+        </arguments>
+        <click stepKey="clickTrackAllShipments" selector="{{TemandoCustomerAccount.trackAllShipmentsLink}}" />
+        <waitForPageLoad stepKey="waitForTrackingNumberPopup" />
+        <switchToWindow stepKey="switchToTrackingPopupAgain" userInput="trackorder" />
+        <seeElement stepKey="seeTrackingNumberInPopup" selector="{{TemandoCustomerAccount.trackingPopupTrackingNumber(trackingNumber)}}" />
+        <seeElement stepKey="seeCarrier" selector="{{TemandoCustomerAccount.trackingPopupCarrierLabel}}" />
+        <closeTab stepKey="closeTrackingWindow" />
+    </actionGroup>
+</actionGroups>

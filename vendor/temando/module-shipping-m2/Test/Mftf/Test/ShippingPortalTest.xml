@@ -1,0 +1,129 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<tests xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+       xsi:noNamespaceSchemaLocation="urn:magento:mftf:Test/etc/testSchema.xsd">
+    <test name="AdminShippingPortalMenuLink">
+        <annotations>
+            <title value="Shipping Portal Menu Link Test" />
+            <description value="Verify the Shipping Portal link appears in the menu and is clickable." />
+            <stories value="Verify the Shipping Portal link appears in the menu and is clickable." />
+            <severity value="MINOR" />
+            <group value="Temando_Shipping_Portal" />
+            <skip>
+                <issueId value="MPI-4443"/>
+            </skip>
+            <testCaseId value="MPI-4443, MG-56" />
+        </annotations>
+        <before>
+            <actionGroup ref="LoginAsAdmin" stepKey="loginAsAdmin"/>
+            <actionGroup ref="AdminEnableShippingMethod" stepKey="enableShippingMethod" />
+        </before>
+        <after>
+            <amOnPage url="admin/admin/auth/logout/" stepKey="amOnLogoutPage"/>
+            <actionGroup ref="AdminDisableShippingMethod" stepKey="disableShippingMethod" />
+        </after>
+
+        <!-- Start testing -->
+        <actionGroup ref="TemandoShippingPortalMenuLink" stepKey="clickExperiencesMenuItem" />
+    </test>
+
+    <test name="AdminShippingPortalAccountConfigurationLink">
+        <annotations>
+            <title value="Shipping Portal Account Configuration Link Test"/>
+            <description value="Verify the Shipping Portal Account link appears on the configuration page and is clickable."/>
+            <stories value="Verify the Shipping Portal Account link appears on the configuration page and is clickable." />
+            <severity value="MINOR" />
+            <group value="Temando_Shipping_Portal" />
+            <skip>
+                <issueId value="MPI-4443"/>
+            </skip>
+            <testCaseId value="MPI-4444" />
+        </annotations>
+        <before>
+            <actionGroup ref="LoginAsAdmin" stepKey="loginAsAdmin"/>
+            <actionGroup ref="AdminEnableShippingMethod" stepKey="enableShippingMethod" />
+        </before>
+        <after>
+            <amOnPage url="admin/admin/auth/logout/" stepKey="amOnLogoutPage"/>
+            <actionGroup ref="AdminDisableShippingMethod" stepKey="disableShippingMethod" />
+        </after>
+
+        <!-- Start testing -->
+        <actionGroup ref="TemandoShippingPortalAccountConfigurationLink" stepKey="clickConfigurationPortalAccountLink" />
+    </test>
+
+    <test name="AdminShippingPortalExperiencesGettingStartedLink">
+        <annotations>
+            <title value="Shipping Portal Experiences Configuration Getting Started Button Test"/>
+            <description value="Verify the Shipping Experiences button is clickable."/>
+            <stories value="Verify the Shipping Experiences button is clickable." />
+            <severity value="MINOR" />
+            <group value="Temando_Shipping_Portal" />
+            <skip>
+                <issueId value="MPI-4443"/>
+            </skip>
+            <testCaseId value="MPI-4445" />
+        </annotations>
+        <before>
+            <actionGroup ref="LoginAsAdmin" stepKey="loginAsAdmin"/>
+            <actionGroup ref="AdminEnableShippingMethod" stepKey="enableShippingMethod" />
+        </before>
+        <after>
+            <amOnPage url="admin/admin/auth/logout/" stepKey="amOnLogoutPage"/>
+            <actionGroup ref="AdminDisableShippingMethod" stepKey="disableShippingMethod" />
+        </after>
+
+        <!-- Start testing -->
+        <actionGroup ref="TemandoShippingPortalExperiencesConfigureLink" stepKey="clickConfigurationShippingExperiencesLink" />
+    </test>
+
+    <test name="AdminShippingPortalLocationsGettingStartedLink">
+        <annotations>
+            <title value="Shipping Portal Locations Configuration Getting Started Button Test"/>
+            <description value="Verify the Shipping Locations button is clickable."/>
+            <stories value="Verify the Shipping Experiences button is clickable." />
+            <severity value="MINOR" />
+            <group value="Temando_Shipping_Portal" />
+            <skip>
+                <issueId value="MPI-4443"/>
+            </skip>
+            <testCaseId value="MG-56" />
+        </annotations>
+        <before>
+            <actionGroup ref="LoginAsAdmin" stepKey="loginAsAdmin"/>
+            <actionGroup ref="AdminEnableShippingMethod" stepKey="enableShippingMethod" />
+        </before>
+        <after>
+            <amOnPage url="admin/admin/auth/logout/" stepKey="amOnLogoutPage"/>
+            <actionGroup ref="AdminDisableShippingMethod" stepKey="disableShippingMethod" />
+        </after>
+
+        <!-- Start testing -->
+        <actionGroup ref="TemandoShippingPortalLocationsConfigureLink" stepKey="clickConfigurationShippingLocationsLink" />
+    </test>
+
+    <test name="AdminShippingPortalCarriersGettingStartedLink">
+        <annotations>
+            <title value="Shipping Portal Carriers Configuration Getting Started Button Test"/>
+            <description value="Verify the Carriers button is clickable."/>
+            <stories value="Verify the Carriers button is clickable." />
+            <severity value="MINOR" />
+            <group value="Temando_Shipping_Portal" />
+            <skip>
+                <issueId value="MPI-4443"/>
+            </skip>
+            <testCaseId value="MG-103" />
+        </annotations>
+        <before>
+            <actionGroup ref="LoginAsAdmin" stepKey="loginAsAdmin"/>
+            <actionGroup ref="AdminEnableShippingMethod" stepKey="enableShippingMethod" />
+        </before>
+        <after>
+            <amOnPage url="admin/admin/auth/logout/" stepKey="amOnLogoutPage"/>
+            <actionGroup ref="AdminDisableShippingMethod" stepKey="disableShippingMethod" />
+        </after>
+
+        <!-- Start testing -->
+        <actionGroup ref="TemandoShippingPortalCarriersConfigureLink" stepKey="clickConfigurationCarriersLink" />
+    </test>
+</tests>

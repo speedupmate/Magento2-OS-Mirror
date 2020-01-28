@@ -1,0 +1,153 @@
+<form id="collection-points-form"
+      class="form fieldset delivery-locations-form"
+      data-bind="submit: submitForm.bind($data)">
+
+    <div class="step-title"
+         data-bind="i18n: 'Collection Point Selection'"
+         data-role="title"></div>
+
+    <div class="field _required collection-point-country">
+        <label class="label" for="collection-point-countries">
+            <span data-bind="i18n:'Country'"></span>
+        </label>
+        <div class="control">
+            <select class="input-select"
+                    id="collection-point-countries"
+                    data-bind="options: getCountryData(),
+                        optionsText: 'countryName',
+                        optionsValue: 'countryCode',
+                        value: countryValue">
+            </select>
+        </div>
+    </div>
+
+    <div class="field _required collection-point-postalcode" data-bind="css:{_error: zipCodeError}">
+        <label class="label" for="collection-points-postal-code">
+            <span data-bind="i18n:'Postal Code'"></span>
+        </label>
+        <div class="control">
+            <input class="input-text required-entry"
+                   type="text"
+                   id="collection-points-postal-code"
+                   data-bind="value: zipValue" />
+            <label class="admin__ field-error"
+                   if="zipCodeError"
+                   data-bind="i18n:zipCodeError"></label>
+        </div>
+    </div>
+
+    <div class="field collection-point-button">
+        <div class="control">
+            <button class="action primary" type="submit" title="search">
+                <span data-bind="i18n:'Search'"></span>
+            </button>
+        </div>
+    </div>
+
+    <div class="delivery-locations-list" if="getCollectionPoints().length > 0">
+        <table class="location">
+            <tbody data-bind="foreach: getCollectionPoints()">
+                <tr>
+                    <td class="first-column">
+                        <input type="radio"
+                               data-bind="checked: $parent.selected,
+                                    value: collection_point_id,
+                                    attr: { name: 'collection-points', id: collection_point_id }" />
+                    </td>
+                    <td class="second-column">
+                        <label data-bind="attr: { for: collection_point_id }">
+                            <strong data-bind="text: name"></strong>
+                            <strong data-bind="visible: distance, text: '(' + distance + ')'"></strong>
+                        </label>
+                    </td>
+                </tr>
+                <tr>
+                    <td class="first-column"></td>
+                    <td class="second-column">
+                        <div>
+                            <span data-bind="text: street"></span>,
+                            <span data-bind="text: city"></span>,
+                            <span data-bind="text: region"></span>
+                            <span data-bind="text: postcode"></span>
+                        </div>
+                    </td>
+                </tr>
+                <tr>
+                    <td class="first-column"></td>
+                    <td class="second-column">
+                        <div class="opening-hour-wrapper" ifnot="opening_hours.general.length > 0 ||
+                                opening_hours.specific.openings.length > 0 ||
+                                opening_hours.specific.closures.length > 0">
+                            <table collapsible="closeOnOuter: false">
+                                <thead data-role="collapsible-title" data-bind="toggleCollapsible">
+                                    <tr>
+                                        <td data-bind="i18n: 'Opening Hours'"></td>
+                                    </tr>
+                                </thead>
+                                <tbody data-role="collapsible-content">
+                                    <tr>
+                                        <td data-bind="i18n: 'Not Available'"></td>
+                                    </tr>
+                                </tbody>
+                            </table>
+                        </div>
+                        <div class="opening-hour-wrapper" if="opening_hours.general.length > 0 ||
+                                opening_hours.specific.openings.length > 0 ||
+                                opening_hours.specific.closures.length > 0">
+                            <table class="collection-point-opening-hours" collapsible="closeOnOuter: false">
+                                <thead data-role="collapsible-title" data-bind="toggleCollapsible">
+                                    <tr>
+                                        <td data-bind="i18n: 'Opening Hours'"></td>
+                                    </tr>
+                                </thead>
+                                <tbody data-bind="foreach: opening_hours.general"
+                                       data-role="collapsible-content">
+                                    <tr>
+                                        <td data-bind="text: days"></td>
+                                        <td class="time-span" data-bind="text: times"></td>
+                                    </tr>
+                                </tbody>
+                                <tbody class="special-hours-heading" data-role="collapsible-content"
+                                       if="opening_hours.specific.openings.length > 0">
+                                    <tr>
+                                        <td  data-bind="i18n: 'Specific Openings'"></td>
+                                    </tr>
+                                </tbody>
+                                <tbody data-bind="foreach: opening_hours.specific.openings"
+                                       data-role="collapsible-content">
+                                    <tr>
+                                        <td data-bind="text: description"></td>
+                                        <td class="time-span">
+                                            <span data-bind="text: from"></span> - <span data-bind="text: to"></span>
+                                        </td>
+                                    </tr>
+                                </tbody>
+                                <tbody class="special-hours-heading" data-role="collapsible-content"
+                                       if="opening_hours.specific.closures.length > 0">
+                                    <tr>
+                                        <td  data-bind="i18n: 'Specific Closures'"></td>
+                                    </tr>
+                                </tbody>
+                                <tbody data-bind="foreach: opening_hours.specific.closures"
+                                       data-role="collapsible-content">
+                                    <tr>
+                                        <td data-bind="text: description"></td>
+                                        <td class="time-span">
+                                            <span data-bind="text: from"></span> - <span data-bind="text: to"></span>
+                                        </td>
+                                    </tr>
+                                </tbody>
+                            </table>
+                        </div>
+                    </td>
+                </tr>
+                <tr>
+                    <td colspan="3">
+                        <hr>
+                    </td>
+                </tr>
+            </tbody>
+        </table>
+    </div>
+    <div if="getMessage()" data-bind="text:getMessage(), css:{'field-error':hasNoResult()}"></div>
+</form>

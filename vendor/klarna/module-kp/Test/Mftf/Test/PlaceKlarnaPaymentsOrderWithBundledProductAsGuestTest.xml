@@ -1,0 +1,109 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!--
+ /**
+  * Copyright © Magento, Inc. All rights reserved.
+  * See COPYING.txt for license details.
+  *
+  * This file is part of the Klarna KP module
+  *
+  * (c) Klarna Bank AB (publ)
+  *
+  * For the full copyright and license information, please view the NOTICE
+  * and LICENSE files that were distributed with this source code.
+  */
+-->
+<tests xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+       xsi:noNamespaceSchemaLocation="urn:magento:mftf:Test/etc/testSchema.xsd">
+    <test name="PlaceKlarnaPaymentsOrderWithBundledProductAsGuestTest">
+        <annotations>
+            <features value="Klarna Payments"/>
+            <stories value="Place an order with a bundled product as a guest"/>
+            <title value="Place order with bundled product"/>
+            <description value="A guest customer should be able to place an order with a bundled product"/>
+            <severity value="CRITICAL"/>
+            <testCaseId value="KP_BP_1"/>
+            <group value="Klarna_KP_Country_US"/>
+            <group value="Klarna_KP_Order_Guest"/>
+            <group value="Klarna_KP_Order_Pay_Later"/>
+        </annotations>
+        <before>
+            <createData entity="SimpleSubCategory" stepKey="createSubCategory"/>
+
+            <!--Create  simple products-->
+            <createData entity="SimpleProduct2" stepKey="createSimpleProduct1">
+                <field key="price">10.00</field>
+            </createData>
+            <createData entity="SimpleProduct2" stepKey="createSimpleProduct2">
+                <field key="price">50.00</field>
+            </createData>
+
+            <!--Create Bundle product-->
+            <createData entity="BundleProductPriceViewRange" stepKey="createBundleProduct">
+                <requiredEntity createDataKey="createSubCategory"/>
+            </createData>
+            <createData entity="DropDownBundleOption" stepKey="createBundleOption">
+                <requiredEntity createDataKey="createBundleProduct"/>
+                <field key="required">True</field>
+            </createData>
+            <createData entity="ApiBundleLink" stepKey="linkOptionToProduct1">
+                <requiredEntity createDataKey="createBundleProduct"/>
+                <requiredEntity createDataKey="createBundleOption"/>
+                <requiredEntity createDataKey="createSimpleProduct1"/>
+            </createData>
+            <createData entity="ApiBundleLink" stepKey="linkOptionToProduct2">
+                <requiredEntity createDataKey="createBundleProduct"/>
+                <requiredEntity createDataKey="createBundleOption"/>
+                <requiredEntity createDataKey="createSimpleProduct2"/>
+            </createData>
+
+            <!--Reindex needed to make bundle product appear as expected-->
+            <magentoCLI command="indexer:reindex" stepKey="reindex"/>
+        </before>
+        <after>
+            <deleteData createDataKey="createSimpleProduct1" stepKey="deleteProduct1"/>
+            <deleteData createDataKey="createSimpleProduct2" stepKey="deleteProduct2"/>
+            <deleteData createDataKey="createBundleProduct" stepKey="deleteBundleProduct"/>
+            <deleteData createDataKey="createSubCategory" stepKey="deleteCategory"/>
+        </after>
+        <!--Go to product page-->
+        <actionGroup ref="GoToCreatedProductPageAndWaitForBundleAddToCart" stepKey="goToCreatedProductPageAndWaitForBundleAddToCart">
+            <argument name="url" value="$$createBundleProduct.custom_attributes[url_key]$$.html"/>
+        </actionGroup>
+
+        <!--Add bundle product to cart with dynamic option-->
+        <actionGroup ref="StorefrontAddBundleProductToTheCartActionGroup" stepKey="addBundleDynamicProductToTheCart">
+            <argument name="productName" value="$$createSimpleProduct2.name$$"/>
+            <argument name="quantity" value="1"/>
+        </actionGroup>
+
+        <!--Go to checkout-->
+        <actionGroup ref="GoToCheckoutFromMinicartActionGroup" stepKey="goToCheckoutFromMinicart"/>
+
+        <!--Enter shipping information and continue to payments-->
+        <actionGroup ref="GuestCheckoutFillingShippingSectionActionGroup" stepKey="guestCheckoutFillingShipping">
+            <argument name="customerVar" value="Klarna_US_Customer_B2C"/>
+            <argument name="customerAddressVar" value="Klarna_US_Address_B2C"/>
+        </actionGroup>
+
+        <!--Grab order total amount-->
+        <waitForElementVisible selector="{{CheckoutPaymentSection.orderSummaryTotal}}" stepKey="waitForOrderTotal"/>
+        <grabTextFrom selector="{{CheckoutPaymentSection.orderSummaryTotal}}" stepKey="grabTotalAmount"/>
+
+        <!--Place order-->
+        <actionGroup ref="PlaceOrderWithKlarnaPaymentsMethod" stepKey="placeOrderWithKlarnaPayLaterMethod">
+            <argument name="paymentMethod" value="KlarnaPaymentsPayLater"/>
+        </actionGroup>
+
+        <!--Grab order number-->
+        <waitForElementVisible selector="{{CheckoutSuccessMainSection.orderNumber}}" stepKey="waitForOrderNumber"/>
+        <grabTextFrom selector="{{CheckoutSuccessMainSection.orderNumber}}" stepKey="grabOrderNumber"/>
+
+        <!--Verify order summary in admin-->
+        <actionGroup ref="LoginAsAdmin" stepKey="loginAsAdmin"/>
+        <actionGroup ref="ValidateAdminKlarnaOrderSummaryGrandTotal" stepKey="validateOrderSummary">
+            <argument name="orderNumber" value="{$grabOrderNumber}"/>
+            <argument name="grandTotalAmount" value="{$grabTotalAmount}"/>
+        </actionGroup>
+        <actionGroup ref="logout" stepKey="signOutFromAdmin"/>
+    </test>
+</tests>

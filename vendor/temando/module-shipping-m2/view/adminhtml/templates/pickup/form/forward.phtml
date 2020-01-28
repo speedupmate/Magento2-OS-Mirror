@@ -1,0 +1,26 @@
+<?php
+/**
+ * Refer to LICENSE.txt distributed with the Temando Shipping module for notice of license
+ */
+?>
+<?php /** @var \Magento\Backend\Block\Template $block */ ?>
+<?php /** @var \Temando\Shipping\ViewModel\Pickup\PickupUrl $viewModel */ ?>
+<?php $viewModel = $block->getData('viewModel'); ?>
+
+<div id="pickup-forward" data-bind="scope:'pickup-forward'">
+    <!-- ko template: getTemplate() --><!-- /ko -->
+</div>
+<script type="text/x-magento-init">
+    {
+        "#pickup-forward": {
+            "Magento_Ui/js/core/app": <?= /* @noEscape */ $block->getJsLayout() ?>
+        }
+    }
+</script>
+<script>
+    require([
+        'Temando_Shipping/js/model/url'
+    ], function(urlBuilder) {
+        return urlBuilder.setPickupForwardUrlTemplate('<?= $block->escapeUrl($viewModel->getForwardActionUrl()) ?>');
+    })
+</script>

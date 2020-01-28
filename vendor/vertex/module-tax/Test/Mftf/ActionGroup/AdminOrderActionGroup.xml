@@ -1,0 +1,102 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!--
+ /**
+  * @copyright  Vertex. All rights reserved.  https://www.vertexinc.com/
+  * @author     Mediotype                     https://www.mediotype.com/
+  */
+-->
+<actionGroups xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+              xsi:noNamespaceSchemaLocation="urn:magento:mftf:Test/etc/actionGroupSchema.xsd">
+    <actionGroup name="orderSelectShippingAddress">
+        <arguments>
+            <argument name="addressId" type="string"/>
+        </arguments>
+
+        <uncheckOption selector="#order-shipping_same_as_billing" stepKey="ensureShippingDifferentFromBilling"/>
+        <waitForLoadingMaskToDisappear stepKey="waitForDifferentAddressLoadingMask"/>
+
+        <selectOption selector="#order-shipping_address_customer_address_id" stepKey="selectOption" userInput="{{addressId}}"/>
+        <waitForLoadingMaskToDisappear stepKey="waitForAddressSelectionLoadingMask"/>
+
+        <click selector="//button[@title='Update Items and Quantities']" stepKey="updateItemPrices"/>
+        <waitForLoadingMaskToDisappear stepKey="waitForItemUpdateLoadingMask"/>
+    </actionGroup>
+
+    <actionGroup name="orderSelectShippingBillingSameAddress" extends="orderSelectShippingAddress">
+        <remove keyForRemoval="ensureShippingDifferentFromBilling"/>
+    </actionGroup>
+
+    <actionGroup name="fillOrderCustomerInformationIncludingEmail" extends="fillOrderCustomerInformation">
+        <fillField selector="{{AdminOrderFormAccountSection.email}}" userInput="{{customer.email}}" stepKey="fillCustomerEmail" before="fillFirstName"/>
+    </actionGroup>
+
+    <actionGroup name="orderUpdateItemPricing">
+        <scrollToTopOfPage stepKey="scrollUpToEnsureButtonClicksSuccessfully"/>
+        <click selector="//button[@title='Update Items and Quantities']" stepKey="updateItemPrices"/>
+        <waitForLoadingMaskToDisappear stepKey="waitForItemUpdateLoadingMask"/>
+    </actionGroup>
+
+    <actionGroup name="beginAddingGroupedProductToOrder">
+        <arguments>
+            <argument name="product"/>
+            <argument name="exampleOption"/>
+        </arguments>
+
+        <click selector="{{AdminOrderFormItemsSection.addProducts}}" stepKey="clickAddProducts"/>
+        <fillField selector="{{AdminOrderFormItemsSection.skuFilter}}" userInput="{{product.sku}}" stepKey="fillSkuFilterGrouped"/>
+        <click selector="{{AdminOrderFormItemsSection.search}}" stepKey="clickSearchGrouped"/>
+        <scrollTo selector="{{AdminOrderFormItemsSection.rowCheck('1')}}" x="0" y="-100" stepKey="scrollToCheckColumn"/>
+        <checkOption selector="{{AdminOrderFormItemsSection.rowCheck('1')}}" stepKey="selectGroupedProduct"/>
+        <waitForElementVisible selector="{{AdminOrderFormGroupedProductSection.optionQty(exampleOption.sku)}}" stepKey="waitForGroupedOptionLoad"/>
+        <wait time="2" stepKey="waitForOptionsToLoad"/>
+    </actionGroup>
+
+    <actionGroup name="selectGroupedProductOptionDuringOrderCreate">
+        <arguments>
+            <argument name="option"/>
+            <argument name="quantity" type="string" defaultValue="1"/>
+        </arguments>
+
+        <fillField selector="{{AdminOrderFormGroupedProductSection.optionQty(option.sku)}}" userInput="{{quantity}}" stepKey="fillOptionQuantity"/>
+    </actionGroup>
+
+    <actionGroup name="finishAddingGroupedProductToOrder">
+        <click selector="{{AdminOrderFormConfigureProductSection.ok}}" stepKey="clickOk"/>
+        <scrollTo selector="{{AdminOrderFormItemsSection.addSelected}}" x="0" y="-100" stepKey="scrollToAddSelectedButton"/>
+        <click selector="{{AdminOrderFormItemsSection.addSelected}}" stepKey="clickAddSelectedProducts"/>
+    </actionGroup>
+
+    <actionGroup name="beginAddingBundleProductToOrder">
+        <arguments>
+            <argument name="product"/>
+            <argument name="exampleChild"/>
+        </arguments>
+
+        <click selector="{{AdminOrderFormItemsSection.addProducts}}" stepKey="clickAddProducts"/>
+        <fillField selector="{{AdminOrderFormItemsSection.skuFilter}}" userInput="{{product.sku}}" stepKey="fillSkuFilterGrouped"/>
+        <click selector="{{AdminOrderFormItemsSection.search}}" stepKey="clickSearchGrouped"/>
+        <scrollTo selector="{{AdminOrderFormItemsSection.rowCheck('1')}}" x="0" y="-100" stepKey="scrollToCheckColumn"/>
+        <checkOption selector="{{AdminOrderFormItemsSection.rowCheck('1')}}" stepKey="selectGroupedProduct"/>
+        <waitForElementVisible selector="{{AdminOrderFormConfigureProductSection.bundleOptionQty(exampleChild.name)}}" stepKey="waitForGroupedOptionLoad"/>
+        <wait time="2" stepKey="waitForOptionsToLoad"/>
+    </actionGroup>
+    <actionGroup name="selectBundledProductOptionDuringOrderCreate">
+        <arguments>
+            <argument name="option"/>
+            <argument name="quantity" type="string" defaultValue="1"/>
+        </arguments>
+
+        <fillField selector="{{AdminOrderFormConfigureProductSection.bundleOptionQty(option.name)}}" userInput="{{quantity}}" stepKey="fillOptionQuantity"/>
+    </actionGroup>
+    <actionGroup name="setBundledProductQtyDuringOrderCreate">
+        <arguments>
+            <argument name="quantity" type="string" defaultValue="1"/>
+        </arguments>
+        <fillField selector="{{AdminOrderFormConfigureProductSection.quantity}}" userInput="{{quantity}}" stepKey="fillBundleQuantity"/>
+    </actionGroup>
+    <actionGroup name="finishAddingBundledProductToOrder">
+        <click selector="{{AdminOrderFormConfigureProductSection.ok}}" stepKey="clickOk"/>
+        <scrollTo selector="{{AdminOrderFormItemsSection.addSelected}}" x="0" y="-100" stepKey="scrollToAddSelectedButton"/>
+        <click selector="{{AdminOrderFormItemsSection.addSelected}}" stepKey="clickAddSelectedProducts"/>
+    </actionGroup>
+</actionGroups>

@@ -1,0 +1,63 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!--
+ /**
+  * Copyright © Magento, Inc. All rights reserved.
+  * See COPYING.txt for license details.
+  *
+  * This file is part of the Klarna KP module
+  *
+  * (c) Klarna Bank AB (publ)
+  *
+  * For the full copyright and license information, please view the NOTICE
+  * and LICENSE files that were distributed with this source code.
+  */
+-->
+<!--
+ /**
+  * The goal of this suite is to run the tests on multiple markets (DE, US, ...)
+  */
+-->
+<suites xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+        xsi:noNamespaceSchemaLocation="urn:magento:mftf:Suite/etc/suiteSchema.xsd">
+    <suite name="KlarnaPaymentsUS_Commerce">
+        <before>
+            <actionGroup ref="LoginAsAdmin" stepKey="loginAsAdmin"/>
+            <actionGroup ref="ConfigureKlarna" stepKey="kpConfigureCredentials">
+                <argument name="api_version" value="kp_na"/>
+                <argument name="merchant_id" value="{{_CREDS.klarna_us_merchant_id}}"/>
+                <argument name="shared_secret" value="{{_CREDS.klarna_us_shared_secret}}"/>
+            </actionGroup>
+            <actionGroup ref="logout" stepKey="signOutFromAdmin"/>
+        </before>
+        <after>
+            <actionGroup ref="LoginAsAdmin" stepKey="loginAsAdmin"/>
+            <actionGroup ref="DisableKlarnaPayment" stepKey="disableKlarnaPayment"/>
+            <actionGroup ref="logout" stepKey="signOutFromAdmin"/>
+        </after>
+        <include>
+            <group name="Klarna_KP_Country_US"/>
+        </include>
+    </suite>
+    <suite name="KlarnaPaymentsUS_OpenSource">
+        <before>
+            <actionGroup ref="LoginAsAdmin" stepKey="loginAsAdmin"/>
+            <actionGroup ref="ConfigureKlarna" stepKey="kpConfigureCredentials">
+                <argument name="api_version" value="kp_na"/>
+                <argument name="merchant_id" value="{{_CREDS.klarna_us_merchant_id}}"/>
+                <argument name="shared_secret" value="{{_CREDS.klarna_us_shared_secret}}"/>
+            </actionGroup>
+            <actionGroup ref="logout" stepKey="signOutFromAdmin"/>
+        </before>
+        <after>
+            <actionGroup ref="LoginAsAdmin" stepKey="loginAsAdmin"/>
+            <actionGroup ref="DisableKlarnaPayment" stepKey="disableKlarnaPayment"/>
+            <actionGroup ref="logout" stepKey="signOutFromAdmin"/>
+        </after>
+        <include>
+            <group name="Klarna_KP_Country_US"/>
+        </include>
+        <exclude>
+            <group name="Klarna_Magento_Commerce"/>
+        </exclude>
+    </suite>
+</suites>

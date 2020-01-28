@@ -1,0 +1,126 @@
+<?php
+/**
+ * Refer to LICENSE.txt distributed with the Temando Shipping module for notice of license
+ */
+?>
+<?php
+/** @var \Magento\Backend\Block\Template $block */
+/** @var \Temando\Shipping\ViewModel\Batch\BatchDetails $viewModel */
+/** @var \Temando\Shipping\ViewModel\Shipment\ShipmentDetails $shipmentViewModel */
+$viewModel = $block->getData('viewModel');
+$shipmentViewModel = $block->getData('shipmentViewModel');
+
+/** @var \Temando\Shipping\Model\Batch $batch */
+$batch = $viewModel->getBatch();
+?>
+<?php if ($batch !== null) : ?>
+    <section class="admin__page-section">
+        <div class="admin__page-section-title">
+            <span class="title"><?= $block->escapeHtml(__('Batch Information')); ?></span>
+        </div>
+        <div class="admin__table-wrapper batch-information">
+            <table class="admin__table-secondary">
+                <tbody>
+                <tr>
+                    <th><?= $block->escapeHtml(__('Date Created')); ?></th>
+                    <?php // @codingStandardsIgnoreLine ?>
+                    <td><?= $block->escapeHtml($viewModel->getDate($batch->getCreatedAtDate())->format('Y-m-d g:i a')); ?></td>
+                </tr>
+                <tr>
+                    <th><?= $block->escapeHtml(__('Number of Shipments booked successfully')); ?></th>
+                    <td><?= /* @noEscape */ count($batch->getIncludedShipments()); ?></td>
+                </tr>
+                <?php $failedShipmentCount = count($batch->getFailedShipments()); ?>
+                <?php if ($failedShipmentCount) : ?>
+                    <tr>
+                        <th><?= $block->escapeHtml(__('Number of Shipments failed to book')); ?></th>
+                        <td>
+                            <?= /* @noEscape */ $failedShipmentCount ?>
+                            <a href="<?= $block->escapeUrl($viewModel->getSolveUrl()); ?>">
+                                <?= $block->escapeHtml(__('Find Solutions')); ?>
+                            </a>
+                        </td>
+                    </tr>
+                <?php endif; ?>
+                <tr>
+                    <th><?= $block->escapeHtml(__('Date Updated')); ?></th>
+                    <?php // @codingStandardsIgnoreLine ?>
+                    <td><?= $block->escapeHtml($viewModel->getDate($batch->getUpdatedAtDate())->format('Y-m-d g:i a')); ?></td>
+                </tr>
+                <tr>
+                    <th><?= $block->escapeHtml(__('Batch-id')); ?></th>
+                    <td><?= $block->escapeHtml($batch->getBatchId()); ?></td>
+                </tr>
+                <tr>
+                    <th><?= $block->escapeHtml(__('Batch Status')); ?></th>
+                    <td><?= $block->escapeHtml($batch->getStatus()); ?></td>
+                </tr>
+                </tbody>
+            </table>
+        </div>
+    </section>
+    <section class="admin__page-section">
+        <div class="admin__page-section-title">
+            <span class="title"><?= $block->escapeHtml(__('Documentation')); ?></span>
+        </div>
+        <div class="admin__table-wrapper batch-documentation">
+            <table class="admin__table-secondary">
+                <tbody>
+                <tr>
+                    <?php // @codingStandardsIgnoreLine ?>
+                    <td><?= $block->escapeHtml(__('Shipping labels for each shipment are consolidated into a single compressed file')); ?></td>
+                    <td>
+                        <?php if ($batch->getDocumentation()) : ?>
+                            <a href="<?= $block->escapeHtml($batch->getDocumentation()); ?>">
+                                <?= $block->escapeHtml(__('Download Documentation')); ?>
+                            </a>
+                        <?php else : ?>
+                            <?= $block->escapeHtml(__('Documentation is not available.')); ?>
+                        <?php endif; ?>
+                    </td>
+                </tr>
+                </tbody>
+            </table>
+        </div>
+    </section>
+    <?php if (!empty($batch->getIncludedShipments())) : ?>
+        <section class="admin__page-section">
+            <div class="admin__data-grid-wrap batch-shipments">
+                <table class="data-grid">
+                    <thead>
+                    <tr>
+                        <th class="data-grid-th"><?= $block->escapeHtml(__('Shipment')); ?></th>
+                        <th class="data-grid-th"><?= $block->escapeHtml(__('Destination Address')); ?></th>
+                        <th class="data-grid-th"><?= $block->escapeHtml(__('Items Ordered')); ?></th>
+                        <th class="data-grid-th"><?= $block->escapeHtml(__('Action')); ?></th>
+                    </tr>
+                    </thead>
+                    <tbody>
+                        <?php foreach ($batch->getIncludedShipments() as $includedShipment) : ?>
+                            <tr class="data-row">
+                                <?php
+                                    /** @var \Temando\Shipping\Model\Shipment\Location $location */
+                                    $location = $includedShipment->getDestinationLocation();
+                                ?>
+                                <td><?= $block->escapeHtml($includedShipment->getShipmentId()) ?></td>
+                                <td><?= /* @noEscape */ $viewModel->getShipToAddressHtml($location) ?></td>
+                                <td>
+                                    <?php $items = $viewModel->getShipmentItems($includedShipment->getShipmentId()) ?>
+                                    <?php foreach ($items as $item) : ?>
+                                        <?= $block->escapeHtml($item->getName()) ?>
+                                        (<?= $block->escapeHtml($item->getSku()) ?>) x
+                                        <?= $block->escapeHtml($item->getQty()) ?>
+                                    <?php endforeach; ?>
+                                </td>
+                                <td>
+                                    <?php $url = $shipmentViewModel->getViewActionUrl($includedShipment->getShipmentId()) ?>
+                                    <a href="<?= $block->escapeUrl($url) ?>"><?= $block->escapeHtml(__('View')) ?></a>
+                                </td>
+                            </tr>
+                        <?php endforeach; ?>
+                    </tbody>
+                </table>
+            </div>
+        </section>
+    <?php endif; ?>
+<?php endif; ?>

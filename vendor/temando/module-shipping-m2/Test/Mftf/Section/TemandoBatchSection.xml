@@ -1,0 +1,31 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<sections xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+          xsi:noNamespaceSchemaLocation="urn:magento:mftf:Page/etc/SectionObject.xsd">
+    <section name="TemandoBatchSection">
+        <element name="firstBatchActionLink" type="text" selector="//*[@id='temando-componentry']//tr[1]//a[contains(., '{{action}}')]" parameterized="true" />
+    </section>
+
+    <section name="TemandoBatchViewSection">
+        <element name="dateCreated" type="text" selector="//*[@id='container']//th[contains(., 'Date Created')]" />
+        <element name="shipmentsBookedSuccessfully" type="text" selector="//*[@id='container']//th[contains(., 'Number of Shipments booked successfully')]" />
+        <element name="shipmentsFailed" type="text" selector="//*[@id='container']//th[contains(., 'Number of Shipments failed to book')]" />
+        <element name="dateUpdated" type="text" selector="//*[@id='container']//th[contains(., 'Date Updated')]" />
+        <element name="batchId" type="text" selector="//*[@id='container']//th[contains(., 'Batch-id')]" />
+        <element name="batchStatus" type="text" selector="//*[@id='container']//th[contains(., 'Batch Status')]" />
+        <element name="downloadDocumentation" type="text" selector="//*[@id='container']//a[contains(., 'Download Documentation')]" />
+    </section>
+
+    <section name="TemandoBatchNewSection">
+        <element name="originLocationDropDown" type="select" selector="//select[@id='originLocation']" />
+        <element name="nextStepButton" type="button" selector="//button[contains(@class, 'action-next-step')]" />
+        <element name="getQuotesButton" type="button" selector="//button[contains(., 'Get Quotes')]" />
+        <element name="firstPackageType" type="select" selector="//select[@id='shipments[0].packages[0].container']" />
+        <element name="firstShippingExperience" type="select" selector="//select[@id='shipments[0].experienceId']" />
+        <element name="firstDestinationType" type="select" selector="//select[@id='shipments[0].destination.address.type']" />
+        <element name="firstTotalWeight" type="input" selector="//*[@id='shipments[0].packages[0].grossWeight.value']" />
+        <element name="firstPackageContents" type="input" selector="//input[@id='shipments[0].packages[0].items[0].quantity']" />
+        <element name="finishButton" type="button" selector="//button[contains(@class, 'action-primary')]" />
+        <element name="quoteSpinner" type="text" selector="//button[contains(., 'Get Quotes')]/../div[contains(@class, 'spinner')]" />
+    </section>
+</sections>

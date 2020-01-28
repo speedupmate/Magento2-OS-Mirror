@@ -1,0 +1,14 @@
+<?xml version="1.0" encoding="utf-8"?>
+
+<pages xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+       xsi:noNamespaceSchemaLocation="urn:magento:mftf:Page/etc/PageObject.xsd">
+    <page name="TemandoAdminConfigPage" url="admin/system_config/edit/section/carriers/" area="admin" module="Magento_Config">
+        <section name="MagentoShippingSection"/>
+    </page>
+    <page name="TemandoAdvancedSettingsPage" url="temando/settings_advanced/edit/" area="admin" module="Temando_Shipping">
+        <section name="AdvancedSettingsSection" />
+    </page>
+    <page name="TemandoCheckoutViewSettingsPage" url="temando/settings_checkout/edit/" area="admin" module="Temando_Shipping">
+        <section name="CheckoutViewSettingsSection" />
+    </page>
+</pages>
