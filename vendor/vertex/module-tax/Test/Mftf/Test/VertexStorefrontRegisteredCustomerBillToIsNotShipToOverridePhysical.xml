@@ -1,0 +1,235 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!--
+ /**
+  * @copyright  Vertex. All rights reserved.  https://www.vertexinc.com/
+  * @author     Mediotype                     https://www.mediotype.com/
+  */
+-->
+<tests xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+       xsi:noNamespaceSchemaLocation="urn:magento:mftf:Test/etc/testSchema.xsd">
+
+    <test name="VertexAsRegisteredCustomerWithBillToAndShipDifferentButOverridesShipToCheckPhysicalProductTaxInCheckout">
+        <annotations>
+            <features value="Vertex"/>
+            <group value="Vertex"/>
+
+            <stories value="As a store owner, I must have accurate taxes calculated for a registered customer"/>
+            <title value="Validate Taxes in Checkout, Registered User, Physical Product, Bill-To&lt;&gt;Ship-To, Ship-To overridden"/>
+            <description value="Validate that a registered customer with a bill-to and a ship-to address that are the same and with a cart containing a physical product receives taxes during checkout"/>
+
+            <severity value="CRITICAL"/>
+        </annotations>
+        <before>
+            <actionGroup ref="VertexCreateTwoOptionConfigurableProduct" stepKey="Config1">
+                <argument name="option1Price" value="{{Vertex_100USD_PA_Only_Values.price}}" />
+            </actionGroup>
+            <actionGroup ref="VertexCreateTwoOptionConfigurableProduct" stepKey="Config2">
+                <argument name="option1Price" value="{{Vertex_18USD_PA_Only_Values.price}}" />
+            </actionGroup>
+            <createData entity="VertexProductTaxClass_Clothing" stepKey="createTaxClass" />
+            <createData entity="VertexSimpleProduct" stepKey="createSPCM">
+                <field key="price">{{Vertex_100USD_Clothing_PA_Only_Values.price}}</field>
+                <field key="sku">SPCM</field>
+                <requiredEntity createDataKey="createCategory" actionGroup="Config1"/>
+                <requiredEntity createDataKey="createTaxClass" />
+            </createData>
+
+            <actionGroup ref="LoginAsAdmin" stepKey="loginAsAdmin"/>
+            <actionGroup ref="VertexTaxDefaultConfig" stepKey="setupDefaultVertexTestConfiguration"/>
+            <actionGroup ref="ClearCacheActionGroup" stepKey="clearCache"/>
+
+            <createData entity="Vertex_Customer_JohnWinston" stepKey="createCustomer"/>
+            <actionGroup ref="LoginToStorefrontActionGroup" stepKey="customerLogin">
+                <argument name="Customer" value="$$createCustomer$$"/>
+            </actionGroup>
+        </before>
+        <after>
+            <deleteData stepKey="deleteSPCM" createDataKey="createSPCM"/>
+            <deleteData stepKey="deleteTaxClass" createDataKey="createTaxClass" />
+            <deleteData stepKey="deleteChildProduct1" actionGroup="Config1" createDataKey="createConfigChildProduct1" />
+            <deleteData stepKey="deleteChildProduct2" actionGroup="Config1" createDataKey="createConfigChildProduct2" />
+            <deleteData stepKey="deleteConfigProduct" actionGroup="Config1" createDataKey="Product"/>
+            <deleteData stepKey="deleteConfigProductAttribute" actionGroup="Config1" createDataKey="ProductAttribute" />
+            <deleteData stepKey="deleteCategory" actionGroup="Config1" createDataKey="createCategory"/>
+            <deleteData stepKey="deleteChildProduct1Config2" actionGroup="Config2" createDataKey="createConfigChildProduct1" />
+            <deleteData stepKey="deleteChildProduct2Config2" actionGroup="Config2" createDataKey="createConfigChildProduct2" />
+            <deleteData stepKey="deleteConfigProductConfig2" actionGroup="Config2" createDataKey="Product"/>
+            <deleteData stepKey="deleteConfigProductAttributeConfig2" actionGroup="Config2" createDataKey="ProductAttribute" />
+            <deleteData stepKey="deleteCategoryConfig2" actionGroup="Config2" createDataKey="createCategory"/>
+            <deleteData stepKey="deleteCustomer" createDataKey="createCustomer"/>
+            <createData entity="DefaultTaxConfig" stepKey="defaultConf"/>
+            <actionGroup ref="logout" stepKey="logoutOfAdmin"/>
+            <actionGroup ref="StorefrontCustomerLogoutActionGroup" stepKey="customerLogout"/>
+        </after>
+
+        <actionGroup ref="VertexAddSingleOptionConfigurableProductToCart" stepKey="addFirstConfigToCart">
+            <argument name="product" value="$$ProductConfig1$$" />
+            <argument name="optionConfig" value="$$Option1Config1$$" />
+            <argument name="attributeConfig" value="$$ProductAttributeConfig1$$" />
+        </actionGroup>
+
+        <actionGroup ref="VertexAddSingleOptionConfigurableProductToCart" stepKey="addSecondConfigToCart">
+            <argument name="product" value="$$ProductConfig2$$" />
+            <argument name="optionConfig" value="$$Option1Config2$$" />
+            <argument name="attributeConfig" value="$$ProductAttributeConfig2$$" />
+        </actionGroup>
+
+        <actionGroup ref="AddSimpleProductToCart" stepKey="addSPCMToCart">
+            <argument name="product" value="$$createSPCM$$" />
+        </actionGroup>
+
+        <actionGroup ref="GoToCheckoutFromMinicartActionGroup" stepKey="gotoCheckout"/>
+
+        <waitForPageLoad stepKey="waitForShippingLoad" />
+        <click stepKey="selectAddressOverride" selector="{{CheckoutShippingSection.selectAddressButton(Vertex_Customer_JohnWinston_BillingAddress.postcode)}}" />
+        <waitForLoadingMaskToDisappear stepKey="waitForLoadingMask"/>
+
+        <actionGroup ref="CheckoutSelectFlatRateShippingMethodActionGroup" stepKey="selectShippingMethod"/>
+
+        <waitForElement selector="{{CheckoutShippingSection.next}}" stepKey="waitForNextButton"/>
+        <click selector="{{CheckoutShippingSection.next}}" stepKey="clickNext"/>
+
+        <waitForElement selector="{{CheckoutPaymentSection.paymentSectionTitle}}" stepKey="waitForPaymentSectionLoaded"/>
+        <seeInCurrentUrl url="{{CheckoutPage.url}}/#payment" stepKey="assertCheckoutPaymentUrl"/>
+
+        <actionGroup ref="VertexCheckTotalsInCheckout" stepKey="checkTotals">
+            <argument name="subtotalExclTax" value="{{Vertex_100USD_and_18USD_and_100USD_Clothing_PA_Only_Totals.subtotal}}" />
+            <argument name="subtotalInclTax" value="{{Vertex_100USD_and_18USD_and_100USD_Clothing_PA_Only_Totals.subtotalInclTax}}" />
+            <argument name="shippingExclTax" value="{{Vertex_100USD_and_18USD_and_100USD_Clothing_PA_Only_Totals.shipping}}" />
+            <argument name="shippingInclTax" value="{{Vertex_100USD_and_18USD_and_100USD_Clothing_PA_Only_Totals.shippingInclTax}}" />
+            <argument name="tax" value="{{Vertex_100USD_and_18USD_and_100USD_Clothing_PA_Only_Totals.tax}}" />
+            <argument name="totalExclTax" value="{{Vertex_100USD_and_18USD_and_100USD_Clothing_PA_Only_Totals.total}}" />
+            <argument name="totalInclTax" value="{{Vertex_100USD_and_18USD_and_100USD_Clothing_PA_Only_Totals.totalInclTax}}" />
+        </actionGroup>
+        <actionGroup ref="VertexCheckProductAndShippingTaxTotalsInCheckout" stepKey="checkTaxSummary">
+            <argument name="product" value="{{Vertex_100USD_and_18USD_and_100USD_Clothing_PA_Only_Totals.productTax}}" />
+            <argument name="shipping" value="{{Vertex_100USD_and_18USD_and_100USD_Clothing_PA_Only_Totals.shippingTax}}" />
+        </actionGroup>
+    </test>
+
+    <test name="VertexAsRegisteredCustomerWithBillToAndShipDifferentButOverridesShipToCheckPhysicalProductTaxOnOrderReviewPage">
+        <annotations>
+            <features value="Vertex"/>
+            <group value="Vertex"/>
+
+            <stories value="As a store owner, I must have accurate taxes calculated for a registered customer"/>
+            <title value="Validate Taxes on Order, Registered User, Physical Product, Bill-To&lt;&gt;Ship-To, Ship-To Overridden"/>
+            <description value="Validate that a registered customer with a bill-to and a ship-to address that are the same and with a cart containing a physical product receives taxes on their order"/>
+
+            <severity value="BLOCKER"/>
+        </annotations>
+        <before>
+            <actionGroup ref="VertexCreateTwoOptionConfigurableProduct" stepKey="Config1">
+                <argument name="option1Price" value="{{Vertex_100USD_PA_Only_Values.price}}" />
+            </actionGroup>
+            <actionGroup ref="VertexCreateTwoOptionConfigurableProduct" stepKey="Config2">
+                <argument name="option1Price" value="{{Vertex_18USD_PA_Only_Values.price}}" />
+            </actionGroup>
+            <createData entity="VertexProductTaxClass_Clothing" stepKey="createTaxClass" />
+            <createData entity="VertexSimpleProduct" stepKey="createSPCM">
+                <field key="price">{{Vertex_100USD_Clothing_PA_Only_Values.price}}</field>
+                <field key="sku">SPCM</field>
+                <requiredEntity createDataKey="createCategory" actionGroup="Config1"/>
+                <requiredEntity createDataKey="createTaxClass" />
+            </createData>
+
+            <actionGroup ref="LoginAsAdmin" stepKey="loginAsAdmin"/>
+            <actionGroup ref="VertexTaxDefaultConfig" stepKey="setupDefaultVertexTestConfiguration"/>
+            <actionGroup ref="ClearCacheActionGroup" stepKey="clearCache"/>
+
+            <createData entity="Vertex_Customer_JohnWinston" stepKey="createCustomer"/>
+            <actionGroup ref="LoginToStorefrontActionGroup" stepKey="customerLogin">
+                <argument name="Customer" value="$$createCustomer$$"/>
+            </actionGroup>
+        </before>
+        <after>
+            <deleteData stepKey="deleteSPCM" createDataKey="createSPCM"/>
+            <deleteData stepKey="deleteTaxClass" createDataKey="createTaxClass" />
+            <deleteData stepKey="deleteChildProduct1" actionGroup="Config1" createDataKey="createConfigChildProduct1" />
+            <deleteData stepKey="deleteChildProduct2" actionGroup="Config1" createDataKey="createConfigChildProduct2" />
+            <deleteData stepKey="deleteConfigProduct" actionGroup="Config1" createDataKey="Product"/>
+            <deleteData stepKey="deleteConfigProductAttribute" actionGroup="Config1" createDataKey="ProductAttribute" />
+            <deleteData stepKey="deleteCategory" actionGroup="Config1" createDataKey="createCategory"/>
+            <deleteData stepKey="deleteChildProduct1Config2" actionGroup="Config2" createDataKey="createConfigChildProduct1" />
+            <deleteData stepKey="deleteChildProduct2Config2" actionGroup="Config2" createDataKey="createConfigChildProduct2" />
+            <deleteData stepKey="deleteConfigProductConfig2" actionGroup="Config2" createDataKey="Product"/>
+            <deleteData stepKey="deleteConfigProductAttributeConfig2" actionGroup="Config2" createDataKey="ProductAttribute" />
+            <deleteData stepKey="deleteCategoryConfig2" actionGroup="Config2" createDataKey="createCategory"/>
+            <deleteData stepKey="deleteCustomer" createDataKey="createCustomer"/>
+            <createData entity="DefaultTaxConfig" stepKey="defaultConf"/>
+            <actionGroup ref="logout" stepKey="logoutOfAdmin"/>
+            <actionGroup ref="StorefrontCustomerLogoutActionGroup" stepKey="customerLogout"/>
+        </after>
+
+        <actionGroup ref="VertexAddSingleOptionConfigurableProductToCart" stepKey="addFirstConfigToCart">
+            <argument name="product" value="$$ProductConfig1$$" />
+            <argument name="optionConfig" value="$$Option1Config1$$" />
+            <argument name="attributeConfig" value="$$ProductAttributeConfig1$$" />
+        </actionGroup>
+
+        <actionGroup ref="VertexAddSingleOptionConfigurableProductToCart" stepKey="addSecondConfigToCart">
+            <argument name="product" value="$$ProductConfig2$$" />
+            <argument name="optionConfig" value="$$Option1Config2$$" />
+            <argument name="attributeConfig" value="$$ProductAttributeConfig2$$" />
+        </actionGroup>
+
+        <actionGroup ref="AddSimpleProductToCart" stepKey="addSPCMToCart">
+            <argument name="product" value="$$createSPCM$$" />
+        </actionGroup>
+
+        <actionGroup ref="GoToCheckoutFromMinicartActionGroup" stepKey="gotoCheckout"/>
+
+        <waitForPageLoad stepKey="waitForShippingLoad" />
+        <click stepKey="selectAddressOverride" selector="{{CheckoutShippingSection.selectAddressButton(Vertex_Customer_JohnWinston_BillingAddress.postcode)}}" />
+        <waitForLoadingMaskToDisappear stepKey="waitForLoadingMask"/>
+
+        <actionGroup ref="CheckoutSelectFlatRateShippingMethodActionGroup" stepKey="selectShippingMethod"/>
+
+        <waitForElement selector="{{CheckoutShippingSection.next}}" stepKey="waitForNextButton"/>
+        <click selector="{{CheckoutShippingSection.next}}" stepKey="clickNext"/>
+
+        <waitForElement selector="{{CheckoutPaymentSection.paymentSectionTitle}}" stepKey="waitForPaymentSectionLoaded"/>
+
+        <waitForElementVisible selector="{{CheckoutPaymentSection.placeOrder}}" stepKey="waitForPlaceOrderButton"/>
+        <click selector="{{CheckoutPaymentSection.placeOrder}}" stepKey="clickPlaceOrder"/>
+        <see selector="{{CheckoutSuccessMainSection.successTitle}}" userInput="Thank you for your purchase!" stepKey="waitForLoadSuccessPage"/>
+
+        <click stepKey="clickOrderNumber" selector="{{CheckoutSuccessMainSection.orderLink}}"/>
+
+        <actionGroup ref="VertexCheckProductPricingOnStorefrontOrderReview" stepKey="checkConfig1">
+            <argument name="product" value="$$ProductConfig1$$" />
+            <argument name="priceExclTax" value="{{Vertex_100USD_PA_Only_Values.price}}" />
+            <argument name="priceInclTax" value="{{Vertex_100USD_PA_Only_Values.priceInclTax}}" />
+            <argument name="subtotalExclTax" value="{{Vertex_100USD_PA_Only_Values.subtotal}}" />
+            <argument name="subtotalInclTax" value="{{Vertex_100USD_PA_Only_Values.subtotalInclTax}}" />
+        </actionGroup>
+        <actionGroup ref="VertexCheckProductPricingOnStorefrontOrderReview" stepKey="checkConfig2">
+            <argument name="product" value="$$ProductConfig2$$" />
+            <argument name="priceExclTax" value="{{Vertex_18USD_PA_Only_Values.price}}" />
+            <argument name="priceInclTax" value="{{Vertex_18USD_PA_Only_Values.priceInclTax}}" />
+            <argument name="subtotalExclTax" value="{{Vertex_18USD_PA_Only_Values.subtotal}}" />
+            <argument name="subtotalInclTax" value="{{Vertex_18USD_PA_Only_Values.subtotalInclTax}}" />
+        </actionGroup>
+        <actionGroup ref="VertexCheckProductPricingOnStorefrontOrderReview" stepKey="checkSPCM">
+            <argument name="product" value="$$createSPCM$$" />
+            <argument name="priceExclTax" value="{{Vertex_100USD_Clothing_PA_Only_Values.price}}" />
+            <argument name="priceInclTax" value="{{Vertex_100USD_Clothing_PA_Only_Values.priceInclTax}}" />
+            <argument name="subtotalExclTax" value="{{Vertex_100USD_Clothing_PA_Only_Values.subtotal}}" />
+            <argument name="subtotalInclTax" value="{{Vertex_100USD_Clothing_PA_Only_Values.subtotalInclTax}}" />
+        </actionGroup>
+
+        <actionGroup ref="VertexCheckTotalsOnStorefrontOrderReview" stepKey="checkTotals">
+            <argument name="subtotalExclTax" value="{{Vertex_100USD_and_18USD_and_100USD_Clothing_PA_Only_Totals.subtotal}}" />
+            <argument name="subtotalInclTax" value="{{Vertex_100USD_and_18USD_and_100USD_Clothing_PA_Only_Totals.subtotalInclTax}}" />
+            <argument name="shippingExclTax" value="{{Vertex_100USD_and_18USD_and_100USD_Clothing_PA_Only_Totals.shipping}}" />
+            <argument name="shippingInclTax" value="{{Vertex_100USD_and_18USD_and_100USD_Clothing_PA_Only_Totals.shippingInclTax}}" />
+            <argument name="tax" value="{{Vertex_100USD_and_18USD_and_100USD_Clothing_PA_Only_Totals.tax}}" />
+            <argument name="totalExclTax" value="{{Vertex_100USD_and_18USD_and_100USD_Clothing_PA_Only_Totals.total}}" />
+            <argument name="totalInclTax" value="{{Vertex_100USD_and_18USD_and_100USD_Clothing_PA_Only_Totals.totalInclTax}}" />
+        </actionGroup>
+        <actionGroup ref="VertexCheckProductAndShippingTaxTotalsOnStorefrontOrderReview" stepKey="checkTaxSummary">
+            <argument name="product" value="{{Vertex_100USD_and_18USD_and_100USD_Clothing_PA_Only_Totals.productTax}}" />
+            <argument name="shipping" value="{{Vertex_100USD_and_18USD_and_100USD_Clothing_PA_Only_Totals.shippingTax}}" />
+        </actionGroup>
+    </test>
+</tests>

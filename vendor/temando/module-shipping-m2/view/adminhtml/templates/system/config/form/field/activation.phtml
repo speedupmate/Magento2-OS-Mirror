@@ -1,0 +1,51 @@
+<?php
+/**
+ * Refer to LICENSE.txt distributed with the Temando Shipping module for notice of license
+ */
+?>
+<?php /** @var \Temando\Shipping\Block\Adminhtml\System\Config\Form\Field\Activation $block */ ?>
+<?php /** @var \Temando\Shipping\ViewModel\Config\Activation $viewModel */ ?>
+<?php $viewModel = $this->getData('viewModel')  ?>
+<table>
+    <tbody>
+        <tr>
+            <td>
+                <?php
+                $message = 'This is where you can activate Magento Shipping.';
+                $message.= ' In order to use Magento Shipping you will require a shipping account.';
+                ?>
+                <p><?= $block->escapeHtml(__($message)) ?></p>
+
+                <p>
+                    <?php if ($viewModel->isMerchantRegistered()) : ?>
+                        <a class="shipping_portal__link" target="_blank" rel="noopener noreferrer"
+                           href="<?= $block->escapeUrl($viewModel->getAccountRedirectUrl()); ?>">
+                            <?= $block->escapeHtml(__('Access the Magento Shipping Portal here')); ?>
+                            <span></span>
+                        </a>
+                    <?php else : ?>
+                        <a href="<?= $block->escapeUrl($viewModel->getRegisterAccountUrl()); ?>"
+                           target="_blank" rel="noopener noreferrer">
+                            <?= $block->escapeHtml(__('Request Shipping Account')); ?>
+                            <span></span>
+                        </a>
+                    <?php endif; ?>
+                </p>
+
+                <div class="temando-deprecation-warning message message-warning">
+                    <p>
+                        <?= $block->escapeHtml(__('Please note: ')) ?>
+                        <?= $block->escapeHtml(__(
+                            'Magento Shipping is retiring and will be removed from future Magento Commerce releases.'
+                        )) ?>
+                        <?= $block->escapeHtml(__('We kindly advise permanently turning off the integration.')) ?>
+                        <?= /** @noEscpae */ __(
+                            'You can read more about the details <a href="%1" target="_blank">here</a>.',
+                            'https://magento.com/shipping'
+                        )?>
+                    </p>
+                </div>
+            </td>
+        </tr>
+    </tbody>
+</table>

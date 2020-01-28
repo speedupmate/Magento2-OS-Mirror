@@ -1,0 +1,16 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!--
+ /**
+  * @copyright  Vertex. All rights reserved.  https://www.vertexinc.com/
+  * @author     Mediotype                     https://www.mediotype.com/
+  */
+-->
+<sections xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+          xsi:noNamespaceSchemaLocation="urn:magento:mftf:Page/etc/SectionObject.xsd">
+    <section name="CheckoutShippingSection">
+        <!-- Imported from 2.3 for compatibility with 2.2 -->
+        <element name="addressDropdown" type="select" selector="[name=billing_address_id]"/>
+        <element name="saveAddress" type="button" selector=".action-save-address"/>
+        <element name="newAddressButton" type="button" selector=".action-show-popup" timeout="30"/>
+    </section>
+</sections>

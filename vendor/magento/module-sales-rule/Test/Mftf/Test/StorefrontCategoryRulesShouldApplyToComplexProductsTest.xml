@@ -1,0 +1,152 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!--
+ /**
+  * Copyright © Magento, Inc. All rights reserved.
+  * See COPYING.txt for license details.
+  */
+-->
+
+<tests xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+       xsi:noNamespaceSchemaLocation="urn:magento:mftf:Test/etc/testSchema.xsd">
+    <test name="StorefrontCategoryRulesShouldApplyToComplexProductsTest">
+        <annotations>
+            <features value="CatalogRule"/>
+            <stories value="Create cart price rule"/>
+            <title value="Category rules should apply to complex products"/>
+            <description value="Sales rules filtering on category should apply to all products, including complex products."/>
+            <severity value="CRITICAL"/>
+            <testCaseId value="MAGETWO-76029"/>
+            <group value="catalogRule"/>
+        </annotations>
+        <before>
+            <!-- Create two Categories: CAT1 and CAT2 -->
+            <createData entity="_defaultCategory" stepKey="createCategory"/>
+            <createData entity="SimpleSubCategory" stepKey="createCategory2"/>
+
+            <!--Create config1 and config2-->
+            <actionGroup ref="AdminCreateApiConfigurableProductWithHiddenChildActionGroup" stepKey="createConfigurableProduct1">
+                <argument name="productName" value="config1"/>
+            </actionGroup>
+            <actionGroup ref="AdminCreateApiConfigurableProductWithHiddenChildActionGroup" stepKey="createConfigurableProduct2">
+                <argument name="productName" value="config2"/>
+            </actionGroup>
+
+            <!--  Assign config1 and the associated  child products to CAT1 -->
+            <createData entity="DefaultCategoryProductLink" stepKey="assignConfigurableProduct1ToCategory">
+                <requiredEntity createDataKey="createCategory"/>
+                <requiredEntity createDataKey="createConfigProductCreateConfigurableProduct1"/>
+            </createData>
+
+            <createData entity="CustomCategoryProductLink" stepKey="assignConfig1ChildProduct1ToCategory">
+                <requiredEntity createDataKey="createCategory"/>
+                <requiredEntity createDataKey="createConfigChildProduct1CreateConfigurableProduct1"/>
+            </createData>
+
+            <createData entity="CustomCategoryProductLink" stepKey="assignConfig1ChildProduct2ToCategory">
+                <requiredEntity createDataKey="createCategory"/>
+                <requiredEntity createDataKey="createConfigChildProduct2CreateConfigurableProduct1"/>
+            </createData>
+
+            <!--  Assign config12 and the associated  child products to CAT2 -->
+            <createData entity="DefaultCategoryProductLink" stepKey="assignConfigurableProduct2ToCategory2">
+                <requiredEntity createDataKey="createCategory2"/>
+                <requiredEntity createDataKey="createConfigProductCreateConfigurableProduct2"/>
+            </createData>
+
+            <createData entity="CustomCategoryProductLink" stepKey="assignConfig2ChildProduct1ToCategory2">
+                <requiredEntity createDataKey="createCategory2"/>
+                <requiredEntity createDataKey="createConfigChildProduct1CreateConfigurableProduct2"/>
+            </createData>
+
+            <createData entity="CustomCategoryProductLink" stepKey="assignConfig2ChildProduct2ToCategory2">
+                <requiredEntity createDataKey="createCategory2"/>
+                <requiredEntity createDataKey="createConfigChildProduct2CreateConfigurableProduct2"/>
+            </createData>
+
+            <actionGroup ref="LoginAsAdmin" stepKey="loginAsAdmin"/>
+            <actionGroup ref="deleteAllCartPriceRule" stepKey="deleteCartPriceRules"/>
+        </before>
+        <after>
+            <!--Delete configurable product 1-->
+            <deleteData createDataKey="createConfigProductCreateConfigurableProduct1" stepKey="deleteConfigProduct1"/>
+            <deleteData createDataKey="createCategory"  stepKey="deleteCategory1"/>
+            <deleteData createDataKey="createConfigChildProduct1CreateConfigurableProduct1" stepKey="deleteConfigChildProduct1"/>
+            <deleteData createDataKey="createConfigChildProduct2CreateConfigurableProduct1" stepKey="deleteConfigChildProduct2"/>
+            <deleteData createDataKey="createConfigProductAttributeCreateConfigurableProduct1" stepKey="deleteConfigProductAttribute1"/>
+            <!--Delete configurable product 2-->
+            <deleteData createDataKey="createConfigProductCreateConfigurableProduct2" stepKey="deleteConfigProduct2"/>
+            <deleteData createDataKey="createCategory2"  stepKey="deleteCategory2"/>
+            <deleteData createDataKey="createConfigChildProduct1CreateConfigurableProduct2" stepKey="deleteConfigChildProduct3"/>
+            <deleteData createDataKey="createConfigChildProduct2CreateConfigurableProduct2" stepKey="deleteConfigChildProduct4"/>
+            <deleteData createDataKey="createConfigProductAttributeCreateConfigurableProduct2" stepKey="deleteConfigProductAttribute2"/>
+            <!--Delete Cart Price Rule -->
+            <deleteData  createDataKey="createCartPriceRule" stepKey="deleteCartPriceRule"/>
+            <actionGroup ref="logout" stepKey="logout"/>
+        </after>
+        <!-- 1: Create a cart price rule applying to CAT1 with discount -->
+        <createData entity="SalesRuleNoCouponWithFixedDiscount" stepKey="createCartPriceRule"/>
+
+        <amOnPage url="{{AdminCartPriceRuleEditPage.url($$createCartPriceRule.rule_id$$)}}" stepKey="goToCartPriceRuleEditPage"/>
+
+        <actionGroup ref="SetConditionForActionsInCartPriceRuleActionGroup" stepKey="setConditionForActionsInCartPriceRuleActionGroup">
+            <argument name="actionValue" value="$$createCategory.id$$"/>
+        </actionGroup>
+
+        <!-- 2: Go to frontend and add an item from both CAT1 and CAT2 to your cart -->
+        <!-- 2.1: Open configurable product 1 and add all his child products to cart -->
+        <actionGroup ref="OpenStoreFrontProductPageActionGroup" stepKey="navigateConfigurableProduct1Page">
+            <argument name="productUrlKey" value="$$createConfigProductCreateConfigurableProduct1.custom_attributes[url_key]$$"/>
+        </actionGroup>
+
+        <actionGroup ref="StorefrontSelectConfigurableAttributeOptionActionGroup" stepKey="selectConfigurableProduct1Option1">
+            <argument name="attributeLabel" value="$$createConfigProductAttributeCreateConfigurableProduct1.attribute[frontend_labels][0][label]$$"/>
+            <argument name="optionValue" value="$$createConfigProductAttributeOption1CreateConfigurableProduct1.option[store_labels][0][label]$$"/>
+        </actionGroup>
+
+        <actionGroup ref="addToCartFromStorefrontProductPage" stepKey="addConfigurableProduct1ToCart">
+            <argument name="productName" value="$$createConfigProductCreateConfigurableProduct1.name$$"/>
+        </actionGroup>
+
+        <actionGroup ref="StorefrontSelectConfigurableAttributeOptionActionGroup" stepKey="selectConfigurableProduct1Option2">
+            <argument name="attributeLabel" value="$$createConfigProductAttributeCreateConfigurableProduct1.attribute[frontend_labels][0][label]$$"/>
+            <argument name="optionValue" value="$$createConfigProductAttributeOption2CreateConfigurableProduct1.option[store_labels][0][label]$$"/>
+        </actionGroup>
+
+        <actionGroup ref="addToCartFromStorefrontProductPage" stepKey="addConfigurableProduct1ToCartAgain">
+            <argument name="productName" value="$$createConfigProductCreateConfigurableProduct1.name$$"/>
+        </actionGroup>
+
+        <!-- Discount amount is not applied -->
+        <actionGroup ref="clickViewAndEditCartFromMiniCart" stepKey="proceedToCartPage"/>
+        <waitForElementVisible time="30" selector="{{StorefrontCheckoutCartSummarySection.tableTotals}}" stepKey="waitForCartTotalsBlockLoaded"/>
+        <dontSeeElement selector="{{StorefrontCheckoutCartSummarySection.discountTotal}}" stepKey="assertDiscountIsNotApplied"/>
+
+        <!-- 2.2: Open configurable product 2 and add all his child products to cart -->
+        <actionGroup ref="OpenStoreFrontProductPageActionGroup" stepKey="navigateConfigurableProduct2Page">
+            <argument name="productUrlKey" value="$$createConfigProductCreateConfigurableProduct2.custom_attributes[url_key]$$"/>
+        </actionGroup>
+
+        <actionGroup ref="StorefrontSelectConfigurableAttributeOptionActionGroup" stepKey="selectConfigurableProduct2Option1">
+            <argument name="attributeLabel" value="$$createConfigProductAttributeCreateConfigurableProduct2.attribute[frontend_labels][0][label]$$"/>
+            <argument name="optionValue" value="$$createConfigProductAttributeOption1CreateConfigurableProduct2.option[store_labels][0][label]$$"/>
+        </actionGroup>
+
+        <actionGroup ref="addToCartFromStorefrontProductPage" stepKey="addConfigurableProduct2ToCart">
+            <argument name="productName" value="$$createConfigProductCreateConfigurableProduct2.name$$"/>
+        </actionGroup>
+
+        <actionGroup ref="StorefrontSelectConfigurableAttributeOptionActionGroup" stepKey="selectConfigurableProduct2Option2">
+            <argument name="attributeLabel" value="$$createConfigProductAttributeCreateConfigurableProduct2.attribute[frontend_labels][0][label]$$"/>
+            <argument name="optionValue" value="$$createConfigProductAttributeOption2CreateConfigurableProduct2.option[store_labels][0][label]$$"/>
+        </actionGroup>
+
+        <actionGroup ref="addToCartFromStorefrontProductPage" stepKey="addConfigurableProduct2ToCartAgain">
+            <argument name="productName" value="$$createConfigProductCreateConfigurableProduct2.name$$"/>
+        </actionGroup>
+
+        <!-- Discount  amount is applied -->
+        <actionGroup ref="clickViewAndEditCartFromMiniCart" stepKey="proceedToCartPageAgain"/>
+        <waitForElementVisible time="30" selector="{{StorefrontCheckoutCartSummarySection.discountTotal}}" stepKey="waitForDiscountTotal"/>
+        <see selector="{{StorefrontCheckoutCartSummarySection.discountTotal}}" userInput="-$100.00" stepKey="assertDiscountAmount"/>
+    </test>
+</tests>

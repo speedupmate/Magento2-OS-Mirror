@@ -1,0 +1,85 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!--
+ /**
+  * Copyright © Magento, Inc. All rights reserved.
+  * See COPYING.txt for license details.
+  */
+-->
+
+<actionGroups xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+              xsi:noNamespaceSchemaLocation="urn:magento:mftf:Test/etc/actionGroupSchema.xsd">
+    <!-- Add Product to Compare from the category page and check message -->
+    <actionGroup name="StorefrontAddCategoryProductToCompareActionGroup">
+        <arguments>
+            <argument name="productVar"/>
+        </arguments>
+        <moveMouseOver selector="{{StorefrontCategoryProductSection.ProductInfoByName(productVar.name)}}" stepKey="moveMouseOverProduct" />
+        <click selector="{{StorefrontCategoryProductSection.ProductAddToCompareByName(productVar.name)}}" stepKey="clickAddProductToCompare"/>
+        <waitForElement selector="{{StorefrontMessagesSection.success}}" time="30" stepKey="waitForAddCategoryProductToCompareSuccessMessage"/>
+        <see selector="{{StorefrontMessagesSection.success}}" userInput="You added product {{productVar.name}} to the comparison list." stepKey="assertAddCategoryProductToCompareSuccessMessage"/>
+    </actionGroup>
+
+    <!-- Add Product to Compare from the product page and check message -->
+    <actionGroup name="StorefrontAddProductToCompareActionGroup">
+        <arguments>
+            <argument name="productVar"/>
+        </arguments>
+        <click selector="{{StorefrontProductInfoMainSection.productAddToCompare}}" stepKey="clickAddToCompare" />
+        <waitForElement selector="{{StorefrontMessagesSection.success}}" time="30" stepKey="waitForAddProductToCompareSuccessMessage"/>
+        <see selector="{{StorefrontMessagesSection.success}}" userInput="You added product {{productVar.name}} to the comparison list." stepKey="assertAddProductToCompareSuccessMessage"/>
+    </actionGroup>
+
+    <!-- Check the product in compare sidebar -->
+    <actionGroup name="StorefrontCheckCompareSidebarProductActionGroup">
+        <arguments>
+            <argument name="productVar"/>
+        </arguments>
+        <waitForElement selector="{{StorefrontComparisonSidebarSection.productTitleByName(productVar.name)}}" stepKey="waitForProduct"/>
+    </actionGroup>
+
+    <!-- Open and check comparison page -->
+    <actionGroup name="StorefrontOpenAndCheckComparisionActionGroup">
+        <click selector="{{StorefrontComparisonSidebarSection.compare}}" stepKey="clickCompare"/>
+        <waitForLoadingMaskToDisappear stepKey="waitForComparePageloaded" />
+        <seeInCurrentUrl url="{{StorefrontProductComparePage.url}}" stepKey="checkUrl"/>
+        <seeInTitle userInput="Products Comparison List" stepKey="assertPageNameInTitle"/>
+        <see userInput="Compare Products" selector="{{StorefrontProductCompareMainSection.pageName}}" stepKey="assertPageName"/>
+    </actionGroup>
+
+    <!-- Check the simple product in comparison page -->
+    <actionGroup name="StorefrontCheckCompareSimpleProductActionGroup">
+        <arguments>
+            <argument name="productVar"/>
+        </arguments>
+        <seeElement selector="{{StorefrontProductCompareMainSection.productLinkByName(productVar.name)}}" stepKey="assertProductName"/>
+        <see userInput="${{productVar.price}}.00" selector="{{StorefrontProductCompareMainSection.productPriceByName(productVar.name)}}" stepKey="assertProductPrice1"/>
+        <see userInput="{{productVar.sku}}" selector="{{StorefrontProductCompareMainSection.productAttributeByCodeAndProductName('SKU', productVar.name)}}" stepKey="assertProductPrice2"/>
+        <seeElement selector="{{StorefrontProductCompareMainSection.productAddToCartByName(productVar.name)}}" stepKey="assertProductAddToCart"/>
+    </actionGroup>
+
+    <!-- Clear the compare list -->
+    <actionGroup name="StorefrontClearCompareActionGroup">
+        <waitForElementVisible selector="{{StorefrontComparisonSidebarSection.clearAll}}" time="30" stepKey="waitForClearAll"/>
+        <click selector="{{StorefrontComparisonSidebarSection.clearAll}}" stepKey="clickClearAll"/>
+        <waitForElementVisible selector="{{StorefrontModalConfirmationSection.okButton}}" stepKey="waitForClearOk"/>
+        <click selector="{{StorefrontModalConfirmationSection.okButton}}" stepKey="clickClearOk"/>
+        <waitForElementVisible selector="{{StorefrontMessagesSection.successMessage}}"  stepKey="waitAssertMessageCleared"/>
+        <see selector="{{StorefrontMessagesSection.successMessage}}" userInput="You cleared the comparison list." stepKey="assertMessageCleared"/>
+        <waitForElementVisible selector="{{StorefrontComparisonSidebarSection.noItemsMessage}}" stepKey="assertNoItems"/>
+    </actionGroup>
+
+    <actionGroup name="RemoveProductFromComparisonList">
+        <arguments>
+            <argument name="product"/>
+        </arguments>
+        <click selector="{{StorefrontProductCompareMainSection.removeProduct(product.name)}}" stepKey="clickRemoveProductButton"/>
+        <waitForElementVisible selector="{{StorefrontModalConfirmationSection.okButton}}" stepKey="waitForConfirmationPopup"/>
+        <click selector="{{StorefrontModalConfirmationSection.okButton}}" stepKey="confirmProductRemove"/>
+        <waitForElementVisible selector="{{StorefrontMessagesSection.successMessage}}" stepKey="waitForProductRemoveSuccessMessage"/>
+        <see selector="{{StorefrontMessagesSection.successMessage}}" userInput="You removed product {{product.name}} from the comparison list." stepKey="assertProductRemoveSuccessMessage"/>
+    </actionGroup>
+
+    <actionGroup name="StorefrontCheckCompareOutOfStockProductActionGroup" extends="StorefrontCheckCompareSimpleProductActionGroup">
+        <remove keyForRemoval="assertProductAddToCart"/>
+    </actionGroup>
+</actionGroups>

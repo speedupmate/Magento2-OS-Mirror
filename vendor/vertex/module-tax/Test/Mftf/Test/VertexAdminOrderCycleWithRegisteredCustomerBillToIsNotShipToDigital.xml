@@ -1,0 +1,411 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!--
+ /**
+  * @copyright  Vertex. All rights reserved.  https://www.vertexinc.com/
+  * @author     Mediotype                     https://www.mediotype.com/
+  */
+-->
+<tests xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+       xsi:noNamespaceSchemaLocation="urn:magento:mftf:Test/etc/testSchema.xsd">
+    <test name="VertexAsRegisteredCustomerWithBillToAndShipToDifferentCheckDigitalProductTaxInAdminCreateOrder">
+        <annotations>
+            <features value="Vertex"/>
+            <group value="Vertex"/>
+
+            <stories value="As a store owner, I must have accurate taxes calculated for a registered customer"/>
+            <title value="Validate Taxes after Admin Order Create, Registered User, Digital Product, Bill-To&lt;&gt;Ship-To"/>
+            <description value="Validate that a registered customer with a bill-to and a ship-to address that are different receives properly calculated taxes after admin order create"/>
+
+            <severity value="MAJOR"/>
+        </annotations>
+        <before>
+            <createData entity="_defaultCategory" stepKey="createCategory"/>
+            <createData entity="VirtualProduct" stepKey="createProduct">
+                <field key="price">{{Vertex_100USD_PA_Only_Values.price}}</field>
+                <requiredEntity createDataKey="createCategory" />
+            </createData>
+
+            <actionGroup ref="LoginAsAdmin" stepKey="loginAsAdmin"/>
+            <actionGroup ref="VertexTaxDefaultConfig" stepKey="setupDefaultVertexTestConfiguration"/>
+            <actionGroup ref="ClearCacheActionGroup" stepKey="clearCache"/>
+
+            <createData entity="Vertex_Customer_JeffGoldblum" stepKey="createCustomer"/>
+        </before>
+        <after>
+            <deleteData stepKey="deleteProduct" createDataKey="createProduct" />
+            <deleteData stepKey="deleteCategory" createDataKey="createCategory" />
+            <deleteData stepKey="deleteCustomer" createDataKey="createCustomer" />
+            <actionGroup ref="logout" stepKey="logoutOfAdmin" />
+        </after>
+
+        <actionGroup ref="navigateToNewOrderPageExistingCustomer" stepKey="startNewOrder">
+            <argument name="customer" value="$$createCustomer$$" />
+        </actionGroup>
+
+        <actionGroup ref="addSimpleProductToOrder" stepKey="addProductToOrder">
+            <argument name="product" value="$$createProduct$$" />
+        </actionGroup>
+
+        <actionGroup ref="orderSelectShippingAddress" stepKey="selectShippingAddress">
+            <argument name="addressId" value="$$createCustomer.addresses[1][id]$$" />
+        </actionGroup>
+
+        <actionGroup ref="SelectCheckMoneyPaymentMethod" stepKey="selectPayment" />
+
+        <actionGroup ref="VertexCheckProductPricingInAdminCreate" stepKey="checkProductPricing">
+            <argument name="product" value="$$createProduct$$" />
+            <argument name="priceExclTax" value="{{Vertex_100USD_PA_Only_Values.price}}" />
+            <argument name="priceInclTax" value="{{Vertex_100USD_PA_Only_Values.priceInclTax}}" />
+            <argument name="subtotalExclTax" value="{{Vertex_100USD_PA_Only_Values.subtotal}}" />
+            <argument name="subtotalInclTax" value="{{Vertex_100USD_PA_Only_Values.subtotalInclTax}}" />
+            <argument name="rowSubtotalExclTax" value="{{Vertex_100USD_PA_Only_Values.subtotal}}" />
+            <argument name="rowSubtotalInclTax" value="{{Vertex_100USD_PA_Only_Values.subtotalInclTax}}" />
+        </actionGroup>
+        <actionGroup ref="VertexCheckDigitalTotalsInAdminCreate" stepKey="checkTotals">
+            <argument name="subtotalExclTax" value="{{Vertex_100USD_Virtual_PA_Only_Totals.subtotal}}" />
+            <argument name="subtotalInclTax" value="{{Vertex_100USD_Virtual_PA_Only_Totals.subtotalInclTax}}" />
+            <argument name="tax" value="{{Vertex_100USD_Virtual_PA_Only_Totals.tax}}" />
+            <argument name="totalExclTax" value="{{Vertex_100USD_Virtual_PA_Only_Totals.total}}" />
+            <argument name="totalInclTax" value="{{Vertex_100USD_Virtual_PA_Only_Totals.totalInclTax}}" />
+        </actionGroup>
+        <actionGroup ref="VertexCheckDigitalTaxTotalInAdminCreate" stepKey="checkTaxTotals">
+            <argument name="product" value="{{Vertex_100USD_Virtual_PA_Only_Totals.productTax}}" />
+        </actionGroup>
+    </test>
+    <test name="VertexAsRegisteredCustomerWithBillToAndShipToDifferentCheckDigitalProductTaxInAdminPostCreateOrder">
+        <annotations>
+            <features value="Vertex"/>
+            <group value="Vertex"/>
+
+            <stories value="As a store owner, I must have accurate taxes calculated for a registered customer"/>
+            <title value="Validate Taxes during Admin Order Create, Registered User, Digital Product, Bill-To&lt;&gt;Ship-To"/>
+            <description value="Validate that a registered customer with a bill-to and a ship-to address that are different receives properly calculated taxes during admin order create"/>
+
+            <severity value="MAJOR"/>
+        </annotations>
+        <before>
+            <createData entity="_defaultCategory" stepKey="createCategory"/>
+            <createData entity="VirtualProduct" stepKey="createProduct">
+                <field key="price">{{Vertex_100USD_PA_Only_Values.price}}</field>
+                <requiredEntity createDataKey="createCategory" />
+            </createData>
+
+            <actionGroup ref="LoginAsAdmin" stepKey="loginAsAdmin"/>
+            <actionGroup ref="VertexTaxDefaultConfig" stepKey="setupDefaultVertexTestConfiguration"/>
+            <actionGroup ref="ClearCacheActionGroup" stepKey="clearCache"/>
+
+            <createData entity="Vertex_Customer_JeffGoldblum" stepKey="createCustomer"/>
+
+            <actionGroup ref="navigateToNewOrderPageExistingCustomer" stepKey="startNewOrder">
+                <argument name="customer" value="$$createCustomer$$" />
+            </actionGroup>
+
+            <actionGroup ref="addSimpleProductToOrder" stepKey="addProductToOrder">
+                <argument name="product" value="$$createProduct$$" />
+            </actionGroup>
+
+            <actionGroup ref="orderSelectShippingAddress" stepKey="selectShippingAddress">
+                <argument name="addressId" value="$$createCustomer.addresses[1][id]$$" />
+            </actionGroup>
+
+            <actionGroup ref="SelectCheckMoneyPaymentMethod" stepKey="selectPayment" />
+        </before>
+        <after>
+            <deleteData stepKey="deleteProduct" createDataKey="createProduct" />
+            <deleteData stepKey="deleteCategory" createDataKey="createCategory" />
+            <deleteData stepKey="deleteCustomer" createDataKey="createCustomer" />
+            <actionGroup ref="logout" stepKey="logoutOfAdmin" />
+        </after>
+
+        <click stepKey="submitOrder" selector="{{AdminOrderFormActionSection.submitOrder}}" />
+
+        <actionGroup ref="VertexCheckProductPricingInAdminOrderView" stepKey="checkProduct">
+            <argument name="product" value="$$createProduct$$" />
+            <argument name="priceExclTax" value="{{Vertex_100USD_PA_Only_Values.price}}" />
+            <argument name="priceInclTax" value="{{Vertex_100USD_PA_Only_Values.priceInclTax}}" />
+            <argument name="subtotalExclTax" value="{{Vertex_100USD_PA_Only_Values.subtotal}}" />
+            <argument name="subtotalInclTax" value="{{Vertex_100USD_PA_Only_Values.subtotalInclTax}}" />
+            <argument name="tax" value="{{Vertex_100USD_PA_Only_Values.tax}}" />
+            <argument name="taxPercent" value="{{Vertex_100USD_PA_Only_Values.taxPercent}}" />
+            <argument name="rowTotal" value="{{Vertex_100USD_PA_Only_Values.subtotalInclTax}}" />
+        </actionGroup>
+        <actionGroup ref="VertexCheckDigitalTotalsInAdminOrderView" stepKey="checkTotals">
+            <argument name="subtotalExclTax" value="{{Vertex_100USD_Virtual_PA_Only_Totals.subtotal}}" />
+            <argument name="subtotalInclTax" value="{{Vertex_100USD_Virtual_PA_Only_Totals.subtotalInclTax}}" />
+            <argument name="tax" value="{{Vertex_100USD_Virtual_PA_Only_Totals.tax}}" />
+            <argument name="totalExclTax" value="{{Vertex_100USD_Virtual_PA_Only_Totals.total}}" />
+            <argument name="totalInclTax" value="{{Vertex_100USD_Virtual_PA_Only_Totals.totalInclTax}}" />
+        </actionGroup>
+        <actionGroup ref="VertexCheckDigitalTaxTotalInAdminOrderView" stepKey="checkTaxTotals">
+            <argument name="product" value="{{Vertex_100USD_Virtual_PA_Only_Totals.productTax}}" />
+        </actionGroup>
+    </test>
+
+    <test name="VertexAsRegisteredCustomerWithBillToAndShipToDifferentCheckInvoiceForOrderStatusPending">
+        <annotations>
+            <features value="Vertex"/>
+            <group value="Vertex"/>
+            <testCaseId value="VRTX-642"/>
+
+            <stories value="As a store owner, I should be able to choose at what stage during an order's creation taxes are committed to the Vertex Tax Journal"/>
+            <title value="Validate Taxes Sent during Invoice Order Status Pending, Registered User, Digital Products, Bill-To&lt;&gt;Ship-To"/>
+            <description value="Validate accurate taxes are committed to the Vertex Tax Journal when set to commit during order status change to pending on an order with a registered user who has a bill-to different from the ship-to and containing digital products"/>
+
+            <severity value="CRITICAL"/>
+        </annotations>
+        <before>
+            <createData entity="_defaultCategory" stepKey="createCategory"/>
+
+            <createData entity="VirtualProduct" stepKey="createProduct">
+                <field key="price">{{Vertex_100USD_PA_Only_Values.price}}</field>
+                <requiredEntity createDataKey="createCategory" />
+            </createData>
+
+            <actionGroup ref="VertexCreateDownloadableProduct" stepKey="240LV07">
+                <argument name="price" value="{{Vertex_100USD_PA_Only_Values.price}}"/>
+            </actionGroup>
+
+            <actionGroup ref="LoginAsAdmin" stepKey="loginAsAdmin"/>
+            <actionGroup ref="VertexTaxConfigOrderStatusPending" stepKey="setupTaxConfigOrderStatusPending"/>
+            <actionGroup ref="VertexTaxDefaultConfig" stepKey="setupDefaultVertexTestConfiguration"/>
+            <actionGroup ref="ClearCacheActionGroup" stepKey="clearCache"/>
+
+            <createData entity="Vertex_Customer_JeffGoldblum" stepKey="createCustomer"/>
+
+            <actionGroup ref="navigateToNewOrderPageExistingCustomer" stepKey="startNewOrder">
+                <argument name="customer" value="$$createCustomer$$" />
+            </actionGroup>
+
+            <actionGroup ref="addSimpleProductToOrder" stepKey="addDownloadableProductToOrder">
+                <argument name="product" value="$$createDownloadableProduct240LV07$$" />
+            </actionGroup>
+
+            <actionGroup ref="addSimpleProductToOrder" stepKey="addSecondProductToOrder">
+                <argument name="product" value="$$createProduct$$" />
+            </actionGroup>
+
+            <actionGroup ref="orderSelectShippingAddress" stepKey="selectShippingAddress">
+                <argument name="addressId" value="$$createCustomer.addresses[1][id]$$" />
+            </actionGroup>
+
+            <actionGroup ref="SelectCheckMoneyPaymentMethod" stepKey="selectPayment" />
+
+            <click stepKey="submitOrder" selector="{{AdminOrderFormActionSection.submitOrder}}" />
+        </before>
+        <after>
+            <deleteData stepKey="deleteProduct" createDataKey="createProduct" />
+            <deleteData stepKey="deleteProduct1" createDataKey="createDownloadableProduct240LV07" />
+            <deleteData stepKey="deleteCategory" createDataKey="createCategory" />
+            <deleteData stepKey="deleteCustomer" createDataKey="createCustomer" />
+            <actionGroup ref="logout" stepKey="logoutOfAdmin" />
+        </after>
+
+        <actionGroup ref="VertexCheckInvoiceSuccessMessage" stepKey="checkSuccessMessage"/>
+        <actionGroup ref="VertexCheckInvoiceSuccessNote" stepKey="checkSuccessNote">
+            <argument name="amount" value="{{Vertex_100USD_Virtual_and_Downloadable_PA_Only_Totals.tax}}"/>
+        </actionGroup>
+
+        <actionGroup ref="goToInvoiceIntoOrder" stepKey="createInvoice"/>
+        <actionGroup ref="submitInvoiceIntoOrder" stepKey="submitInvoice"/>
+
+        <actionGroup ref="VertexCheckNoInvoiceSuccessMessage" stepKey="checkNoSuccessMessage"/>
+    </test>
+
+    <test name="VertexAsRegisteredCustomerWithBillToAndShipDifferentAndInvoiceOnOrderStatusPendingCheckDigitalProductTaxJournalOnPartialCreditMemo">
+        <annotations>
+            <features value="Vertex"/>
+            <group value="Vertex"/>
+            <testCaseId value="VRTX-642"/>
+
+            <stories value="As a store owner i must have accurate taxes committed to the tax journal"/>
+            <title value="Validate Tax Journal during partial Credit Memo for taxes sent on order status pending, Registered User, Digital Product, Bill-To&lt;&gt;Ship-To"/>
+            <description value="Validate accurate taxes are committed the Vertex Tax Journal after a partial credit memo of an order with taxes committed during order status change to pending with a registered user who has a bill-to different from the ship-to and containing digital products"/>
+
+            <severity value="CRITICAL"/>
+        </annotations>
+
+        <before>
+            <createData entity="_defaultCategory" stepKey="createCategory"/>
+
+            <createData entity="VirtualProduct" stepKey="createProduct">
+                <field key="price">{{Vertex_100USD_PA_Only_Values.price}}</field>
+                <requiredEntity createDataKey="createCategory" />
+            </createData>
+
+            <actionGroup ref="VertexCreateDownloadableProduct" stepKey="240LV07">
+                <argument name="price" value="{{Vertex_100USD_PA_Only_Values.price}}"/>
+            </actionGroup>
+
+            <actionGroup ref="LoginAsAdmin" stepKey="loginAsAdmin"/>
+            <actionGroup ref="VertexTaxConfigOrderStatusPending" stepKey="setupTaxConfigOrderStatusPending"/>
+            <actionGroup ref="VertexTaxDefaultConfig" stepKey="setupDefaultVertexTestConfiguration"/>
+            <actionGroup ref="ClearCacheActionGroup" stepKey="clearCache"/>
+
+            <createData entity="Vertex_Customer_JeffGoldblum" stepKey="createCustomer"/>
+
+            <actionGroup ref="navigateToNewOrderPageExistingCustomer" stepKey="startNewOrder">
+                <argument name="customer" value="$$createCustomer$$" />
+            </actionGroup>
+
+            <actionGroup ref="addSimpleProductToOrder" stepKey="addDownloadableProductToOrder">
+                <argument name="product" value="$$createDownloadableProduct240LV07$$" />
+            </actionGroup>
+
+            <actionGroup ref="addSimpleProductToOrder" stepKey="addSecondProductToOrder">
+                <argument name="product" value="$$createProduct$$" />
+            </actionGroup>
+
+            <actionGroup ref="orderSelectShippingAddress" stepKey="selectShippingAddress">
+                <argument name="addressId" value="$$createCustomer.addresses[1][id]$$" />
+            </actionGroup>
+
+            <actionGroup ref="SelectCheckMoneyPaymentMethod" stepKey="selectPayment" />
+
+            <click stepKey="submitOrder" selector="{{AdminOrderFormActionSection.submitOrder}}" />
+
+            <actionGroup ref="goToInvoiceIntoOrder" stepKey="createInvoice"/>
+            <actionGroup ref="submitInvoiceIntoOrder" stepKey="submitInvoice"/>
+
+            <actionGroup ref="goToCreditMemoFromOrder" stepKey="createCreditMemo"/>
+            <fillField stepKey="fillBall" selector="{{AdminCreditMemoItemsSection.itemQtyToRefundByName($$createDownloadableProduct240LV07.name$$)}}" userInput="1"/>
+            <fillField stepKey="fillBrick" selector="{{AdminCreditMemoItemsSection.itemQtyToRefundByName($$createDownloadableProduct240LV07.name$$)}}" userInput="1"/>
+            <fillField stepKey="fillRoller" selector="{{AdminCreditMemoItemsSection.itemQtyToRefundByName($$createDownloadableProduct240LV07.name$$)}}" userInput="1"/>
+            <fillField stepKey="fillStrap" selector="{{AdminCreditMemoItemsSection.itemQtyToRefundByName($$createDownloadableProduct240LV07.name$$)}}" userInput="1"/>
+
+            <fillField stepKey="fillBall1" selector="{{AdminCreditMemoItemsSection.itemQtyToRefundByName($$createProduct.name$$)}}" userInput="0"/>
+            <fillField stepKey="fillBrick1" selector="{{AdminCreditMemoItemsSection.itemQtyToRefundByName($$createProduct.name$$)}}" userInput="0"/>
+            <fillField stepKey="fillRoller1" selector="{{AdminCreditMemoItemsSection.itemQtyToRefundByName($$createProduct.name$$)}}" userInput="0"/>
+            <fillField stepKey="fillStrap1" selector="{{AdminCreditMemoItemsSection.itemQtyToRefundByName($$createProduct.name$$)}}" userInput="0"/>
+            <click stepKey="updateQty" selector="{{AdminCreditMemoItemsSection.updateQty}}"/>
+            <waitForAjaxLoad stepKey="waitForQtyUpdate"/>
+            <actionGroup ref="submitCreditMemoIntoOrder" stepKey="submitCreditMemo"/>
+        </before>
+        <after>
+            <deleteData stepKey="deleteProduct" createDataKey="createProduct" />
+            <deleteData stepKey="deleteProduct1" createDataKey="createDownloadableProduct240LV07" />
+            <deleteData stepKey="deleteCategory" createDataKey="createCategory" />
+            <deleteData stepKey="deleteCustomer" createDataKey="createCustomer" />
+            <actionGroup ref="logout" stepKey="logoutOfAdmin" />
+        </after>
+
+        <actionGroup ref="VertexCheckCreditMemoSuccessMessage" stepKey="checkSuccessMessage"/>
+        <actionGroup ref="VertexCheckCreditMemoSuccessNote" stepKey="checkSuccessNote">
+            <argument name="amount" value="-{{Vertex_100USD_Virtual_PA_Only_Totals.tax}}"/>
+        </actionGroup>
+    </test>
+
+    <test name="VertexAsRegisteredCustomerWithBillToAndShipToDifferentCheckDigitalProductVertexTaxJournalOnInvoice">
+        <annotations>
+            <features value="Vertex"/>
+            <group value="Vertex"/>
+
+            <stories value="As a store owner, I must have accurate taxes committed to the tax journal"/>
+            <title value="Validate Tax Journal during Invoicing, Registered User, Digital Product, Bill-To&lt;&gt;Ship-To"/>
+            <description value="Validate accurate taxes are committed the Vertex Tax Journal during invoicing of an order with a registered user who has a bill-to different from the ship-to and containing digital products"/>
+
+            <severity value="CRITICAL"/>
+        </annotations>
+        <before>
+            <createData entity="_defaultCategory" stepKey="createCategory"/>
+            <createData entity="VirtualProduct" stepKey="createProduct">
+                <field key="price">{{Vertex_100USD_PA_Only_Values.price}}</field>
+                <requiredEntity createDataKey="createCategory" />
+            </createData>
+
+            <actionGroup ref="LoginAsAdmin" stepKey="loginAsAdmin"/>
+            <actionGroup ref="VertexTaxDefaultConfig" stepKey="setupDefaultVertexTestConfiguration"/>
+            <actionGroup ref="ClearCacheActionGroup" stepKey="clearCache"/>
+
+            <createData entity="Vertex_Customer_JeffGoldblum" stepKey="createCustomer"/>
+
+            <actionGroup ref="navigateToNewOrderPageExistingCustomer" stepKey="startNewOrder">
+                <argument name="customer" value="$$createCustomer$$" />
+            </actionGroup>
+
+            <actionGroup ref="addSimpleProductToOrder" stepKey="addProductToOrder">
+                <argument name="product" value="$$createProduct$$" />
+            </actionGroup>
+
+            <actionGroup ref="orderSelectShippingAddress" stepKey="selectShippingAddress">
+                <argument name="addressId" value="$$createCustomer.addresses[1][id]$$" />
+            </actionGroup>
+
+            <actionGroup ref="SelectCheckMoneyPaymentMethod" stepKey="selectPayment" />
+
+            <click stepKey="submitOrder" selector="{{AdminOrderFormActionSection.submitOrder}}" />
+        </before>
+        <after>
+            <deleteData stepKey="deleteProduct" createDataKey="createProduct" />
+            <deleteData stepKey="deleteCategory" createDataKey="createCategory" />
+            <deleteData stepKey="deleteCustomer" createDataKey="createCustomer" />
+            <actionGroup ref="logout" stepKey="logoutOfAdmin" />
+        </after>
+
+        <actionGroup ref="goToInvoiceIntoOrder" stepKey="createInvoice"/>
+        <actionGroup ref="submitInvoiceIntoOrder" stepKey="submitInvoice"/>
+
+        <actionGroup ref="VertexCheckInvoiceSuccessMessage" stepKey="checkSuccessMessage"/>
+        <actionGroup ref="VertexCheckInvoiceSuccessNote" stepKey="checkSuccessNote">
+            <argument name="amount" value="{{Vertex_100USD_Virtual_PA_Only_Totals.tax}}"/>
+        </actionGroup>
+    </test>
+
+    <test name="VertexAsRegisteredCustomerWithBillToAndShipToDifferentCheckDigitalProductVertexTaxJournalOnCreditMemo">
+        <annotations>
+            <features value="Vertex"/>
+            <group value="Vertex"/>
+
+            <stories value="As a store owner, I must have accurate taxes committed to the tax journal"/>
+            <title value="Validate Tax Journal during Credit Memo, Registered User, Digital Product, Bill-To&lt;&gt;Ship-To"/>
+            <description value="Validate accurate taxes are committed the Vertex Tax Journal after credit memo of an order with a registered user who has a bill-to different from the ship-to and containing digital products"/>
+
+            <severity value="CRITICAL"/>
+        </annotations>
+        <before>
+            <createData entity="_defaultCategory" stepKey="createCategory"/>
+            <createData entity="VirtualProduct" stepKey="createProduct">
+                <field key="price">{{Vertex_100USD_PA_Only_Values.price}}</field>
+                <requiredEntity createDataKey="createCategory" />
+            </createData>
+
+            <actionGroup ref="LoginAsAdmin" stepKey="loginAsAdmin"/>
+            <actionGroup ref="VertexTaxDefaultConfig" stepKey="setupDefaultVertexTestConfiguration"/>
+            <actionGroup ref="ClearCacheActionGroup" stepKey="clearCache"/>
+
+            <createData entity="Vertex_Customer_JeffGoldblum" stepKey="createCustomer"/>
+
+            <actionGroup ref="navigateToNewOrderPageExistingCustomer" stepKey="startNewOrder">
+                <argument name="customer" value="$$createCustomer$$" />
+            </actionGroup>
+
+            <actionGroup ref="addSimpleProductToOrder" stepKey="addProductToOrder">
+                <argument name="product" value="$$createProduct$$" />
+            </actionGroup>
+
+            <actionGroup ref="orderSelectShippingAddress" stepKey="selectShippingAddress">
+                <argument name="addressId" value="$$createCustomer.addresses[1][id]$$" />
+            </actionGroup>
+
+            <actionGroup ref="SelectCheckMoneyPaymentMethod" stepKey="selectPayment" />
+
+            <click stepKey="submitOrder" selector="{{AdminOrderFormActionSection.submitOrder}}" />
+
+            <actionGroup ref="goToInvoiceIntoOrder" stepKey="createInvoice"/>
+            <actionGroup ref="submitInvoiceIntoOrder" stepKey="submitInvoice"/>
+        </before>
+        <after>
+            <deleteData stepKey="deleteProduct" createDataKey="createProduct" />
+            <deleteData stepKey="deleteCategory" createDataKey="createCategory" />
+            <deleteData stepKey="deleteCustomer" createDataKey="createCustomer" />
+            <actionGroup ref="logout" stepKey="logoutOfAdmin" />
+        </after>
+
+        <actionGroup ref="goToCreditMemoFromOrder" stepKey="createCreditMemo"/>
+        <actionGroup ref="submitCreditMemoIntoOrder" stepKey="submitCreditMemo"/>
+
+        <actionGroup ref="VertexCheckCreditMemoSuccessMessage" stepKey="checkSuccessMessage"/>
+        <actionGroup ref="VertexCheckCreditMemoSuccessNote" stepKey="checkSuccessNote">
+            <argument name="amount" value="-{{Vertex_100USD_Virtual_PA_Only_Totals.tax}}"/>
+        </actionGroup>
+    </test>
+</tests>

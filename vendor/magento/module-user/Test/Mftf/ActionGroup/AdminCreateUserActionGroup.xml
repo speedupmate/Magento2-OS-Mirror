@@ -1,0 +1,59 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!--
+ /**
+  * Copyright © Magento, Inc. All rights reserved.
+  * See COPYING.txt for license details.
+  */
+-->
+<actionGroups xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+              xsi:noNamespaceSchemaLocation="urn:magento:mftf:Test/etc/actionGroupSchema.xsd">
+    <actionGroup name="AdminCreateUserActionGroup">
+        <arguments>
+            <argument name="role"/>
+            <argument name="user" defaultValue="restrictedWebUser"/>
+        </arguments>
+        <amOnPage url="{{AdminNewUserPage.url}}" stepKey="navigateToNewUser"/>
+        <fillField selector="{{AdminEditUserSection.username}}" userInput="{{user.username}}" stepKey="enterUserName" />
+        <fillField selector="{{AdminEditUserSection.firstName}}" userInput="{{user.firstName}}" stepKey="enterFirstName" />
+        <fillField selector="{{AdminEditUserSection.lastName}}" userInput="{{user.lastName}}" stepKey="enterLastName" />
+        <fillField selector="{{AdminEditUserSection.email}}" userInput="{{user.username}}@magento.com" stepKey="enterEmail" />
+        <fillField selector="{{AdminEditUserSection.password}}" userInput="{{user.password}}" stepKey="enterPassword" />
+        <fillField selector="{{AdminEditUserSection.confirmation}}" userInput="{{user.password}}" stepKey="confirmPassword" />
+        <fillField selector="{{AdminEditUserSection.currentPasswordField}}" userInput="{{_ENV.MAGENTO_ADMIN_PASSWORD}}" stepKey="enterCurrentPassword" />
+        <scrollToTopOfPage stepKey="scrollToTopOfPage" />
+        <click selector="{{AdminEditUserSection.userRoleTab}}" stepKey="clickUserRole" />
+        <fillField selector="{{AdminEditUserSection.roleNameFilterTextField}}" userInput="{{role.name}}" stepKey="filterRole" />
+        <click selector="{{AdminDataGridHeaderSection.applyFilters}}" stepKey="clickSearch" />
+        <waitForLoadingMaskToDisappear stepKey="waitForLoadingMaskToDisappear1"/>
+        <click selector="{{AdminRoleGridSection.searchResultFirstRow}}" stepKey="selectRole" />
+        <click selector="{{AdminMainActionsSection.save}}" stepKey="clickSaveUser" />
+        <see userInput="You saved the user." stepKey="seeSuccessMessage" />
+    </actionGroup>
+
+    <!--Create new user with role-->
+    <actionGroup name="AdminCreateUserWithRoleActionGroup">
+        <arguments>
+            <argument name="role"/>
+            <argument name="user" defaultValue="newAdmin"/>
+        </arguments>
+        <amOnPage url="{{AdminNewUserPage.url}}" stepKey="navigateToNewUser"/>
+        <waitForPageLoad stepKey="waitForUsersPage" />
+        <fillField selector="{{AdminNewUserFormSection.username}}" userInput="{{user.username}}" stepKey="enterUserName" />
+        <fillField selector="{{AdminNewUserFormSection.firstname}}" userInput="{{user.firstName}}" stepKey="enterFirstName" />
+        <fillField selector="{{AdminNewUserFormSection.lastname}}" userInput="{{user.lastName}}" stepKey="enterLastName" />
+        <fillField selector="{{AdminNewUserFormSection.email}}" userInput="{{user.username}}@magento.com" stepKey="enterEmail" />
+        <fillField selector="{{AdminNewUserFormSection.password}}" userInput="{{user.password}}" stepKey="enterPassword" />
+        <fillField selector="{{AdminNewUserFormSection.passwordConfirmation}}" userInput="{{user.password}}" stepKey="confirmPassword" />
+        <fillField selector="{{AdminNewUserFormSection.currentPassword}}" userInput="{{_ENV.MAGENTO_ADMIN_PASSWORD}}" stepKey="enterCurrentPassword" />
+        <scrollToTopOfPage stepKey="scrollToTopOfPage" />
+        <click stepKey="clickUserRole" selector="{{AdminNewUserFormSection.userRoleTab}}"/>
+        <click stepKey="chooseRole" selector="{{AdminStoreSection.createdRoleInUserPage(role.name)}}"/>
+        <click selector="{{AdminNewUserFormSection.save}}" stepKey="clickSaveUser" />
+        <waitForPageLoad stepKey="waitForSaveTheUser" />
+        <see userInput="You saved the user." stepKey="seeSuccessMessage" />
+    </actionGroup>
+
+    <actionGroup name="AdminCreateUserWithApiRoleActionGroup" extends="AdminCreateUserWithRoleActionGroup">
+        <click stepKey="chooseRole" selector="{{AdminNewUserFormSection.roleRadiobutton(role.rolename)}}"/>
+    </actionGroup>
+</actionGroups>

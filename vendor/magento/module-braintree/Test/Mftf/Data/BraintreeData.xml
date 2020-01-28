@@ -1,0 +1,169 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!--
+ /**
+  * Copyright © Magento, Inc. All rights reserved.
+  * See COPYING.txt for license details.
+  */
+-->
+
+<entities xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+          xsi:noNamespaceSchemaLocation="urn:magento:mftf:DataGenerator/etc/dataProfileSchema.xsd">
+    <entity name="SampleBraintreeConfig" type="braintree_config_state">
+        <requiredEntity type="title">SampleTitle</requiredEntity>
+        <requiredEntity type="payment_action">SamplePaymentAction</requiredEntity>
+        <requiredEntity type="environment">SampleEnvironment</requiredEntity>
+        <requiredEntity type="merchant_id">SampleMerchantId</requiredEntity>
+        <requiredEntity type="public_key">SamplePublicKey</requiredEntity>
+        <requiredEntity type="private_key">SamplePrivateKey</requiredEntity>
+    </entity>
+    <entity name="SampleTitle" type="title">
+        <data key="value">Sample Braintree Config</data>
+    </entity>
+    <entity name="SamplePaymentAction" type="payment_action">
+        <data key="value">authorize</data>
+    </entity>
+    <entity name="SampleEnvironment" type="environment">
+        <data key="value">sandbox</data>
+    </entity>
+    <entity name="SampleMerchantId" type="merchant_id">
+        <data key="value">someMerchantId</data>
+    </entity>
+    <entity name="SamplePublicKey" type="public_key">
+        <data key="value">somePublicKey</data>
+    </entity>
+    <entity name="SamplePrivateKey" type="private_key">
+        <data key="value">somePrivateKey</data>
+    </entity>
+
+    <!-- default configuration used to restore Magento config -->
+    <entity name="DefaultBraintreeConfig" type="braintree_config_state">
+        <requiredEntity type="title">DefaultTitle</requiredEntity>
+        <requiredEntity type="payment_action">DefaultPaymentAction</requiredEntity>
+        <requiredEntity type="environment">DefaultEnvironment</requiredEntity>
+        <requiredEntity type="merchant_id">DefaultMerchantId</requiredEntity>
+        <requiredEntity type="public_key">DefaultPublicKey</requiredEntity>
+        <requiredEntity type="private_key">DefaultPrivateKey</requiredEntity>
+        <requiredEntity type="active">DefaultActive</requiredEntity>
+        <requiredEntity type="merchant_account_id">DefaultMerchantAccountId</requiredEntity>
+    </entity>
+    <entity name="DefaultTitle" type="title">
+        <data key="value"/>
+    </entity>
+    <entity name="DefaultPaymentAction" type="payment_action">
+        <data key="value">authorize</data>
+    </entity>
+    <entity name="DefaultEnvironment" type="environment">
+        <data key="value">sandbox</data>
+    </entity>
+    <entity name="DefaultMerchantId" type="merchant_id">
+        <data key="value"/>
+    </entity>
+    <entity name="DefaultPublicKey" type="public_key">
+        <data key="value"/>
+    </entity>
+    <entity name="DefaultPrivateKey" type="private_key">
+        <data key="value"/>
+    </entity>
+    <entity name="DefaultActive" type="active">
+        <data key="value">0</data>
+    </entity>
+    <entity name="DefaultMerchantAccountId" type="merchant_account_id">
+        <data key="value"/>
+    </entity>
+
+    <entity name="DefaultBraintreeWithPaypalConfig" extends="DefaultBraintreeConfig">
+        <requiredEntity type="active_braintree_paypal">DefaultActiveBraintreePaypal</requiredEntity>
+    </entity>
+    <entity name="DefaultActiveBraintreePaypal" type="active_braintree_paypal">
+        <data key="value">0</data>
+    </entity>
+
+    <entity name="SandboxBraintreeConfig" type="braintree_config_state">
+        <requiredEntity type="title">EnabledTitle</requiredEntity>
+        <requiredEntity type="payment_action">AuthorizePaymentAction</requiredEntity>
+        <requiredEntity type="environment">SandboxEnvironment</requiredEntity>
+        <requiredEntity type="merchant_id">EnabledMerchantId</requiredEntity>
+        <requiredEntity type="public_key">EnabledPublicKey</requiredEntity>
+        <requiredEntity type="private_key">EnabledPrivateKey</requiredEntity>
+        <requiredEntity type="active">EnabledActive</requiredEntity>
+        <requiredEntity type="merchant_account_id">EnabledMerchantAccountId</requiredEntity>
+    </entity>
+    <entity name="EnabledTitle" type="title">
+        <data key="value">Credit Card (Braintree)</data>
+    </entity>
+    <entity name="AuthorizePaymentAction" type="payment_action">
+        <data key="value">authorize</data>
+    </entity>
+    <entity name="SandboxEnvironment" type="environment">
+        <data key="value">sandbox</data>
+    </entity>
+    <entity name="EnabledMerchantId" type="merchant_id">
+        <data key="value">{{_CREDS.braintree_disabled_fraud_merchant_id}}</data>
+    </entity>
+    <entity name="EnabledPublicKey" type="public_key">
+        <data key="value">{{_CREDS.braintree_disabled_fraud_public_key}}</data>
+    </entity>
+    <entity name="EnabledPrivateKey" type="private_key">
+        <data key="value">{{_CREDS.braintree_disabled_fraud_private_key}}</data>
+    </entity>
+    <entity name="EnabledActive" type="active">
+        <data key="value">1</data>
+    </entity>
+    <entity name="EnabledMerchantAccountId" type="merchant_account_id">
+        <data key="value">{{_CREDS.braintree_disabled_fraud_merchant_account_id}}</data>
+    </entity>
+
+    <entity name="SandboxBraintreeWithPaypalConfig" extends="SandboxBraintreeConfig">
+        <requiredEntity type="active_braintree_paypal">EnableActiveBraintreePaypal</requiredEntity>
+    </entity>
+    <entity name="EnableActiveBraintreePaypal" type="active_braintree_paypal">
+        <data key="value">1</data>
+    </entity>
+
+    <entity name="BraintreeCard" type="creditCard">
+        <data key="cc_type">MasterCard</data>
+        <data key="card_number">5105105105105100</data>
+        <data key="exp_month">12</data>
+        <data key="exp_year">20</data>
+        <data key="cvv">113</data>
+    </entity>
+
+    <entity name="BraintreeConfigData" type="data">
+        <data key="title">Credit Card (Braintree)</data>
+        <data key="environment">sandbox</data>
+        <data key="payment_action">authorize</data>
+        <data key="active">1</data>
+        <data key="useccv">1</data>
+    </entity>
+
+    <entity name="BraintreeWithPaypalConfigData" extends="BraintreeConfigData">
+        <data key="active_braintree_paypal">1</data>
+    </entity>
+
+    <entity name="CustomBraintreeConfigurationData" type="custom_braintree_config_state">
+        <requiredEntity type="braintree_cc_vault_active">BraintreeValuteActive</requiredEntity>
+        <requiredEntity type="active">EnableSolution</requiredEntity>
+    </entity>
+    <entity name="BraintreeValuteActive" type="braintree_cc_vault_active">
+        <data key="value">1</data>
+    </entity>
+    <entity name="EnableSolution" type="active">
+        <data key="value">1</data>
+    </entity>
+
+    <entity name="RollBackCustomBraintreeConfigurationData" type="custom_braintree_config_state">
+        <requiredEntity type="braintree_cc_vault_active">DefaultBraintreeValuteActive</requiredEntity>
+        <requiredEntity type="active">DefaultEnableSolution</requiredEntity>
+    </entity>
+    <entity name="DefaultBraintreeValuteActive" type="braintree_cc_vault_active">
+        <data key="value">0</data>
+    </entity>
+    <entity name="DefaultEnableSolution" type="active">
+        <data key="value">0</data>
+    </entity>
+
+    <entity name="StoredPaymentMethods">
+        <data key="cardNumberEnding">5100</data>
+        <data key="cardExpire">12/2020</data>
+    </entity>
+</entities>

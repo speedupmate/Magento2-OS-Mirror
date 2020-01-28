@@ -1,0 +1,29 @@
+<!--
+/**
+ * @copyright  Vertex. All rights reserved.  https://www.vertexinc.com/
+ * @author     Mediotype                     https://www.mediotype.com/
+ */
+-->
+<!-- ko foreach: messages -->
+    <!-- ko if: $data -->
+        <div class="field vertex-message address-message">
+            <div role="alert" data-bind="attr:{class: $data.class}" class="test">
+                <span data-bind="text: $data.messageText"></span>
+                <!-- ko if: $data.differences.length -->
+                    <div class="address-different"
+                         data-bind="foreach: {data: $data.differences, as: 'difference'}">
+                        <strong>
+                            <span data-bind="text: difference.name"></span>
+                        </strong> :
+                        <span data-bind="text: difference.value"></span><br>
+                    </div>
+                    <div class="message action">
+                        <a class="update-address" href="#" title="'Update address'" data-bind="click: function() { $parent.updateVertexAddress(); return false; } ">
+                            <span translate="'Update address'"/>
+                        </a>
+                    </div>
+                <!-- /ko -->
+            </div>
+        </div>
+    <!-- /ko -->
+<!-- /ko -->

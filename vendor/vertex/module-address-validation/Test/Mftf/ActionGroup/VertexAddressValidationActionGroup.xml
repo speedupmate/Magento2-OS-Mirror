@@ -1,0 +1,28 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!--
+ /**
+  * @copyright  Vertex. All rights reserved.  https://www.vertexinc.com/
+  * @author     Mediotype                     https://www.mediotype.com/
+  */
+-->
+<actionGroups xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+              xsi:noNamespaceSchemaLocation="urn:magento:mftf:Test/etc/actionGroupSchema.xsd">
+    <actionGroup name="VertexAddressValidationDefaultConfig">
+        <createData entity="VertexTaxEnableTemporary" stepKey="setVertexTaxEnabledForCredValues"/>
+        <createData entity="VertexAddressValidationConfigAll" stepKey="setDefaultVertexAddressValidationTestConfiguration"/>
+
+        <amOnPage url="{{AdminTaxConfigPage.url('vertex_settings')}}" stepKey="loadVertexConfig"/>
+
+        <!-- Vertex Settings -->
+        <conditionalClick selector="{{AdminVertexSettingsConfigSection.vertexSettingsHeader}}" dependentSelector="{{AdminVertexSettingsConfigSection.enableVertex}}" visible="false" stepKey="openVertexConfiguration"/>
+        <fillField stepKey="setAddressValidationWsdl" selector="{{AdminVertexSettingsConfigSection.addressValidationWsdlUrl}}" userInput="{{_CREDS.vertex_config_address_validation_wsdl}}"/>
+        <fillField stepKey="setTrustedId" selector="{{AdminVertexSettingsConfigSection.trustedId}}" userInput="{{_CREDS.vertex_config_trusted_id}}"/>
+
+        <!-- Vertex Company Information -->
+        <conditionalClick selector="{{AdminVertexSellerSettingsConfigSection.vertexCompanyInformationHeader}}" dependentSelector="{{AdminVertexSellerSettingsConfigSection.companyCode}}" visible="false" stepKey="openVertexCompanyInformation"/>
+        <fillField stepKey="setCompanyCode" selector="{{AdminVertexSellerSettingsConfigSection.companyCode}}" userInput="{{_CREDS.vertex_seller_company_code}}"/>
+
+        <click selector="#save" stepKey="saveVertexConfiguration"/>
+        <createData entity="VertexTaxDisableTemporary" stepKey="setVertexTaxDisabledForSpeed"/>
+    </actionGroup>
+</actionGroups>

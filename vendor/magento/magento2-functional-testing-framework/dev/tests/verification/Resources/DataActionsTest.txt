@@ -1,0 +1,100 @@
+<?php
+namespace Magento\AcceptanceTest\_default\Backend;
+
+use Magento\FunctionalTestingFramework\AcceptanceTester;
+use Magento\FunctionalTestingFramework\DataGenerator\Handlers\CredentialStore;
+use Magento\FunctionalTestingFramework\DataGenerator\Handlers\PersistedObjectHandler;
+use \Codeception\Util\Locator;
+use Yandex\Allure\Adapter\Annotation\Features;
+use Yandex\Allure\Adapter\Annotation\Stories;
+use Yandex\Allure\Adapter\Annotation\Title;
+use Yandex\Allure\Adapter\Annotation\Description;
+use Yandex\Allure\Adapter\Annotation\Parameter;
+use Yandex\Allure\Adapter\Annotation\Severity;
+use Yandex\Allure\Adapter\Model\SeverityLevel;
+use Yandex\Allure\Adapter\Annotation\TestCaseId;
+
+/**
+ * @Description("<br><br><b><font size=+0.9>Test files</font></b><br><br>verification/TestModule/Test/DataActionsTest.xml<br>")
+ */
+class DataActionsTestCest
+{
+	/**
+	  * @param AcceptanceTester $I
+	  * @throws \Exception
+	  */
+	public function _before(AcceptanceTester $I)
+	{
+		$I->comment("[createdInBefore] create 'entity' entity");
+		PersistedObjectHandler::getInstance()->createEntity(
+			"createdInBefore",
+			"hook",
+			"entity",
+			[],
+			[]
+		);
+
+		$I->comment("[updateInBefore] update 'createdInBefore' entity to 'entity'");
+		PersistedObjectHandler::getInstance()->updateEntity(
+			"createdInBefore",
+			"hook",
+			"entity",
+			[]
+		);
+
+		$I->comment("[deleteInBefore] delete entity 'createdInBefore'");
+		PersistedObjectHandler::getInstance()->deleteEntity(
+			"createdInBefore",
+			"hook"
+		);
+
+	}
+
+	/**
+	 * @Features({"TestModule"})
+	 * @Parameter(name = "AcceptanceTester", value="$I")
+	 * @param AcceptanceTester $I
+	 * @return void
+	 * @throws \Exception
+	 */
+	public function DataActionsTest(AcceptanceTester $I)
+	{
+		$I->comment("[createdInTest] create 'entity' entity");
+		PersistedObjectHandler::getInstance()->createEntity(
+			"createdInTest",
+			"test",
+			"entity",
+			[],
+			[]
+		);
+
+		$I->comment("[updateInTest] update 'createdInTest' entity to 'entity'");
+		PersistedObjectHandler::getInstance()->updateEntity(
+			"createdInTest",
+			"test",
+			"entity",
+			[]
+		);
+
+		$I->comment("[deleteInTest] delete entity 'createdInTest'");
+		PersistedObjectHandler::getInstance()->deleteEntity(
+			"createdInTest",
+			"test"
+		);
+
+		$I->comment("[updatedDataOutOfScope] update 'createdInBefore' entity to 'entity'");
+		PersistedObjectHandler::getInstance()->updateEntity(
+			"createdInBefore",
+			"test",
+			"entity",
+			[]
+		);
+
+		$I->comment("[deleteDataOutOfScope] delete entity 'createdInBefore'");
+		PersistedObjectHandler::getInstance()->deleteEntity(
+			"createdInBefore",
+			"test"
+		);
+
+	}
+}

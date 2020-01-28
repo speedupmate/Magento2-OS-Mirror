@@ -1,0 +1,23 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!--
+ /**
+  * @copyright  Vertex. All rights reserved.  https://www.vertexinc.com/
+  * @author     Mediotype                     https://www.mediotype.com/
+  */
+-->
+<sections xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+          xsi:noNamespaceSchemaLocation="urn:magento:mftf:Page/etc/SectionObject.xsd">
+    <section name="CheckoutPaymentSection">
+        <element name="orderSubtotalIncluding" type="text" selector="//tr[@class='totals sub incl']//span[@class='price']" />
+        <element name="orderSubtotalExcluding" type="text" selector="//tr[@class='totals sub excl']//span[@class='price']" />
+        <element name="orderShippingTotalIncluding" type="text" selector="//tr[@class='totals shipping incl']//span[@class='price']" />
+        <element name="orderShippingTotalExcluding" type="text" selector="//tr[@class='totals shipping excl']//span[@class='price']" />
+
+        <element name="orderSummaryTotalIncluding" type="text" selector="//tr[@class='grand totals incl']//span[@class='price']" />
+        <element name="orderSummaryTotalExcluding" type="text" selector="//tr[@class='grand totals excl']//span[@class='price']" />
+
+        <element name="taxSummary" type="block" selector="tr.totals-tax-summary" />
+        <element name="taxRateByName" type="text" selector="//tr[contains(@class,'totals-tax-details')]//th[@class='mark'][contains(text(), '{{var1}}')]/following-sibling::td[@class='amount']//span[@class='price']" parameterized="true" />
+        <element name="taxRateLabelByName" type="text" selector="//tr[contains(@class,'totals-tax-details')]//th[@class='mark'][contains(text(), '{{var1}} (')]" parameterized="true" />
+    </section>
+</sections>

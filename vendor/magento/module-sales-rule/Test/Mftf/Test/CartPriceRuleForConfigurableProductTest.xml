@@ -1,0 +1,165 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!--
+ /**
+  * Copyright © Magento, Inc. All rights reserved.
+  * See COPYING.txt for license details.
+  */
+-->
+
+<tests xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+       xsi:noNamespaceSchemaLocation="urn:magento:mftf:Test/etc/testSchema.xsd">
+    <test name="CartPriceRuleForConfigurableProductTest">
+        <annotations>
+            <features value="SalesRule"/>
+            <stories value="Create cart price rule"/>
+            <title value="Checking Cart Price Rule for configurable products"/>
+            <description value="Checking Cart Price Rule for configurable products"/>
+            <severity value="BLOCKER"/>
+            <testCaseId value="MAGETWO-95121"/>
+            <useCaseId value="MAGETWO-86098"/>
+            <group value="sales_rule"/>
+        </annotations>
+
+        <before>
+            <!-- Create the configurable product -->
+            <createData entity="ApiConfigurableProductWithOutCategory" stepKey="createConfigProduct"/>
+            <!-- Create an attribute with two options to be used in the first child product -->
+            <createData entity="productAttributeWithDropdownTwoOptions" stepKey="createConfigProductAttribute"/>
+            <createData entity="productAttributeOption1" stepKey="createConfigProductAttributeOption1">
+                <requiredEntity createDataKey="createConfigProductAttribute"/>
+            </createData>
+            <createData entity="productAttributeOption2" stepKey="createConfigProductAttributeOption2">
+                <requiredEntity createDataKey="createConfigProductAttribute"/>
+            </createData>
+            <!-- Add the attribute we just created to default attribute set -->
+            <createData entity="AddToDefaultSet" stepKey="createConfigAddToAttributeSet">
+                <requiredEntity createDataKey="createConfigProductAttribute"/>
+            </createData>
+            <!-- Get the option of the attribute we created -->
+            <getData entity="ProductAttributeOptionGetter" index="1" stepKey="getConfigAttributeOption1">
+                <requiredEntity createDataKey="createConfigProductAttribute"/>
+            </getData>
+            <getData entity="ProductAttributeOptionGetter" index="2" stepKey="getConfigAttributeOption2">
+                <requiredEntity createDataKey="createConfigProductAttribute"/>
+            </getData>
+            <!-- Create a simple product and give it the attribute with option -->
+            <createData entity="SimpleOption" stepKey="createConfigChildProduct1">
+                <requiredEntity createDataKey="createConfigProductAttribute"/>
+                <requiredEntity createDataKey="getConfigAttributeOption1"/>
+            </createData>
+            <createData entity="SimpleOption" stepKey="createConfigChildProduct2">
+                <field key="sku">SimpleTwoOption</field>
+                <requiredEntity createDataKey="createConfigProductAttribute"/>
+                <requiredEntity createDataKey="getConfigAttributeOption2"/>
+            </createData>
+            <!-- Create the configurable product -->
+            <createData entity="ConfigurableProductTwoOptions" stepKey="createConfigProductOption">
+                <requiredEntity createDataKey="createConfigProduct"/>
+                <requiredEntity createDataKey="createConfigProductAttribute"/>
+                <requiredEntity createDataKey="getConfigAttributeOption1"/>
+                <requiredEntity createDataKey="getConfigAttributeOption2"/>
+            </createData>
+            <!-- Add simple product to the configurable product -->
+            <createData entity="ConfigurableProductAddChild" stepKey="createConfigProductAddChild1">
+                <requiredEntity createDataKey="createConfigProduct"/>
+                <requiredEntity createDataKey="createConfigChildProduct1"/>
+            </createData>
+            <createData entity="ConfigurableProductAddChild" stepKey="createConfigProductAddChild2">
+                <requiredEntity createDataKey="createConfigProduct"/>
+                <requiredEntity createDataKey="createConfigChildProduct2"/>
+            </createData>
+
+            <!--Login to Admin-->
+            <actionGroup ref="LoginAsAdmin" stepKey="loginAsAdmin"/>
+
+            <actionGroup ref="deleteAllCartPriceRule" stepKey="deleteAllCartPriceRules"/>
+
+            <!--Create cart price rule-->
+            <createData entity="SaleRule50PercentDiscountNoCoupon" stepKey="createCartPriceRule">
+                <field key="discount_amount">70</field>
+                <field key="coupon_type">SPECIFIC_COUPON</field>
+            </createData>
+            <createData entity="SimpleSalesRuleCoupon" stepKey="createCouponForCartPriceRule">
+                <requiredEntity createDataKey="createCartPriceRule"/>
+            </createData>
+
+            <!--Set attribute sku property Use for Promo Rule Conditions = Yes and save attribute-->
+            <actionGroup ref="navigateToProductAttribute" stepKey="goToProductAttributeSkuPage">
+                <argument name="attributeCode" value="sku"/>
+            </actionGroup>
+            <actionGroup ref="changeUseForPromoRuleConditionsProductAttribute" stepKey="changeUseForPromoRuleConditions"/>
+
+            <!-- Set condition for actions in cart price rule -->
+            <amOnPage url="{{AdminCartPriceRuleEditPage.url($$createCartPriceRule.rule_id$$)}}" stepKey="goToCartPriceRuleEditPage"/>
+            <actionGroup ref="SetConditionForActionsInCartPriceRuleActionGroup" stepKey="setConditionForActionsInCartPriceRule">
+                <argument name="actionsAggregator" value="ANY"/>
+                <argument name="actionsValue" value="TRUE"/>
+                <argument name="childAttribute" value="SKU(Children Only)"/>
+                <argument name="actionOperator" value="is not one of"/>
+                <argument name="actionValue" value="$$createConfigChildProduct1.sku$$"/>
+            </actionGroup>
+        </before>
+
+        <after>
+            <!--Remove configurable product and it's children-->
+            <deleteData createDataKey="createConfigProduct" stepKey="deleteConfigProduct"/>
+            <deleteData createDataKey="createConfigChildProduct1" stepKey="deleteConfigChildProduct1"/>
+            <deleteData createDataKey="createConfigChildProduct2" stepKey="deleteConfigChildProduct2"/>
+            <deleteData createDataKey="createConfigProductAttribute" stepKey="deleteConfigProductAttribute"/>
+            <!--Remove SalesRule-->
+            <deleteData createDataKey="createCartPriceRule" stepKey="deleteCartPriceRule"/>
+            <!--Return default value to attribute sku-->
+            <actionGroup ref="navigateToProductAttribute" stepKey="goToProductAttributeSkuPage">
+                <argument name="attributeCode" value="sku"/>
+            </actionGroup>
+            <actionGroup ref="changeUseForPromoRuleConditionsProductAttribute" stepKey="changeUseForPromoRuleConditions">
+                <argument name="useForPromoRule" value="No"/>
+            </actionGroup>
+            <!--Logout from Admin-->
+            <actionGroup ref="logout" stepKey="logout"/>
+        </after>
+
+        <actionGroup ref="CustomerLogoutStorefrontActionGroup" stepKey="customerLogout"/>
+        <!--Go to product page-->
+        <amOnPage url="{{StorefrontProductPage.url($$createConfigProduct.custom_attributes[url_key]$$)}}" stepKey="goToProductPage"/>
+
+         <!--Add the configurable product with first option to the cart -->
+        <actionGroup ref="StorefrontSelectConfigurableAttributeOptionActionGroup" stepKey="selectFirstOptionOfConfigProduct">
+            <argument name="attributeLabel" value="$$createConfigProductAttribute.default_label$$"/>
+            <argument name="optionValue" value="$$getConfigAttributeOption1.value$$"/>
+        </actionGroup>
+        <actionGroup ref="addToCartFromStorefrontProductPage" stepKey="addToCartFirstOptionOfConfigProduct">
+            <argument name="productName" value="$$createConfigProduct.name$$"/>
+        </actionGroup>
+
+        <!--Add the configurable product with second option to the cart -->
+        <actionGroup ref="StorefrontSelectConfigurableAttributeOptionActionGroup" stepKey="selectSecondOptionOfConfigProduct">
+            <argument name="attributeLabel" value="$$createConfigProductAttribute.default_label$$"/>
+            <argument name="optionValue" value="$$getConfigAttributeOption2.value$$"/>
+        </actionGroup>
+        <actionGroup ref="addToCartFromStorefrontProductPage" stepKey="addToCartSecondOptionOfConfigProduct">
+            <argument name="productName" value="$$createConfigProduct.name$$"/>
+        </actionGroup>
+
+        <!--View and edit cart-->
+        <actionGroup ref="clickViewAndEditCartFromMiniCart" stepKey="storefrontOpenCartFromMinicart"/>
+
+        <!-- Apply Cart Rule On Storefront -->
+        <actionGroup ref="StorefrontApplyCouponActionGroup" stepKey="applyCartRule">
+            <argument name="couponCode" value="$$createCouponForCartPriceRule.code$$"/>
+        </actionGroup>
+        <waitForElementVisible selector="{{StorefrontCheckoutCartSummarySection.discountAmount}}" stepKey="waitForDiscountAmountVisible"/>
+
+        <!--Verify values-->
+        <grabTextFrom selector="{{StorefrontCheckoutCartSummarySection.itemDiscount}}" stepKey="getDiscount"/>
+        <grabTextFrom selector="{{StorefrontCheckoutCartSummarySection.subtotal}}" stepKey="getSubtotal"/>
+        <assertEquals stepKey="checkDiscount">
+            <expectedResult type="string">-$7.00</expectedResult>
+            <actualResult type="variable">$getDiscount</actualResult>
+        </assertEquals>
+        <assertEquals stepKey="checkSubtotal">
+            <expectedResult type="string">$20.00</expectedResult>
+            <actualResult type="variable">$getSubtotal</actualResult>
+        </assertEquals>
+    </test>
+</tests>

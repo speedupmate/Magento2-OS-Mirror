@@ -1,0 +1,210 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!--
+ /**
+  * @copyright  Vertex. All rights reserved.  https://www.vertexinc.com/
+  * @author     Mediotype                     https://www.mediotype.com/
+  */
+-->
+<tests xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+       xsi:noNamespaceSchemaLocation="urn:magento:mftf:Test/etc/testSchema.xsd">
+    <test name="VertexAsGuestCheckPhysicalProductTaxInMinicart">
+        <annotations>
+            <features value="Vertex"/>
+            <group value="Vertex"/>
+
+            <stories value="As a store owner, I must have accurate taxes calculated for a guest customer"/>
+            <title value="Validate Taxes in Minicart, Guest Customer, Simple Product" />
+            <description value="Validate the taxes applied to a simple product in a guest customer's minicart" />
+
+            <severity value="AVERAGE"/>
+        </annotations>
+        <before>
+            <createData entity="_defaultCategory" stepKey="createCategory"/>
+            <createData entity="_defaultProduct" stepKey="createProduct">
+                <field key="price">{{Vertex_34USD_PA_Only_Values.price}}</field>
+                <requiredEntity createDataKey="createCategory"/>
+            </createData>
+            <actionGroup ref="LoginAsAdmin" stepKey="loginAsAdmin"/>
+            <actionGroup ref="VertexTaxDefaultConfig" stepKey="setupDefaultVertexTestConfiguration"/>
+            <actionGroup ref="ClearCacheActionGroup" stepKey="clearCache"/>
+        </before>
+        <after>
+            <createData entity="DefaultTaxConfig" stepKey="defaultConf"/>
+            <deleteData createDataKey="createCategory" stepKey="deleteCategory"/>
+            <deleteData createDataKey="createProduct" stepKey="deleteProduct"/>
+            <actionGroup ref="logout" stepKey="logoutOfAdmin"/>
+        </after>
+
+        <actionGroup ref="AddSimpleProductToCart" stepKey="addProductToCart">
+            <argument name="product" value="$$createProduct$$"/>
+        </actionGroup>
+
+        <click stepKey="showMinicart" selector="{{StorefrontMinicartSection.showCart}}"/>
+
+        <actionGroup ref="VertexCheckProductPricingInMiniCart" stepKey="checkProduct">
+            <!-- All fields are excluding tax intentionally.  The user is not logged in and has no address so they should match -->
+            <argument name="product" value="$$createProduct$$"/>
+            <argument name="priceExclTax" value="{{Vertex_34USD_PA_Only_Values.price}}"/>
+            <argument name="priceInclTax" value="{{Vertex_34USD_PA_Only_Values.price}}"/>
+        </actionGroup>
+    </test>
+
+    <test name="VertexAsGuestCheckPhysicalProductTaxOnShoppingCartPage">
+        <annotations>
+            <features value="Vertex"/>
+            <group value="Vertex"/>
+
+            <stories value="As a store owner, I must have accurate taxes calculated for a guest customer"/>
+            <title value="Validate Taxes on Cart Page, Guest Customer, Simple Product" />
+            <description value="Validate the taxes applied to a simple product on a guest customer's cart page" />
+
+            <severity value="AVERAGE"/>
+        </annotations>
+        <before>
+            <createData entity="_defaultCategory" stepKey="createCategory"/>
+            <createData entity="_defaultProduct" stepKey="createProduct">
+                <field key="price">34.00</field>
+                <requiredEntity createDataKey="createCategory"/>
+            </createData>
+            <actionGroup ref="LoginAsAdmin" stepKey="loginAsAdmin"/>
+            <actionGroup ref="VertexTaxDefaultConfig" stepKey="setupDefaultVertexTestConfiguration"/>
+            <actionGroup ref="ClearCacheActionGroup" stepKey="clearCache"/>
+        </before>
+        <after>
+            <createData entity="DefaultTaxConfig" stepKey="defaultConf"/>
+            <deleteData stepKey="deleteCategory" createDataKey="createCategory"/>
+            <deleteData stepKey="deleteProduct" createDataKey="createProduct"/>
+            <actionGroup ref="logout" stepKey="logoutOfAdmin"/>
+        </after>
+
+        <actionGroup ref="AddSimpleProductToCart" stepKey="addProductToCart">
+            <argument name="product" value="$$createProduct$$"/>
+        </actionGroup>
+
+        <actionGroup ref="StorefrontOpenCartFromMinicartActionGroup" stepKey="gotoCart"/>
+
+        <actionGroup ref="FillShippingZipForm" stepKey="fillEstimateShippingInformation">
+            <argument name="address" value="Vertex_Customer_BobSaget_Address"/>
+        </actionGroup>
+
+        <checkOption selector="{{CheckoutCartSummarySection.flatRateShippingMethod}}" stepKey="selectFlatRateShipping"/>
+
+        <actionGroup ref="VertexCheckProductPricingOnCart" stepKey="checkProduct">
+            <!-- All fields are excluding tax intentionally.  The user is not logged in and has no address so they should match -->
+            <argument name="product" value="$$createProduct$$"/>
+            <argument name="priceExclTax" value="{{Vertex_34USD_PA_Only_Values.price}}"/>
+            <argument name="priceInclTax" value="{{Vertex_34USD_PA_Only_Values.price}}"/>
+            <argument name="subtotalExclTax" value="{{Vertex_34USD_PA_Only_Values.subtotal}}"/>
+            <argument name="subtotalInclTax" value="{{Vertex_34USD_PA_Only_Values.subtotal}}"/>
+        </actionGroup>
+    </test>
+
+    <test name="VertexAsGuestCheckPhysicalProductTaxOnShoppingCartPageSummary">
+        <annotations>
+            <features value="Vertex"/>
+            <group value="Vertex"/>
+
+            <stories value="As a store owner, I must have accurate taxes calculated for a guest customer"/>
+            <title value="Validate Taxes in Cart Summary, Guest Customer, Simple Product" />
+            <description value="Validate the taxes applied to a simple product in a guest customer's cart summary after estimation" />
+
+            <severity value="MAJOR"/>
+        </annotations>
+        <before>
+            <createData entity="_defaultCategory" stepKey="createCategory"/>
+            <createData entity="_defaultProduct" stepKey="createProduct">
+                <field key="price">34.00</field>
+                <requiredEntity createDataKey="createCategory"/>
+            </createData>
+            <actionGroup ref="LoginAsAdmin" stepKey="loginAsAdmin"/>
+            <actionGroup ref="VertexTaxDefaultConfig" stepKey="setupDefaultVertexTestConfiguration"/>
+            <actionGroup ref="ClearCacheActionGroup" stepKey="clearCache"/>
+        </before>
+        <after>
+            <createData entity="DefaultTaxConfig" stepKey="defaultConf"/>
+            <deleteData stepKey="deleteCategory" createDataKey="createCategory"/>
+            <deleteData stepKey="deleteProduct" createDataKey="createProduct"/>
+            <actionGroup ref="logout" stepKey="logoutOfAdmin"/>
+        </after>
+
+        <actionGroup ref="AddSimpleProductToCart" stepKey="addProductToCart">
+            <argument name="product" value="$$createProduct$$"/>
+        </actionGroup>
+
+        <actionGroup ref="StorefrontOpenCartFromMinicartActionGroup" stepKey="gotoCart"/>
+
+        <actionGroup ref="FillShippingZipForm" stepKey="fillEstimateShippingInformation">
+            <argument name="address" value="Vertex_Customer_BobSaget_Address"/>
+        </actionGroup>
+
+        <checkOption selector="{{CheckoutCartSummarySection.flatRateShippingMethod}}" stepKey="selectFlatRateShipping"/>
+
+        <actionGroup ref="VertexCheckTotalsInCart" stepKey="checkTotals">
+            <argument name="subtotalExclTax" value="{{Vertex_34USD_PA_Only_Totals.subtotal}}"/>
+            <argument name="subtotalInclTax" value="{{Vertex_34USD_PA_Only_Totals.subtotalInclTax}}"/>
+            <argument name="shippingExclTax" value="{{Vertex_34USD_PA_Only_Totals.shipping}}" />
+            <argument name="shippingInclTax" value="{{Vertex_34USD_PA_Only_Totals.shippingInclTax}}" />
+            <argument name="tax" value="{{Vertex_34USD_PA_Only_Totals.tax}}"/>
+            <argument name="totalExclTax" value="{{Vertex_34USD_PA_Only_Totals.total}}"/>
+            <argument name="totalInclTax" value="{{Vertex_34USD_PA_Only_Totals.totalInclTax}}"/>
+        </actionGroup>
+        <actionGroup ref="VertexCheckProductAndShippingTaxTotalsInCart" stepKey="checkTaxSummary">
+            <argument name="product" value="{{Vertex_34USD_PA_Only_Totals.productTax}}"/>
+            <argument name="shipping" value="{{Vertex_34USD_PA_Only_Totals.shippingTax}}"/>
+        </actionGroup>
+    </test>
+
+    <test name="VertexAsGuestCheckPhysicalProductTaxOnPaymentPage">
+        <annotations>
+            <features value="Vertex"/>
+            <group value="Vertex"/>
+
+            <stories value="As a store owner, I must have accurate taxes calculated for a guest customer"/>
+            <title value="Validate Taxes in Checkout, Guest Customer, Simple Product" />
+            <description value="Validate the taxes applied to a simple product in a guest customer's checkout" />
+
+            <severity value="CRITICAL"/>
+        </annotations>
+        <before>
+            <createData entity="_defaultCategory" stepKey="createCategory"/>
+            <createData entity="_defaultProduct" stepKey="createProduct">
+                <field key="price">34.00</field>
+                <requiredEntity createDataKey="createCategory"/>
+            </createData>
+            <actionGroup ref="LoginAsAdmin" stepKey="loginAsAdmin"/>
+            <actionGroup ref="VertexTaxDefaultConfig" stepKey="setupDefaultVertexTestConfiguration"/>
+            <actionGroup ref="ClearCacheActionGroup" stepKey="clearCache"/>
+        </before>
+        <after>
+            <createData entity="DefaultTaxConfig" stepKey="defaultConf"/>
+            <deleteData stepKey="deleteCategory" createDataKey="createCategory"/>
+            <deleteData stepKey="deleteProduct" createDataKey="createProduct"/>
+            <actionGroup ref="logout" stepKey="logoutOfAdmin"/>
+        </after>
+
+        <actionGroup ref="AddSimpleProductToCart" stepKey="addProductToCart">
+                <argument name="product" value="$$createProduct$$" />
+        </actionGroup>
+
+        <actionGroup ref="GoToCheckoutFromMinicartActionGroup" stepKey="gotoCheckout"/>
+
+        <actionGroup ref="GuestCheckoutFillingShippingSectionActionGroup" stepKey="fillShippingInformation">
+            <argument name="customerVar" value="Vertex_Customer_BobSaget"/><!-- @see CustomerEntityOne -->
+            <argument name="customerAddressVar" value="Vertex_Customer_BobSaget_Address"/><!-- @see CustomerAddressSimple -->
+        </actionGroup>
+
+        <actionGroup ref="VertexCheckTotalsInCheckout" stepKey="checkTotals">
+            <argument name="subtotalExclTax" value="{{Vertex_34USD_PA_Only_Totals.subtotal}}" />
+            <argument name="subtotalInclTax" value="{{Vertex_34USD_PA_Only_Totals.subtotalInclTax}}" />
+            <argument name="shippingExclTax" value="{{Vertex_34USD_PA_Only_Totals.shipping}}" />
+            <argument name="shippingInclTax" value="{{Vertex_34USD_PA_Only_Totals.shippingInclTax}}" />
+            <argument name="tax" value="{{Vertex_34USD_PA_Only_Totals.tax}}" />
+            <argument name="totalExclTax" value="{{Vertex_34USD_PA_Only_Totals.total}}" />
+            <argument name="totalInclTax" value="{{Vertex_34USD_PA_Only_Totals.totalInclTax}}" />
+        </actionGroup>
+        <actionGroup ref="VertexCheckProductAndShippingTaxTotalsInCheckout" stepKey="checkTaxSummary">
+            <argument name="product" value="{{Vertex_34USD_PA_Only_Totals.productTax}}" />
+            <argument name="shipping" value="{{Vertex_34USD_PA_Only_Totals.shippingTax}}" />
+        </actionGroup>
+    </test>
+</tests>
