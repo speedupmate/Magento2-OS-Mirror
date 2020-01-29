@@ -10,6 +10,12 @@ downloadable packages with respected tools (git) and therefore ease devops relat
   * magento2-os-2.3.0-with-samples
   * magento2-os-2.3.1
   * magento2-os-2.3.1-with-samples
+  * magento2-os-2.3.2
+  * magento2-os-2.3.2-with-samples
+  * magento2-os-2.3.3
+  * magento2-os-2.3.3-with-samples
+  * magento2-os-2.3.4
+  * magento2-os-2.3.4-with-samples
 * magento2-os-2.2
   * magento2-os-2.2.0
   * magento2-os-2.2.0-with-samples
@@ -29,27 +35,17 @@ downloadable packages with respected tools (git) and therefore ease devops relat
   * magento2-os-2.2.7-with-samples
   * magento2-os-2.2.8
   * magento2-os-2.2.8-with-samples
+  * magento2-os-2.2.9
+  * magento2-os-2.2.9-with-samples
+  * magento2-os-2.2.10
+  * magento2-os-2.2.10-with-samples
+  * magento2-os-2.2.11
+  *magento2-os-2.2.11-with-samples
 * magento2-os-2.1
   * magento2-os-2.1.0
   * magento2-os-2.1.0-with-samples
   * magento2-os-2.1.1
   * magento2-os-2.1.1-with-samples
-  * magento2-os-2.1.10
-  * magento2-os-2.1.10-with-samples
-  * magento2-os-2.1.11
-  * magento2-os-2.1.11-with-samples
-  * magento2-os-2.1.12
-  * magento2-os-2.1.12-with-samples
-  * magento2-os-2.1.13
-  * magento2-os-2.1.13-with-samples
-  * magento2-os-2.1.14
-  * magento2-os-2.1.14-with-samples
-  * magento2-os-2.1.15
-  * magento2-os-2.1.15-with-samples
-  * magento2-os-2.1.16
-  * magento2-os-2.1.16-with-samples
-  * magento2-os-2.1.17
-  * magento2-os-2.1.17-with-samples
   * magento2-os-2.1.2
   * magento2-os-2.1.2-with-samples
   * magento2-os-2.1.3
@@ -66,3 +62,21 @@ downloadable packages with respected tools (git) and therefore ease devops relat
   * magento2-os-2.1.8-with-samples
   * magento2-os-2.1.9
   * magento2-os-2.1.9-with-samples
+  * magento2-os-2.1.10
+  * magento2-os-2.1.10-with-samples
+  * magento2-os-2.1.11
+  * magento2-os-2.1.11-with-samples
+  * magento2-os-2.1.12
+  * magento2-os-2.1.12-with-samples
+  * magento2-os-2.1.13
+  * magento2-os-2.1.13-with-samples
+  * magento2-os-2.1.14
+  * magento2-os-2.1.14-with-samples
+  * magento2-os-2.1.15
+  * magento2-os-2.1.15-with-samples
+  * magento2-os-2.1.16
+  * magento2-os-2.1.16-with-samples
+  * magento2-os-2.1.17
+  * magento2-os-2.1.17-with-samples
+  * magento2-os-2.1.18
+  * magento2-os-2.1.18-with-samples
