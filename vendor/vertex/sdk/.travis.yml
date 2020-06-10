@@ -1,0 +1,52 @@
+language: php
+php:
+  - 7.1
+  - 7.2
+  - 7.3
+  - 7.4
+env:
+  - TEST_SUITE=unit
+  - TEST_SUITE=integration
+git:
+  depth: 5
+before_install:
+  - composer selfupdate
+  - composer config -g github-oauth.github.com $GITHUB_TOKEN
+  - composer global require hirak/prestissimo --no-progress
+install:
+  - composer install --dev --no-progress --no-suggest --prefer-dist -o -a
+jobs:
+  include:
+    - stage: Linters
+      name: Validate Package
+      php: 7.3
+      script: composer validate
+    - name: Codestyle
+      php: 7.3
+      script: composer test:phpcs
+    - name: Mess Detector
+      php: 7.3
+      script: composer test:phpmd
+    - stage: Packaging
+      name: Deploy artifact to Release
+      script: composer archive
+      deploy:
+        - provider: releases
+          name: $TRAVIS_TAG
+          on:
+            tags: true
+          skip_cleanup: true
+          api_key: $GITHUB_TOKEN
+          file_glob: true
+          file: vertex-sdk-*.zip
+stages:
+  - Linters
+  - Test
+  - name: Packaging
+    if: tag IS present
+script:
+  - if [ $TEST_SUITE == 'unit' ]; then composer test:unit; fi
+  - if [ $TEST_SUITE == 'integation' ]; then composer test:integration; fi
+cache:
+  directories:
+    - $HOME/.composer/cache

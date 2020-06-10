@@ -3,7 +3,7 @@
     "description": "Vertex Tax Links for Magento 2",
     "type": "magento2-module",
     "license": "proprietary",
-    "version": "3.3.0",
+    "version": "3.3.1",
     "require": {
         "php": "^7.0",
         "ext-soap": "*",
@@ -18,7 +18,7 @@
         "magento/module-directory": "^100",
         "magento/module-eav": "^100|^101|^102",
         "magento/module-store": "^100|^101",
-        "magento/module-quote": ">=100.1.0 <=100.1.11 || >=101.0.0 <=101.0.10 || >=101.1.0 <= 101.1.4",
+        "magento/module-quote": ">=100.1.0 <=100.1.11 || >=101.0.0 <=101.0.10 || >=101.1.0 < 101.1.5",
         "magento/module-sales": "^100|^101|^102",
         "magento/module-shipping": "^100",
         "magento/module-tax": "^100",

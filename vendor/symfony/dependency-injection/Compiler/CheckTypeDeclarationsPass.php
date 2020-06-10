@@ -12,9 +12,11 @@
 namespace Symfony\Component\DependencyInjection\Compiler;
 
 use Symfony\Component\DependencyInjection\Argument\IteratorArgument;
+use Symfony\Component\DependencyInjection\Argument\RewindableGenerator;
+use Symfony\Component\DependencyInjection\Argument\ServiceClosureArgument;
+use Symfony\Component\DependencyInjection\Argument\ServiceLocatorArgument;
 use Symfony\Component\DependencyInjection\Container;
 use Symfony\Component\DependencyInjection\Definition;
-use Symfony\Component\DependencyInjection\Exception\EnvNotFoundException;
 use Symfony\Component\DependencyInjection\Exception\InvalidArgumentException;
 use Symfony\Component\DependencyInjection\Exception\InvalidParameterTypeException;
 use Symfony\Component\DependencyInjection\Exception\RuntimeException;
@@ -39,7 +41,23 @@ use Symfony\Component\ExpressionLanguage\Expression;
  */
 final class CheckTypeDeclarationsPass extends AbstractRecursivePass
 {
-    private const SCALAR_TYPES = ['int', 'float', 'bool', 'string'];
+    private const SCALAR_TYPES = [
+        'int' => true,
+        'float' => true,
+        'bool' => true,
+        'string' => true,
+    ];
+
+    private const BUILTIN_TYPES = [
+        'array' => true,
+        'bool' => true,
+        'callable' => true,
+        'float' => true,
+        'int' => true,
+        'iterable' => true,
+        'object' => true,
+        'string' => true,
+    ];
 
     private $autoload;
     private $skippedIds;
@@ -159,36 +177,25 @@ final class CheckTypeDeclarationsPass extends AbstractRecursivePass
             $type = $checkedDefinition->getClass();
         }
 
+        $class = null;
+
         if ($value instanceof Definition) {
             $class = $value->getClass();
 
-            if (!$class || (!$this->autoload && !class_exists($class, false) && !interface_exists($class, false))) {
+            if (isset(self::BUILTIN_TYPES[strtolower($class)])) {
+                $class = strtolower($class);
+            } elseif (!$class || (!$this->autoload && !class_exists($class, false) && !interface_exists($class, false))) {
                 return;
             }
-
-            if ('callable' === $type && method_exists($class, '__invoke')) {
-                return;
-            }
-
-            if ('iterable' === $type && is_subclass_of($class, 'Traversable')) {
-                return;
-            }
-
-            if ('object' === $type) {
-                return;
-            }
-
-            if (is_a($class, $type, true)) {
-                return;
-            }
-
-            throw new InvalidParameterTypeException($this->currentId, $class, $parameter);
-        }
-
-        if ($value instanceof Parameter) {
+        } elseif ($value instanceof Parameter) {
             $value = $this->container->getParameter($value);
         } elseif ($value instanceof Expression) {
-            $value = $this->getExpressionLanguage()->evaluate($value, ['container' => $this->container]);
+            try {
+                $value = $this->getExpressionLanguage()->evaluate($value, ['container' => $this->container]);
+            } catch (\Exception $e) {
+                // If a service from the expression cannot be fetched from the container, we skip the validation.
+                return;
+            }
         } elseif (\is_string($value)) {
             if ('%' === ($value[0] ?? '') && preg_match('/^%([^%]+)%$/', $value, $match)) {
                 // Only array parameters are not inlined when dumped.
@@ -199,7 +206,7 @@ final class CheckTypeDeclarationsPass extends AbstractRecursivePass
                 if ('' === preg_replace('/'.$envPlaceholderUniquePrefix.'_\w+_[a-f0-9]{32}/U', '', $value, -1, $c) && 1 === $c) {
                     try {
                         $value = $this->container->resolveEnvPlaceholders($value, true);
-                    } catch (EnvNotFoundException | RuntimeException $e) {
+                    } catch (\Exception $e) {
                         // If an env placeholder cannot be resolved, we skip the validation.
                         return;
                     }
@@ -211,26 +218,57 @@ final class CheckTypeDeclarationsPass extends AbstractRecursivePass
             return;
         }
 
-        if (\in_array($type, self::SCALAR_TYPES, true) && is_scalar($value)) {
+        if (null === $class) {
+            if ($value instanceof IteratorArgument) {
+                $class = RewindableGenerator::class;
+            } elseif ($value instanceof ServiceClosureArgument) {
+                $class = \Closure::class;
+            } elseif ($value instanceof ServiceLocatorArgument) {
+                $class = ServiceLocator::class;
+            } elseif (\is_object($value)) {
+                $class = \get_class($value);
+            } else {
+                $class = \gettype($value);
+                $class = ['integer' => 'int', 'double' => 'float', 'boolean' => 'bool'][$class] ?? $class;
+            }
+        }
+
+        if (isset(self::SCALAR_TYPES[$type]) && isset(self::SCALAR_TYPES[$class])) {
             return;
         }
 
-        if ('callable' === $type && \is_array($value) && isset($value[0]) && ($value[0] instanceof Reference || $value[0] instanceof Definition)) {
+        if ('string' === $type && method_exists($class, '__toString')) {
             return;
         }
 
-        if ('iterable' === $type && (\is_array($value) || $value instanceof \Traversable || $value instanceof IteratorArgument)) {
+        if ('callable' === $type && (\Closure::class === $class || method_exists($class, '__invoke'))) {
             return;
         }
 
-        if ('Traversable' === $type && ($value instanceof \Traversable || $value instanceof IteratorArgument)) {
+        if ('callable' === $type && \is_array($value) && isset($value[0]) && ($value[0] instanceof Reference || $value[0] instanceof Definition || \is_string($value[0]))) {
+            return;
+        }
+
+        if ('iterable' === $type && (\is_array($value) || 'array' === $class || is_subclass_of($class, \Traversable::class))) {
+            return;
+        }
+
+        if ($type === $class) {
+            return;
+        }
+
+        if ('object' === $type && !isset(self::BUILTIN_TYPES[$class])) {
+            return;
+        }
+
+        if (is_a($class, $type, true)) {
             return;
         }
 
         $checkFunction = sprintf('is_%s', $parameter->getType()->getName());
 
         if (!$parameter->getType()->isBuiltin() || !$checkFunction($value)) {
-            throw new InvalidParameterTypeException($this->currentId, \is_object($value) ? \get_class($value) : \gettype($value), $parameter);
+            throw new InvalidParameterTypeException($this->currentId, \is_object($value) ? $class : \gettype($value), $parameter);
         }
     }
 
