@@ -88,8 +88,6 @@ class Kp implements MethodInterface, KlarnaPaymentMethodInterface
     private $sessionInitiatorFactory;
 
     /**
-     * Kco constructor.
-     *
      * @param Adapter                                  $adapter
      * @param Resolver                                 $resolver
      * @param ScopeConfigInterface                     $config

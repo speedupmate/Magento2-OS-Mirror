@@ -10,9 +10,18 @@
     <section name="AdminVertexSettingsConfigSection">
         <element name="vertexSettingsHeader" type="block" selector="#tax_vertex_settings-head"/>
         <element name="enableVertex" type="select" selector="#tax_vertex_settings_enable_vertex"/>
+        <element name="enableVertexCalculation" type="select" selector="#tax_vertex_settings_use_for_calculation"/>
         <element name="calculationWsdlUrl" type="input" selector="#tax_vertex_settings_api_url" />
         <element name="addressValidationWsdlUrl" type="input" selector="#tax_vertex_settings_address_api_url" />
         <element name="trustedId" type="input" selector="#tax_vertex_settings_trustedId"/>
         <element name="trustedIdError" type="text" selector="#tax_vertex_settings_trustedId-error"/>
+        <element name="invoiceOrder" type="select" selector="#tax_vertex_settings_invoice_order"/>
+        <element name="invoiceOrderStatus" type="select" selector="#tax_vertex_settings_invoice_order_status"/>
+    </section>
+    <section name="vertexApiStatus">
+        <element name="severityNotice" type="text" selector="//*[@id='row_tax_vertex_settings_vertex_status']//*[@class='grid-severity-notice']"/>
+        <element name="severityMajor" type="text" selector="//*[@id='row_tax_vertex_settings_vertex_status']//*[@class='grid-severity-major']"/>
+        <element name="severityMinor" type="text" selector="//*[@id='row_tax_vertex_settings_vertex_status']//*[@class='grid-severity-minor']"/>
+        <element name="severityCritical" type="text" selector="//*[@id='row_tax_vertex_settings_vertex_status']//*[@class='grid-severity-critical']"/>
     </section>
 </sections>

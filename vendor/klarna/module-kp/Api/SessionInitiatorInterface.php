@@ -12,11 +12,6 @@ namespace Klarna\Kp\Api;
 
 use Magento\Quote\Api\Data\CartInterface;
 
-/**
- * Interface SessionInitiatorInterface
- *
- * @package Klarna\Kp\Api
- */
 interface SessionInitiatorInterface
 {
 

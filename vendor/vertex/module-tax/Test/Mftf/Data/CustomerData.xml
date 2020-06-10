@@ -140,4 +140,16 @@
         <data key="website_id">0</data>
         <requiredEntity type="address">Vertex_Customer_BuckeyeIllinois_Address</requiredEntity>
     </entity>
+
+    <entity name="Vertex_Customer_AlanRobinson" type="customer">
+        <data key="group_id">1</data>
+        <data key="email" unique="prefix">alan.robinson@example.com</data>
+        <data key="firstname">Alan</data>
+        <data key="lastname">Robinson</data>
+        <data key="fullname">Alan Robinson</data>
+        <data key="password">alanRobinson123!</data>
+        <data key="store_id">0</data>
+        <data key="website_id">0</data>
+        <requiredEntity type="address">Vertex_Customer_AlanRobinson_Address</requiredEntity>
+    </entity>
 </entities>

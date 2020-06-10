@@ -24,6 +24,8 @@ use Vertex\Tax\Model\GuestAfterPaymentWorkaroundService;
 use Vertex\Tax\Model\Repository\OrderInvoiceStatusRepository;
 use Vertex\Tax\Model\TaxInvoice;
 use Vertex\Tax\Model\VertexTaxAttributeManager;
+use Vertex\Tax\Model\Loader\ShippingAssignmentExtensionLoader;
+use Vertex\Tax\Model\Loader\GiftwrapExtensionLoader;
 
 /**
  * Observes when an Order is saved to determine if we need to commit data to the Vertex Tax Log

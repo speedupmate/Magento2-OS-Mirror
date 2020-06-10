@@ -1,4 +1,27 @@
 
+6.5.0 / 2020-02-11
+==================
+
+  * MAGE-1184 Update styling in the admin configuration
+  * MAGE-1565 Add MFTF test for full invoice capture
+  * MAGE-1566 Add MFTF test for full invoice capture with % coupon
+  * MAGE-1567 Add MFTF test for full invoice capture with fixed coupon
+  * MAGE-1646 Add MFTF test for full credit
+  * MAGE-1647 Add MFTF test for full credit with percentage coupon
+  * MAGE-1648 Add MFTF test for full credit of fixed coupon order
+  * MAGE-1649 Add MFTF test for partial credit
+  * MAGE-1650 Add MFTF test for partial credit with % coupon
+  * MAGE-1651 Add MFTF test for partial credit with fixed coupon
+  * MAGE-1653 Add MFTF test for multiple products
+  * MAGE-1671 Add MFTF test for place order with two of one product
+  * MAGE-1675 Add MFTF test for partial credit on multi-qty
+  * MAGE-1676 Add MFTF test for partial credit with % coupon and multi-qty
+  * MAGE-1677 Add MFTF test for partial credit, fixed coupon and multi-qty
+  * MAGE-1707 Add support for Oceania endpoint
+  * MAGE-1732 Fix payment method not displayed / not filterable in order grid
+  * MAGE-1756 Fix issue with iframe not updating with shipping costs
+  * MAGE-1914 Fix payments did not appeared after customer switched to the correct country
+
 6.4.1 / 2019-11-04
 ==================
 

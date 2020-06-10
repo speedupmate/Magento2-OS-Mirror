@@ -12,11 +12,6 @@ namespace Klarna\Kp\Model\System\Config\Source;
 
 use Klarna\Core\Model\System\Config\Source\Base;
 
-/**
- * Class Version
- *
- * @package Klarna\Kp\Model\Config\Source
- */
 class Version extends Base
 {
     /**

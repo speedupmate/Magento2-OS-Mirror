@@ -26,6 +26,9 @@ const TAX_RATE_QUEBEC = 14.975;
 
 const TAX_RATE_US_IL = 6.25;
 
+/** Tax rate for California */
+const TAX_RATE_US_CA = 9.5;
+
 /** Tax rate for Danville, Illinois */
 const TAX_RATE_US_IL_DANVILLE = 2.75;
 const TAX_RATE_US_IL_VERMILION = 0.25;
@@ -128,6 +131,14 @@ $entities = [
         'tax' => 61 * TAX_RATE_VALENCIA / 100,
         'taxPercent' => TAX_RATE_VALENCIA,
     ],
+    'Vertex_Bundle_PA_Values' => [
+        'price' => 61,
+        'priceInclTax' => 61 * (TAX_RATE_PA_ONLY / 100 + 1),
+        'subtotal' => 61,
+        'subtotalInclTax' => 61 * (TAX_RATE_PA_ONLY / 100 + 1),
+        'tax' => 61 * TAX_RATE_PA_ONLY / 100,
+        'taxPercent' => TAX_RATE_PA_ONLY,
+    ],
     'Vertex_Bundle_PA_Values_Qty3' => [
         'price' => 61,
         'priceInclTax' => 61 * (TAX_RATE_PA_ONLY / 100 + 1),
@@ -181,6 +192,22 @@ $entities = [
         'rowTotalInclTax' => 23 * 3 * (TAX_RATE_PA_ONLY / 100 + 1),
         'rowTax' => 23 * 3 * TAX_RATE_PA_ONLY / 100,
         'tax' => 23 * TAX_RATE_PA_ONLY / 100,
+        'taxPercent' => TAX_RATE_PA_ONLY,
+    ],
+    'Vertex_Bundle_PA_Values_Ball_Qty1' => [
+        'price' => 23,
+        'priceInclTax' => 23 * (TAX_RATE_PA_ONLY / 100 + 1),
+        'subtotal' => 23,
+        'subtotalInclTax' => 23 * (TAX_RATE_PA_ONLY / 100 + 1),
+        'tax' => 23 * TAX_RATE_PA_ONLY / 100,
+        'taxPercent' => TAX_RATE_PA_ONLY,
+    ],
+    'Vertex_Bundle_PA_Values_Brick_Qty1' => [
+        'price' => 5,
+        'priceInclTax' => 5 * (TAX_RATE_PA_ONLY / 100 + 1),
+        'subtotal' => 5,
+        'subtotalInclTax' => 5 * (TAX_RATE_PA_ONLY / 100 + 1),
+        'tax' => 5 * TAX_RATE_PA_ONLY / 100,
         'taxPercent' => TAX_RATE_PA_ONLY,
     ],
     'Vertex_Bundle_PA_Values_Qty1' => [
@@ -273,12 +300,42 @@ $entities = [
                 100 * 100 * (
                     (TAX_RATE_US_IL + TAX_RATE_US_IL_COOK + TAX_RATE_US_IL_RIVER_GROVE + TAX_RATE_US_IL_COOK_RTA) / 100 + 1)
             ) / 100,
-        'tax' => floor(100 * 100 * (TAX_RATE_US_IL + TAX_RATE_US_IL_COOK + TAX_RATE_US_IL_RIVER_GROVE + TAX_RATE_US_IL_COOK_RTA) / 100) / 100,
+        'tax' => floor(
+                100 * 100 * (TAX_RATE_US_IL + TAX_RATE_US_IL_COOK + TAX_RATE_US_IL_RIVER_GROVE + TAX_RATE_US_IL_COOK_RTA) / 100
+            ) / 100,
         'taxPercent' => TAX_RATE_US_IL + TAX_RATE_US_IL_COOK + TAX_RATE_US_IL_RIVER_GROVE + TAX_RATE_US_IL_COOK_RTA,
+    ],
+    'Vertex_19USD_TCSIX_Values' => [
+        'price' => 20,
+        'priceInclTax' => 20 * (TAX_RATE_US_CA / 100 + 1),
+        'subtotal' => 20,
+        'subtotalInclTax' => 20 * (TAX_RATE_US_CA / 100 + 1),
+        'tax' => 20 * TAX_RATE_US_CA / 100,
+        'taxPercent' => TAX_RATE_US_CA,
+    ],
+    'Vertex_Bundle_Fixed_With_Ball_TCSIX_Values' => [
+        'basePrice' => 15,
+        'ballPrice' => 4,
+        'price' => 19,
+        'priceInclTax' => 19 * (TAX_RATE_US_CA / 100 + 1),
+        'subtotal' => 19,
+        'subtotalInclTax' => 19 * (TAX_RATE_US_CA / 100 + 1),
+        'tax' => 19 * TAX_RATE_US_CA / 100,
+        'taxPercent' => TAX_RATE_US_CA,
     ],
 ];
 
 $totals = [
+    'Vertex_Bundle_PA_Ball_Brick_Qty3_Totals' => [
+        'pieces' => [
+            'Vertex_Bundle_PA_Values_Qty3',
+            'Vertex_Bundle_PA_Values_Ball_Qty3',
+            'Vertex_Bundle_PA_Values_Brick_Qty3',
+        ],
+        'shipping' => 15,
+        'shippingTax' => 15 * TAX_RATE_PA_ONLY / 100,
+        'shippingInclTax' => 15 * (TAX_RATE_PA_ONLY / 100 + 1),
+    ],
     'Vertex_100USD_Virtual_and_Downloadable_PA_Only_Totals' => [
         'pieces' => [
             'Vertex_100USD_PA_Only_Values',
@@ -408,7 +465,33 @@ $totals = [
         'shipping' => 5,
         'shippingTax' => 5 * TAX_RATE_US_IL / 100,
         'shippingInclTax' => 5 * TAX_RATE_US_IL / 100 + 1,
-    ]
+    ],
+    'Vertex_19USD_TCSIX_Totals' => [
+        'taxRate' => TAX_RATE_US_CA,
+        'pieces' => [
+            'Vertex_19USD_TCSIX_Values',
+        ],
+        'shipping' => 5,
+        'shippingTax' => ceil(100 * 5 * (TAX_RATE_US_CA / 100)) / 100,
+        'shippingInclTax' => ceil(100 * 5 * (TAX_RATE_US_CA / 100 + 1)) / 100
+    ],
+    'Vertex_Bundle_Valencia_Ball_Brick_Qty3_Totals' => [
+        'pieces' => [
+            'Vertex_Bundle_Valencia_Values'
+        ],
+        'shipping' => 5,
+        'shippingTax' => ceil(100 * 5 * (TAX_RATE_VALENCIA / 100)) / 100,
+        'shippingInclTax' => ceil(100 * 5 * (TAX_RATE_VALENCIA / 100 + 1)) / 100
+    ],
+    'Vertex_Bundle_Fixed_With_Ball_TCSIX_Totals' => [
+        'taxRate' => TAX_RATE_US_CA,
+        'pieces' => [
+            'Vertex_Bundle_Fixed_With_Ball_TCSIX_Values'
+        ],
+        'shipping' => 5,
+        'shippingTax' => ceil(100 * 5 * (TAX_RATE_US_CA / 100)) / 100,
+        'shippingInclTax' => ceil(100 * 5 * (TAX_RATE_US_CA / 100 + 1)) / 100,
+    ],
 ];
 
 $jurisdictions = [
@@ -459,7 +542,7 @@ foreach ($totals as $entityName => $data) {
 
     $keys = array_reduce(
         $data['pieces'],
-        function (array $carry, $piece) use ($entities) {
+        static function (array $carry, $piece) use ($entities) {
             $piece = $entities[$piece];
             $carry['subtotal'] += $piece['rowTotal'] ?? $piece['subtotal'];
             $carry['total'] += $piece['rowTotal'] ?? $piece['subtotal'];
@@ -476,11 +559,23 @@ foreach ($totals as $entityName => $data) {
             $keys[$key] = $value;
         }
     }
-    $keys['tax'] += $data['shippingTax'];
+
     $keys['total'] += $data['shipping'];
-    $keys['totalInclTax'] += $data['shippingInclTax'];
+    if (isset($data['taxRate'])) {
+        // Rounding occurs on the order level, so we should re-calculate some totals & sub-totals if possible
+        $keys['tax'] = ceil($keys['total'] * 100 * ($data['taxRate'] / 100)) / 100;
+        $keys['subtotalInclTax'] = ceil($keys['subtotal'] * 100 * ($data['taxRate'] / 100 + 1)) / 100;
+        $keys['productTax'] = ceil($keys['subtotal'] * 100 * ($data['taxRate'] / 100)) / 100;
+        $keys['totalInclTax'] = ceil($keys['total'] * 100 * ($data['taxRate'] / 100 + 1)) / 100;
+    } else {
+        $keys['tax'] += $data['shippingTax'];
+        $keys['totalInclTax'] += $data['shippingInclTax'];
+    }
 
     foreach ($keys as $dataKey => $dataValue) {
+        if ($dataKey === 'taxRate') {
+            continue;
+        }
         $dataXML = $entityXML->addChild(
             'data',
             is_numeric($dataValue) ? number_format(round($dataValue, 2, PHP_ROUND_HALF_DOWN), 2) : $dataValue

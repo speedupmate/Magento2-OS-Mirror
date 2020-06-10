@@ -13,9 +13,6 @@ namespace Klarna\Kp\Model\Api\Request;
 use Klarna\Kp\Api\Data\OptionsInterface;
 
 /**
- * Class Options
- *
- * @package Klarna\Kp\Model\Api\Request
  * @SuppressWarnings(PHPMD.TooManyFields)
  */
 class Options implements OptionsInterface
@@ -113,8 +110,6 @@ class Options implements OptionsInterface
     private $color_details;
 
     /**
-     * Constructor.
-     *
      * @param array $data
      */
     public function __construct($data = [])

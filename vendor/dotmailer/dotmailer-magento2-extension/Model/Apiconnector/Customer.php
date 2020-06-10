@@ -2,6 +2,11 @@
 
 namespace Dotdigitalgroup\Email\Model\Apiconnector;
 
+use Magento\Framework\Model\AbstractModel;
+use Magento\Framework\Stdlib\DateTime\TimezoneInterfaceFactory;
+use Dotdigitalgroup\Email\Model\DateIntervalFactory;
+use Dotdigitalgroup\Email\Logger\Logger;
+
 /**
  * Manages the Customer data as datafields for contact.
  *
@@ -25,12 +30,12 @@ class Customer extends ContactData
     /**
      * @var array
      */
-    public $mappingHash;
+    public $columns;
 
     /**
-     * @var \Dotdigitalgroup\Email\Helper\Data
+     * @var Logger
      */
-    public $helper;
+    public $logger;
 
     /**
      * @var \Magento\Customer\Model\GroupFactory
@@ -65,13 +70,12 @@ class Customer extends ContactData
     /**
      * @var array
      */
-    public $subscriberStatus
-        = [
-            \Magento\Newsletter\Model\Subscriber::STATUS_SUBSCRIBED => 'Subscribed',
-            \Magento\Newsletter\Model\Subscriber::STATUS_NOT_ACTIVE => 'Not Active',
-            \Magento\Newsletter\Model\Subscriber::STATUS_UNSUBSCRIBED => 'Unsubscribed',
-            \Magento\Newsletter\Model\Subscriber::STATUS_UNCONFIRMED => 'Unconfirmed',
-        ];
+    public $subscriberStatus = [
+        \Magento\Newsletter\Model\Subscriber::STATUS_SUBSCRIBED => 'Subscribed',
+        \Magento\Newsletter\Model\Subscriber::STATUS_NOT_ACTIVE => 'Not Active',
+        \Magento\Newsletter\Model\Subscriber::STATUS_UNSUBSCRIBED => 'Unsubscribed',
+        \Magento\Newsletter\Model\Subscriber::STATUS_UNCONFIRMED => 'Unconfirmed',
+    ];
 
     /**
      * @var \Magento\Customer\Model\ResourceModel\Group
@@ -95,6 +99,9 @@ class Customer extends ContactData
      * @param \Magento\Sales\Model\ResourceModel\Order $resourceOrder
      * @param \Magento\Eav\Model\ConfigFactory $eavConfigFactory
      * @param \Dotdigitalgroup\Email\Helper\Config $configHelper
+     * @param TimezoneInterfaceFactory $localeDateFactory
+     * @param DateIntervalFactory $dateIntervalFactory
+     * @param Logger $logger
      */
     public function __construct(
         \Magento\Catalog\Model\ResourceModel\Product $productResource,
@@ -110,7 +117,10 @@ class Customer extends ContactData
         \Magento\Sales\Model\OrderFactory $orderFactory,
         \Magento\Sales\Model\ResourceModel\Order $resourceOrder,
         \Magento\Eav\Model\ConfigFactory $eavConfigFactory,
-        \Dotdigitalgroup\Email\Helper\Config $configHelper
+        \Dotdigitalgroup\Email\Helper\Config $configHelper,
+        TimezoneInterfaceFactory $localeDateFactory,
+        DateIntervalFactory $dateIntervalFactory,
+        Logger $logger
     ) {
         $this->reviewCollection  = $reviewCollectionFactory;
         $this->orderCollection   = $collectionFactory;
@@ -127,23 +137,23 @@ class Customer extends ContactData
             $categoryFactory,
             $categoryResource,
             $eavConfigFactory,
-            $configHelper
+            $configHelper,
+            $localeDateFactory,
+            $dateIntervalFactory,
+            $logger
         );
     }
 
     /**
-     * Set customer data.
-     *
-     * @param \Magento\Customer\Model\Customer customer
-     *
-     * @return $this
-     *
+     * @param AbstractModel $model
+     * @param array $columns
+     * @return $this|ContactData
      */
-    public function setContactData($customer)
+    public function init(AbstractModel $model, array $columns)
     {
-        $this->model = $customer;
+        parent::init($model, $columns);
         $this->setReviewCollection();
-        parent::setContactData($customer);
+        $this->setContactData();
 
         return $this;
     }
@@ -175,12 +185,9 @@ class Customer extends ContactData
      */
     public function setReviewCollection()
     {
-        $customerId = $this->model->getId();
-        $collection = $this->reviewCollection->create()
-            ->addCustomerFilter($customerId)
+        $this->reviewCollection = $this->reviewCollection->create()
+            ->addCustomerFilter($this->model->getId())
             ->setOrder('review_id', 'DESC');
-
-        $this->reviewCollection = $collection;
 
         return $this;
     }
@@ -567,15 +574,5 @@ class Customer extends ContactData
     public function getDeliveryCompany()
     {
         return $this->model->getShippingCompany();
-    }
-
-    /**
-     * @param string $method
-     * @param array $args
-     * @return mixed
-     */
-    public function __call($method, $args)
-    {
-        return call_user_func_array([$this->model, $method], $args);
     }
 }

@@ -4,7 +4,9 @@ namespace Dotdigitalgroup\Email\Console\Command;
 
 use Dotdigitalgroup\Email\Console\Command\Provider\SyncProvider;
 use Dotdigitalgroup\Email\Model\Sync\SyncInterface;
+use Magento\Framework\App\Area;
 use Magento\Framework\App\State;
+use Magento\Framework\Exception\LocalizedException;
 use Symfony\Component\Console\Command\Command;
 use Symfony\Component\Console\Input\InputArgument;
 use Symfony\Component\Console\Input\InputInterface;
@@ -25,7 +27,6 @@ class ImporterSyncsCommand extends Command
     private $state;
 
     /**
-     * ImporterSyncsCommand constructor
      * @param SyncProvider $syncProvider
      * @param State $state
      */
@@ -49,10 +50,7 @@ class ImporterSyncsCommand extends Command
             ->addArgument(
                 'sync',
                 InputArgument::OPTIONAL,
-                sprintf('%s (%s)',
-                    __('The name of the sync to run'),
-                    implode('; ', $this->syncProvider->getAvailableSyncs())
-                )
+                __('The name of the sync to run')
             )
             ->addOption(
                 'from',
@@ -65,14 +63,24 @@ class ImporterSyncsCommand extends Command
     }
 
     /**
-     * Execute the data migration
+     * Run the sync command
+     *
      * @param InputInterface $input
      * @param OutputInterface $output
      * @return int|void|null
+     * @throws LocalizedException
      */
     protected function execute(InputInterface $input, OutputInterface $output)
     {
-        $this->state->setAreaCode(\Magento\Framework\App\Area::AREA_CRONTAB);
+        try {
+            $this->state->setAreaCode(Area::AREA_CRONTAB);
+        } catch (LocalizedException $e) {
+            if ($this->state->getAreaCode() != Area::AREA_CRONTAB) {
+                $output->writeln(__(
+                    sprintf('Warning: command running in an unexpected state (%s)', $this->state->getAreaCode())
+                )->getText());
+            }
+        }
 
         if (!$requestedSync = $input->getArgument('sync')) {
             $requestedSync = $this->askForSync($input, $output);
@@ -81,15 +89,16 @@ class ImporterSyncsCommand extends Command
         // get the requested sync class
         /** @var SyncInterface $syncClass */
         $syncClass = $this->syncProvider->$requestedSync;
-        if (is_null($syncClass) || !$syncClass instanceof SyncInterface) {
-            $output->writeln('Requested sync was not recognised');
+        if ($syncClass === null || !$syncClass instanceof SyncInterface) {
+            $output->writeln(__('Requested sync was not recognised')->getText());
             return;
         }
 
         $start = microtime(true);
-        $output->writeln(sprintf('[%s] %s: %s',
+        $output->writeln(sprintf(
+            '[%s] %s: %s',
             date('Y-m-d H:i:s'),
-            __('Started running sync'),
+            __('Started running sync')->getText(),
             get_class($syncClass)
         ));
 
@@ -103,9 +112,10 @@ class ImporterSyncsCommand extends Command
         // run the sync
         $syncClass->sync($fromTime);
 
-        $output->writeln(sprintf('[%s] %s %s',
+        $output->writeln(sprintf(
+            '[%s] %s %s',
             date('Y-m-d H:i:s'),
-            __('Complete in'),
+            __('Complete in')->getText(),
             round(microtime(true) - $start, 2)
         ));
     }
@@ -120,9 +130,9 @@ class ImporterSyncsCommand extends Command
         $helper = $this->getHelper('question');
         $syncQuestion = new ChoiceQuestion(
             __('Please select an Engagement Cloud sync to run')->getText(),
-            array_values($this->syncProvider->getAvailableSyncs())
+            array_column($this->syncProvider->getAvailableSyncs(), 'title')
         );
-        $syncQuestion->setErrorMessage(__('Please select a sync'));
+        $syncQuestion->setErrorMessage(__('Please select a sync')->getText());
         return $helper->ask($input, $output, $syncQuestion);
     }
 }

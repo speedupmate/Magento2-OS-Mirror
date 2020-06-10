@@ -8,7 +8,7 @@
         <vertex_address_validation>
             <vertex_settings>
                 <enable><![CDATA[0]]></enable>
-                <address_api_url><![CDATA[https://mgconnect.vertexsmb.com/vertex-ws/services/CalculateTax70]]></address_api_url>
+                <address_api_url><![CDATA[https://mgconnect.vertexsmb.com/vertex-ws/services/LookupTaxAreas70]]></address_api_url>
                 <always_message><![CDATA[0]]></always_message>
             </vertex_settings>
         </vertex_address_validation>

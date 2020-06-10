@@ -10,11 +10,6 @@
 
 namespace Klarna\Core\Api;
 
-/**
- * Interface ServiceInterface
- *
- * @package Klarna\Core\Api
- */
 interface ServiceInterface
 {
     /**

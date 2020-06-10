@@ -8,16 +8,35 @@ declare(strict_types = 1);
 
 namespace Magento\FunctionalTestingFramework\Console;
 
+use Magento\FunctionalTestingFramework\Exceptions\TestFrameworkException;
+use Magento\FunctionalTestingFramework\Test\Handlers\TestObjectHandler;
+use Magento\FunctionalTestingFramework\Util\Path\FilePathFormatter;
 use Symfony\Component\Console\Command\Command;
+use Symfony\Component\Console\Input\InputInterface;
 use Symfony\Component\Console\Input\InputOption;
 use Symfony\Component\Console\Output\OutputInterface;
 use Magento\FunctionalTestingFramework\Util\Filesystem\DirSetupUtil;
 use Magento\FunctionalTestingFramework\Util\TestGenerator;
 use Magento\FunctionalTestingFramework\Config\MftfApplicationConfig;
 use Magento\FunctionalTestingFramework\Suite\Handlers\SuiteObjectHandler;
+use Symfony\Component\Console\Style\SymfonyStyle;
 
 class BaseGenerateCommand extends Command
 {
+    const MFTF_3_O_0_DEPRECATION_MESSAGE = "MFTF NOTICES:\n"
+        . "DEPRECATED ACTIONS: \"executeInSelenium\" and \"performOn\" actions will be removed in MFTF 3.0.0\n"
+        . "DEPRECATED TEST PATH: support for \"dev/tests/acceptance/tests/functional/Magento/FunctionalTest will be "
+        . "removed in MFTF 3.0.0\n"
+        . "XSD schema change to only allow single entity per xml file for all entities except data and metadata in "
+        . "MFTF 3.0.0\n";
+
+    /**
+     * Console output style
+     *
+     * @var SymfonyStyle
+     */
+    protected $ioStyle = null;
+
     /**
      * Configures the base command.
      *
@@ -56,10 +75,11 @@ class BaseGenerateCommand extends Command
      * @param OutputInterface $output
      * @param bool $verbose
      * @return void
+     * @throws TestFrameworkException
      */
     protected function removeGeneratedDirectory(OutputInterface $output, bool $verbose)
     {
-        $generatedDirectory = TESTS_MODULE_PATH . DIRECTORY_SEPARATOR . TestGenerator::GENERATED_DIR;
+        $generatedDirectory = FilePathFormatter::format(TESTS_MODULE_PATH) . TestGenerator::GENERATED_DIR;
 
         if (file_exists($generatedDirectory)) {
             DirSetupUtil::rmdirRecursive($generatedDirectory);
@@ -75,7 +95,6 @@ class BaseGenerateCommand extends Command
      * @return false|string
      * @throws \Magento\FunctionalTestingFramework\Exceptions\XmlException
      */
-
     protected function getTestAndSuiteConfiguration(array $tests)
     {
         $testConfiguration['tests'] = null;
@@ -84,6 +103,10 @@ class BaseGenerateCommand extends Command
         $suiteToTestPair = [];
 
         foreach($tests as $test) {
+            if (strpos($test, ':') !== false) {
+                $suiteToTestPair[] = $test;
+                continue;
+            }
             if (array_key_exists($test, $testsReferencedInSuites)) {
                 $suites = $testsReferencedInSuites[$test];
                 foreach ($suites as $suite) {
@@ -102,5 +125,102 @@ class BaseGenerateCommand extends Command
         }
         $testConfigurationJson = json_encode($testConfiguration);
         return $testConfigurationJson;
+    }
+
+    /**
+     * Returns an array of test configuration to be used as an argument for generation of tests
+     * This function uses group or suite names for generation
+     * @return false|string
+     * @throws \Magento\FunctionalTestingFramework\Exceptions\XmlException
+     */
+    protected function getGroupAndSuiteConfiguration(array $groupOrSuiteNames)
+    {
+        $result['tests'] = [];
+        $result['suites'] = [];
+
+        $groups = [];
+        $suites = [];
+
+        $allSuites = SuiteObjectHandler::getInstance()->getAllObjects();
+        $testsInSuites = SuiteObjectHandler::getInstance()->getAllTestReferences();
+
+        foreach ($groupOrSuiteNames as $groupOrSuiteName) {
+            if (array_key_exists($groupOrSuiteName, $allSuites)) {
+                $suites[] = $groupOrSuiteName;
+            } else {
+                $groups[] = $groupOrSuiteName;
+            }
+        }
+
+        foreach ($suites as $suite) {
+            $result['suites'][$suite] = [];
+        }
+
+        foreach ($groups as $group) {
+            $testsInGroup = TestObjectHandler::getInstance()->getTestsByGroup($group);
+
+            $testsInGroupAndNotInAnySuite = array_diff(
+                array_keys($testsInGroup),
+                array_keys($testsInSuites)
+            );
+
+            $testsInGroupAndInAnySuite = array_diff(
+                array_keys($testsInGroup),
+                $testsInGroupAndNotInAnySuite
+            );
+
+            foreach ($testsInGroupAndInAnySuite as $testInGroupAndInAnySuite) {
+                $suiteName = $testsInSuites[$testInGroupAndInAnySuite][0];
+                if (array_search($suiteName, $suites) !== false) {
+                    // Suite is already being called to run in its entirety, do not filter list
+                    continue;
+                }
+                $result['suites'][$suiteName][] = $testInGroupAndInAnySuite;
+            }
+
+            $result['tests'] = array_merge(
+                $result['tests'],
+                $testsInGroupAndNotInAnySuite
+            );
+        }
+
+        if (empty($result['tests'])) {
+            $result['tests'] = null;
+        }
+        if (empty($result['suites'])) {
+            $result['suites'] = null;
+        }
+
+        $json = json_encode($result);
+        return $json;
+    }
+
+    /**
+     * Set Symfony Style for output
+     *
+     * @param InputInterface $input
+     * @param OutputInterface $output
+     */
+    protected function setOutputStyle(InputInterface $input, OutputInterface $output)
+    {
+        // For output style
+        if (null === $this->ioStyle) {
+            $this->ioStyle = new SymfonyStyle($input, $output);
+        }
+    }
+
+    /**
+     * Show predefined global notice messages
+     *
+     * @param OutputInterface $output
+     * @return void
+     */
+    protected function showMftfNotices(OutputInterface $output)
+    {
+        if (null !== $this->ioStyle) {
+            $this->ioStyle->note(self::MFTF_3_O_0_DEPRECATION_MESSAGE);
+        } else {
+            $output->writeln(self::MFTF_3_O_0_DEPRECATION_MESSAGE);
+        }
     }
 }

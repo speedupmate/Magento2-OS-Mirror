@@ -12,11 +12,6 @@ namespace Klarna\Ordermanagement\Gateway\Command;
 
 use Magento\Payment\Gateway\Command;
 
-/**
- * Class FetchTransactionInfo
- *
- * @package Klarna\Ordermanagement\Gateway\Command
- */
 class FetchTransactionInfo extends AbstractCommand
 {
     const PENDING = 0;

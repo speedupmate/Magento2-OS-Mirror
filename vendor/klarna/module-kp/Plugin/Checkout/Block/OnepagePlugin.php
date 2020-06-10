@@ -19,7 +19,6 @@ use Magento\Store\Model\StoreManagerInterface;
 /**
  * This onepage checkout block run before or after specific actions of the magento onepage checkout block
  *
- * @package Klarna\Kp\Plugin\Checkout\Block
  */
 class OnepagePlugin
 {
@@ -39,8 +38,6 @@ class OnepagePlugin
     private $storeManager;
 
     /**
-     * OnepagePlugin constructor.
-     *
      * @param KlarnaKpSession       $kpSession
      * @param ScopeConfigInterface  $config
      * @param StoreManagerInterface $storeManager

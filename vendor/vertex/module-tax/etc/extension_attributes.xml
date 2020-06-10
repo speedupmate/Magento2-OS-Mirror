@@ -12,6 +12,7 @@
         <!-- @api For all QuoteDetailsItemInterface extension attributes -->
         <attribute code="vertex_product_code" type="string"/>
         <attribute code="vertex_is_configurable" type="bool"/>
+        <attribute code="is_virtual" type="bool"/>
         <attribute code="store_id" type="string"/>
         <attribute code="quote_id" type="string"/>
         <attribute code="product_id" type="string"/>
@@ -32,11 +33,6 @@
         <attribute code="vertex_tax_codes" type="string[]"/>
         <attribute code="invoice_text_codes" type="string[]"/>
         <attribute code="tax_codes" type="string[]"/>
-    </extension_attributes>
-    <extension_attributes for="Magento\Sales\Api\Data\InvoiceItemInterface">
-        <attribute code="vertex_tax_codes" type="string[]" />
-        <attribute code="invoice_text_codes" type="string[]" />
-        <attribute code="tax_codes" type="string[]" />
     </extension_attributes>
     <extension_attributes for="Magento\Quote\Api\Data\TotalSegmentInterface">
         <attribute code="vertex_tax_calculation_messages" type="string[]"/>

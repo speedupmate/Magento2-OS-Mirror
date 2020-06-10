@@ -43,6 +43,7 @@
             </actionGroup>
         </before>
         <after>
+            <actionGroup ref="StorefrontCustomerLogoutActionGroup" stepKey="customerLogout"/>
             <deleteData stepKey="deleteSPCM" createDataKey="createSPCM"/>
             <deleteData stepKey="deleteTaxClass" createDataKey="createTaxClass" />
             <deleteData stepKey="deleteChildProduct1" actionGroup="Config1" createDataKey="createConfigChildProduct1" />
@@ -58,7 +59,6 @@
             <deleteData stepKey="deleteCustomer" createDataKey="createCustomer"/>
             <createData entity="DefaultTaxConfig" stepKey="defaultConf"/>
             <actionGroup ref="logout" stepKey="logoutOfAdmin"/>
-            <actionGroup ref="StorefrontCustomerLogoutActionGroup" stepKey="customerLogout"/>
         </after>
 
         <actionGroup ref="VertexAddSingleOptionConfigurableProductToCart" stepKey="addFirstConfigToCart">
@@ -270,9 +270,10 @@
 
         <actionGroup ref="StorefrontOpenCartFromMinicartActionGroup" stepKey="gotoCart"/>
 
-        <actionGroup ref="FillShippingZipForm" stepKey="fillEstimateShippingInformation">
-            <argument name="address" value="Vertex_Customer_JacindaArdern_Address"/>
-        </actionGroup>
+        <waitForPageLoad stepKey="waitForCartPage"/>
+        <conditionalClick selector="{{CheckoutCartSummarySection.shippingHeading}}" dependentSelector="{{CheckoutCartSummarySection.shippingMethodForm}}" visible="false" stepKey="openEstimateShippingSection"/>
+        <checkOption selector="{{CheckoutCartSummarySection.flatRateShippingMethod}}" stepKey="selectFlatRateShipping"/>
+        <waitForPageLoad stepKey="waitForTotals"/>
 
         <actionGroup ref="VertexCheckTotalsInCart" stepKey="checkTotals">
             <argument name="subtotalExclTax" value="{{Vertex_100USD_and_18USD_and_100USD_Clothing_PA_Only_Totals.subtotal}}" />
@@ -455,7 +456,9 @@
         </actionGroup>
 
         <actionGroup ref="StorefrontOpenCartFromMinicartActionGroup" stepKey="gotoCart"/>
-        <actionGroup ref="PlaceOrderWithLoggedUserActionGroup" stepKey="placeOrder"/>
+        <actionGroup ref="PlaceOrderWithLoggedUserActionGroup" stepKey="placeOrder">
+            <argument name="shippingMethod" value="Flat Rate"/>
+        </actionGroup>
         <click stepKey="clickOrderNumber" selector="{{CheckoutSuccessMainSection.orderLink}}"/>
 
         <actionGroup ref="VertexCheckProductPricingOnStorefrontOrderReview" stepKey="checkConfig1">
@@ -551,7 +554,9 @@
             </actionGroup>
 
             <actionGroup ref="StorefrontOpenCartFromMinicartActionGroup" stepKey="gotoCart"/>
-            <actionGroup ref="PlaceOrderWithLoggedUserActionGroup" stepKey="placeOrder"/>
+            <actionGroup ref="PlaceOrderWithLoggedUserActionGroup" stepKey="placeOrder">
+                <argument name="shippingMethod" value="Flat Rate"/>
+            </actionGroup>
             <waitForPageLoad stepKey="waitSuccess"/>
 
             <grabTextFrom selector="{{CheckoutSuccessMainSection.orderNumber22}}" stepKey="orderNumber"/>

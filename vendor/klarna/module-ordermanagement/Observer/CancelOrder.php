@@ -24,9 +24,6 @@ use Psr\Log\LoggerInterface;
 use Magento\Store\Model\StoreManagerInterface;
 
 /**
- * Class CancelOrder
- *
- * @package Klarna\Ordermanagement\Observer
  * @SuppressWarnings(PHPMD.CouplingBetweenObjects)
  */
 class CancelOrder implements ObserverInterface
@@ -72,8 +69,6 @@ class CancelOrder implements ObserverInterface
     private $storeManager;
 
     /**
-     * CancelOrder constructor.
-     *
      * @param LoggerInterface          $log
      * @param Ordermanagement          $om
      * @param KlarnaConfig             $helper

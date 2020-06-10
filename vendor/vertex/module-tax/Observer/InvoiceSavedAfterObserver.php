@@ -20,6 +20,8 @@ use Vertex\Tax\Model\GuestAfterPaymentWorkaroundService;
 use Vertex\Tax\Model\InvoiceSentRegistry;
 use Vertex\Tax\Model\TaxInvoice;
 use Vertex\Tax\Model\VertexTaxAttributeManager;
+use Vertex\Tax\Model\Loader\VertexCalculationExtensionLoader;
+use Vertex\Tax\Model\Loader\GiftwrapExtensionLoader;
 
 /**
  * Observes when an Invoice is issued to fire off data to the Vertex Tax Log

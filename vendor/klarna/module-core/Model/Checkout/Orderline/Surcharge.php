@@ -19,11 +19,6 @@ use Magento\Framework\DataObjectFactory;
 use Magento\Tax\Model\Calculation;
 use Klarna\Core\Model\Fpt\Rate;
 
-/**
- * Class Surcharge
- *
- * @package Klarna\Core\Model\Checkout\Orderline
- */
 class Surcharge extends AbstractLine
 {
 
@@ -34,8 +29,6 @@ class Surcharge extends AbstractLine
     private $configHelper;
 
     /**
-     * AbstractLine constructor.
-     *
      * @param DataConverter        $helper
      * @param Calculation          $calculator
      * @param ScopeConfigInterface $config

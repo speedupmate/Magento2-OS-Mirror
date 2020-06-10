@@ -9,7 +9,6 @@ namespace Vertex\Tax\Model\Plugin;
 use Magento\Framework\Exception\NoSuchEntityException;
 use Magento\Framework\Message\ManagerInterface;
 use Magento\Framework\Message\MessageInterface;
-use Magento\Quote\Api\Data\TotalSegmentExtensionFactory;
 use Magento\Quote\Api\Data\TotalSegmentInterface;
 use Magento\Quote\Model\Cart\TotalsConverter;
 use Magento\Quote\Model\Quote\Address\Total;
@@ -37,23 +36,12 @@ class TotalsCalculationMessagePlugin
     /** @var StoreManagerInterface */
     private $storeManager;
 
-    /** @var TotalSegmentExtensionFactory */
-    private $totalSegmentExtensionFactory;
-
-    /**
-     * @param TotalSegmentExtensionFactory $totalSegmentExtensionFactory
-     * @param ManagerInterface $messageManager
-     * @param Config $config
-     * @param StoreManagerInterface $storeManager
-     */
     public function __construct(
-        TotalSegmentExtensionFactory $totalSegmentExtensionFactory,
         ManagerInterface $messageManager,
         Config $config,
         StoreManagerInterface $storeManager,
         LoggerInterface $logger
     ) {
-        $this->totalSegmentExtensionFactory = $totalSegmentExtensionFactory;
         $this->messageManager = $messageManager;
         $this->config = $config;
         $this->storeManager = $storeManager;
@@ -109,9 +97,6 @@ class TotalsCalculationMessagePlugin
         }
 
         $attributes = $totalSegments['tax']->getExtensionAttributes();
-        if ($attributes === null) {
-            $attributes = $this->totalSegmentExtensionFactory->create();
-        }
 
         $attributes->setVertexTaxCalculationMessages(
             array_map(
@@ -121,7 +106,6 @@ class TotalsCalculationMessagePlugin
                 $messageCollection->getItems()
             )
         );
-        $totalSegments['tax']->setExtensionAttributes($attributes);
 
         return $totalSegments;
     }

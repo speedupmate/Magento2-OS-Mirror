@@ -18,7 +18,7 @@
             <group value="url_rewrite"/>
             <group value="mtf_migrated"/>
             <skip>
-                <issueId value="DEPRECATED">Use AdminCheckUrlRewriteInCatalogCategoriesAfterChangingUrlKeyForStoreViewAndMovingCategoryTest instead</issueId>
+                <issueId value="DEPRECATED">Use AdminCheckUrlRewritesInCatalogCategoriesAfterChangingUrlKeyForStoreViewAndMovingCategory2Test instead</issueId>
             </skip>
         </annotations>
         <before>

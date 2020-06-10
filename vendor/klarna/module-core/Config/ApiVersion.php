@@ -13,9 +13,6 @@ namespace Klarna\Core\Config;
 use Klarna\Core\Api\VersionInterface;
 
 /**
- * Class ApiVersion
- *
- * @package Klarna\Core\Config
  * @SuppressWarnings(PHPMD.TooManyFields)
  */
 class ApiVersion implements VersionInterface
@@ -94,8 +91,6 @@ class ApiVersion implements VersionInterface
     private $label = '';
 
     /**
-     * ApiVersion constructor.
-     *
      * @param string $type
      */
     public function __construct($data = [])

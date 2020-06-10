@@ -17,11 +17,6 @@ use Magento\Framework\Exception\CouldNotSaveException;
 use Magento\Framework\Exception\NoSuchEntityException;
 use Magento\Sales\Api\Data\OrderInterface as MageOrder;
 
-/**
- * Class OrderRepository
- *
- * @package Klarna\Core\Model
- */
 class OrderRepository implements OrderRepositoryInterface
 {
     /**
@@ -39,8 +34,6 @@ class OrderRepository implements OrderRepositoryInterface
     private $resourceModel;
 
     /**
-     * OrderRepository constructor.
-     *
      * @param OrderFactory  $orderFactory
      * @param OrderResource $resourceModel
      *

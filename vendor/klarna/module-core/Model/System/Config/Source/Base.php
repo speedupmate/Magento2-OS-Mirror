@@ -13,11 +13,6 @@ namespace Klarna\Core\Model\System\Config\Source;
 use Magento\Framework\Config\DataInterface;
 use Magento\Framework\Option\ArrayInterface;
 
-/**
- * Class Base
- *
- * @package Klarna\Core\Model\System\Config\Source
- */
 class Base implements ArrayInterface
 {
     /**
@@ -32,8 +27,6 @@ class Base implements ArrayInterface
     private $optionName = '';
 
     /**
-     * Base constructor.
-     *
      * @param DataInterface $config
      * @param string        $optionName
      */

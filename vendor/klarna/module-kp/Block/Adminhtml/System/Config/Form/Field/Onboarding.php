@@ -18,9 +18,6 @@ use Klarna\Core\Model\System;
 
 /**
  * Getting back the Klarna Merchant Onboarding text with link
- *
- * Class Onboarding
- * @package Klarna\Kp\Block\Adminhtml\System\Config\Form\Field
  */
 class Onboarding extends Field
 {

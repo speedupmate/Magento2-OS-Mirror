@@ -55,7 +55,7 @@
         </actionGroup>
 
         <!--Add product to shopping cart-->
-        <actionGroup ref="ApplyCartRuleOnStorefrontActionGroup" stepKey="applyCartRule">
+        <actionGroup ref="ApplyCartRuleOnStorefrontActionGroup" stepKey="addToCartAndApplyCartRule">
             <argument name="product" value="$$createVirtualProduct$$"/>
             <argument name="couponCode" value="{{CatPriceRule.coupon_code}}"/>
         </actionGroup>

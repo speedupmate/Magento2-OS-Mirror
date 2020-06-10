@@ -12,9 +12,6 @@ namespace Klarna\Core\Model\System\Config\Source;
 
 use Magento\Framework\Option\ArrayInterface;
 
-/**
- * Class Version
- */
 class Version implements ArrayInterface
 {
     /**
@@ -23,8 +20,6 @@ class Version implements ArrayInterface
     private $base;
 
     /**
-     * Version constructor.
-     *
      * @param Base $base
      */
     public function __construct(Base $base)

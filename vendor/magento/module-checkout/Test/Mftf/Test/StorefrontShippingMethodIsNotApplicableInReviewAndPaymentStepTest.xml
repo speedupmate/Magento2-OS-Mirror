@@ -89,7 +89,7 @@
         <!-- Guest Customer Test Scenario -->
         <!-- Add Simple Product to Cart -->
         <actionGroup ref="StorefrontAddSimpleProductToShoppingCartActionGroup" stepKey="addProductToCart">
-            <argument name="product" value="$createSimpleProduct$"/>
+            <argument name="product" value="$$createSimpleProduct$$"/>
         </actionGroup>
 
         <!-- Go to Checkout -->
@@ -145,12 +145,12 @@
         <!-- Loged in Customer Test Scenario -->
         <!-- Login with created Customer -->
         <actionGroup ref="LoginToStorefrontActionGroup" stepKey="loginAsCustomer">
-            <argument name="Customer" value="$createCustomer$"/>
+            <argument name="Customer" value="$$createCustomer$$"/>
         </actionGroup>
 
         <!-- Add Simple Product to Cart -->
         <actionGroup ref="StorefrontAddSimpleProductToShoppingCartActionGroup" stepKey="addSimpleProductToCart">
-            <argument name="product" value="$createSimpleProduct$"/>
+            <argument name="product" value="$$createSimpleProduct$$"/>
         </actionGroup>
 
         <!-- Go to Checkout -->

@@ -10,16 +10,9 @@
 
 namespace Klarna\Kp\Model\ResourceModel\Quote;
 
-/**
- * Class Collection
- *
- * @package Klarna\Kp\Model\ResourceModel\Quote
- */
 class Collection extends \Magento\Framework\Model\ResourceModel\Db\Collection\AbstractCollection
 {
     /**
-     * Constructor
-     *
      * @codeCoverageIgnore
      * @codingStandardsIgnoreLine
      */

@@ -28,11 +28,11 @@ class PriceForTax
         $this->calculationTool = $calculationTool;
         $this->taxHelper = $taxHelper;
     }
-    
+
     public function getPriceForTaxCalculationFromQuoteItem(QuoteDetailsItemInterface $item, float $price): float
     {
         if ($item->getExtensionAttributes() && $item->getExtensionAttributes()->getPriceForTaxCalculation()) {
-            $priceForTaxCalculation = (float) $this->calculationTool->round(
+            $priceForTaxCalculation = (float)$this->calculationTool->round(
                 $item->getExtensionAttributes()->getPriceForTaxCalculation()
             );
         } else {
@@ -42,9 +42,12 @@ class PriceForTax
         return $priceForTaxCalculation;
     }
 
-    public function getOriginalItemPriceOnQuote(QuoteDetailsItemInterface $item, float $unitPrice): float
-    {
-        return (float) $this->calculationTool->round($item->getUnitPrice() * $item->getQuantity());
+    public function getOriginalItemPriceOnQuote(
+        QuoteDetailsItemInterface $item,
+        float $unitPrice,
+        float $parentQty = 1.0
+    ): float {
+        return (float)$this->calculationTool->round($item->getUnitPrice() * $item->getQuantity() * $parentQty);
     }
 
     public function getPriceForTaxCalculationFromOrderItem(OrderItemInterface $orderItem, float $price): float
@@ -52,7 +55,7 @@ class PriceForTax
         $originalPrice = $orderItem->getOriginalPrice();
         $storeId = $orderItem->getStoreId();
         if ($originalPrice > $price && $this->taxHelper->applyTaxOnOriginalPrice($storeId)) {
-            return (float) $originalPrice;
+            return (float)$originalPrice;
         }
 
         return $price;

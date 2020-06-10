@@ -15,9 +15,7 @@ use Magento\Payment\Model\MethodInterface;
 use Magento\Quote\Api\Data\CartInterface;
 
 /**
- * Interface PaymentMethodListInterface
  * @api
- * @package Klarna\Kp\Api
  */
 interface PaymentMethodListInterface
 {

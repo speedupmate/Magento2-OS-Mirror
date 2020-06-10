@@ -58,12 +58,14 @@ class CustomerGuestAbandonedTest extends \PHPUnit\Framework\TestCase
             ->getMock();
         $mockClient->method('setApiUsername')
             ->willReturn(new class() {
-                public function setApiPassword($password) {}
+                public function setApiPassword($password)
+                {
+                }
             });
         $mockClient->method('getContactByEmail')
             ->willReturn((object) [
                 'id' => 1234566,
-                'status' => Quote::STATUS_CONFIRMED,
+                'status' => "Subscribed",
             ]);
 
         $clientFactoryClass = 'Dotdigitalgroup\Email\Model\Apiconnector\ClientFactory';

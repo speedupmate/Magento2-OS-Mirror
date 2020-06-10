@@ -1,79 +1,61 @@
 <?php
-
 declare(strict_types = 1);
 
 namespace Elasticsearch\Endpoints;
 
 use Elasticsearch\Endpoints\AbstractEndpoint;
-use Elasticsearch\Common\Exceptions;
 
 /**
- * Class Render
+ * Class RenderSearchTemplate
+ * Elasticsearch API name render_search_template
+ * Generated running $ php util/GenerateEndpoints.php 7.6.0
  *
  * @category Elasticsearch
- * @package Elasticsearch\Endpoints
- * @author   Zachary Tong <zach@elastic.co>
+ * @package  Elasticsearch\Endpoints
+ * @author   Enrico Zimuel <enrico.zimuel@elastic.co>
  * @license  http://www.apache.org/licenses/LICENSE-2.0 Apache2
  * @link     http://elastic.co
  */
-
 class RenderSearchTemplate extends AbstractEndpoint
 {
-    /**
-     * @param array $body
-     *
-     * @throws \Elasticsearch\Common\Exceptions\InvalidArgumentException
-     * @return $this
-     */
-    public function setBody($body)
+
+    public function getURI(): string
+    {
+        $id = $this->id ?? null;
+
+        if (isset($id)) {
+            return "/_render/template/$id";
+        }
+        return "/_render/template";
+    }
+
+    public function getParamWhitelist(): array
+    {
+        return [];
+    }
+
+    public function getMethod(): string
+    {
+        return isset($this->body) ? 'POST' : 'GET';
+    }
+
+    public function setBody($body): RenderSearchTemplate
     {
         if (isset($body) !== true) {
             return $this;
         }
-
         $this->body = $body;
+
         return $this;
     }
 
-    /**
-     * @throws \Elasticsearch\Common\Exceptions\RuntimeException
-     * @return string
-     */
-    public function getURI()
+    public function setId($id): RenderSearchTemplate
     {
-        $id = $this->id;
-
-        $uri   = "/_render/template";
-
-        if (isset($id) === true) {
-            $uri = "/_render/template/$id";
+        if (isset($id) !== true) {
+            return $this;
         }
+        $this->id = $id;
 
-        return $uri;
-    }
-
-    /**
-     * @return string[]
-     */
-    public function getParamWhitelist()
-    {
-        return array();
-    }
-
-    /**
-     * @return array
-     * @throws \Elasticsearch\Common\Exceptions\RuntimeException
-     */
-    public function getBody()
-    {
-        return $this->body;
-    }
-
-    /**
-     * @return string
-     */
-    public function getMethod()
-    {
-        return isset($this->body) ? 'POST' : 'GET';
+        return $this;
     }
 }

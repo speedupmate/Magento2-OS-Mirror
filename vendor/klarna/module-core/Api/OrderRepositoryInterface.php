@@ -12,11 +12,6 @@ namespace Klarna\Core\Api;
 
 use Magento\Sales\Api\Data\OrderInterface as MageOrder;
 
-/**
- * Interface OrderRepositoryInterface
- *
- * @package Klarna\Core\Api
- */
 interface OrderRepositoryInterface
 {
     /**

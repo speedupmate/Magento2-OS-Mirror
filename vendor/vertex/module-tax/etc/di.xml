@@ -82,6 +82,12 @@
         </arguments>
     </type>
 
+    <type name="Vertex\Tax\Block\Adminhtml\Config\Form\Field\FieldSource\OptionProvider">
+        <arguments>
+            <argument name="authSession" xsi:type="object">Magento\Backend\Model\Auth\Session\Proxy</argument>
+        </arguments>
+    </type>
+
     <!-- Workaround for issue discovered in Magento 2.1.8 where preference doesn't exist for CustomerExtensionInterface -->
     <preference for="Magento\Customer\Api\Data\CustomerExtensionInterface" type="Magento\Customer\Api\Data\CustomerExtension"/>
 

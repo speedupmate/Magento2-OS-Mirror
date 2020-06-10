@@ -1,4 +1,15 @@
 
+5.3.0 / 2020-02-11
+==================
+
+  * MAGE-1184 Update styling in the admin configuration
+  * MAGE-1448 Define sensitive and environment specific fields
+  * MAGE-1602 Fix error caused by capturing or refunding orders with a deleted product
+  * MAGE-1624 Code cleanup for new Magento coding standards
+  * MAGE-1640 Update Merchant Portal URLs
+  * MAGE-1707 Add support for Oceania endpoint
+  * MAGE-1808 Removing the merchant url entry from the invoice pdf
+
 5.2.4 / 2019-11-04
 ==================
 

@@ -13,11 +13,6 @@ namespace Klarna\Kp\Api;
 use Klarna\Kp\Api\Data\RequestInterface;
 use Klarna\Kp\Api\Data\ResponseInterface;
 
-/**
- * Interface CreditApiInterface
- *
- * @package Klarna\Kp\Api
- */
 interface CreditApiInterface
 {
     /**

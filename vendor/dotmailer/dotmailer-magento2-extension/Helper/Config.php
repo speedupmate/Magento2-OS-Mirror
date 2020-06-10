@@ -215,6 +215,7 @@ class Config extends \Magento\Framework\App\Helper\AbstractHelper
     const XML_PATH_CONNECTOR_INTEGRATION_INSIGHTS_ENABLED = 'connector_configuration/tracking/integration_insights';
     const XML_PATH_CONNECTOR_ROI_TRACKING_ENABLED = 'connector_configuration/tracking/roi_enabled';
     const XML_PATH_CONNECTOR_PAGE_TRACKING_ENABLED = 'connector_configuration/tracking/page_enabled';
+    const XML_PATH_CONNECTOR_TRACKING_PROFILE_ID = 'connector_configuration/tracking/tracking_profile_id';
 
     /**
      * CONSENT SECTION.
@@ -263,7 +264,7 @@ class Config extends \Magento\Framework\App\Helper\AbstractHelper
     const XML_PATH_CONNECTOR_IP_RESTRICTION_ADDRESSES = 'connector_developer_settings/ip_restriction/ip_addresses';
     const XML_PATH_CONNECTOR_ENABLE_SUBSCRIBER_SALES_DATA =
         'connector_developer_settings/import_settings/subscriber_sales_data_enabled';
-    const XML_PATH_CONNECTOR_STRIP_PUB_FROM_MEDIA_PATHS = 'connector_developer_settings/import_settings/strip_pub_from_media_paths';
+    const XML_PATH_CONNECTOR_STRIP_PUB = 'connector_developer_settings/import_settings/strip_pub_from_media_paths';
 
     /*
      * Cron schedules
@@ -300,7 +301,6 @@ class Config extends \Magento\Framework\App\Helper\AbstractHelper
     const XML_PATH_LIVECHAT_ENABLED = 'chat_api_credentials/settings/enabled';
     const XML_PATH_LIVECHAT_API_SPACE_ID = 'chat_api_credentials/credentials/api_space_id';
     const XML_PATH_LIVECHAT_API_TOKEN = 'chat_api_credentials/credentials/api_token';
-
 
     /**
      * @var \Magento\Framework\Stdlib\StringUtils
@@ -402,12 +402,23 @@ class Config extends \Magento\Framework\App\Helper\AbstractHelper
 
         $website = $this->storeManager->getWebsite($website);
         $apiEndpoint = $this->getWebsiteConfig(self::PATH_FOR_API_ENDPOINT, $website);
-        $appSubDomain = substr_compare($apiEndpoint, self::INTERNAL_SUB_DOMAIN, -strlen(self::INTERNAL_SUB_DOMAIN)) === 0
+
+        $apiEndpoint = isset($apiEndpoint) ? $apiEndpoint : 'https://r1-app.dotdigital.com';
+
+        $appSubDomain = substr_compare(
+            $apiEndpoint,
+            self::INTERNAL_SUB_DOMAIN,
+            -strlen(self::INTERNAL_SUB_DOMAIN)
+        ) === 0
             ? 'webapp'
             : 'app';
 
         //replace the api with the app prefix from the domain name
-        return $this->regionAwarePortalUrl = str_replace(['api', 'dotmailer'], [$appSubDomain, 'dotdigital'], $apiEndpoint) . '/';
+        return $this->regionAwarePortalUrl = str_replace(
+                ['api', 'dotmailer'],
+                [$appSubDomain, 'dotdigital'],
+                $apiEndpoint
+            ) . '/';
     }
 
     /**

@@ -1,5 +1,4 @@
 <?php
-
 declare(strict_types = 1);
 
 namespace Elasticsearch\Endpoints\Indices;
@@ -8,48 +7,39 @@ use Elasticsearch\Endpoints\AbstractEndpoint;
 
 /**
  * Class Segments
+ * Elasticsearch API name indices.segments
+ * Generated running $ php util/GenerateEndpoints.php 7.6.0
  *
  * @category Elasticsearch
  * @package  Elasticsearch\Endpoints\Indices
- * @author   Zachary Tong <zach@elastic.co>
+ * @author   Enrico Zimuel <enrico.zimuel@elastic.co>
  * @license  http://www.apache.org/licenses/LICENSE-2.0 Apache2
  * @link     http://elastic.co
  */
 class Segments extends AbstractEndpoint
 {
-    /**
-     * @return string
-     */
-    public function getURI()
+
+    public function getURI(): string
     {
-        $index = $this->index;
-        $uri   = "/_segments";
+        $index = $this->index ?? null;
 
-        if (isset($index) === true) {
-            $uri = "/$index/_segments";
+        if (isset($index)) {
+            return "/$index/_segments";
         }
-
-        return $uri;
+        return "/_segments";
     }
 
-    /**
-     * @return string[]
-     */
-    public function getParamWhitelist()
+    public function getParamWhitelist(): array
     {
-        return array(
+        return [
             'ignore_unavailable',
             'allow_no_indices',
             'expand_wildcards',
-            'human',
-            'operation_threading',
-        );
+            'verbose'
+        ];
     }
 
-    /**
-     * @return string
-     */
-    public function getMethod()
+    public function getMethod(): string
     {
         return 'GET';
     }

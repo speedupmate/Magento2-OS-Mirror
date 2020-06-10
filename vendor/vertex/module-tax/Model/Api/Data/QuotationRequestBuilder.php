@@ -14,6 +14,7 @@ use Magento\Store\Model\StoreManagerInterface;
 use Magento\Tax\Api\Data\QuoteDetailsInterface;
 use Magento\Tax\Api\Data\QuoteDetailsItemInterface;
 use Magento\Tax\Api\Data\TaxClassKeyInterface;
+use Vertex\Data\CustomerInterface;
 use Vertex\Data\LineItemInterface;
 use Vertex\Exception\ConfigurationException;
 use Vertex\Services\Quote\RequestInterface;
@@ -23,6 +24,7 @@ use Vertex\Tax\Model\Api\Data\QuotationDeliveryTermProcessor;
 use Vertex\Tax\Model\Api\Utility\MapperFactoryProxy;
 use Vertex\Tax\Model\Config;
 use Vertex\Tax\Model\DateTimeImmutableFactory;
+use Vertex\Tax\Model\IncompleteAddressDeterminer;
 
 /**
  * Builds a Quotation Request for the Vertex SDK
@@ -45,6 +47,9 @@ class QuotationRequestBuilder
 
     /** @var OrderDeliveryTermProcessor */
     private $deliveryTerm;
+
+    /** @var IncompleteAddressDeterminer */
+    private $incompleteAddressDeterminer;
 
     /** @var LineItemBuilder */
     private $lineItemBuilder;
@@ -88,7 +93,8 @@ class QuotationRequestBuilder
         AddressDeterminer $addressDeterminer,
         StoreManagerInterface $storeManager,
         StringUtils $stringUtils,
-        MapperFactoryProxy $mapperFactory
+        MapperFactoryProxy $mapperFactory,
+        IncompleteAddressDeterminer $incompleteAddressDeterminer
     ) {
         $this->lineItemBuilder = $lineItemBuilder;
         $this->requestFactory = $requestFactory;
@@ -101,6 +107,7 @@ class QuotationRequestBuilder
         $this->storeManager = $storeManager;
         $this->stringUtilities = $stringUtils;
         $this->mapperFactory = $mapperFactory;
+        $this->incompleteAddressDeterminer = $incompleteAddressDeterminer;
     }
 
     /**
@@ -124,11 +131,13 @@ class QuotationRequestBuilder
         $request->setTransactionType(static::TRANSACTION_TYPE);
         $request->setCurrencyCode($this->storeManager->getStore($scopeCode)->getBaseCurrencyCode());
 
-        $taxLineItems = $this->getLineItemData($quoteDetails->getItems(), $scopeCode);
+        $taxLineItems = $this->getLineItemData($quoteDetails, $scopeCode);
         $request->setLineItems($taxLineItems);
 
         $address = $this->addressDeterminer->determineAddress(
-            $quoteDetails->getShippingAddress() ?: $quoteDetails->getBillingAddress(),
+            $this->incompleteAddressDeterminer->isIncompleteAddress($quoteDetails->getShippingAddress()) ?
+                $quoteDetails->getBillingAddress() :
+                $quoteDetails->getShippingAddress(),
             $quoteDetails->getCustomerId(),
             $this->isVirtual($quoteDetails)
         );
@@ -161,7 +170,11 @@ class QuotationRequestBuilder
         $configLocationCode = $this->config->getLocationCode($scopeCode);
 
         if ($configLocationCode) {
-            $locationCode = $this->stringUtilities->substr($configLocationCode, 0, $quoteMapper->getLocationCodeMaxLength());
+            $locationCode = $this->stringUtilities->substr(
+                $configLocationCode,
+                0,
+                $quoteMapper->getLocationCodeMaxLength()
+            );
             $request->setLocationCode($locationCode);
         }
 
@@ -171,12 +184,13 @@ class QuotationRequestBuilder
     /**
      * Build Line Items for the Request
      *
-     * @param QuoteDetailsItemInterface[] $items
+     * @param QuoteDetailsInterface $quoteDetails
+     * @param CustomerInterface|null $customer
      * @param null $scopeCode
      * @return LineItemInterface[]
      * @throws ConfigurationException
      */
-    private function getLineItemData(array $items, $scopeCode = null)
+    private function getLineItemData(QuoteDetailsInterface $quoteDetails, $scopeCode = null)
     {
         // The resulting LineItemInterface[] to be used with Vertex
         $taxLineItems = [];
@@ -190,6 +204,7 @@ class QuotationRequestBuilder
         // Item codes already processed - to prevent duplicates from bundles & configurables
         $processedItems = [];
 
+        $items = $quoteDetails->getItems();
         foreach ($items as $item) {
             $itemMap[$item->getCode()] = $item;
             if ($item->getParentCode()) {
@@ -197,18 +212,39 @@ class QuotationRequestBuilder
             }
         }
 
+        /** @var CustomerInterface|null $billingCustomer */
+        $billingCustomer = null;
+
+        $itemsToCheck = array_merge($parentCodes, $processedItems);
         foreach ($items as $item) {
-            if (in_array($item->getCode(), array_merge($parentCodes, $processedItems), true)) {
+            if (in_array($item->getCode(), $itemsToCheck, true)) {
                 // We merge these two arrays together as a convenience so we only need to run in_array once
                 continue;
             }
 
-            $quantity = $item->getParentCode()
+            $qty = $item->getParentCode()
                 ? $item->getQuantity() * $itemMap[$item->getParentCode()]->getQuantity()
                 : $item->getQuantity();
 
-            $taxLineItems[] = $this->lineItemBuilder->buildFromQuoteDetailsItem($item, $quantity, $scopeCode);
+            $customer = null;
+            $isVirtual = $item->getExtensionAttributes()->getIsVirtual();
+
+            if ($isVirtual) {
+                // Use billing address for tax calculation on virtual line items
+                if (!$billingCustomer) {
+                    $address = $this->addressDeterminer->determineAddress(
+                        $quoteDetails->getBillingAddress(),
+                        $quoteDetails->getCustomerId(),
+                        $isVirtual
+                    );
+                    $billingCustomer = $this->customerBuilder->buildFromCustomerAddress($address);
+                }
+                $customer = $billingCustomer;
+            }
+
+            $taxLineItems[] = $this->lineItemBuilder->buildFromQuoteDetailsItem($item, $qty, $scopeCode, $customer);
             $processedItems[] = $item->getCode();
+            $itemsToCheck[] = $item->getCode();
         }
 
         return $taxLineItems;

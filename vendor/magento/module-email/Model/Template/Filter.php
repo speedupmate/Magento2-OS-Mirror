@@ -45,6 +45,7 @@ class Filter extends \Magento\Framework\Filter\Template
      * Whether to allow SID in store directive: NO
      *
      * @var bool
+     * @deprecated 101.0.5 SID is not being used as query parameter anymore.
      */
     protected $_useSessionInUrl = false;
 
@@ -168,14 +169,19 @@ class Filter extends \Magento\Framework\Filter\Template
     protected $configVariables;
 
     /**
-     * @var \Magento\Email\Model\Template\Css\Processor
+     * @var Css\Processor
      */
     private $cssProcessor;
 
     /**
-     * @var ReadInterface
+     * @var Filesystem
      */
     private $pubDirectory;
+
+    /**
+     * @var \Magento\Framework\Filesystem\Directory\Read
+     */
+    private $pubDirectoryRead;
 
     /**
      * @param \Magento\Framework\Stdlib\StringUtils $string
@@ -193,9 +199,10 @@ class Filter extends \Magento\Framework\Filter\Template
      * @param \Magento\Variable\Model\Source\Variables $configVariables
      * @param array $variables
      * @param \Magento\Framework\Css\PreProcessor\Adapter\CssInliner|null $cssInliner
-     *
      * @param array $directiveProcessors
      * @param VariableResolverInterface|null $variableResolver
+     * @param Css\Processor|null $cssProcessor
+     * @param Filesystem|null $pubDirectory
      * @SuppressWarnings(PHPMD.ExcessiveParameterList)
      */
     public function __construct(
@@ -215,7 +222,9 @@ class Filter extends \Magento\Framework\Filter\Template
         $variables = [],
         \Magento\Framework\Css\PreProcessor\Adapter\CssInliner $cssInliner = null,
         array $directiveProcessors = [],
-        VariableResolverInterface $variableResolver = null
+        VariableResolverInterface $variableResolver = null,
+        Css\Processor $cssProcessor = null,
+        Filesystem $pubDirectory = null
     ) {
         $this->_escaper = $escaper;
         $this->_assetRepo = $assetRepo;
@@ -231,6 +240,10 @@ class Filter extends \Magento\Framework\Filter\Template
         $this->emogrifier = $emogrifier;
         $this->cssInliner = $cssInliner ?: \Magento\Framework\App\ObjectManager::getInstance()
             ->get(\Magento\Framework\Css\PreProcessor\Adapter\CssInliner::class);
+        $this->cssProcessor = $cssProcessor ?: ObjectManager::getInstance()
+            ->get(Css\Processor::class);
+        $this->pubDirectory = $pubDirectory ?: ObjectManager::getInstance()
+            ->get(Filesystem::class);
         $this->configVariables = $configVariables;
         parent::__construct($string, $variables, $directiveProcessors, $variableResolver);
     }
@@ -252,10 +265,14 @@ class Filter extends \Magento\Framework\Filter\Template
      *
      * @param bool $flag
      * @return $this
+     * @SuppressWarnings(PHPMD.UnusedFormalParameter)
+     * @deprecated 101.0.5 SID query parameter is not used in URLs anymore.
      */
     public function setUseSessionInUrl($flag)
     {
-        $this->_useSessionInUrl = $flag;
+        // phpcs:disable Magento2.Functions.DiscouragedFunction
+        trigger_error('Session ID is not used as URL parameter anymore.', E_USER_DEPRECATED);
+
         return $this;
     }
 
@@ -328,32 +345,14 @@ class Filter extends \Magento\Framework\Filter\Template
     }
 
     /**
-     * Get CSS processor
+     * Sets pub directory
      *
-     * @deprecated 100.1.2
-     * @return Css\Processor
-     */
-    private function getCssProcessor()
-    {
-        if (!$this->cssProcessor) {
-            $this->cssProcessor = ObjectManager::getInstance()->get(Css\Processor::class);
-        }
-        return $this->cssProcessor;
-    }
-
-    /**
-     * Get pub directory
-     *
-     * @deprecated 100.1.2
      * @param string $dirType
-     * @return ReadInterface
+     * @return void
      */
-    private function getPubDirectory($dirType)
+    private function setPubDirectory($dirType)
     {
-        if (!$this->pubDirectory) {
-            $this->pubDirectory = ObjectManager::getInstance()->get(Filesystem::class)->getDirectoryRead($dirType);
-        }
-        return $this->pubDirectory;
+        $this->pubDirectoryRead = $this->pubDirectory->getDirectoryRead($dirType);
     }
 
     /**
@@ -893,7 +892,7 @@ class Filter extends \Magento\Framework\Filter\Template
             return '/* ' . __('"file" parameter must be specified') . ' */';
         }
 
-        $css = $this->getCssProcessor()->process(
+        $css = $this->cssProcessor->process(
             $this->getCssFilesContent([$params['file']])
         );
 
@@ -996,9 +995,9 @@ class Filter extends \Magento\Framework\Filter\Template
         try {
             foreach ($files as $file) {
                 $asset = $this->_assetRepo->createAsset($file, $designParams);
-                $pubDirectory = $this->getPubDirectory($asset->getContext()->getBaseDirType());
-                if ($pubDirectory->isExist($asset->getPath())) {
-                    $css .= $pubDirectory->readFile($asset->getPath());
+                $this->setPubDirectory($asset->getContext()->getBaseDirType());
+                if ($this->pubDirectoryRead->isExist($asset->getPath())) {
+                    $css .= $this->pubDirectoryRead->readFile($asset->getPath());
                 } else {
                     $css .= $asset->getContent();
                 }
@@ -1028,7 +1027,7 @@ class Filter extends \Magento\Framework\Filter\Template
         $cssToInline = $this->getCssFilesContent(
             $this->getInlineCssFiles()
         );
-        $cssToInline = $this->getCssProcessor()->process($cssToInline);
+        $cssToInline = $this->cssProcessor->process($cssToInline);
 
         // Only run Emogrify if HTML and CSS contain content
         if ($html && $cssToInline) {

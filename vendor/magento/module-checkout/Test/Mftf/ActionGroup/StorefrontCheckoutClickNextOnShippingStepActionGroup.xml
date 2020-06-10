@@ -9,9 +9,6 @@
 <actionGroups xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
               xsi:noNamespaceSchemaLocation="urn:magento:mftf:Test/etc/actionGroupSchema.xsd">
     <actionGroup name="StorefrontCheckoutClickNextOnShippingStepActionGroup" extends="StorefrontCheckoutForwardFromShippingStep">
-        <annotations>
-            <description>Scrolls and clicks next on Checkout Shipping step</description>
-        </annotations>
         <scrollTo selector="{{CheckoutShippingSection.next}}" before="clickNext" stepKey="scrollToNextButton"/>
     </actionGroup>
 </actionGroups>

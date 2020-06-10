@@ -2,11 +2,14 @@
 
 namespace Dotdigitalgroup\Email\Test\Unit\Model\Connector;
 
+use Dotdigitalgroup\Email\Api\TierPriceFinderInterface;
 use Dotdigitalgroup\Email\Helper\Data;
 use Dotdigitalgroup\Email\Model\Catalog\UrlFinder;
 use Dotdigitalgroup\Email\Model\Connector\Product;
 use Dotdigitalgroup\Email\Model\Product\Attribute;
 use Dotdigitalgroup\Email\Model\Product\AttributeFactory;
+use Dotdigitalgroup\Email\Model\Product\ParentFinder;
+use Dotdigitalgroup\Email\Model\Connector\TierPriceFinder;
 use Magento\Bundle\Model\Product\Type;
 use Magento\Bundle\Model\ResourceModel\Option\Collection as OptionCollection;
 use Magento\Bundle\Pricing\Price\BundleRegularPrice;
@@ -15,7 +18,6 @@ use Magento\Catalog\Model\Product\Attribute\Source\Status;
 use Magento\Catalog\Model\Product\Attribute\Source\StatusFactory;
 use Magento\Catalog\Model\Product\Media\Config;
 use Magento\Catalog\Model\Product\Media\ConfigFactory;
-use Magento\Catalog\Model\Product\Type\AbstractType;
 use Magento\Catalog\Model\Product\Visibility;
 use Magento\Catalog\Model\Product\VisibilityFactory;
 use Magento\Catalog\Model\ResourceModel\Category\Collection;
@@ -145,6 +147,21 @@ class ProductTest extends TestCase
      */
     private $attributeFactoryMock;
 
+    /**
+     * @var \PHPUnit\Framework\MockObject\MockObject
+     */
+    private $parentFinderMock;
+
+    /**
+     * @var \PHPUnit\Framework\MockObject\MockObject
+     */
+    private $parentMock;
+
+    /**
+     * @var \PHPUnit\Framework\MockObject\MockObject
+     */
+    private $tierPriceFinderMock;
+
     protected function setUp()
     {
         $this->storeManagerMock = $this->createMock(StoreManagerInterface::class);
@@ -166,10 +183,12 @@ class ProductTest extends TestCase
         $this->stockStateMock = $this->createMock(StockStateInterface::class);
         $this->attributeMock = $this->createMock(Attribute::class);
         $this->attributeFactoryMock = $this->createMock(AttributeFactory::class);
+        $this->parentFinderMock = $this->createMock(ParentFinder::class);
+        $this->parentMock = $this->createMock(\Magento\Catalog\Model\Product::class);
+        $this->tierPriceFinderMock = $this->createMock(TierPriceFinderInterface::class);
         $this->visibility = new Visibility(
             $this->createMock(\Magento\Eav\Model\ResourceModel\Entity\Attribute::class)
         );
-
         $this->product = new Product(
             $this->storeManagerMock,
             $this->helperMock,
@@ -177,7 +196,9 @@ class ProductTest extends TestCase
             $this->visibilityFactoryMock,
             $this->urlFinderMock,
             $this->stockStateMock,
-            $this->attributeFactoryMock
+            $this->attributeFactoryMock,
+            $this->parentFinderMock,
+            $this->tierPriceFinderMock
         );
 
         $status = 1;
@@ -321,8 +342,8 @@ class ProductTest extends TestCase
             ->willReturn('bundle');
 
         $this->mageProductMock->expects($this->atLeastOnce())
-             ->method('getPriceInfo')
-             ->willReturn($this->baseMock);
+            ->method('getPriceInfo')
+            ->willReturn($this->baseMock);
 
         $this->baseMock->expects($this->atLeastonce())
             ->method('getPrice')
@@ -393,6 +414,36 @@ class ProductTest extends TestCase
 
         $this->assertEquals($minPrice, $this->product->price);
         $this->assertEquals($minSpecialPrice, $this->product->specialPrice);
+    }
+
+    public function testIfParentExistsTypeChangedAndProductIdSet()
+    {
+        $parentId = 4;
+
+        $this->parentFinderMock->expects($this->once())
+            ->method('getProductParentIdToCatalogSync')
+            ->with($this->mageProductMock)
+            ->willReturn($parentId);
+
+        $this->product->setProduct($this->mageProductMock, 1);
+
+        $this->assertEquals($this->product->parent_id, $parentId);
+        $this->assertEquals($this->product->type, 'Variant');
+    }
+
+    public function testIfParentDoesNotExistsTypeNotChangesButParentIdStillSet()
+    {
+        $parentId = '';
+
+        $this->parentFinderMock->expects($this->once())
+            ->method('getProductParentIdToCatalogSync')
+            ->with($this->mageProductMock)
+            ->willReturn($parentId);
+
+        $this->product->setProduct($this->mageProductMock, 1);
+
+        $this->assertTrue(isset($this->product->parent_id));
+        $this->assertNotEquals($this->product->type, 'Variant');
     }
 
     private function getArrayPrices()

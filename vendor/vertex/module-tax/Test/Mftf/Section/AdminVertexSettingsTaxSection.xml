@@ -1,0 +1,18 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!--
+ /**
+  * @copyright  Vertex. All rights reserved.  https://www.vertexinc.com/
+  * @author     Mediotype                     https://www.mediotype.com/
+  */
+-->
+<sections xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+          xsi:noNamespaceSchemaLocation="urn:magento:mftf:Page/etc/SectionObject.xsd">
+    <section name="AdminVertexSettingsTaxSection">
+        <element name="vertexTaxClassesHeader" type="block" selector="#tax_classes-head"/>
+        <element name="vertexTaxCalculationHeader" type="block" selector="#tax_calculation-head"/>
+        <element name="vertexTaxDefaultCustomerCode" type="input" selector="#tax_classes_default_customer_code"/>
+        <element name="vertexTaxDefaultCustomerCodeSystem" type="checkbox" selector="#tax_classes_default_customer_code_inherit"/>
+        <element name="vertexTaxAlgorithm" type="select" selector="#tax_calculation_algorithm"/>
+        <element name="vertexTaxAlgorithmInherit" type="checkbox" selector="#tax_calculation_algorithm_inherit"/>
+    </section>
+</sections>

@@ -218,7 +218,7 @@ class ProductCustomOptionProcessor implements InvoiceFlexFieldProcessorInterface
      * @param int $cartItemId
      * @param int $cartId
      * @return CartItemInterface|null
-     * @composerDependency magento/module-quote >=100.1.0 <=100.1.11 || >=101.0.0 <=101.0.8 || >=101.1.0 <= 101.1.3
+     * @composerDependency magento/module-quote >=100.1.0 <=100.1.11 || >=101.0.0 <=101.0.8 || >=101.1.0 <= 101.1.2
      */
     private function getCartItem($cartItemId, $cartId)
     {

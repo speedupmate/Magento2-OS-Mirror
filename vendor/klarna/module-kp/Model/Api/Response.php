@@ -12,11 +12,6 @@ namespace Klarna\Kp\Model\Api;
 
 use Klarna\Kp\Api\Data\ResponseInterface;
 
-/**
- * Class Response
- *
- * @package Klarna\Kp\Model\Api
- */
 class Response implements ResponseInterface
 {
     use Export;
@@ -62,8 +57,6 @@ class Response implements ResponseInterface
     private $payment_method_categories = [];
 
     /**
-     * Response constructor.
-     *
      * @param array $data
      */
     public function __construct($data = [])

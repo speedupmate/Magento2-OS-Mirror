@@ -1,5 +1,92 @@
 Magento Functional Testing Framework Changelog
 ================================================
+2.6.3
+-----
+
+### Fixes
+* added dependency to packages MFTF used but never specified in composer.json
+
+2.6.3
+-----
+
+### New Feature
+* `--filter` option was added to `bin/mftf generate:tests` command. For more details please go to https://devdocs.magento.com/mftf/docs/commands/mftf.html#generatetests
+
+2.6.2
+-----
+
+### Fixes
+* Fixed float conversion error in test generation
+
+2.6.1
+-----
+
+* Usability
+    * Introduced new `.env` configuration `ELASTICSEARCH_VERSION` to support multiple elasticsearch versions
+* Maintainability
+    * Added deprecation notices for upcoming MFTF 3.0.0
+* Replaced facebook webdriver with php-webdriver to support PHP version updates
+
+2.6.0
+-----
+
+* Usability
+    * `magentoCron` action added by community maintainer @lbajsarowicz
+* Traceability
+    * MFTF generated cest files are fully compatible for Codeception `dry-run`.
+* Modularity
+    * `mftf generate:tests` and `mftf run:test` commands now accept suite scoped test names in format `[suitename:testname]...`.
+* Maintainability
+    * Support `deprecated` syntax for the following test entities:
+        * Test
+        * Action Group
+        * Data
+        * Metadata
+        * Page
+        * Section
+        * Section Element
+            * See DevDocs for details 
+    * Improved `mftf static-checks` command to allow executing all or specific static checks.
+    * Added a new static check that checks and reports unused arguments in action groups.
+* Customizability
+    * AWS Secrets Manager has been added as an additional credential storage.
+        * See DevDocs for details
+* Bumped dependencies to latest possible versions
+
+### Fixes
+* Fixed missing before, after, failed steps in cest file when generating tests with `--allow-skipped` option.
+* Fixed suites and tests display issue in Allure `Suites` page after `mftf run:group` command.
+* `createData` action now shows a meaningful error message at runtime when the entity does not exist.
+
+### GitHub Issues/Pull requests:
+* [#537](https://github.com/magento/magento2-functional-testing-framework/pull/537) -- Refactor of TestGenerator class
+* [#538](https://github.com/magento/magento2-functional-testing-framework/pull/538) -- FEATURE: <magentoCron> command to execute Cron Jobs
+
+2.5.4
+-----
+[Demo Video](https://www.youtube.com/watch?v=tguvkw1HWKg)
+* Traceability
+    * Introduced new `mftf doctor` command
+        * Command verifies and troubleshoots some configuration steps required for running tests
+        * Please see DevDocs for more details
+    * `<*Data>` actions now contain `API Endpoint` and `Request Header` artifacts.
+    * Introduced new `.env` configurations `ENABLE_BROWSER_LOG` and `BROWSER_LOG_BLACKLIST`
+        * Configuration enables allure artifacts for browser log entries if they are present after the step.
+        * Blacklist filters out logs from specific sources.
+* Customizability
+    * Introduced `timeout=""` to `magentoCLI` actions.
+
+### GitHub Issues/Pull requests:
+* [#317](https://github.com/magento/magento2-functional-testing-framework/pull/317) -- RetrieveEntityField generation does not consider ActionGroup as part of namespace
+* [#433](https://github.com/magento/magento2-functional-testing-framework/pull/433) -- Add possibility to include multiple non primitive types in an array
+
+### Fixes
+* A test now contains attachments for every exception encountered in the test (fix for a test `<after>` exception overriding all test exceptions).
+* Fixed hard requirement for `MAGENTO_BASE_URL` to contain a leading `/`.
+* `magentoCLI` actions for `config:sensitive:set` no longer obscure CLI output.
+* `WAIT_TIMEOUT` in the `.env` now correctly sets `pageload_timeout` configuration.
+* Fixed an issue where `run:group` could not consolidate a `group` that had tests in and out of `<suite>`s.
+
 2.5.3
 -----
 

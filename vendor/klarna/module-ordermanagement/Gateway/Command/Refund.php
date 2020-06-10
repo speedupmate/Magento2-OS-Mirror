@@ -13,11 +13,6 @@ namespace Klarna\Ordermanagement\Gateway\Command;
 use Klarna\Core\Exception as KlarnaException;
 use Magento\Payment\Gateway\Command;
 
-/**
- * Class Refund
- *
- * @package Klarna\Ordermanagement\Gateway\Command
- */
 class Refund extends AbstractCommand
 {
     /**

@@ -8,13 +8,11 @@ declare(strict_types=1);
 
 namespace Vertex\Tax\Model\Plugin;
 
-use Magento\Catalog\Api\Data\ProductCustomOptionExtensionFactory;
 use Magento\Catalog\Api\Data\ProductCustomOptionInterface;
 use Magento\Catalog\Api\Data\ProductInterface;
 use Magento\Catalog\Api\ProductCustomOptionRepositoryInterface;
 use Magento\Catalog\Model\Product\Option;
 use Magento\Framework\Exception\NoSuchEntityException;
-use Magento\Framework\Exception\NotFoundException;
 use Magento\Store\Model\ScopeInterface;
 use Magento\Store\Model\StoreManagerInterface;
 use Vertex\Tax\Model\Config;
@@ -33,9 +31,6 @@ class CustomOptionFlexFieldExtensionAttributeHandler
     /** @var Config */
     private $config;
 
-    /** @var ProductCustomOptionExtensionFactory */
-    private $customOptionExtensionFactory;
-
     /** @var ModelFactory */
     private $modelFactory;
 
@@ -48,26 +43,16 @@ class CustomOptionFlexFieldExtensionAttributeHandler
     /** @var StoreManagerInterface */
     private $storeManager;
 
-    /**
-     * @param ModelFactory $modelFactory
-     * @param ResourceModel $resourceModel
-     * @param StoreManagerInterface $storeManager
-     * @param ProductCustomOptionExtensionFactory $customOptionExtensionFactory
-     * @param Config $config
-     * @param CustomOptionFlexibleFieldRepository $repository
-     */
     public function __construct(
         ModelFactory $modelFactory,
         ResourceModel $resourceModel,
         StoreManagerInterface $storeManager,
-        ProductCustomOptionExtensionFactory $customOptionExtensionFactory,
         Config $config,
         CustomOptionFlexibleFieldRepository $repository
     ) {
         $this->modelFactory = $modelFactory;
         $this->resourceModel = $resourceModel;
         $this->storeManager = $storeManager;
-        $this->customOptionExtensionFactory = $customOptionExtensionFactory;
         $this->config = $config;
         $this->repository = $repository;
     }
@@ -95,12 +80,8 @@ class CustomOptionFlexFieldExtensionAttributeHandler
             return $customOption;
         }
 
-        if (!$customOption->getExtensionAttributes()) {
-            $extensionAttributes = $this->customOptionExtensionFactory->create();
-            $customOption->setExtensionAttributes($extensionAttributes);
-        }
-
-        $customOption->getExtensionAttributes()->setVertexFlexField($flexibleFields[$customOption->getOptionId()]);
+        $extensionAttributes = $customOption->getExtensionAttributes();
+        $extensionAttributes->setVertexFlexField($flexibleFields[$customOption->getOptionId()]);
 
         return $customOption;
     }
@@ -126,12 +107,6 @@ class CustomOptionFlexFieldExtensionAttributeHandler
                 continue;
             }
             $flexibleFieldId = $flexibleFields[$customOption->getOptionId()]->getFlexFieldId();
-
-            if (!$customOption->getExtensionAttributes()) {
-                $extensionAttributes = $this->customOptionExtensionFactory->create();
-                $customOption->setExtensionAttributes($extensionAttributes);
-            }
-
             $customOption->getExtensionAttributes()->setVertexFlexField($flexibleFieldId);
         }
 
@@ -161,12 +136,6 @@ class CustomOptionFlexFieldExtensionAttributeHandler
                 continue;
             }
             $flexibleFieldId = $flexibleFields[$customOption->getOptionId()]->getFlexFieldId();
-
-            if (!$customOption->getExtensionAttributes()) {
-                $extensionAttributes = $this->customOptionExtensionFactory->create();
-                $customOption->setExtensionAttributes($extensionAttributes);
-            }
-
             $customOption->getExtensionAttributes()->setVertexFlexField($flexibleFieldId);
         }
 
@@ -190,10 +159,7 @@ class CustomOptionFlexFieldExtensionAttributeHandler
             return $customOption;
         }
 
-        $extensionAttributes = is_array($customOption->getExtensionAttributes())
-            ? $this->customOptionExtensionFactory->create($customOption->getExtensionAttributes())
-            : $customOption->getExtensionAttributes();
-
+        $extensionAttributes = $customOption->getExtensionAttributes();
         $flexFieldId = $extensionAttributes->getVertexFlexField();
 
         $websiteId = $this->getWebsiteId($customOption);

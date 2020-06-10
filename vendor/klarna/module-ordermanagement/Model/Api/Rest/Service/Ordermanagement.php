@@ -15,9 +15,6 @@ use Klarna\Core\Helper\VersionInfo;
 use Magento\Framework\DataObject;
 
 /**
- * Class Ordermanagement
- *
- * @package Klarna\Ordermanagement\Model\Api\Rest\Service
  * @SuppressWarnings(PHPMD.TooManyPublicMethods)
  */
 class Ordermanagement

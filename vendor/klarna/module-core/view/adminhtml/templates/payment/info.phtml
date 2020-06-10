@@ -16,7 +16,7 @@
  */
 ?>
 <?php
-$specificInfo = $block->getSpecificInformation();
+$specificInfo = $block->getFullSpecificInformation();
 $title = $block->getMethod()->getTitle();
 $logo_locale = strtolower($block->escapeHtml($block->getLocale()));
 $logo_url = 'https://cdn.klarna.com/1.0/shared/image/generic/logo/' . $logo_locale . '/basic/logo_black.png?width=300';

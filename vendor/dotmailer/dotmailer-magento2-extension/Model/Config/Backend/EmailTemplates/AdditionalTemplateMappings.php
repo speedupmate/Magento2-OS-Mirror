@@ -25,7 +25,7 @@ class AdditionalTemplateMappings extends ArraySerialized
      * @param \Magento\Framework\App\Cache\TypeListInterface $cacheTypeList
      * @param \Magento\Framework\Model\ResourceModel\AbstractResource|null $resource
      * @param \Magento\Framework\Data\Collection\AbstractDb|null $resourceCollection
-     * @param \Dotdigitalgroup\Email\Model\Config\Json|null $serializer
+     * @param \Magento\Framework\Serialize\SerializerInterface|null $serializer
      * @param array $data
      */
     public function __construct(
@@ -37,12 +37,21 @@ class AdditionalTemplateMappings extends ArraySerialized
         \Magento\Framework\App\Cache\TypeListInterface $cacheTypeList,
         \Magento\Framework\Model\ResourceModel\AbstractResource $resource = null,
         \Magento\Framework\Data\Collection\AbstractDb $resourceCollection = null,
-        \Dotdigitalgroup\Email\Model\Config\Json $serializer = null,
+        \Magento\Framework\Serialize\SerializerInterface $serializer = null,
         array $data = []
     ) {
         $this->templateFactory = $templateFactory;
         $this->helper = $helper;
-        parent::__construct($context, $registry, $config, $cacheTypeList, $resource, $resourceCollection, $data, $serializer);
+        parent::__construct(
+            $context,
+            $registry,
+            $config,
+            $cacheTypeList,
+            $resource,
+            $resourceCollection,
+            $data,
+            $serializer
+        );
     }
 
     /**
@@ -64,7 +73,6 @@ class AdditionalTemplateMappings extends ArraySerialized
 
         // get campaign IDs
         $templateCampaignIds = array_unique(array_column($values, 'campaign'));
-
 
         $templateConfigId = $this->getField();
         $scope = $this->getScope();

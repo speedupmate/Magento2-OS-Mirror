@@ -58,7 +58,6 @@ class Items extends AbstractLine
             $qtyMultiplier = 1;
 
             $item = $this->getItem($item);
-            $store = $item->getStore();
             $product = $item->getProduct();
 
             $parentItem = $item->getParentItem()
@@ -72,7 +71,6 @@ class Items extends AbstractLine
                 $product = $parentItem->getProduct();
                 $qtyMultiplier = $parentItem->getQty();
             }
-            $product->setStoreId($store->getId());
 
             $items[] = $this->processItem($product, $item, $qtyMultiplier);
         }
@@ -138,20 +136,20 @@ class Items extends AbstractLine
      */
     private function processItem($product, $item, $qtyMultiplier)
     {
-        $productUrl = $product->getUrlInStore();
-        $imageUrl = $this->getImageUrl($product);
-
         $_item = [
             'type'          => $item->getIsVirtual() ? self::ITEM_TYPE_VIRTUAL : self::ITEM_TYPE_PHYSICAL,
             'reference'     => substr($item->getSku(), 0, 64),
             'name'          => $item->getName(),
             'quantity'      => ceil($this->getItemQty($item) * $qtyMultiplier),
-            'discount_rate' => 0,
-            'product_url'   => $productUrl,
-            'image_url'     => $imageUrl
+            'discount_rate' => 0
         ];
 
-        if ($this->klarnaConfig->isSeparateTaxLine($product->getStore())) {
+        if ($product && $product->getId()) {
+            $item['product_url'] = $product->getUrlInStore();
+            $item['image_url']   = $this->getImageUrl($product);
+        }
+
+        if ($this->klarnaConfig->isSeparateTaxLine($item->getStore())) {
             $_item['tax_rate'] = 0;
             $_item['total_tax_amount'] = 0;
             $_item['unit_price'] = $this->helper->toApiFloat($item->getBasePrice())

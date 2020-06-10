@@ -15,11 +15,6 @@ use Klarna\Kp\Model\Payment\Kp;
 use Klarna\Ordermanagement\Controller\Api\Notification;
 use Magento\Sales\Model\Order;
 
-/**
- * Class NotificationPlugin
- *
- * @package Klarna\Kp\Plugin\Controller\Api
- */
 class NotificationPlugin
 {
     /**

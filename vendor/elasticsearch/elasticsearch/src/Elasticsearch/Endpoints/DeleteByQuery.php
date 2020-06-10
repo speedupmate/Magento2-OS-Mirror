@@ -1,108 +1,94 @@
 <?php
-
 declare(strict_types = 1);
 
 namespace Elasticsearch\Endpoints;
 
-use Elasticsearch\Common\Exceptions;
+use Elasticsearch\Common\Exceptions\RuntimeException;
+use Elasticsearch\Endpoints\AbstractEndpoint;
 
 /**
- * Class Deletebyquery
+ * Class DeleteByQuery
+ * Elasticsearch API name delete_by_query
+ * Generated running $ php util/GenerateEndpoints.php 7.6.0
  *
  * @category Elasticsearch
  * @package  Elasticsearch\Endpoints
- * @author   Zachary Tong <zach@elastic.co>
+ * @author   Enrico Zimuel <enrico.zimuel@elastic.co>
  * @license  http://www.apache.org/licenses/LICENSE-2.0 Apache2
  * @link     http://elastic.co
  */
 class DeleteByQuery extends AbstractEndpoint
 {
-    /**
-     * @param array $body
-     *
-     * @throws \Elasticsearch\Common\Exceptions\InvalidArgumentException
-     * @return $this
-     */
-    public function setBody($body)
+
+    public function getURI(): string
+    {
+        if (isset($this->index) !== true) {
+            throw new RuntimeException(
+                'index is required for delete_by_query'
+            );
+        }
+        $index = $this->index;
+        $type = $this->type ?? null;
+        if (isset($type)) {
+            @trigger_error('Specifying types in urls has been deprecated', E_USER_DEPRECATED);
+        }
+
+        if (isset($type)) {
+            return "/$index/$type/_delete_by_query";
+        }
+        return "/$index/_delete_by_query";
+    }
+
+    public function getParamWhitelist(): array
+    {
+        return [
+            'analyze_wildcard',
+            'default_operator',
+            'df',
+            'from',
+            'ignore_unavailable',
+            'allow_no_indices',
+            'conflicts',
+            'expand_wildcards',
+            'lenient',
+            'preference',
+            'q',
+            'routing',
+            'scroll',
+            'search_type',
+            'search_timeout',
+            'size',
+            'max_docs',
+            'sort',
+            '_source',
+            '_source_excludes',
+            '_source_includes',
+            'terminate_after',
+            'stats',
+            'version',
+            'request_cache',
+            'refresh',
+            'timeout',
+            'wait_for_active_shards',
+            'scroll_size',
+            'wait_for_completion',
+            'requests_per_second',
+            'slices'
+        ];
+    }
+
+    public function getMethod(): string
+    {
+        return 'POST';
+    }
+
+    public function setBody($body): DeleteByQuery
     {
         if (isset($body) !== true) {
             return $this;
         }
-
         $this->body = $body;
 
         return $this;
-    }
-
-    /**
-     * @throws \Elasticsearch\Common\Exceptions\RuntimeException
-     * @return string
-     */
-    public function getURI()
-    {
-        if (!$this->index) {
-            throw new Exceptions\RuntimeException(
-                'index is required for Deletebyquery'
-            );
-        }
-
-        $uri = "/{$this->index}/_delete_by_query";
-        if ($this->type) {
-            $uri = "/{$this->index}/{$this->type}/_delete_by_query";
-        }
-
-        return $uri;
-    }
-
-    /**
-     * @return string[]
-     */
-    public function getParamWhitelist()
-    {
-        return array(
-            '_source',
-            '_source_include',
-            '_source_includes',
-            '_source_exclude',
-            '_source_excludes',
-            'allow_no_indices',
-            'analyze_wildcard',
-            'analyzer',
-            'conflicts',
-            'default_operator',
-            'df',
-            'expand_wildcards',
-            'from',
-            'ignore_unavailable',
-            'lenient',
-            'preference',
-            'query',
-            'q',
-            'refresh',
-            'request_cache',
-            'requests_per_second',
-            'routing',
-            'scroll',
-            'scroll_size',
-            'search_timeout',
-            'search_type',
-            'size',
-            'slices',
-            'sort',
-            'stats',
-            'terminate_after',
-            'timeout',
-            'version',
-            'wait_for_active_shards',
-            'wait_for_completion',
-        );
-    }
-
-    /**
-     * @return string
-     */
-    public function getMethod()
-    {
-        return 'POST';
     }
 }

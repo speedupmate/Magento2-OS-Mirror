@@ -172,6 +172,7 @@
 
             <actionGroup ref="LoginAsAdmin" stepKey="loginAsAdmin"/>
             <actionGroup ref="VertexTaxDefaultConfig" stepKey="setupDefaultVertexTestConfiguration"/>
+            <actionGroup ref="VertexTaxConfigInvoiceCreated" stepKey="InvoiceWhenInvoiceCreate"/>
             <actionGroup ref="ClearCacheActionGroup" stepKey="clearCache"/>
 
             <actionGroup ref="navigateToNewOrderPageNewCustomerSingleStore" stepKey="startNewOrder" />

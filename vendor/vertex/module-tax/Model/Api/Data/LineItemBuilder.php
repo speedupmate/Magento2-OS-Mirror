@@ -9,6 +9,7 @@ namespace Vertex\Tax\Model\Api\Data;
 use Magento\Framework\Stdlib\StringUtils;
 use Magento\Tax\Api\Data\QuoteDetailsItemInterface;
 use Magento\Tax\Api\Data\TaxClassKeyInterface;
+use Vertex\Data\CustomerInterface;
 use Vertex\Data\LineItemInterface;
 use Vertex\Data\LineItemInterfaceFactory;
 use Vertex\Exception\ConfigurationException;
@@ -71,11 +72,16 @@ class LineItemBuilder
      * @param QuoteDetailsItemInterface $item
      * @param int|null $qtyOverride
      * @param null $scopeCode
+     * @param CustomerInterface|null $customer
      * @return LineItemInterface
      * @throws ConfigurationException
      */
-    public function buildFromQuoteDetailsItem(QuoteDetailsItemInterface $item, $qtyOverride = null, $scopeCode = null)
-    {
+    public function buildFromQuoteDetailsItem(
+        QuoteDetailsItemInterface $item,
+        $qtyOverride = null,
+        $scopeCode = null,
+        CustomerInterface $customer = null
+    ) {
         $lineItem = $this->createLineItem();
         $lineMapper = $this->mapperFactory->getForClass(LineItemInterface::class, $scopeCode);
 
@@ -87,6 +93,10 @@ class LineItemBuilder
             $lineItem->setProductCode(
                 $this->stringUtilities->substr($sku, 0, $lineMapper->getProductCodeMaxLength())
             );
+        }
+
+        if ($customer) {
+            $lineItem->setCustomer($customer);
         }
 
         $taxClassId = $item->getTaxClassKey() && $item->getTaxClassKey()->getType() === TaxClassKeyInterface::TYPE_ID

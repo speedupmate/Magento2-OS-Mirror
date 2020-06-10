@@ -15,11 +15,6 @@ use Klarna\Core\Exception as KlarnaException;
 use Magento\Payment\Gateway\Command;
 use Magento\Sales\Api\Data\OrderInterface as MageOrderInterface;
 
-/**
- * Class Cancel
- *
- * @package Klarna\Ordermanagement\Gateway\Command
- */
 class Cancel extends AbstractCommand
 {
     /**

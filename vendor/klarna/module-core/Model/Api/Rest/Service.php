@@ -17,11 +17,6 @@ use Klarna\Core\Model\Api\Exception as KlarnaApiException;
 use Psr\Http\Message\ResponseInterface;
 use Psr\Log\LoggerInterface;
 
-/**
- * Class Service
- *
- * @package Klarna\Core\Model\Api\Rest
- */
 class Service implements ServiceInterface
 {
     /**

@@ -16,9 +16,9 @@ use Vertex\Tax\Model\ConfigurationValidator;
 use Vertex\Tax\Model\CountryGuard;
 use Vertex\Tax\Model\InvoiceSentRegistry;
 use Vertex\Tax\Model\TaxInvoice;
-use Vertex\Tax\Observer\GiftwrapExtensionLoader;
+use Vertex\Tax\Model\Loader\GiftwrapExtensionLoader;
 use Vertex\Tax\Observer\InvoiceSavedAfterObserver;
-use Vertex\Tax\Observer\VertexCalculationExtensionLoader;
+use Vertex\Tax\Model\Loader\VertexCalculationExtensionLoader;
 use Vertex\Tax\Test\Unit\TestCase;
 
 /**

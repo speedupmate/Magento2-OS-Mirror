@@ -3,8 +3,6 @@
  * Copyright © Magento, Inc. All rights reserved.
  * See COPYING.txt for license details.
  */
-declare(strict_types=1);
-
 namespace Magento\Catalog\Controller\Adminhtml\Product\Action;
 
 use Magento\Backend\Model\Session;
@@ -42,7 +40,7 @@ class AttributeTest extends AbstractBackendController
                 'consumers' => $this->consumers,
                 'logFilePath' => TESTS_TEMP_DIR . "/MessageQueueTestLog.txt",
                 'maxMessages' => null,
-                'appInitParams' => Bootstrap::getInstance()->getAppInitParams(),
+                'appInitParams' => Bootstrap::getInstance()->getAppInitParams()
             ]
         );
 

@@ -1,4 +1,9 @@
 
+5.0.8 / 2020-02-11
+==================
+
+  * MAGE-1624 Code cleanup for new Magento coding standards
+
 5.0.6 / 2019-08-02
 ==================
 
@@ -257,13 +262,13 @@
   * Update dependency requirements to 2.0
   * Move setting of correct OM to calling function
   * Change code to pull composer package version for UserAgent
-  * Change event prefix from kco to klarna
+  * Change event prefix from kco to Klarna
   * Refactor to allow reading order_id from request body when it isn't provided as query parameter
   * Update copyright years
   * Remove references to unused class
   * Change to allow KP for payment method
   * Change user-agent to report as OM instead of KCO_OM
-  * Change route URL from kco to klarna to make more generic
+  * Change route URL from kco to Klarna to make more generic
   * Fix call to getReservationId()
   * Relocate quote to kco module
   * Remove unneeded preference as it is handled in core module

@@ -14,11 +14,6 @@ use Magento\Framework\Event\Observer;
 use Magento\Framework\Event\ObserverInterface;
 use Magento\Framework\Url;
 
-/**
- * Class PrepareMerchantUrls
- *
- * @package Klarna\Ordermanagement\Observer
- */
 class PrepareMerchantUrls implements ObserverInterface
 {
     /**
@@ -27,8 +22,6 @@ class PrepareMerchantUrls implements ObserverInterface
     private $url;
 
     /**
-     * PrepareMerchantUrls constructor.
-     *
      * @param Url $url
      */
     public function __construct(Url $url)

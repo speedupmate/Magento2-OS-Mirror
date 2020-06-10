@@ -2,8 +2,6 @@
 namespace Magento\AcceptanceTest\_default\Backend;
 
 use Magento\FunctionalTestingFramework\AcceptanceTester;
-use Magento\FunctionalTestingFramework\DataGenerator\Handlers\CredentialStore;
-use Magento\FunctionalTestingFramework\DataGenerator\Handlers\PersistedObjectHandler;
 use \Codeception\Util\Locator;
 use Yandex\Allure\Adapter\Annotation\Features;
 use Yandex\Allure\Adapter\Annotation\Stories;
@@ -15,7 +13,7 @@ use Yandex\Allure\Adapter\Model\SeverityLevel;
 use Yandex\Allure\Adapter\Annotation\TestCaseId;
 
 /**
- * @Description("<br><br><b><font size=+0.9>Test files</font></b><br><br>verification/TestModule/Test/DataReplacementTest.xml<br>")
+ * @Description("<h3>Test files</h3>verification/TestModule/Test/DataReplacementTest.xml<br>")
  */
 class DataReplacementTestCest
 {
@@ -52,7 +50,7 @@ class DataReplacementTestCest
 		$I->searchAndMultiSelectOption("#selector", [msq("uniqueData") . "John", "Doe" . msq("uniqueData")]); // stepKey: parameterArrayReplacementMSQBoth
 		$I->selectMultipleOptions("#Doe" . msq("uniqueData"), "#element", [msq("uniqueData") . "John", "Doe" . msq("uniqueData")]); // stepKey: multiSelectDataReplacement
 		$I->fillField(".selector", "0"); // stepKey: insertZero
-		$insertCommand = $I->magentoCLI("do something Doe" . msq("uniqueData") . " with uniqueness"); // stepKey: insertCommand
+		$insertCommand = $I->magentoCLI("do something Doe" . msq("uniqueData") . " with uniqueness", 60); // stepKey: insertCommand
 		$I->comment($insertCommand);
 		$I->seeInPageSource("StringBefore John StringAfter"); // stepKey: htmlReplace1
 		$I->seeInPageSource("#John"); // stepKey: htmlReplace2

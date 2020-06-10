@@ -1,5 +1,4 @@
 <?php
-
 declare(strict_types = 1);
 
 namespace Elasticsearch\Endpoints\Indices;
@@ -8,49 +7,39 @@ use Elasticsearch\Endpoints\AbstractEndpoint;
 
 /**
  * Class Refresh
+ * Elasticsearch API name indices.refresh
+ * Generated running $ php util/GenerateEndpoints.php 7.6.0
  *
  * @category Elasticsearch
  * @package  Elasticsearch\Endpoints\Indices
- * @author   Zachary Tong <zach@elastic.co>
+ * @author   Enrico Zimuel <enrico.zimuel@elastic.co>
  * @license  http://www.apache.org/licenses/LICENSE-2.0 Apache2
  * @link     http://elastic.co
  */
 class Refresh extends AbstractEndpoint
 {
-    /**
-     * @return string
-     */
-    public function getURI()
+
+    public function getURI(): string
     {
-        $index = $this->index;
-        $uri   = "/_refresh";
+        $index = $this->index ?? null;
 
-        if (isset($index) === true) {
-            $uri = "/$index/_refresh";
+        if (isset($index)) {
+            return "/$index/_refresh";
         }
-
-        return $uri;
+        return "/_refresh";
     }
 
-    /**
-     * @return string[]
-     */
-    public function getParamWhitelist()
+    public function getParamWhitelist(): array
     {
-        return array(
+        return [
             'ignore_unavailable',
             'allow_no_indices',
-            'expand_wildcards',
-            'force',
-            'operation_threading',
-        );
+            'expand_wildcards'
+        ];
     }
 
-    /**
-     * @return string
-     */
-    public function getMethod()
+    public function getMethod(): string
     {
-        return 'GET';
+        return 'POST';
     }
 }

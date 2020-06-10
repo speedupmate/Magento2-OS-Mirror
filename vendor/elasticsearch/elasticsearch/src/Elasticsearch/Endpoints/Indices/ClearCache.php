@@ -1,5 +1,4 @@
 <?php
-
 declare(strict_types = 1);
 
 namespace Elasticsearch\Endpoints\Indices;
@@ -8,57 +7,44 @@ use Elasticsearch\Endpoints\AbstractEndpoint;
 
 /**
  * Class ClearCache
+ * Elasticsearch API name indices.clear_cache
+ * Generated running $ php util/GenerateEndpoints.php 7.6.0
  *
  * @category Elasticsearch
  * @package  Elasticsearch\Endpoints\Indices
- * @author   Zachary Tong <zach@elastic.co>
+ * @author   Enrico Zimuel <enrico.zimuel@elastic.co>
  * @license  http://www.apache.org/licenses/LICENSE-2.0 Apache2
  * @link     http://elastic.co
  */
 class ClearCache extends AbstractEndpoint
 {
-    /**
-     * @return string
-     */
-    public function getURI()
+
+    public function getURI(): string
     {
-        $index = $this->index;
-        $uri   = "/_cache/clear";
+        $index = $this->index ?? null;
 
-        if (isset($index) === true) {
-            $uri = "/$index/_cache/clear";
+        if (isset($index)) {
+            return "/$index/_cache/clear";
         }
-
-        return $uri;
+        return "/_cache/clear";
     }
 
-    /**
-     * @return string[]
-     */
-    public function getParamWhitelist()
+    public function getParamWhitelist(): array
     {
-        return array(
-            'field_data',
+        return [
             'fielddata',
             'fields',
-            'filter',
-            'filter_cache',
-            'filter_keys',
-            'id',
-            'id_cache',
+            'query',
             'ignore_unavailable',
             'allow_no_indices',
             'expand_wildcards',
             'index',
-            'recycler',
-        );
+            'request'
+        ];
     }
 
-    /**
-     * @return string
-     */
-    public function getMethod()
+    public function getMethod(): string
     {
-        return isset($this->body) ? 'POST' : 'GET';
+        return 'POST';
     }
 }

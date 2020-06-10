@@ -42,7 +42,7 @@ class Preview extends \Magento\Newsletter\Block\Adminhtml\Template\Preview
     }
 
     /**
-     * Load newsletter email template.
+     * Return template.
      *
      * @param \Magento\Newsletter\Model\Template $template
      * @param string $id

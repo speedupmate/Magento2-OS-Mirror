@@ -1,6 +1,6 @@
 {
     "name": "msp/recaptcha",
-    "version": "2.2.2",
+    "version": "2.2.3",
     "description": "Google reCaptcha integration for Magento2",
     "require": {
         "php": "^7.1|^7.2|^7.3",

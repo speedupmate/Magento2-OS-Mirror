@@ -41,4 +41,8 @@
         <data key="sortOrder">0</data>
         <data key="attributeGroupId">7</data>
     </entity>
+    <entity name="VertexApiFixedBundleProduct" extends="ApiFixedBundleProduct">
+        <requiredEntity type="custom_attribute">CustomAttributeFixWeight</requiredEntity>
+        <requiredEntity type="custom_attribute">CustomAttributeFixSku</requiredEntity>
+    </entity>
 </entities>

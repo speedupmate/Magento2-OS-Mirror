@@ -274,6 +274,10 @@
             <argument name="address" value="Vertex_Customer_JohnWinston_BillingAddress"/>
         </actionGroup>
 
+        <waitForElementVisible selector="{{CheckoutCartSummarySection.flatRateShippingMethod}}" stepKey="waitForShippingSection"/>
+        <checkOption selector="{{CheckoutCartSummarySection.flatRateShippingMethod}}" stepKey="selectFlatRateShipping"/>
+        <waitForPageLoad stepKey="waitForTotals"/>
+
         <actionGroup ref="VertexCheckTotalsInCart" stepKey="checkTotals">
             <argument name="subtotalExclTax" value="{{Vertex_100USD_and_18USD_and_100USD_Clothing_PA_Only_Totals.subtotal}}" />
             <argument name="subtotalInclTax" value="{{Vertex_100USD_and_18USD_and_100USD_Clothing_PA_Only_Totals.subtotalInclTax}}" />
@@ -455,7 +459,9 @@
         </actionGroup>
 
         <actionGroup ref="StorefrontOpenCartFromMinicartActionGroup" stepKey="gotoCart"/>
-        <actionGroup ref="PlaceOrderWithLoggedUserActionGroup" stepKey="placeOrder"/>
+        <actionGroup ref="PlaceOrderWithLoggedUserActionGroup" stepKey="placeOrder">
+            <argument name="shippingMethod" value="Flat Rate"/>
+        </actionGroup>
         <click stepKey="clickOrderNumber" selector="{{CheckoutSuccessMainSection.orderLink}}"/>
 
         <actionGroup ref="VertexCheckProductPricingOnStorefrontOrderReview" stepKey="checkConfig1">

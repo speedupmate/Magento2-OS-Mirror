@@ -33,6 +33,12 @@
         <production_url><![CDATA[https://api.klarna.com]]></production_url>
         <testdrive_url><![CDATA[https://api.playground.klarna.com]]></testdrive_url>
     </api_version>
+    <api_version id="kp_oc" translate="label">
+        <label><![CDATA[Klarna Payments (Oceania)]]></label>
+        <type>payments</type>
+        <production_url><![CDATA[https://api-oc.klarna.com]]></production_url>
+        <testdrive_url><![CDATA[https://api-oc.playground.klarna.com/]]></testdrive_url>
+    </api_version>
     <order_lines id="payments">
         <line id="items" class="KpItemsOrderline"/>
         <line id="discount" class="KpDiscountOrderLine"/>

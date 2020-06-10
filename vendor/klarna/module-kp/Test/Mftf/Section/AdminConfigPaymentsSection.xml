@@ -18,35 +18,32 @@
         <element name="OtherPaymentMethods"
                  type="text"
                  selector="*[id^='payment_'][id$='_other_payment_methods-head']"/>
-        <element name="KlarnaPaymentMethods"
-                 type="text"
-                 selector="*[id^='payment_'][id$='_klarna_section_klarna-head']"/>
         <element name="ConfigureKlarnaButton"
                  type="button"
-                 selector="button[id^='payment_'][id$='_klarna_section_klarna-head']"/>
+                 selector="button[id^='payment_'][id$='_klarna_section-head']"/>
         <element name="KlarnaApiHeader"
                  type="text"
-                 selector="*[id^='payment_'][id$='_klarna_section_klarna_api-head']"/>
+                 selector="*[id^='payment_'][id$='_klarna_section_api-head']"/>
         <element name="KlarnaApi"
                  type="text"
-                 selector="*[id^='payment_'][id$='_klarna_section_klarna_api_api_version']"/>
+                 selector="*[id^='payment_'][id$='_klarna_section_api_api_version']"/>
         <element name="KlarnaApiVersion"
                  type="select"
-                 selector="*[id^='payment_'][id$='_klarna_section_klarna_api_api_version']"/>
+                 selector="*[id^='payment_'][id$='_klarna_section_api_api_version']"/>
         <element name="KlarnaMerchantId"
                  type="text"
-                 selector="*[id^='payment_'][id$='_klarna_section_klarna_api_merchant_id']"/>
+                 selector="*[id^='payment_'][id$='_klarna_section_api_merchant_id']"/>
         <element name="KlarnaSharedSecret"
                  type="text"
-                 selector="*[id^='payment_'][id$='_klarna_section_klarna_api_shared_secret']"/>
-        <element name="KlarnaTestMode"
+                 selector="*[id^='payment_'][id$='_klarna_section_api_shared_secret']"/>
+        <element name="KlarnaMode"
                  type="select"
-                 selector="*[id^='payment_'][id$='_klarna_section_klarna_api_test_mode']"/>
+                 selector="*[id^='payment_'][id$='_klarna_section_api_test_mode']"/>
         <element name="KlarnaKpSection"
                  type="text"
-                 selector="*[id^='payment_'][id$='_klarna_section_klarna_klarna_kp_required-head']"/>
+                 selector="*[id^='payment_'][id$='_klarna_section_klarna_kp_required-head']"/>
         <element name="KlarnaKpEnabled"
                  type="select"
-                 selector="*[id^='payment_'][id$='_klarna_section_klarna_klarna_kp_required_active']"/>
+                 selector="*[id^='payment_'][id$='_klarna_section_klarna_kp_required_active']"/>
     </section>
 </sections>

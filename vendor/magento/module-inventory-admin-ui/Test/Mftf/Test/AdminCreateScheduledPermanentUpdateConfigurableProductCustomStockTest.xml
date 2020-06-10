@@ -68,6 +68,9 @@
                 <argument name="websiteName" value="{{_defaultWebsite.name}}"/>
             </actionGroup>
             <deleteData createDataKey="stock" stepKey="deleteStock" before="amOnLogoutPage"/>
+
+            <!-- Reindex invalidated indices after product attribute has been created/deleted -->
+            <actionGroup ref="CliRunReindexUsingCronJobsActionGroup" stepKey="reindexInvalidatedIndices"/>
         </after>
 
         <!--Assign source to configurable product.-->
@@ -78,7 +81,7 @@
         <actionGroup ref="AdminAssignSourceToProductAndSetSourceQuantityActionGroup" stepKey="assignSourceToProduct">
             <argument name="sourceCode" value="$source.source[source_code]$"/>
         </actionGroup>
-        <actionGroup ref="saveProductForm" stepKey="saveConfigurableVariation"/>
+        <actionGroup ref="SaveProductFormActionGroup" stepKey="saveConfigurableVariation"/>
         <magentoCLI command="indexer:reindex" stepKey="performReindex"/>
         <magentoCLI command="cache:flush" stepKey="cleanCache"/>
 

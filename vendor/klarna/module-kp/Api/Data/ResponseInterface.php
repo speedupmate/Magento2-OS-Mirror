@@ -10,11 +10,6 @@
 
 namespace Klarna\Kp\Api\Data;
 
-/**
- * Interface ResponseInterface
- *
- * @package Klarna\Kp\Api\Data
- */
 interface ResponseInterface
 {
     /**

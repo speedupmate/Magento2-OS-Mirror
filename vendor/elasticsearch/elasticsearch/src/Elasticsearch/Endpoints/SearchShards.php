@@ -1,59 +1,47 @@
 <?php
-
 declare(strict_types = 1);
 
 namespace Elasticsearch\Endpoints;
 
+use Elasticsearch\Endpoints\AbstractEndpoint;
+
 /**
- * Class Search
+ * Class SearchShards
+ * Elasticsearch API name search_shards
+ * Generated running $ php util/GenerateEndpoints.php 7.6.0
  *
  * @category Elasticsearch
  * @package  Elasticsearch\Endpoints
- * @author   Zachary Tong <zach@elastic.co>
+ * @author   Enrico Zimuel <enrico.zimuel@elastic.co>
  * @license  http://www.apache.org/licenses/LICENSE-2.0 Apache2
  * @link     http://elastic.co
  */
 class SearchShards extends AbstractEndpoint
 {
-    /**
-     * @return string
-     */
-    public function getURI()
+
+    public function getURI(): string
     {
-        $index = $this->index;
-        $type = $this->type;
-        $uri   = "/_search_shards";
+        $index = $this->index ?? null;
 
-        if (isset($index) === true && isset($type) === true) {
-            $uri = "/$index/$type/_search_shards";
-        } elseif (isset($index) === true) {
-            $uri = "/$index/_search_shards";
-        } elseif (isset($type) === true) {
-            $uri = "/_all/$type/_search_shards";
+        if (isset($index)) {
+            return "/$index/_search_shards";
         }
-
-        return $uri;
+        return "/_search_shards";
     }
 
-    /**
-     * @return string[]
-     */
-    public function getParamWhitelist()
+    public function getParamWhitelist(): array
     {
-        return array(
+        return [
             'preference',
             'routing',
             'local',
             'ignore_unavailable',
             'allow_no_indices',
             'expand_wildcards'
-        );
+        ];
     }
 
-    /**
-     * @return string
-     */
-    public function getMethod()
+    public function getMethod(): string
     {
         return 'GET';
     }

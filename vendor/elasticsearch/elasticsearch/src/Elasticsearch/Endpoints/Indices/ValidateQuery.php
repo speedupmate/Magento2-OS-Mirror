@@ -1,79 +1,71 @@
 <?php
-
 declare(strict_types = 1);
 
 namespace Elasticsearch\Endpoints\Indices;
 
 use Elasticsearch\Endpoints\AbstractEndpoint;
-use Elasticsearch\Common\Exceptions;
 
 /**
  * Class ValidateQuery
+ * Elasticsearch API name indices.validate_query
+ * Generated running $ php util/GenerateEndpoints.php 7.6.0
  *
  * @category Elasticsearch
  * @package  Elasticsearch\Endpoints\Indices
- * @author   Zachary Tong <zach@elastic.co>
+ * @author   Enrico Zimuel <enrico.zimuel@elastic.co>
  * @license  http://www.apache.org/licenses/LICENSE-2.0 Apache2
  * @link     http://elastic.co
  */
 class ValidateQuery extends AbstractEndpoint
 {
-    /**
-     * @param array $body
-     *
-     * @throws \Elasticsearch\Common\Exceptions\InvalidArgumentException
-     * @return $this
-     */
-    public function setBody($body)
+
+    public function getURI(): string
     {
-        if (isset($body) !== true) {
-            return $this;
+        $index = $this->index ?? null;
+        $type = $this->type ?? null;
+        if (isset($type)) {
+            @trigger_error('Specifying types in urls has been deprecated', E_USER_DEPRECATED);
         }
 
-        $this->body = $body;
-
-        return $this;
-    }
-
-    /**
-     * @return string
-     */
-    public function getURI()
-    {
-        $index = $this->index;
-        $type = $this->type;
-        $uri   = "/_validate/query";
-
-        if (isset($index) === true && isset($type) === true) {
-            $uri = "/$index/$type/_validate/query";
-        } elseif (isset($index) === true) {
-            $uri = "/$index/_validate/query";
+        if (isset($index) && isset($type)) {
+            return "/$index/$type/_validate/query";
         }
-
-        return $uri;
+        if (isset($index)) {
+            return "/$index/_validate/query";
+        }
+        return "/_validate/query";
     }
 
-    /**
-     * @return string[]
-     */
-    public function getParamWhitelist()
+    public function getParamWhitelist(): array
     {
-        return array(
+        return [
             'explain',
             'ignore_unavailable',
             'allow_no_indices',
             'expand_wildcards',
-            'operation_threading',
-            'source',
             'q',
-        );
+            'analyzer',
+            'analyze_wildcard',
+            'default_operator',
+            'df',
+            'lenient',
+            'rewrite',
+            'all_shards'
+        ];
     }
 
-    /**
-     * @return string
-     */
-    public function getMethod()
+    public function getMethod(): string
     {
         return isset($this->body) ? 'POST' : 'GET';
+    }
+
+    public function setBody($body): ValidateQuery
+    {
+        if (isset($body) !== true) {
+            return $this;
+        }
+        $this->body = $body;
+
+        return $this;
     }
 }

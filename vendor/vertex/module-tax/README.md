@@ -141,7 +141,7 @@ The unit and integration tests may be ran from within Magento as part of Magento
 Vertex comes with functional acceptance tests that utilize the Magento Functional Testing Framework.
 
 Running these tests requires MFTF to be setup.  Please refer to [Introduction to the Magento Functional Testing 
-Framework](https://devdocs.magento.com/guides/v2.2/magento-functional-testing-framework/release-2/introduction.html) 
+Framework](https://devdocs.magento.com/mftf/docs/introduction.html) 
 for more information on setting up this environment.
 
 After an MFTF environment is setup, the following steps must be taken:
@@ -160,7 +160,7 @@ For example: (where `/var/www/example.org` is the root of a Magento 2 installati
 
 > `/var/www/example.org/vendor/vertex/module-tax/Test/Mftf`
 
-Once configuration is complete, the tests may be run as specified in [Step 7 of the MFTF Getting Started notes](https://devdocs.magento.com/guides/v2.2/magento-functional-testing-framework/release-2/getting-started.html#step-7-run-tests).
+Once configuration is complete, the tests may be run as specified in [Step 7 of the MFTF Getting Started notes](https://devdocs.magento.com/mftf/docs/getting-started.html#step-7-run-a-simple-test).
 
 ## Architecture
 

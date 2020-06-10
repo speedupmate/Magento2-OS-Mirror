@@ -136,6 +136,10 @@
                 <actionGroup ref="logout" stepKey="logoutOfAdmin"/>
             </after>
 
+            <waitForLoadingMaskToDisappear stepKey="waitForLoadingMask"/>
+            <waitForElement selector="{{CheckoutShippingMethodsSection.checkShippingMethodByName('Flat Rate')}}" stepKey="waitForShippingMethod"/>
+            <click selector="{{CheckoutShippingMethodsSection.checkShippingMethodByName('Flat Rate')}}" stepKey="selectShippingMethod"/>
+
             <waitForElement selector="{{CheckoutShippingSection.next}}" time="30" stepKey="waitForNextButton"/>
             <click selector="{{CheckoutShippingSection.next}}" stepKey="clickNext"/>
 

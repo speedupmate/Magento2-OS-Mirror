@@ -12,10 +12,16 @@ use Magento\Catalog\Model\Product;
 use Magento\Framework\Stdlib\StringUtils;
 use Magento\Sales\Api\Data\CreditmemoInterface;
 use Magento\Sales\Api\Data\CreditmemoItemInterface;
+use Magento\Sales\Api\OrderAddressRepositoryInterface;
+use Magento\Sales\Api\OrderRepositoryInterface;
+use Vertex\Data\CustomerInterface;
 use Vertex\Data\LineItemInterface;
 use Vertex\Data\LineItemInterfaceFactory;
 use Vertex\Services\Invoice\RequestInterface;
+use Vertex\Tax\Model\Api\Data\CustomerBuilder;
+use Vertex\Tax\Model\Api\Utility\IsVirtualLineItemDeterminer;
 use Vertex\Tax\Model\Api\Utility\MapperFactoryProxy;
+use Vertex\Tax\Model\ExceptionLogger;
 use Vertex\Tax\Model\Repository\TaxClassNameRepository;
 use Vertex\Tax\Model\Api\Data\InvoiceRequestBuilder\FixedPriceProcessor;
 use Vertex\Tax\Model\Config;
@@ -43,6 +49,21 @@ class CreditmemoItemFixedPriceProcessor implements CreditmemoProcessorInterface
     /** @var Config */
     private $config;
 
+    /** @var CustomerBuilder */
+    private $customerBuilder;
+
+    /** @var OrderRepositoryInterface */
+    private $orderRepository;
+
+    /** @var OrderAddressRepositoryInterface */
+    private $orderAddressRepository;
+
+    /** @var IsVirtualLineItemDeterminer */
+    private $virtualLineItemDeterminer;
+
+    /** @var ExceptionLogger */
+    private $logger;
+
     public function __construct(
         ItemProcessor $itemProcessor,
         LineItemInterfaceFactory $lineItemFactory,
@@ -50,7 +71,12 @@ class CreditmemoItemFixedPriceProcessor implements CreditmemoProcessorInterface
         StringUtils $stringUtils,
         MapperFactoryProxy $mapperFactory,
         FixedPriceProcessor $fixedPriceProcessor,
-        Config $config
+        Config $config,
+        IsVirtualLineItemDeterminer $virtualLineItemDeterminer,
+        CustomerBuilder $customerBuilder,
+        OrderRepositoryInterface $orderRepository,
+        OrderAddressRepositoryInterface $orderAddressRepository,
+        ExceptionLogger $logger
     ) {
         $this->itemProcessor = $itemProcessor;
         $this->lineItemFactory = $lineItemFactory;
@@ -59,6 +85,11 @@ class CreditmemoItemFixedPriceProcessor implements CreditmemoProcessorInterface
         $this->mapperFactory = $mapperFactory;
         $this->fixedPriceProcessor = $fixedPriceProcessor;
         $this->config = $config;
+        $this->virtualLineItemDeterminer = $virtualLineItemDeterminer;
+        $this->customerBuilder = $customerBuilder;
+        $this->orderRepository = $orderRepository;
+        $this->orderAddressRepository = $orderAddressRepository;
+        $this->logger = $logger;
     }
 
     /**
@@ -89,6 +120,7 @@ class CreditmemoItemFixedPriceProcessor implements CreditmemoProcessorInterface
         $taxClasses = [];
 
         $storeId = $creditmemo->getStoreId();
+        $orderId = $creditmemo->getOrderId();
 
         $lineItemMapper = $this->mapperFactory->getForClass(LineItemInterface::class, $storeId);
 
@@ -119,6 +151,12 @@ class CreditmemoItemFixedPriceProcessor implements CreditmemoProcessorInterface
             $lineItem->setExtendedPrice(-1 * $fixedProductPriceTaxRow);
             $lineItem->setLineItemId($item->getOrderItemId());
 
+            if ($this->virtualLineItemDeterminer->isCreditMemoItemVirtual($item)
+                && $customer = $this->buildCustomerWithBillingAddress($orderId)
+            ) {
+                $lineItem->setCustomer($customer);
+            }
+
             $taxClasses[$item->getOrderItemId()] = $taxClassId;
 
             if ($lineItem->getExtendedPrice() == 0) {
@@ -146,6 +184,18 @@ class CreditmemoItemFixedPriceProcessor implements CreditmemoProcessorInterface
         $request->setLineItems(array_merge($request->getLineItems(), $lineItems));
 
         return $request;
+    }
+
+    private function buildCustomerWithBillingAddress($orderId):? CustomerInterface
+    {
+        try {
+            $order = $this->orderRepository->get($orderId);
+            $billingAddress = $this->orderAddressRepository->get($order->getBillingAddressId());
+            return $this->customerBuilder->buildFromOrderAddress($billingAddress);
+        } catch (\Exception $e) {
+            $this->logger->critical($e);
+            return null;
+        }
     }
 
     private function getFptTaxClassByProduct(Product $product): int

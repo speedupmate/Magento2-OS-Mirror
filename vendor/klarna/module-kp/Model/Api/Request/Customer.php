@@ -12,11 +12,6 @@ namespace Klarna\Kp\Model\Api\Request;
 
 use Klarna\Kp\Api\Data\CustomerInterface;
 
-/**
- * Class Customer
- *
- * @package Klarna\Kp\Model\Api\Request
- */
 class Customer implements CustomerInterface
 {
     use \Klarna\Kp\Model\Api\Export;
@@ -32,8 +27,6 @@ class Customer implements CustomerInterface
     private $gender;
 
     /**
-     * Constructor.
-     *
      * @param array $data
      */
     public function __construct($data = [])

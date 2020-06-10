@@ -1,34 +1,38 @@
 define(['jquery', 'domReady!'], function ($) {
     'use strict';
 
+    var previousEmail;
+
     /**
      * Email validation
      * @param {String} sEmail
      * @returns {Boolean}
      */
     function validateEmail(sEmail) {
-        var filter
-            = /^([+\w-\.]+)@((\[[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\.)|(([\w-]+\.)+))([a-zA-Z]{2,4}|[0-9]{1,3})(\]?)$/;
-
-        return filter.test(sEmail);
+        return /^([+\w-\.]+)@((\[[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\.)|(([\w-]+\.)+))([a-zA-Z]{2,4}|[0-9]{1,3})(\]?)$/
+            .test(sEmail);
     }
 
     /**
-     * Email capture for checkout
-     * @param {String} url
+     * Send captured email
      *
+     * @param selectors
+     * @param url
      */
-    function emailCaptureCheckout(url) {
-        var previousEmail = '';
-        $('body').on('blur', 'input[id=customer-email]', function () {
+    function emailCapture(selectors, url, captureEnabled) {
+        $(document).on('blur', selectors.join(', '), function() {
             var email = $(this).val();
-
-            if (email === previousEmail) {
-                return false;
+            if (!email || email === previousEmail || !validateEmail(email)) {
+                return;
             }
 
-            if (email && validateEmail(email)) {
-                previousEmail = email;
+            //Identify the user
+            if (typeof window.dmPt !== 'undefined') {
+                window.dmPt('identify', email);
+            }
+
+            //Check if Email Capture is Enabled
+            if (captureEnabled !== "0") {
                 $.post(url, {
                     email: email
                 });
@@ -37,35 +41,23 @@ define(['jquery', 'domReady!'], function ($) {
     }
 
     /**
-     * Email capture for newsletter field
-     * @param {String} url
-     */
-    function emailCaptureNewsletter(url) {
-        $('input[id=newsletter]').each(function (index, element) {
-            // Observe onblur event on element
-            $(element).on('blur', function () {
-                var email = $(element).val();
-
-                if (email && validateEmail(email)) {
-                    $.post(url, {
-                        email: email
-                    });
-                }
-            });
-        });
-    }
-
-    /**
      * Exported/return email capture
-     * @param {Object} emailCapture
+     * @param {Object} config
      */
-    return function (emailCapture) {
-        if (emailCapture.type === 'checkout') {
-            emailCaptureCheckout(emailCapture.url);
+    return function (config) {
+        let selectors = [];
+        switch (config.type) {
+            case 'checkout' :
+                selectors.push('input[id="customer-email"]');
+                break;
+
+            case 'newsletter' :
+                selectors.push('input[id="newsletter"]');
+                break;
         }
 
-        if (emailCapture.type === 'newsletter') {
-            emailCaptureNewsletter(emailCapture.url);
+        if (selectors.length !== 0) {
+            emailCapture(selectors, config.url, config.enabled);
         }
     };
 });

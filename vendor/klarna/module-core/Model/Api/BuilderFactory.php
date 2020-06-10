@@ -10,11 +10,6 @@
 
 namespace Klarna\Core\Model\Api;
 
-/**
- * Class BuilderFactory
- *
- * @package Klarna\Core\Model\Api
- */
 class BuilderFactory
 {
     /**

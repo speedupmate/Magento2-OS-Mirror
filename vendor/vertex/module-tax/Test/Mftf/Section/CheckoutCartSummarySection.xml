@@ -28,5 +28,6 @@
         <element name="taxSummary" type="text" selector=".totals-tax-summary"/>
 
         <element name="flatRateShippingMethod" type="input" selector="#s_method_flatrate_flatrate" timeout="30"/>
+        <element name="tableRateShippingMethod" type="input" selector="#s_method_tablerate_bestway" timeout="30"/>
     </section>
 </sections>

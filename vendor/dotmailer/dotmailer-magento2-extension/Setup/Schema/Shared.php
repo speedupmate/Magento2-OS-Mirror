@@ -3,7 +3,7 @@
 namespace Dotdigitalgroup\Email\Setup\Schema;
 
 use \Magento\Framework\Setup\SchemaSetupInterface;
-use Dotdigitalgroup\Email\Setup\Schema;
+use Dotdigitalgroup\Email\Setup\SchemaInterface as Schema;
 
 class Shared
 {
@@ -233,7 +233,12 @@ class Shared
     private function addKeyForConsentTable($installer, $emailContactConsentTable)
     {
         return $emailContactConsentTable->addForeignKey(
-            $installer->getFkName(Schema::EMAIL_CONTACT_CONSENT_TABLE, 'email_contact_id', Schema::EMAIL_CONTACT_TABLE, 'email_contact_id'),
+            $installer->getFkName(
+                Schema::EMAIL_CONTACT_CONSENT_TABLE,
+                'email_contact_id',
+                Schema::EMAIL_CONTACT_TABLE,
+                'email_contact_id'
+            ),
             'email_contact_id',
             $installer->getTable(Schema::EMAIL_CONTACT_TABLE),
             'email_contact_id',
@@ -338,6 +343,99 @@ class Shared
             ->addIndex(
                 $installer->getIdxName('email_auth_edc', ['store_id']),
                 ['store_id']
+            );
+    }
+
+    /**
+     * Create coupon table
+     *
+     * @param SchemaSetupInterface $installer
+     * @param string $tableName
+     */
+    public function createCouponTable($installer, $tableName)
+    {
+        $couponTable = $installer->getConnection()->newTable($installer->getTable($tableName));
+        $couponTable = $this->addColumnsToCouponTable($couponTable);
+        $couponTable = $this->addKeyToCouponTable($installer, $couponTable);
+        $couponTable = $this->addIndexesToCouponTable($installer, $couponTable);
+        $couponTable->setComment('Dotdigital coupon attributes table');
+        $installer->getConnection()->createTable($couponTable);
+    }
+
+    /**
+     * @param \Magento\Framework\DB\Ddl\Table $table
+     * @return mixed
+     */
+    private function addColumnsToCouponTable($table)
+    {
+        return $table
+            ->addColumn(
+                'id',
+                \Magento\Framework\DB\Ddl\Table::TYPE_INTEGER,
+                10,
+                [
+                    'primary' => true,
+                    'identity' => true,
+                    'unsigned' => true,
+                    'nullable' => false
+                ],
+                'Primary Key'
+            )
+            ->addColumn(
+                'coupon_id',
+                \Magento\Framework\DB\Ddl\Table::TYPE_INTEGER,
+                10,
+                [
+                    'unsigned' => true,
+                    'nullable' => false
+                ],
+                'Coupon Id'
+            )
+            ->addColumn(
+                'email',
+                \Magento\Framework\DB\Ddl\Table::TYPE_TEXT,
+                255,
+                ['nullable' => true],
+                'Email'
+            );
+    }
+
+    /**
+     * @param SchemaSetupInterface $installer
+     * @param \Magento\Framework\DB\Ddl\Table $table
+     * @return mixed
+     */
+    private function addKeyToCouponTable($installer, $table)
+    {
+        return $table->addForeignKey(
+            $installer->getFkName(
+                $installer->getTable(Schema::EMAIL_COUPON_TABLE),
+                'coupon_id',
+                'salesrule_coupon',
+                'coupon_id'
+            ),
+            'coupon_id',
+            $installer->getTable('salesrule_coupon'),
+            'coupon_id',
+            \Magento\Framework\DB\Ddl\Table::ACTION_CASCADE
+        );
+    }
+
+    /**
+     * @param SchemaSetupInterface $installer
+     * @param \Magento\Framework\DB\Ddl\Table $table
+     * @return mixed
+     */
+    private function addIndexesToCouponTable($installer, $table)
+    {
+        return $table
+            ->addIndex(
+                $installer->getIdxName(Schema::EMAIL_COUPON_TABLE, ['coupon_id']),
+                ['coupon_id']
+            )
+            ->addIndex(
+                $installer->getIdxName(Schema::EMAIL_COUPON_TABLE, ['email']),
+                ['email']
             );
     }
 }

@@ -2,7 +2,9 @@
 
 namespace Dotdigitalgroup\Email\Model;
 
-use Dotdigitalgroup\Email\Model\Config\Json;
+use Magento\Framework\Serialize\SerializerInterface;
+use Magento\Sales\Model\ResourceModel\Order\Collection as OrderCollection;
+use Magento\Quote\Model\ResourceModel\Quote\Collection as QuoteCollection;
 
 class Rules extends \Magento\Framework\Model\AbstractModel
 {
@@ -82,7 +84,7 @@ class Rules extends \Magento\Framework\Model\AbstractModel
     private $config;
 
     /**
-     * @var Json
+     * @var SerializerInterface
      */
     private $serializer;
 
@@ -93,7 +95,7 @@ class Rules extends \Magento\Framework\Model\AbstractModel
      * @param \Magento\Quote\Model\ResourceModel\Quote\CollectionFactory $quoteCollectionFactory
      * @param Adminhtml\Source\Rules\Type $rulesType
      * @param \Magento\Eav\Model\Config $config
-     * @param Json $serializer
+     * @param SerializerInterface $serializer
      * @param ResourceModel\Rules $rulesResource
      * @param array $data
      * @param \Magento\Framework\Model\ResourceModel\AbstractResource|null $resource
@@ -105,7 +107,7 @@ class Rules extends \Magento\Framework\Model\AbstractModel
         \Magento\Quote\Model\ResourceModel\Quote\CollectionFactory $quoteCollectionFactory,
         \Dotdigitalgroup\Email\Model\Adminhtml\Source\Rules\Type $rulesType,
         \Magento\Eav\Model\Config $config,
-        \Dotdigitalgroup\Email\Model\Config\Json $serializer,
+        SerializerInterface $serializer,
         \Dotdigitalgroup\Email\Model\ResourceModel\Rules $rulesResource,
         array $data = [],
         \Magento\Framework\Model\ResourceModel\AbstractResource $resource = null,
@@ -239,7 +241,12 @@ class Rules extends \Magento\Framework\Model\AbstractModel
         if (empty($emailRules)) {
             return $collection;
         }
-        $condition = $this->serializer->unserialize($emailRules->getConditions());
+        try {
+            $condition = $this->serializer->unserialize($emailRules->getConditions());
+        } catch (\InvalidArgumentException $e) {
+            return $collection;
+        }
+
         if (empty($condition)) {
             return $collection;
         }
@@ -324,7 +331,7 @@ class Rules extends \Magento\Framework\Model\AbstractModel
                 $condition = [$cond => true];
             }
         } else {
-            if ($cond == 'like' or $cond == 'nlike') {
+            if ($cond == 'like' || $cond == 'nlike') {
                 $value = '%' . $value . '%';
             }
             //condition with null values can't be filtered using string, include to filter null values
@@ -370,7 +377,7 @@ class Rules extends \Magento\Framework\Model\AbstractModel
             $value = $condition['cvalue'];
 
             //ignore condition if value is null or empty
-            if ($value == '' or $value == null) {
+            if ($value == '' || $value == null) {
                 continue;
             }
 
@@ -400,7 +407,7 @@ class Rules extends \Magento\Framework\Model\AbstractModel
                     $fieldsConditions[$attribute] = [$cond => true];
                 }
             } else {
-                if ($cond == 'like' or $cond == 'nlike') {
+                if ($cond == 'like' || $cond == 'nlike') {
                     $value = '%' . $value . '%';
                 }
                 if (isset($fieldsConditions[$attribute])) {
@@ -437,7 +444,7 @@ class Rules extends \Magento\Framework\Model\AbstractModel
      * Process product attributes on collection.
      *
      * @param \Magento\Sales\Model\ResourceModel\Order\Collection|
-     * \Magento\Quote\Model\ResourceModel\Quote\Collectio $collection
+     * \Magento\Quote\Model\ResourceModel\Quote\Collection $collection
      *
      * @return \Magento\Sales\Model\ResourceModel\Order\Collection|
      * \Magento\Quote\Model\ResourceModel\Quote\Collection $collection
@@ -497,96 +504,85 @@ class Rules extends \Magento\Framework\Model\AbstractModel
     private function processProductAttributesInCollection($collection)
     {
         foreach ($collection as $collectionItem) {
-            $items = $collectionItem->getAllItems();
-            foreach ($items as $item) {
-                $product = $item->getProduct();
-                $attributes = $this->getAttributesArrayFromLoadedProduct($product);
-
-                foreach ($this->productAttribute as $productAttribute) {
-                    $attribute = $productAttribute['attribute'];
-                    $cond = $productAttribute['conditions'];
-                    $value = $productAttribute['cvalue'];
-
-                    if ($cond == 'null') {
-                        if ($value == '0') {
-                            $cond = 'neq';
-                        } elseif ($value == '1') {
-                            $cond = 'eq';
-                        }
-                        $value = '';
-                    }
-
-                    //if attribute is in product's attributes array
-                    if (in_array($attribute, $attributes)) {
-                        $attr = $this->config->getAttribute('catalog_product', $attribute);
-                        //frontend type
-                        $frontType = $attr->getFrontend()->getInputType();
-                        //if type is select
-                        if ($frontType == 'select' or $frontType
-                            == 'multiselect'
-                        ) {
-                            $attributeValue = $product->getAttributeText(
-                                $attribute
-                            );
-                            //evaluate conditions on values. if true then unset item from collection
-                            if ($this->_evaluate(
-                                $value,
-                                $cond,
-                                $attributeValue
-                            )
-                            ) {
-                                $collection->removeItemByKey(
-                                    $collectionItem->getId()
-                                );
-                                continue 3;
-                            }
-                        } else {
-                            $getter = 'get';
-                            $exploded = explode('_', $attribute);
-                            foreach ($exploded as $one) {
-                                $getter .= ucfirst($one);
-                            }
-                            $attributeValue = call_user_func(
-                                [$product, $getter]
-                            );
-                            //if retrieved value is an array then loop through all array values.
-                            // example can be categories
-                            if (is_array($attributeValue)) {
-                                foreach ($attributeValue as $attrValue) {
-                                    //evaluate conditions on values. if true then unset item from collection
-                                    if ($this->_evaluate(
-                                        $value,
-                                        $cond,
-                                        $attrValue
-                                    )
-                                    ) {
-                                        $collection->removeItemByKey(
-                                            $collectionItem->getId()
-                                        );
-                                        continue 3;
-                                    }
-                                }
-                            } else {
-                                //evaluate conditions on values. if true then unset item from collection
-                                if ($this->_evaluate(
-                                    $value,
-                                    $cond,
-                                    $attributeValue
-                                )
-                                ) {
-                                    $collection->removeItemByKey(
-                                        $collectionItem->getId()
-                                    );
-                                    continue 3;
-                                }
-                            }
-                        }
-                    }
-                }
+            foreach ($collectionItem->getAllItems() as $item) {
+                $this->processCollectionItem($collection, $collectionItem->getId(), $item);
             }
         }
 
         return $collection;
+    }
+
+    /**
+     * @param QuoteCollection|OrderCollection $collection
+     * @param int $collectionItemId
+     * @param $item
+     * @throws \Magento\Framework\Exception\LocalizedException
+     */
+    private function processCollectionItem($collection, $collectionItemId, $item)
+    {
+        $product = $item->getProduct();
+        $attributes = $this->getAttributesArrayFromLoadedProduct($product);
+        $attributes[] = 'attribute_set_id';
+
+        foreach ($this->productAttribute as $productAttribute) {
+            $attribute = $productAttribute['attribute'];
+            $cond = $productAttribute['conditions'];
+            $value = $productAttribute['cvalue'];
+
+            if ($cond == 'null') {
+                if ($value == '0') {
+                    $cond = 'neq';
+                } elseif ($value == '1') {
+                    $cond = 'eq';
+                }
+                $value = '';
+            }
+
+            //if attribute is in product's attributes array
+            if (!in_array($attribute, $attributes)) {
+                continue;
+            }
+
+            $attr = $this->config->getAttribute('catalog_product', $attribute);
+            //frontend type
+            $frontType = $attr->getFrontend()->getInputType();
+
+            //if type is select
+            if (in_array($frontType, ['select', 'multiselect'])) {
+                $attributeValue = $product->getAttributeText($attribute);
+
+                //evaluate conditions on values. if true then unset item from collection
+                if ($this->_evaluate($value, $cond, $attributeValue)) {
+                    $collection->removeItemByKey($collectionItemId);
+                    return;
+                }
+            } else {
+                $getter = 'get';
+                foreach (explode('_', $attribute) as $one) {
+                    $getter .= ucfirst($one);
+                }
+
+                $attributeValue = $product->$getter();
+
+                //if retrieved value is an array then loop through all array values.
+                // example can be categories
+                if (is_array($attributeValue)) {
+                    foreach ($attributeValue as $attrValue) {
+                        //evaluate conditions on values. if true then unset item from collection
+                        if ($this->_evaluate($value, $cond, $attrValue)) {
+                            $collection->removeItemByKey($collectionItemId);
+                            return;
+                        }
+                    }
+                } else {
+                    //evaluate conditions on values. if true then unset item from collection
+                    if ($this->_evaluate($value, $cond, $attributeValue)) {
+                        $collection->removeItemByKey($collectionItemId);
+                        return;
+                    }
+                }
+            }
+        }
     }
 
     /**

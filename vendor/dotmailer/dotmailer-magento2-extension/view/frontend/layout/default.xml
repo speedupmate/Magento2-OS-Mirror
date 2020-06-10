@@ -3,7 +3,7 @@
 <page xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="urn:magento:framework:View/Layout/etc/page_configuration.xsd">
     <body>
         <referenceContainer name="before.body.end">
-            <block class="Magento\Framework\View\Element\Template"
+            <block class="Dotdigitalgroup\Email\Block\EmailCapture\EmailCaptureForNewsletter"
                    name="emailCapture"
                    template="Dotdigitalgroup_Email::email/email_capture_newsletter.phtml"/>
         </referenceContainer>
@@ -11,6 +11,11 @@
             <block class="Dotdigitalgroup\Email\Block\Tracking"
                    name="ddg.checkout.tag"
                    template="Dotdigitalgroup_Email::email/tracking_code.phtml"
+            />
+            <block ifconfig="connector_configuration/tracking/tracking_profile_id"
+                   class="Dotdigitalgroup\Email\Block\WebBehavior"
+                   name="web.behavior.tracking"
+                   template="Dotdigitalgroup_Email::email/web_behavior_tracking.phtml"
             />
         </referenceContainer>
     </body>

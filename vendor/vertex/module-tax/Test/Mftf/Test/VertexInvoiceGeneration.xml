@@ -1,0 +1,247 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!--
+ /**
+  * @copyright  Vertex. All rights reserved.  https://www.vertexinc.com/
+  * @author     Mediotype                     https://www.mediotype.com/
+  */
+-->
+<tests xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+       xsi:noNamespaceSchemaLocation="urn:magento:mftf:Test/etc/testSchema.xsd">
+    <test name="VertexInvoiceCreationOnOrderStatusComplete">
+        <annotations>
+            <group value="Vertex"/>
+            <features value="Vertex"/>
+            <testCaseId value="VRTX-711"/>
+            <testCaseId value="BUNDLE-556"/>
+
+            <stories value="As a store owner, I must have accurate taxes calculated during checkout and invoice sent on order complete"/>
+            <title value="Validate taxes on the checkout summary, during shipment and invoice creation and invoice sent to Vertex on completed order."/>
+            <description value="Validate that a customer will have correct taxes during the checkout, shipment and invoice creation. Validate that the invoice will be sent to Vertex when order is completed."/>
+
+            <severity value="AVERAGE"/>
+        </annotations>
+        <before>
+            <actionGroup ref="LoginAsAdmin" stepKey="loginAsAdmin"/>
+
+            <createData entity="VertexTaxConfigStatusChangeOrderStatusComplete" stepKey="setInvoiceOnOrderComplete"/>
+            <actionGroup ref="VertexTaxDefaultConfig" stepKey="setupDefaultVertexTestConfiguration"/>
+
+            <actionGroup ref="AssertCustomerNotInGridActionGroup" stepKey="assertCustomerNotCreated">
+                <argument name="customer" value="Vertex_Customer_AlanRobinson"/>
+            </actionGroup>
+
+            <createData entity="_defaultCategory" stepKey="createCategory"/>
+            <createData entity="VertexProductTaxClass_Clothing" stepKey="createTaxClass" />
+            <createData entity="VertexSimpleProduct" stepKey="createSimpleProduct">
+                <field key="price">{{Vertex_19USD_TCSIX_Values.price}}</field>
+                <field key="sku">24-UG01</field>
+                <requiredEntity createDataKey="createCategory"/>
+                <requiredEntity createDataKey="createTaxClass"/>
+            </createData>
+            <magentoCLI command="cache:flush" stepKey="flushCache"/>
+        </before>
+        <after>
+            <createData entity="DefaultTaxConfig" stepKey="defaultConf"/>
+            <deleteData createDataKey="createSimpleProduct" stepKey="deleteSimpleProduct"/>
+            <deleteData createDataKey="createTaxClass" stepKey="deleteTaxClass" />
+            <deleteData createDataKey="createCategory" stepKey="deleteCategory"/>
+            <actionGroup ref="AdminDeleteCustomerActionGroup" stepKey="deleteCustomer">
+                <argument name="customerEmail" value="Vertex_Customer_AlanRobinson.email"/>
+            </actionGroup>
+            <actionGroup ref="logout" stepKey="logoutOfAdmin"/>
+            <actionGroup ref="StorefrontCustomerLogoutActionGroup" stepKey="customerLogout"/>
+        </after>
+
+        <!-- Assert empty minicart -->
+        <amOnPage url="{{StorefrontHomePage.url}}" stepKey="goToHomePage"/>
+        <waitForPageLoad stepKey="waitForHomepageToLoad"/>
+        <actionGroup ref="assertMiniCartEmpty" stepKey="miniCartEmpty"/>
+
+        <!-- Add product to cart -->
+        <actionGroup ref="AddSimpleProductToCart" stepKey="addSimpleProductToCart">
+            <argument name="product" value="$$createSimpleProduct$$"/>
+        </actionGroup>
+        <see selector="{{StorefrontCategoryMainSection.SuccessMsg}}" userInput="You added $$createSimpleProduct.name$$ to your shopping cart." stepKey="assertSuccessMessage"/>
+
+        <!-- Create new customer account with address -->
+        <actionGroup ref="SignUpNewUserFromStorefrontActionGroup" stepKey="SignUpNewUser">
+            <argument name="Customer" value="Vertex_Customer_AlanRobinson"/>
+        </actionGroup>
+        <actionGroup ref="StorefrontAddNewCustomerAddressActionGroup" stepKey="AddNewAddress">
+            <argument name="Address" value="Vertex_Customer_AlanRobinson_Address"/>
+        </actionGroup>
+        <see selector="{{AdminCustomerMessagesSection.successMessage}}" userInput="You saved the address." stepKey="seeAssertCustomerAddressSuccessSaveMessage"/>
+
+        <!-- Checkout -->
+        <actionGroup ref="GoToCheckoutFromMinicartActionGroup" stepKey="gotoCheckout"/>
+
+        <click selector="{{CheckoutShippingMethodsSection.checkShippingMethodByName('Flat Rate')}}" stepKey="selectShippingMethod"/>
+        <waitForElement selector="{{CheckoutShippingSection.next}}" stepKey="waitForNextButton"/>
+        <click selector="{{CheckoutShippingSection.next}}" stepKey="clickNext"/>
+
+        <seeCheckboxIsChecked selector="{{CheckoutPaymentSection.billingAddressNotSameCheckbox}}" stepKey="shippingAndBillingAddressIsSameChecked"/>
+        <actionGroup ref="CheckoutSelectCheckMoneyOrderPaymentActionGroup" stepKey="selectPaymentMethod"/>
+        <waitForElementVisible selector="{{CheckoutPaymentSection.placeOrder}}" time="30" stepKey="waitForPlaceOrderButton"/>
+
+        <actionGroup ref="VertexCheckTotalsInCheckout" stepKey="checkTotals">
+            <argument name="subtotalExclTax" value="{{Vertex_19USD_TCSIX_Totals.subtotal}}" />
+            <argument name="subtotalInclTax" value="{{Vertex_19USD_TCSIX_Totals.subtotalInclTax}}" />
+            <argument name="shippingExclTax" value="{{Vertex_19USD_TCSIX_Totals.shipping}}" />
+            <argument name="shippingInclTax" value="{{Vertex_19USD_TCSIX_Totals.shippingInclTax}}" />
+            <argument name="tax" value="{{Vertex_19USD_TCSIX_Totals.tax}}" />
+            <argument name="totalExclTax" value="{{Vertex_19USD_TCSIX_Totals.total}}" />
+            <argument name="totalInclTax" value="{{Vertex_19USD_TCSIX_Totals.totalInclTax}}" />
+        </actionGroup>
+        <actionGroup ref="VertexCheckProductAndShippingTaxTotalsInCheckout" stepKey="checkTaxSummary">
+            <argument name="product" value="{{Vertex_19USD_TCSIX_Totals.productTax}}" />
+            <argument name="shipping" value="{{Vertex_19USD_TCSIX_Totals.shippingTax}}" />
+        </actionGroup>
+
+        <click selector="{{CheckoutPaymentSection.placeOrder}}" stepKey="clickPlaceOrder"/>
+
+        <!-- Success page -->
+        <waitForPageLoad stepKey="waitForSuccessPageToLoad"/>
+        <see selector="{{CheckoutSuccessMainSection.successTitle}}" userInput="Thank you for your purchase!" stepKey="seeSuccessTitle"/>
+        <grabTextFrom selector="{{CheckoutSuccessMainSection.orderNumber22}}" stepKey="grabOrderNumber"/>
+        <see selector="{{CheckoutSuccessMainSection.success}}" userInput="Your order number is:" stepKey="checkOrderPlaceSuccessMessage"/>
+
+        <!-- Open order -->
+        <actionGroup ref="filterOrderGridById" stepKey="openOrdersGrid">
+            <argument name="orderId" value="{$grabOrderNumber}"/>
+        </actionGroup>
+        <waitForLoadingMaskToDisappear stepKey="waitForSearchingOrder"/>
+        <click selector="{{AdminOrdersGridSection.firstRow}}" stepKey="clickOrderRow"/>
+        <waitForPageLoad stepKey="waitForPageLoadAfterOrderFilter"/>
+        <see selector="{{AdminOrderDetailsInformationSection.orderStatus}}" userInput="Pending" stepKey="seeAdminOrderStatusPending"/>
+
+        <!-- Validate after placing the order -->
+        <actionGroup ref="VertexCheckProductPricingInAdminOrderView" stepKey="checkOrderDetailsProduct">
+            <argument name="product" value="$$createSimpleProduct$$"/>
+            <argument name="priceExclTax" value="{{Vertex_19USD_TCSIX_Values.price}}"/>
+            <argument name="priceInclTax" value="{{Vertex_19USD_TCSIX_Values.priceInclTax}}"/>
+            <argument name="subtotalExclTax" value="{{Vertex_19USD_TCSIX_Values.subtotal}}"/>
+            <argument name="subtotalInclTax" value="{{Vertex_19USD_TCSIX_Values.subtotalInclTax}}"/>
+            <argument name="tax" value="{{Vertex_19USD_TCSIX_Totals.productTax}}"/>
+            <argument name="taxPercent" value="{{Vertex_19USD_TCSIX_Values.taxPercent}}"/>
+            <argument name="rowTotal" value="{{Vertex_19USD_TCSIX_Values.subtotalInclTax}}"/>
+        </actionGroup>
+        <actionGroup ref="VertexCheckTotalsInAdminOrderView" stepKey="checkOrderDetailsTotals">
+            <argument name="subtotalExclTax" value="{{Vertex_19USD_TCSIX_Totals.subtotal}}"/>
+            <argument name="subtotalInclTax" value="{{Vertex_19USD_TCSIX_Totals.subtotalInclTax}}"/>
+            <argument name="shippingExclTax" value="{{Vertex_19USD_TCSIX_Totals.shipping}}"/>
+            <argument name="shippingInclTax" value="{{Vertex_19USD_TCSIX_Totals.shippingInclTax}}"/>
+            <argument name="tax" value="{{Vertex_19USD_TCSIX_Totals.tax}}"/>
+            <argument name="totalExclTax" value="{{Vertex_19USD_TCSIX_Totals.total}}"/>
+            <argument name="totalInclTax" value="{{Vertex_19USD_TCSIX_Totals.totalInclTax}}"/>
+        </actionGroup>
+        <actionGroup ref="VertexCheckTaxTotalsInAdminOrderView" stepKey="checkOrderDetailsTaxTotals">
+            <argument name="product" value="{{Vertex_19USD_TCSIX_Totals.productTax}}"/>
+            <argument name="shipping" value="{{Vertex_19USD_TCSIX_Totals.shippingTax}}"/>
+        </actionGroup>
+
+        <!-- Ship order -->
+        <actionGroup ref="goToShipmentIntoOrderVertex" stepKey="goToShipment"/>
+        <actionGroup ref="submitShipmentIntoOrderVertex" stepKey="submitShipment"/>
+        <waitForPageLoad stepKey="waitForPageLoadAfterShipment"/>
+
+        <!-- Validate order after shipping -->
+        <see selector="{{AdminOrderDetailsInformationSection.orderStatus}}" userInput="Processing" stepKey="seeAdminOrderStatusProcessing"/>
+        <see selector="{{AdminOrderShippingInformationSection.shippingMethod}}" userInput="Flat Rate" stepKey="seeShippingInformationMethod"/>
+        <see selector="{{AdminOrderShippingInformationSection.shippingPrice}}" userInput="{{Vertex_19USD_TCSIX_Totals.shipping}}" stepKey="seeShippingInformationPrice"/>
+        <actionGroup ref="VertexCheckProductPricingInAdminOrderView" stepKey="checkOrderDetailsProductAfterShipment">
+            <argument name="product" value="$$createSimpleProduct$$"/>
+            <argument name="priceExclTax" value="{{Vertex_19USD_TCSIX_Values.price}}"/>
+            <argument name="priceInclTax" value="{{Vertex_19USD_TCSIX_Values.priceInclTax}}"/>
+            <argument name="subtotalExclTax" value="{{Vertex_19USD_TCSIX_Values.subtotal}}"/>
+            <argument name="subtotalInclTax" value="{{Vertex_19USD_TCSIX_Values.subtotalInclTax}}"/>
+            <argument name="tax" value="{{Vertex_19USD_TCSIX_Totals.productTax}}"/>
+            <argument name="taxPercent" value="{{Vertex_19USD_TCSIX_Values.taxPercent}}"/>
+            <argument name="rowTotal" value="{{Vertex_19USD_TCSIX_Values.subtotalInclTax}}"/>
+        </actionGroup>
+        <actionGroup ref="VertexCheckTotalsInAdminOrderView" stepKey="checkOrderDetailsTotalsAfterShipment">
+            <argument name="subtotalExclTax" value="{{Vertex_19USD_TCSIX_Totals.subtotal}}"/>
+            <argument name="subtotalInclTax" value="{{Vertex_19USD_TCSIX_Totals.subtotalInclTax}}"/>
+            <argument name="shippingExclTax" value="{{Vertex_19USD_TCSIX_Totals.shipping}}"/>
+            <argument name="shippingInclTax" value="{{Vertex_19USD_TCSIX_Totals.shippingInclTax}}"/>
+            <argument name="tax" value="{{Vertex_19USD_TCSIX_Totals.tax}}"/>
+            <argument name="totalExclTax" value="{{Vertex_19USD_TCSIX_Totals.total}}"/>
+            <argument name="totalInclTax" value="{{Vertex_19USD_TCSIX_Totals.totalInclTax}}"/>
+        </actionGroup>
+        <actionGroup ref="VertexCheckTaxTotalsInAdminOrderView" stepKey="checkOrderDetailsTaxTotalsAfterShipment">
+            <argument name="product" value="{{Vertex_19USD_TCSIX_Totals.productTax}}"/>
+            <argument name="shipping" value="{{Vertex_19USD_TCSIX_Totals.shippingTax}}"/>
+        </actionGroup>
+        <actionGroup ref="VertexCheckTotalsDueInAdminOrderView" stepKey="checkOrderDetailsDueAfterShipment">
+            <argument name="paid" value="0.00"/>
+            <argument name="refunded" value="0.00"/>
+            <argument name="due" value="{{Vertex_19USD_TCSIX_Totals.totalInclTax}}"/>
+        </actionGroup>
+
+        <!-- Invoice order -->
+        <actionGroup ref="goToInvoiceIntoOrder" stepKey="goToInvoice"/>
+        <see selector="{{AdminOrderDetailsInformationSection.orderStatus}}" userInput="Processing" stepKey="seeAdminInvoiceStatusProcessing"/>
+        <see selector="{{AdminInvoicePaymentShippingSection.ShippingPrice}}" userInput="{{Vertex_19USD_TCSIX_Totals.shipping}}" stepKey="seeShippingCost"/>
+        <actionGroup ref="VertexCheckProductPricingInAdminInvoiceView" stepKey="checkInvoiceDetailsProductBeforeInvoice">
+            <argument name="product" value="$$createSimpleProduct$$"/>
+            <argument name="priceExclTax" value="{{Vertex_19USD_TCSIX_Values.price}}"/>
+            <argument name="priceInclTax" value="{{Vertex_19USD_TCSIX_Values.priceInclTax}}"/>
+            <argument name="subtotalExclTax" value="{{Vertex_19USD_TCSIX_Values.subtotal}}"/>
+            <argument name="subtotalInclTax" value="{{Vertex_19USD_TCSIX_Values.subtotalInclTax}}"/>
+            <argument name="tax" value="{{Vertex_19USD_TCSIX_Totals.productTax}}"/>
+            <argument name="discount" value="0.00"/>
+            <argument name="rowTotal" value="{{Vertex_19USD_TCSIX_Values.subtotalInclTax}}"/>
+        </actionGroup>
+        <actionGroup ref="VertexCheckTotalsInAdminOrderView" stepKey="checkInvoiceDetailsTotalsBeforeInvoice">
+            <argument name="subtotalExclTax" value="{{Vertex_19USD_TCSIX_Totals.subtotal}}"/>
+            <argument name="subtotalInclTax" value="{{Vertex_19USD_TCSIX_Totals.subtotalInclTax}}"/>
+            <argument name="shippingExclTax" value="{{Vertex_19USD_TCSIX_Totals.shipping}}"/>
+            <argument name="shippingInclTax" value="{{Vertex_19USD_TCSIX_Totals.shippingInclTax}}"/>
+            <argument name="tax" value="{{Vertex_19USD_TCSIX_Totals.tax}}"/>
+            <argument name="totalExclTax" value="{{Vertex_19USD_TCSIX_Totals.total}}"/>
+            <argument name="totalInclTax" value="{{Vertex_19USD_TCSIX_Totals.totalInclTax}}"/>
+        </actionGroup>
+        <actionGroup ref="VertexCheckTaxTotalsInAdminOrderView" stepKey="checkInvoiceDetailsTaxTotalsBeforeInvoice">
+            <argument name="product" value="{{Vertex_19USD_TCSIX_Totals.productTax}}"/>
+            <argument name="shipping" value="{{Vertex_19USD_TCSIX_Totals.shippingTax}}"/>
+        </actionGroup>
+
+        <actionGroup ref="submitInvoiceIntoOrder" stepKey="submitInvoice" />
+        <waitForPageLoad stepKey="waitForNewInvoiceToBeCreated"/>
+
+        <!-- Validate order after invoice -->
+        <see selector="{{AdminOrderDetailsMessagesSection.successMessage}}" userInput="The invoice has been created." stepKey="seeSuccessMessage"/>
+        <actionGroup ref="VertexCheckInvoiceSuccessNote" stepKey="checkSuccessNote">
+            <argument name="amount" value="{{Vertex_19USD_TCSIX_Totals.tax}}"/>
+        </actionGroup>
+        <see selector="{{AdminOrderShippingInformationSection.shippingMethod}}" userInput="Flat Rate" stepKey="seeShippingInformationMethodAfterInvoice"/>
+        <see selector="{{AdminOrderShippingInformationSection.shippingPrice}}" userInput="{{Vertex_19USD_TCSIX_Totals.shipping}}" stepKey="seeShippingInformationPriceAfterInvoice"/>
+        <actionGroup ref="VertexCheckProductPricingInAdminOrderView" stepKey="checkOrderDetailsProductAfterInvoice">
+            <argument name="product" value="$$createSimpleProduct$$"/>
+            <argument name="priceExclTax" value="{{Vertex_19USD_TCSIX_Values.price}}"/>
+            <argument name="priceInclTax" value="{{Vertex_19USD_TCSIX_Values.priceInclTax}}"/>
+            <argument name="subtotalExclTax" value="{{Vertex_19USD_TCSIX_Values.subtotal}}"/>
+            <argument name="subtotalInclTax" value="{{Vertex_19USD_TCSIX_Values.subtotalInclTax}}"/>
+            <argument name="tax" value="{{Vertex_19USD_TCSIX_Totals.productTax}}"/>
+            <argument name="taxPercent" value="{{Vertex_19USD_TCSIX_Values.taxPercent}}"/>
+            <argument name="rowTotal" value="{{Vertex_19USD_TCSIX_Values.subtotalInclTax}}"/>
+        </actionGroup>
+        <actionGroup ref="VertexCheckTotalsInAdminOrderView" stepKey="checkOrderDetailsTotalsAfterInvoice">
+            <argument name="subtotalExclTax" value="{{Vertex_19USD_TCSIX_Totals.subtotal}}"/>
+            <argument name="subtotalInclTax" value="{{Vertex_19USD_TCSIX_Totals.subtotalInclTax}}"/>
+            <argument name="shippingExclTax" value="{{Vertex_19USD_TCSIX_Totals.shipping}}"/>
+            <argument name="shippingInclTax" value="{{Vertex_19USD_TCSIX_Totals.shippingInclTax}}"/>
+            <argument name="tax" value="{{Vertex_19USD_TCSIX_Totals.tax}}"/>
+            <argument name="totalExclTax" value="{{Vertex_19USD_TCSIX_Totals.total}}"/>
+            <argument name="totalInclTax" value="{{Vertex_19USD_TCSIX_Totals.totalInclTax}}"/>
+        </actionGroup>
+        <actionGroup ref="VertexCheckTaxTotalsInAdminOrderView" stepKey="checkOrderDetailsTaxTotalsAfterInvoice">
+            <argument name="product" value="{{Vertex_19USD_TCSIX_Totals.productTax}}"/>
+            <argument name="shipping" value="{{Vertex_19USD_TCSIX_Totals.shippingTax}}"/>
+        </actionGroup>
+        <actionGroup ref="VertexCheckTotalsDueInAdminOrderView" stepKey="checkOrderDetailsDueAfterInvoice">
+            <argument name="paid" value="{{Vertex_19USD_TCSIX_Totals.totalInclTax}}"/>
+            <argument name="refunded" value="0.00"/>
+            <argument name="due" value="0.00"/>
+        </actionGroup>
+    </test>
+</tests>

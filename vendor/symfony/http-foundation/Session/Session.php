@@ -60,7 +60,7 @@ class Session implements SessionInterface, \IteratorAggregate, \Countable
     /**
      * {@inheritdoc}
      */
-    public function has(string $name)
+    public function has($name)
     {
         return $this->getAttributeBag()->has($name);
     }
@@ -68,7 +68,7 @@ class Session implements SessionInterface, \IteratorAggregate, \Countable
     /**
      * {@inheritdoc}
      */
-    public function get(string $name, $default = null)
+    public function get($name, $default = null)
     {
         return $this->getAttributeBag()->get($name, $default);
     }
@@ -76,7 +76,7 @@ class Session implements SessionInterface, \IteratorAggregate, \Countable
     /**
      * {@inheritdoc}
      */
-    public function set(string $name, $value)
+    public function set($name, $value)
     {
         $this->getAttributeBag()->set($name, $value);
     }
@@ -100,7 +100,7 @@ class Session implements SessionInterface, \IteratorAggregate, \Countable
     /**
      * {@inheritdoc}
      */
-    public function remove(string $name)
+    public function remove($name)
     {
         return $this->getAttributeBag()->remove($name);
     }
@@ -166,7 +166,7 @@ class Session implements SessionInterface, \IteratorAggregate, \Countable
     /**
      * {@inheritdoc}
      */
-    public function invalidate(int $lifetime = null)
+    public function invalidate($lifetime = null)
     {
         $this->storage->clear();
 
@@ -176,7 +176,7 @@ class Session implements SessionInterface, \IteratorAggregate, \Countable
     /**
      * {@inheritdoc}
      */
-    public function migrate(bool $destroy = false, int $lifetime = null)
+    public function migrate($destroy = false, $lifetime = null)
     {
         return $this->storage->regenerate($destroy, $lifetime);
     }
@@ -200,7 +200,7 @@ class Session implements SessionInterface, \IteratorAggregate, \Countable
     /**
      * {@inheritdoc}
      */
-    public function setId(string $id)
+    public function setId($id)
     {
         if ($this->storage->getId() !== $id) {
             $this->storage->setId($id);
@@ -218,7 +218,7 @@ class Session implements SessionInterface, \IteratorAggregate, \Countable
     /**
      * {@inheritdoc}
      */
-    public function setName(string $name)
+    public function setName($name)
     {
         $this->storage->setName($name);
     }
@@ -244,7 +244,7 @@ class Session implements SessionInterface, \IteratorAggregate, \Countable
     /**
      * {@inheritdoc}
      */
-    public function getBag(string $name)
+    public function getBag($name)
     {
         $bag = $this->storage->getBag($name);
 

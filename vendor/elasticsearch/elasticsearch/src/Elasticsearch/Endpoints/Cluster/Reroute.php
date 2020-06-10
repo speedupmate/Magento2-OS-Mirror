@@ -1,70 +1,54 @@
 <?php
-
 declare(strict_types = 1);
 
 namespace Elasticsearch\Endpoints\Cluster;
 
 use Elasticsearch\Endpoints\AbstractEndpoint;
-use Elasticsearch\Common\Exceptions;
 
 /**
  * Class Reroute
+ * Elasticsearch API name cluster.reroute
+ * Generated running $ php util/GenerateEndpoints.php 7.6.0
  *
  * @category Elasticsearch
  * @package  Elasticsearch\Endpoints\Cluster
- * @author   Zachary Tong <zach@elastic.co>
+ * @author   Enrico Zimuel <enrico.zimuel@elastic.co>
  * @license  http://www.apache.org/licenses/LICENSE-2.0 Apache2
  * @link     http://elastic.co
  */
 class Reroute extends AbstractEndpoint
 {
-    /**
-     * @param array $body
-     *
-     * @throws \Elasticsearch\Common\Exceptions\InvalidArgumentException
-     * @return $this
-     */
-    public function setBody($body)
+
+    public function getURI(): string
+    {
+
+        return "/_cluster/reroute";
+    }
+
+    public function getParamWhitelist(): array
+    {
+        return [
+            'dry_run',
+            'explain',
+            'retry_failed',
+            'metric',
+            'master_timeout',
+            'timeout'
+        ];
+    }
+
+    public function getMethod(): string
+    {
+        return 'POST';
+    }
+
+    public function setBody($body): Reroute
     {
         if (isset($body) !== true) {
             return $this;
         }
-
         $this->body = $body;
 
         return $this;
-    }
-
-    /**
-     * @return string
-     */
-    public function getURI()
-    {
-        $uri   = "/_cluster/reroute";
-
-        return $uri;
-    }
-
-    /**
-     * @return string[]
-     */
-    public function getParamWhitelist()
-    {
-        return array(
-            'dry_run',
-            'filter_metadata',
-            'master_timeout',
-            'timeout',
-            'explain',
-            'metric'
-        );
-    }
-
-    /**
-     * @return string
-     */
-    public function getMethod()
-    {
-        return 'POST';
     }
 }

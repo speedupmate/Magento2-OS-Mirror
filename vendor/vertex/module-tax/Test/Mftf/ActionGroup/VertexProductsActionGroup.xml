@@ -8,6 +8,7 @@
 <actionGroups xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="urn:magento:mftf:Test/etc/actionGroupSchema.xsd">
     <!-- This action group creates a downloadable product with the stepKey "createDownloadableProduct" -->
     <actionGroup name="VertexCreateDownloadableProduct">
+        <magentoCLI command="downloadable:domains:add" arguments="static.magento.com" stepKey="addDownloadableDomain"/>
         <createData entity="VertexApiDownloadableProduct" stepKey="createDownloadableProduct">
             <field key="price">100.00</field>
         </createData>
@@ -155,6 +156,137 @@
 
         <magentoCLI command="indexer:reindex" stepKey="reindex"/>
     </actionGroup>
+    <actionGroup name="VertexCreateBundleProductWithDropdownOptions">
+        <!-- Replicates the Sprite Yoga Companion Kit -->
+        <arguments>
+            <argument type="string" name="basePrice" defaultValue="61.00"/>
+            <argument type="string" name="ballPrice" defaultValue="23.00"/>
+            <argument type="string" name="brickPrice" defaultValue="5.00"/>
+            <argument type="string" name="strapPrice" defaultValue="14.00"/>
+            <argument type="string" name="rollerPrice" defaultValue="19.00"/>
+        </arguments>
+
+        <createData entity="_defaultCategory" stepKey="createCategory"/>
+
+        <createData entity="_defaultProduct" stepKey="createBall">
+            <field key="price">{{ballPrice}}</field>
+            <requiredEntity createDataKey="createCategory"/>
+        </createData>
+        <createData entity="_defaultProduct" stepKey="createBrick">
+            <field key="price">{{brickPrice}}</field>
+            <requiredEntity createDataKey="createCategory"/>
+        </createData>
+        <createData entity="_defaultProduct" stepKey="createStrap">
+            <field key="price">{{strapPrice}}</field>
+            <requiredEntity createDataKey="createCategory"/>
+        </createData>
+        <createData entity="_defaultProduct" stepKey="createRoller">
+            <field key="price">{{rollerPrice}}</field>
+            <requiredEntity createDataKey="createCategory"/>
+        </createData>
+        <createData entity="ApiBundleProduct" stepKey="createBundle">
+            <requiredEntity createDataKey="createCategory"/>
+        </createData>
+
+        <createData entity="DropDownBundleOption" stepKey="createDropdown1">
+            <field key="title">bundle-option</field>
+            <requiredEntity createDataKey="createBundle"/>
+        </createData>
+
+        <createData entity="ApiBundleLink" stepKey="linkSelection1Option1">
+            <requiredEntity createDataKey="createBundle"/>
+            <requiredEntity createDataKey="createDropdown1"/>
+            <requiredEntity createDataKey="createBall"/>
+        </createData>
+        <createData entity="ApiBundleLink" stepKey="linkSelection1Option2">
+            <requiredEntity createDataKey="createBundle"/>
+            <requiredEntity createDataKey="createDropdown1"/>
+            <requiredEntity createDataKey="createBrick"/>
+        </createData>
+        <createData entity="ApiBundleLink" stepKey="linkSelection1Option3">
+            <requiredEntity createDataKey="createBundle"/>
+            <requiredEntity createDataKey="createDropdown1"/>
+            <requiredEntity createDataKey="createStrap"/>
+        </createData>
+
+        <createData entity="ApiBundleLink" stepKey="linkSelection1Option4">
+            <requiredEntity createDataKey="createBundle"/>
+            <requiredEntity createDataKey="createDropdown1"/>
+            <requiredEntity createDataKey="createRoller"/>
+        </createData>
+
+        <magentoCLI command="indexer:reindex" arguments="cataloginventory_stock" stepKey="reindex"/>
+    </actionGroup>
+    <actionGroup name="VertexCreateFixedBundleProductWithDropdownOptions">
+        <!-- Replicates the Sprite Yoga Companion Kit -->
+        <arguments>
+            <argument type="string" name="basePrice" defaultValue="61.00"/>
+            <argument type="string" name="ballPrice" defaultValue="23.00"/>
+            <argument type="string" name="brickPrice" defaultValue="5.00"/>
+            <argument type="string" name="strapPrice" defaultValue="14.00"/>
+            <argument type="string" name="rollerPrice" defaultValue="19.00"/>
+        </arguments>
+
+        <createData entity="_defaultCategory" stepKey="createCategory"/>
+
+        <createData entity="_defaultProduct" stepKey="createBall">
+            <field key="price">{{ballPrice}}</field>
+            <requiredEntity createDataKey="createCategory"/>
+        </createData>
+        <createData entity="_defaultProduct" stepKey="createBrick">
+            <field key="price">{{brickPrice}}</field>
+            <requiredEntity createDataKey="createCategory"/>
+        </createData>
+        <createData entity="_defaultProduct" stepKey="createStrap">
+            <field key="price">{{strapPrice}}</field>
+            <requiredEntity createDataKey="createCategory"/>
+        </createData>
+        <createData entity="_defaultProduct" stepKey="createRoller">
+            <field key="price">{{rollerPrice}}</field>
+            <requiredEntity createDataKey="createCategory"/>
+        </createData>
+        <createData entity="VertexApiFixedBundleProduct" stepKey="createBundle">
+            <field key="price">{{basePrice}}</field>
+            <requiredEntity createDataKey="createCategory"/>
+        </createData>
+
+        <createData entity="DropDownBundleOption" stepKey="createDropdown1">
+            <field key="title">bundle-option</field>
+            <requiredEntity createDataKey="createBundle"/>
+        </createData>
+
+        <createData entity="ApiBundleLink" stepKey="linkSelection1Option1">
+            <field key="price_type">0</field>
+            <field key="price">{{ballPrice}}</field>
+            <requiredEntity createDataKey="createBundle"/>
+            <requiredEntity createDataKey="createDropdown1"/>
+            <requiredEntity createDataKey="createBall"/>
+        </createData>
+        <createData entity="ApiBundleLink" stepKey="linkSelection1Option2">
+            <field key="price_type">0</field>
+            <field key="price">{{brickPrice}}</field>
+            <requiredEntity createDataKey="createBundle"/>
+            <requiredEntity createDataKey="createDropdown1"/>
+            <requiredEntity createDataKey="createBrick"/>
+        </createData>
+        <createData entity="ApiBundleLink" stepKey="linkSelection1Option3">
+            <field key="price_type">0</field>
+            <field key="price">{{strapPrice}}</field>
+            <requiredEntity createDataKey="createBundle"/>
+            <requiredEntity createDataKey="createDropdown1"/>
+            <requiredEntity createDataKey="createStrap"/>
+        </createData>
+
+        <createData entity="ApiBundleLink" stepKey="linkSelection1Option4">
+            <field key="price_type">0</field>
+            <field key="price">{{rollerPrice}}</field>
+            <requiredEntity createDataKey="createBundle"/>
+            <requiredEntity createDataKey="createDropdown1"/>
+            <requiredEntity createDataKey="createRoller"/>
+        </createData>
+
+        <magentoCLI command="indexer:reindex" arguments="cataloginventory_stock" stepKey="reindex"/>
+    </actionGroup>
     <actionGroup name="VertexAddBundleProductToCart">
         <arguments>
             <argument name="product"/>
@@ -162,6 +294,28 @@
         <amOnPage url="/{{product.custom_attributes[url_key]}}.html" stepKey="navigateProductPage" before="clickCustomize"/>
         <click selector="{{StorefrontBundledSection.addToCart}}" stepKey="clickCustomize"/>
         <waitForPageLoad stepKey="waitForBundleOpen"/>
+        <click selector="{{StorefrontBundledSection.addToCartConfigured}}" stepKey="addToCartProduct"/>
+        <waitForAjaxLoad stepKey="waitForLoad"/>
+    </actionGroup>
+    <actionGroup name="VertexAddBundleProductWithDropdownOptionsToCart">
+        <arguments>
+            <argument name="product"/>
+            <argument name="optionProduct"/>
+        </arguments>
+
+        <!-- Navigate to product page -->
+        <amOnPage url="{{product.sku}}.html" stepKey="goToStorefront"/>
+        <waitForPageLoad stepKey="waitForStorefront"/>
+
+        <!-- Expand bundle options and add a product to cart -->
+        <click selector="{{StorefrontBundledSection.addToCart}}" stepKey="clickCustomize"/>
+        <waitForPageLoad stepKey="waitForBundleOpen"/>
+
+        <selectOption selector="{{StorefrontBundledSection.dropDownOptionOneProducts('bundle-option')}}" userInput="{{optionProduct.name}} +${{optionProduct.price}}.00" stepKey="selectOption0Product0"/>
+        <seeOptionIsSelected selector="{{StorefrontBundledSection.dropDownOptionOneProducts('bundle-option')}}" userInput="{{optionProduct.name}} +${{optionProduct.price}}.00" stepKey="checkOption0Product0"/>
+        <fillField selector="{{StorefrontBundledSection.dropDownOptionOneQuantity('bundle-option')}}" userInput="1" stepKey="fillQuantity"/>
+        <seeInField selector="{{StorefrontBundledSection.dropDownOptionOneQuantity('bundle-option')}}" userInput="1" stepKey="checkQuantity"/>
+
         <click selector="{{StorefrontBundledSection.addToCartConfigured}}" stepKey="addToCartProduct"/>
         <waitForAjaxLoad stepKey="waitForLoad"/>
     </actionGroup>

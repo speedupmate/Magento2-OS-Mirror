@@ -7,9 +7,6 @@ namespace Magento2\Tests\Exceptions;
 
 use PHP_CodeSniffer\Tests\Standards\AbstractSniffUnitTest;
 
-/**
- * Class DirectThrowUnitTest
- */
 class DirectThrowUnitTest extends AbstractSniffUnitTest
 {
     /**

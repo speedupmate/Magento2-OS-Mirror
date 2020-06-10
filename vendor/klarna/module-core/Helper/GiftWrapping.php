@@ -20,11 +20,6 @@ use Magento\Quote\Model\Quote;
 use Magento\Sales\Model\Order;
 use Magento\Framework\DataObject;
 
-/**
- * Class GiftWrapping
- *
- * @package Klarna\Core\Helper
- */
 class GiftWrapping extends AbstractHelper
 {
     /**

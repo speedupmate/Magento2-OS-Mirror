@@ -170,6 +170,11 @@ define(
             self.debounceKlarnaLoad();
           }
         });
+        quote.totals.subscribe(function (newTotals) {
+            if (self.getCode() === self.isChecked()) {
+                self.debounceKlarnaLoad();
+            }
+        });
       },
       getContainerId: function () {
         return this.getCode().replace(new RegExp('_', 'g'), '-') + '-container';

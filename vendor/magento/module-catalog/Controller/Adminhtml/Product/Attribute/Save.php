@@ -143,10 +143,8 @@ class Save extends Attribute implements HttpPostActionInterface
             $optionData = $this->formDataSerializer
                 ->unserialize($this->getRequest()->getParam('serialized_options', '[]'));
         } catch (\InvalidArgumentException $e) {
-            $message = __(
-                "The attribute couldn't be saved due to an error. Verify your information and try again. "
-                . "If the error persists, please try again later."
-            );
+            $message = __("The attribute couldn't be saved due to an error. Verify your information and try again. "
+                . "If the error persists, please try again later.");
             $this->messageManager->addErrorMessage($message);
             return $this->returnResult('catalog/*/edit', ['_current' => true], ['error' => true]);
         }

@@ -1,81 +1,50 @@
 <?php
-
 declare(strict_types = 1);
 
 namespace Elasticsearch\Endpoints\Indices;
 
+use Elasticsearch\Common\Exceptions\RuntimeException;
 use Elasticsearch\Endpoints\AbstractEndpoint;
-use Elasticsearch\Common\Exceptions;
 
 /**
  * Class Get
+ * Elasticsearch API name indices.get
+ * Generated running $ php util/GenerateEndpoints.php 7.6.0
  *
  * @category Elasticsearch
- * @package  Elasticsearch\Endpoints\Get
- * @author   Zachary Tong <zach@elastic.co>
+ * @package  Elasticsearch\Endpoints\Indices
+ * @author   Enrico Zimuel <enrico.zimuel@elastic.co>
  * @license  http://www.apache.org/licenses/LICENSE-2.0 Apache2
  * @link     http://elastic.co
  */
 class Get extends AbstractEndpoint
 {
-    private $feature;
 
-    /**
-     * @throws \Elasticsearch\Common\Exceptions\RuntimeException
-     * @return string
-     */
-    public function getURI()
+    public function getURI(): string
     {
-        if (isset($this->index) !== true) {
-            throw new Exceptions\RuntimeException(
-                'index is required for Get'
-            );
-        }
-        $index   = $this->index;
-        $feature = $this->feature;
-        $uri     = "/$index";
+        $index = $this->index ?? null;
 
-        if (isset($feature) === true) {
-            $uri = "/$index/$feature";
+        if (isset($index)) {
+            return "/$index";
         }
-
-        return $uri;
+        throw new RuntimeException('Missing parameter for the endpoint indices.get');
     }
 
-    public function setFeature($feature)
+    public function getParamWhitelist(): array
     {
-        if (isset($feature) !== true) {
-            return $this;
-        }
-
-        if (is_array($feature) === true) {
-            $feature = implode(",", $feature);
-        }
-
-        $this->feature = $feature;
-
-        return $this;
-    }
-
-    /**
-     * @return string[]
-     */
-    public function getParamWhitelist()
-    {
-        return array(
+        return [
+            'include_type_name',
             'local',
             'ignore_unavailable',
             'allow_no_indices',
             'expand_wildcards',
-            'human',
-            'include_type_name'
-        );
+            'flat_settings',
+            'include_defaults',
+            'master_timeout'
+        ];
     }
 
-    /**
-     * @return string
-     */
-    public function getMethod()
+    public function getMethod(): string
     {
         return 'GET';
     }

@@ -3,9 +3,9 @@
     "description": "Vertex Tax Links for Magento 2",
     "type": "magento2-module",
     "license": "proprietary",
-    "version": "3.3.1",
+    "version": "3.4.0",
     "require": {
-        "php": "^7.0",
+        "php": "^7.1",
         "ext-soap": "*",
         "ext-simplexml": "*",
         "ext-json": "*",
@@ -18,13 +18,14 @@
         "magento/module-directory": "^100",
         "magento/module-eav": "^100|^101|^102",
         "magento/module-store": "^100|^101",
-        "magento/module-quote": ">=100.1.0 <=100.1.11 || >=101.0.0 <=101.0.10 || >=101.1.0 < 101.1.5",
+        "magento/module-quote": ">=101.1.0 <= 101.1.5 || 101.2.0",
         "magento/module-sales": "^100|^101|^102",
         "magento/module-shipping": "^100",
         "magento/module-tax": "^100",
         "magento/module-checkout": "^100",
         "magento/module-ui": "^100|^101",
-        "vertex/sdk": "^1.2.0"
+        "vertex/sdk": "^1.2.0",
+        "ext-intl": "*"
     },
     "suggest": {
         "magento/module-gift-wrapping": "Vertex Tax Links for Magento 2 also supports Magento's Gift Wrapping module",
@@ -45,7 +46,7 @@
         }
     ],
     "require-dev": {
-        "magento/marketplace-eqp": "^1.0",
+        "magento/magento-coding-standard": "^5",
         "magento/module-offline-shipping": "^100.2",
         "magento/module-usps": "^100.2",
         "ext-simplexml": "*",
@@ -61,7 +62,7 @@
     },
     "scripts": {
         "test:phpcs": [
-            "phpcs --runtime-set ignore_warnings_on_exit 1 --runtime-set installed_paths vendor/magento/marketplace-eqp --standard=MEQP2 --ignore=vendor/* --ignore=Test/tmp ."
+            "phpcs --runtime-set ignore_warnings_on_exit 1 --standard=Magento2 --ignore=vendor/* --ignore=Test/tmp ."
         ]
     },
     "archive": {

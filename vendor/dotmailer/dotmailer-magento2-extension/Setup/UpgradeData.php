@@ -5,6 +5,7 @@ namespace Dotdigitalgroup\Email\Setup;
 use Dotdigitalgroup\Email\Helper\Config;
 use Dotdigitalgroup\Email\Helper\Data;
 use Dotdigitalgroup\Email\Helper\Transactional;
+use Dotdigitalgroup\Email\Setup\SchemaInterface as Schema;
 use Magento\Config\Model\ResourceModel\Config\Data\CollectionFactory;
 use Magento\Framework\App\Config\ReinitableConfigInterface;
 use Magento\Framework\App\Config\ScopeConfigInterface;
@@ -130,6 +131,8 @@ class UpgradeData implements UpgradeDataInterface
         }
 
         $this->upgradeFourOhOne($setup, $context);
+        $this->upgradeFourThreeSix($setup, $context);
+        $this->upgradeFourFourZero($setup, $context);
 
         $installer->endSetup();
     }
@@ -240,6 +243,109 @@ class UpgradeData implements UpgradeDataInterface
                     'modified IS NULL OR modified = 0'
                 ]
             );
+        }
+    }
+
+    /**
+     * Changes Imported values from null to zero
+     * @param ModuleDataSetupInterface $setup
+     * @param ModuleContextInterface $context
+     */
+    private function upgradeFourThreeSix(
+        ModuleDataSetupInterface $setup,
+        ModuleContextInterface $context
+    ) {
+        if (version_compare($context->getVersion(), '4.3.6', '<')) {
+            $orderTable = $setup->getTable(Schema::EMAIL_ORDER_TABLE);
+            $contactTable = $setup->getTable(Schema::EMAIL_CONTACT_TABLE);
+            $reviewTable = $setup->getTable(Schema::EMAIL_REVIEW_TABLE);
+            $wishlistTable = $setup->getTable(Schema::EMAIL_WISHLIST_TABLE);
+
+            $setup->getConnection()->update(
+                $orderTable,
+                [
+                    'email_imported' => 0
+                ],
+                [
+                    'email_imported IS NULL'
+                ]
+            );
+
+            $setup->getConnection()->update(
+                $contactTable,
+                [
+                    'email_imported' => 0
+                ],
+                [
+                    'email_imported IS NULL'
+                ]
+            );
+
+            $setup->getConnection()->update(
+                $contactTable,
+                [
+                    'subscriber_imported' => 0
+                ],
+                [
+                    'subscriber_imported IS NULL'
+                ]
+            );
+
+            $setup->getConnection()->update(
+                $reviewTable,
+                [
+                    'review_imported' => 0
+                ],
+                [
+                    'review_imported IS NULL'
+                ]
+            );
+
+            $setup->getConnection()->update(
+                $wishlistTable,
+                [
+                    'wishlist_imported' => 0
+                ],
+                [
+                    'wishlist_imported IS NULL'
+                ]
+            );
+        }
+    }
+
+    /**
+     * @param ModuleDataSetupInterface $setup
+     * @param ModuleContextInterface $context
+     */
+    private function upgradeFourFourZero(
+        ModuleDataSetupInterface $setup,
+        ModuleContextInterface $context
+    ) {
+        if (version_compare($context->getVersion(), '4.4.0', '<')) {
+
+            $select = $setup->getConnection()->select()->from(
+                $setup->getTable('core_config_data'),
+                ['config_id', 'value']
+            )->where(
+                'path = ?',
+                \Dotdigitalgroup\Email\Helper\Transactional::XML_PATH_DDG_TRANSACTIONAL_HOST
+            );
+            foreach ($setup->getConnection()->fetchAll($select) as $configRow) {
+                preg_match_all('/\d+/', $configRow['value'], $matches);
+                $value = $matches[0];
+                //Invalid Smtp Host
+                if (!count($value) === 1) {
+                    continue;
+                }
+                $row = [
+                    'value' => reset($value)
+                ];
+                $setup->getConnection()->update(
+                    $setup->getTable('core_config_data'),
+                    $row,
+                    ['config_id = ?' => $configRow['config_id']]
+                );
+            }
         }
     }
 }

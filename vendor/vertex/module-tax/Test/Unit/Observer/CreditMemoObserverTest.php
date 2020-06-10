@@ -20,7 +20,7 @@ use Vertex\Tax\Model\OrderHasInvoiceDeterminer;
 use Vertex\Tax\Model\Repository\OrderInvoiceStatusRepository;
 use Vertex\Tax\Model\TaxInvoice;
 use Vertex\Tax\Observer\CreditMemoObserver;
-use Vertex\Tax\Observer\GiftwrapExtensionLoader;
+use Vertex\Tax\Model\Loader\GiftwrapExtensionLoader;
 use Vertex\Tax\Test\Unit\TestCase;
 use PHPUnit_Framework_MockObject_MockObject as MockObject;
 

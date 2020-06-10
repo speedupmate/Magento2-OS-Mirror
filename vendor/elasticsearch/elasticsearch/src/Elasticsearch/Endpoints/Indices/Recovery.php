@@ -1,5 +1,4 @@
 <?php
-
 declare(strict_types = 1);
 
 namespace Elasticsearch\Endpoints\Indices;
@@ -8,46 +7,37 @@ use Elasticsearch\Endpoints\AbstractEndpoint;
 
 /**
  * Class Recovery
+ * Elasticsearch API name indices.recovery
+ * Generated running $ php util/GenerateEndpoints.php 7.6.0
  *
  * @category Elasticsearch
  * @package  Elasticsearch\Endpoints\Indices
- * @author   Zachary Tong <zach@elastic.co>
+ * @author   Enrico Zimuel <enrico.zimuel@elastic.co>
  * @license  http://www.apache.org/licenses/LICENSE-2.0 Apache2
  * @link     http://elastic.co
  */
 class Recovery extends AbstractEndpoint
 {
-    /**
-     * @return string
-     */
-    public function getURI()
-    {
-        $index = $this->index;
-        $uri   = "/_recovery";
 
-        if (isset($index) === true) {
-            $uri = "/$index/_recovery";
+    public function getURI(): string
+    {
+        $index = $this->index ?? null;
+
+        if (isset($index)) {
+            return "/$index/_recovery";
         }
-
-        return $uri;
+        return "/_recovery";
     }
 
-    /**
-     * @return string[]
-     */
-    public function getParamWhitelist()
+    public function getParamWhitelist(): array
     {
-        return array(
+        return [
             'detailed',
-            'active_only',
-            'human'
-        );
+            'active_only'
+        ];
     }
 
-    /**
-     * @return string
-     */
-    public function getMethod()
+    public function getMethod(): string
     {
         return 'GET';
     }

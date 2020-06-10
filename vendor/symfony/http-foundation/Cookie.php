@@ -41,9 +41,12 @@ class Cookie
     /**
      * Creates cookie from raw header string.
      *
+     * @param string $cookie
+     * @param bool   $decode
+     *
      * @return static
      */
-    public static function fromString(string $cookie, bool $decode = false)
+    public static function fromString($cookie, $decode = false)
     {
         $data = [
             'expires' => 0,
@@ -88,8 +91,12 @@ class Cookie
      *
      * @throws \InvalidArgumentException
      */
-    public function __construct(string $name, string $value = null, $expire = 0, ?string $path = '/', string $domain = null, bool $secure = null, bool $httpOnly = true, bool $raw = false, ?string $sameSite = 'lax')
+    public function __construct(string $name, string $value = null, $expire = 0, ?string $path = '/', string $domain = null, ?bool $secure = false, bool $httpOnly = true, bool $raw = false, string $sameSite = null)
     {
+        if (9 > \func_num_args()) {
+            @trigger_error(sprintf('The default value of the "$secure" and "$samesite" arguments of "%s"\'s constructor will respectively change from "false" to "null" and from "null" to "lax" in Symfony 5.0, you should define their values explicitly or use "Cookie::create()" instead.', __METHOD__), E_USER_DEPRECATED);
+        }
+
         // from PHP source code
         if ($raw && false !== strpbrk($name, self::$reservedCharsList)) {
             throw new \InvalidArgumentException(sprintf('The cookie name "%s" contains invalid characters.', $name));

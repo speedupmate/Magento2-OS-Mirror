@@ -6,7 +6,7 @@ The MFTF allows you to merge test components defined in XML files, such as:
 -  [`<pages>`][]
 -  [`<sections>`][]
 -  [`<data>`][]
--  `<action groups>`
+-  [`<action groups>`][]
 
 You can create, delete, or update the component.
 It is useful for supporting rapid test creation for extensions and customizations.
@@ -26,6 +26,15 @@ For example:
 
 Although a file name does not influence merging, we recommend using the same file names in merging updates.
 This makes it easier to search later on.
+
+## Merging precedence
+
+**Magento Functional Testing Framework** uses Module's `<sequence>` to merge all XML configurations into Codeception instructions. If there's no Sequence specified, MFTF would use:
+
+1. Vendor modules (Magento & Vendors) located in `vendor/`
+1. Tests located in `app/code/*/*/Test/Mftf`
+
+![Usual precedence for merging MFTF Tests and resources][mftfExtendingPrecedence image]
 
 ## Add a test
 
@@ -569,3 +578,5 @@ The `_defaultSample` results corresponds to:
 [`<pages>`]: ./page.md
 [`<sections>`]: ./section.md
 [`<tests>`]: ./test.md
+[`<action groups>`]: ./test/action-groups.md
+[mftfExtendingPrecedence image]: img/mftf-extending-precedence.png

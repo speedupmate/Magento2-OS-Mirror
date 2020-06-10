@@ -17,7 +17,6 @@ use PHPUnit\Framework\TestCase;
  * we want to run on all MockObjects and updates the object based on
  * the given parameters.
  *
- * @package Klarna\Kp\Test\Unit\Mock
  */
 class MockFactory extends TestCase
 {

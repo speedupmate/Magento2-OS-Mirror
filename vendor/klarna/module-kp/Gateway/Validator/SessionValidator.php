@@ -19,8 +19,6 @@ use Magento\Store\Model\ScopeInterface;
 use Magento\Store\Model\StoreManagerInterface;
 
 /**
- * Class SessionValidator
- *
  * @SuppressWarnings(PHPMD.CouplingBetweenObjects)
  */
 class SessionValidator extends AbstractValidator
@@ -36,8 +34,6 @@ class SessionValidator extends AbstractValidator
     private $config;
 
     /**
-     * Constructor
-     *
      * @param ResultInterfaceFactory $resultFactory
      * @param StoreManagerInterface  $storeManager
      * @param ScopeConfigInterface   $config

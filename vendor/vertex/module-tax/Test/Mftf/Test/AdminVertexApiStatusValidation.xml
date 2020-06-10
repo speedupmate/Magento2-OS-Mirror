@@ -1,0 +1,159 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!--
+ /**
+  * @copyright  Vertex. All rights reserved.  https://www.vertexinc.com/
+  * @author     Mediotype                     https://www.mediotype.com/
+  */
+-->
+<tests xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+       xsi:noNamespaceSchemaLocation="urn:magento:mftf:Test/etc/testSchema.xsd">
+    <test name="AdminVertexApiStatusValidation">
+        <annotations>
+            <group value="Vertex"/>
+            <features value="Vertex"/>
+            <testCaseId value="VRTX-708"/>
+            <testCaseId value="BUNDLE-547"/>
+
+            <stories value="As an administrator, I want the admin panel to show me the correct API status message"/>
+            <title value="API Status Validation"/>
+            <description value="Validate Vertex API status"/>
+
+            <severity value="MINOR"/>
+        </annotations>
+        <before>
+            <actionGroup ref="LoginAsAdmin" stepKey="loginAsAdminForSetup"/>
+            <amOnPage url="{{AdminTaxConfigPage.url('vertex_settings')}}" stepKey="viewConfigBefore"/>
+            <waitForPageLoad stepKey="waitForPageLoadBefore"/>
+        </before>
+        <after>
+            <actionGroup ref="logout" stepKey="logoutOfAdminFromSetup"/>
+        </after>
+
+        <!-- Validate disabled status -->
+        <conditionalClick selector="{{AdminVertexSettingsConfigSection.vertexSettingsHeader}}"
+                          dependentSelector="{{AdminVertexSettingsConfigSection.enableVertex}}"
+                          visible="false"
+                          stepKey="openVertexConfiguration"/>
+
+        <selectOption userInput="{{VertexTaxEnabled.value}}" selector="{{AdminVertexSettingsConfigSection.enableVertex}}" stepKey="enableVertex"/>
+        <selectOption userInput="{{VertexTaxUseForCalculationDisabled.value}}" selector="{{AdminVertexSettingsConfigSection.enableVertexCalculation}}" stepKey="disableVertexCalculationInit"/>
+        <click selector="#save" stepKey="saveVertexDisabledInit"/>
+        <waitForPageLoad stepKey="waitForPageLoadAfterDisableInit"/>
+        <see selector="{{vertexApiStatus.severityCritical}}" userInput="Disabled" stepKey="seeDisabledInitStatus"/>
+
+        <!-- Validate valid status -->
+        <selectOption userInput="{{VertexTaxUseForCalculation.value}}" selector="{{AdminVertexSettingsConfigSection.enableVertexCalculation}}" stepKey="enableVertexCalculation"/>
+        <fillField stepKey="setCalculationWsdl" selector="{{AdminVertexSettingsConfigSection.calculationWsdlUrl}}" userInput="{{_CREDS.vertex_config_calculation_wsdl}}"/>
+        <fillField stepKey="setAddressValidationWsdl" selector="{{AdminVertexSettingsConfigSection.addressValidationWsdlUrl}}" userInput="{{_CREDS.vertex_config_address_validation_wsdl}}"/>
+        <fillField stepKey="setTrustedId" selector="{{AdminVertexSettingsConfigSection.trustedId}}" userInput="{{_CREDS.vertex_config_trusted_id}}"/>
+
+        <conditionalClick selector="{{AdminVertexSellerSettingsConfigSection.vertexCompanyInformationHeader}}"
+                          dependentSelector="{{AdminVertexSellerSettingsConfigSection.companyCode}}"
+                          visible="false"
+                          stepKey="openVertexCompanyInformation"/>
+
+        <fillField selector="{{AdminVertexSellerSettingsConfigSection.companyCode}}" userInput="{{_CREDS.vertex_seller_company_code}}" stepKey="setCompanyCode"/>
+        <fillField selector="{{AdminVertexSellerSettingsConfigSection.locationCode}}" userInput="{{VertexSellerLocationCode.value}}" stepKey="setLocationCode"/>
+        <fillField selector="{{AdminVertexSellerSettingsConfigSection.streetAddress1}}" userInput="{{VertexSellerStreetAddress1.value}}" stepKey="setAddress1"/>
+        <fillField selector="{{AdminVertexSellerSettingsConfigSection.city}}" userInput="{{VertexSellerCity.value}}" stepKey="setCity"/>
+        <selectOption userInput="{{VertexSellerCountryId.value}}" selector="{{AdminVertexSellerSettingsConfigSection.countryId}}" stepKey="setCountryId"/>
+        <selectOption userInput="{{VertexSellerRegionId.value}}" selector="{{AdminVertexSellerSettingsConfigSection.regionId}}" stepKey="setRegionId"/>
+        <fillField selector="{{AdminVertexSellerSettingsConfigSection.postalCode}}" userInput="{{VertexSellerPostcode.value}}" stepKey="setPostcode"/>
+
+        <conditionalClick selector="{{AdminVertexSettingsTaxSection.vertexTaxClassesHeader}}"
+                          dependentSelector="{{AdminVertexSettingsTaxSection.vertexTaxDefaultCustomerCode}}"
+                          visible="false"
+                          stepKey="openVertexTaxClasses"/>
+
+        <uncheckOption selector="{{AdminVertexSettingsTaxSection.vertexTaxDefaultCustomerCodeSystem}}" stepKey="uncheckDefaultCustomerCodeSystem"/>
+        <fillField selector="{{AdminVertexSettingsTaxSection.vertexTaxDefaultCustomerCode}}" userInput="{{VertexDefaultCustomerCode.value}}" stepKey="setDefaultCustomerCode"/>
+
+        <conditionalClick selector="{{AdminVertexSettingsTaxSection.vertexTaxCalculationHeader}}"
+                          dependentSelector="{{AdminVertexSettingsTaxSection.vertexTaxAlgorithm}}"
+                          visible="false"
+                          stepKey="openVertexTaxAlgorithm"/>
+        <uncheckOption selector="{{AdminVertexSettingsTaxSection.vertexTaxAlgorithmInherit}}" stepKey="uncheckTaxAlgorithmSystem"/>
+        <selectOption selector="{{AdminVertexSettingsTaxSection.vertexTaxAlgorithm}}" userInput="{{VertexTaxAlgorithm.value}}" stepKey="setTaxAlgorithm"/>
+
+        <click selector="#save" stepKey="saveValidVertex"/>
+        <waitForPageLoad stepKey="waitForPageLoadAfterValid"/>
+        <see selector="{{vertexApiStatus.severityNotice}}" userInput="Valid" stepKey="seeValidStatus"/>
+        <see selector="{{AdminMessagesSection.success}}" userInput="You saved the configuration." stepKey="seeSuccess"/>
+
+        <!-- Toggle Vertex calculation and validate messages -->
+        <conditionalClick selector="{{AdminVertexSettingsConfigSection.vertexSettingsHeader}}"
+                          dependentSelector="{{AdminVertexSettingsConfigSection.enableVertex}}"
+                          visible="false"
+                          stepKey="openVertexConfigurationToggle"/>
+
+        <selectOption userInput="{{VertexTaxUseForCalculationDisabled.value}}" selector="{{AdminVertexSettingsConfigSection.enableVertexCalculation}}" stepKey="disableVertexCalculationToggle"/>
+        <click selector="#save" stepKey="saveDisabledVertexToggle"/>
+        <waitForPageLoad stepKey="waitForPageLoadAfterDisableToggle"/>
+        <see selector="{{vertexApiStatus.severityCritical}}" userInput="Disabled" stepKey="seeVertexDisabledToggle"/>
+
+        <selectOption userInput="{{VertexTaxUseForCalculation.value}}" selector="{{AdminVertexSettingsConfigSection.enableVertexCalculation}}" stepKey="enableVertexCalculationToggle"/>
+        <click selector="#save" stepKey="saveEnabledVertexToggle"/>
+        <waitForPageLoad stepKey="waitForPageLoadAfterEnableToggle"/>
+        <see selector="{{vertexApiStatus.severityNotice}}" userInput="Valid" stepKey="seeVertexValidToggle"/>
+    </test>
+
+    <test name="AdminVertexApiStatusAutomaticallyDisabledValidation">
+        <annotations>
+            <group value="Vertex"/>
+            <features value="Vertex"/>
+            <testCaseId value="VRTX-721"/>
+            <testCaseId value="BUNDLE-2009"/>
+
+            <stories value="As an administrator, I want the admin panel to show me the correct API status message"/>
+            <title value="Automatically Disabled API status validation"/>
+            <description value="Validate Vertex Automatically disabled API status"/>
+
+            <severity value="MINOR"/>
+        </annotations>
+        <before>
+            <!-- Vertex config -->
+            <actionGroup ref="LoginAsAdmin" stepKey="loginAsAdmin"/>
+            <actionGroup ref="VertexTaxDefaultConfig" stepKey="setupDefaultVertexTestConfiguration"/>
+            <amOnPage url="{{AdminTaxConfigPage.url('vertex_settings')}}" stepKey="viewConfigBefore"/>
+            <waitForPageLoad stepKey="waitForPageLoadBefore"/>
+        </before>
+        <after>
+            <actionGroup ref="logout" stepKey="logoutOfAdminFromSetup"/>
+        </after>
+
+        <!-- Validate automatically disabled status -->
+        <conditionalClick selector="{{AdminConfigureTaxSection.taxPriceDisplaySettings}}"
+                          dependentSelector="{{AdminConfigureTaxSection.taxDisplayProductPrices}}"
+                          visible="false"
+                          stepKey="openPriceDisplaySettings"/>
+
+        <uncheckOption selector="{{AdminConfigureTaxSection.taxDisplayProductPricesInherit}}" stepKey="uncheckInheritTaxDisplayTypeOption"/>
+        <selectOption selector="{{AdminConfigureTaxSection.taxDisplayProductPrices}}" userInput="Including and Excluding Tax" stepKey="clickDisplayProductPrices"/>
+        <click selector="#save" stepKey="saveVertexDisabledInit"/>
+        <waitForPageLoad stepKey="waitForConfigSave"/>
+
+        <conditionalClick selector="{{AdminVertexSettingsConfigSection.vertexSettingsHeader}}"
+                          dependentSelector="{{AdminVertexSettingsConfigSection.enableVertex}}"
+                          visible="false"
+                          stepKey="openVertexConfiguration"/>
+
+        <see selector="{{vertexApiStatus.severityMinor}}" userInput="Automatically Disabled" stepKey="seeDisabledInitStatus"/>
+
+        <!-- Validate automatically disabled status -->
+        <conditionalClick selector="{{AdminConfigureTaxSection.taxPriceDisplaySettings}}"
+                          dependentSelector="{{AdminConfigureTaxSection.taxDisplayProductPrices}}"
+                          visible="false"
+                          stepKey="openPriceDisplaySettingsAfterDisabled"/>
+
+        <uncheckOption selector="{{AdminConfigureTaxSection.taxDisplayProductPricesInherit}}" stepKey="uncheckInheritTaxDisplayTypeOptionExcludingTax"/>
+        <selectOption selector="{{AdminConfigureTaxSection.taxDisplayProductPrices}}" userInput="Excluding Tax" stepKey="clickDisplayProductPricesExcludingTax"/>
+        <click selector="#save" stepKey="saveVertexExcludingTax"/>
+
+        <conditionalClick selector="{{AdminVertexSettingsConfigSection.vertexSettingsHeader}}"
+                          dependentSelector="{{AdminVertexSettingsConfigSection.enableVertex}}"
+                          visible="false"
+                          stepKey="openVertexConfigurationExcludingTax"/>
+
+        <see selector="{{vertexApiStatus.severityNotice}}" userInput="Valid" stepKey="seeValidStatus"/>
+    </test>
+</tests>

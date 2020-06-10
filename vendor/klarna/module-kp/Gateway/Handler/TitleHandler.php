@@ -13,11 +13,6 @@ namespace Klarna\Kp\Gateway\Handler;
 use Magento\Payment\Gateway\Config\ValueHandlerInterface;
 use Magento\Payment\Model\InfoInterface;
 
-/**
- * Class TitleHandler
- *
- * @package Klarna\Kp\Gateway\Handler
- */
 class TitleHandler implements ValueHandlerInterface
 {
     const DEFAULT_TITLE        = 'Klarna Payments';

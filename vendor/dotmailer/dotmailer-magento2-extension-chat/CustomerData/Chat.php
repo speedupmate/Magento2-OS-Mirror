@@ -48,7 +48,11 @@ class Chat implements SectionSourceInterface
      */
     public function getSectionData()
     {
-        $this->config->setScopeAndWebsiteId($this->helper->getWebsiteById($this->storeManager->getStore()->getWebsiteId()));
+        $this->config->setScopeAndWebsiteId(
+            $this->helper->getWebsiteById(
+                $this->storeManager->getStore()->getWebsiteId()
+            )
+        );
         return [
             'isEnabled' => $this->config->isChatEnabled(),
             'apiSpaceId' => $this->config->getApiSpaceId(),

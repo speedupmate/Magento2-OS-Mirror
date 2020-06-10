@@ -26,6 +26,11 @@
         <fillField stepKey="setCompanyCode" selector="{{AdminVertexSellerSettingsConfigSection.companyCode}}" userInput="{{_CREDS.vertex_seller_company_code}}"/>
 
         <click selector="#save" stepKey="saveVertexConfiguration"/>
+        <waitForPageLoad stepKey="waitForPageLoadAfterVertexSave"/>
+    </actionGroup>
+
+    <actionGroup name="VertexTaxConfigInvoiceCreated">
+        <createData entity="VertexTaxConfigInvoiceWhenInvoiceCreated" stepKey="setTaxConfigWhenInvoiceCreated"/>
     </actionGroup>
 
     <actionGroup name="VertexTaxConfigOrderStatusPending">
@@ -33,6 +38,10 @@
     </actionGroup>
 
     <actionGroup name="VertexTaxConfigOrderStatusProcessing">
+        <createData entity="VertexTaxConfigStatusChangeOrderStatusProcessing" stepKey="setTaxConfigOrderStatusProcessing"/>
+    </actionGroup>
+
+    <actionGroup name="VertexTaxConfigOrderStatusClosed">
         <createData entity="VertexTaxConfigStatusChangeOrderStatusProcessing" stepKey="setTaxConfigOrderStatusProcessing"/>
     </actionGroup>
 
@@ -339,6 +348,7 @@
         <see stepKey="seeTaxPercent" userInput="{{taxPercent}}%" selector="{{AdminOrderItemsOrderedSection.itemTaxPercentByName(product.name)}}"/>
         <see stepKey="seeRowTotal" userInput="${{rowTotal}}" selector="{{AdminOrderItemsOrderedSection.itemTotalByName(product.name)}}"/>
     </actionGroup>
+
     <actionGroup name="VertexCheckTotalsInAdminOrderView">
         <arguments>
             <argument type="string" name="subtotalExclTax"/>
@@ -369,6 +379,18 @@
         <see stepKey="seeProductTax" userInput="${{product}}" selector="{{AdminOrderTotalSection.totalByName('Sales and Use')}}"/>
         <see stepKey="seeShippingTax" userInput="${{shipping}}" selector="{{AdminOrderTotalSection.totalByName('Shipping (')}}"/>
     </actionGroup>
+    <actionGroup name="VertexCheckTotalsDueInAdminOrderView">
+        <arguments>
+            <argument type="string" name="paid"/>
+            <argument type="string" name="refunded"/>
+            <argument type="string" name="due"/>
+        </arguments>
+
+        <see stepKey="seeTotalPaid" userInput="${{paid}}" selector="{{AdminOrderTotalFooterSection.totalPaid}}"/>
+        <see stepKey="seeTotalRefunded" userInput="${{refunded}}" selector="{{AdminOrderTotalFooterSection.totalRefunded}}"/>
+        <see stepKey="seeTotalDue" userInput="${{due}}" selector="{{AdminOrderTotalFooterSection.totalDue}}"/>
+    </actionGroup>
+    
     <actionGroup name="VertexCheckJurisdictionPercentageInAdminOrderView">
         <arguments>
             <argument name="name" type="string"/>

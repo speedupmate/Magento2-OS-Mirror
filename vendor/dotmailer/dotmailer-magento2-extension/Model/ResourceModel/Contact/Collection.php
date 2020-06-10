@@ -2,8 +2,7 @@
 
 namespace Dotdigitalgroup\Email\Model\ResourceModel\Contact;
 
-class Collection extends
- \Magento\Framework\Model\ResourceModel\Db\Collection\AbstractCollection
+class Collection extends \Magento\Framework\Model\ResourceModel\Db\Collection\AbstractCollection
 {
     /**
      * @var string
@@ -87,7 +86,7 @@ class Collection extends
     public function getContactsToImportForWebsite($websiteId, $pageSize = 100)
     {
         $collection = $this->addFieldToFilter('website_id', $websiteId)
-            ->addFieldToFilter('email_imported', ['null' => true])
+            ->addFieldToFilter('email_imported', 0)
             ->addFieldToFilter('customer_id', ['neq' => '0']);
 
         $collection->getSelect()->limit($pageSize);
@@ -150,7 +149,7 @@ class Collection extends
     ) {
         $collection = $this->addFieldToFilter('is_subscriber', ['notnull' => true])
             ->addFieldToFilter('subscriber_status', '1')
-            ->addFieldToFilter('subscriber_imported', ['null' => true])
+            ->addFieldToFilter('subscriber_imported', 0)
             ->addFieldToFilter('store_id', ['eq' => $storeId]);
 
         if ($isCustomerCheck) {
@@ -187,7 +186,7 @@ class Collection extends
     public function getGuests($websiteId, $onlySubscriber = false)
     {
         $guestCollection = $this->addFieldToFilter('is_guest', ['notnull' => true])
-            ->addFieldToFilter('email_imported', ['null' => true])
+            ->addFieldToFilter('email_imported', 0)
             ->addFieldToFilter('website_id', $websiteId);
 
         if ($onlySubscriber) {
@@ -208,7 +207,7 @@ class Collection extends
      */
     public function getNumberOfImportedContacts()
     {
-        $this->addFieldToFilter('email_imported', ['notnull' => true]);
+        $this->addFieldToFilter('email_imported', 1);
 
         return $this->getSize();
     }
@@ -253,7 +252,7 @@ class Collection extends
     {
         return $this->addFieldToFilter('customer_id', ['gt' => 0])
             ->addFieldToFilter('website_id', $websiteId)
-            ->addFieldToFilter('email_imported', '1')
+            ->addFieldToFilter('email_imported', 1)
             ->getSize();
     }
 
@@ -270,7 +269,7 @@ class Collection extends
             'subscriber_status',
             \Dotdigitalgroup\Email\Model\Newsletter\Subscriber::STATUS_SUBSCRIBED
         )
-            ->addFieldToFilter('subscriber_imported', '1')
+            ->addFieldToFilter('subscriber_imported', 1)
             ->addFieldToFilter('website_id', $websiteId)
             ->getSize();
     }
@@ -323,7 +322,7 @@ class Collection extends
     {
         $collection = $this->addFieldToSelect('*')
             ->addFieldToFilter('customer_id', ['neq' => '0'])
-            ->addFieldToFilter('email_imported', ['null' => true])
+            ->addFieldToFilter('email_imported', 0)
             ->addFieldToFilter('website_id', $websiteId)
             ->setPageSize($syncLimit);
 

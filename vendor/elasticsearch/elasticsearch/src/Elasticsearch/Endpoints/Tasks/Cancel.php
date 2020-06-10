@@ -1,73 +1,56 @@
 <?php
-
 declare(strict_types = 1);
 
 namespace Elasticsearch\Endpoints\Tasks;
 
-use Elasticsearch\Common\Exceptions;
 use Elasticsearch\Endpoints\AbstractEndpoint;
 
 /**
  * Class Cancel
+ * Elasticsearch API name tasks.cancel
+ * Generated running $ php util/GenerateEndpoints.php 7.6.0
  *
  * @category Elasticsearch
  * @package  Elasticsearch\Endpoints\Tasks
- * @author   Zachary Tong <zach@elastic.co>
+ * @author   Enrico Zimuel <enrico.zimuel@elastic.co>
  * @license  http://www.apache.org/licenses/LICENSE-2.0 Apache2
  * @link     http://elastic.co
  */
 class Cancel extends AbstractEndpoint
 {
-    private $taskId;
+    protected $task_id;
 
-    /**
-     * @param string $taskId
-     *
-     * @throws \Elasticsearch\Common\Exceptions\InvalidArgumentException
-     * @return $this
-     */
-    public function setTaskId($taskId)
+    public function getURI(): string
     {
-        if (isset($taskId) !== true) {
-            return $this;
+        $task_id = $this->task_id ?? null;
+
+        if (isset($task_id)) {
+            return "/_tasks/$task_id/_cancel";
         }
-
-        $this->taskId = $taskId;
-
-        return $this;
-    }
-
-    /**
-     * @throws \Elasticsearch\Common\Exceptions\RuntimeException
-     * @return string
-     */
-    public function getURI()
-    {
-        if (isset($this->id) === true) {
-            return "/_tasks/{$this->taskId}/_cancel";
-        }
-
         return "/_tasks/_cancel";
     }
 
-    /**
-     * @return string[]
-     */
-    public function getParamWhitelist()
+    public function getParamWhitelist(): array
     {
-        return array(
-            'node_id',
+        return [
+            'nodes',
             'actions',
-            'parent_node',
-            'parent_task',
-        );
+            'parent_task_id'
+        ];
     }
 
-    /**
-     * @return string
-     */
-    public function getMethod()
+    public function getMethod(): string
     {
         return 'POST';
+    }
+
+    public function setTaskId($task_id): Cancel
+    {
+        if (isset($task_id) !== true) {
+            return $this;
+        }
+        $this->task_id = $task_id;
+
+        return $this;
     }
 }

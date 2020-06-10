@@ -1,104 +1,89 @@
 <?php
-
 declare(strict_types = 1);
 
 namespace Elasticsearch\Endpoints;
 
-use Elasticsearch\Common\Exceptions;
+use Elasticsearch\Common\Exceptions\RuntimeException;
+use Elasticsearch\Endpoints\AbstractEndpoint;
 
 /**
  * Class Update
+ * Elasticsearch API name update
+ * Generated running $ php util/GenerateEndpoints.php 7.6.0
  *
  * @category Elasticsearch
  * @package  Elasticsearch\Endpoints
- * @author   Zachary Tong <zach@elastic.co>
+ * @author   Enrico Zimuel <enrico.zimuel@elastic.co>
  * @license  http://www.apache.org/licenses/LICENSE-2.0 Apache2
  * @link     http://elastic.co
  */
 class Update extends AbstractEndpoint
 {
-    /**
-     * @param array $body
-     *
-     * @throws \Elasticsearch\Common\Exceptions\InvalidArgumentException
-     * @return $this
-     */
-    public function setBody($body)
+
+    public function getURI(): string
+    {
+        if (isset($this->id) !== true) {
+            throw new RuntimeException(
+                'id is required for update'
+            );
+        }
+        $id = $this->id;
+        if (isset($this->index) !== true) {
+            throw new RuntimeException(
+                'index is required for update'
+            );
+        }
+        $index = $this->index;
+        $type = $this->type ?? null;
+        if (isset($type)) {
+            @trigger_error('Specifying types in urls has been deprecated', E_USER_DEPRECATED);
+        }
+
+        if (isset($type)) {
+            return "/$index/$type/$id/_update";
+        }
+        return "/$index/_update/$id";
+    }
+
+    public function getParamWhitelist(): array
+    {
+        return [
+            'wait_for_active_shards',
+            '_source',
+            '_source_excludes',
+            '_source_includes',
+            'lang',
+            'refresh',
+            'retry_on_conflict',
+            'routing',
+            'timeout',
+            'if_seq_no',
+            'if_primary_term'
+        ];
+    }
+
+    public function getMethod(): string
+    {
+        return 'POST';
+    }
+
+    public function setBody($body): Update
     {
         if (isset($body) !== true) {
             return $this;
         }
-
         $this->body = $body;
 
         return $this;
     }
 
-    /**
-     * @throws \Elasticsearch\Common\Exceptions\RuntimeException
-     * @return string
-     */
-    public function getURI()
+    public function setId($id): Update
     {
-        if (isset($this->id) !== true) {
-            throw new Exceptions\RuntimeException(
-                'id is required for Update'
-            );
+        if (isset($id) !== true) {
+            return $this;
         }
-        if (isset($this->index) !== true) {
-            throw new Exceptions\RuntimeException(
-                'index is required for Update'
-            );
-        }
-        if (isset($this->type) !== true) {
-            throw new Exceptions\RuntimeException(
-                'type is required for Update'
-            );
-        }
-        $id = $this->id;
-        $index = $this->index;
-        $type = $this->type;
-        $uri   = "/$index/$type/$id/_update";
+        $this->id = $id;
 
-        if (isset($index) === true && isset($type) === true && isset($id) === true) {
-            $uri = "/$index/$type/$id/_update";
-        }
-
-        return $uri;
-    }
-
-    /**
-     * @return string[]
-     */
-    public function getParamWhitelist()
-    {
-        return array(
-            'consistency',
-            'fields',
-            'lang',
-            'parent',
-            'refresh',
-            'replication',
-            'retry_on_conflict',
-            'routing',
-            'script',
-            'timeout',
-            'timestamp',
-            'ttl',
-            'version',
-            'version_type',
-            '_source',
-            'include_type_name',
-            'if_primary_term',
-            'if_seq_no'
-        );
-    }
-
-    /**
-     * @return string
-     */
-    public function getMethod()
-    {
-        return 'POST';
+        return $this;
     }
 }

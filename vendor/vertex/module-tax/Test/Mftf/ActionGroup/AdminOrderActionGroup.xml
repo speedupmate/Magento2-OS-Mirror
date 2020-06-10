@@ -18,6 +18,9 @@
         <selectOption selector="#order-shipping_address_customer_address_id" stepKey="selectOption" userInput="{{addressId}}"/>
         <waitForLoadingMaskToDisappear stepKey="waitForAddressSelectionLoadingMask"/>
 
+        <!-- Ensure the update items and quantities button isn't covered by a hovering element -->
+        <scrollToTopOfPage stepKey="scrollToTopOfPage"/>
+
         <click selector="//button[@title='Update Items and Quantities']" stepKey="updateItemPrices"/>
         <waitForLoadingMaskToDisappear stepKey="waitForItemUpdateLoadingMask"/>
     </actionGroup>

@@ -21,93 +21,94 @@ use GuzzleHttp\Ring\Future\FutureArrayInterface;
  */
 abstract class AbstractEndpoint
 {
-    /** @var array  */
-    protected $params = array();
+    /**
+     * @var array
+     */
+    protected $params =[];
 
-    /** @var  string */
+    /**
+     * @var string
+     */
     protected $index = null;
 
-    /** @var  string */
+    /**
+     * @var string
+     */
     protected $type = null;
 
-    /** @var  string|int */
+    /**
+     * @var string|int
+     */
     protected $id = null;
 
-    /** @var  string */
+    /**
+     * @var string
+     */
     protected $method = null;
 
-    /** @var string|array */
+    /**
+     * @var string|array
+     */
     protected $body = null;
 
-    /** @var array  */
+    /**
+     * @var array
+     */
     private $options = [];
 
-    /** @var  SerializerInterface */
+    /**
+     * @var SerializerInterface
+     */
     protected $serializer;
 
     /**
      * @return string[]
      */
-    abstract public function getParamWhitelist();
+    abstract public function getParamWhitelist(): array;
 
     /**
      * @return string
      */
-    abstract public function getURI();
+    abstract public function getURI(): string;
 
     /**
      * @return string
      */
-    abstract public function getMethod();
+    abstract public function getMethod(): string;
 
 
     /**
      * Set the parameters for this endpoint
      *
-     * @param string[] $params Array of parameters
+     * @param  string[] $params Array of parameters
      * @return $this
      */
-    public function setParams($params)
+    public function setParams(array $params)
     {
-        if (is_object($params) === true) {
-            $params = (array) $params;
-        }
-
+        $this->extractOptions($params);
         $this->checkUserParams($params);
         $params = $this->convertCustom($params);
-        $this->extractOptions($params);
         $this->params = $this->convertArraysToStrings($params);
 
         return $this;
     }
 
-    /**
-     * @return array
-     */
-    public function getParams()
+    public function getParams(): array
     {
         return $this->params;
     }
 
-    /**
-     * @return array
-     */
-    public function getOptions()
+    public function getOptions(): array
     {
         return $this->options;
     }
 
-    /**
-     * @return string|null
-     */
-    public function getIndex()
+    public function getIndex(): ?string
     {
         return $this->index;
     }
 
     /**
-     * @param string $index
-     *
      * @return $this
      */
     public function setIndex($index)
@@ -127,19 +128,18 @@ abstract class AbstractEndpoint
     }
 
     /**
-     * @return string|null
+     * @deprecated
      */
-    public function getType()
+    public function getType(): ?string
     {
         return $this->type;
     }
 
     /**
-     * @param string $type
-     *
-     * @return $this
+     * @deprecated
+     * @return     $this
      */
-    public function setType($type)
+    public function setType(?string $type)
     {
         if ($type === null) {
             return $this;
@@ -176,21 +176,16 @@ abstract class AbstractEndpoint
     }
 
     /**
-     * @return array
+     * @return array|string
      */
     public function getBody()
     {
         return $this->body;
     }
 
-    /**
-     * @param string $endpoint
-     *
-     * @return string
-     */
-    protected function getOptionalURI($endpoint)
+    protected function getOptionalURI(string $endpoint): string
     {
-        $uri = array();
+        $uri = [];
         $uri[] = $this->getOptionalIndex();
         $uri[] = $this->getOptionalType();
         $uri[] = $endpoint;
@@ -199,10 +194,7 @@ abstract class AbstractEndpoint
         return '/' . implode('/', $uri);
     }
 
-    /**
-     * @return string
-     */
-    private function getOptionalIndex()
+    private function getOptionalIndex(): string
     {
         if (isset($this->index) === true) {
             return $this->index;
@@ -211,10 +203,7 @@ abstract class AbstractEndpoint
         }
     }
 
-    /**
-     * @return string
-     */
-    private function getOptionalType()
+    private function getOptionalType(): string
     {
         if (isset($this->type) === true) {
             return $this->type;
@@ -226,39 +215,52 @@ abstract class AbstractEndpoint
     /**
      * @param array $params
      *
-     * @throws \Elasticsearch\Common\Exceptions\UnexpectedValueException
+     * @throws UnexpectedValueException
      */
-    private function checkUserParams($params)
+    private function checkUserParams(array $params)
     {
         if (isset($params) !== true) {
             return; //no params, just return.
         }
 
-        $whitelist = array_merge($this->getParamWhitelist(), array('client', 'custom', 'filter_path', 'human'));
+        $whitelist = array_merge(
+            $this->getParamWhitelist(),
+            [ 'pretty', 'human', 'error_trace', 'source', 'filter_path', 'opaqueId' ]
+        );
 
         $invalid = array_diff(array_keys($params), $whitelist);
         if (count($invalid) > 0) {
             sort($invalid);
             sort($whitelist);
-            throw new UnexpectedValueException(sprintf(
-                (count($invalid) > 1 ? '"%s" are not valid parameters.' : '"%s" is not a valid parameter.').' Allowed parameters are "%s"',
-                implode('", "', $invalid),
-                implode('", "', $whitelist)
-            ));
+            throw new UnexpectedValueException(
+                sprintf(
+                    (count($invalid) > 1 ? '"%s" are not valid parameters.' : '"%s" is not a valid parameter.').' Allowed parameters are "%s"',
+                    implode('", "', $invalid),
+                    implode('", "', $whitelist)
+                )
+            );
         }
     }
 
     /**
-     * @param array $params       Note: this is passed by-reference!
+     * @param array $params Note: this is passed by-reference!
      */
     private function extractOptions(&$params)
     {
         // Extract out client options, then start transforming
         if (isset($params['client']) === true) {
+            // Check if the opaqueId is populated and add the header
+            if (isset($params['client']['opaqueId']) === true) {
+                if (isset($params['client']['headers']) === false) {
+                    $params['client']['headers'] = [];
+                }
+                $params['client']['headers']['x-opaque-id'] = [trim($params['client']['opaqueId'])];
+                unset($params['client']['opaqueId']);
+            }
+
             $this->options['client'] = $params['client'];
             unset($params['client']);
         }
-
         $ignore = isset($this->options['client']['ignore']) ? $this->options['client']['ignore'] : null;
         if (isset($ignore) === true) {
             if (is_string($ignore)) {
@@ -271,7 +273,7 @@ abstract class AbstractEndpoint
         }
     }
 
-    private function convertCustom($params)
+    private function convertCustom(array $params): array
     {
         if (isset($params['custom']) === true) {
             foreach ($params['custom'] as $k => $v) {
@@ -283,7 +285,7 @@ abstract class AbstractEndpoint
         return $params;
     }
 
-    private function convertArraysToStrings($params)
+    private function convertArraysToStrings(array $params): array
     {
         foreach ($params as $key => &$value) {
             if (!($key === 'client' || $key == 'custom') && is_array($value) === true) {
@@ -296,7 +298,7 @@ abstract class AbstractEndpoint
         return $params;
     }
 
-    private function isNestedArray($a)
+    private function isNestedArray(array $a): bool
     {
         foreach ($a as $v) {
             if (is_array($v)) {

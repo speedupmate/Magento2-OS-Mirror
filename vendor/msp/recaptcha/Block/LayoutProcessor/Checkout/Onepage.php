@@ -61,20 +61,26 @@ class Onepage implements LayoutProcessorInterface
     {
         if ($this->config->isEnabledFrontend()) {
             $jsLayout['components']['checkout']['children']['steps']['children']['shipping-step']['children']
-                ['shippingAddress']['children']['customer-email']['children']
-                ['msp_recaptcha']['settings'] = $this->layoutSettings->getCaptchaSettings();
+            ['shippingAddress']['children']['customer-email']['children']
+            ['msp_recaptcha']['settings'] = $this->layoutSettings->getCaptchaSettings();
+
+            $jsLayout['components']['checkout']['children']['steps']['children']['billing-step']['children']
+            ['payment']['children']['customer-email']['children']
+            ['msp_recaptcha']['settings'] = $this->layoutSettings->getCaptchaSettings();
 
             $jsLayout['components']['checkout']['children']['authentication']['children']
-                ['msp_recaptcha']['settings'] = $this->layoutSettings->getCaptchaSettings();
-        }
-
-        if (!$this->config->isEnabledFrontend()) {
+            ['msp_recaptcha']['settings'] = $this->layoutSettings->getCaptchaSettings();
+        } else {
             if (isset($jsLayout['components']['checkout']['children']['steps']['children']['shipping-step']['children']
                 ['shippingAddress']['children']['customer-email']['children']['msp_recaptcha'])) {
                 unset($jsLayout['components']['checkout']['children']['steps']['children']['shipping-step']['children']
                     ['shippingAddress']['children']['customer-email']['children']['msp_recaptcha']);
             }
-
+            if (isset($jsLayout['components']['checkout']['children']['steps']['children']['billing-step']['children']
+                ['payment']['children']['customer-email']['children']['msp_recaptcha'])) {
+                unset($jsLayout['components']['checkout']['children']['steps']['children']['billing-step']['children']
+                    ['payment']['children']['customer-email']['children']['msp_recaptcha']);
+            }
             if (isset($jsLayout['components']['checkout']['children']['authentication']['children']['msp_recaptcha'])) {
                 unset($jsLayout['components']['checkout']['children']['authentication']['children']['msp_recaptcha']);
             }

@@ -24,16 +24,12 @@
         <amOnPage url="{{AdminConfigKlarnaPaymentsPage.url}}" stepKey="navigateToKlarnaPaymentsConfigurationPage"/>
         <waitForPageLoad stepKey="waitForPageLoad1"/>
         <conditionalClick selector="{{AdminConfigPaymentSection.OtherPaymentMethods}}"
-                          dependentSelector="{{AdminConfigPaymentSection.KlarnaPaymentMethods}}"
+                          dependentSelector="{{AdminConfigPaymentSection.ConfigureKlarnaButton}}"
                           visible="false"
                           stepKey="expandOtherPaymentMethodsSection"/>
         <scrollTo stepKey="scrollToKlarnaSection" selector="{{AdminConfigPaymentSection.OtherPaymentMethods}}"/>
-        <waitForElementVisible selector="{{AdminConfigPaymentSection.KlarnaPaymentMethods}}"
+        <waitForElementVisible selector="{{AdminConfigPaymentSection.ConfigureKlarnaButton}}"
                                stepKey="waitForKlarnaSection"/>
-        <conditionalClick selector="{{AdminConfigPaymentSection.KlarnaPaymentMethods}}"
-                          dependentSelector="{{AdminConfigPaymentSection.ConfigureKlarnaButton}}"
-                          visible="false"
-                          stepKey="clickOnKlarnaSection"/>
         <click stepKey="clickOnConfigureButtonForKlarnaPayment"
                selector="{{AdminConfigPaymentSection.ConfigureKlarnaButton}}"/>
 
@@ -51,9 +47,9 @@
         <fillField stepKey="enterKlarnaApiSharedSecret"
                    selector="{{AdminConfigPaymentSection.KlarnaSharedSecret}}"
                    userInput="{{shared_secret}}"/>
-        <selectOption stepKey="enterKlarnaApiTestMode"
-                      selector="{{AdminConfigPaymentSection.KlarnaTestMode}}"
-                      userInput="Enable"/>
+        <selectOption stepKey="enterKlarnaApiMode"
+                      selector="{{AdminConfigPaymentSection.KlarnaMode}}"
+                      userInput="Playground"/>
 
         <!-- Fill Klarna Payment Setting Tab -->
         <scrollTo stepKey="scrollToKlarnaApi"

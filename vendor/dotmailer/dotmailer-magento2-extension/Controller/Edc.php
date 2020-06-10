@@ -2,6 +2,8 @@
 
 namespace Dotdigitalgroup\Email\Controller;
 
+use Magento\Framework\App\ResponseInterface;
+
 /**
  * @SuppressWarnings(PHPMD.NumberOfChildren)
  */
@@ -115,7 +117,7 @@ class Edc extends \Magento\Framework\App\Action\Action
     }
 
     /**
-     * @return \Zend\Http\PhpEnvironment\Response
+     * @return ResponseInterface
      */
     public function sendUnauthorizedResponse()
     {
@@ -134,13 +136,14 @@ class Edc extends \Magento\Framework\App\Action\Action
     }
 
     /**
-     * @return \Zend\Http\PhpEnvironment\Response
+     * @param int $statusCode
+     * @return ResponseInterface
      */
-    public function sendNoContentResponse()
+    public function sendNoContentResponse(int $statusCode = 204)
     {
         try {
             $this->getResponse()
-                ->setHttpResponseCode(204)
+                ->setHttpResponseCode($statusCode)
                 ->setHeader('Pragma', 'public', true)
                 ->setHeader(
                     'Cache-Control',
@@ -159,7 +162,7 @@ class Edc extends \Magento\Framework\App\Action\Action
      */
     public function checkResponse()
     {
-        if(strlen($this->_view->getLayout()->getOutput()) < 10) {
+        if (strlen($this->_view->getLayout()->getOutput()) < 10) {
             $this->sendNoContentResponse();
         }
     }

@@ -88,6 +88,7 @@
         </actionGroup>
 
         <checkOption selector="{{CheckoutCartSummarySection.flatRateShippingMethod}}" stepKey="selectFlatRateShipping"/>
+        <waitForPageLoad stepKey="waitForTotals"/>
 
         <actionGroup ref="VertexCheckProductPricingOnCart" stepKey="checkProduct">
             <!-- All fields are excluding tax intentionally.  The user is not logged in and has no address so they should match -->
@@ -138,6 +139,7 @@
         </actionGroup>
 
         <checkOption selector="{{CheckoutCartSummarySection.flatRateShippingMethod}}" stepKey="selectFlatRateShipping"/>
+        <waitForPageLoad stepKey="waitForTotals"/>
 
         <actionGroup ref="VertexCheckTotalsInCart" stepKey="checkTotals">
             <argument name="subtotalExclTax" value="{{Vertex_34USD_PA_Only_Totals.subtotal}}"/>

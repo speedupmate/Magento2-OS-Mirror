@@ -1,5 +1,4 @@
 <?php
-
 declare(strict_types = 1);
 
 namespace Elasticsearch\Endpoints\Cluster;
@@ -8,81 +7,62 @@ use Elasticsearch\Endpoints\AbstractEndpoint;
 
 /**
  * Class State
+ * Elasticsearch API name cluster.state
+ * Generated running $ php util/GenerateEndpoints.php 7.6.0
  *
  * @category Elasticsearch
  * @package  Elasticsearch\Endpoints\Cluster
- * @author   Zachary Tong <zach@elastic.co>
+ * @author   Enrico Zimuel <enrico.zimuel@elastic.co>
  * @license  http://www.apache.org/licenses/LICENSE-2.0 Apache2
  * @link     http://elastic.co
  */
 class State extends AbstractEndpoint
 {
-    /**
-     * Limit the information returned to the specified metrics
-     *
-     * @var string
-     */
-    private $metric;
+    protected $metric;
 
-    /**
-     * @param string|string[] $metric
-     *
-     * @return $this
-     */
-    public function setMetric($metric)
+    public function getURI(): string
+    {
+        $metric = $this->metric ?? null;
+        $index = $this->index ?? null;
+
+        if (isset($metric) && isset($index)) {
+            return "/_cluster/state/$metric/$index";
+        }
+        if (isset($metric)) {
+            return "/_cluster/state/$metric";
+        }
+        return "/_cluster/state";
+    }
+
+    public function getParamWhitelist(): array
+    {
+        return [
+            'local',
+            'master_timeout',
+            'flat_settings',
+            'wait_for_metadata_version',
+            'wait_for_timeout',
+            'ignore_unavailable',
+            'allow_no_indices',
+            'expand_wildcards'
+        ];
+    }
+
+    public function getMethod(): string
+    {
+        return 'GET';
+    }
+
+    public function setMetric($metric): State
     {
         if (isset($metric) !== true) {
             return $this;
         }
-
         if (is_array($metric) === true) {
             $metric = implode(",", $metric);
         }
-
         $this->metric = $metric;
 
         return $this;
-    }
-
-    /**
-     * @return string
-     */
-    public function getURI()
-    {
-        $index = $this->index;
-        $metric = $this->metric;
-        $uri   = "/_cluster/state";
-
-        if (isset($metric) === true && isset($index) === true) {
-            $uri = "/_cluster/state/$metric/$index";
-        } elseif (isset($metric) === true) {
-            $uri = "/_cluster/state/$metric";
-        }
-
-        return $uri;
-    }
-
-    /**
-     * @return string[]
-     */
-    public function getParamWhitelist()
-    {
-        return array(
-            'local',
-            'master_timeout',
-            'flat_settings',
-            'index_templates',
-            'expand_wildcards',
-            'ignore_unavailable',
-            'allow_no_indices'
-        );
-    }
-
-    /**
-     * @return string
-     */
-    public function getMethod()
-    {
-        return 'GET';
     }
 }

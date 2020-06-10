@@ -12,11 +12,6 @@ namespace Klarna\Kp\Model\Api\Request;
 
 use Klarna\Kp\Api\Data\AddressInterface;
 
-/**
- * Class Address
- *
- * @package Klarna\Kp\Model\Api\Request
- */
 class Address implements AddressInterface
 {
     use \Klarna\Kp\Model\Api\Export;
@@ -82,8 +77,6 @@ class Address implements AddressInterface
     private $organization_name;
 
     /**
-     * Constructor.
-     *
      * @param array $data
      */
     public function __construct($data = [])

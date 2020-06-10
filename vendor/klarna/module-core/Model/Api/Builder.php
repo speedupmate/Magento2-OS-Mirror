@@ -375,15 +375,13 @@ abstract class Builder extends DataObject implements BuilderInterface
      * @param StoreInterface $store
      * @param string         $configPath
      * @return mixed|string
+     * @deprecated
+     * @SuppressWarnings(PHPMD.UnusedFormalParameter)
      */
+
     public function getTermsUrl(StoreInterface $store, string $configPath = 'terms_url')
     {
-        $termsUrl = $this->configHelper->getCheckoutConfig($configPath, $store);
-        if (!empty($termsUrl) && !parse_url($termsUrl, PHP_URL_SCHEME)) {
-            $termsUrl = $this->url->getDirectUrl($termsUrl, ['_nosid' => true]);
-            return $termsUrl;
-        }
-        return $termsUrl;
+        return '';
     }
 
     /**

@@ -19,9 +19,9 @@ use Vertex\Tax\Model\Data\OrderInvoiceStatusFactory;
 use Vertex\Tax\Model\ModuleManager;
 use Vertex\Tax\Model\Repository\OrderInvoiceStatusRepository;
 use Vertex\Tax\Model\TaxInvoice;
-use Vertex\Tax\Observer\GiftwrapExtensionLoader;
+use Vertex\Tax\Model\Loader\GiftwrapExtensionLoader;
 use Vertex\Tax\Observer\OrderSavedAfterObserver;
-use Vertex\Tax\Observer\ShippingAssignmentExtensionLoader;
+use Vertex\Tax\Model\Loader\ShippingAssignmentExtensionLoader;
 use Vertex\Tax\Test\Unit\TestCase;
 
 /**

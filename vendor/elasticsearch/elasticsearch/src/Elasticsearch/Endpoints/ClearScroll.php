@@ -1,99 +1,70 @@
 <?php
-
 declare(strict_types = 1);
 
 namespace Elasticsearch\Endpoints;
 
-use Elasticsearch\Common\Exceptions;
+use Elasticsearch\Endpoints\AbstractEndpoint;
 
 /**
- * Class Clearscroll
+ * Class ClearScroll
+ * Elasticsearch API name clear_scroll
+ * Generated running $ php util/GenerateEndpoints.php 7.6.0
  *
  * @category Elasticsearch
  * @package  Elasticsearch\Endpoints
- * @author   Zachary Tong <zach@elastic.co>
+ * @author   Enrico Zimuel <enrico.zimuel@elastic.co>
  * @license  http://www.apache.org/licenses/LICENSE-2.0 Apache2
  * @link     http://elastic.co
  */
 class ClearScroll extends AbstractEndpoint
 {
-    /**
-     * A comma-separated list of scroll IDs to clear
-     *
-     * @var string
-     */
-    private $scrollId;
+    protected $scroll_id;
 
-    /**
-     * @param string $scrollId
-     *
-     * @return $this
-     */
-    public function setScrollId($scrollId)
+    public function getURI(): string
     {
-        if (isset($scrollId) !== true) {
-            return $this;
+        $scroll_id = $this->scroll_id ?? null;
+        if (isset($scroll_id)) {
+            @trigger_error('A scroll id can be quite large and should be specified as part of the body', E_USER_DEPRECATED);
         }
 
-        $this->scrollId = $scrollId;
-
-        return $this;
+        if (isset($scroll_id)) {
+            return "/_search/scroll/$scroll_id";
+        }
+        return "/_search/scroll";
     }
 
-    /**
-     * @throws \Elasticsearch\Common\Exceptions\RuntimeException
-     * @return string
-     */
-    public function getURI()
+    public function getParamWhitelist(): array
     {
-        return "/_search/scroll/";
+        return [
+            
+        ];
     }
 
-    /**
-     * @param array $body
-     *
-     * @throws \Elasticsearch\Common\Exceptions\InvalidArgumentException
-     * @return $this
-     */
-    public function setBody($body)
+    public function getMethod(): string
+    {
+        return 'DELETE';
+    }
+
+    public function setBody($body): ClearScroll
     {
         if (isset($body) !== true) {
             return $this;
         }
-
         $this->body = $body;
 
         return $this;
     }
 
-    /**
-     * @return array
-     */
-    public function getBody()
+    public function setScrollId($scroll_id): ClearScroll
     {
-        if (isset($this->body)) {
-            return $this->body;
+        if (isset($scroll_id) !== true) {
+            return $this;
         }
-        if (is_array($this->scrollId)) {
-            return ['scroll_id' => $this->scrollId];
+        if (is_array($scroll_id) === true) {
+            $scroll_id = implode(",", $scroll_id);
         }
-        return ['scroll_id' => [$this->scrollId]];
-    }
+        $this->scroll_id = $scroll_id;
 
-    /**
-     * @return string[]
-     */
-    public function getParamWhitelist()
-    {
-        return array(
-        );
-    }
-
-    /**
-     * @return string
-     */
-    public function getMethod()
-    {
-        return 'DELETE';
+        return $this;
     }
 }

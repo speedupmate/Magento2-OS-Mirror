@@ -3,9 +3,9 @@
 namespace Dotdigitalgroup\Email\Test\Unit\Plugin;
 
 use Dotdigitalgroup\Email\Helper\Transactional;
-use Dotdigitalgroup\Email\Plugin\MessagePlugin;
 use Dotdigitalgroup\Email\Model\Email\Template;
-use Dotdigitalgroup\Email\Model\Email\TemplateFactory;
+use Dotdigitalgroup\Email\Model\Email\TemplateService;
+use Dotdigitalgroup\Email\Plugin\MessagePlugin;
 use Magento\Framework\Mail\MessageInterface;
 use Magento\Framework\Registry;
 use PHPUnit\Framework\TestCase;
@@ -28,11 +28,6 @@ class MessagePluginTest extends TestCase
     private $templateModelMock;
 
     /**
-     * @var TemplateFactory|\PHPUnit_Framework_MockObject_MockObject
-     */
-    private $templateFactoryMock;
-
-    /**
      * @var MessagePlugin
      */
     private $plugin;
@@ -43,19 +38,37 @@ class MessagePluginTest extends TestCase
     private $messageMock;
 
     /**
+     * @var \Zend\Mime\Message|\PHPUnit_Framework_MockObject_MockObject
+     */
+    private $mimeMessageMock;
+
+    /**
+     * @var \Zend\Mime\Part|\PHPUnit_Framework_MockObject_MockObject
+     */
+    private $mimePartMock;
+
+    /**
+     * @var TemplateService|\PHPUnit_Framework_MockObject_MockObject
+     */
+    private $templateServiceMock;
+
+    /**
      * @return void
      */
     protected function setUp()
     {
-        $this->messageMock               = $this->createMock(MessageInterface::class);
-        $this->registryMock              = $this->createMock(Registry::class);
-        $this->transactionalHelperMock   = $this->createMock(Transactional::class);
+        $this->messageMock = $this->createMock(MessageInterface::class);
+        $this->mimeMessageMock = $this->createMock(\Zend\Mime\Message::class);
+        $this->mimePartMock = $this->createMock(\Zend\Mime\Part::class);
+        $this->registryMock = $this->createMock(Registry::class);
+        $this->transactionalHelperMock = $this->createMock(Transactional::class);
         $this->templateModelMock = $this->createMock(Template::class);
-        $this->templateFactoryMock = $this->createMock(TemplateFactory::class);
-        $this->plugin                    = new MessagePlugin(
+        $this->templateServiceMock = $this->createMock(TemplateService::class);
+
+        $this->plugin = new MessagePlugin(
             $this->registryMock,
             $this->transactionalHelperMock,
-            $this->templateFactoryMock
+            $this->templateServiceMock
         );
     }
 
@@ -64,7 +77,7 @@ class MessagePluginTest extends TestCase
         $storeId = 1;
         $templateId = null;
 
-        $this->mockLoadTemplateIdFromRegistry($templateId);
+        $this->mockTemplateService($templateId);
         $this->mockRegistry($storeId);
         $this->mockTransactionalHelperToReturnValueForSMTPEnabled($storeId, true);
 
@@ -76,15 +89,49 @@ class MessagePluginTest extends TestCase
     public function testNoActionTakenIfSMTPIsDisabled()
     {
         $storeId = 1;
-        $templateId = 123456;
 
-        $this->mockLoadTemplateIdFromRegistry($templateId);
         $this->mockRegistry($storeId);
         $this->mockTransactionalHelperToReturnValueForSMTPEnabled($storeId, false);
 
         $result = $this->plugin->beforeSetBody($this->messageMock, null);
 
         $this->assertNull($result);
+    }
+
+    public function testMimeMessageCreatedIfBodyIsString()
+    {
+        $storeId = 1;
+        $templateId = 'Test Chaz_176887';
+        $body = '<html><body>My message</body></html>';
+
+        $this->mockTemplateService($templateId);
+        $this->mockRegistry($storeId);
+        $this->mockTransactionalHelperToReturnValueForSMTPEnabled($storeId, true);
+
+        $result = $this->plugin->beforeSetBody($this->messageMock, $body);
+
+        $this->assertInstanceOf('\Zend\Mime\Message', $result[0]);
+    }
+
+    public function testEncodingSetIfBodyIsMimeMessage()
+    {
+        $storeId = 1;
+        $body = $this->mimeMessageMock;
+
+        $this->mockRegistry($storeId);
+        $this->mockTransactionalHelperToReturnValueForSMTPEnabled($storeId, true);
+
+        $parts = [
+            $this->mimePartMock
+        ];
+        $this->mimeMessageMock->method('getParts')
+            ->willReturn($parts);
+        $this->mimePartMock->expects($this->atLeastOnce())
+            ->method('setEncoding');
+
+        $result = $this->plugin->beforeSetBody($this->messageMock, $body);
+
+        $this->assertEquals([$this->mimeMessageMock], $result);
     }
 
     private function mockRegistry($storeId)
@@ -101,14 +148,10 @@ class MessagePluginTest extends TestCase
             ->willReturn($value);
     }
 
-    private function mockLoadTemplateIdFromRegistry($templateId)
+    private function mockTemplateService($templateId)
     {
-        $this->templateFactoryMock->expects($this->once())
-            ->method('create')
-            ->willReturn($this->templateModelMock);
-
-        $this->templateModelMock->expects($this->once())
-            ->method('loadTemplateIdFromRegistry')
+        $this->templateServiceMock->expects($this->once())
+            ->method('getTemplateId')
             ->willReturn($templateId);
     }
 }

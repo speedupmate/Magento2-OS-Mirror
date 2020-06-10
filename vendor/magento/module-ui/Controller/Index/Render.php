@@ -92,8 +92,11 @@ class Render extends \Magento\Framework\App\Action\Action
     public function execute()
     {
         if ($this->_request->getParam('namespace') === null) {
-            return $this->_redirect('noroute');
+            $this->_redirect('noroute');
+
+            return;
         }
+
         try {
             $component = $this->uiComponentFactory->create($this->getRequest()->getParam('namespace'));
             if ($this->validateAclResource($component->getContext()->getDataProvider()->getConfigData())) {
@@ -102,7 +105,8 @@ class Render extends \Magento\Framework\App\Action\Action
 
                 $contentType = $this->contentTypeResolver->resolve($component->getContext());
                 $this->getResponse()->setHeader('Content-Type', $contentType, true);
-                return $this->getResponse();
+
+                return;
             } else {
                 /** @var \Magento\Framework\Controller\Result\Json $resultJson */
                 $resultJson = $this->resultJsonFactory->create();

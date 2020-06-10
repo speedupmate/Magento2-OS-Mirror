@@ -22,13 +22,13 @@ This step can be referenced within the test using `conditionalClickStep1`.
 
 The value format should met the following principles:
 
-* Must be unique within [`<test>`](../test.md#test-tag).
-* Naming should be as descriptive as possible:
-  * Describe the action performed.
-  * Briefly describe the purpose.
-  * Describe which data is in use.
-* Should be in camelCase with lowercase first letter.
-* Should be the last attribute of an element.
+*  Must be unique within [`<test>`](../test.md#test-tag).
+*  Naming should be as descriptive as possible:
+   *  Describe the action performed.
+   *  Briefly describe the purpose.
+   *  Describe which data is in use.
+*  Should be in camelCase with lowercase first letter.
+*  Should be the last attribute of an element.
 
 ### `before` and `after`
 
@@ -142,14 +142,14 @@ Here, [`<click>`](#click) performs a click on a button that can be found by the 
 
 The following test actions return a variable:
 
-* [grabAttributeFrom](#grabattributefrom)
-* [grabCookie](#grabcookie)
-* [grabFromCurrentUrl](#grabfromcurrenturl)
-* [grabMultiple](#grabmultiple)
-* [grabPageSource](#grabpagesource)
-* [grabTextFrom](#grabtextfrom)
-* [grabValueFrom](#grabvaluefrom)
-* [executeJS](#executejs)
+*  [grabAttributeFrom](#grabattributefrom)
+*  [grabCookie](#grabcookie)
+*  [grabFromCurrentUrl](#grabfromcurrenturl)
+*  [grabMultiple](#grabmultiple)
+*  [grabPageSource](#grabpagesource)
+*  [grabTextFrom](#grabtextfrom)
+*  [grabValueFrom](#grabvaluefrom)
+*  [executeJS](#executejs)
 
 Learn more in [Using data returned by test actions](../data.md#use-data-returned-by-test-actions).
 
@@ -157,10 +157,10 @@ Learn more in [Using data returned by test actions](../data.md#use-data-returned
 
 The following test actions handle data entities using [metadata](../metadata.md):
 
-* [createData](#createdata)
-* [deleteData](#deletedata)
-* [updateData](#updatedata)
-* [getData](#getdata)
+*  [createData](#createdata)
+*  [deleteData](#deletedata)
+*  [updateData](#updatedata)
+*  [getData](#getdata)
 
 Learn more in [Handling a REST API response](../metadata.md#rest-response).
 
@@ -973,6 +973,8 @@ Attribute|Type|Use|Description
 
 ### executeInSelenium
 
+#### NOTE: `executeInSelenium` action is DEPRECATED and will be removed in MFTF 3.0.0.
+
 See [executeInSelenium docs on codeception.com](http://codeception.com/docs/modules/WebDriver#executeInSelenium).
 
 Attribute|Type|Use|Description
@@ -1262,6 +1264,7 @@ Attribute|Type|Use|Description
 ---|---|---|---
 `command`|string |optional| CLI command to be executed in Magento environment.
 `arguments`|string |optional| Unescaped arguments to be passed in with the CLI command.
+`timeout`|string|optional| Number of seconds CLI command can run without outputting anything.
 `stepKey`|string|required| A unique identifier of the action.
 `before`|string|optional| `stepKey` of action that must be executed next.
 `after`|string|optional| `stepKey` of preceding action.
@@ -1271,6 +1274,28 @@ Attribute|Type|Use|Description
 ```xml
 <!-- Re-index all indices via the command line.  -->
 <magentoCLI command="indexer:reindex" stepKey="reindex"/>
+```
+
+### magentoCron
+
+Used to execute Magento Cron jobs. Groups may be provided optionally. Internal mechanism of `<magentoCron>` ensures that Cron Job of single group is ran with 60 seconds interval.
+
+Attribute|Type|Use|Description
+---|---|---|---
+`groups`|string |optional| Run only specified groups of Cron Jobs
+`arguments`|string |optional| Unescaped arguments to be passed in with the CLI command.
+`timeout`|string|optional| Number of seconds CLI command can run without outputting anything.
+`stepKey`|string|required| A unique identifier of the action.
+`before`|string|optional| `stepKey` of action that must be executed next.
+`after`|string|optional| `stepKey` of preceding action.
+
+#### Example
+```xml
+<magentoCron stepKey="runStagingCronJobs" groups="staging"/>
+<!-- No interval here -->
+<magentoCron stepKey="runIndexCronJobs" groups="index"/>
+<!-- 60 seconds interval takes place here -->
+<magentoCron stepKey="runAllCronJobs"/>
 ```
 
 ### makeScreenshot
@@ -1435,6 +1460,8 @@ Attribute|Type|Use|Description
 ```
 
 ### performOn
+
+#### NOTE: `performOn` action is DEPRECATED and will be removed in MFTF 3.0.0.
 
 See [performOn docs on codeception.com](http://codeception.com/docs/modules/WebDriver#performOn).
 
@@ -1950,13 +1977,13 @@ Attribute|Type|Use|Description
 #### Examples
 
 ```xml
-<!-- Verify there are 10 `<div id="product" ... >...</div>` elements on the page. -->
+<!-- Verify there are 10 `<div class="product" ... >...</div>` elements on the page. -->
 <seeNumberOfElements userInput="10" selector="div.product" stepKey="seeTenProducts"/>
 ```
 
 ```xml
-<!-- Verify there are between 5 and 10 `<div id="product" ... >...</div>` elements on the page. -->
-<seeNumberOfElements userInput="[5, 10]" selector=".product" stepKey="seeFiveToTenProducts"/>
+<!-- Verify there are between 5 and 10 `<div class="product" ... >...</div>` elements on the page. -->
+<seeNumberOfElements parameterArray="[5, 10]" selector="div.product" stepKey="seeFiveToTenProducts"/>
 ```
 
 ### seeOptionIsSelected

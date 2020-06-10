@@ -10,11 +10,6 @@
 
 namespace Klarna\Core\Logger;
 
-/**
- * Class Cleanser
- *
- * @package Klarna\Core\Logger
- */
 class Cleanser
 {
     /**

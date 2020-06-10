@@ -22,6 +22,9 @@ class AddressDeterminer
     /** @var CustomerRepositoryInterface */
     private $customerRepository;
 
+    /** @var IncompleteAddressDeterminer */
+    private $incompleteAddressDeterminer;
+
     /** @var ExceptionLogger */
     private $logger;
 
@@ -29,15 +32,18 @@ class AddressDeterminer
      * @param CustomerRepositoryInterface $customerRepository
      * @param AddressRepositoryInterface $addressRepository
      * @param ExceptionLogger $logger
+     * @param IncompleteAddressDeterminer $incompleteAddressDeterminer
      */
     public function __construct(
         CustomerRepositoryInterface $customerRepository,
         AddressRepositoryInterface $addressRepository,
-        ExceptionLogger $logger
+        ExceptionLogger $logger,
+        IncompleteAddressDeterminer $incompleteAddressDeterminer
     ) {
         $this->customerRepository = $customerRepository;
         $this->addressRepository = $addressRepository;
         $this->logger = $logger;
+        $this->incompleteAddressDeterminer = $incompleteAddressDeterminer;
     }
 
     /**
@@ -57,7 +63,7 @@ class AddressDeterminer
             );
         }
 
-        if (!$customerId || ($address !== null && $address->getCountryId() !== null)) {
+        if (!$customerId || !$this->isIncompleteAddress($address)) {
             return $address;
         }
 
@@ -108,5 +114,17 @@ class AddressDeterminer
             $this->logger->warning($e);
             return null;
         }
+    }
+
+    /**
+     * Determine whether or not the address is incomplete
+     *
+     * @param AddressInterface|QuoteAddressInterface $address
+     */
+    private function isIncompleteAddress($address): bool
+    {
+        return $address instanceof AddressInterface
+            ? $this->incompleteAddressDeterminer->isIncompleteAddress($address)
+            : $address === null || $address->getCountryId() === null;
     }
 }

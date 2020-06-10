@@ -70,7 +70,6 @@
             <deleteData createDataKey="createFourthAttribute" stepKey="deleteFourthAttribute"/>
             <deleteData createDataKey="createProduct" stepKey="deleteProduct"/>
 
-            <actionGroup ref="logout" stepKey="logoutFromAdmin"/>
             <!-- Reindex invalidated indices after product attribute has been created/deleted -->
             <actionGroup ref="CliRunReindexUsingCronJobsActionGroup" stepKey="reindexInvalidatedIndices"/>
         </after>

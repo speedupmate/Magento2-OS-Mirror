@@ -12,11 +12,6 @@ namespace Klarna\Kp\Api;
 
 use Magento\Quote\Api\Data\CartInterface as MageQuoteInterface;
 
-/**
- * Interface QuoteRepositoryInterface
- *
- * @package Klarna\Kp\Api
- */
 interface QuoteRepositoryInterface
 {
     /**

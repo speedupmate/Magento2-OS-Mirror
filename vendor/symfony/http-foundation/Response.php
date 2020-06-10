@@ -67,6 +67,11 @@ class Response
     const HTTP_UNPROCESSABLE_ENTITY = 422;                                        // RFC4918
     const HTTP_LOCKED = 423;                                                      // RFC4918
     const HTTP_FAILED_DEPENDENCY = 424;                                           // RFC4918
+
+    /**
+     * @deprecated
+     */
+    const HTTP_RESERVED_FOR_WEBDAV_ADVANCED_COLLECTIONS_EXPIRED_PROPOSAL = 425;   // RFC2817
     const HTTP_TOO_EARLY = 425;                                                   // RFC-ietf-httpbis-replay-04
     const HTTP_UPGRADE_REQUIRED = 426;                                            // RFC2817
     const HTTP_PRECONDITION_REQUIRED = 428;                                       // RFC6585
@@ -194,7 +199,7 @@ class Response
     /**
      * @throws \InvalidArgumentException When the HTTP status code is not valid
      */
-    public function __construct(?string $content = '', int $status = 200, array $headers = [])
+    public function __construct($content = '', int $status = 200, array $headers = [])
     {
         $this->headers = new ResponseHeaderBag($headers);
         $this->setContent($content);
@@ -210,9 +215,13 @@ class Response
      *     return Response::create($body, 200)
      *         ->setSharedMaxAge(300);
      *
+     * @param mixed $content The response content, see setContent()
+     * @param int   $status  The response status code
+     * @param array $headers An array of response headers
+     *
      * @return static
      */
-    public static function create(?string $content = '', int $status = 200, array $headers = [])
+    public static function create($content = '', $status = 200, $headers = [])
     {
         return new static($content, $status, $headers);
     }
@@ -383,13 +392,21 @@ class Response
     /**
      * Sets the response content.
      *
+     * Valid types are strings, numbers, null, and objects that implement a __toString() method.
+     *
+     * @param mixed $content Content that can be cast to string
+     *
      * @return $this
      *
      * @throws \UnexpectedValueException
      */
-    public function setContent(?string $content)
+    public function setContent($content)
     {
-        $this->content = $content ?? '';
+        if (null !== $content && !\is_string($content) && !is_numeric($content) && !\is_callable([$content, '__toString'])) {
+            throw new \UnexpectedValueException(sprintf('The Response content must be a string or object implementing __toString(), "%s" given.', \gettype($content)));
+        }
+
+        $this->content = (string) $content;
 
         return $this;
     }
@@ -411,7 +428,7 @@ class Response
      *
      * @final
      */
-    public function setProtocolVersion(string $version): object
+    public function setProtocolVersion(string $version)
     {
         $this->version = $version;
 
@@ -440,7 +457,7 @@ class Response
      *
      * @final
      */
-    public function setStatusCode(int $code, $text = null): object
+    public function setStatusCode(int $code, $text = null)
     {
         $this->statusCode = $code;
         if ($this->isInvalid()) {
@@ -481,7 +498,7 @@ class Response
      *
      * @final
      */
-    public function setCharset(string $charset): object
+    public function setCharset(string $charset)
     {
         $this->charset = $charset;
 
@@ -562,7 +579,7 @@ class Response
      *
      * @final
      */
-    public function setPrivate(): object
+    public function setPrivate()
     {
         $this->headers->removeCacheControlDirective('public');
         $this->headers->addCacheControlDirective('private');
@@ -579,7 +596,7 @@ class Response
      *
      * @final
      */
-    public function setPublic(): object
+    public function setPublic()
     {
         $this->headers->addCacheControlDirective('public');
         $this->headers->removeCacheControlDirective('private');
@@ -594,7 +611,7 @@ class Response
      *
      * @final
      */
-    public function setImmutable(bool $immutable = true): object
+    public function setImmutable(bool $immutable = true)
     {
         if ($immutable) {
             $this->headers->addCacheControlDirective('immutable');
@@ -649,7 +666,7 @@ class Response
      *
      * @final
      */
-    public function setDate(\DateTimeInterface $date): object
+    public function setDate(\DateTimeInterface $date)
     {
         if ($date instanceof \DateTime) {
             $date = \DateTimeImmutable::createFromMutable($date);
@@ -714,7 +731,7 @@ class Response
      *
      * @final
      */
-    public function setExpires(\DateTimeInterface $date = null): object
+    public function setExpires(\DateTimeInterface $date = null)
     {
         if (null === $date) {
             $this->headers->remove('Expires');
@@ -767,7 +784,7 @@ class Response
      *
      * @final
      */
-    public function setMaxAge(int $value): object
+    public function setMaxAge(int $value)
     {
         $this->headers->addCacheControlDirective('max-age', $value);
 
@@ -783,7 +800,7 @@ class Response
      *
      * @final
      */
-    public function setSharedMaxAge(int $value): object
+    public function setSharedMaxAge(int $value)
     {
         $this->setPublic();
         $this->headers->addCacheControlDirective('s-maxage', $value);
@@ -817,7 +834,7 @@ class Response
      *
      * @final
      */
-    public function setTtl(int $seconds): object
+    public function setTtl(int $seconds)
     {
         $this->setSharedMaxAge($this->getAge() + $seconds);
 
@@ -833,7 +850,7 @@ class Response
      *
      * @final
      */
-    public function setClientTtl(int $seconds): object
+    public function setClientTtl(int $seconds)
     {
         $this->setMaxAge($this->getAge() + $seconds);
 
@@ -861,7 +878,7 @@ class Response
      *
      * @final
      */
-    public function setLastModified(\DateTimeInterface $date = null): object
+    public function setLastModified(\DateTimeInterface $date = null)
     {
         if (null === $date) {
             $this->headers->remove('Last-Modified');
@@ -899,7 +916,7 @@ class Response
      *
      * @final
      */
-    public function setEtag(string $etag = null, bool $weak = false): object
+    public function setEtag(string $etag = null, bool $weak = false)
     {
         if (null === $etag) {
             $this->headers->remove('Etag');
@@ -925,7 +942,7 @@ class Response
      *
      * @final
      */
-    public function setCache(array $options): object
+    public function setCache(array $options)
     {
         if ($diff = array_diff(array_keys($options), ['etag', 'last_modified', 'max_age', 's_maxage', 'private', 'public', 'immutable'])) {
             throw new \InvalidArgumentException(sprintf('Response does not support the following options: "%s".', implode('", "', $diff)));
@@ -982,7 +999,7 @@ class Response
      *
      * @final
      */
-    public function setNotModified(): object
+    public function setNotModified()
     {
         $this->setStatusCode(304);
         $this->setContent(null);
@@ -1034,7 +1051,7 @@ class Response
      *
      * @final
      */
-    public function setVary($headers, bool $replace = true): object
+    public function setVary($headers, bool $replace = true)
     {
         $this->headers->set('Vary', $headers, $replace);
 

@@ -13,9 +13,6 @@ namespace Klarna\Kp\Model;
 use Klarna\Kp\Api\QuoteInterface;
 
 /**
- * Class QuoteTest
- *
- * @package Klarna\Kp\Model
  * @coversDefaultClass \Klarna\Kp\Model\Quote
  */
 class QuoteTest extends \PHPUnit\Framework\TestCase

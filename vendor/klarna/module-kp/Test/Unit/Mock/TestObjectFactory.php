@@ -18,7 +18,6 @@ use Magento\Framework\TestFramework\Unit\Helper\ObjectManager;
  * use to run the tests against. Automatically finds and sets up
  * mocks for all class dependencies.
  *
- * @package Klarna\Kp\Test\Unit\Mock
  */
 class TestObjectFactory extends TestCase
 {

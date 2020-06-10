@@ -27,9 +27,6 @@ use Magento\Store\Model\StoreManagerInterface;
 use Psr\Log\LoggerInterface;
 
 /**
- * Class Payments
- *
- * @package Klarna\Kp\Model\Api\Rest\Service
  * @SuppressWarnings(PHPMD.CouplingBetweenObjects)
  */
 class Payments implements CreditApiInterface
@@ -70,8 +67,6 @@ class Payments implements CreditApiInterface
     private $klarnaConfig;
 
     /**
-     * Kasper constructor.
-     *
      * @param ScopeConfigInterface  $config
      * @param StoreManagerInterface $storeManager
      * @param LoggerInterface       $log

@@ -5,98 +5,123 @@
 
 define([
     'jquery',
-    'underscore',
-    'ko',
+    'mage/translate',
+    'uiRegistry',
     'uiComponent',
-    'Vertex_AddressValidation/js/action/set-address-for-validation',
-    'Vertex_AddressValidation/js/model/validation',
+    'Vertex_AddressValidation/js/action/address-validation-request',
+    'Vertex_AddressValidation/js/model/checkout/shipping/address-resolver',
+    'Magento_Checkout/js/model/full-screen-loader',
     'Magento_Checkout/js/checkout-data',
-    'Magento_Checkout/js/model/full-screen-loader'
+    'Magento_Checkout/js/model/error-processor',
+    'Magento_Ui/js/model/messageList'
 ], function (
     $,
-    _,
-    ko,
+    $t,
+    registry,
     Component,
-    setAddressActionForValidation,
-    validationModel,
+    addressValidationRequest,
+    addressResolver,
+    fullScreenLoader,
     checkoutData,
-    fullScreenLoader
+    errorProcessor,
+    messageContainer
 ) {
     'use strict';
 
     return Component.extend({
+        validationConfig: window.checkoutConfig.vertexAddressValidationConfig || {},
+        resolver: addressResolver,
+        isAddressValid: false,
+        message: null,
         defaults: {
-            messages: []
+            listens: {
+                addressData: 'addressUpdated'
+            },
+            imports: {
+                addressData: '${ $.provider }:shippingAddress'
+            }
         },
 
-        /** @inheritdoc */
-        initObservable: function () {
-            this._super().observe('messages');
+        /**
+         * Reset validation after address update
+         */
+        addressUpdated: function () {
+            this.isAddressValid = false;
+            this.updateAddress = false;
+
+            if (this.message) {
+                this.message.clear();
+                this.message.showSuccessMessage = false;
+            }
+        },
+
+        /**
+         * @returns {Object}
+         */
+        initialize: function () {
+            this._super();
+            this.message = registry.get(this.parentName);
 
             return this;
+        },
+
+        /**
+         * @returns {Object}
+         */
+        getFormData: function () {
+            return checkoutData.getShippingAddressFromData();
         },
 
         /**
          * Triggers a request to the address validation builder and adds the response
          */
         addressValidation: function () {
-            var self = this;
+            var deferred = $.Deferred();
+            this.isAddressValid = false;
+            fullScreenLoader.startLoader();
 
-            setAddressActionForValidation(checkoutData.getShippingAddressFromData()).done(
-                function (response) {
-                    var message = self.getAddressDifferenceResponse(response);
-
+            addressValidationRequest(this.getFormData())
+                .done(function (response) {
+                    this.isAddressValid = true;
+                    if (this.handleAddressDifferenceResponse(response) === true) {
+                        deferred.resolve();
+                    }
+                }.bind(this)).fail(function (response) {
+                    errorProcessor.process(response, messageContainer);
+                }).always(function () {
                     fullScreenLoader.stopLoader();
-                    $(document).trigger('afterValidate', [
-                        message,
-                        window.checkoutConfig.vertexAddressValidationConfig.isAlwaysShowingTheMessage
-                    ]);
-                }
-            );
-        },
+                });
 
-        /**
-         * Retrieve messages
-         *
-         * @param {Object} message
-         */
-        getMessages: function (message) {
-            this.messages.removeAll();
-            this.messages.push(message);
-        },
-
-        /**
-         * Removes all the messages
-         */
-        removeMessage: function () {
-            this.messages.removeAll();
+            return deferred;
         },
 
         /**
          * Get the message with the differences
          *
-         * @param {Object} apiResponse
+         * @param {Object} response
          */
-        getAddressDifferenceResponse: function (apiResponse) {
-            var message = validationModel.resolveAddressDifference(apiResponse);
+        handleAddressDifferenceResponse: function (response) {
+            var difference = this.resolver.resolveAddressDifference(response, this.getFormData());
+            var showSuccessMessage = this.validationConfig.showValidationSuccessMessage || false;
 
-            window.localStorage.setItem('validated_shipping_address', JSON.stringify(apiResponse));
-            this.getMessages(message);
-
-            return message;
+            if (difference === true && showSuccessMessage) {
+                this.message.setSuccessMessage($t('The address is valid'));
+            } else if (difference.length === 0) {
+                this.message.setWarningMessage($t('We did not find a valid address'));
+            } else if (difference !== true) {
+                this.message.setWarningMessage($t('The address is not valid'), difference);
+            }
+            return difference;
         },
 
         /**
          * Get the update message
          */
         updateVertexAddress: function () {
-            var validAddressStorage = window.localStorage.getItem('validated_shipping_address'),
-                message = validationModel.resolveShippingAddressInvalid(validAddressStorage);
+            this.resolver.resolveAddressUpdate();
 
-            this.getMessages(message);
-            window.localStorage.setItem('validated_shipping_address', JSON.stringify({}));
-
-            return message;
+            this.message.setSuccessMessage($t('The address was updated'));
+            this.isAddressValid = true;
         }
     });
 });

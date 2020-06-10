@@ -14,11 +14,6 @@ use Klarna\Core\Api\OrderInterface;
 use Magento\Framework\DataObject\IdentityInterface;
 use Magento\Framework\Model\AbstractModel;
 
-/**
- * Class Order
- *
- * @package Klarna\Core\Model
- */
 class Order extends AbstractModel implements OrderInterface, IdentityInterface
 {
     const CACHE_TAG = 'klarna_core_order';
@@ -127,8 +122,6 @@ class Order extends AbstractModel implements OrderInterface, IdentityInterface
     }
 
     /**
-     * Constructor
-     *
      * @codeCoverageIgnore
      * @codingStandardsIgnoreLine
      */

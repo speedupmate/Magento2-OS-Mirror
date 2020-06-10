@@ -17,11 +17,6 @@ use Magento\Payment\Model\Method\Factory;
 use Magento\Quote\Api\Data\CartInterface;
 use Psr\Log\LoggerInterface;
 
-/**
- * Class PaymentMethodList
- *
- * @package Klarna\Kp\Model
- */
 class PaymentMethodList implements \Klarna\Kp\Api\PaymentMethodListInterface
 {
     /**
@@ -47,8 +42,6 @@ class PaymentMethodList implements \Klarna\Kp\Api\PaymentMethodListInterface
     private $paymentMethods = [];
 
     /**
-     * PaymentMethodList constructor.
-     *
      * @param Factory                  $methodFactory
      * @param QuoteRepositoryInterface $quoteRepository
      * @param LoggerInterface          $log

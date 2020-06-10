@@ -68,11 +68,11 @@
                         <field id="enable_vertex">1</field>
                         <field id="invoice_order"><![CDATA[order_status]]></field>
                     </depends>
-                    <source_model>Magento\Sales\Model\Config\Source\Order\Status</source_model>
+                    <source_model>Vertex\Tax\Model\Config\Source\OrderStatus</source_model>
                     <frontend_model>Vertex\Tax\Block\Adminhtml\Config\Form\Field\OrderStatus</frontend_model>
                     <comment><![CDATA[Please select order status]]></comment>
                 </field>
-                <field id="allowed_countries" translate="label comment" type="multiselect" sortOrder="70" showInDefault="1" showInWebsite="1" showInStore="0">
+                <field id="allowed_countries" translate="label comment" type="multiselect" sortOrder="70" showInDefault="1" showInWebsite="1" showInStore="0" canRestore="1">
                     <label>Use Vertex for orders shipping to</label>
                     <comment>The billing address will be used when a shipping address is absent.</comment>
                     <frontend_model>Vertex\Tax\Block\Adminhtml\Config\Form\Field\AllowedCountries</frontend_model>
@@ -81,7 +81,7 @@
                         <field id="enable_vertex">1</field>
                     </depends>
                 </field>
-                <field id="summarize_tax" translate="label comment" type="select" sortOrder="80" showInDefault="1" showInWebsite="1" showInStore="0">
+                <field id="summarize_tax" translate="label comment" type="select" sortOrder="80" showInDefault="1" showInWebsite="1" showInStore="0" canRestore="1">
                     <label>Summarize Tax by</label>
                     <depends>
                         <field id="enable_vertex">1</field>
@@ -144,7 +144,7 @@
                 <depends>
                     <field id="tax/vertex_settings/enable_vertex">1</field>
                 </depends>
-                <field id="default_term" translate="label" type="select" sortOrder="10" showInDefault="1" showInWebsite="1">
+                <field id="default_term" translate="label" type="select" sortOrder="10" showInDefault="1" showInWebsite="1" canRestore="1">
                     <label>Global Delivery Term</label>
                     <validate>required-entry</validate>
                     <source_model>Vertex\Tax\Model\Config\Source\DeliveryTerm</source_model>

@@ -46,8 +46,14 @@
     <entity name="VertexTaxEnabled" type="VertexTaxEnabled">
         <data key="value">1</data>
     </entity>
+    <entity name="VertexTaxDisabled" type="VertexTaxEnabled">
+        <data key="value">0</data>
+    </entity>
     <entity name="VertexTaxUseForCalculation" type="VertexTaxUseForCalculation">
         <data key="value">1</data>
+    </entity>
+    <entity name="VertexTaxUseForCalculationDisabled" type="VertexTaxUseForCalculation">
+        <data key="value">0</data>
     </entity>
     <entity name="VertexCalculationWsdlUrl" type="VertexCalculationWsdlUrl">
         <data key="value">https://mgcsconnect.vertexsmb.com/vertex-ws/services/CalculateTax70</data>
@@ -91,6 +97,13 @@
     <entity name="VertexILSellerPostcode" type="VertexSellerPostcode">
         <data key="value">62960</data>
     </entity>
+    <entity name="VertexDefaultCustomerCode" type="VertexDefaultCustomerCode">
+        <data key="value">General</data>
+    </entity>
+    <entity name="VertexTaxAlgorithm" type="VertexTaxAlgorithm">
+        <data key="value">TOTAL_BASE_CALCULATION</data>
+    </entity>
+
     <entity name="VertexTaxConfigAll" type="vertex_config">
         <requiredEntity type="VertexTaxEnabled">VertexTaxEnabled</requiredEntity>
         <requiredEntity type="VertexTaxUseForCalculation">VertexTaxUseForCalculation</requiredEntity>
@@ -130,14 +143,25 @@
     <entity name="VertexTaxAllowedCountriesUsCaIrItNoSpConfigValue" type="VertexAllowedCountries">
         <data key="value">US,CA,IR,IT,NO,ES</data>
     </entity>
+    <entity name="VertexInvoiceWhenInvoiceCreated" type="VertexInvoiceOrderDuring">
+        <data key="value">invoice_created</data>
+    </entity>
     <entity name="VertexInvoiceOrderDuringOrderStatusChangedValue" type="VertexInvoiceOrderDuring">
         <data key="value">order_status</data>
     </entity>
+
     <entity name="VertexInvoiceOrderDuringOrderStatusChangedPendingValue" type="VertexInvoiceOrderWithStatus">
         <data key="value">pending</data>
     </entity>
     <entity name="VertexInvoiceOrderDuringOrderStatusChangedProcessingValue" type="VertexInvoiceOrderWithStatus">
         <data key="value">processing</data>
+    </entity>
+    <entity name="VertexInvoiceOrderDuringOrderStatusChangedCompleteValue" type="VertexInvoiceOrderWithStatus">
+        <data key="value">complete</data>
+    </entity>
+    <entity name="VertexTaxConfigInvoiceWhenInvoiceCreated" type="vertex_config">
+        <requiredEntity type="VertexInvoiceOrderDuring">VertexInvoiceWhenInvoiceCreated</requiredEntity>
+        <requiredEntity type="VertexInvoiceOrderWithStatus">VertexInvoiceOrderDuringOrderStatusChangedPendingValue</requiredEntity>
     </entity>
     <entity name="VertexTaxConfigStatusChangeOrderStatusPending" type="vertex_config">
         <requiredEntity type="VertexInvoiceOrderDuring">VertexInvoiceOrderDuringOrderStatusChangedValue</requiredEntity>
@@ -147,6 +171,11 @@
         <requiredEntity type="VertexInvoiceOrderDuring">VertexInvoiceOrderDuringOrderStatusChangedValue</requiredEntity>
         <requiredEntity type="VertexInvoiceOrderWithStatus">VertexInvoiceOrderDuringOrderStatusChangedProcessingValue</requiredEntity>
     </entity>
+    <entity name="VertexTaxConfigStatusChangeOrderStatusComplete" type="vertex_config">
+        <requiredEntity type="VertexInvoiceOrderDuring">VertexInvoiceOrderDuringOrderStatusChangedValue</requiredEntity>
+        <requiredEntity type="VertexInvoiceOrderWithStatus">VertexInvoiceOrderDuringOrderStatusChangedCompleteValue</requiredEntity>
+    </entity>
+
     <entity name="VertexTaxAllowedCountriesUsCaIrItNoSp" type="vertex_config">
         <requiredEntity type="VertexAllowedCountries">VertexTaxAllowedCountriesUsCaIrItNoSpConfigValue</requiredEntity>
     </entity>

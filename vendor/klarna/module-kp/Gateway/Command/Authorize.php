@@ -25,9 +25,6 @@ use Magento\Quote\Api\CartRepositoryInterface;
 use Magento\Quote\Api\Data\CartInterface;
 
 /**
- * Class Authorize
- *
- * @package Klarna\Kp\Gateway\Command
  * @SuppressWarnings(PHPMD.CouplingBetweenObjects)
  */
 class Authorize implements CommandInterface
@@ -80,8 +77,6 @@ class Authorize implements CommandInterface
     private $mageOrderRepository;
 
     /**
-     * Authorize constructor.
-     *
      * @param QuoteRepositoryInterface                    $klarnaQuoteRepository
      * @param CartRepositoryInterface                     $quoteRepository
      * @param CreditApiInterface                          $api

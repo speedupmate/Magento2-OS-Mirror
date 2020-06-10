@@ -25,7 +25,7 @@
                     </depends>
                 </field>
                 <field id="always_message" translate="label" type="select" sortOrder="30" showInDefault="1" showInWebsite="1" showInStore="1">
-                    <label><![CDATA[Confirmation Message when no action is needed]]></label>
+                    <label><![CDATA[Confirmation Message When No Action Is Needed]]></label>
                     <source_model>Magento\Config\Model\Config\Source\Enabledisable</source_model>
                     <comment><![CDATA[Display Confirmation Message when Original Address EXACTLY matches the Suggested Address]]></comment>
                     <depends>

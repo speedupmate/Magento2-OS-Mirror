@@ -24,9 +24,6 @@ use Magento\Sales\Model\Order\Creditmemo;
 use Magento\Sales\Model\Order\Invoice;
 
 /**
- * Class Ordermanagement
- *
- * @package Klarna\Ordermanagement\Model\Api
  * @SuppressWarnings(PHPMD.CouplingBetweenObjects)
  */
 class Ordermanagement implements ApiInterface
@@ -99,8 +96,6 @@ class Ordermanagement implements ApiInterface
     private $dataObjectFactory;
 
     /**
-     * OrdermanagementApi constructor.
-     *
      * @param OrdermanagementApi $orderManagement
      * @param ConfigHelper       $helper
      * @param KlarnaConfig       $klarnaConfig

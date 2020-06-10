@@ -15,6 +15,10 @@
 - Ensure you have set valid API credentials in **Configuration > Engagement Cloud > Account Settings**
 - Turn on the chat bubble by enabling chat in **Configuration > Engagement Cloud > Chat Settings**
 
+## 1.0.1
+
+###### What's new
+- We've changed the _Chat_ menu item to _dotdigital Chat_ in the Marketing menu.
 
 ## 1.0.0
 

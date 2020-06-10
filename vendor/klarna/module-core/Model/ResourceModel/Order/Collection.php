@@ -10,16 +10,9 @@
 
 namespace Klarna\Core\Model\ResourceModel\Order;
 
-/**
- * Class Collection
- *
- * @package Klarna\Core\Model\ResourceModel\Order
- */
 class Collection extends \Magento\Framework\Model\ResourceModel\Db\Collection\AbstractCollection
 {
     /**
-     * Constructor
-     *
      * @codeCoverageIgnore
      * @codingStandardsIgnoreLine
      */

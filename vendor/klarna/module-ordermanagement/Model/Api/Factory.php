@@ -10,11 +10,6 @@
 
 namespace Klarna\Ordermanagement\Model\Api;
 
-/**
- * Class Factory
- *
- * @package Klarna\Ordermanagement\Model\Api
- */
 class Factory
 {
     /**

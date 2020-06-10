@@ -12,11 +12,6 @@ namespace Klarna\Kp\Model\Api\Request;
 
 use Klarna\Kp\Api\Data\UrlsInterface;
 
-/**
- * Class MerchantUrls
- *
- * @package Klarna\Kp\Model\Api\Request
- */
 class MerchantUrls implements UrlsInterface
 {
     use \Klarna\Kp\Model\Api\Export;
@@ -37,8 +32,6 @@ class MerchantUrls implements UrlsInterface
     private $notification;
 
     /**
-     * Constructor.
-     *
      * @param string[] $data
      */
     public function __construct($data = [])

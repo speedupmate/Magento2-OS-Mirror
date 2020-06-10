@@ -1,5 +1,4 @@
 <?php
-
 declare(strict_types = 1);
 
 namespace Elasticsearch\Endpoints\Cat;
@@ -8,75 +7,56 @@ use Elasticsearch\Endpoints\AbstractEndpoint;
 
 /**
  * Class Aliases
+ * Elasticsearch API name cat.aliases
+ * Generated running $ php util/GenerateEndpoints.php 7.6.0
  *
  * @category Elasticsearch
  * @package  Elasticsearch\Endpoints\Cat
- * @author   Zachary Tong <zach@elastic.co>
+ * @author   Enrico Zimuel <enrico.zimuel@elastic.co>
  * @license  http://www.apache.org/licenses/LICENSE-2.0 Apache2
  * @link     http://elastic.co
  */
 class Aliases extends AbstractEndpoint
 {
-    /**
-     * A comma-separated list of alias names to return
-     *
-     * @var string
-     */
-    private $name;
+    protected $name;
 
-    /**
-     * @param string $name
-     *
-     * @return $this
-     */
-    public function setName($name)
+    public function getURI(): string
+    {
+        $name = $this->name ?? null;
+
+        if (isset($name)) {
+            return "/_cat/aliases/$name";
+        }
+        return "/_cat/aliases";
+    }
+
+    public function getParamWhitelist(): array
+    {
+        return [
+            'format',
+            'local',
+            'h',
+            'help',
+            's',
+            'v'
+        ];
+    }
+
+    public function getMethod(): string
+    {
+        return 'GET';
+    }
+
+    public function setName($name): Aliases
     {
         if (isset($name) !== true) {
             return $this;
         }
-
+        if (is_array($name) === true) {
+            $name = implode(",", $name);
+        }
         $this->name = $name;
 
         return $this;
-    }
-
-    /**
-     * @return string
-     */
-    public function getURI()
-    {
-        $name = $this->name;
-        $uri   = "/_cat/aliases";
-
-        if (isset($name) === true) {
-            $uri = "/_cat/aliases/$name";
-        }
-
-        return $uri;
-    }
-
-    /**
-     * @return string[]
-     */
-    public function getParamWhitelist()
-    {
-        return array(
-            'local',
-            'master_timeout',
-            'h',
-            'help',
-            'v',
-            'format',
-            's',
-            'format',
-        );
-    }
-
-    /**
-     * @return string
-     */
-    public function getMethod()
-    {
-        return 'GET';
     }
 }

@@ -2,7 +2,7 @@
 
 namespace Dotdigitalgroup\Email\Setup\Install\Type;
 
-use Dotdigitalgroup\Email\Setup\Schema;
+use Dotdigitalgroup\Email\Setup\SchemaInterface as Schema;
 
 class InsertEmailReviewTable extends AbstractDataMigration implements InsertTypeInterface
 {
@@ -53,5 +53,4 @@ class InsertEmailReviewTable extends AbstractDataMigration implements InsertType
             'customer_id',
         ];
     }
-
 }

@@ -8,7 +8,7 @@ class Type
      * @var \Magento\Eav\Model\ConfigFactory
      */
     private $configFactory;
-    
+
     /**
      * @var \Magento\SalesRule\Model\Rule\Condition\ProductFactory
      */
@@ -38,6 +38,9 @@ class Type
     public function getInputType($attribute)
     {
         switch ($attribute) {
+            case 'customer_email':
+                return 'email';
+
             case 'subtotal':
             case 'grand_total':
             case 'items_qty':
@@ -48,6 +51,7 @@ class Type
             case 'country_id':
             case 'region_id':
             case 'customer_group_id':
+            case 'attribute_set_id':
                 return 'select';
 
             default:

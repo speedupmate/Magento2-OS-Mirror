@@ -1,5 +1,4 @@
 <?php
-
 declare(strict_types = 1);
 
 namespace Elasticsearch\Endpoints\Cat;
@@ -8,41 +7,33 @@ use Elasticsearch\Endpoints\AbstractEndpoint;
 
 /**
  * Class Help
+ * Elasticsearch API name cat.help
+ * Generated running $ php util/GenerateEndpoints.php 7.6.0
  *
  * @category Elasticsearch
  * @package  Elasticsearch\Endpoints\Cat
- * @author   Zachary Tong <zach@elastic.co>
+ * @author   Enrico Zimuel <enrico.zimuel@elastic.co>
  * @license  http://www.apache.org/licenses/LICENSE-2.0 Apache2
  * @link     http://elastic.co
  */
 class Help extends AbstractEndpoint
 {
-    /**
-     * @return string
-     */
-    public function getURI()
-    {
-        $uri   = "/_cat";
 
-        return $uri;
+    public function getURI(): string
+    {
+
+        return "/_cat";
     }
 
-    /**
-     * @return string[]
-     */
-    public function getParamWhitelist()
+    public function getParamWhitelist(): array
     {
-        return array(
+        return [
             'help',
-            's',
-            'format',
-        );
+            's'
+        ];
     }
 
-    /**
-     * @return string
-     */
-    public function getMethod()
+    public function getMethod(): string
     {
         return 'GET';
     }

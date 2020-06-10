@@ -12,11 +12,6 @@ namespace Klarna\Kp\Model\Api\Request;
 
 use Klarna\Kp\Api\Data\OrderlineInterface;
 
-/**
- * Class Orderline
- *
- * @package Klarna\Kp\Model\Api\Request
- */
 class Orderline implements OrderlineInterface
 {
     use \Klarna\Kp\Model\Api\Export;
@@ -82,8 +77,6 @@ class Orderline implements OrderlineInterface
     private $image_url;
 
     /**
-     * Constructor.
-     *
      * @param array $data
      */
     public function __construct($data = [])

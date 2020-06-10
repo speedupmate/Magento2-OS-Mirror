@@ -30,6 +30,11 @@ class StreamedResponse extends Response
     protected $streamed;
     private $headersSent;
 
+    /**
+     * @param callable|null $callback A valid PHP callback or null to set it later
+     * @param int           $status   The response status code
+     * @param array         $headers  An array of response headers
+     */
     public function __construct(callable $callback = null, int $status = 200, array $headers = [])
     {
         parent::__construct(null, $status, $headers);
@@ -45,10 +50,12 @@ class StreamedResponse extends Response
      * Factory method for chainability.
      *
      * @param callable|null $callback A valid PHP callback or null to set it later
+     * @param int           $status   The response status code
+     * @param array         $headers  An array of response headers
      *
      * @return static
      */
-    public static function create($callback = null, int $status = 200, array $headers = [])
+    public static function create($callback = null, $status = 200, $headers = [])
     {
         return new static($callback, $status, $headers);
     }
@@ -114,7 +121,7 @@ class StreamedResponse extends Response
      *
      * @return $this
      */
-    public function setContent(?string $content)
+    public function setContent($content)
     {
         if (null !== $content) {
             throw new \LogicException('The content cannot be set on a StreamedResponse instance.');

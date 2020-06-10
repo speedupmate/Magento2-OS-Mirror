@@ -11,8 +11,6 @@
 namespace Klarna\Kp\Api;
 
 /**
- * Interface QuoteInterface
- *
  * @method getId():int
  */
 interface QuoteInterface

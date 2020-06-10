@@ -19,6 +19,7 @@ use Vertex\Tax\Model\CountryGuard;
 use Vertex\Tax\Model\OrderHasInvoiceDeterminer;
 use Vertex\Tax\Model\TaxInvoice;
 use Vertex\Tax\Model\VertexTaxAttributeManager;
+use Vertex\Tax\Model\Loader\GiftwrapExtensionLoader;
 
 /**
  * Observes when a Creditmemo is issued to fire off data to the Vertex Tax Log

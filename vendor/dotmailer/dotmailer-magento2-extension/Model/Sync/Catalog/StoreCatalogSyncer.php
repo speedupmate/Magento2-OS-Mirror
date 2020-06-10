@@ -38,13 +38,13 @@ class StoreCatalogSyncer
 
     /**
      * Sync by store
-     *
-     * @param array $productsToProcess
-     * @param string $storeId
-     * @param string $websiteId
-     * @param string $importType
-     *
+     * @param $productsToProcess
+     * @param $storeId
+     * @param $websiteId
+     * @param $importType
      * @return array
+     * @throws \Magento\Framework\Exception\LocalizedException
+     * @throws \Magento\Framework\Exception\NoSuchEntityException
      */
     public function syncByStore($productsToProcess, $storeId, $websiteId, $importType)
     {
@@ -63,7 +63,8 @@ class StoreCatalogSyncer
                 return $products;
             } else {
                 $pid = implode(",", array_keys($products));
-                $msg = "Failed to register with IMPORTER. Type(Catalog) / Scope(Bulk) / Store($storeId) / Product Ids($pid)";
+                $msg = "Failed to register with IMPORTER."
+                    . "Type(Catalog) / Scope(Bulk) / Store($storeId) / Product Ids($pid)";
                 $this->helper->log($msg);
             }
         }

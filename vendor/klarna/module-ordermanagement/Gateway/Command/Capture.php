@@ -23,17 +23,10 @@ use Magento\Sales\Api\Data\OrderInterface;
 use Magento\Sales\Model\OrderRepository as MageOrderRepository;
 use Magento\Framework\App\RequestInterface;
 
-/**
- * Class Capture
- *
- * @package Klarna\Ordermanagement\Gateway\Command
- */
 class Capture extends AbstractCommand
 {
 
     /**
-     * Capture constructor.
-     *
      * @param KlarnaOrderRepository $kOrderRepository
      * @param MageQuoteRepository $mageQuoteRepository
      * @param MageOrderRepository $mageOrderRepository

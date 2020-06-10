@@ -5,6 +5,11 @@ namespace Dotdigitalgroup\Email\Tests\Integration\Adminhtml\Developer;
 use Magento\Reports\Model\ResourceModel\Product\Collection;
 use Magento\TestFramework\Request;
 
+include __DIR__ . '/../../_files/products.php';
+
+/**
+ * @magentoAppArea adminhtml
+ */
 class HistoricalCatalogDataRefreshTest extends \Magento\TestFramework\TestCase\AbstractBackendController
 {
     /**
@@ -29,8 +34,6 @@ class HistoricalCatalogDataRefreshTest extends \Magento\TestFramework\TestCase\A
     {
         parent::setUp();
 
-        include __DIR__ . '/../../_files/products.php';
-        
         $this->objectManager = \Magento\TestFramework\Helper\Bootstrap::getObjectManager();
         $this->uri = $this->url;
         $this->resource = 'Dotdigitalgroup_Email::config';

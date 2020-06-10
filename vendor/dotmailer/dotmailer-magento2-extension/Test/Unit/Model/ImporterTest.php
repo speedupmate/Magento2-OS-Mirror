@@ -7,7 +7,7 @@ use Magento\Framework\Registry;
 use Dotdigitalgroup\Email\Model\ResourceModel\Importer;
 use Dotdigitalgroup\Email\Model\ResourceModel\Importer\CollectionFactory;
 use Magento\Framework\Stdlib\DateTime;
-use Dotdigitalgroup\Email\Model\Config\Json;
+use Magento\Framework\Serialize\SerializerInterface;
 use Magento\Framework\Model\ResourceModel\AbstractResource;
 use Magento\Framework\Data\Collection\AbstractDb;
 use Dotdigitalgroup\Email\Model\Importer as ImporterModel;
@@ -42,7 +42,7 @@ class ImporterTest extends TestCase
     private $dateTimeMock;
 
     /**
-     * @var Json
+     * @var SerializerInterface
      */
     private $serializerMock;
 
@@ -73,7 +73,7 @@ class ImporterTest extends TestCase
         $this->importerMock = $this->createMock(Importer::class);
         $this->collectionFactoryMock = $this->createMock(CollectionFactory::class);
         $this->dateTimeMock = $this->createMock(DateTime::class);
-        $this->serializerMock = $this->createMock(Json::class);
+        $this->serializerMock = $this->createMock(SerializerInterface::class);
         $this->resourceModelMock= $this->getMockBuilder(AbstractResource::class)
             ->setMethods(['getIdFieldName'])
             ->getMockForAbstractClass();
@@ -106,9 +106,9 @@ class ImporterTest extends TestCase
 
         $result = $this->importer->registerQueue(
             ImporterModel::IMPORT_TYPE_CART_INSIGHT_CART_PHASE,
-                $this->getData(),
+            $this->getData(),
             ImporterModel::MODE_SINGLE,
-                1
+            1
         );
 
         $this->assertTrue($result);
@@ -142,7 +142,7 @@ class ImporterTest extends TestCase
 
         $result = $this->importer->registerQueue(
             ImporterModel::IMPORT_TYPE_CART_INSIGHT_CART_PHASE,
-           '',
+            '',
             ImporterModel::MODE_SINGLE,
             1,
             'path/to/file.csv'

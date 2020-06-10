@@ -42,6 +42,12 @@ vendor/bin/mftf generate:tests
 vendor/bin/mftf generate:tests AdminLoginTest StorefrontPersistedCustomerLoginTest
 ```
 
+### Generate test by test and suite name
+
+```bash
+vendor/bin/mftf generate:tests LoginSuite:AdminLoginTest
+```
+
 ### Generate and run the tests for a specified group
 
 ```bash
@@ -57,6 +63,14 @@ vendor/bin/mftf run:test AdminLoginTest StorefrontPersistedCustomerLoginTest -r
 ```
 
 This command cleans up the previously generated tests; generates and runs the `LoginAsAdminTest` and `LoginAsCustomerTest` tests.
+
+### Generate and run particular test in a specific suite's context
+
+```bash
+vendor/bin/mftf run:test LoginSuite:AdminLoginTest -r
+```
+
+This command cleans up previously generated tests; generates and run `AdminLoginTest` within the context of the `LoginSuite`.
 
 ### Generate and run a testManifest.txt file
 
@@ -109,6 +123,24 @@ You can include options to set configuration parameter values for your environme
 vendor/bin/mftf build:project --MAGENTO_BASE_URL=http://magento.local/ --MAGENTO_BACKEND_NAME=admin214365
 ```
 
+### `doctor`
+
+#### Description
+
+Diagnose MFTF configuration and setup. Currently this command will check the following:
+- Verify admin credentials are valid. Allowing MFTF authenticates and runs API requests to Magento through cURL
+- Verify that Selenium is up and running and available for MFTF
+- Verify that new session of browser can open Magento admin and store front urls
+- Verify that MFTF can run MagentoCLI commands
+
+#### Usage
+
+```bash
+vendor/bin/mftf doctor
+```
+
+#### Options
+
 ### `generate:tests`
 
 #### Description
@@ -127,6 +159,7 @@ vendor/bin/mftf generate:tests [option] [<test name>] [<test name>] [--remove]
 | Option | Description|
 | ---| --- |
 | `--config=[<default> or <singleRun> or <parallel>]` | Creates a single manifest file with a list of all tests. The default location is `tests/functional/Magento/FunctionalTest/_generated/testManifest.txt`.<br/> You can split the list into multiple groups using `--config=parallel`; the groups will be generated in `_generated/groups/` like `_generated/groups/group1.txt, group2.txt, ...`.<br/> Available values: `default` (default), `singleRun`(same as `default`), and `parallel`.<br/> Example: `generate:tests --config=parallel`. |
+| `--filter` | Option to filter tests to be generated.<br/>Template: '&lt;filterName&gt;:&lt;filterValue&gt;'.<br/>Existing filter types: severity.<br/>Existing severity values: BLOCKER, CRITICAL, MAJOR, AVERAGE, MINOR.<br/>Example: --filter=severity:CRITICAL|
 | `--force` | Forces test generation, regardless of the module merge order defined in the Magento instance. Example: `generate:tests --force`. |
 | `-i,--time` | Set time in minutes to determine the group size when `--config=parallel` is used. The __default value__ is `10`. Example: `generate:tests --config=parallel --time=15`|
 | `--tests` | Defines the test configuration as a JSON string.|
@@ -431,18 +464,46 @@ The example parameters are taken from the `etc/config/.env.example` file.
 
 ### `static-checks`
 
-Runs all MFTF static-checks on the test codebase that MFTF is currently attached to.
-
-#### Existing static checks
-
-* Test Dependency: Checks that test dependencies do not violate Magento module's composer dependencies.
+Runs all or specific MFTF static-checks on the test codebase that MFTF is currently attached to. 
+If no script name argument is specified, all existing static check scripts will run.
 
 #### Usage
+
+```bash
+vendor/bin/mftf static-checks [<names>]...
+```
+
+#### Examples
+
+To check what existing static check scripts are available
+
+```bash
+vendor/bin/mftf static-checks --help
+```
+
+To run all existing static check scripts 
 
 ```bash
 vendor/bin/mftf static-checks
 ```
 
+To run specific static check scripts
+
+```bash
+vendor/bin/mftf static-checks testDependencies
+```
+```bash
+vendor/bin/mftf static-checks actionGroupArguments
+```
+```bash
+vendor/bin/mftf static-checks testDependencies actionGroupArguments
+```
+
+#### Existing static checks
+
+* Test Dependency: Checks that test dependencies do not violate Magento module's composer dependencies.
+* Action Group Unused Arguments: Checks that action groups do not have unused arguments.
+    
 ### `upgrade:tests`
 
 Applies all the MFTF major version upgrade scripts to test components in the given path (`test.xml`, `data.xml`, etc).

@@ -32,6 +32,16 @@ Example:
 MAGENTO_BACKEND_NAME=admin_12346
 ```
 
+### MAGENTO_BACKEND_BASE_URL
+
+(Optional) If you are running the Admin Panel on separate a domain, specify this value:
+
+Example:
+
+```conf
+MAGENTO_BACKEND_BASE_URL=https://admin.magento2.test
+```
+
 ### MAGENTO_ADMIN_USERNAME
 
 The username that tests can use to access the Magento Admin page
@@ -275,6 +285,54 @@ Example:
 ```conf
 # Default base path for kv secret engine in local vault dev server
 CREDENTIAL_VAULT_SECRET_BASE_PATH=secret
+```
+
+### CREDENTIAL_AWS_SECRETS_MANAGER_REGION
+
+The region that AWS Secrets Manager is located.
+
+Example:
+
+```conf
+# Region of AWS Secrets Manager
+CREDENTIAL_AWS_SECRETS_MANAGER_REGION=us-east-1
+```
+
+### CREDENTIAL_AWS_SECRETS_MANAGER_PROFILE
+
+The profile used to connect to AWS Secrets Manager.
+
+Example:
+
+```conf
+# Profile used to connect to AWS Secrets Manager.
+CREDENTIAL_AWS_SECRETS_MANAGER_PROFILE=default
+```
+
+### ENABLE_BROWSER_LOG
+
+Enables addition of browser logs to Allure steps
+
+```conf
+ENABLE_BROWSER_LOG=true
+```
+
+### BROWSER_LOG_BLACKLIST
+
+Blacklists types of browser log entries from appearing in Allure steps.
+
+Denoted in browser log entry as `"SOURCE": "type"`.
+
+```conf
+BROWSER_LOG_BLACKLIST=other,console-api
+```
+
+### WAIT_TIMEOUT
+
+Global MFTF configuration for the default amount of time (in seconds) that a test will wait while loading a page.
+
+```conf
+WAIT_TIMEOUT=30
 ```
 
 <!-- Link definitions -->

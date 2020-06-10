@@ -1,113 +1,72 @@
 <?php
-
 declare(strict_types = 1);
 
 namespace Elasticsearch\Endpoints\Snapshot;
 
+use Elasticsearch\Common\Exceptions\RuntimeException;
 use Elasticsearch\Endpoints\AbstractEndpoint;
-use Elasticsearch\Common\Exceptions;
 
 /**
  * Class Get
+ * Elasticsearch API name snapshot.get
+ * Generated running $ php util/GenerateEndpoints.php 7.6.0
  *
  * @category Elasticsearch
  * @package  Elasticsearch\Endpoints\Snapshot
- * @author   Zachary Tong <zach@elastic.co>
+ * @author   Enrico Zimuel <enrico.zimuel@elastic.co>
  * @license  http://www.apache.org/licenses/LICENSE-2.0 Apache2
  * @link     http://elastic.co
  */
 class Get extends AbstractEndpoint
 {
-    /**
-     * A comma-separated list of repository names
-     *
-     * @var string
-     */
-    private $repository;
+    protected $repository;
+    protected $snapshot;
 
-    /**
-     * A comma-separated list of snapshot names
-     *
-     * @var string
-     */
-    private $snapshot;
+    public function getURI(): string
+    {
+        $repository = $this->repository ?? null;
+        $snapshot = $this->snapshot ?? null;
 
-    /**
-     * @param string $repository
-     *
-     * @return $this
-     */
-    public function setRepository($repository)
+        if (isset($repository) && isset($snapshot)) {
+            return "/_snapshot/$repository/$snapshot";
+        }
+        throw new RuntimeException('Missing parameter for the endpoint snapshot.get');
+    }
+
+    public function getParamWhitelist(): array
+    {
+        return [
+            'master_timeout',
+            'ignore_unavailable',
+            'verbose'
+        ];
+    }
+
+    public function getMethod(): string
+    {
+        return 'GET';
+    }
+
+    public function setRepository($repository): Get
     {
         if (isset($repository) !== true) {
             return $this;
         }
-
         $this->repository = $repository;
 
         return $this;
     }
 
-    /**
-     * @param string $snapshot
-     *
-     * @return $this
-     */
-    public function setSnapshot($snapshot)
+    public function setSnapshot($snapshot): Get
     {
         if (isset($snapshot) !== true) {
             return $this;
         }
-
+        if (is_array($snapshot) === true) {
+            $snapshot = implode(",", $snapshot);
+        }
         $this->snapshot = $snapshot;
 
         return $this;
-    }
-
-    /**
-     * @throws \Elasticsearch\Common\Exceptions\RuntimeException
-     * @return string
-     */
-    public function getURI()
-    {
-        if (isset($this->repository) !== true) {
-            throw new Exceptions\RuntimeException(
-                'repository is required for Get'
-            );
-        }
-        if (isset($this->snapshot) !== true) {
-            throw new Exceptions\RuntimeException(
-                'snapshot is required for Get'
-            );
-        }
-        $repository = $this->repository;
-        $snapshot = $this->snapshot;
-        $uri   = "/_snapshot/$repository/$snapshot";
-
-        if (isset($repository) === true && isset($snapshot) === true) {
-            $uri = "/_snapshot/$repository/$snapshot";
-        }
-
-        return $uri;
-    }
-
-    /**
-     * @return string[]
-     */
-    public function getParamWhitelist()
-    {
-        return array(
-            'master_timeout',
-            'ignore_unavailable',
-            'verbose'
-        );
-    }
-
-    /**
-     * @return string
-     */
-    public function getMethod()
-    {
-        return 'GET';
     }
 }

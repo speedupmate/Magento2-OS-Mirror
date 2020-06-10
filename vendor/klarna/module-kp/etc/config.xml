@@ -15,6 +15,7 @@
             <klarna_kp>
                 <model>Klarna\Kp\Model\Payment\Kp</model>
                 <payment_action>authorize</payment_action>
+                <title>Klarna Payments</title>
                 <group>klarna</group>
                 <active>0</active>
                 <data_sharing>1</data_sharing>

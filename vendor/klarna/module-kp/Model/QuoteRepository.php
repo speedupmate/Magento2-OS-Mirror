@@ -18,11 +18,6 @@ use Magento\Framework\Exception\CouldNotSaveException;
 use Magento\Framework\Exception\NoSuchEntityException;
 use Magento\Quote\Api\Data\CartInterface as MageQuoteInterface;
 
-/**
- * Class QuoteRepository
- *
- * @package Klarna\Kp\Model
- */
 class QuoteRepository implements QuoteRepositoryInterface
 {
     /**
@@ -55,8 +50,6 @@ class QuoteRepository implements QuoteRepositoryInterface
     private $api;
 
     /**
-     * QuoteRepository constructor.
-     *
      * @param QuoteFactory       $quoteFactory
      * @param QuoteResource      $resourceModel
      * @param CreditApiInterface $api
