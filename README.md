@@ -5,6 +5,9 @@ downloadable packages with respected tools (git) and therefore ease devops relat
 
 #### Divided to branches and tagged as follows
 
+* magento2-os-2.4
+  * magento2-os-2.4.0
+  * magento2-os-2.4.0-with-samples
 * magento2-os-2.3
   * magento2-os-2.3.0
   * magento2-os-2.3.0-with-samples
@@ -20,6 +23,8 @@ downloadable packages with respected tools (git) and therefore ease devops relat
   * magento2-os-2.3.4-p2-with-samples
   * magento2-os-2.3.5-p1
   * magento2-os-2.3.5-p1-with-samples
+  * magento2-os-2.3.5-p2
+  * magento2-os-2.3.5-p2-with-samples
 * magento2-os-2.2
   * magento2-os-2.2.0
   * magento2-os-2.2.0-with-samples
