@@ -1,0 +1,13 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!--
+ /**
+  * @copyright  Vertex. All rights reserved.  https://www.vertexinc.com/
+  * @author     Mediotype                     https://www.mediotype.com/
+  */
+-->
+<actionGroups xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+              xsi:noNamespaceSchemaLocation="urn:magento:mftf:Test/etc/actionGroupSchema.xsd">
+    <actionGroup name="VertexCheckCreditMemoSuccessMessageActionGroup">
+        <see stepKey="seeVertexSuccessMessage" selector="{{AdminOrderDetailsMessagesSection.vertexSuccessMessage}}" userInput="The Vertex invoice has been refunded."/>
+    </actionGroup>
+</actionGroups>

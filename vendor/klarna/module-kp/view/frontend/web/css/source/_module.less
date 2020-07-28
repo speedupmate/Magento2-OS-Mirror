@@ -1,0 +1,43 @@
+//
+// Common
+// _____________________________________________
+.klarna-payments-method-cell {
+    display: table-cell;
+    vertical-align: middle;
+}
+label.klarna-payments-method-cell {
+    > span {
+        padding-left: 5px;
+    }
+}
+span.klarna-payments-method-cell {
+    > img {
+        display: block;
+    }
+}
+
+//
+// Desktop
+// _____________________________________________
+.media-width(@extremum, @break) when (@extremum = 'min') and (@break = @screen__m) {
+    /* Overwriting Magento's padding for the method title to make
+       sure our KP methods have the same height as the core methods */
+    .klarna-payments-method {
+        > .payment-method-title {
+            padding: 11.5px 0;
+        }
+    }
+}
+
+//
+// Mobile
+// _____________________________________________
+.media-width(@extremum, @break) when (@extremum = 'max') and (@break = @screen__s) {
+    /* Overwriting Magento's padding for the method title to make
+       sure our KP methods have the same height as the core methods */
+    .klarna-payments-method {
+        > .payment-method-title {
+            padding: 6.5px 0 6.5px 15px;
+        }
+    }
+}

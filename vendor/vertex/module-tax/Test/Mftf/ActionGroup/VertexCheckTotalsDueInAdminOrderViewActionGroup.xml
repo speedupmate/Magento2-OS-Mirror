@@ -1,0 +1,21 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!--
+ /**
+  * @copyright  Vertex. All rights reserved.  https://www.vertexinc.com/
+  * @author     Mediotype                     https://www.mediotype.com/
+  */
+-->
+<actionGroups xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+              xsi:noNamespaceSchemaLocation="urn:magento:mftf:Test/etc/actionGroupSchema.xsd">
+    <actionGroup name="VertexCheckTotalsDueInAdminOrderViewActionGroup">
+        <arguments>
+            <argument type="string" name="paid"/>
+            <argument type="string" name="refunded"/>
+            <argument type="string" name="due"/>
+        </arguments>
+
+        <see stepKey="seeTotalPaid" userInput="${{paid}}" selector="{{AdminOrderTotalFooterSection.totalPaid}}"/>
+        <see stepKey="seeTotalRefunded" userInput="${{refunded}}" selector="{{AdminOrderTotalFooterSection.totalRefunded}}"/>
+        <see stepKey="seeTotalDue" userInput="${{due}}" selector="{{AdminOrderTotalFooterSection.totalDue}}"/>
+    </actionGroup>
+</actionGroups>

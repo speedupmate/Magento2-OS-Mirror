@@ -1,0 +1,124 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<entities xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+          xsi:noNamespaceSchemaLocation="urn:magento:mftf:DataGenerator/etc/dataProfileSchema.xsd">
+    <entity name="SampleAmazonPaymentConfig" type="amazon_payment_config_state">
+        <requiredEntity type="merchant_id">SampleAmazonMerchantId</requiredEntity>
+        <requiredEntity type="access_key">SampleAmazonAccessKey</requiredEntity>
+        <requiredEntity type="secret_key">SampleAmazonSecretKey</requiredEntity>
+        <requiredEntity type="client_id">SampleAmazonClientId</requiredEntity>
+        <requiredEntity type="client_secret">SampleAmazonClientSecret</requiredEntity>
+        <requiredEntity type="payment_region">SampleAmazonPaymentRegion</requiredEntity>
+        <requiredEntity type="sandbox">SampleAmazonSandbox</requiredEntity>
+        <requiredEntity type="payment_action">SampleAmazonPaymentAction</requiredEntity>
+        <requiredEntity type="authorization_mode">SampleAmazonAuthorizationMode</requiredEntity>
+        <requiredEntity type="amazon_pay_active">SampleAmazonPayActive</requiredEntity>
+    </entity>
+    <entity name="SampleAmazonMerchantId" type="merchant_id">
+        <data key="value">{{_CREDS.amazon/v1_merchant_id}}</data>
+    </entity>
+    <entity name="SampleAmazonAccessKey" type="access_key">
+        <data key="value">{{_CREDS.amazon/v1_access_key}}</data>
+    </entity>
+    <entity name="SampleAmazonSecretKey" type="secret_key">
+        <data key="value">{{_CREDS.amazon/v1_secret_key}}</data>
+    </entity>
+    <entity name="SampleAmazonClientId" type="client_id">
+        <data key="value">{{_CREDS.amazon/v1_client_id}}</data>
+    </entity>
+    <entity name="SampleAmazonClientSecret" type="client_secret">
+        <data key="value">{{_CREDS.amazon/v1_client_secret}}</data>
+    </entity>
+    <entity name="SampleAmazonPaymentRegion" type="payment_region">
+        <data key="value">{{_CREDS.amazon/v1_region}}</data>
+    </entity>
+    <entity name="SampleAmazonSandbox" type="sandbox">
+        <data key="value">1</data>
+    </entity>
+    <entity name="SampleAmazonPaymentAction" type="payment_action">
+        <data key="value">authorize</data>
+    </entity>
+    <entity name="SampleAmazonAuthorizationMode" type="authorization_mode">
+        <data key="value">synchronous</data>
+    </entity>
+    <entity name="SampleAmazonPayActive" type="amazon_pay_active">
+        <data key="value">1</data>
+    </entity>
+    <!-- EU configuration used to test region-specific features -->
+    <entity name="EUAmazonPaymentConfig" type="amazon_payment_config_state">
+        <requiredEntity type="merchant_id">EUAmazonMerchantId</requiredEntity>
+        <requiredEntity type="access_key">EUAmazonAccessKey</requiredEntity>
+        <requiredEntity type="secret_key">EUAmazonSecretKey</requiredEntity>
+        <requiredEntity type="client_id">EUAmazonClientId</requiredEntity>
+        <requiredEntity type="client_secret">EUAmazonClientSecret</requiredEntity>
+        <requiredEntity type="payment_region">EUAmazonPaymentRegion</requiredEntity>
+        <requiredEntity type="sandbox">SampleAmazonSandbox</requiredEntity>
+        <requiredEntity type="payment_action">SampleAmazonPaymentAction</requiredEntity>
+        <requiredEntity type="authorization_mode">SampleAmazonAuthorizationMode</requiredEntity>
+        <requiredEntity type="amazon_pay_active">SampleAmazonPayActive</requiredEntity>
+    </entity>
+    <entity name="EUAmazonMerchantId" type="merchant_id">
+        <data key="value">{{_CREDS.amazon/v1_eu_merchant_id}}</data>
+    </entity>
+    <entity name="EUAmazonAccessKey" type="access_key">
+        <data key="value">{{_CREDS.amazon/v1_eu_access_key}}</data>
+    </entity>
+    <entity name="EUAmazonSecretKey" type="secret_key">
+        <data key="value">{{_CREDS.amazon/v1_eu_secret_key}}</data>
+    </entity>
+    <entity name="EUAmazonClientId" type="client_id">
+        <data key="value">{{_CREDS.amazon/v1_eu_client_id}}</data>
+    </entity>
+    <entity name="EUAmazonClientSecret" type="client_secret">
+        <data key="value">{{_CREDS.amazon/v1_eu_client_secret}}</data>
+    </entity>
+    <entity name="EUAmazonPaymentRegion" type="payment_region">
+        <data key="value">de</data>
+    </entity>
+    <!-- default configuration used to restore Magento config -->
+    <entity name="DefaultAmazonPaymentConfig" type="amazon_payment_config_state">
+        <requiredEntity type="merchant_id">DefaultAmazonMerchantId</requiredEntity>
+        <requiredEntity type="access_key">DefaultAmazonAccessKey</requiredEntity>
+        <requiredEntity type="secret_key">DefaultAmazonSecretKey</requiredEntity>
+        <requiredEntity type="client_id">DefaultAmazonClientId</requiredEntity>
+        <requiredEntity type="client_secret">DefaultAmazonClientSecret</requiredEntity>
+        <requiredEntity type="payment_region">DefaultAmazonPaymentRegion</requiredEntity>
+        <requiredEntity type="sandbox">DefaultAmazonSandbox</requiredEntity>
+        <requiredEntity type="payment_action">DefaultAmazonPaymentAction</requiredEntity>
+        <requiredEntity type="authorization_mode">DefaultAmazonAuthorizationMode</requiredEntity>
+        <requiredEntity type="amazon_pay_active">DefaultAmazonPayActive</requiredEntity>
+    </entity>
+    <entity name="DefaultAmazonMerchantId" type="merchant_id">
+        <data key="value"/>
+    </entity>
+    <entity name="DefaultAmazonAccessKey" type="access_key">
+        <data key="value"/>
+    </entity>
+    <entity name="DefaultAmazonSecretKey" type="secret_key">
+        <data key="value"/>
+    </entity>
+    <entity name="DefaultAmazonClientId" type="client_id">
+        <data key="value"/>
+    </entity>
+    <entity name="DefaultAmazonClientSecret" type="client_secret">
+        <data key="value"/>
+    </entity>
+    <entity name="DefaultAmazonPaymentRegion" type="payment_region">
+        <data key="value"/>
+    </entity>
+    <entity name="DefaultAmazonSandbox" type="sandbox">
+        <data key="value"/>
+    </entity>
+    <entity name="DefaultAmazonPaymentAction" type="payment_action">
+        <data key="value">authorize</data>
+    </entity>
+    <entity name="DefaultAmazonAuthorizationMode" type="authorization_mode">
+        <data key="value">synchronous</data>
+    </entity>
+    <entity name="DefaultAmazonPayActive" type="amazon_pay_active">
+        <data key="value">0</data>
+    </entity>
+    <!-- Misc configurations -->
+    <entity name="AmazonLwaConfig">
+        <data key="path">payment/amazon_payment/lwa_enabled</data>
+    </entity>
+</entities>

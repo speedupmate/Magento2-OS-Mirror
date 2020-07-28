@@ -1,0 +1,21 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!--
+ /**
+  * @copyright  Vertex. All rights reserved.  https://www.vertexinc.com/
+  * @author     Mediotype                     https://www.mediotype.com/
+  */
+-->
+<actionGroups xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+              xsi:noNamespaceSchemaLocation="urn:magento:mftf:Test/etc/actionGroupSchema.xsd">
+    <actionGroup name="VertexCheckTaxTotalsInAdminOrderViewActionGroup">
+        <arguments>
+            <argument type="string" name="product"/>
+            <argument type="string" name="shipping"/>
+        </arguments>
+
+        <conditionalClick selector="{{AdminOrderTotalSection.taxSummary}}" dependentSelector="{{AdminOrderTotalSection.totalByName('Sales and Use')}}" visible="false" stepKey="showTaxSummary"/>
+
+        <see stepKey="seeProductTax" userInput="${{product}}" selector="{{AdminOrderTotalSection.totalByName('Sales and Use')}}"/>
+        <see stepKey="seeShippingTax" userInput="${{shipping}}" selector="{{AdminOrderTotalSection.totalByName('Shipping (')}}"/>
+    </actionGroup>
+</actionGroups>

@@ -1,0 +1,55 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!--
+ /**
+  * @copyright  Vertex. All rights reserved.  https://www.vertexinc.com/
+  * @author     Mediotype                     https://www.mediotype.com/
+  */
+-->
+<tests xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+       xsi:noNamespaceSchemaLocation="urn:magento:mftf:Test/etc/testSchema.xsd">
+    <test name="VertexAsGuestCheckPhysicalProductTaxOnShoppingCartPageTest">
+        <annotations>
+            <features value="Vertex"/>
+            <group value="Vertex"/>
+
+            <stories value="As a store owner, I must have accurate taxes calculated for a guest customer"/>
+            <title value="Validate Taxes on Cart Page, Guest Customer, Simple Product" />
+            <description value="Validate the taxes applied to a simple product on a guest customer's cart page" />
+
+            <severity value="AVERAGE"/>
+        </annotations>
+        <before>
+            <createData entity="_defaultCategory" stepKey="createCategory"/>
+            <createData entity="_defaultProduct" stepKey="createProduct">
+                <field key="price">34.00</field>
+                <requiredEntity createDataKey="createCategory"/>
+            </createData>
+            </before>
+        <after>
+            <deleteData stepKey="deleteCategory" createDataKey="createCategory"/>
+            <deleteData stepKey="deleteProduct" createDataKey="createProduct"/>
+        </after>
+
+        <actionGroup ref="AddSimpleProductToCartActionGroup" stepKey="addProductToCart">
+            <argument name="product" value="$$createProduct$$"/>
+        </actionGroup>
+
+        <actionGroup ref="StorefrontOpenCartFromMinicartActionGroup" stepKey="gotoCart"/>
+
+        <actionGroup ref="FillShippingZipForm" stepKey="fillEstimateShippingInformation">
+            <argument name="address" value="Vertex_Customer_BobSaget_Address"/>
+        </actionGroup>
+
+        <checkOption selector="{{CheckoutCartSummarySection.flatRateShippingMethod}}" stepKey="selectFlatRateShipping"/>
+        <waitForPageLoad stepKey="waitForTotals"/>
+
+        <actionGroup ref="VertexCheckProductPricingOnCartActionGroup" stepKey="checkProduct">
+            <!-- All fields are excluding tax intentionally.  The user is not logged in and has no address so they should match -->
+            <argument name="product" value="$$createProduct$$"/>
+            <argument name="priceExclTax" value="{{Vertex_34USD_PA_Only_Values.price}}"/>
+            <argument name="priceInclTax" value="{{Vertex_34USD_PA_Only_Values.price}}"/>
+            <argument name="subtotalExclTax" value="{{Vertex_34USD_PA_Only_Values.subtotal}}"/>
+            <argument name="subtotalInclTax" value="{{Vertex_34USD_PA_Only_Values.subtotal}}"/>
+        </actionGroup>
+    </test>
+</tests>

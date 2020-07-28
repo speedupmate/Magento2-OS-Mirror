@@ -1,0 +1,69 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!--
+ /**
+  * @copyright  Vertex. All rights reserved.  https://www.vertexinc.com/
+  * @author     Mediotype                     https://www.mediotype.com/
+  */
+-->
+<tests xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+       xsi:noNamespaceSchemaLocation="urn:magento:mftf:Test/etc/testSchema.xsd">
+    <test name="VertexAsRegisteredCustomerWithBillToAndShipToTheSameCheckDigitalProductTaxInMinicartTest">
+        <annotations>
+            <features value="Vertex"/>
+            <group value="Vertex"/>
+
+            <stories value="As a store owner, I must have accurate taxes calculated for a registered customer"/>
+            <title value="Validate Taxes in Minicart, Registered Customer, Digital Product, Ship-To=Bill-To"/>
+            <description value="Validate that a registered customer with a bill-to and a ship-to address that are the same and containing a virtual and a downloadable product have taxes calculated on them when the customer opens the minicart"/>
+
+            <severity value="AVERAGE"/>
+        </annotations>
+        <before>
+            <createData entity="_defaultCategory" stepKey="createCategory"/>
+            <createData entity="VirtualProduct" stepKey="createVirtualProduct">
+                <field key="price">{{Vertex_100USD_PA_Only_Values.price}}</field>
+                <requiredEntity createDataKey="createCategory"/>
+            </createData>
+
+            <actionGroup ref="VertexCreateDownloadableProductActionGroup" stepKey="createDownloadableProduct">
+                <argument name="price" value="{{Vertex_100USD_PA_Only_Values.price}}" />
+            </actionGroup>
+            <createData entity="Vertex_Customer_JacindaArdern" stepKey="createCustomer"/>
+        </before>
+        <after>
+            <deleteData stepKey="deleteCategory" createDataKey="createCategory"/>
+            <deleteData stepKey="deleteVirtualProduct" createDataKey="createVirtualProduct"/>
+            <deleteData stepKey="deleteDownloadableProduct" createDataKey="createDownloadableProductCreateDownloadableProduct"/>
+            <deleteData stepKey="deleteCustomer" createDataKey="createCustomer"/>
+        </after>
+        <actionGroup ref="LoginToStorefrontActionGroup" stepKey="customerLogin">
+            <argument name="Customer" value="$$createCustomer$$"/>
+        </actionGroup>
+
+        <actionGroup ref="AddSimpleProductToCartActionGroup" stepKey="addVirtualProductToCart">
+            <argument name="product" value="$$createVirtualProduct$$"/>
+        </actionGroup>
+        <actionGroup ref="AddSimpleProductToCartActionGroup" stepKey="addDownloadableProductToCart">
+            <argument name="product" value="$$createDownloadableProductCreateDownloadableProduct$$"/>
+        </actionGroup>
+
+        <click stepKey="showMinicart" selector="{{StorefrontMinicartSection.showCart}}"/>
+
+        <actionGroup ref="VertexCheckProductPricingInMiniCartActionGroup" stepKey="checkVirtualProduct">
+            <argument name="product" value="$$createVirtualProduct$$"/>
+            <argument name="priceExclTax" value="{{Vertex_100USD_PA_Only_Values.price}}"/>
+            <argument name="priceInclTax" value="{{Vertex_100USD_PA_Only_Values.priceInclTax}}"/>
+        </actionGroup>
+        <actionGroup ref="VertexCheckProductPricingInMiniCartActionGroup" stepKey="checkDownloadableProduct">
+            <argument name="product" value="$$createDownloadableProductCreateDownloadableProduct$$"/>
+            <argument name="priceExclTax" value="{{Vertex_100USD_PA_Only_Values.price}}"/>
+            <argument name="priceInclTax" value="{{Vertex_100USD_PA_Only_Values.priceInclTax}}"/>
+        </actionGroup>
+
+        <actionGroup ref="VertexCheckSubtotalInMiniCartActionGroup" stepKey="checkSubtotal">
+            <argument name="subtotalExclTax" value="{{Vertex_100USD_Virtual_and_Downloadable_PA_Only_Totals.subtotal}}"/>
+            <argument name="subtotalInclTax" value="{{Vertex_100USD_Virtual_and_Downloadable_PA_Only_Totals.subtotalInclTax}}"/>
+        </actionGroup>
+        <actionGroup ref="StorefrontCustomerLogoutActionGroup" stepKey="customerLogout"/>
+    </test>
+</tests>

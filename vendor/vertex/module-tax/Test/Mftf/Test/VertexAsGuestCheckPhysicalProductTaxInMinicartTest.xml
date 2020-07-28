@@ -1,0 +1,46 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!--
+ /**
+  * @copyright  Vertex. All rights reserved.  https://www.vertexinc.com/
+  * @author     Mediotype                     https://www.mediotype.com/
+  */
+-->
+<tests xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+       xsi:noNamespaceSchemaLocation="urn:magento:mftf:Test/etc/testSchema.xsd">
+    <test name="VertexAsGuestCheckPhysicalProductTaxInMinicartTest">
+        <annotations>
+            <features value="Vertex"/>
+            <group value="Vertex"/>
+
+            <stories value="As a store owner, I must have accurate taxes calculated for a guest customer"/>
+            <title value="Validate Taxes in Minicart, Guest Customer, Simple Product" />
+            <description value="Validate the taxes applied to a simple product in a guest customer's minicart" />
+
+            <severity value="AVERAGE"/>
+        </annotations>
+        <before>
+            <createData entity="_defaultCategory" stepKey="createCategory"/>
+            <createData entity="_defaultProduct" stepKey="createProduct">
+                <field key="price">{{Vertex_34USD_PA_Only_Values.price}}</field>
+                <requiredEntity createDataKey="createCategory"/>
+            </createData>
+        </before>
+        <after>
+            <deleteData createDataKey="createCategory" stepKey="deleteCategory"/>
+            <deleteData createDataKey="createProduct" stepKey="deleteProduct"/>
+        </after>
+
+        <actionGroup ref="AddSimpleProductToCartActionGroup" stepKey="addProductToCart">
+            <argument name="product" value="$$createProduct$$"/>
+        </actionGroup>
+
+        <click stepKey="showMinicart" selector="{{StorefrontMinicartSection.showCart}}"/>
+
+        <actionGroup ref="VertexCheckProductPricingInMiniCartActionGroup" stepKey="checkProduct">
+            <!-- All fields are excluding tax intentionally.  The user is not logged in and has no address so they should match -->
+            <argument name="product" value="$$createProduct$$"/>
+            <argument name="priceExclTax" value="{{Vertex_34USD_PA_Only_Values.price}}"/>
+            <argument name="priceInclTax" value="{{Vertex_34USD_PA_Only_Values.price}}"/>
+        </actionGroup>
+    </test>
+</tests>

@@ -1,0 +1,55 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!--
+ /**
+  * @copyright  Vertex. All rights reserved.  https://www.vertexinc.com/
+  * @author     Mediotype                     https://www.mediotype.com/
+  */
+-->
+<tests xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+       xsi:noNamespaceSchemaLocation="urn:magento:mftf:Test/etc/testSchema.xsd">
+    <test name="VertexAsGuestWithShipAddressValidationTaxBasedOnShippingApiErrorOrInvalidTest">
+        <annotations>
+            <features value="Vertex"/>
+            <group value="VertexAddressValidation"/>
+            <testCaseId value="VRTX-664"/>
+
+            <stories value="As a store owner, I must be able to validate the guest shipping address in checkout"/>
+            <title value="Validate address when not same as shipping in checkout for quest customer with the tax calculation based on shipping address. The address will trigger a api error on this case."/>
+            <description value="Validate the guest customer address and suggest changes we find a valid address. The calculation settings for the taxes are done based on shipping address. When the user updates the shipping address in checkout we cannot find a valid one and the API will return a error."/>
+
+            <severity value="CRITICAL"/>
+        </annotations>
+        <before>
+            <createData entity="Simple_US_Customer" stepKey="createCustomer"/>
+
+            <createData entity="_defaultCategory" stepKey="createCategory"/>
+            <createData entity="_defaultProduct" stepKey="createProduct">
+                <field key="price">{{Vertex_34USD_PA_Only_Values.price}}</field>
+                <requiredEntity createDataKey="createCategory"/>
+            </createData>
+
+            <magentoCron stepKey="runCronIndex" groups="index"/>
+
+            <actionGroup ref="AddSimpleProductToCartActionGroup" stepKey="addProductToCart">
+                <argument name="product" value="$$createProduct$$"/>
+            </actionGroup>
+
+            <actionGroup ref="GoToCheckoutFromMinicartActionGroup" stepKey="gotoCheckout"/>
+
+            <actionGroup ref="GuestCheckoutFillShippingNoWaitForPaymentActionGroup" stepKey="fillShippingInformation">
+                <argument name="customerVar" value="Vertex_Customer_BobSaget"/>
+                <argument name="customerAddressVar" value="Vertex_Customer_ChesterPennsylvania_Address"/>
+            </actionGroup>
+
+        </before>
+        <after>
+            <deleteData stepKey="deleteProduct" createDataKey="createProduct"/>
+            <deleteData stepKey="deleteCategory" createDataKey="createCategory"/>
+        </after>
+
+        <actionGroup ref="VertexAddressValidationDefaultErrorOrInvalidSystemMessageActionGroup" stepKey="seeInvalidMessageAndProceed"/>
+
+        <actionGroup ref="ClickPlaceOrderActionGroup" stepKey="placeOrder"/>
+        <waitForPageLoad stepKey="waitSuccess"/>
+    </test>
+</tests>

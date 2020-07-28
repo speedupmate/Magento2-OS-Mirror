@@ -1,0 +1,21 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!--
+ /**
+  * Copyright © Magento, Inc. All rights reserved.
+  * See COPYING.txt for license details.
+  */
+-->
+<actionGroups xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+	xsi:noNamespaceSchemaLocation="urn:magento:mftf:Test/etc/actionGroupSchema.xsd">
+    <actionGroup name="ResetDotmailerAccountData">
+        <amOnPage url="{{AdminDotmailerAccountsPage.url}}" stepKey="navigateToDotmailerAccountPageReset"/>
+        <comment userInput="Resetting API credentials in dotdigital account settings" stepKey="apiCredentialsEnteredComment"/>
+        <waitForPageLoad stepKey="waitForPageLoadReset"/>
+        <conditionalClick stepKey="expandAccountsTabReset" selector="{{AdminDotmailerAccountsSection.accountsFieldsetToggle}}" dependentSelector="{{AdminDotmailerAccountsSection.accountsFieldset}}" visible="false"/>
+        <clearField selector="{{AdminDotmailerAccountsSection.accountsUsernameField}}" stepKey="setApiUserNameReset"/>
+        <clearField selector="{{AdminDotmailerAccountsSection.accountsPasswordField}}" stepKey="setApiPasswordReset"/>
+        <selectOption selector="{{AdminDotmailerAccountsSection.accountsEnabledOption}}" userInput="No" stepKey="setEnabledReset"/>
+        <click selector="{{AdminMainActionsSection.save}}" stepKey="saveConfigReset"/>
+        <waitForPageLoad stepKey="waitForPageLoad2"/>
+    </actionGroup>
+</actionGroups>

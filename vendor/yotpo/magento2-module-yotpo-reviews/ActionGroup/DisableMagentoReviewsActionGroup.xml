@@ -1,0 +1,11 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<actionGroups xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="urn:magento:mftf:Test/etc/actionGroupSchema.xsd">
+    <actionGroup name="DisableMagentoReviews">
+        <waitForPageLoad stepKey="waitForMagentoReviewPageToLoad"/>
+        <amOnPage url="admin/admin/system_config/edit/section/catalog/" stepKey="navigateToMagentoReviewConfiguration"/>
+        <selectOption userInput="0" selector="{{AdminMagentoReviewConfigurationSection.ReviewEnabled}}" stepKey="EnableMagentoReviews"/>
+        <click stepKey="ClickOnSaveConfig" selector="{{AdminMagentoReviewConfigurationSection.SaveConfiguration}}"/>
+        <waitForPageLoad stepKey="waitForSaveConfig"/>
+        <seeElement selector="{{AdminMagentoReviewConfigurationSection.SavedConfiguration}}" stepKey="checkConfigurationSaved"/>
+    </actionGroup>
+</actionGroups>

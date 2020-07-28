@@ -1,0 +1,14 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<actionGroups xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+              xsi:noNamespaceSchemaLocation="urn:magento:mftf:Test/etc/actionGroupSchema.xsd">
+    <actionGroup name="VertexAdminSellerConfigurationOpenActionGroup">
+        <conditionalClick selector="{{AdminVertexSettingsConfigSection.vertexHeader}}"
+                          dependentSelector="{{AdminVertexSellerSettingsConfigSection.vertexCompanyInformationHeader}}"
+                          visible="false"
+                          stepKey="openVertexSection"/>
+        <conditionalClick selector="{{AdminVertexSellerSettingsConfigSection.vertexCompanyInformationHeader}}"
+                          dependentSelector="{{AdminVertexSellerSettingsConfigSection.companyCode}}"
+                          visible="false"
+                          stepKey="openVertexSellerConfiguration"/>
+    </actionGroup>
+</actionGroups>

@@ -1,0 +1,27 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!--
+ /**
+  * @copyright  Vertex. All rights reserved.  https://www.vertexinc.com/
+  * @author     Mediotype                     https://www.mediotype.com/
+  */
+-->
+<actionGroups xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+              xsi:noNamespaceSchemaLocation="urn:magento:mftf:Test/etc/actionGroupSchema.xsd">
+    <actionGroup name="VertexAddressValidationDefaultErrorOrInvalidMessageRegisteredActionGroup">
+        <conditionalClick selector="{{CheckoutPaymentSection.update}}"
+                          dependentSelector="{{CheckoutShippingSection.addressMessageWarning}}"
+                          visible="false"
+                          stepKey="clickOnUpdateButtonBeforeValidation"/>
+
+        <waitForAjaxLoad stepKey="waitForApiResponseLoad"/>
+        <waitForLoadingMaskToDisappear stepKey="waitForLoadingMask"/>
+        <see stepKey="warningMessage"
+             selector="{{CheckoutShippingSection.addressMessageWarning}}"
+             userInput="We did not find a valid address"/>
+
+        <conditionalClick selector="{{CheckoutPaymentSection.update}}"
+                          dependentSelector="{{CheckoutShippingSection.addressMessageWarning}}"
+                          visible="true"
+                          stepKey="clickOnUpdateButtonAfterValidation"/>
+    </actionGroup>
+</actionGroups>

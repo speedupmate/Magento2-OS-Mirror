@@ -1,0 +1,24 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!--
+ /**
+  * @copyright  Vertex. All rights reserved.  https://www.vertexinc.com/
+  * @author     Mediotype                     https://www.mediotype.com/
+  */
+-->
+<entities xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+          xsi:noNamespaceSchemaLocation="urn:magento:mftf:DataGenerator/etc/dataProfileSchema.xsd">
+    <entity name="VertexProductTaxClass_Clothing" type="taxClass">
+        <!-- Name used by external system -->
+        <data key="class_name">Clothing</data>
+        <data key="class_type">PRODUCT</data>
+    </entity>
+    <entity name="VertexProductTaxClass" type="custom_attribute">
+        <data key="attribute_code">tax_class_id</data>
+        <var key="value" entityType="taxClass" entityKey="return">2</var>
+    </entity>
+    <entity name="VertexCustomerClass_GvtK" type="taxClass">
+        <!-- Name used by external system -->
+        <data key="class_name">GvtK</data>
+        <data key="class_type">CUSTOMER</data>
+    </entity>
+</entities>

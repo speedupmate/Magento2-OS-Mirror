@@ -1,0 +1,26 @@
+<?xml version="1.0"?>
+<!--
+/**
+ * This file is part of the Klarna Onsitemessaging module
+ *
+ * (c) Klarna Bank AB (publ)
+ *
+ * For the full copyright and license information, please view the NOTICE
+ * and LICENSE files that were distributed with this source code.
+ */
+-->
+<config xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="urn:magento:module:Magento_Store:etc/config.xsd">
+    <default>
+        <klarna>
+            <osm>
+                <product_placement_select>credit-promotion-small</product_placement_select>
+                <cart_placement_select>top-strip-promotion-standard</cart_placement_select>
+                <theme>default</theme>
+                <data_id></data_id>
+                <product_enabled>1</product_enabled>
+                <cart_enabled>1</cart_enabled>
+                <enabled>0</enabled>
+            </osm>
+        </klarna>
+    </default>
+</config>

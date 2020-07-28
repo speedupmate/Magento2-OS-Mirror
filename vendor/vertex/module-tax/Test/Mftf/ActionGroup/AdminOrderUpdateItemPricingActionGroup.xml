@@ -1,0 +1,11 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<actionGroups xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+              xsi:noNamespaceSchemaLocation="urn:magento:mftf:Test/etc/actionGroupSchema.xsd">
+    <actionGroup name="AdminOrderUpdateItemPricingActionGroup">
+        <!-- Action would sometimes occur too early causing errors.  Not well understood at this time -->
+        <wait time="1" stepKey="waitBeforeUpdateClick"/>
+        <scrollToTopOfPage stepKey="scrollUpToEnsureButtonClicksSuccessfully"/>
+        <click selector="{{OrdersGridSection.update}}" stepKey="updateItemPrices"/>
+        <waitForLoadingMaskToDisappear stepKey="waitForItemUpdateLoadingMask"/>
+    </actionGroup>
+</actionGroups>

@@ -1,0 +1,75 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!--
+ /**
+  * @copyright  Vertex. All rights reserved.  https://www.vertexinc.com/
+  * @author     Mediotype                     https://www.mediotype.com/
+  */
+-->
+<tests xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+       xsi:noNamespaceSchemaLocation="urn:magento:mftf:Test/etc/testSchema.xsd">
+    <test name="AdminVertexInvoiceValidationOnOrderStatusPendingTest">
+        <annotations>
+            <features value="Vertex"/>
+            <group value="Vertex"/>
+            <testCaseId value="VRTX-713"/>
+            <testCaseId value="BUNDLE-959"/>
+
+            <stories value="As a store owner, I must have Vertex invoice sent on the order status change"/>
+            <title value="Validate Vertex invoice sending when order status is pending"/>
+            <description value="Validate that the Vertex invoice is sent when order is created with status pending."/>
+
+            <severity value="MAJOR"/>
+        </annotations>
+        <before>
+            <!-- Create simple product -->
+            <createData entity="_defaultCategory" stepKey="createCategory"/>
+            <createData entity="VertexProductTaxClass_Clothing" stepKey="createTaxClass" />
+            <createData entity="VertexSimpleProduct" stepKey="createSimpleProduct">
+                <field key="price">{{Vertex_19USD_TCSIX_Values.price}}</field>
+                <field key="sku">24-UG01</field>
+                <requiredEntity createDataKey="createCategory"/>
+                <requiredEntity createDataKey="createTaxClass"/>
+            </createData>
+
+            <magentoCron stepKey="runCronIndex" groups="index"/>
+
+            <!-- Create customer -->
+            <createData entity="Vertex_Customer_AlanRobinson" stepKey="createCustomer"/>
+
+            <!-- Vertex configuration -->
+            <actionGroup ref="AdminLoginActionGroup" stepKey="adminLogin"/>
+            <actionGroup ref="VertexTaxConfigOrderStatusPendingActionGroup" stepKey="setupTaxConfigOrderStatusPending"/>
+            <magentoCLI command="cache:clean config" stepKey="cleanConfigCache"/>
+        </before>
+        <after>
+            <deleteData createDataKey="createSimpleProduct" stepKey="deleteSimpleProduct"/>
+            <deleteData createDataKey="createTaxClass" stepKey="deleteTaxClass"/>
+            <deleteData createDataKey="createCategory" stepKey="deleteCategory"/>
+            <deleteData createDataKey="createCustomer" stepKey="deleteCustomer"/>
+            <actionGroup ref="AdminLogoutActionGroup" stepKey="adminLogout"/>
+            <actionGroup ref="VertexTaxDefaultConfigActionGroup" stepKey="revertDefaultConfiguration"/>
+            <magentoCLI stepKey="cleanConfigCache" command="cache:clean config"/>
+        </after>
+
+        <!-- Create new order with customer -->
+        <actionGroup ref="NavigateToNewOrderPageExistingCustomerActionGroup" stepKey="createNewOrderForCustomer">
+            <argument name="customer" value="$$createCustomer$$"/>
+        </actionGroup>
+        <conditionalClick selector="#store_1" dependentSelector="#order-store-selector" visible="true" stepKey="clickOnDefaultStoreViewIfPresent"/>
+        <waitForPageLoad time="30" stepKey="waitForPageLoad"/>
+        <actionGroup ref="AddSimpleProductToOrderActionGroup" stepKey="addSimpleProductToOrder">
+            <argument name="product" value="$$createSimpleProduct$$"/>
+        </actionGroup>
+        <waitForPageLoad time="30" stepKey="waitForPageLoadOrder"/>
+
+        <!-- Select shipping and payment methods -->
+        <actionGroup ref="SelectCheckMoneyPaymentMethodActionGroup" stepKey="selectPayment" />
+        <actionGroup ref="OrderSelectFlatRateShippingActionGroup" stepKey="setShippingMethod"/>
+        <click stepKey="submitOrder" selector="{{AdminOrderFormActionSection.submitOrder}}" />
+
+        <!-- Validate messages -->
+        <waitForPageLoad time="30" stepKey="waitForOrderPlace"/>
+        <actionGroup ref="VertexCheckInvoiceSuccessMessageActionGroup" stepKey="checkSuccessMessage"/>
+        <see stepKey="seeSuccessMessageForOrder" userInput="You created the order."/>
+    </test>
+</tests>

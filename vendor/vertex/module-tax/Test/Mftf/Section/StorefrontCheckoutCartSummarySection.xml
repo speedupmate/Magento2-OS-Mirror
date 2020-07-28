@@ -1,0 +1,24 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!--
+ /**
+  * @copyright  Vertex. All rights reserved.  https://www.vertexinc.com/
+  * @author     Mediotype                     https://www.mediotype.com/
+  */
+-->
+<sections xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+          xsi:noNamespaceSchemaLocation="urn:magento:mftf:Page/etc/SectionObject.xsd">
+    <section name="StorefrontCheckoutCartSummarySection">
+        <element name="subtotalExclTax" type="text" selector="//*[@id='cart-totals']//tr[@class='totals sub excl']//td//span[@class='price']"/>
+        <element name="subtotalInclTax" type="text" selector="//*[@id='cart-totals']//tr[@class='totals sub incl']//td//span[@class='price']"/>
+        <element name="shippingExclTax" type="text" selector="//*[@id='cart-totals']//tr[@class='totals shipping excl']//td//span[@class='price']"/>
+        <element name="shippingInclTax" type="text" selector="//*[@id='cart-totals']//tr[@class='totals shipping incl']//td//span[@class='price']"/>
+        <element name="totalExclTax" type="text" selector="//*[@id='cart-totals']//tr[@class='grand totals excl']//td//span[@class='price']"/>
+        <element name="totalInclTax" type="text" selector="//*[@id='cart-totals']//tr[@class='grand totals incl']//td//span[@class='price']"/>
+
+        <element name="taxRateLabelByName" type="text" selector="//*[@id='cart-totals']//tr[contains(@class,'totals-tax-details')]//th[@class='mark'][contains(text(), '{{var1}} (')]" parameterized="true"/>
+        <element name="taxRateByName" type="text" selector="//*[@id='cart-totals']//tr[contains(@class,'totals-tax-details')]//th[@class='mark'][contains(text(), '{{var1}}')]/following-sibling::td[@class='amount']//span[@class='price']" parameterized="true" />
+
+        <element name="taxAmount" type="text" selector="[data-th='Tax']>span"/>
+        <element name="taxSummary" type="text" selector=".totals-tax-summary"/>
+    </section>
+</sections>

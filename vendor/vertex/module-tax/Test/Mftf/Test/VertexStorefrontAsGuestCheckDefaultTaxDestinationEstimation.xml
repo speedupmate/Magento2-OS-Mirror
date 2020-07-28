@@ -1,0 +1,56 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!--
+ /**
+  * @copyright  Vertex. All rights reserved.  https://www.vertexinc.com/
+  * @author     Mediotype                     https://www.mediotype.com/
+  */
+-->
+<tests xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+       xsi:noNamespaceSchemaLocation="urn:magento:mftf:Test/etc/testSchema.xsd">
+    <test name="VertexStorefrontAsGuestCheckDefaultTaxDestinationEstimation">
+        <annotations>
+            <features value="Vertex Tax"/>
+            <group value="Vertex"/>
+
+            <stories value="As a merchant, I want to show estimated taxes automatically"/>
+            <title value="Show estimated taxes based on default destination configuration"/>
+            <description value="Validate Vertex calculates taxes based on default destination configuration when no address is set"/>
+
+            <severity value="AVERAGE"/>
+        </annotations>
+        <before>
+            <createData entity="VertexTaxConfigDestinationDefault" stepKey="setDefaultTaxDestinationConfig"/>
+            <createData entity="_defaultCategory" stepKey="createCategory"/>
+            <createData entity="_defaultProduct" stepKey="createProduct">
+                <field key="price">{{Vertex_19USD_TCSIX_Values.price}}</field>
+                <requiredEntity createDataKey="createCategory"/>
+            </createData>
+            <actionGroup ref="AddSimpleProductToCartActionGroup" stepKey="addProductToCart">
+                <argument name="product" value="$$createProduct$$"/>
+            </actionGroup>
+            <actionGroup ref="StorefrontOpenCartFromMinicartActionGroup" stepKey="gotoCart"/>
+            <waitForPageLoad stepKey="waitForShippingMethods"/>
+            <checkOption selector="{{CheckoutCartSummarySection.flatRateShippingMethod}}" stepKey="selectFlatRateShipping"/>
+            <waitForPageLoad stepKey="waitForTotals"/>
+        </before>
+        <after>
+            <createData entity="DefaultTaxConfig" stepKey="setDefaultTaxConfig"/>
+            <deleteData createDataKey="createCategory" stepKey="deleteCategory"/>
+            <deleteData createDataKey="createProduct" stepKey="deleteProduct"/>
+        </after>
+
+        <actionGroup ref="VertexCheckTotalsInCartActionGroup" stepKey="checkTotals">
+            <argument name="subtotalExclTax" value="{{Vertex_19USD_TCSIX_Totals.subtotal}}"/>
+            <argument name="subtotalInclTax" value="{{Vertex_19USD_TCSIX_Totals.subtotalInclTax}}"/>
+            <argument name="shippingExclTax" value="{{Vertex_19USD_TCSIX_Totals.shipping}}" />
+            <argument name="shippingInclTax" value="{{Vertex_19USD_TCSIX_Totals.shippingInclTax}}" />
+            <argument name="tax" value="{{Vertex_19USD_TCSIX_Totals.tax}}"/>
+            <argument name="totalExclTax" value="{{Vertex_19USD_TCSIX_Totals.total}}"/>
+            <argument name="totalInclTax" value="{{Vertex_19USD_TCSIX_Totals.totalInclTax}}"/>
+        </actionGroup>
+        <actionGroup ref="VertexCheckProductAndShippingTaxTotalsInCartActionGroup" stepKey="checkTaxSummary">
+            <argument name="product" value="{{Vertex_19USD_TCSIX_Totals.productTax}}"/>
+            <argument name="shipping" value="{{Vertex_19USD_TCSIX_Totals.shippingTax}}"/>
+        </actionGroup>
+    </test>
+</tests>

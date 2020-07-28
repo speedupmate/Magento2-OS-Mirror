@@ -1,0 +1,84 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!--
+ /**
+  * @copyright  Vertex. All rights reserved.  https://www.vertexinc.com/
+  * @author     Mediotype                     https://www.mediotype.com/
+  */
+-->
+<tests xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+       xsi:noNamespaceSchemaLocation="urn:magento:mftf:Test/etc/testSchema.xsd">
+    <test name="VertexAsGuestWithBillAddressValidationTaxBasedOnShippingAddressValidTest">
+        <annotations>
+            <features value="Vertex"/>
+            <group value="VertexAddressValidation"/>
+            <testCaseId value="VRTX-668"/>
+
+            <stories value="As a store owner, I must be able to validate the guest billing address in checkout"/>
+            <title value="Validate address when not same as shipping in checkout for quest customer with the tax calculation based on shipping address. We have a valid address and we will show the valid message"/>
+            <description value="Validate the guest customer address and suggest changes. The calculation settings for the taxes are done based on shipping address. When the user updates the billing address in checkout we diplay a message that tells the user the address is valid."/>
+
+            <severity value="CRITICAL"/>
+        </annotations>
+        <before>
+            <createData entity="Simple_US_Customer" stepKey="createCustomer"/>
+
+            <createData entity="_defaultCategory" stepKey="createCategory"/>
+            <createData entity="_defaultProduct" stepKey="createProduct">
+                <field key="price">{{Vertex_34USD_PA_Only_Values.price}}</field>
+                <requiredEntity createDataKey="createCategory"/>
+            </createData>
+
+            <magentoCron stepKey="runCronIndex" groups="index"/>
+
+            <actionGroup ref="AddSimpleProductToCartActionGroup" stepKey="addProductToCart">
+                <argument name="product" value="$$createProduct$$"/>
+            </actionGroup>
+
+            <actionGroup ref="GoToCheckoutFromMinicartActionGroup" stepKey="gotoCheckout"/>
+
+            <actionGroup ref="GuestCheckoutFillShippingNoWaitForPaymentActionGroup" stepKey="fillShippingInformation">
+                <argument name="customerVar" value="Vertex_Customer_BobSaget"/>
+                <argument name="customerAddressVar" value="Vertex_Customer_BirminghamAlabama_Address"/>
+            </actionGroup>
+
+            <actionGroup ref="VertexAddressValidationUpdatedToValidSystemMessageActionGroup" stepKey="messageWasUpdated">
+                <argument name="postCode" value="{{Vertex_Customer_BirminghamAlabama_Address.valid_postcode}}"/>
+            </actionGroup>
+
+            <conditionalClick selector="{{StorefrontCheckoutPaymentMethodSection.billingAddressSameAsShipping}}"
+                              dependentSelector="{{CheckoutShippingSection.editAddressButton}}"
+                              visible="true"
+                              stepKey="checkBillingAddressSameAsShippingIfAddressEdit"/>
+
+            <uncheckOption selector="{{StorefrontCheckoutPaymentMethodSection.billingAddressSameAsShipping}}"
+                           stepKey="uncheckBillingAddressSameAsShippingCheckCheckBox"/>
+
+            <actionGroup ref="StorefrontCheckoutFillNewBillingAddressActionGroup" stepKey="changeAddress">
+                <argument name="customerVar" value="Vertex_Customer_BobSaget"/>
+                <argument name="customerAddressVar" value="Vertex_Customer_PhiladelphiaPennsylvania_Address"/>
+            </actionGroup>
+
+            <click selector="{{CheckoutPaymentSection.update}}" stepKey="clickOnUpdateButton"/>
+
+            <actionGroup ref="VertexAddressValidationDefaultMessageActionGroup"
+                         stepKey="seeValidationMessage"/>
+
+        </before>
+        <after>
+            <deleteData stepKey="deleteProduct" createDataKey="createProduct"/>
+            <deleteData stepKey="deleteCategory" createDataKey="createCategory"/>
+        </after>
+
+        <see stepKey="successMessage"
+             selector="{{CheckoutShippingSection.addressMessageWasValid}}"
+             userInput="The address is valid"/>
+
+        <conditionalClick selector="{{CheckoutPaymentSection.update}}"
+                          dependentSelector="{{CheckoutShippingSection.addressMessageWasValid}}"
+                          visible="true"
+                          stepKey="clickOnUpdateButtonAfterValidation"/>
+
+        <actionGroup ref="ClickPlaceOrderActionGroup" stepKey="placeOrder"/>
+        <waitForPageLoad stepKey="waitSuccess"/>
+    </test>
+</tests>

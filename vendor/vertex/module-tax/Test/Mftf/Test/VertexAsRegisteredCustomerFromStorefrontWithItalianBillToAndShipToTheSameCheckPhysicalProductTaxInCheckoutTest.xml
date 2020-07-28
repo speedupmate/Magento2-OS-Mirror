@@ -1,0 +1,77 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!--
+ /**
+  * @copyright  Vertex. All rights reserved.  https://www.vertexinc.com/
+  * @author     Mediotype                     https://www.mediotype.com/
+  */
+-->
+<tests xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+       xsi:noNamespaceSchemaLocation="urn:magento:mftf:Test/etc/testSchema.xsd">
+    <test name="VertexAsRegisteredCustomerFromStorefrontWithItalianBillToAndShipToTheSameCheckPhysicalProductTaxInCheckoutTest">
+        <annotations>
+            <features value="Vertex"/>
+            <group value="Vertex"/>
+
+            <stories value="As a store owner, I must have accurate taxes calculated for a registered customer"/>
+            <title value="Validate Taxes in Checkout, Registered Customer, Physical Product, Bill-To=Ship-To, VAT Italy"/>
+            <description value="Validate that a registered customer with a bill-to and a ship-to address that are the same and are in Italy with a cart containing a bundle product receives taxes during checkout"/>
+
+            <severity value="CRITICAL"/>
+        </annotations>
+        <before>
+            <actionGroup ref="VertexCreateGroupedProductActionGroup" stepKey="createGroupedProduct">
+                <argument name="basePrice" value="{{Vertex_Grouped_Product_Values.price}}"/>
+                <argument name="firstPrice" value="{{Vertex_Grouped_First_Values.price}}"/>
+                <argument name="secondPrice" value="{{Vertex_Grouped_Second_Values.price}}"/>
+                <argument name="thirdPrice" value="{{Vertex_Grouped_Third_Values.price}}"/>
+            </actionGroup>
+
+            <createData entity="Vertex_Customer_CateDeMedici" stepKey="createCustomer"/>
+        </before>
+        <after>
+            <deleteData stepKey="deleteFirst" createDataKey="createFirstCreateGroupedProduct"/>
+            <deleteData stepKey="deleteSecond" createDataKey="createSecondCreateGroupedProduct"/>
+            <deleteData stepKey="deleteThird" createDataKey="createThirdCreateGroupedProduct"/>
+            <deleteData stepKey="deleteGroup" createDataKey="createGroupCreateGroupedProduct"/>
+            <deleteData stepKey="deleteCategory" createDataKey="createCategoryCreateGroupedProduct"/>
+            <actionGroup ref="StorefrontCustomerLogoutActionGroup" stepKey="customerLogout"/>
+        </after>
+
+        <actionGroup ref="LoginToStorefrontActionGroup" stepKey="customerLogin">
+            <argument name="Customer" value="$$createCustomer$$"/>
+        </actionGroup>
+
+        <actionGroup ref="VertexAddGroupedProductToCartActionGroup" stepKey="addToCart">
+            <argument name="catalogProduct" value="$$createGroupCreateGroupedProduct$$"/>
+            <argument name="firstProduct" value="$$createFirstCreateGroupedProduct$$"/>
+            <argument name="secondProduct" value="$$createSecondCreateGroupedProduct$$"/>
+            <argument name="thirdProduct" value="$$createThirdCreateGroupedProduct$$"/>
+            <argument name="firstQty" value="1"/>
+            <argument name="secondQty" value="1"/>
+            <argument name="thirdQty" value="1"/>
+        </actionGroup>
+
+        <actionGroup ref="GoToCheckoutFromMinicartActionGroup" stepKey="gotoCheckout"/>
+
+        <actionGroup ref="CheckoutSelectFlatRateShippingMethodActionGroup" stepKey="selectShippingMethod"/>
+
+        <waitForElement selector="{{CheckoutShippingSection.next}}" stepKey="waitForNextButton"/>
+        <click selector="{{CheckoutShippingSection.next}}" stepKey="clickNext"/>
+
+        <waitForElement selector="{{CheckoutPaymentSection.paymentSectionTitle}}" stepKey="waitForPaymentSectionLoaded"/>
+        <seeInCurrentUrl url="{{CheckoutPage.url}}/#payment" stepKey="assertCheckoutPaymentUrl"/>
+        <actionGroup ref="VertexCheckTotalsInCheckoutActionGroup" stepKey="checkTotals">
+            <argument name="subtotalExclTax" value="{{Vertex_Grouped_Product_Totals.subtotal}}"/>
+            <argument name="subtotalInclTax" value="{{Vertex_Grouped_Product_Totals.subtotalInclTax}}"/>
+            <argument name="shippingExclTax" value="{{Vertex_Grouped_Product_Totals.shipping}}"/>
+            <argument name="shippingInclTax" value="{{Vertex_Grouped_Product_Totals.shippingInclTax}}"/>
+            <argument name="tax" value="{{Vertex_Grouped_Product_Totals.tax}}"/>
+            <argument name="totalExclTax" value="{{Vertex_Grouped_Product_Totals.total}}"/>
+            <argument name="totalInclTax" value="{{Vertex_Grouped_Product_Totals.totalInclTax}}"/>
+        </actionGroup>
+        <actionGroup ref="VertexCheckProductAndShippingTaxTotalsInCheckoutActionGroup" stepKey="checkTaxSummary">
+            <argument name="product" value="{{Vertex_Grouped_Product_Totals.productTax}}"/>
+            <argument name="shipping" value="{{Vertex_Grouped_Product_Totals.shippingTax}}"/>
+        </actionGroup>
+    </test>
+</tests>

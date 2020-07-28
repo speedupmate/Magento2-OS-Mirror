@@ -1,0 +1,475 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!--
+  @copyright  Vertex. All rights reserved.  https://www.vertexinc.com/
+  @author     Mediotype                     https://www.mediotype.com/
+  -->
+<config xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="urn:magento:module:Magento_Config:etc/system_file.xsd">
+    <system>
+        <section id="tax" translate="label">
+            <group id="vertex" translate="label" sortOrder="1" showInDefault="1" showInWebsite="1" showInStore="1" extends="">
+                <label>Vertex Settings</label>
+                <attribute type="expanded">1</attribute>
+                <group id="info" translate="label" sortOrder="10" showInDefault="1" showInWebsite="1" showInStore="1">
+                    <label>Streamline, automate and standardize taxability and calculation on every sales and purchase transaction</label>
+                    <frontend_model>Vertex\Tax\Block\Adminhtml\Config\Form\Fieldset\Info</frontend_model>
+                    <attribute type="expanded">1</attribute>
+                    <comment><![CDATA[
+                    <h2>Automated Tax Calculation</h2>
+                    <p>No more manual calculations. Automate and standardize taxability and calculation on every sales and purchase transaction on every product in every jurisdiction.</p>
+                    <h2>Most Up-to-Date Taxability</h2>
+                    <p>Ensure every transaction applies the most accurate tax rules, rates, and exceptions automatically. Our tax research ensures your business stays in compliance.</p>
+                    <h2>Multiple Deployment Options</h2>
+                    <p>Choose the technology that suits your needs. Cloud (single-tenant and multi-tenant) and on-premise solutions both offer reliable taxation and ease of use.</p>
+                    <h2>Generate Signature-Ready Returns</h2>
+                    <p>User-friendly technology automatically populates signature-ready returns.</p>
+                    ]]></comment>
+                    <more_url>https://go.vertexinc.com/magento_cbe</more_url>
+                </group>
+                <group id="connection" translate="label" sortOrder="20" showInDefault="1" showInWebsite="1" showInStore="0">
+                    <label>Connection Settings</label>
+                    <field id="enable_vertex" translate="label" type="select" sortOrder="10" showInDefault="1" showInWebsite="1" showInStore="0">
+                        <label>Vertex Tax Links</label>
+                        <source_model>Magento\Config\Model\Config\Source\Enabledisable</source_model>
+                        <comment><![CDATA[Utilize the Vertex Tax Links connector]]></comment>
+                        <config_path>tax/vertex_settings/enable_vertex</config_path>
+                    </field>
+                    <field id="vertex_status" translate="label" type="text" sortOrder="20" showInDefault="1" showInWebsite="1" showInStore="0">
+                        <label>API Status</label>
+                        <frontend_model>Vertex\Tax\Block\Adminhtml\Config\Form\Field\VertexStatus</frontend_model>
+                        <comment><![CDATA[API credentials status]]></comment>
+                        <config_path>tax/vertex_settings/api_url</config_path>
+                        <depends>
+                            <field id="enable_vertex">1</field>
+                        </depends>
+                    </field>
+                    <field id="api_url" translate="label" type="text" sortOrder="30" showInDefault="1" showInWebsite="1" showInStore="0" canRestore="1">
+                        <label>Calculation API URL</label>
+                        <validate>required-entry</validate>
+                        <config_path>tax/vertex_settings/api_url</config_path>
+                        <depends>
+                            <field id="enable_vertex">1</field>
+                        </depends>
+                    </field>
+                    <field id="address_api_url" translate="label" type="text" sortOrder="40" showInDefault="1" showInWebsite="1" showInStore="0" canRestore="1">
+                        <label>Address Validation API URL</label>
+                        <validate>required-entry</validate>
+                        <config_path>tax/vertex_settings/address_api_url</config_path>
+                        <depends>
+                            <field id="enable_vertex">1</field>
+                        </depends>
+                    </field>
+                    <field id="trusted_id" translate="label" type="text" sortOrder="50" showInDefault="1" showInWebsite="1" showInStore="0">
+                        <label>Trusted ID</label>
+                        <validate>required-entry validate-length maximum-length-16 minimum-length-6</validate>
+                        <backend_model>Magento\Config\Model\Config\Backend\Encrypted</backend_model>
+                        <comment><![CDATA[An identifier supplied by an ERP.]]></comment>
+                        <config_path>tax/vertex_settings/trustedId</config_path>
+                        <depends>
+                            <field id="enable_vertex">1</field>
+                        </depends>
+                    </field>
+                </group>
+                <group id="integration" translate="label" sortOrder="30" showInDefault="1" showInWebsite="1" showInStore="0">
+                    <label>Integration Settings</label>
+                    <depends>
+                        <field id="tax/vertex/connection/enable_vertex">1</field>
+                    </depends>
+                    <field id="use_for_calculation" translate="label" type="select" sortOrder="10" showInDefault="1" showInWebsite="1" showInStore="0">
+                        <label>Vertex Tax Calculation</label>
+                        <source_model>Magento\Config\Model\Config\Source\Enabledisable</source_model>
+                        <config_path>tax/vertex_settings/use_for_calculation</config_path>
+                    </field>
+                    <field id="invoice_order" translate="label" type="select" sortOrder="20" showInDefault="1" showInWebsite="1" showInStore="0" canRestore="1">
+                        <label>Commit To Tax Journal When</label>
+                        <source_model>Vertex\Tax\Model\Config\Source\TaxInvoice</source_model>
+                        <comment><![CDATA[Please select when tax should be invoiced to Vertex]]></comment>
+                        <config_path>tax/vertex_settings/invoice_order</config_path>
+                    </field>
+                    <field id="invoice_order_status" translate="label" type="select" sortOrder="30" showInDefault="1" showInWebsite="1" showInStore="0">
+                        <validate>required-entry</validate>
+                        <label>Invoice When Order Status Is</label>
+                        <source_model>Vertex\Tax\Model\Config\Source\OrderStatus</source_model>
+                        <frontend_model>Vertex\Tax\Block\Adminhtml\Config\Form\Field\OrderStatus</frontend_model>
+                        <comment><![CDATA[Please select order status]]></comment>
+                        <config_path>tax/vertex_settings/invoice_order_status</config_path>
+                        <depends>
+                            <field id="tax/vertex/connection/enable_vertex">1</field>
+                            <field id="invoice_order"><![CDATA[order_status]]></field>
+                        </depends>
+                    </field>
+                    <field id="allowed_countries" translate="label comment" type="multiselect" sortOrder="40" showInDefault="1" showInWebsite="1" showInStore="0" canRestore="1">
+                        <label>Allowed Countries</label>
+                        <comment>Countries from which orders should be processed through Vertex. Use the shipping country, or if none the billing country.</comment>
+                        <frontend_model>Vertex\Tax\Block\Adminhtml\Config\Form\Field\AllowedCountries</frontend_model>
+                        <source_model>Vertex\Tax\Model\Config\Source\AllowedCountries</source_model>
+                        <config_path>tax/vertex_settings/allowed_countries</config_path>
+                    </field>
+                    <field id="summarize_tax" translate="label comment" type="select" sortOrder="50" showInDefault="1" showInWebsite="1" showInStore="0" canRestore="1">
+                        <label>Summarize Tax By</label>
+                        <source_model>Vertex\Tax\Model\Config\Source\SummarizeTax</source_model>
+                        <comment><![CDATA[Please select how Tax should be summarized]]></comment>
+                        <config_path>tax/vertex_settings/summarize_tax</config_path>
+                    </field>
+                </group>
+                <group id="flexfields" translate="label comment" sortOrder="40" showInDefault="1" showInWebsite="1" showInStore="0">
+                    <label>Flexible Fields</label>
+                    <comment>Use optional Flexible Fields to identify taxability decisions based on Magento information beyond the standard customer and product taxability drivers defined by Vertex.</comment>
+                    <depends>
+                        <field id="tax/vertex/connection/enable_vertex">1</field>
+                    </depends>
+                    <group id="code_group" translate="label" sortOrder="10" showInDefault="1" showInWebsite="1" showInStore="0">
+                        <label>Code Fields</label>
+                        <fieldset_css>vertex__flexfield-type-group</fieldset_css>
+                        <comment>Flexible Code fields are alphanumeric string values with a maximum length of 40 characters. Strings that exceed the size limit will be truncated. You can create no more than 25 flexible code fields.</comment>
+                        <frontend_model>Vertex\Tax\Block\Adminhtml\Config\Form\Field\FieldsetWithComment</frontend_model>
+                        <field id="list" translate="comment" sortOrder="10" showInDefault="1" showInWebsite="1" showInStore="0">
+                            <label><![CDATA[]]></label>
+                            <frontend_model>Vertex\Tax\Block\Adminhtml\Config\Form\Field\FlexibleCodeFields</frontend_model>
+                            <backend_model>Vertex\Tax\Model\Config\Backend\FlexibleCodeFields</backend_model>
+                            <config_path>tax/vertex_flexfields/code</config_path>
+                        </field>
+                    </group>
+                    <group id="numeric_group" translate="label" sortOrder="20" showInDefault="1" showInWebsite="1" showInStore="0">
+                        <label>Numeric Fields</label>
+                        <fieldset_css>vertex__flexfield-type-group</fieldset_css>
+                        <comment>Flexible Numeric fields accept numeric values for data, such as durations and weights, including floating decimal points. You can create no more than 10 flexible numeric fields.</comment>
+                        <frontend_model>Vertex\Tax\Block\Adminhtml\Config\Form\Field\FieldsetWithComment</frontend_model>
+                        <field id="list" translate="comment" sortOrder="10" showInDefault="1" showInWebsite="1" showInStore="0">
+                            <label><![CDATA[]]></label>
+                            <frontend_model>Vertex\Tax\Block\Adminhtml\Config\Form\Field\FlexibleNumericFields</frontend_model>
+                            <backend_model>Vertex\Tax\Model\Config\Backend\FlexibleNumericFields</backend_model>
+                            <config_path>tax/vertex_flexfields/numeric</config_path>
+                        </field>
+                    </group>
+                    <group id="date_group" translate="label" sortOrder="30" showInDefault="1" showInWebsite="1" showInStore="0">
+                        <label>Date Fields</label>
+                        <fieldset_css>vertex__flexfield-type-group</fieldset_css>
+                        <comment>Flexible Date fields accept dates in the format YYYY/MM/DD. You can create no more than 5 flexible date fields.</comment>
+                        <frontend_model>Vertex\Tax\Block\Adminhtml\Config\Form\Field\FieldsetWithComment</frontend_model>
+                        <field id="list" translate="comment" sortOrder="10" showInDefault="1" showInWebsite="1" showInStore="0">
+                            <label><![CDATA[]]></label>
+                            <frontend_model>Vertex\Tax\Block\Adminhtml\Config\Form\Field\FlexibleDateFields</frontend_model>
+                            <backend_model>Vertex\Tax\Model\Config\Backend\FlexibleDateFields</backend_model>
+                            <config_path>tax/vertex_flexfields/date</config_path>
+                        </field>
+                    </group>
+                </group>
+                <group id="delivery_terms" translate="label comment" sortOrder="50" showInDefault="1" showInWebsite="1" showInStore="0">
+                    <label>Delivery Terms</label>
+                    <depends>
+                        <field id="tax/vertex/connection/enable_vertex">1</field>
+                    </depends>
+                    <field id="default_term" translate="label" type="select" sortOrder="10" showInDefault="1" showInWebsite="1" canRestore="1">
+                        <label>Global Delivery Term</label>
+                        <validate>required-entry</validate>
+                        <source_model>Vertex\Tax\Model\Config\Source\DeliveryTerm</source_model>
+                        <comment><![CDATA[Delivery Term used by default]]></comment>
+                        <config_path>tax/vertex_delivery_terms/default_term</config_path>
+                    </field>
+                    <field id="override" translate="label comment" type="select" sortOrder="20" showInDefault="1" showInWebsite="1">
+                        <label>Delivery Term Override</label>
+                        <validate>required-entry</validate>
+                        <frontend_model>Vertex\Tax\Block\Adminhtml\Config\Form\Field\TaxOverride</frontend_model>
+                        <backend_model>Vertex\Tax\Model\Config\Backend\TaxOverride</backend_model>
+                        <comment><![CDATA[Override the Global Delivery Term based on the country being shipped to]]></comment>
+                        <config_path>tax/vertex_delivery_terms/override</config_path>
+                    </field>
+                </group>
+                <group id="seller_info" translate="label" sortOrder="60" showInDefault="1" showInWebsite="1" showInStore="1">
+                    <label>Seller Details</label>
+                    <depends>
+                        <field id="tax/vertex/connection/enable_vertex">1</field>
+                    </depends>
+                    <field id="company" translate="label comment" type="text" sortOrder="10" showInDefault="1" showInWebsite="1" showInStore="1">
+                        <label>Company Code</label>
+                        <validate>validate-length maximum-length-40</validate>
+                        <comment><![CDATA[The Vertex TaxCentral user interface is used to set up any taxability rules that apply at this level.
+                    This should be a parameter that is configurable to data from the host system based on an individual company's legal and tax requirements.]]></comment>
+                        <config_path>tax/vertex_seller_info/company</config_path>
+                    </field>
+                    <field id="location_code" translate="label comment" type="text" sortOrder="20" showInDefault="1" showInWebsite="1" showInStore="1">
+                        <label>Location Code</label>
+                        <validate>validate-length maximum-length-40</validate>
+                        <comment><![CDATA[The locationCode attribute on the line item represents the store location code that is used for returns filing]]></comment>
+                        <config_path>tax/vertex_seller_info/location_code</config_path>
+                    </field>
+                    <field id="shipping_origin_source" translate="label comment" type="select" sortOrder="25" showInDefault="1" showInWebsite="1" showInStore="1">
+                        <label>Use Shipping Origin as Source</label>
+                        <config_path>tax/vertex_seller_info/shipping_origin_source</config_path>
+                        <source_model>Magento\Config\Model\Config\Source\Yesno</source_model>
+                        <comment><![CDATA[Use the address information defined in Sales &gt; Shipping &gt; Origin.  Selecting No allows you to configure the Vertex Seller address separately from the shipping origin.]]></comment>
+                    </field>
+                    <field id="street_address_1" translate="label comment" type="text" sortOrder="30" showInDefault="1" showInWebsite="1" showInStore="1">
+                        <label>Street Address</label>
+                        <validate>validate-length maximum-length-100</validate>
+                        <comment><![CDATA[The first line of the street address.]]></comment>
+                        <config_path>tax/vertex_seller_info/streetAddress1</config_path>
+                        <depends>
+                            <field id="shipping_origin_source">0</field>
+                        </depends>
+                    </field>
+                    <field id="street_address_2" translate="label comment" type="text" sortOrder="40" showInDefault="1" showInWebsite="1" showInStore="1">
+                        <label>Street Address 2</label>
+                        <validate>validate-length maximum-length-100</validate>
+                        <comment><![CDATA[The first second of the street address.]]></comment>
+                        <config_path>tax/vertex_seller_info/streetAddress2</config_path>
+                        <depends>
+                            <field id="shipping_origin_source">0</field>
+                        </depends>
+                    </field>
+                    <field id="city" translate="label comment" type="text" sortOrder="50" showInDefault="1" showInWebsite="1" showInStore="1">
+                        <label>City</label>
+                        <validate>validate-length maximum-length-60</validate>
+                        <comment><![CDATA[The proper name of the city used to determine Tax Jurisdiction(s)]]></comment>
+                        <config_path>tax/vertex_seller_info/city</config_path>
+                        <depends>
+                            <field id="shipping_origin_source">0</field>
+                        </depends>
+                    </field>
+                    <field id="country_id" translate="label comment" type="select" sortOrder="60" showInDefault="1" showInWebsite="1" showInStore="1">
+                        <label>Country</label>
+                        <frontend_class>countries</frontend_class>
+                        <source_model>Magento\Directory\Model\Config\Source\Country</source_model>
+                        <comment><![CDATA[The country used to determine the Tax Jurisdiction(s)]]></comment>
+                        <config_path>tax/vertex_seller_info/country_id</config_path>
+                        <depends>
+                            <field id="shipping_origin_source">0</field>
+                        </depends>
+                    </field>
+                    <field id="region_id" translate="label comment" type="select" sortOrder="70" showInDefault="1" showInWebsite="1" showInStore="1">
+                        <label>State</label>
+                        <validate>validate-length maximum-length-60</validate>
+                        <comment><![CDATA[The proper name or the postal abbreviation of the state, province, or territory used to determine Tax Jurisdiction(s)]]></comment>
+                        <source_model>Magento\Directory\Model\Config\Source\Allregion</source_model>
+                        <config_path>tax/vertex_seller_info/region_id</config_path>
+                        <depends>
+                            <field id="shipping_origin_source">0</field>
+                        </depends>
+                    </field>
+                    <field id="postal_code" translate="label comment" type="text" sortOrder="80" showInDefault="1" showInWebsite="1" showInStore="1">
+                        <label>Postal Code</label>
+                        <validate>validate-length maximum-length-15</validate>
+                        <comment><![CDATA[The postal code used to determine Tax Jurisdiction(s)]]></comment>
+                        <config_path>tax/vertex_seller_info/postalCode</config_path>
+                        <depends>
+                            <field id="shipping_origin_source">0</field>
+                        </depends>
+                    </field>
+                </group>
+                <group id="logging" translate="label" sortOrder="70" showInDefault="1" showInWebsite="1" showInStore="0">
+                    <label>Logging</label>
+                    <depends>
+                        <field id="tax/vertex/connection/enable_vertex">1</field>
+                    </depends>
+                    <field id="enable_logging" translate="label comment" type="select" sortOrder="10" showInDefault="1"
+                           showInWebsite="1" showInStore="0" canRestore="1">
+                        <label>Vertex Request Logging</label>
+                        <source_model>Magento\Config\Model\Config\Source\Enabledisable</source_model>
+                        <comment><![CDATA[When enabled, all API requests are tracked.]]></comment>
+                        <config_path>tax/vertex_logging/enable_logging</config_path>
+                    </field>
+                    <field id="enable_rotation" translate="label comment" type="select" sortOrder="20" showInDefault="1"
+                           showInWebsite="0" showInStore="0" canRestore="1">
+                        <label>Log Rotation</label>
+                        <source_model>Magento\Config\Model\Config\Source\Enabledisable</source_model>
+                        <comment><![CDATA[Perform an action on logs over a certain age at a regular interval]]></comment>
+                        <config_path>tax/vertex_logging/enable_rotation</config_path>
+                    </field>
+                    <field id="rotation_action" translate="label comment" type="select" sortOrder="30" showInDefault="1"
+                           showInWebsite="0" showInStore="0">
+                        <label>Rotation Action</label>
+                        <validate>required-entry</validate>
+                        <source_model>Vertex\Tax\Model\Config\Source\RotationAction</source_model>
+                        <comment><![CDATA[When exported, entries are stored at <strong>var/vertexlog_Y-m-d.csv</strong>]]></comment>
+                        <config_path>tax/vertex_logging/rotation_action</config_path>
+                        <depends>
+                            <field id="enable_rotation">1</field>
+                        </depends>
+                    </field>
+                    <field id="entry_lifetime" translate="label comment" type="text" sortOrder="40" showInDefault="1"
+                           showInWebsite="0" showInStore="0">
+                        <label>Log Entry Lifetime (days)</label>
+                        <validate>required-entry</validate>
+                        <config_path>tax/vertex_logging/entry_lifetime</config_path>
+                        <comment><![CDATA[How long a log should exist before it is eligible to be rotated. A value of 0 will mark all logs as eligible]]></comment>
+                        <depends>
+                            <field id="enable_rotation">1</field>
+                        </depends>
+                    </field>
+                    <field id="rotation_frequency" translate="label comment" type="select" sortOrder="50" showInDefault="1"
+                           showInWebsite="0" showInStore="0">
+                        <label>Rotation Frequency</label>
+                        <validate>required-entry</validate>
+                        <source_model>Magento\Cron\Model\Config\Source\Frequency</source_model>
+                        <backend_model>Vertex\Tax\Model\Config\Backend\LogFrequency</backend_model>
+                        <comment><![CDATA[How often the Rotation Action should be applied to the logs]]></comment>
+                        <config_path>tax/vertex_logging/rotation_frequency</config_path>
+                        <depends>
+                            <field id="enable_rotation">1</field>
+                        </depends>
+                    </field>
+                    <field id="rotation_runtime" translate="label" type="time" sortOrder="60" showInDefault="1"
+                           showInWebsite="0" showInStore="0">
+                        <label>Rotation Time</label>
+                        <backend_model>Vertex\Tax\Model\Config\Backend\LogFrequency</backend_model>
+                        <comment><![CDATA[The time of day the Rotation Action should occur. (hour, minute, second)]]></comment>
+                        <config_path>tax/vertex_logging/rotation_runtime</config_path>
+                        <depends>
+                            <field id="enable_rotation">1</field>
+                        </depends>
+                    </field>
+                </group>
+                <group id="advanced" translate="label" sortOrder="80" showInDefault="1" showInWebsite="1" showInStore="1">
+                    <label><![CDATA[Developer &amp; Support Information]]></label>
+                    <depends>
+                        <field id="tax/vertex/connection/enable_vertex">1</field>
+                    </depends>
+                    <field id="version" translate="label" type="text" sortOrder="10" showInDefault="1" showInWebsite="1" showInStore="1">
+                        <label>Connector Version</label>
+                        <frontend_model>Vertex\Tax\Block\Adminhtml\Config\Form\Field\Version</frontend_model>
+                    </field>
+                    <field id="shipping_codes" translate="label" type="text" sortOrder="20" showInDefault="1" showInWebsite="1" showInStore="0">
+                        <label>Shipping Product Codes</label>
+                        <frontend_model>Vertex\Tax\Block\Adminhtml\Config\Form\Field\ShippingCodes</frontend_model>
+                        <comment><![CDATA[<p class="message message-notification">List of shipping methods available for mapping in Vertex</p>]]></comment>
+                    </field>
+                </group>
+            </group>
+            <group id="classes">
+                <comment><![CDATA[<p class="message message-notification">You can manage customer and product tax classes at Stores->Tax Rules->Add New Tax Rule->Additional Settings</p>]]></comment>
+                <field id="shipping_tax_class" showInWebsite="1" sortOrder="10" showInStore="1"/>
+                <field id="default_customer_code" translate="label" type="text" sortOrder="40" showInDefault="1" showInWebsite="1" showInStore="1" canRestore="1">
+                    <depends>
+                        <field id="tax/vertex/connection/enable_vertex">1</field>
+                    </depends>
+                    <label>Default Customer Code</label>
+                    <validate>required-entry</validate>
+                    <comment><![CDATA[Customer code which will be used for unregistered users and for customers without customer code value]]></comment>
+                </field>
+
+                <field id="creditmemo_adjustment_class" translate="label" type="select" sortOrder="50" showInDefault="1" showInWebsite="1" showInStore="1">
+                    <depends>
+                        <field id="tax/vertex/connection/enable_vertex">1</field>
+                    </depends>
+                    <label>Refund Adjustments Class</label>
+                    <validate>required-entry</validate>
+                    <source_model>Magento\Tax\Model\TaxClass\Source\Product</source_model>
+                    <comment><![CDATA[Class which will be used for creditmemo adjustments]]></comment>
+                </field>
+                <field id="creditmemo_adjustment_negative_code" translate="label" type="text" sortOrder="60" showInDefault="1" showInWebsite="1" showInStore="1" canRestore="1">
+                    <depends>
+                        <field id="tax/vertex/connection/enable_vertex">1</field>
+                    </depends>
+                    <label>Adjustment Fee Code</label>
+                    <validate>required-entry</validate>
+                    <comment><![CDATA[Product code which will be used for creditmemo adjustment fee]]></comment>
+                </field>
+                <field id="creditmemo_adjustment_positive_code" translate="label" type="text" sortOrder="70" showInDefault="1" showInWebsite="1" showInStore="1" canRestore="1">
+                    <depends>
+                        <field id="tax/vertex/connection/enable_vertex">1</field>
+                    </depends>
+                    <label>Adjustment Refund Code</label>
+                    <validate>required-entry</validate>
+                    <comment><![CDATA[Product code which will be used for creditmemo adjustment]]></comment>
+                </field>
+                <field id="giftwrap_order_class" translate="label" type="select" sortOrder="80" showInDefault="1" showInWebsite="1" showInStore="1">
+                    <depends>
+                        <field id="tax/vertex/connection/enable_vertex">1</field>
+                    </depends>
+                    <label>Gift Wrap For Order Class</label>
+                    <validate>required-entry</validate>
+                    <source_model>Magento\Tax\Model\TaxClass\Source\Product</source_model>
+                    <comment><![CDATA[Product class which will be used for order gift wrap]]></comment>
+                </field>
+                <field id="giftwrap_order_code" translate="label" type="text" sortOrder="90" showInDefault="1" showInWebsite="1" showInStore="1" canRestore="1">
+                    <depends>
+                        <field id="tax/vertex/connection/enable_vertex">1</field>
+                    </depends>
+                    <label>Gift Wrap For Order Code</label>
+                    <validate>required-entry</validate>
+                    <comment><![CDATA[Product code which will be used for order gift wrap]]></comment>
+                </field>
+                <field id="giftwrap_item_class" translate="label" type="select" sortOrder="90" showInDefault="1" showInWebsite="1" showInStore="1">
+                    <depends>
+                        <field id="tax/vertex/connection/enable_vertex">1</field>
+                    </depends>
+                    <label>Gift Wrap Class For Single Product</label>
+                    <validate>required-entry</validate>
+                    <source_model>Magento\Tax\Model\TaxClass\Source\Product</source_model>
+                    <comment><![CDATA[Class for gift wrap of single product]]></comment>
+                </field>
+                <field id="giftwrap_item_code" translate="label" type="text" sortOrder="100" showInDefault="1" showInWebsite="1" showInStore="1" canRestore="1">
+                    <depends>
+                        <field id="tax/vertex/connection/enable_vertex">1</field>
+                    </depends>
+                    <label>Gift Wrap Code Prefix For Single Product</label>
+                    <validate>required-entry</validate>
+                    <comment><![CDATA[Prefix will be used for giftwrap item. Each code will be {{prefix}}-{{sku}}]]></comment>
+                </field>
+                <field id="printed_giftcard_class" translate="label" type="select" sortOrder="110" showInDefault="1" showInWebsite="1" showInStore="1">
+                    <depends>
+                        <field id="tax/vertex/connection/enable_vertex">1</field>
+                    </depends>
+                    <label>Item Line Class For Printed Gift Card</label>
+                    <validate>required-entry</validate>
+                    <source_model>Magento\Tax\Model\TaxClass\Source\Product</source_model>
+                    <comment><![CDATA[Product Class for printed giftcard line item]]></comment>
+                </field>
+                <field id="printed_giftcard_code" translate="label" type="text" sortOrder="120" showInDefault="1" showInWebsite="1" showInStore="1" canRestore="1">
+                    <depends>
+                        <field id="tax/vertex/connection/enable_vertex">1</field>
+                    </depends>
+                    <label>Item Line Code For Printed Gift Card</label>
+                    <validate>required-entry</validate>
+                    <comment><![CDATA[Product code for printed giftcard line item]]></comment>
+                </field>
+                <field id="reward_points_class" translate="label" type="select" sortOrder="130" showInDefault="1" showInWebsite="1" showInStore="1">
+                    <depends>
+                        <field id="tax/vertex/connection/enable_vertex">1</field>
+                    </depends>
+                    <label>Class For Reward Points Discount Line Item</label>
+                    <validate>required-entry</validate>
+                    <source_model>Magento\Tax\Model\TaxClass\Source\Product</source_model>
+                    <comment><![CDATA[Product Class for reward points order discount.]]></comment>
+                </field>
+                <field id="reward_points_code" translate="label" type="text" sortOrder="140" showInDefault="1" showInWebsite="1" showInStore="1" canRestore="1">
+                    <depends>
+                        <field id="tax/vertex/connection/enable_vertex">1</field>
+                    </depends>
+                    <label>Product Code For Reward Points Discount Line Item</label>
+                    <validate>required-entry</validate>
+                    <comment><![CDATA[Product code for reward points order discount]]></comment>
+                </field>
+
+                <field id="fpt_item_code" translate="label" type="text" sortOrder="150" showInDefault="1" showInWebsite="1" showInStore="1" canRestore="1">
+                    <depends>
+                        <field id="enable">1</field>
+                        <field id="apply_vat">1</field>
+                        <field id="tax/vertex/connection/enable_vertex">1</field>
+                    </depends>
+                    <label>Vertex FPT Invoice Code Prefix</label>
+                    <validate>required-entry</validate>
+                    <comment><![CDATA[Product code prefix which will be used for fixed product price tax on invoice]]></comment>
+                </field>
+                <field id="custom_tax_class" translate="label" type="select" sortOrder="160" showInDefault="1" showInWebsite="1" showInStore="0">
+                    <depends>
+                        <field id="enable">1</field>
+                        <field id="apply_vat">1</field>
+                        <field id="tax/vertex/connection/enable_vertex">1</field>
+                    </depends>
+                    <label>Vertex Custom FPT Tax Class</label>
+                    <source_model>Magento\Config\Model\Config\Source\Enabledisable</source_model>
+                    <comment><![CDATA[If disabled will use Product Tax Class. If enabled you can chouse a custom tax class for the FPT sent to Vertex.]]></comment>
+                </field>
+                <field id="fpt_tax_class" translate="label" type="select" sortOrder="170" showInDefault="1" showInWebsite="1" showInStore="0" canRestore="1">
+                    <depends>
+                        <field id="custom_tax_class">1</field>
+                    </depends>
+                    <label>Vertex Tax Class for FPT</label>
+                    <source_model>Magento\Tax\Model\TaxClass\Source\Product</source_model>
+                    <comment><![CDATA[The tax class that will be applied to the vertex item]]></comment>
+                </field>
+            </group>
+        </section>
+    </system>
+</config>

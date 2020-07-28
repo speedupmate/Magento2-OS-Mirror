@@ -1,0 +1,81 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!--
+ /**
+  * @copyright  Vertex. All rights reserved.  https://www.vertexinc.com/
+  * @author     Mediotype                     https://www.mediotype.com/
+  */
+-->
+<tests xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+       xsi:noNamespaceSchemaLocation="urn:magento:mftf:Test/etc/testSchema.xsd">
+    <test name="AdminVertexRegisteredCustomerDownloadableTaxValidationTest">
+        <annotations>
+            <group value="Vertex"/>
+            <features value="Vertex"/>
+            <testCaseId value="VRTX-720"/>
+            <testCaseId value="BUNDLE-1376"/>
+            <skip>
+                <issueId value="VRTX-569"/>
+            </skip>
+
+            <stories value="As a store owner, I must have accurate taxes calculated with catalog products"/>
+            <title value="Validate taxes for downloadable product when ordering as registered customer"/>
+            <description value="Validate accurate taxes on the cart summary and admin order view when ordering a downloadable product as a registered customer"/>
+
+            <severity value="MAJOR"/>
+        </annotations>
+        <before>
+            <!-- Create downloadable product -->
+            <createData entity="VertexApiDownloadableProduct" stepKey="createDownloadableProduct">
+                <field key="price">{{Vertex_19USD_TCSIX_Values.price}}</field>
+            </createData>
+            <createData entity="ApiDownloadableLink" stepKey="addDownloadableLink">
+                <requiredEntity createDataKey="createDownloadableProduct"/>
+            </createData>
+
+            <!-- Create customer -->
+            <createData entity="Vertex_Customer_AlanRobinson" stepKey="createCustomer"/>
+            <actionGroup ref="AdminLoginActionGroup" stepKey="adminLogin"/>
+        </before>
+        <after>
+            <deleteData stepKey="deleteDownloadableProduct" createDataKey="createDownloadableProduct"/>
+            <deleteData createDataKey="createCustomer" stepKey="deleteCustomer"/>
+            <actionGroup ref="AdminLogoutActionGroup" stepKey="adminLogout"/>
+        </after>
+
+        <actionGroup ref="LoginToStorefrontActionGroup" stepKey="customerLogin">
+            <argument name="Customer" value="$$createCustomer$$"/>
+        </actionGroup>
+        <actionGroup ref="AddSimpleProductToCartActionGroup" stepKey="addDownloadableProductToCart">
+            <argument name="product" value="$$createDownloadableProduct$$"/>
+        </actionGroup>
+        <actionGroup ref="ClickViewAndEditCartFromMiniCartActionGroup" stepKey="selectViewAndEditCart"/>
+        <waitForPageLoad stepKey="waitForCartPageLoaded"/>
+        <actionGroup ref="VertexCheckDigitalTotalsInCartActionGroup" stepKey="validateCartTotals">
+            <argument name="subtotalExclTax" value="{{Vertex_19USD_TCSIX_Totals.subtotal}}"/>
+            <argument name="subtotalInclTax" value="{{Vertex_19USD_TCSIX_Totals.subtotalInclTax}}"/>
+            <argument name="tax" value="{{Vertex_19USD_TCSIX_Totals.tax}}"/>
+            <argument name="totalExclTax" value="{{Vertex_19USD_TCSIX_Totals.total}}"/>
+            <argument name="totalInclTax" value="{{Vertex_19USD_TCSIX_Totals.totalInclTax}}"/>
+        </actionGroup>
+        <click selector="{{CheckoutCartSummarySection.proceedToCheckout}}" stepKey="clickProceedToCheckout"/>
+        <actionGroup ref="ClickPlaceOrderActionGroup" stepKey="placeOrder"/>
+
+        <waitForPageLoad stepKey="waitForSuccessPageToLoad"/>
+        <see selector="{{CheckoutSuccessMainSection.successTitle}}" userInput="Thank you for your purchase!" stepKey="seeSuccessTitle"/>
+        <grabTextFrom selector="{{CheckoutSuccessMainSection.orderNumber22}}" stepKey="orderNumber"/>
+
+        <amOnPage url="{{AdminOrdersPage.url}}" stepKey="goToAdminOrder"/>
+        <actionGroup ref="AdminOrdersGridClearFiltersActionGroup" stepKey="clearFilters"/>
+        <actionGroup ref="OpenOrderByIdActionGroup" stepKey="openOrder">
+            <argument name="orderId" value="$orderNumber"/>
+        </actionGroup>
+        <actionGroup ref="VertexCheckDigitalTotalsInAdminOrderViewActionGroup" stepKey="checkOrderDetailsTotals">
+            <argument name="subtotalExclTax" value="{{Vertex_19USD_TCSIX_Totals.subtotal}}"/>
+            <argument name="subtotalInclTax" value="{{Vertex_19USD_TCSIX_Totals.subtotalInclTax}}"/>
+            <argument name="tax" value="{{Vertex_19USD_TCSIX_Totals.tax}}"/>
+            <argument name="totalExclTax" value="{{Vertex_19USD_TCSIX_Totals.total}}"/>
+            <argument name="totalInclTax" value="{{Vertex_19USD_TCSIX_Totals.totalInclTax}}"/>
+        </actionGroup>
+        <actionGroup ref="StorefrontCustomerLogoutActionGroup" stepKey="customerLogout"/>
+    </test>
+</tests>

@@ -1,0 +1,24 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!--
+ /**
+  * @copyright  Vertex. All rights reserved.  https://www.vertexinc.com/
+  * @author     Mediotype                     https://www.mediotype.com/
+  */
+-->
+<actionGroups xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+              xsi:noNamespaceSchemaLocation="urn:magento:mftf:Test/etc/actionGroupSchema.xsd">
+    <actionGroup name="AdminOrderCreateBeginAddingBundleProductActionGroup">
+        <arguments>
+            <argument name="product"/>
+            <argument name="exampleChild"/>
+        </arguments>
+
+        <click selector="{{AdminOrderFormItemsSection.addProducts}}" stepKey="clickAddProducts"/>
+        <fillField selector="{{AdminOrderFormItemsSection.skuFilter}}" userInput="{{product.sku}}" stepKey="fillSkuFilterGrouped"/>
+        <click selector="{{AdminOrderFormItemsSection.search}}" stepKey="clickSearchGrouped"/>
+        <scrollTo selector="{{AdminOrderFormItemsSection.rowCheck('1')}}" x="0" y="-100" stepKey="scrollToCheckColumn"/>
+        <checkOption selector="{{AdminOrderFormItemsSection.rowCheck('1')}}" stepKey="selectGroupedProduct"/>
+        <waitForElementVisible selector="{{AdminOrderFormConfigureProductSection.bundleOptionQty(exampleChild.name)}}" stepKey="waitForGroupedOptionLoad"/>
+        <wait time="2" stepKey="waitForOptionsToLoad"/>
+    </actionGroup>
+</actionGroups>

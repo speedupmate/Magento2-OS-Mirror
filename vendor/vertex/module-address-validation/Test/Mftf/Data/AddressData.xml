@@ -1,0 +1,110 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!--
+ /**
+  * @copyright  Vertex. All rights reserved.  https://www.vertexinc.com/
+  * @author     Mediotype                     https://www.mediotype.com/
+  */
+-->
+<entities xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+          xsi:noNamespaceSchemaLocation="urn:magento:mftf:DataGenerator/etc/dataProfileSchema.xsd">
+    <entity name="Vertex_Customer_BirminghamAlabama_Address" type="address">
+        <data key="firstname">Birmingham</data>
+        <data key="lastname">Alabama</data>
+        <array key="street">
+            <item>2473 Hackworth Rd</item>
+        </array>
+        <data key="city">Birmingham</data>
+        <requiredEntity type="region">RegionAL</requiredEntity>
+        <data key="state">Alabama</data>
+        <data key="postcode">99999</data>
+        <data key="country">US</data>
+        <data key="country_id">US</data>
+        <data key="telephone">111-111-1111</data>
+        <data key="default_shipping">true</data>
+        <data key="default_billing">true</data>
+        <data key="valid_postcode">35214-1909</data>
+        <data key="valid_city">Birmingham</data>
+    </entity>
+    <entity name="Vertex_Customer_BirminghamAlabama_Address_Correct" type="address">
+        <data key="firstname">Birmingham</data>
+        <data key="lastname">Alabama</data>
+        <array key="street">
+            <item>2473 Hackworth Rd</item>
+        </array>
+        <data key="city">Birmingham</data>
+        <requiredEntity type="region">RegionAL</requiredEntity>
+        <data key="state">Alabama</data>
+        <data key="postcode">35214-1909</data>
+        <data key="country">US</data>
+        <data key="country_id">US</data>
+        <data key="telephone">111-111-1111</data>
+        <data key="default_shipping">true</data>
+        <data key="default_billing">true</data>
+        <data key="valid_postcode">35214-1909</data>
+        <data key="valid_city">Birmingham</data>
+    </entity>
+    <entity name="Vertex_Customer_ChesterPennsylvania_Address" type="address">
+        <data key="firstname">Chester</data>
+        <data key="lastname">Pennsylvania</data>
+        <array key="street">
+            <item>2610 E Colonial Dr</item>
+            <item>2nd FL</item>
+        </array>
+        <data key="city">Chester</data>
+        <requiredEntity type="region">RegionPA</requiredEntity>
+        <data key="state">Pennsylvania</data>
+        <data key="postcode">99999</data>
+        <data key="country">US</data>
+        <data key="country_id">US</data>
+        <data key="telephone">111-111-1111</data>
+        <data key="default_shipping">true</data>
+        <data key="default_billing">true</data>
+    </entity>
+    <entity name="Vertex_Customer_PhiladelphiaPennsylvania_Address_Incorrect" type="address">
+        <data key="firstname">Philadelphia</data>
+        <data key="lastname">Pennsylvania</data>
+        <array key="street">
+            <item>30 N 3rd</item>
+        </array>
+        <data key="city">philadelphia</data>
+        <requiredEntity type="region">RegionPA</requiredEntity>
+        <data key="state">Pennsylvania</data>
+        <data key="postcode">99999</data>
+        <data key="country">US</data>
+        <data key="country_id">US</data>
+        <data key="telephone">111-111-1111</data>
+        <data key="default_shipping">true</data>
+        <data key="default_billing">true</data>
+    </entity>
+    <entity name="Vertex_Customer_PhiladelphiaPennsylvania_Address" type="address">
+        <data key="firstname">Philadelphia</data>
+        <data key="lastname">Pennsylvania</data>
+        <array key="street">
+            <item>30 N 3rd St</item>
+        </array>
+        <data key="city">Philadelphia</data>
+        <requiredEntity type="region">RegionPA</requiredEntity>
+        <data key="state">Pennsylvania</data>
+        <data key="postcode">19106-2132</data>
+        <data key="country">US</data>
+        <data key="country_id">US</data>
+        <data key="telephone">111-111-1111</data>
+        <data key="default_shipping">true</data>
+        <data key="default_billing">true</data>
+    </entity>
+    <entity name="Vertex_Customer_LondonUK_Address" type="address">
+        <data key="firstname">London</data>
+        <data key="lastname">UK</data>
+        <array key="street">
+            <item>2 Kingdom Street</item>
+        </array>
+        <data key="city">London</data>
+        <data key="state"></data>
+        <data key="postcode">W2 6BD</data>
+        <data key="country">GB</data>
+        <data key="country_id">GB</data>
+        <data key="telephone">111-111-1111</data>
+        <data key="default_shipping">true</data>
+        <data key="default_billing">true</data>
+    </entity>
+</entities>

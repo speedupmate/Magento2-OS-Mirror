@@ -1,0 +1,17 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!--
+ /**
+  * @copyright  Vertex. All rights reserved.  https://www.vertexinc.com/
+  * @author     Mediotype                     https://www.mediotype.com/
+  */
+-->
+<actionGroups xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="urn:magento:mftf:Test/etc/actionGroupSchema.xsd">
+    <!-- Usage of this action group requires usage of LoginAsAdmin prior & VertexDefaultConfig -->
+    <actionGroup name="VertexTaxDefaultConfigActionGroup">
+        <createData entity="VertexTaxConfigAll" stepKey="setDefaultVertexTestConfiguration"/>
+        <createData entity="VertexGlobalDeliveryTermSUP" stepKey="setGlobalVertexDeliveryTermToSUP"/>
+        <createData entity="VertexTaxAllowedCountriesUsCaIrItNoSp" stepKey="setVertexAllowedCountries"/>
+        <createData entity="VertexTaxSummaryByProductAndShipping" stepKey="setVertexTaxSummary"/>
+        <createData entity="VertexTaxConfigInvoiceWhenInvoiceCreated" stepKey="setVertexRecordOnInvoice"/>
+    </actionGroup>
+</actionGroups>

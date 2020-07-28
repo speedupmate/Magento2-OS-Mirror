@@ -1,0 +1,20 @@
+<?php
+/** @var \Dotdigitalgroup\Email\Block\Tracking $block */
+?>
+
+<?php if ($block->isPageTrackingAvailable()): ?>
+    <script>
+        require.config({
+            paths: {
+                'dmpt':  "<?= $block->escapeUrl($block->getPageTrackingUrl()) ?>"
+            }
+        });
+    </script>
+    <script type="text/x-magento-init">
+        {
+            "*": {
+                "dmpt": {}
+            }
+        }
+    </script>
+<?php endif; ?>

@@ -1,0 +1,65 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!--
+  @copyright  Vertex. All rights reserved.  https://www.vertexinc.com/
+  @author     Mediotype                     https://www.mediotype.com/
+  -->
+<config xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="urn:magento:module:Magento_Config:etc/system_file.xsd">
+    <system>
+        <section id="vertex_address_validation" translate="label" type="text" sortOrder="510" showInDefault="1" showInWebsite="1" showInStore="1">
+            <label><![CDATA[Address Cleansing]]></label>
+            <tab>sales</tab>
+            <resource>Magento_Sales::tax</resource>
+            <group id="info" translate="label comment" sortOrder="10" showInDefault="1" showInWebsite="1" showInStore="1">
+                <label>Integrated Address Cleansing</label>
+                <frontend_model>Vertex\Tax\Block\Adminhtml\Config\Form\Fieldset\Info</frontend_model>
+                <attribute type="expanded">1</attribute>
+                <comment><![CDATA[
+                <p>Ensure every transaction has the proper tax jurisdiction assignment to trigger the accurate tax calculation rules. Each new address entered is automatically cleansed for errors and the full 9-digit zip code assigned.</p>
+                ]]></comment>
+                <more_url>https://go.vertexinc.com/magento_cbe</more_url>
+            </group>
+            <group id="connection" translate="label" sortOrder="15" showInDefault="1" showInWebsite="1" showInStore="0">
+                <label>Connection Settings</label>
+                <attribute type="expanded">1</attribute>
+                <field id="enable" translate="label comment" type="select" sortOrder="10" showInDefault="1" showInWebsite="1" showInStore="0">
+                    <label><![CDATA[Vertex Address Cleansing]]></label>
+                    <source_model>Magento\Config\Model\Config\Source\Enabledisable</source_model>
+                    <comment><![CDATA[Cleanse US addresses entered by customers]]></comment>
+                    <config_path>vertex_address_validation/vertex_settings/enable</config_path>
+                </field>
+                <field id="address_api_url" translate="label comment" type="text" sortOrder="20" showInDefault="1" showInWebsite="1" showInStore="1" canRestore="0">
+                    <label><![CDATA[Address Validation API URL]]></label>
+                    <comment><![CDATA[This configuration value is shared with Vertex Tax settings.]]></comment>
+                    <config_path>tax/vertex_settings/address_api_url</config_path>
+                    <validate>required-entry</validate>
+                    <depends>
+                        <field id="enable">1</field>
+                    </depends>
+                </field>
+                <field id="trusted_id" translate="label comment" type="text" sortOrder="50" showInDefault="1" showInWebsite="1" showInStore="0">
+                    <label>Trusted ID</label>
+                    <validate>required-entry validate-length maximum-length-16 minimum-length-6</validate>
+                    <backend_model>Magento\Config\Model\Config\Backend\Encrypted</backend_model>
+                    <comment><![CDATA[This configuration value is shared with Vertex Tax settings.]]></comment>
+                    <config_path>tax/vertex_settings/trustedId</config_path>
+                    <depends>
+                        <field id="enable_vertex">1</field>
+                    </depends>
+                </field>
+            </group>
+            <group id="display" translate="label" sortOrder="20" showInDefault="1" showInWebsite="1" showInStore="1">
+                <label>Display Settings</label>
+                <attribute type="expanded">1</attribute>
+                <field id="always_message" translate="label" type="select" sortOrder="30" showInDefault="1" showInWebsite="1" showInStore="1">
+                    <label><![CDATA[Confirmation Message When No Action Is Needed]]></label>
+                    <source_model>Magento\Config\Model\Config\Source\Enabledisable</source_model>
+                    <comment><![CDATA[Display Confirmation Message when Original Address EXACTLY matches the Suggested Address]]></comment>
+                    <config_path>vertex_address_validation/vertex_settings/always_message</config_path>
+                    <depends>
+                        <field id="enable">1</field>
+                    </depends>
+                </field>
+            </group>
+        </section>
+    </system>
+</config>

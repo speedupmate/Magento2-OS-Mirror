@@ -1,0 +1,50 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!--
+ /**
+  * Copyright © Magento, Inc. All rights reserved.
+  * See COPYING.txt for license details.
+  *
+  * This file is part of the Klarna KP module
+  *
+  * (c) Klarna Bank AB (publ)
+  *
+  * For the full copyright and license information, please view the NOTICE
+  * and LICENSE files that were distributed with this source code.
+  */
+-->
+<tests xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+       xsi:noNamespaceSchemaLocation="urn:magento:mftf:Test/etc/testSchema.xsd">
+    <test name="CreditFullInvoiceFromKlarnaPaymentsGuestOrderTest" extends="PlacePayLaterOrderAsGuestUSTest">
+        <annotations>
+            <features value="Klarna Payments"/>
+            <stories value="Fully credit/refund an invoice from an order placed by a guest"/>
+            <title value="Credit guest invoice"/>
+            <description value="A merchant can fully credit/refund a Klarna Payments order placed by a guest customer"/>
+            <severity value="CRITICAL"/>
+            <testCaseId value="KP_CM_1"/>
+            <group value="Klarna_KP_Country_US"/>
+            <group value="Klarna_KP_Order_Guest"/>
+            <group value="Klarna_KP_Order_Pay_Later"/>
+            <group value="Klarna_KP_Order_Credit"/>
+        </annotations>
+        <before>
+            <actionGroup ref="AdminLoginActionGroup" stepKey="loginAsAdmin"/>
+        </before>
+        <after>
+            <actionGroup ref="AdminLogoutActionGroup" stepKey="logout"/>
+        </after>
+        <!--Create and go to invoice-->
+        <actionGroup ref="GoToOrderPageFromKlarnaConfirmationPageGuest" stepKey="goToOrderPage"/>
+        <actionGroup ref="AdminCreateInvoiceActionGroup" stepKey="createInvoice"/>
+        <actionGroup ref="GoToFirstInvoiceInOrderInvoiceTabActionGroup" stepKey="goToInvoice"/>
+
+        <!--Fill in and submit credit memo-->
+        <actionGroup ref="CreateAndSubmitCreditMemoActionGroup" stepKey="createAndSubmitCreditMemo"/>
+
+        <!--Assert successful credit memo creation-->
+        <actionGroup ref="AssertSuccessfulCreditMemoCreationAndAmountsActionGroup" stepKey="assertSuccessfulCreditMemoCreation">
+            <argument name="expectedGrandTotal" value="$128.45"/>
+            <argument name="expectedRefundTotal" value="$128.45"/>
+        </actionGroup>
+    </test>
+</tests>

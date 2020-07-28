@@ -1,0 +1,69 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!--
+ /**
+  * @copyright  Vertex. All rights reserved.  https://www.vertexinc.com/
+  * @author     Mediotype                     https://www.mediotype.com/
+  */
+-->
+<tests xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+       xsi:noNamespaceSchemaLocation="urn:magento:mftf:Test/etc/testSchema.xsd">
+    <test name="AdminVertexApiStatusAutomaticallyDisabledValidationTest">
+        <annotations>
+            <group value="Vertex"/>
+            <features value="Vertex Tax"/>
+            <testCaseId value="VRTX-721"/>
+            <testCaseId value="BUNDLE-2009"/>
+
+            <stories value="As an administrator, I want the admin panel to show me the correct API status message."/>
+            <title value="Automatically Disabled API status validation"/>
+            <description value="Validate Vertex Automatically disabled API status"/>
+
+            <severity value="MINOR"/>
+        </annotations>
+        <before>
+            <actionGroup ref="AdminLoginActionGroup" stepKey="loginAsAdmin"/>
+        </before>
+        <after>
+            <actionGroup ref="AdminLogoutActionGroup" stepKey="logoutOfAdminFromSetup"/>
+            <actionGroup ref="VertexTaxDefaultConfigActionGroup" stepKey="revertDefaultConfiguration"/>
+            <magentoCLI stepKey="cleanConfigCache" command="cache:clean config"/>
+        </after>
+
+        <amOnPage url="{{AdminTaxConfigPage.url('vertex_settings')}}" stepKey="viewConfigBefore"/>
+        <actionGroup ref="VertexAdminConfigurationOpenActionGroup" stepKey="openConfiguration"/>
+        <!-- Validate automatically disabled status -->
+        <conditionalClick selector="{{AdminConfigureTaxSection.taxPriceDisplaySettings}}"
+                          dependentSelector="{{AdminConfigureTaxSection.taxDisplayProductPrices}}"
+                          visible="false"
+                          stepKey="openPriceDisplaySettings"/>
+
+        <uncheckOption selector="{{AdminConfigureTaxSection.taxDisplayProductPricesInherit}}" stepKey="uncheckInheritTaxDisplayTypeOption"/>
+        <selectOption selector="{{AdminConfigureTaxSection.taxDisplayProductPrices}}" userInput="Including and Excluding Tax" stepKey="clickDisplayProductPrices"/>
+        <click selector="#save" stepKey="saveVertexDisabledInit"/>
+        <waitForPageLoad stepKey="waitForConfigSave"/>
+
+        <conditionalClick selector="{{AdminVertexSettingsConfigSection.vertexSettingsHeader}}"
+                          dependentSelector="{{AdminVertexSettingsConfigSection.enableVertex}}"
+                          visible="false"
+                          stepKey="openVertexConfiguration"/>
+
+        <see selector="{{AdminVertexSettingsConfigSection.vertexApiStatusSeverityMinor}}" userInput="Automatically Disabled" stepKey="seeDisabledInitStatus"/>
+
+        <!-- Validate automatically disabled status -->
+        <conditionalClick selector="{{AdminConfigureTaxSection.taxPriceDisplaySettings}}"
+                          dependentSelector="{{AdminConfigureTaxSection.taxDisplayProductPrices}}"
+                          visible="false"
+                          stepKey="openPriceDisplaySettingsAfterDisabled"/>
+
+        <uncheckOption selector="{{AdminConfigureTaxSection.taxDisplayProductPricesInherit}}" stepKey="uncheckInheritTaxDisplayTypeOptionExcludingTax"/>
+        <selectOption selector="{{AdminConfigureTaxSection.taxDisplayProductPrices}}" userInput="Excluding Tax" stepKey="clickDisplayProductPricesExcludingTax"/>
+        <click selector="#save" stepKey="saveVertexExcludingTax"/>
+
+        <conditionalClick selector="{{AdminVertexSettingsConfigSection.vertexSettingsHeader}}"
+                          dependentSelector="{{AdminVertexSettingsConfigSection.enableVertex}}"
+                          visible="false"
+                          stepKey="openVertexConfigurationExcludingTax"/>
+
+        <see selector="{{AdminVertexSettingsConfigSection.vertexApiStatusSeverityNotice}}" userInput="Valid" stepKey="seeValidStatus"/>
+    </test>
+</tests>

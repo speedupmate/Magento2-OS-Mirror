@@ -1,0 +1,64 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!--
+ /**
+  * @copyright  Vertex. All rights reserved.  https://www.vertexinc.com/
+  * @author     Mediotype                     https://www.mediotype.com/
+  */
+-->
+<tests xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+       xsi:noNamespaceSchemaLocation="urn:magento:mftf:Test/etc/testSchema.xsd">
+
+
+
+    <test name="VertexAsRegisteredCustomerWithBillToAndShipToTheSameCheckDigitalProductVertexTaxJournalOnCreditMemoTest">
+        <annotations>
+            <features value="Vertex"/>
+            <group value="Vertex"/>
+
+            <stories value="As a store owner, I must have accurate taxes committed to the tax journal"/>
+            <title value="Validate Tax Journal during Credit Memo, Registered User, Digital Product, Bill-To=Ship-To"/>
+            <description value="Validate accurate taxes are committed the Vertex Tax Journal after credit memo of an order with a registered user who has a bill-to the same as the ship-to and containing digital products"/>
+
+            <severity value="CRITICAL"/>
+        </annotations>
+        <before>
+            <createData entity="_defaultCategory" stepKey="createCategory"/>
+            <createData entity="VirtualProduct" stepKey="createProduct">
+                <field key="price">{{Vertex_100USD_PA_Only_Values.price}}</field>
+                <requiredEntity createDataKey="createCategory" />
+            </createData>
+
+            <createData entity="Vertex_Customer_JohnWinston" stepKey="createCustomer"/>
+
+            <actionGroup ref="AdminLoginActionGroup" stepKey="loginAsAdmin"/>
+        </before>
+        <after>
+            <deleteData stepKey="deleteProduct" createDataKey="createProduct" />
+            <deleteData stepKey="deleteCategory" createDataKey="createCategory" />
+            <deleteData stepKey="deleteCustomer" createDataKey="createCustomer" />
+            <actionGroup ref="AdminLogoutActionGroup" stepKey="logoutOfAdmin" />
+        </after>
+
+        <actionGroup ref="NavigateToNewOrderPageExistingCustomerActionGroup" stepKey="startNewOrder">
+            <argument name="customer" value="$$createCustomer$$" />
+        </actionGroup>
+
+        <actionGroup ref="AddSimpleProductToOrderActionGroup" stepKey="addProductToOrder">
+            <argument name="product" value="$$createProduct$$" />
+        </actionGroup>
+
+        <actionGroup ref="SelectCheckMoneyPaymentMethodActionGroup" stepKey="selectPayment" />
+
+        <click stepKey="submitOrder" selector="{{AdminOrderFormActionSection.submitOrder}}" />
+
+        <actionGroup ref="GoToInvoiceIntoOrderActionGroup" stepKey="createInvoice"/>
+        <actionGroup ref="SubmitInvoiceActionGroup" stepKey="submitInvoice"/>
+        <actionGroup ref="AdminStartToCreateCreditMemoFromOrderPageActionGroup" stepKey="createCreditMemo"/>
+        <actionGroup ref="SubmitCreditMemoActionGroup" stepKey="submitCreditMemo"/>
+
+        <actionGroup ref="VertexCheckCreditMemoSuccessMessageActionGroup" stepKey="checkSuccessMessage"/>
+        <actionGroup ref="VertexCheckCreditMemoSuccessNoteActionGroup" stepKey="checkSuccessNote">
+            <argument name="amount" value="-{{Vertex_100USD_Virtual_PA_Only_Totals.tax}}"/>
+        </actionGroup>
+    </test>
+</tests>

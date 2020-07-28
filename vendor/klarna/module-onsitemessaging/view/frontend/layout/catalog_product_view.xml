@@ -1,0 +1,17 @@
+<?xml version="1.0"?>
+<!--
+/**
+ * Copyright © Magento, Inc. All rights reserved.
+ * See COPYING.txt for license details.
+ */
+-->
+<page xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="urn:magento:framework:View/Layout/etc/page_configuration.xsd">
+    <body>
+        <referenceBlock name="head.additional">
+            <block class="Klarna\Onsitemessaging\Block\Header" name="klarna.osm.header" as="klarna_osm_header" template="Klarna_Onsitemessaging::html/header.phtml"/>
+        </referenceBlock>
+        <referenceContainer name="product.info.main">
+            <block class="Klarna\Onsitemessaging\Block\Product" name="klarna.osm.product" as="klarna_osm_product" template="Klarna_Onsitemessaging::html/placement/product.phtml" after="product.price.tier"/>
+        </referenceContainer>
+    </body>
+</page>

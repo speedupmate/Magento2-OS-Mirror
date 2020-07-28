@@ -1,0 +1,20 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!--
+ /**
+  * Copyright © Magento, Inc. All rights reserved.
+  * See COPYING.txt for license details.
+  */
+
+  This code snippet is ported from Magento 2.3 core for backward-compatibility
+-->
+<actionGroups xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+              xsi:noNamespaceSchemaLocation="urn:magento:mftf:Test/etc/actionGroupSchema.xsd">
+    <actionGroup name="AdminOrderCreateSelectBundledProductOptionActionGroup">
+        <arguments>
+            <argument name="option"/>
+            <argument name="quantity" type="string" defaultValue="1"/>
+        </arguments>
+
+        <fillField selector="{{AdminOrderFormConfigureProductSection.bundleOptionQty(option.name)}}" userInput="{{quantity}}" stepKey="fillOptionQuantity"/>
+    </actionGroup>
+</actionGroups>

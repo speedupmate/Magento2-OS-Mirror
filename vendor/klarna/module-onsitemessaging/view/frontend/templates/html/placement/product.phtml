@@ -1,0 +1,26 @@
+<?php
+/**
+ * This file is part of the Klarna Onsitemessaging module
+ *
+ * (c) Klarna Bank AB (publ)
+ *
+ * For the full copyright and license information, please view the NOTICE
+ * and LICENSE files that were distributed with this source code.
+ */
+
+/** @var Klarna\Onsitemessaging\Block\Product $block */
+/** @var Magento\Framework\Escaper $escaper */
+
+if ($block->showOnProduct()):
+?>
+<!-- Placement v2 -->
+<klarna-placement
+    data-key="<?= $escaper->escapeHtml($block->getPlacementId()) ?>"
+    data-locale="<?= $escaper->escapeHtml($block->getLocale()) ?>"
+    <?php if ($block->getPurchaseAmount()): ?>
+        data-purchase-amount="<?= $escaper->escapeHtml($block->getPurchaseAmount()) ?>"
+    <?php endif ?>
+    data-theme="<?= $escaper->escapeHtml($block->getTheme()) ?>"
+></klarna-placement>
+<!-- end Placement -->
+<?php endif ?>

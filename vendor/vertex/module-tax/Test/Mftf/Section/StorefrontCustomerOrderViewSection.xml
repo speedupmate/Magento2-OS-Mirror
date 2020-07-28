@@ -1,0 +1,19 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!--
+ /**
+  * @copyright  Vertex. All rights reserved.  https://www.vertexinc.com/
+  * @author     Mediotype                     https://www.mediotype.com/
+  */
+-->
+<sections xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+          xsi:noNamespaceSchemaLocation="urn:magento:mftf:Page/etc/SectionObject.xsd">
+    <section name="StorefrontCustomerOrderViewSection">
+        <element name="totalByName" type="text" selector="//table[@id='my-orders-table']/tfoot//tr[descendant::*[contains(text(),'{{var1}}')]]/td[@class='amount']//span[@class='price']" parameterized="true"/>
+        <element name="totalLabelByName" type="text" selector="//table[@id='my-orders-table']/tfoot//tr//td[contains(text(),'{{var1}} (')]" parameterized="true"/>
+        <element name="totalByStrictName" type="text" selector="//table[@id='my-orders-table']/tfoot//tr[descendant::*[text()='{{var1}}']]/td[@class='amount']//span[@class='price']" parameterized="true"/>
+        <element name="productPriceInclTaxByName" type="text" selector="//table[@id='my-orders-table']//tr[descendant::*[contains(@class,'product-item-name')][contains(text(),'{{var1}}')]]/td[contains(@class,'price')]//span[@class='price-including-tax']//span[@class='price']" parameterized="true" />
+        <element name="productPriceExclTaxByName" type="text" selector="//table[@id='my-orders-table']//tr[descendant::*[contains(@class,'product-item-name')][contains(text(),'{{var1}}')]]/td[contains(@class,'price')]//span[@class='price-excluding-tax']//span[@class='price']" parameterized="true" />
+        <element name="productSubtotalInclTaxByName" type="text" selector="//table[@id='my-orders-table']//tr[descendant::*[contains(@class,'product-item-name')][contains(text(),'{{var1}}')]]/td[contains(@class,'subtotal')]//span[@class='price-including-tax']//span[@class='price']" parameterized="true" />
+        <element name="productSubtotalExclTaxByName" type="text" selector="//table[@id='my-orders-table']//tr[descendant::*[contains(@class,'product-item-name')][contains(text(),'{{var1}}')]]/td[contains(@class,'subtotal')]//span[@class='price-excluding-tax']//span[@class='price']" parameterized="true" />
+    </section>
+</sections>

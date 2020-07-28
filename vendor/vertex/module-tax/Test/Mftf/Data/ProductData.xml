@@ -1,0 +1,48 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!--
+ /**
+  * @copyright  Vertex. All rights reserved.  https://www.vertexinc.com/
+  * @author     Mediotype                     https://www.mediotype.com/
+  */
+-->
+<entities xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+          xsi:noNamespaceSchemaLocation="urn:magento:mftf:DataGenerator/etc/dataProfileSchema.xsd">
+    <entity name="VertexApiDownloadableProduct" type="product">
+        <data key="sku" unique="suffix">api-downloadable-product</data>
+        <data key="type_id">downloadable</data>
+        <data key="attribute_set_id">4</data>
+        <data key="visibility">4</data>
+        <data key="name" unique="suffix">ApiDownloadableProduct</data>
+        <data key="price">100.00</data>
+        <data key="status">1</data>
+        <data key="quantity">100</data>
+        <requiredEntity type="product_extension_attribute">EavStockItem</requiredEntity>
+        <requiredEntity type="custom_attribute_array">ApiProductDescription</requiredEntity>
+        <requiredEntity type="custom_attribute_array">ApiProductShortDescription</requiredEntity>
+        <requiredEntity type="downloadable_link">apiDownloadableLink</requiredEntity>
+    </entity>
+    <entity name="VertexSimpleProduct" type="product">
+        <data key="sku" unique="suffix">simple</data>
+        <data key="type_id">simple</data>
+        <data key="attribute_set_id">4</data>
+        <data key="visibility">4</data>
+        <data key="name" unique="suffix">testProductName</data>
+        <data key="price">123.00</data>
+        <data key="urlKey" unique="suffix">testurlkey</data>
+        <data key="status">1</data>
+        <data key="quantity">100</data>
+        <data key="weight">1</data>
+        <requiredEntity type="product_extension_attribute">EavStockItem</requiredEntity>
+        <requiredEntity type="custom_attribute_array">CustomAttributeCategoryIds</requiredEntity>
+        <requiredEntity type="custom_attribute_array">VertexProductTaxClass</requiredEntity>
+    </entity>
+    <entity name="VertexProductAttributeInSet" type="ProductAttributeSet">
+        <data key="attributeSetId">4</data>
+        <data key="sortOrder">0</data>
+        <data key="attributeGroupId">7</data>
+    </entity>
+    <entity name="VertexApiFixedBundleProduct" extends="ApiFixedBundleProduct">
+        <requiredEntity type="custom_attribute">CustomAttributeFixWeight</requiredEntity>
+        <requiredEntity type="custom_attribute">CustomAttributeFixSku</requiredEntity>
+    </entity>
+</entities>

@@ -1,0 +1,76 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!--
+ /**
+  * @copyright  Vertex. All rights reserved.  https://www.vertexinc.com/
+  * @author     Mediotype                     https://www.mediotype.com/
+  */
+-->
+<tests xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+       xsi:noNamespaceSchemaLocation="urn:magento:mftf:Test/etc/testSchema.xsd">
+    <test name="VertexStorefrontCheckoutTest">
+        <annotations>
+            <group value="Vertex"/>
+            <features value="Vertex"/>
+            <testCaseId value="VRTX-709"/>
+            <testCaseId value="BUNDLE-553"/>
+
+            <stories value="As a store owner, I must have accurate taxes calculated during checkout"/>
+            <title value="Validate taxes on the checkout summary"/>
+            <description value="Validate that a customer will have correct taxes during the checkout and that order can be placed"/>
+
+            <severity value="AVERAGE"/>
+        </annotations>
+        <before>
+            <createData entity="_defaultCategory" stepKey="createCategory"/>
+            <createData entity="VertexProductTaxClass_Clothing" stepKey="createTaxClass" />
+            <createData entity="VertexSimpleProduct" stepKey="createSimpleProduct">
+                <field key="price">{{Vertex_19USD_TCSIX_Values.price}}</field>
+                <field key="sku">24-UG01</field>
+                <requiredEntity createDataKey="createCategory"/>
+                <requiredEntity createDataKey="createTaxClass"/>
+            </createData>
+            <magentoCron stepKey="runCronIndex" groups="index"/>
+
+            <actionGroup ref="AdminLoginActionGroup" stepKey="loginAsAdmin"/>
+        </before>
+        <after>
+            <deleteData createDataKey="createCategory" stepKey="deleteCategory"/>
+            <deleteData createDataKey="createSimpleProduct" stepKey="deleteSimpleProduct"/>
+            <deleteData stepKey="deleteTaxClass" createDataKey="createTaxClass" />
+            <actionGroup ref="AdminLogoutActionGroup" stepKey="logoutOfAdmin"/>
+        </after>
+
+        <actionGroup ref="AddSimpleProductToCartActionGroup" stepKey="addSimpleProductToCart">
+            <argument name="product" value="$$createSimpleProduct$$"/>
+        </actionGroup>
+
+        <actionGroup ref="GoToCheckoutFromMinicartActionGroup" stepKey="gotoCheckout"/>
+
+        <actionGroup ref="GuestCheckoutFillingShippingSectionActionGroup" stepKey="guestCheckoutFillingShippingSection">
+            <argument name="customerVar" value="Vertex_Customer_BobSaget" />
+            <argument name="customerAddressVar" value="Vertex_Customer_AlanRobinson_Address" />
+            <argument name="shippingMethod" value="Flat Rate"/>
+        </actionGroup>
+
+        <actionGroup ref="VertexCheckTotalsInCheckoutActionGroup" stepKey="checkTotals">
+            <argument name="subtotalExclTax" value="{{Vertex_19USD_TCSIX_Totals.subtotal}}" />
+            <argument name="subtotalInclTax" value="{{Vertex_19USD_TCSIX_Totals.subtotalInclTax}}" />
+            <argument name="shippingExclTax" value="{{Vertex_19USD_TCSIX_Totals.shipping}}" />
+            <argument name="shippingInclTax" value="{{Vertex_19USD_TCSIX_Totals.shippingInclTax}}" />
+            <argument name="tax" value="{{Vertex_19USD_TCSIX_Totals.tax}}" />
+            <argument name="totalExclTax" value="{{Vertex_19USD_TCSIX_Totals.total}}" />
+            <argument name="totalInclTax" value="{{Vertex_19USD_TCSIX_Totals.totalInclTax}}" />
+        </actionGroup>
+        <actionGroup ref="VertexCheckProductAndShippingTaxTotalsInCheckoutActionGroup" stepKey="checkTaxSummary">
+            <argument name="product" value="{{Vertex_19USD_TCSIX_Totals.productTax}}" />
+            <argument name="shipping" value="{{Vertex_19USD_TCSIX_Totals.shippingTax}}" />
+        </actionGroup>
+
+        <actionGroup ref="CheckoutSelectCheckMoneyOrderPaymentActionGroup" stepKey="selectPaymentMethod"/>
+        <waitForElementVisible selector="{{CheckoutPaymentSection.placeOrder}}" time="30" stepKey="waitForPlaceOrderButton"/>
+        <click selector="{{CheckoutPaymentSection.placeOrder}}" stepKey="clickPlaceOrder"/>
+
+        <waitForPageLoad stepKey="waitForSuccessPageToLoad"/>
+        <see selector="{{CheckoutSuccessMainSection.successTitle}}" userInput="Thank you for your purchase!" stepKey="seeSuccessTitle"/>
+    </test>
+</tests>

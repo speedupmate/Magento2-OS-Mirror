@@ -1,0 +1,28 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!--
+ /**
+  * @copyright  Vertex. All rights reserved.  https://www.vertexinc.com/
+  * @author     Mediotype                     https://www.mediotype.com/
+  */
+-->
+<actionGroups xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+              xsi:noNamespaceSchemaLocation="urn:magento:mftf:Test/etc/actionGroupSchema.xsd">
+    <actionGroup name="VertexCheckProductPricingInAdminCreateActionGroup">
+        <arguments>
+            <argument name="product"/>
+            <argument type="string" name="priceExclTax"/>
+            <argument type="string" name="priceInclTax"/>
+            <argument type="string" name="subtotalExclTax"/>
+            <argument type="string" name="subtotalInclTax"/>
+            <argument type="string" name="rowSubtotalExclTax"/>
+            <argument type="string" name="rowSubtotalInclTax"/>
+        </arguments>
+
+        <see stepKey="seePriceExclTax" userInput="${{priceExclTax}}" selector="{{AdminOrderFormItemsSection.productPriceExclTax(product.name)}}"/>
+        <see stepKey="seePriceInclTax" userInput="${{priceInclTax}}" selector="{{AdminOrderFormItemsSection.productPriceInclTax(product.name)}}"/>
+        <see stepKey="seeSubtotalExclTax" userInput="${{subtotalExclTax}}" selector="{{AdminOrderFormItemsSection.productSubtotalExclTax(product.name)}}"/>
+        <see stepKey="seeSubtotalInclTax" userInput="${{subtotalInclTax}}" selector="{{AdminOrderFormItemsSection.productSubtotalInclTax(product.name)}}"/>
+        <see stepKey="seeRowSubtotalExclTax" userInput="${{rowSubtotalExclTax}}" selector="{{AdminOrderFormItemsSection.productRowSubtotalExclTax(product.name)}}"/>
+        <see stepKey="seeRowSubtotalInclTax" userInput="${{rowSubtotalInclTax}}" selector="{{AdminOrderFormItemsSection.productRowSubtotalInclTax(product.name)}}"/>
+    </actionGroup>
+</actionGroups>

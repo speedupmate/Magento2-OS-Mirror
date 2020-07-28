@@ -1,0 +1,30 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!--
+ /**
+  * @copyright  Vertex. All rights reserved.  https://www.vertexinc.com/
+  * @author     Mediotype                     https://www.mediotype.com/
+  */
+-->
+<actionGroups xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+              xsi:noNamespaceSchemaLocation="urn:magento:mftf:Test/etc/actionGroupSchema.xsd">
+    <actionGroup name="AdminOrderCreateSelectShippingAddressActionGroup">
+        <arguments>
+            <argument name="addressId" type="string"/>
+        </arguments>
+
+        <uncheckOption selector="#order-shipping_same_as_billing" stepKey="ensureShippingDifferentFromBilling"/>
+        <waitForLoadingMaskToDisappear stepKey="waitForDifferentAddressLoadingMask"/>
+
+        <selectOption selector="#order-shipping_address_customer_address_id" stepKey="selectOption" userInput="{{addressId}}"/>
+        <waitForLoadingMaskToDisappear stepKey="waitForAddressSelectionLoadingMask"/>
+
+        <!-- Ensure the update items and quantities button isn't covered by a hovering element -->
+        <scrollToTopOfPage stepKey="scrollToTopOfPage"/>
+
+        <!-- Action would sometimes occur too early causing errors.  Not well understood at this time -->
+        <wait time="1" stepKey="waitBeforeUpdateClick"/>
+
+        <click selector="{{OrdersGridSection.update}}" stepKey="updateItemPrices"/>
+        <waitForLoadingMaskToDisappear stepKey="waitForItemUpdateLoadingMask"/>
+    </actionGroup>
+</actionGroups>

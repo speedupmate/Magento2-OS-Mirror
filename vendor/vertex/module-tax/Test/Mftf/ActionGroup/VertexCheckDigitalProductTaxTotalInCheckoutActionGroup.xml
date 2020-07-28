@@ -1,0 +1,19 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!--
+ /**
+  * @copyright  Vertex. All rights reserved.  https://www.vertexinc.com/
+  * @author     Mediotype                     https://www.mediotype.com/
+  */
+-->
+<actionGroups xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+              xsi:noNamespaceSchemaLocation="urn:magento:mftf:Test/etc/actionGroupSchema.xsd">
+    <actionGroup name="VertexCheckDigitalProductTaxTotalInCheckoutActionGroup">
+        <arguments>
+            <argument name="product" type="string"/>
+        </arguments>
+
+        <conditionalClick selector="{{StorefrontCheckoutPaymentSection.taxSummary}}" dependentSelector="{{StorefrontCheckoutCartSummarySection.taxRateByName('Sales and Use')}}" visible="false" stepKey="showTaxSummary"/>
+
+        <see stepKey="seeSalesAndUseTax" selector="{{StorefrontCheckoutPaymentSection.taxRateByName('Sales and Use')}}" userInput="${{product}}"/>
+    </actionGroup>
+</actionGroups>

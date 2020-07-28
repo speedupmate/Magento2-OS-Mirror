@@ -1,0 +1,77 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!--
+ /**
+  * @copyright  Vertex. All rights reserved.  https://www.vertexinc.com/
+  * @author     Mediotype                     https://www.mediotype.com/
+  */
+-->
+<tests xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+       xsi:noNamespaceSchemaLocation="urn:magento:mftf:Test/etc/testSchema.xsd">
+    <test name="VertexAsRegisteredCustomerCheckAppliedTaxWithCustomProductPriceTest">
+        <annotations>
+            <features value="Vertex"/>
+            <group value="Vertex"/>
+            <testCaseId value="VRTX-712"/>
+            <testCaseId value="BUNDLE-957"/>
+
+            <stories value="As a store owner, I must have accurate taxes calculated for a registered customer"/>
+            <title value="Validate Taxes during Admin Order Create, with a product with custom price"/>
+            <description value="Validate that a registered customer receives properly calculated taxes on an order with a product with custom price"/>
+
+            <severity value="MAJOR"/>
+        </annotations>
+        <before>
+            <!-- Create simple product -->
+            <createData entity="_defaultCategory" stepKey="createCategory"/>
+            <createData entity="VertexProductTaxClass_Clothing" stepKey="createTaxClass" />
+            <createData entity="VertexSimpleProduct" stepKey="createSimpleProduct">
+                <field key="price">{{Vertex_19USD_TCSIX_Values.price}}</field>
+                <field key="sku">24-UG01</field>
+                <requiredEntity createDataKey="createCategory"/>
+                <requiredEntity createDataKey="createTaxClass"/>
+            </createData>
+            <magentoCron stepKey="runCronIndex" groups="index"/>
+
+            <!-- Create customer -->
+            <createData entity="Vertex_Customer_AlanRobinson" stepKey="createCustomer"/>
+            <actionGroup ref="AdminLoginActionGroup" stepKey="loginAsAdmin"/>
+            <!-- Vertex configuration -->
+            <amOnPage url="{{AdminSalesTaxClassPage.url}}" stepKey="navigateToSalesTaxPage"/>
+            <actionGroup ref="SetTaxApplyOnSettingActionGroup" stepKey="setApplyTaxOnSetting">
+                <argument name="userInput" value="Original price only"/>
+            </actionGroup>
+
+            <magentoCLI command="cache:clean config" stepKey="cleanConfigCache"/>
+        </before>
+        <after>
+            <deleteData createDataKey="createSimpleProduct" stepKey="deleteSimpleProduct"/>
+            <deleteData createDataKey="createTaxClass" stepKey="deleteTaxClass"/>
+            <deleteData createDataKey="createCategory" stepKey="deleteCategory"/>
+            <deleteData createDataKey="createCustomer" stepKey="deleteCustomer"/>
+            <actionGroup ref="AdminLogoutActionGroup" stepKey="logoutOfAdmin"/>
+        </after>
+
+        <!-- Create new order with customer -->
+        <actionGroup ref="NavigateToNewOrderPageExistingCustomerActionGroup" stepKey="createNewOrderForCustomer">
+            <argument name="customer" value="$$createCustomer$$"/>
+        </actionGroup>
+        <conditionalClick selector="#store_1" dependentSelector="#order-store-selector" visible="true" stepKey="clickOnDefaultStoreViewIfPresent"/>
+        <waitForPageLoad time="30" stepKey="waitForPageLoad"/>
+        <actionGroup ref="AddSimpleProductToOrderActionGroup" stepKey="addSimpleProductToOrder">
+            <argument name="product" value="$$createSimpleProduct$$"/>
+        </actionGroup>
+        <waitForPageLoad time="30" stepKey="waitForPageLoadOrder"/>
+
+        <!-- Set custom price to product -->
+        <checkOption selector="{{AdminOrderFormItemsSection.customPriceCheckbox}}" stepKey="checkCustomPriceCheckbox"/>
+        <waitForElementVisible selector="{{AdminOrderFormItemsSection.customPriceField}}" stepKey="waitForPriceFieldAppears"/>
+        <fillField selector="{{AdminOrderFormItemsSection.customPriceField}}" userInput="10" stepKey="fillCustomPriceField"/>
+        <click selector="{{AdminOrderFormItemsSection.updateItemsAndQuantities}}" stepKey="clickUpdateItemsAndQuantitiesButton"/>
+
+        <!-- Validate tax -->
+        <waitForPageLoad time="30" stepKey="waitForPageLoadOrder2"/>
+        <actionGroup ref="OrderSelectFlatRateShippingActionGroup" stepKey="setShippingMethod"/>
+        <waitForPageLoad time="30" stepKey="waitForPageLoadOrder3"/>
+        <see userInput="${{Vertex_19USD_TCSIX_Totals.tax}}" selector="{{AdminNewOrderTotalSection.totalByName('Tax')}}" stepKey="seeTotalTax"/>
+    </test>
+</tests>

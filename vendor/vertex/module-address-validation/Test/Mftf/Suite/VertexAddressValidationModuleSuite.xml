@@ -1,0 +1,21 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!--
+ /**
+  * @copyright  Vertex. All rights reserved.  https://www.vertexinc.com/
+  * @author     Mediotype                     https://www.mediotype.com/
+  */
+-->
+<suites xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+        xsi:noNamespaceSchemaLocation="urn:magento:mftf:Suite/etc/suiteSchema.xsd">
+    <suite name="VertexAddressValidationModuleSuite">
+        <before>
+            <actionGroup ref="VertexAddressValidationDefaultConfigActionGroup" stepKey="setupDefaultVertexAddressValidationTestConfiguration"/>
+        </before>
+        <after>
+            <actionGroup ref="VertexAddressValidationDisableActionGroup" stepKey="disableVertexAddressValidation"/>
+        </after>
+        <include>
+            <group name="VertexAddressValidation"/>
+        </include>
+    </suite>
+</suites>

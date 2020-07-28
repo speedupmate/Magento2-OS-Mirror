@@ -1,0 +1,91 @@
+<?xml version="1.0"?>
+<!--
+/**
+ * This file is part of the Klarna Onsitemessaging module
+ *
+ * (c) Klarna Bank AB (publ)
+ *
+ * For the full copyright and license information, please view the NOTICE
+ * and LICENSE files that were distributed with this source code.
+ */
+-->
+<config xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+        xsi:noNamespaceSchemaLocation="urn:magento:module:Magento_Config:etc/system_file.xsd">
+    <system>
+        <section id="payment">
+            <group id="klarna_section">
+                <group id="osm" translate="label" sortOrder="30" showInDefault="1"
+                       showInWebsite="1" showInStore="0">
+                    <label>Klarna On-Site Messaging</label>
+                    <field id="enabled" sortOrder="10" translate="label" type="select" showInDefault="1"
+                           showInWebsite="1"
+                           showInStore="0">
+                        <label>Enable</label>
+                        <config_path>klarna/osm/enabled</config_path>
+                        <source_model>Magento\Config\Model\Config\Source\Yesno</source_model>
+                    </field>
+                    <field id="data_id" sortOrder="20" translate="label" type="text" showInDefault="1"
+                           showInWebsite="1"
+                           showInStore="0">
+                        <label>Data client ID</label>
+                        <config_path>klarna/osm/data_id</config_path>
+                    </field>
+                    <field id="theme" sortOrder="30" translate="label" type="text" showInDefault="1"
+                           showInWebsite="1"
+                           showInStore="0">
+                        <label>Design theme</label>
+                        <config_path>klarna/osm/theme</config_path>
+                    </field>
+                    <field id="product_enabled" sortOrder="40" translate="label" type="select" showInDefault="1"
+                           showInWebsite="1"
+                           showInStore="0">
+                        <label>Enable on product</label>
+                        <config_path>klarna/osm/product_enabled</config_path>
+                        <source_model>Magento\Config\Model\Config\Source\Yesno</source_model>
+                    </field>
+                    <field id="product_placement_select" sortOrder="50" translate="label" type="select" showInDefault="1"
+                           showInWebsite="1"
+                           showInStore="0">
+                        <label>Product placement</label>
+                        <source_model>Klarna\Onsitemessaging\Model\System\Config\Source\PlacementIds</source_model>
+                        <config_path>klarna/osm/product_placement_select</config_path>
+                    </field>
+                    <field id="product_placement_other" sortOrder="60" translate="label" type="text" showInDefault="1"
+                           showInWebsite="1"
+                           showInStore="0">
+                        <label>Product placement ID</label>
+                        <config_path>klarna/osm/product_placement_other</config_path>
+                        <validate>required-entry</validate>
+                        <depends>
+                            <field id="product_placement_select">other</field>
+                        </depends>
+                    </field>
+                    <field id="cart_enabled" sortOrder="70" translate="label" type="select" showInDefault="1"
+                           showInWebsite="1"
+                           showInStore="0">
+                        <label>Enable on cart</label>
+                        <config_path>klarna/osm/cart_enabled</config_path>
+                        <source_model>Magento\Config\Model\Config\Source\Yesno</source_model>
+                    </field>
+                    <field id="cart_placement_select" sortOrder="80" translate="label" type="select" showInDefault="1"
+                           showInWebsite="1"
+                           showInStore="0">
+                        <label>Cart placement</label>
+                        <source_model>Klarna\Onsitemessaging\Model\System\Config\Source\PlacementIds</source_model>
+                        <config_path>klarna/osm/cart_placement_select</config_path>
+                    </field>
+                    <field id="cart_placement_other" sortOrder="90" translate="label" type="text" showInDefault="1"
+                           showInWebsite="1"
+                           showInStore="0">
+                        <label>Cart placement ID</label>
+                        <config_path>klarna/osm/cart_placement_other</config_path>
+                        <validate>required-entry</validate>
+                        <depends>
+                            <field id="cart_placement_select">other</field>
+                        </depends>
+                    </field>
+                </group>
+            </group>
+        </section>
+    </system>
+</config>

@@ -1,0 +1,44 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!--
+ /**
+  * @copyright  Vertex. All rights reserved.  https://www.vertexinc.com/
+  * @author     Mediotype                     https://www.mediotype.com/
+  */
+-->
+<tests xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+       xsi:noNamespaceSchemaLocation="urn:magento:mftf:Test/etc/testSchema.xsd">
+    <test name="AdminCheckVertexCustomerCodeIsSetTest">
+        <annotations>
+            <group value="Vertex"/>
+            <features value="Vertex Tax"/>
+            <testCaseId value="VRTX-764"/>
+            <testCaseId value="BUNDLE-2570"/>
+
+            <stories value="As an administrator, I should be able to assign a customer code to a customer in the admin panel"/>
+            <title value="Ensure customer code can be set"/>
+            <description value="Validate that the customer code is saved and displayed on a customer record in the admin"/>
+
+            <severity value="MAJOR"/>
+        </annotations>
+        <before>
+            <actionGroup ref="AdminLoginActionGroup" stepKey="loginAsAdmin"/>
+
+            <actionGroup ref="AdminNavigateNewCustomerActionGroup" stepKey="openNewCustomerPage"/>
+
+            <fillField selector="{{AdminCustomerAccountInformationSection.firstName}}" userInput="{{Simple_US_Customer.firstname}}" stepKey="fillFirstName"/>
+            <fillField selector="{{AdminCustomerAccountInformationSection.lastName}}" userInput="{{Simple_US_Customer.lastname}}" stepKey="fillLastName"/>
+            <fillField selector="{{AdminCustomerAccountInformationSection.email}}" userInput="{{Simple_US_Customer.email}}" stepKey="fillEmail"/>
+        </before>
+        <after>
+            <actionGroup ref="AdminLogoutActionGroup" stepKey="logoutOfAdmin"/>
+        </after>
+
+        <fillField selector="{{AdminCustomerAccountInformationSection.vertexCustomerCode}}" userInput="{{Vertex_Customer_JohnWinston_VertexCustomerCode.vertex_customer_code}}" stepKey="fillCustomerCode"/>
+        <click selector="{{AdminMainActionsSection.saveAndContinue}}" stepKey="clickSaveAndContinue"/>
+        <waitForElementVisible selector="{{AdminMessagesSection.success}}" stepKey="waitForSuccessMessage"/>
+        <see selector="{{AdminMessagesSection.success}}" userInput="You saved the customer." stepKey="seeSuccessMessage"/>
+
+        <click selector="{{AdminCustomerAccountInformationSection.accountInformationTab}}" stepKey="proceedToAccountInformation"/>
+        <seeInField selector="{{AdminCustomerAccountInformationSection.vertexCustomerCode}}" userInput="{{Vertex_Customer_JohnWinston_VertexCustomerCode.vertex_customer_code}}" stepKey="seeCustomerCodeInForm"/>
+    </test>
+</tests>

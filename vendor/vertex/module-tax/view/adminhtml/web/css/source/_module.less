@@ -1,0 +1,111 @@
+/*
+ * @copyright  Vertex. All rights reserved.  https://www.vertexinc.com/
+ * @author     Mediotype                     https://www.mediotype.com/
+ */
+
+/**
+ * Class used to color the "Vertex has been disabled automatically" message in
+ * the admin panel
+ */
+
+.vertex__automatically-disabled-message {
+    margin-top: 5px;
+    .lib-css(color, @color-red10);
+}
+
+.admin__control-flexfield-table {
+    .admin__action-multiselect-menu-inner-item._root._parent .action-menu-item {
+        margin-right: 4rem;
+        position: relative;
+        &._expended .admin__action-multiselect-dropdown:before {
+            content: '\e615';
+        }
+
+        .admin__action-multiselect-dropdown {
+            left: auto;
+            right: -2.8rem;
+        }
+    }
+    .action-select.admin__action-multiselect {
+        &:before {
+            border-bottom: 0;
+            height: auto;
+        }
+        &:after {
+            transform: rotate(0deg);
+            top: 50%;
+        }
+        &._active:after {
+            transform: rotate(180deg);
+        }
+    }
+    .admin__control-table {
+        .field-edit {
+            color: @color-very-dark-gray-black;
+            text-decoration: none;
+            cursor: pointer;
+        }
+        .icon-edit:before {
+            &:extend(.abs-icon all);
+            content: @data-grid-row-changed__icon;
+            font-size: 1.6rem;
+            padding-left: 5px;
+        }
+    }
+}
+
+.vertex__comment-field-type {
+    .section-config {
+        padding: 0 2.8rem 1.9rem 2.8rem;
+    }
+}
+
+.section-config.vertex__flexfield-type-group {
+    .comment {
+        padding: 0 0 1rem 3rem;
+    }
+    > .admin__collapsible-block {
+        > a {
+            padding: 1.9rem 2.8rem 0.5rem 2.8rem;
+        }
+    }
+}
+
+#tax_vertex-head {
+    background: url("Vertex_Tax::images/vertex-logo.svg") left/auto @collapsible-title-icon__size no-repeat;
+    height: 0;
+    overflow: hidden;
+    padding: (@collapsible-title__padding-top + (@line-height__base + 1rem) + @collapsible-title__padding-bottom) 0 0;
+}
+
+#row_tax_vertex_info .comment {
+    padding-left: (@collapsible-title-icon__size + 1rem);
+    color: @collapsible-title__color;
+
+    h2 {
+        font-weight: @font-weight__semibold;
+        color: @collapsible-title__color;
+        margin: 1.5rem 0 0.5rem;
+    }
+}
+
+/**
+ * This is for our "Vertex Flexible Field" input on the Product Edit Page in the
+ * "Customizable Options" section.  At the time of this writing (2.3.1) these
+ * fields are not setup in any way to display scope appropriately. I experienced
+ * difficulty getting the ::before (existing) selector to line up in any nice
+ * way, so I instead opted to use the ::after selector and write up all the CSS
+ * myself - here.
+ *
+ * This could theoretically fail in the future, as the ::after selector on these
+ * labels is also used for the required asterisk - as such, I've documented that
+ * here.
+ */
+.admin__field-vertex-scope .admin__field-label label span::after {
+    content: attr(data-config-scope);
+    color: @field-scope__color;
+    margin-left: 1em;
+    font-size: 1.1rem;
+    font-weight: @font-weight__regular;
+    text-transform: lowercase;
+}

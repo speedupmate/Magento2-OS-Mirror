@@ -1,0 +1,52 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!--
+ /**
+  * @copyright  Vertex. All rights reserved.  https://www.vertexinc.com/
+  * @author     Mediotype                     https://www.mediotype.com/
+  */
+-->
+<tests xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+       xsi:noNamespaceSchemaLocation="urn:magento:mftf:Test/etc/testSchema.xsd">
+    <test name="VertexCustomerAccountAddressUpdateValidationSuccessWithoutValidMessageTest">
+        <annotations>
+            <features value="Vertex"/>
+            <group value="VertexAddressValidation"/>
+            <testCaseId value="VRTX-655"/>
+
+            <stories value="As a customer I want addresses I enter into my address book to be validated so that I do not need to worry about them when I am checking out"/>
+            <title value="Validate a Vertex valid address without the valid message"/>
+            <description value="Update the customer address and validate it with Vertex. Valid address is saved right away without suggestions and without a valid message displayed."/>
+
+            <severity value="CRITICAL"/>
+        </annotations>
+        <before>
+            <createData entity="Simple_US_Customer" stepKey="createCustomer"/>
+            <magentoCLI stepKey="configMessagesDisabled" command="config:set vertex_address_validation/vertex_settings/always_message 0"/>
+            <magentoCLI stepKey="cleanConfigCache" command="cache:clean config"/>
+        </before>
+        <after>
+            <deleteData createDataKey="createCustomer" stepKey="DeleteCustomer"/>
+        </after>
+
+        <!--Log in to Storefront and go to the edit billing address page -->
+        <actionGroup ref="LoginToStorefrontActionGroup" stepKey="signUp">
+            <argument name="Customer" value="$$createCustomer$$"/>
+        </actionGroup>
+
+        <amOnPage url="{{StorefrontCustomerAddressesPage.url}}" stepKey="openCustomerAddNewAddress"/>
+        <click selector="{{StorefrontCustomerAddressesSection.editDefaultBillingAddress}}"
+               stepKey="ClickEditDefaultBillingAddress"/>
+        <waitForPageLoad stepKey="waitForCustomerAddressAddUpdateFormLoad"/>
+
+        <!-- Click address save button and validate the result -->
+        <actionGroup ref="FillNewCustomerAddressRequiredFieldsActionGroup" stepKey="updateCustomerAddress">
+            <argument name="address" value="Vertex_Customer_PhiladelphiaPennsylvania_Address"/>
+        </actionGroup>
+        <click selector="{{StorefrontCustomerAddressFormSection.saveAddress}}" stepKey="saveCustomerAddress"/>
+        <dontSeeElement selector="{{StorefrontCustomerAddressFormSection.messageContainer}}" stepKey="dontSeeMessageContainer"/>
+
+        <waitForPageLoad stepKey="waitForPageToLoadAfterSave"/>
+        <dontSee userInput="The address is valid" stepKey="dontSeeValidMessage"/>
+        <see userInput="You saved the address." stepKey="verifyAddressAdded"/>
+    </test>
+</tests>

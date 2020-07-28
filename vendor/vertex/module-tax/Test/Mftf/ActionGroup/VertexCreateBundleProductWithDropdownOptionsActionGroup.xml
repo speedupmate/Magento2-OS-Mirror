@@ -1,0 +1,71 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!--
+ /**
+  * @copyright  Vertex. All rights reserved.  https://www.vertexinc.com/
+  * @author     Mediotype                     https://www.mediotype.com/
+  */
+-->
+<actionGroups xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+              xsi:noNamespaceSchemaLocation="urn:magento:mftf:Test/etc/actionGroupSchema.xsd">
+    <actionGroup name="VertexCreateBundleProductWithDropdownOptionsActionGroup">
+        <!-- Replicates the Sprite Yoga Companion Kit -->
+        <arguments>
+            <argument type="string" name="basePrice" defaultValue="61.00"/>
+            <argument type="string" name="ballPrice" defaultValue="23.00"/>
+            <argument type="string" name="brickPrice" defaultValue="5.00"/>
+            <argument type="string" name="strapPrice" defaultValue="14.00"/>
+            <argument type="string" name="rollerPrice" defaultValue="19.00"/>
+        </arguments>
+
+        <createData entity="_defaultCategory" stepKey="createCategory"/>
+
+        <createData entity="_defaultProduct" stepKey="createBall">
+            <field key="price">{{ballPrice}}</field>
+            <requiredEntity createDataKey="createCategory"/>
+        </createData>
+        <createData entity="_defaultProduct" stepKey="createBrick">
+            <field key="price">{{brickPrice}}</field>
+            <requiredEntity createDataKey="createCategory"/>
+        </createData>
+        <createData entity="_defaultProduct" stepKey="createStrap">
+            <field key="price">{{strapPrice}}</field>
+            <requiredEntity createDataKey="createCategory"/>
+        </createData>
+        <createData entity="_defaultProduct" stepKey="createRoller">
+            <field key="price">{{rollerPrice}}</field>
+            <requiredEntity createDataKey="createCategory"/>
+        </createData>
+        <createData entity="ApiBundleProduct" stepKey="createBundle">
+            <requiredEntity createDataKey="createCategory"/>
+        </createData>
+
+        <createData entity="DropDownBundleOption" stepKey="createDropdown1">
+            <field key="title">bundle-option</field>
+            <requiredEntity createDataKey="createBundle"/>
+        </createData>
+
+        <createData entity="ApiBundleLink" stepKey="linkSelection1Option1">
+            <requiredEntity createDataKey="createBundle"/>
+            <requiredEntity createDataKey="createDropdown1"/>
+            <requiredEntity createDataKey="createBall"/>
+        </createData>
+        <createData entity="ApiBundleLink" stepKey="linkSelection1Option2">
+            <requiredEntity createDataKey="createBundle"/>
+            <requiredEntity createDataKey="createDropdown1"/>
+            <requiredEntity createDataKey="createBrick"/>
+        </createData>
+        <createData entity="ApiBundleLink" stepKey="linkSelection1Option3">
+            <requiredEntity createDataKey="createBundle"/>
+            <requiredEntity createDataKey="createDropdown1"/>
+            <requiredEntity createDataKey="createStrap"/>
+        </createData>
+
+        <createData entity="ApiBundleLink" stepKey="linkSelection1Option4">
+            <requiredEntity createDataKey="createBundle"/>
+            <requiredEntity createDataKey="createDropdown1"/>
+            <requiredEntity createDataKey="createRoller"/>
+        </createData>
+
+        <magentoCLI command="indexer:reindex" arguments="cataloginventory_stock" stepKey="reindex"/>
+    </actionGroup>
+</actionGroups>

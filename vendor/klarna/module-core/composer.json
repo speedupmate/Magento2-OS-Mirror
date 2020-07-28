@@ -1,0 +1,86 @@
+{
+    "name": "klarna/module-core",
+    "description": "Klarna Core Magento 2 Extension",
+    "type": "magento2-module",
+    "license": "Apache-2.0",
+    "version": "6.0.1",
+    "support": {
+        "email": "magento@klarna.com"
+    },
+    "authors": [
+        {
+            "name": "Joe Constant",
+            "email": "joe.constant@klarna.com",
+            "role": "Developer"
+        },
+        {
+            "name": "Dario Kassler",
+            "email": "dario.kassler@klarna.com",
+            "role": "Developer"
+        },
+        {
+            "name": "Kenny Gilles",
+            "email": "kenny.gilles@klarna.com",
+            "role": "Developer"
+        },
+        {
+            "name": "Markus Simon",
+            "email": "markus.simon2@klarna.com",
+            "role": "Developer"
+        },
+        {
+            "name": "Fei Chen",
+            "email": "fei.chen@klarna.com",
+            "role": "Developer"
+        },
+        {
+            "name": "Jason Grim",
+            "email": "jason.grim@klarna.com",
+            "role": "Developer"
+        }
+    ],
+    "require": {
+        "php": "~7.3.0||~7.4.0",
+        "guzzlehttp/guzzle": "^6.0",
+        "magento/framework": "^102|^103",
+        "magento/module-bundle": "^100.3 ||^101.0",
+        "magento/module-catalog": "^103.0|^104.0",
+        "magento/module-config": "^101.1",
+        "magento/module-customer": "^102.0|^103.0",
+        "magento/module-directory": "^100.3",
+        "magento/module-payment": "^100.3",
+        "magento/module-quote": "^101.1",
+        "magento/module-sales": "^102.0||^103.0",
+        "magento/module-store": "^101.0",
+        "magento/module-tax": "^100.3",
+        "psr/log": "^1.0"
+    },
+    "require-dev": {
+        "roave/security-advisories": "dev-master",
+        "phpunit/phpunit": "~6.2.0",
+        "phpmd/phpmd": "@stable",
+        "pdepend/pdepend": "^2.5",
+        "friendsofphp/php-cs-fixer": "~2.10.1",
+        "lusitanian/oauth": "~0.8.10",
+        "sebastian/phpcpd": "~3.0",
+        "mikey179/vfsStream": "^1.6",
+        "phpro/grumphp": "^0.14",
+        "theseer/phpdox": "^0.10.1",
+        "phploc/phploc": "^4.0",
+        "squizlabs/php_codesniffer": "^3.2",
+        "jakub-onderka/php-parallel-lint": "^0.9.2",
+        "jakub-onderka/php-console-highlighter": "^0.3.2",
+        "magento/magento-coding-standard": "*"
+    },
+    "autoload": {
+        "psr-4": {
+            "Klarna\\Core\\": "."
+        },
+        "files": [ "registration.php" ]
+    },
+    "autoload-dev": {
+        "psr-4": {
+            "Klarna\\Core\\": "Test/Unit/"
+        }
+    }
+}

@@ -1,0 +1,26 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!--
+ /**
+  * @copyright  Vertex. All rights reserved.  https://www.vertexinc.com/
+  * @author     Mediotype                     https://www.mediotype.com/
+  */
+-->
+<actionGroups xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="urn:magento:mftf:Test/etc/actionGroupSchema.xsd">
+    <actionGroup name="VertexAddGroupedProductToCartActionGroup">
+        <arguments>
+            <argument name="catalogProduct"/>
+            <argument type="string" name="firstQty" defaultValue="0"/>
+            <argument name="firstProduct"/>
+            <argument type="string" name="secondQty" defaultValue="0"/>
+            <argument name="secondProduct"/>
+            <argument type="string" name="thirdQty" defaultValue="0"/>
+            <argument name="thirdProduct"/>
+        </arguments>
+        <amOnPage url="/{{catalogProduct.custom_attributes[url_key]}}.html" stepKey="navigateProductPage"/>
+        <fillField stepKey="fillFirstQty" selector="{{StorefrontGroupSection.childProductQty(firstProduct.name)}}" userInput="{{firstQty}}"/>
+        <fillField stepKey="fillSecondQty" selector="{{StorefrontGroupSection.childProductQty(secondProduct.name)}}" userInput="{{secondQty}}"/>
+        <fillField stepKey="fillThirdQty" selector="{{StorefrontGroupSection.childProductQty(thirdProduct.name)}}" userInput="{{thirdQty}}"/>
+        <click selector="{{StorefrontProductActionSection.addToCart}}" stepKey="addToCart"/>
+        <waitForAjaxLoad stepKey="waitForLoad"/>
+    </actionGroup>
+</actionGroups>

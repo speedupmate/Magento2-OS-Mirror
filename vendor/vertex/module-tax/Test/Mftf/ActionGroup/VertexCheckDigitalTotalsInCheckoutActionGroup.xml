@@ -1,0 +1,25 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!--
+ /**
+  * @copyright  Vertex. All rights reserved.  https://www.vertexinc.com/
+  * @author     Mediotype                     https://www.mediotype.com/
+  */
+-->
+<actionGroups xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+              xsi:noNamespaceSchemaLocation="urn:magento:mftf:Test/etc/actionGroupSchema.xsd">
+    <actionGroup name="VertexCheckDigitalTotalsInCheckoutActionGroup">
+        <arguments>
+            <argument type="string" name="subtotalExclTax"/>
+            <argument type="string" name="subtotalInclTax"/>
+            <argument type="string" name="totalExclTax"/>
+            <argument type="string" name="totalInclTax"/>
+            <argument type="string" name="tax"/>
+        </arguments>
+
+        <see stepKey="seeSubtotalExclTax" selector="{{StorefrontCheckoutPaymentSection.orderSubtotalExcluding}}" userInput="${{subtotalExclTax}}"/>
+        <see stepKey="seeSubtotalInclTax" selector="{{StorefrontCheckoutPaymentSection.orderSubtotalIncluding}}" userInput="${{subtotalInclTax}}"/>
+        <see stepKey="seeTax" selector="{{CheckoutPaymentSection.tax}}" userInput="${{tax}}"/>
+        <see stepKey="seeTotalExclTax" selector="{{StorefrontCheckoutPaymentSection.orderSummaryTotalExcluding}}" userInput="${{totalExclTax}}"/>
+        <see stepKey="seeTotalInclTax" selector="{{StorefrontCheckoutPaymentSection.orderSummaryTotalIncluding}}" userInput="${{totalInclTax}}"/>
+    </actionGroup>
+</actionGroups>

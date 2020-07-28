@@ -1,0 +1,29 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!--
+ /**
+  * @copyright  Vertex. All rights reserved.  https://www.vertexinc.com/
+  * @author     Mediotype                     https://www.mediotype.com/
+  */
+-->
+<actionGroups xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+              xsi:noNamespaceSchemaLocation="urn:magento:mftf:Test/etc/actionGroupSchema.xsd">
+    <actionGroup name="VertexCheckTotalsInAdminCreateActionGroup">
+        <arguments>
+            <argument type="string" name="subtotalExclTax"/>
+            <argument type="string" name="subtotalInclTax"/>
+            <argument type="string" name="shippingExclTax"/>
+            <argument type="string" name="shippingInclTax"/>
+            <argument type="string" name="totalExclTax"/>
+            <argument type="string" name="totalInclTax"/>
+            <argument type="string" name="tax"/>
+        </arguments>
+
+        <see stepKey="seeSubtotalExclTax" userInput="${{subtotalExclTax}}" selector="{{AdminOrderFormTotalsSection.totalByName('Subtotal (Excl. Tax)')}}"/>
+        <see stepKey="seeSubtotalInclTax" userInput="${{subtotalInclTax}}" selector="{{AdminOrderFormTotalsSection.totalByName('Subtotal (Incl. Tax)')}}"/>
+        <see stepKey="seeShippingExclTax" userInput="${{shippingExclTax}}" selector="{{AdminOrderFormTotalsSection.totalByName('Shipping Excl. Tax')}}"/>
+        <see stepKey="seeShippingInclTax" userInput="${{shippingInclTax}}" selector="{{AdminOrderFormTotalsSection.totalByName('Shipping Incl. Tax')}}"/>
+        <see stepKey="seeTotalExclTax" userInput="${{totalExclTax}}" selector="{{AdminOrderFormTotalsSection.totalByName('Grand Total Excl. Tax')}}"/>
+        <see stepKey="seeTotalInclTax" userInput="${{totalInclTax}}" selector="{{AdminOrderFormTotalsSection.totalByName('Grand Total Incl. Tax')}}"/>
+        <see stepKey="seeTax" userInput="${{tax}}" selector="{{AdminOrderFormTotalsSection.totalByStrictName('Tax')}}"/>
+    </actionGroup>
+</actionGroups>

@@ -1,0 +1,32 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!--
+ /**
+  * @copyright  Vertex. All rights reserved.  https://www.vertexinc.com/
+  * @author     Mediotype                     https://www.mediotype.com/
+  */
+-->
+<actionGroups xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+              xsi:noNamespaceSchemaLocation="urn:magento:mftf:Test/etc/actionGroupSchema.xsd">
+    <actionGroup name="VertexAddBundleProductWithDropdownOptionsToCartActionGroup">
+        <arguments>
+            <argument name="product"/>
+            <argument name="optionProduct"/>
+        </arguments>
+
+        <!-- Navigate to product page -->
+        <amOnPage url="{{product.sku}}.html" stepKey="goToStorefront"/>
+        <waitForPageLoad stepKey="waitForStorefront"/>
+
+        <!-- Expand bundle options and add a product to cart -->
+        <click selector="{{StorefrontBundledSection.addToCart}}" stepKey="clickCustomize"/>
+        <waitForPageLoad stepKey="waitForBundleOpen"/>
+
+        <selectOption selector="{{StorefrontBundledSection.dropDownOptionOneProducts('bundle-option')}}" userInput="{{optionProduct.name}} +${{optionProduct.price}}.00" stepKey="selectOption0Product0"/>
+        <seeOptionIsSelected selector="{{StorefrontBundledSection.dropDownOptionOneProducts('bundle-option')}}" userInput="{{optionProduct.name}} +${{optionProduct.price}}.00" stepKey="checkOption0Product0"/>
+        <fillField selector="{{StorefrontBundledSection.dropDownOptionOneQuantity('bundle-option')}}" userInput="1" stepKey="fillQuantity"/>
+        <seeInField selector="{{StorefrontBundledSection.dropDownOptionOneQuantity('bundle-option')}}" userInput="1" stepKey="checkQuantity"/>
+
+        <click selector="{{StorefrontBundledSection.addToCartConfigured}}" stepKey="addToCartProduct"/>
+        <waitForAjaxLoad stepKey="waitForLoad"/>
+    </actionGroup>
+</actionGroups>

@@ -1,0 +1,64 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!--
+ /**
+  * @copyright  Vertex. All rights reserved.  https://www.vertexinc.com/
+  * @author     Mediotype                     https://www.mediotype.com/
+  */
+-->
+<actionGroups xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+              xsi:noNamespaceSchemaLocation="urn:magento:mftf:Test/etc/actionGroupSchema.xsd">
+    <actionGroup name="VertexCreateTwoOptionConfigurableProductActionGroup">
+        <arguments>
+            <argument type="string" name="basePrice" defaultValue="50.00"/>
+            <argument type="string" name="option1Price" defaultValue="100.00"/>
+            <argument type="string" name="option2Price" defaultValue="100.00"/>
+        </arguments>
+        <createData entity="_defaultCategory" stepKey="createCategory"/>
+        <createData entity="ApiConfigurableProduct" stepKey="Product">
+            <requiredEntity createDataKey="createCategory"/>
+            <field key="price">{{basePrice}}</field>
+        </createData>
+        <createData entity="productAttributeWithTwoOptions" stepKey="ProductAttribute">
+            <field key="frontend_input">select</field>
+        </createData>
+        <createData entity="productAttributeOption1" stepKey="Option1">
+            <requiredEntity createDataKey="ProductAttribute"/>
+        </createData>
+        <createData entity="productAttributeOption2" stepKey="Option2">
+            <requiredEntity createDataKey="ProductAttribute"/>
+        </createData>
+        <createData entity="AddToDefaultSet" stepKey="createConfigAddToAttributeSet">
+            <requiredEntity createDataKey="ProductAttribute"/>
+        </createData>
+        <getData entity="ProductAttributeOptionGetter" stepKey="getConfigAttributeOption1" index="1">
+            <requiredEntity createDataKey="ProductAttribute"/>
+        </getData>
+        <getData entity="ProductAttributeOptionGetter" stepKey="getConfigAttributeOption2" index="2">
+            <requiredEntity createDataKey="ProductAttribute"/>
+        </getData>
+        <createData entity="ApiSimpleOne" stepKey="createConfigChildProduct1">
+            <field key="price">{{option1Price}}</field>
+            <requiredEntity createDataKey="ProductAttribute"/>
+            <requiredEntity createDataKey="getConfigAttributeOption1"/>
+        </createData>
+        <createData entity="ApiSimpleTwo" stepKey="createConfigChildProduct2">
+            <field key="price">{{option2Price}}</field>
+            <requiredEntity createDataKey="ProductAttribute"/>
+            <requiredEntity createDataKey="getConfigAttributeOption2"/>
+        </createData>
+        <createData entity="ConfigurableProductTwoOptions" stepKey="createConfigProductOption">
+            <requiredEntity createDataKey="Product"/>
+            <requiredEntity createDataKey="ProductAttribute"/>
+            <requiredEntity createDataKey="getConfigAttributeOption1"/>
+            <requiredEntity createDataKey="getConfigAttributeOption2"/>
+        </createData>
+        <createData entity="ConfigurableProductAddChild" stepKey="createConfigProductAddChild1">
+            <requiredEntity createDataKey="Product"/>
+            <requiredEntity createDataKey="createConfigChildProduct1"/>
+        </createData>
+        <createData entity="ConfigurableProductAddChild" stepKey="createConfigProductAddChild2">
+            <requiredEntity createDataKey="Product"/>
+            <requiredEntity createDataKey="createConfigChildProduct2"/>
+        </createData>
+    </actionGroup>
+</actionGroups>

@@ -1,0 +1,50 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!--
+ /**
+  * @copyright  Vertex. All rights reserved.  https://www.vertexinc.com/
+  * @author     Mediotype                     https://www.mediotype.com/
+  */
+-->
+<actionGroups xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+              xsi:noNamespaceSchemaLocation="urn:magento:mftf:Test/etc/actionGroupSchema.xsd">
+    <actionGroup name="VertexCreateGroupedProductActionGroup">
+        <arguments>
+            <argument type="string" name="basePrice" defaultValue="100.00"/>
+            <argument type="string" name="firstPrice" defaultValue="14.00"/>
+            <argument type="string" name="secondPrice" defaultValue="17.00"/>
+            <argument type="string" name="thirdPrice" defaultValue="21.00"/>
+        </arguments>
+
+        <createData entity="_defaultCategory" stepKey="createCategory"/>
+
+        <createData entity="_defaultProduct" stepKey="createFirst">
+            <field key="price">{{firstPrice}}</field>
+            <requiredEntity createDataKey="createCategory"/>
+        </createData>
+        <createData entity="_defaultProduct" stepKey="createSecond">
+            <field key="price">{{secondPrice}}</field>
+            <requiredEntity createDataKey="createCategory"/>
+        </createData>
+        <createData entity="_defaultProduct" stepKey="createThird">
+            <field key="price">{{thirdPrice}}</field>
+            <requiredEntity createDataKey="createCategory"/>
+        </createData>
+        <createData entity="ApiGroupedProduct" stepKey="createGroup">
+            <field key="price">{{basePrice}}</field>
+            <requiredEntity createDataKey="createCategory"/>
+        </createData>
+
+        <createData entity="OneSimpleProductLink" stepKey="firstLink">
+            <requiredEntity createDataKey="createGroup"/>
+            <requiredEntity createDataKey="createFirst"/>
+        </createData>
+        <updateData entity="OneMoreSimpleProductLink" createDataKey="firstLink" stepKey="createSecondLink">
+            <requiredEntity createDataKey="createGroup"/>
+            <requiredEntity createDataKey="createSecond"/>
+        </updateData>
+        <updateData entity="ThirdSimpleProductLink" createDataKey="firstLink" stepKey="createThirdLink">
+            <requiredEntity createDataKey="createGroup"/>
+            <requiredEntity createDataKey="createThird"/>
+        </updateData>
+    </actionGroup>
+</actionGroups>

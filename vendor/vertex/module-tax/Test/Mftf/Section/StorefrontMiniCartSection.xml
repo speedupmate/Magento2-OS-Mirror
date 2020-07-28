@@ -1,0 +1,17 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!--
+ /**
+  * @copyright  Vertex. All rights reserved.  https://www.vertexinc.com/
+  * @author     Mediotype                     https://www.mediotype.com/
+  */
+-->
+<sections xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+          xsi:noNamespaceSchemaLocation="urn:magento:mftf:Page/etc/SectionObject.xsd">
+    <section name="StorefrontMinicartSection">
+        <element name="productPriceInclTaxByName" type="text" selector="//header//ol[@id='mini-cart']//div[@class='product-item-details'][.//a[contains(text(), '{{var1}}')]]//span[@class='price-including-tax']//span[@class='price']" parameterized="true" />
+        <element name="productPriceExclTaxByName" type="text" selector="//header//ol[@id='mini-cart']//div[@class='product-item-details'][.//a[contains(text(), '{{var1}}')]]//span[@class='price-excluding-tax']//span[@class='price']" parameterized="true" />
+
+        <element name="subtotalInclTax" type="text" selector="//header//div[@id='minicart-content-wrapper']/div[@class='block-content']/div[@class='subtotal']//span[contains(@class, 'price-including-tax')]//span[@class='price']" />
+        <element name="subtotalExclTax" type="text" selector="//header//div[@id='minicart-content-wrapper']/div[@class='block-content']/div[@class='subtotal']//span[contains(@class, 'price-excluding-tax')]//span[@class='price']" />
+    </section>
+</sections>

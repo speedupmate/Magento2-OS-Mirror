@@ -1,0 +1,119 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!--
+ /**
+  * @copyright  Vertex. All rights reserved.  https://www.vertexinc.com/
+  * @author     Mediotype                     https://www.mediotype.com/
+  */
+-->
+<tests xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+       xsi:noNamespaceSchemaLocation="urn:magento:mftf:Test/etc/testSchema.xsd">
+    <test name="VertexStorefrontAsRegisteredCustomerBundleTaxValidationTest">
+        <annotations>
+            <group value="Vertex"/>
+            <features value="Vertex"/>
+            <testCaseId value="VRTX-718"/>
+            <testCaseId value="BUNDLE-1297"/>
+
+            <stories value="As a store owner, I must have accurate taxes calculated with catalog products"/>
+            <title value="Validate taxes for bundle product when ordering as registered customer"/>
+            <description value="Validate accurate taxes on the cart summary and admin order view when ordering a bundle product as a registered customer"/>
+
+            <severity value="MAJOR"/>
+        </annotations>
+        <before>
+            <!-- Create bundle product -->
+            <actionGroup ref="VertexCreateBundleProductWithDropdownOptionsActionGroup" stepKey="Bundle">
+                <argument name="basePrice" value="{{Vertex_Bundle_Valencia_Values.price}}"/>
+                <argument name="ballPrice" value="{{Vertex_19USD_TCSIX_Values.price}}"/>
+                <argument name="brickPrice" value="{{Vertex_Bundle_PA_Values_Brick_Qty3.price}}"/>
+                <argument name="strapPrice" value="{{Vertex_Bundle_PA_Values_Strap_Qty3.price}}"/>
+                <argument name="rollerPrice" value="{{Vertex_Bundle_PA_Values_Roller_Qty3.price}}"/>
+            </actionGroup>
+
+            <!-- Create customer -->
+            <createData entity="Vertex_Customer_AlanRobinson" stepKey="createCustomer"/>
+
+            <!-- Vertex config -->
+            <actionGroup ref="AdminLoginActionGroup" stepKey="loginAsAdmin"/>
+        </before>
+        <after>
+            <deleteData stepKey="deleteBall" createDataKey="createBallBundle"/>
+            <deleteData stepKey="deleteBrick" createDataKey="createBrickBundle"/>
+            <deleteData stepKey="deleteStrap" createDataKey="createStrapBundle"/>
+            <deleteData stepKey="deleteRoller" createDataKey="createRollerBundle"/>
+            <deleteData stepKey="deleteBundle" createDataKey="createBundleBundle"/>
+            <deleteData stepKey="deleteCategory" createDataKey="createCategoryBundle"/>
+            <deleteData createDataKey="createCustomer" stepKey="deleteCustomer"/>
+            <actionGroup ref="AdminLogoutActionGroup" stepKey="logoutOfAdmin"/>
+        </after>
+
+        <!-- Login customer -->
+        <actionGroup ref="LoginToStorefrontActionGroup" stepKey="customerLogin">
+            <argument name="Customer" value="$$createCustomer$$"/>
+        </actionGroup>
+
+        <!-- Add bundle product to cart -->
+        <actionGroup ref="VertexAddBundleProductWithDropdownOptionsToCartActionGroup" stepKey="AddBundleOptionToCart">
+            <argument name="product" value="$$createBundleBundle$$"/>
+            <argument name="optionProduct" value="$$createBallBundle$$"/>
+        </actionGroup>
+
+        <!-- Open Mini Cart and click on 'View And Edit Cart' -->
+        <actionGroup ref="ClickViewAndEditCartFromMiniCartActionGroup" stepKey="selectViewAndEditCart"/>
+        <waitForPageLoad stepKey="waitForCartPageLoaded"/>
+
+        <!-- Select flat rate shipping method from cart summary -->
+        <conditionalClick stepKey="openShippingDetails" selector="{{CheckoutCartSummarySection.estimateShippingAndTax}}" dependentSelector="{{CheckoutCartSummarySection.country}}" visible="false"/>
+        <waitForLoadingMaskToDisappear stepKey="waitForLoadingMask"/>
+        <waitForElementVisible selector="{{CheckoutCartSummarySection.flatRateShippingMethod}}" stepKey="waitForShippingSection"/>
+        <checkOption selector="{{CheckoutCartSummarySection.flatRateShippingMethod}}" stepKey="selectFlatRateShipping"/>
+
+        <!-- Validate totals -->
+        <actionGroup ref="VertexCheckTotalsInCartActionGroup" stepKey="checkTotals">
+            <argument name="subtotalExclTax" value="{{Vertex_19USD_TCSIX_Totals.subtotal}}"/>
+            <argument name="subtotalInclTax" value="{{Vertex_19USD_TCSIX_Totals.subtotalInclTax}}"/>
+            <argument name="shippingExclTax" value="{{Vertex_19USD_TCSIX_Totals.shipping}}" />
+            <argument name="shippingInclTax" value="{{Vertex_19USD_TCSIX_Totals.shippingInclTax}}" />
+            <argument name="tax" value="{{Vertex_19USD_TCSIX_Totals.tax}}"/>
+            <argument name="totalExclTax" value="{{Vertex_19USD_TCSIX_Totals.total}}"/>
+            <argument name="totalInclTax" value="{{Vertex_19USD_TCSIX_Totals.totalInclTax}}"/>
+        </actionGroup>
+
+        <!-- Proceed to checkout and place order -->
+        <click selector="{{CheckoutCartSummarySection.proceedToCheckout}}" stepKey="clickProceedToCheckout"/>
+        <waitForPageLoad stepKey="waitForProceedToCheckout"/>
+
+        <click selector="{{CheckoutShippingMethodsSection.checkShippingMethodByName('Flat Rate')}}" stepKey="selectShippingMethod"/>
+        <waitForElement selector="{{CheckoutShippingSection.next}}" stepKey="waitForNextButton"/>
+        <click selector="{{CheckoutShippingSection.next}}" stepKey="clickNext"/>
+
+        <actionGroup ref="ClickPlaceOrderActionGroup" stepKey="placeOrder"/>
+
+        <waitForPageLoad stepKey="waitForSuccessPageToLoad"/>
+        <see selector="{{CheckoutSuccessMainSection.successTitle}}" userInput="Thank you for your purchase!" stepKey="seeSuccessTitle"/>
+        <grabTextFrom selector="{{CheckoutSuccessMainSection.orderNumber22}}" stepKey="orderNumber"/>
+
+        <!-- Navigate to the order in admin -->
+        <amOnPage url="{{AdminOrdersPage.url}}" stepKey="goToAdminOrder"/>
+        <actionGroup ref="AdminOrdersGridClearFiltersActionGroup" stepKey="clearFilters"/>
+        <actionGroup ref="OpenOrderByIdActionGroup" stepKey="openOrder">
+            <argument name="orderId" value="$orderNumber"/>
+        </actionGroup>
+
+        <!-- Validate order totals -->
+        <actionGroup ref="VertexCheckTotalsInAdminOrderViewActionGroup" stepKey="checkOrderDetailsTotals">
+            <argument name="subtotalExclTax" value="{{Vertex_19USD_TCSIX_Totals.subtotal}}"/>
+            <argument name="subtotalInclTax" value="{{Vertex_19USD_TCSIX_Totals.subtotalInclTax}}"/>
+            <argument name="shippingExclTax" value="{{Vertex_19USD_TCSIX_Totals.shipping}}"/>
+            <argument name="shippingInclTax" value="{{Vertex_19USD_TCSIX_Totals.shippingInclTax}}"/>
+            <argument name="tax" value="{{Vertex_19USD_TCSIX_Totals.tax}}"/>
+            <argument name="totalExclTax" value="{{Vertex_19USD_TCSIX_Totals.total}}"/>
+            <argument name="totalInclTax" value="{{Vertex_19USD_TCSIX_Totals.totalInclTax}}"/>
+        </actionGroup>
+        <actionGroup ref="VertexCheckTaxTotalsInAdminOrderViewActionGroup" stepKey="checkOrderDetailsTaxTotals">
+            <argument name="product" value="{{Vertex_19USD_TCSIX_Totals.productTax}}"/>
+            <argument name="shipping" value="{{Vertex_19USD_TCSIX_Totals.shippingTax}}"/>
+        </actionGroup>
+        <actionGroup ref="StorefrontCustomerLogoutActionGroup" stepKey="customerLogout"/>
+    </test>
+</tests>

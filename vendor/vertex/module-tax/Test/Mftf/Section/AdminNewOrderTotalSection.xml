@@ -1,0 +1,13 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!--
+ /**
+  * @copyright  Vertex. All rights reserved.  https://www.vertexinc.com/
+  * @author     Mediotype                     https://www.mediotype.com/
+  */
+-->
+<sections xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+          xsi:noNamespaceSchemaLocation="urn:magento:mftf:Page/etc/SectionObject.xsd">
+    <section name="AdminNewOrderTotalSection">
+        <element name="totalByName" type="text" parameterized="true" selector="//fieldset[@id='order-totals']//td[contains(normalize-space(.),'{{total}}')]/following-sibling::td//span[contains(@class, 'price')]" />
+    </section>
+</sections>

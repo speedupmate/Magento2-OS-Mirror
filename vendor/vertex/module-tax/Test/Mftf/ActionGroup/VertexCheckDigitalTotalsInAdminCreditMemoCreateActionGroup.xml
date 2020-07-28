@@ -1,0 +1,25 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!--
+ /**
+  * @copyright  Vertex. All rights reserved.  https://www.vertexinc.com/
+  * @author     Mediotype                     https://www.mediotype.com/
+  */
+-->
+<actionGroups xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+              xsi:noNamespaceSchemaLocation="urn:magento:mftf:Test/etc/actionGroupSchema.xsd">
+    <actionGroup name="VertexCheckDigitalTotalsInAdminCreditMemoCreateActionGroup">
+        <arguments>
+            <argument type="string" name="tax"/>
+            <argument type="string" name="subtotalExclTax"/>
+            <argument type="string" name="subtotalInclTax"/>
+            <argument type="string" name="totalExclTax"/>
+            <argument type="string" name="totalInclTax"/>
+        </arguments>
+
+        <see stepKey="seeSubtotalExclTax" selector="{{AdminCreditMemoTotalSection.total('Subtotal (Excl.Tax)')}}" userInput="${{subtotalExclTax}}"/>
+        <see stepKey="seeSubtotalInclTax" selector="{{AdminCreditMemoTotalSection.total('Subtotal (Incl.Tax)')}}" userInput="${{subtotalInclTax}}"/>
+        <see stepKey="seeTax" selector="{{AdminCreditMemoTotalSection.total('Total Tax')}}" userInput="${{tax}}"/>
+        <see stepKey="seeTotalExclTax" selector="{{AdminCreditMemoTotalSection.total('Grand Total (Excl.Tax)')}}" userInput="${{totalExclTax}}"/>
+        <see stepKey="seeTotalInclTax" selector="{{AdminCreditMemoTotalSection.total('Grand Total (Incl.Tax)')}}" userInput="${{totalInclTax}}"/>
+    </actionGroup>
+</actionGroups>

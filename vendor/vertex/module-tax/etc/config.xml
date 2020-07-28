@@ -1,0 +1,48 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!--
+  @copyright  Vertex. All rights reserved.  https://www.vertexinc.com/
+  @author     Mediotype                     https://www.mediotype.com/
+  -->
+<config xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="urn:magento:module:Magento_Store:etc/config.xsd">
+    <default>
+        <tax>
+            <vertex_settings>
+                <enable_vertex><![CDATA[0]]></enable_vertex>
+                <trustedId backend_model="Magento\Config\Model\Config\Backend\Encrypted" />
+                <use_for_calculation><![CDATA[1]]></use_for_calculation>
+                <invoice_order><![CDATA[invoice_created]]></invoice_order>
+                <api_url><![CDATA[https://mgconnect.vertexsmb.com/vertex-ws/services/CalculateTax70]]></api_url>
+                <address_api_url><![CDATA[https://mgconnect.vertexsmb.com/vertex-ws/services/LookupTaxAreas70]]></address_api_url>
+                <country_sort_by_region>
+                    <![CDATA[{"North America":["MX","US","CA"],"Asia Pacific":["AU","BN","CC","KH","CN","PF","IN","HK","ID","JP","MY","MN","NC","NZ","PK","PH","SG","KR","LK","TW","TH","VN","FJ","PG","BD","BT","CX","CK","HM","KI","LA","NR","NP","NC","NU","PN","KP","WS","MM","SB","TK","TO","TV","VU","WF"],"Central\/South America":["AR","BL","BS","BR","CL","CO","CR","DO","GT","PA","PE","TT","UY","VE","AG","BB","BZ","BO","DM","EC","SV","GD","GY","HN","JM","NI","PY","AI","AW","BM","VG","KY","CU","FK","GF","HT","MS","MF","AN","SH","KN","LC","VC","GS","SR","TC"],"EMEA":["AL","AM","AT","AZ","BY","BE","BA","BG","HR","CD","CG","CI","CY","CZ","DK","EG","EE","FI","FR","GE","DE","GR","GW","HU","IS","IE","IL","IT","JO","KG","KZ","KE","LV","LB","LT","LU","MK","MT","NA","MD","ME","MA","NL","NG","NO","PL","PS","PT","RO","RU","SA","RS","SK","ST","SI","TL","ZA","ES","SZ","SE","CH","LI","TR","UA","AE","GB","UZ","ZM","MU","SN","UG","ZW","AF","AX","DZ","AD","AO","BH","BJ","BW","BV","IO","BF","BI","CM","CV","CF","TD","KM","DJ","ER","ET","TF","GA","GM","GI","GL","GN","IR","IQ","KW","LS","LR","LY","MG","MW","MV","ML","MR","YT","MZ","NA","NE","OM","PW","QA","RW","PM","SM","SC","SL","SO","SD","SJ","SY","TJ","TZ","TG","TN","TM","EH","VA","YE"],"Others":["AQ","GQ","FO","GH"]}]]>
+                </country_sort_by_region>
+                <allowed_countries>US,CA</allowed_countries>
+                <summarize_tax>product_and_shipping</summarize_tax>
+            </vertex_settings>
+            <vertex_seller_info>
+                <shipping_origin_source>1</shipping_origin_source>
+            </vertex_seller_info>
+            <classes>
+                <default_customer_code><![CDATA[General]]></default_customer_code>
+                <creditmemo_adjustment_negative_code><![CDATA[adjustment-negative]]></creditmemo_adjustment_negative_code>
+                <creditmemo_adjustment_positive_code><![CDATA[adjustment-positive]]></creditmemo_adjustment_positive_code>
+                <giftwrap_order_code><![CDATA[order-gift-wrapping]]></giftwrap_order_code>
+                <giftwrap_item_code><![CDATA[giftwrap-]]></giftwrap_item_code>
+                <printed_giftcard_code><![CDATA[printed-giftcard]]></printed_giftcard_code>
+                <reward_points_code><![CDATA[reward-points]]></reward_points_code>
+                <fpt_item_code><![CDATA[fpt-]]></fpt_item_code>
+                <fpt_tax_class>2</fpt_tax_class>
+            </classes>
+            <vertex_delivery_terms>
+                <default_term>SUP</default_term>
+            </vertex_delivery_terms>
+            <vertex_logging>
+                <enable_logging>0</enable_logging>
+                <enable_rotation>0</enable_rotation>
+                <rotation_action>delete</rotation_action>
+                <entry_lifetime>7</entry_lifetime>
+                <rotation_frequency>W</rotation_frequency>
+            </vertex_logging>
+        </tax>
+    </default>
+</config>

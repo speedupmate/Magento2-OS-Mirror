@@ -1,0 +1,60 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!--
+ /**
+  * @copyright  Vertex. All rights reserved.  https://www.vertexinc.com/
+  * @author     Mediotype                     https://www.mediotype.com/
+  */
+-->
+<tests xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+       xsi:noNamespaceSchemaLocation="urn:magento:mftf:Test/etc/testSchema.xsd">
+    <test name="VertexAsRegisteredWithBillAddressValidationTaxBasedOnShippingAddressValidTest">
+        <annotations>
+            <features value="Vertex"/>
+            <group value="VertexAddressValidation"/>
+            <testCaseId value="VRTX-668"/>
+
+            <stories value="As a store owner, I must be able to validate the registered user new billing address in checkout"/>
+            <title value="Validate address when not same as shipping in checkout for registered customer with the tax calculation based on shipping address. We have a valid address and we will show the valid message"/>
+            <description value="Validate the registered customer address and suggest changes. The calculation settings for the taxes are done based on shipping address. When the user updates the billing address in checkout we display a message that tells the user the address is valid."/>
+            <severity value="CRITICAL"/>
+        </annotations>
+        <before>
+
+            <createData entity="_defaultCategory" stepKey="createCategory"/>
+            <createData entity="_defaultProduct" stepKey="createProduct">
+                <field key="price">{{Vertex_34USD_PA_Only_Values.price}}</field>
+                <requiredEntity createDataKey="createCategory"/>
+            </createData>
+
+            <magentoCron stepKey="runCronIndex" groups="index"/>
+
+            <createData entity="Vertex_Customer_BobSaget" stepKey="createCustomer"/>
+            <actionGroup ref="LoginToStorefrontActionGroup" stepKey="customerLogin">
+                <argument name="Customer" value="$$createCustomer$$"/>
+            </actionGroup>
+
+            <actionGroup ref="AddSimpleProductToCartActionGroup" stepKey="addProductToCart">
+                <argument name="product" value="$$createProduct$$"/>
+            </actionGroup>
+
+            <actionGroup ref="GoToCheckoutFromMinicartActionGroup" stepKey="gotoCheckout"/>
+            <actionGroup ref="VertexContinueToBillingStepActionGroup" stepKey="continueToBillingStep"/>
+
+            <actionGroup ref="LoggedInCheckoutWithOneAddressFieldWithoutStreetAndMoreActionGroup" stepKey="changeAddress">
+                <argument name="Address" value="Vertex_Customer_PhiladelphiaPennsylvania_Address"/>
+                <argument name="customerAddress" value="Vertex_Customer_PhiladelphiaPennsylvania_Address"/>
+                <argument name="classPrefix" value="[aria-hidden=false]"/>
+            </actionGroup>
+        </before>
+        <after>
+            <deleteData stepKey="deleteProduct" createDataKey="createProduct"/>
+            <deleteData stepKey="deleteCategory" createDataKey="createCategory"/>
+            <deleteData stepKey="deleteCustomer" createDataKey="createCustomer"/>
+        </after>
+
+        <actionGroup ref="VertexAddressValidationValidMessageActionGroup" stepKey="seeValidMessage"/>
+
+        <actionGroup ref="ClickPlaceOrderActionGroup" stepKey="placeOrder"/>
+        <waitForPageLoad stepKey="waitSuccess"/>
+    </test>
+</tests>

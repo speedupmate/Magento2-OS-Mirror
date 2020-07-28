@@ -1,0 +1,19 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!--
+ /**
+  * @copyright  Vertex. All rights reserved.  https://www.vertexinc.com/
+  * @author     Mediotype                     https://www.mediotype.com/
+  */
+-->
+<actionGroups xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+              xsi:noNamespaceSchemaLocation="urn:magento:mftf:Test/etc/actionGroupSchema.xsd">
+    <actionGroup name="VertexCheckSubtotalInMiniCartActionGroup">
+        <arguments>
+            <argument name="subtotalInclTax" type="string"/>
+            <argument name="subtotalExclTax" type="string"/>
+        </arguments>
+
+        <see selector="{{StorefrontMinicartSection.subtotalExclTax}}" stepKey="seeSubtotalExclTax" userInput="${{subtotalExclTax}}"/>
+        <see selector="{{StorefrontMinicartSection.subtotalInclTax}}" stepKey="seeSubtotalInclTax" userInput="${{subtotalInclTax}}"/>
+    </actionGroup>
+</actionGroups>

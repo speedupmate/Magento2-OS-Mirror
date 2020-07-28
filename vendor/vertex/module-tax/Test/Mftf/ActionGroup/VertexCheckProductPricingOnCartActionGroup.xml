@@ -1,0 +1,25 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!--
+ /**
+  * @copyright  Vertex. All rights reserved.  https://www.vertexinc.com/
+  * @author     Mediotype                     https://www.mediotype.com/
+  */
+-->
+<actionGroups xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+              xsi:noNamespaceSchemaLocation="urn:magento:mftf:Test/etc/actionGroupSchema.xsd">
+    <actionGroup name="VertexCheckProductPricingOnCartActionGroup">
+        <arguments>
+            <argument name="product"/>
+            <argument type="string" name="priceInclTax"/>
+            <argument type="string" name="priceExclTax"/>
+            <argument type="string" name="subtotalExclTax"/>
+            <argument type="string" name="subtotalInclTax"/>
+        </arguments>
+
+        <see stepKey="seeProductPriceExclTax" userInput="${{priceExclTax}}" selector="{{StorefrontCheckoutCartProductSection.productPriceExclTaxByName(product.name)}}"/>
+        <see stepKey="seeProductPriceInclTax" userInput="${{priceInclTax}}" selector="{{StorefrontCheckoutCartProductSection.productPriceInclTaxByName(product.name)}}"/>
+
+        <see stepKey="seeProductSubtotalExclTax" userInput="${{subtotalExclTax}}" selector="{{StorefrontCheckoutCartProductSection.productSubtotalExclTaxByName(product.name)}}"/>
+        <see stepKey="seeProductSubtotalInclTax" userInput="${{subtotalInclTax}}" selector="{{StorefrontCheckoutCartProductSection.productSubtotalInclTaxByName(product.name)}}"/>
+    </actionGroup>
+</actionGroups>

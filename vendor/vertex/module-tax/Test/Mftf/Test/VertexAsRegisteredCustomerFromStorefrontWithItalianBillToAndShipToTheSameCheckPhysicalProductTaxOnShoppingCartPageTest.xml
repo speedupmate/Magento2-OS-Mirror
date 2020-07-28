@@ -1,0 +1,77 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!--
+ /**
+  * @copyright  Vertex. All rights reserved.  https://www.vertexinc.com/
+  * @author     Mediotype                     https://www.mediotype.com/
+  */
+-->
+<tests xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+       xsi:noNamespaceSchemaLocation="urn:magento:mftf:Test/etc/testSchema.xsd">
+    <test name="VertexAsRegisteredCustomerFromStorefrontWithItalianBillToAndShipToTheSameCheckPhysicalProductTaxOnShoppingCartPageTest">
+        <annotations>
+            <features value="Vertex"/>
+            <group value="Vertex"/>
+
+            <stories value="As a store owner, I must have accurate taxes calculated for a registered customer"/>
+            <title value="Validate Taxes on Cart Page, Registered Customer, Physical Product, Ship-To=Bill-To, VAT Italy"/>
+            <description value="Validate that a registered customer with a bill-to and a ship-to address that are the same and are in Italy with a cart containing a bundle product have taxes calculated when the customer visits the cart page"/>
+
+            <severity value="AVERAGE"/>
+        </annotations>
+        <before>
+            <actionGroup ref="VertexCreateGroupedProductActionGroup" stepKey="createGroupedProduct">
+                <argument name="basePrice" value="{{Vertex_Grouped_Product_Values.price}}"/>
+                <argument name="firstPrice" value="{{Vertex_Grouped_First_Values.price}}"/>
+                <argument name="secondPrice" value="{{Vertex_Grouped_Second_Values.price}}"/>
+                <argument name="thirdPrice" value="{{Vertex_Grouped_Third_Values.price}}"/>
+            </actionGroup>
+
+            <createData entity="Vertex_Customer_CateDeMedici" stepKey="createCustomer"/>
+            <actionGroup ref="LoginToStorefrontActionGroup" stepKey="customerLogin">
+                <argument name="Customer" value="$$createCustomer$$"/>
+            </actionGroup>
+
+            <actionGroup ref="VertexAddGroupedProductToCartActionGroup" stepKey="addToCart">
+                <argument name="catalogProduct" value="$$createGroupCreateGroupedProduct$$"/>
+                <argument name="firstProduct" value="$$createFirstCreateGroupedProduct$$"/>
+                <argument name="secondProduct" value="$$createSecondCreateGroupedProduct$$"/>
+                <argument name="thirdProduct" value="$$createThirdCreateGroupedProduct$$"/>
+                <argument name="firstQty" value="1"/>
+                <argument name="secondQty" value="1"/>
+                <argument name="thirdQty" value="1"/>
+            </actionGroup>
+
+            <actionGroup ref="StorefrontOpenCartFromMinicartActionGroup" stepKey="gotoCart"/>
+        </before>
+        <after>
+            <deleteData stepKey="deleteFirst" createDataKey="createFirstCreateGroupedProduct"/>
+            <deleteData stepKey="deleteSecond" createDataKey="createSecondCreateGroupedProduct"/>
+            <deleteData stepKey="deleteThird" createDataKey="createThirdCreateGroupedProduct"/>
+            <deleteData stepKey="deleteGroup" createDataKey="createGroupCreateGroupedProduct"/>
+            <deleteData stepKey="deleteCategory" createDataKey="createCategoryCreateGroupedProduct"/>
+            <actionGroup ref="StorefrontCustomerLogoutActionGroup" stepKey="customerLogout"/>
+        </after>
+
+        <actionGroup ref="VertexCheckProductPricingOnCartActionGroup" stepKey="checkFirstOnCart">
+            <argument name="product" value="$$createFirstCreateGroupedProduct$$"/>
+            <argument name="priceExclTax" value="{{Vertex_Grouped_First_Values.subtotal}}"/>
+            <argument name="priceInclTax" value="{{Vertex_Grouped_First_Values.subtotalInclTax}}"/>
+            <argument name="subtotalExclTax" value="{{Vertex_Grouped_First_Values.subtotal}}"/>
+            <argument name="subtotalInclTax" value="{{Vertex_Grouped_First_Values.subtotalInclTax}}"/>
+        </actionGroup>
+        <actionGroup ref="VertexCheckProductPricingOnCartActionGroup" stepKey="checkSecondOnCart">
+            <argument name="product" value="$$createSecondCreateGroupedProduct$$"/>
+            <argument name="priceExclTax" value="{{Vertex_Grouped_Second_Values.subtotal}}"/>
+            <argument name="priceInclTax" value="{{Vertex_Grouped_Second_Values.subtotalInclTax}}"/>
+            <argument name="subtotalExclTax" value="{{Vertex_Grouped_Second_Values.subtotal}}"/>
+            <argument name="subtotalInclTax" value="{{Vertex_Grouped_Second_Values.subtotalInclTax}}"/>
+        </actionGroup>
+        <actionGroup ref="VertexCheckProductPricingOnCartActionGroup" stepKey="checkThirdOnCart">
+            <argument name="product" value="$$createThirdCreateGroupedProduct$$"/>
+            <argument name="priceExclTax" value="{{Vertex_Grouped_Third_Values.subtotal}}"/>
+            <argument name="priceInclTax" value="{{Vertex_Grouped_Third_Values.subtotalInclTax}}"/>
+            <argument name="subtotalExclTax" value="{{Vertex_Grouped_Third_Values.subtotal}}"/>
+            <argument name="subtotalInclTax" value="{{Vertex_Grouped_Third_Values.subtotalInclTax}}"/>
+        </actionGroup>
+    </test>
+</tests>

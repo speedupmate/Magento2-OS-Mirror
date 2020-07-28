@@ -1,0 +1,28 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!--
+ /**
+  * @copyright  Vertex. All rights reserved.  https://www.vertexinc.com/
+  * @author     Mediotype                     https://www.mediotype.com/
+  */
+-->
+<actionGroups xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+              xsi:noNamespaceSchemaLocation="urn:magento:mftf:Test/etc/actionGroupSchema.xsd">
+    <actionGroup name="VertexCheckItemTotalsInAdminCreditMemoCreateActionGroup">
+        <arguments>
+            <argument name="product"/>
+            <argument type="string" name="tax"/>
+            <argument type="string" name="priceExclTax"/>
+            <argument type="string" name="priceInclTax"/>
+            <argument type="string" name="subtotalExclTax"/>
+            <argument type="string" name="subtotalInclTax"/>
+            <argument type="string" name="rowTotal"/>
+        </arguments>
+
+        <see stepKey="seePriceExclTax" selector="{{AdminCreditMemoItemsSection.itemPriceExclTaxByName(product.name)}}" userInput="${{priceExclTax}}"/>
+        <see stepKey="seePriceInclTax" selector="{{AdminCreditMemoItemsSection.itemPriceInclTaxByName(product.name)}}" userInput="${{priceInclTax}}"/>
+        <see stepKey="seeSubtotalExclTax" selector="{{AdminCreditMemoItemsSection.itemSubtotalExclTaxByName(product.name)}}" userInput="${{subtotalExclTax}}"/>
+        <see stepKey="seeSubtotalInclTax" selector="{{AdminCreditMemoItemsSection.itemSubtotalInclTaxByName(product.name)}}" userInput="${{subtotalInclTax}}"/>
+        <see stepKey="seeItemTax" selector="{{AdminCreditMemoItemsSection.itemTaxByName(product.name)}}" userInput="${{tax}}"/>
+        <see stepKey="seeRowTotal" selector="{{AdminCreditMemoItemsSection.itemTotalByName(product.name)}}" userInput="${{rowTotal}}"/>
+    </actionGroup>
+</actionGroups>

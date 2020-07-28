@@ -1,0 +1,74 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!--
+ /**
+  * @copyright  Vertex. All rights reserved.  https://www.vertexinc.com/
+  * @author     Mediotype                     https://www.mediotype.com/
+  */
+-->
+<tests xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+       xsi:noNamespaceSchemaLocation="urn:magento:mftf:Test/etc/testSchema.xsd">
+    <test name="VertexAsRegisteredCustomerFromStorefrontWithBillToAndShipToTheSameCheckDigitalProductVertexTaxJournalOnOrderStatusChangeTest">
+        <annotations>
+            <features value="Vertex"/>
+            <group value="Vertex"/>
+            <testCaseId value="VRTX-646"/>
+            <severity value="MAJOR"/>
+
+            <stories value="As a store owner, I must have accurate taxes committed to the tax journal"/>
+            <title value="Validate Tax Journal during Invoice for taxes sent on order status processing, Registered User, Digital Product, Bill-To=Ship-To"/>
+            <description value="Validate accurate taxes are committed the Vertex Tax Journal after an invoice of an order with taxes committed during order status change to processing with a register customer who has a bill-to the same as their ship-to and containing digital products"/>
+        </annotations>
+        <before>
+            <createData entity="_defaultCategory" stepKey="createCategory"/>
+            <createData entity="VirtualProduct" stepKey="createVirtualProduct">
+                <field key="price">{{Vertex_100USD_PA_Only_Values.price}}</field>
+                <requiredEntity createDataKey="createCategory"/>
+            </createData>
+            <actionGroup ref="VertexCreateDownloadableProductActionGroup" stepKey="createDownloadableProduct">
+                <argument name="price" value="{{Vertex_100USD_PA_Only_Values.price}}"/>
+            </actionGroup>
+            <magentoCron stepKey="runCronIndex" groups="index"/>
+
+            <actionGroup ref="AdminLoginActionGroup" stepKey="loginAsAdmin"/>
+            <actionGroup ref="VertexTaxConfigOrderStatusProcessingActionGroup" stepKey="setupTaxConfigOrderStatusProcessing"/>
+            <magentoCLI command="cache:clean config" stepKey="cleanConfigCache"/>
+
+            <createData entity="Vertex_Customer_SteveBuscemi" stepKey="createCustomer"/>
+        </before>
+        <after>
+            <deleteData stepKey="deleteCategory" createDataKey="createCategory"/>
+            <deleteData stepKey="deleteVirtualProduct" createDataKey="createVirtualProduct"/>
+            <deleteData stepKey="deleteDownloadableProduct" createDataKey="createDownloadableProductCreateDownloadableProduct"/>
+            <deleteData stepKey="deleteCustomer" createDataKey="createCustomer"/>
+            <actionGroup ref="AdminLogoutActionGroup" stepKey="logoutOfAdmin"/>
+            <actionGroup ref="StorefrontCustomerLogoutActionGroup" stepKey="customerLogout"/>
+        </after>
+
+        <actionGroup ref="LoginToStorefrontActionGroup" stepKey="customerLogin">
+            <argument name="Customer" value="$$createCustomer$$"/>
+        </actionGroup>
+
+        <actionGroup ref="AddSimpleProductToCartActionGroup" stepKey="addVirtualProductToCart">
+            <argument name="product" value="$$createVirtualProduct$$"/>
+        </actionGroup>
+        <actionGroup ref="AddSimpleProductToCartActionGroup" stepKey="addDownloadableProductToCart">
+            <argument name="product" value="$$createDownloadableProductCreateDownloadableProduct$$"/>
+        </actionGroup>
+
+        <actionGroup ref="GoToCheckoutFromMinicartActionGroup" stepKey="gotoCheckout"/>
+
+        <actionGroup ref="ClickPlaceOrderActionGroup" stepKey="placeOrder"/>
+
+        <grabTextFrom selector="{{CheckoutSuccessMainSection.orderNumber22}}" stepKey="orderNumber"/>
+
+        <amOnPage url="{{AdminOrdersPage.url}}" stepKey="goToAdminOrder"/>
+        <actionGroup ref="AdminOrdersGridClearFiltersActionGroup" stepKey="clearFilters"/>
+        <actionGroup ref="OpenOrderByIdActionGroup" stepKey="openOrder">
+            <argument name="orderId" value="$orderNumber"/>
+        </actionGroup>
+
+        <actionGroup ref="GoToInvoiceIntoOrderActionGroup" stepKey="createInvoice"/>
+        <actionGroup ref="SubmitInvoiceActionGroup" stepKey="submitInvoice"/>
+        <actionGroup ref="VertexCheckNoInvoiceSuccessMessageActionGroup" stepKey="checkNoSuccessMessage"/>
+    </test>
+</tests>

@@ -1,0 +1,62 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!--
+ /**
+  * @copyright  Vertex. All rights reserved.  https://www.vertexinc.com/
+  * @author     Mediotype                     https://www.mediotype.com/
+  */
+-->
+<tests xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+       xsi:noNamespaceSchemaLocation="urn:magento:mftf:Test/etc/testSchema.xsd">
+    <test name="VertexAsGuestCheckDigitalProductTaxOnShoppingCartPageSummaryTest">
+        <annotations>
+            <features value="Vertex"/>
+            <group value="Vertex"/>
+
+            <stories value="As a store owner, I must have accurate taxes calculated for a guest customer"/>
+            <title value="Validate Taxes on Cart Summary, Guest Customer, Virtual &amp; Downloadable Products" />
+            <description value="Validate the taxes applied to a virtual and a downloadable product on a guest customer's cart page summary after estimation" />
+
+            <severity value="MAJOR"/>
+        </annotations>
+        <before>
+            <createData entity="_defaultCategory" stepKey="createCategory"/>
+            <createData entity="VirtualProduct" stepKey="createVirtualProduct">
+                <field key="price">{{Vertex_100USD_PA_Only_Values.price}}</field>
+                <requiredEntity createDataKey="createCategory"/>
+            </createData>
+
+            <actionGroup ref="VertexCreateDownloadableProductActionGroup" stepKey="createDownloadableProduct">
+                <argument name="price" value="{{Vertex_100USD_PA_Only_Values.price}}" />
+            </actionGroup>
+            </before>
+        <after>
+            <deleteData stepKey="deleteCategory" createDataKey="createCategory"/>
+            <deleteData stepKey="deleteVirtualProduct" createDataKey="createVirtualProduct"/>
+            <deleteData stepKey="deleteDownloadableProduct" createDataKey="createDownloadableProductCreateDownloadableProduct"/>
+        </after>
+
+        <actionGroup ref="AddSimpleProductToCartActionGroup" stepKey="addVirtualProductToCart">
+            <argument name="product" value="$$createVirtualProduct$$"/>
+        </actionGroup>
+        <actionGroup ref="AddSimpleProductToCartActionGroup" stepKey="addDownloadableProductToCart">
+            <argument name="product" value="$$createDownloadableProductCreateDownloadableProduct$$"/>
+        </actionGroup>
+
+        <actionGroup ref="StorefrontOpenCartFromMinicartActionGroup" stepKey="gotoCart"/>
+
+        <actionGroup ref="FillShippingZipForm" stepKey="fillEstimateShippingInformation">
+            <argument name="address" value="Vertex_Customer_BobSaget_Address"/>
+        </actionGroup>
+
+        <actionGroup ref="VertexCheckDigitalTotalsInCartActionGroup" stepKey="checkTotals">
+            <argument name="subtotalExclTax" value="{{Vertex_100USD_Virtual_and_Downloadable_PA_Only_Totals.subtotal}}"/>
+            <argument name="subtotalInclTax" value="{{Vertex_100USD_Virtual_and_Downloadable_PA_Only_Totals.subtotalInclTax}}"/>
+            <argument name="tax" value="{{Vertex_100USD_Virtual_and_Downloadable_PA_Only_Totals.tax}}"/>
+            <argument name="totalExclTax" value="{{Vertex_100USD_Virtual_and_Downloadable_PA_Only_Totals.total}}"/>
+            <argument name="totalInclTax" value="{{Vertex_100USD_Virtual_and_Downloadable_PA_Only_Totals.totalInclTax}}"/>
+        </actionGroup>
+        <actionGroup ref="VertexCheckDigitalProductTaxTotalInCartActionGroup" stepKey="checkTaxSummary">
+            <argument name="product" value="{{Vertex_100USD_Virtual_and_Downloadable_PA_Only_Totals.productTax}}"/>
+        </actionGroup>
+    </test>
+</tests>

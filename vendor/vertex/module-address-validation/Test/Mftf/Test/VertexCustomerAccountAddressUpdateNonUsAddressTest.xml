@@ -1,0 +1,50 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!--
+ /**
+  * @copyright  Vertex. All rights reserved.  https://www.vertexinc.com/
+  * @author     Mediotype                     https://www.mediotype.com/
+  */
+-->
+<tests xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+       xsi:noNamespaceSchemaLocation="urn:magento:mftf:Test/etc/testSchema.xsd">
+    <test name="VertexCustomerAccountAddressUpdateNonUsAddressTest">
+        <annotations>
+            <features value="Vertex"/>
+            <group value="VertexAddressValidation"/>
+            <testCaseId value="VRTX-655"/>
+
+            <stories value="As a customer I want addresses I enter into my address book to be validated so that I do not need to worry about them when I am checking out"/>
+            <title value="Skip Vertex address validation on non-US addresses"/>
+            <description value="Update the customer address and do not run the address validation since it's not a US address."/>
+
+            <severity value="CRITICAL"/>
+        </annotations>
+        <before>
+            <createData entity="Simple_US_Customer" stepKey="createCustomer"/>
+        </before>
+        <after>
+            <deleteData createDataKey="createCustomer" stepKey="DeleteCustomer"/>
+        </after>
+
+        <!--Log in to Storefront and go to the edit billing address page -->
+        <actionGroup ref="LoginToStorefrontActionGroup" stepKey="signUp">
+            <argument name="Customer" value="$$createCustomer$$"/>
+        </actionGroup>
+
+        <amOnPage url="{{StorefrontCustomerAddressesPage.url}}" stepKey="openCustomerAddNewAddress"/>
+        <click selector="{{StorefrontCustomerAddressesSection.editDefaultBillingAddress}}"
+               stepKey="ClickEditDefaultBillingAddress"/>
+        <waitForPageLoad stepKey="waitForCustomerAddressAddUpdateFormLoad"/>
+
+        <!-- Click address save button and validate the result -->
+        <actionGroup ref="FillNewCustomerAddressRequiredFieldsActionGroup" stepKey="updateCustomerAddress">
+            <argument name="address" value="Vertex_Customer_LondonUK_Address"/>
+        </actionGroup>
+        <click selector="{{StorefrontCustomerAddressFormSection.saveAddress}}" stepKey="saveCustomerAddress"/>
+        <dontSeeElement selector="{{StorefrontCustomerAddressFormSection.messageContainer}}" stepKey="dontSeeMessageContainer"/>
+
+        <waitForPageLoad stepKey="waitForPageToLoadAfterSave"/>
+        <see userInput="You saved the address." stepKey="verifyAddressAdded"/>
+        <dontSee userInput="The address is valid" stepKey="dontSeeValidMessage"/>
+    </test>
+</tests>

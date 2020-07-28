@@ -1,0 +1,22 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!--
+ /**
+  * @copyright  Vertex. All rights reserved.  https://www.vertexinc.com/
+  * @author     Mediotype                     https://www.mediotype.com/
+  */
+-->
+<actionGroups xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+              xsi:noNamespaceSchemaLocation="urn:magento:mftf:Test/etc/actionGroupSchema.xsd">
+    <actionGroup name="VertexAddSingleOptionConfigurableProductToCartActionGroup">
+        <arguments>
+            <argument name="product"/>
+            <argument name="optionConfig"/>
+            <argument name="attributeConfig"/>
+        </arguments>
+        <amOnPage url="/{{product.custom_attributes[url_key]}}.html" stepKey="navigateProductPage2"/>
+        <selectOption userInput="{{optionConfig.option[store_labels][1][label]}}" selector="{{StorefrontProductInfoMainSection.optionByAttributeId(attributeConfig.attribute_id)}}" stepKey="cartConfigProductFillOption2"/>
+        <click selector="{{StorefrontProductPageSection.addToCartBtn}}" stepKey="addToCart2"/>
+        <waitForElementVisible selector="{{StorefrontProductPageSection.successMsg}}" time="30" stepKey="waitForProductAdded2"/>
+        <see selector="{{StorefrontCategoryMainSection.SuccessMsg}}" userInput="You added {{product.name}} to your shopping cart." stepKey="seeAddedToCartMessage2"/>
+    </actionGroup>
+</actionGroups>

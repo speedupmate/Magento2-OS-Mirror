@@ -1,0 +1,65 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!--
+ /**
+  * @copyright  Vertex. All rights reserved.  https://www.vertexinc.com/
+  * @author     Mediotype                     https://www.mediotype.com/
+  */
+-->
+<tests xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+       xsi:noNamespaceSchemaLocation="urn:magento:mftf:Test/etc/testSchema.xsd">
+    <test name="VertexAsGuestCustomerWithBillToAndShipToTheSameCheckPhysicalProductVertexTaxJournalOnInvoiceTest">
+        <annotations>
+            <features value="Vertex"/>
+            <group value="Vertex"/>
+
+            <stories value="As a store owner, I must have accurate taxes committed to the tax journal"/>
+            <title value="Validate Tax Journal during Invoicing, Guest User, Physical Product, Bill-To=Ship-To"/>
+            <description value="Validate accurate taxes are committed the Vertex Tax Journal during invoicing of an order with a registered user who has a bill-to the same as the ship-to and containing physical products"/>
+
+            <severity value="CRITICAL"/>
+        </annotations>
+        <before>
+            <createData entity="_defaultCategory" stepKey="createCategory"/>
+            <createData entity="_defaultProduct" stepKey="createProduct">
+                <field key="price">{{Vertex_34USD_PA_Only_Values.price}}</field>
+                <requiredEntity createDataKey="createCategory"/>
+            </createData>
+            <magentoCron stepKey="runCronIndex" groups="index"/>
+            <actionGroup ref="AdminLoginActionGroup" stepKey="loginAsAdmin"/>
+            <actionGroup ref="VertexTaxConfigInvoiceCreatedActionGroup" stepKey="InvoiceWhenInvoiceCreate"/>
+
+            <magentoCLI command="cache:clean config" stepKey="cleanConfigCache"/>
+
+            <actionGroup ref="NavigateToNewOrderPageNewCustomerSingleStoreActionGroup" stepKey="startNewOrder" />
+            <waitForLoadingMaskToDisappear stepKey="waitForOrderLoadingMask" />
+
+            <actionGroup ref="AddSimpleProductToOrderActionGroup" stepKey="addProductToOrder">
+                <argument name="product" value="$$createProduct$$"/>
+            </actionGroup>
+
+            <actionGroup ref="AdminFillOrderCustomerInformationIncludingEmailActionGroup" stepKey="fillOutCustomerInfo">
+                <argument name="customer" value="Vertex_Customer_BobSaget"/>
+                <argument name="address" value="Vertex_Customer_BobSaget_Address"/>
+            </actionGroup>
+
+            <actionGroup ref="OrderSelectFlatRateShippingActionGroup" stepKey="selectShipping"/>
+
+            <actionGroup ref="SelectCheckMoneyPaymentMethodActionGroup" stepKey="selectPayment"/>
+
+            <click stepKey="submitOrder" selector="{{AdminOrderFormActionSection.submitOrder}}"/>
+        </before>
+        <after>
+            <deleteData stepKey="deleteProduct" createDataKey="createProduct"/>
+            <deleteData stepKey="deleteCategory" createDataKey="createCategory"/>
+            <actionGroup ref="AdminLogoutActionGroup" stepKey="logoutOfAdmin"/>
+        </after>
+
+        <actionGroup ref="GoToInvoiceIntoOrderActionGroup" stepKey="createInvoice"/>
+        <actionGroup ref="SubmitInvoiceActionGroup" stepKey="submitInvoice"/>
+
+        <actionGroup ref="VertexCheckInvoiceSuccessMessageActionGroup" stepKey="checkSuccessMessage"/>
+        <actionGroup ref="VertexCheckInvoiceSuccessNoteActionGroup" stepKey="checkSuccessNote">
+            <argument name="amount" value="{{Vertex_34USD_PA_Only_Totals.tax}}"/>
+        </actionGroup>
+    </test>
+</tests>
