@@ -2,6 +2,28 @@
 
 All notable changes to this project will be documented in this file, in reverse chronological order by release.
 
+## 1.0.4 - 2020-05-20
+
+### Added
+
+- Nothing.
+
+### Changed
+
+- Nothing.
+
+### Deprecated
+
+- Nothing.
+
+### Removed
+
+- Nothing.
+
+### Fixed
+
+- [#17](https://github.com/laminas/laminas-dependency-plugin/pull/17) fixes how the various Expressive packages referencing Zend Framework components are detected and rewritten, so that they now properly reference Laminas instead of Zend in the rewritten names.
+
 ## 1.0.3 - 2020-01-14
 
 ### Added

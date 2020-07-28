@@ -342,7 +342,7 @@ class ClientBuilder
      *
      * @link https://www.elastic.co/guide/en/elasticsearch/reference/current/security-api-create-api-key.html
      *
-     * @throws Elasticsearch\Common\Exceptions\AuthenticationConfigException
+     * @throws AuthenticationConfigException
      */
     public function setApiKey(string $id, string $apiKey): ClientBuilder
     {
@@ -363,7 +363,7 @@ class ClientBuilder
      * @param string $username
      * @param string $password
      *
-     * @throws Elasticsearch\Common\Exceptions\AuthenticationConfigException
+     * @throws AuthenticationConfigException
      */
     public function setBasicAuthentication(string $username, string $password): ClientBuilder
     {
@@ -691,7 +691,7 @@ class ClientBuilder
         $parts = parse_url($host);
 
         if ($parts === false) {
-            throw new InvalidArgumentException("Could not parse URI");
+            throw new InvalidArgumentException(sprintf('Could not parse URI: "%s"', $host));
         }
 
         if (isset($parts['port']) !== true) {

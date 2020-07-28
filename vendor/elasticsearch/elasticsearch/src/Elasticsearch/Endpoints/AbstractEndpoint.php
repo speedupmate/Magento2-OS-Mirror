@@ -160,7 +160,7 @@ abstract class AbstractEndpoint
      *
      * @return $this
      */
-    public function setID($docID)
+    public function setId($docID)
     {
         if ($docID === null) {
             return $this;
@@ -169,7 +169,7 @@ abstract class AbstractEndpoint
         if (is_int($docID)) {
             $docID = (string) $docID;
         }
-
+        
         $this->id = urlencode($docID);
 
         return $this;
@@ -219,7 +219,7 @@ abstract class AbstractEndpoint
      */
     private function checkUserParams(array $params)
     {
-        if (isset($params) !== true) {
+        if (empty($params)) {
             return; //no params, just return.
         }
 

@@ -2,6 +2,28 @@
 
 All notable changes to this project will be documented in this file, in reverse chronological order by release.
 
+## 2.14.6 - 2020-06-22
+
+### Added
+
+- Nothing.
+
+### Changed
+
+- Nothing.
+
+### Deprecated
+
+- Nothing.
+
+### Removed
+
+- Nothing.
+
+### Fixed
+
+- [#68](https://github.com/laminas/laminas-form/pull/68) updates the `FormHidden` view helper to allow `autocomplete` as a valid attribute when rendering the element.
+
 ## 2.14.5 - 2020-03-29
 
 ### Added
