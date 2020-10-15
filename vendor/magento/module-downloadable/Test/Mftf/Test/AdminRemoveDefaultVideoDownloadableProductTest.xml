@@ -18,7 +18,7 @@
             <testCaseId value="MC-207"/>
             <group value="Downloadable"/>
             <skip>
-                <issueId value="MC-34256"/>
+                <issueId value="MC-34447"/>
             </skip>
         </annotations>
         <before>

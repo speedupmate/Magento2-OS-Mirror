@@ -1,4 +1,5 @@
 <?php
+
 namespace Dotdigitalgroup\Chat\Observer\Adminhtml;
 
 use Dotdigitalgroup\Chat\Model\Config;
@@ -6,6 +7,7 @@ use Dotdigitalgroup\Email\Helper\Data;
 use Magento\Backend\App\Action\Context;
 use Magento\Framework\Event\Observer;
 use Magento\Framework\Message\ManagerInterface;
+use Dotdigitalgroup\Email\Logger\Logger;
 
 /**
  * Validate api when saving creds in admin.
@@ -33,22 +35,30 @@ class ChatStatusChanged implements \Magento\Framework\Event\ObserverInterface
     private $helper;
 
     /**
-     * ApiValidator constructor.
+     * @var Logger
+     */
+    private $logger;
+
+    /**
+     * ChatStatusChanged constructor.
      * @param Context $context
      * @param Config $config
      * @param ManagerInterface $messageManager
      * @param Data $helper
+     * @param Logger $logger
      */
     public function __construct(
         Context $context,
         Config $config,
         ManagerInterface $messageManager,
-        Data $helper
+        Data $helper,
+        Logger $logger
     ) {
         $this->context = $context;
         $this->config = $config;
         $this->messageManager = $messageManager;
         $this->helper = $helper;
+        $this->logger = $logger;
     }
 
     /**
@@ -82,7 +92,10 @@ class ChatStatusChanged implements \Magento\Framework\Event\ObserverInterface
             return;
         }
 
-        $this->config->saveChatApiSpaceIdAndToken($response->apiSpaceID, $response->token)
+        $this->logger->info('Initialised for chat');
+
+        $this->config->saveChatApiSpaceId($response->apiSpaceID)
+            ->saveChatApiToken($response->token)
             ->reinitialiseConfig();
     }
 

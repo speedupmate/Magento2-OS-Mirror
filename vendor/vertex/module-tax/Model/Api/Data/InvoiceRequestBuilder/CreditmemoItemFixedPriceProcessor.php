@@ -114,13 +114,13 @@ class CreditmemoItemFixedPriceProcessor implements CreditmemoProcessorInterface
             $productSku[] = $item->getSku();
         }
 
-        $products = $this->itemProcessor->getProductsIndexedBySku($productSku);
+        $orderId = $creditmemo->getOrderId();
+        $products = $this->itemProcessor->getProductsIndexedBySku($productSku, $orderId);
 
         /** @var int[] $taxClasses Key is InvoiceItem ID, Value is Tax Class ID */
         $taxClasses = [];
 
         $storeId = $creditmemo->getStoreId();
-        $orderId = $creditmemo->getOrderId();
 
         $lineItemMapper = $this->mapperFactory->getForClass(LineItemInterface::class, $storeId);
 

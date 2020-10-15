@@ -17,7 +17,7 @@ define([
                 ? element.name + '[' + element.key + ']'
                 : element.name;
 
-            $('input[name="' + name + '"]').val(value).trigger('change');
+            $('.payment-method input[name="' + name + '"]').val(value).trigger('change');
         }
     });
     return addressResolver;

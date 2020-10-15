@@ -180,7 +180,7 @@ class Imap extends AbstractStorage implements Folder\FolderInterface, Writable\W
      * - ssl 'SSL' or 'TLS' for secure sockets
      * - folder select this folder [optional, default = 'INBOX']
      *
-     * @param  array $params mail reader specific parameters
+     * @param  array|Protocol\Imap $params mail reader specific parameters or configured Imap protocol object
      * @throws Exception\RuntimeException
      * @throws Exception\InvalidArgumentException
      * @throws Protocol\Exception\RuntimeException
@@ -213,6 +213,11 @@ class Imap extends AbstractStorage implements Folder\FolderInterface, Writable\W
         $ssl      = isset($params->ssl) ? $params->ssl : false;
 
         $this->protocol = new Protocol\Imap();
+
+        if (isset($params->novalidatecert)) {
+            $this->protocol->setNoValidateCert((bool)$params->novalidatecert);
+        }
+
         $this->protocol->connect($host, $port, $ssl);
         if (! $this->protocol->login($params->user, $password)) {
             throw new Exception\RuntimeException('cannot login, user or password wrong');

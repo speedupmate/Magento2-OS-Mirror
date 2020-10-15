@@ -4,7 +4,7 @@
  * @author     Mediotype                     https://www.mediotype.com/
  */
 
-namespace Vertex\Tax\Test\Cron;
+namespace Vertex\Tax\Test\Unit\Cron;
 
 use Vertex\Tax\Cron\LogRotate;
 use Vertex\Tax\Model\Config;

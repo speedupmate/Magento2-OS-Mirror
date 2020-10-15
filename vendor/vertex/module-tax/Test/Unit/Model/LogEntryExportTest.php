@@ -4,7 +4,7 @@
  * @author     Mediotype                     https://www.mediotype.com/
  */
 
-namespace Vertex\Tax\Test\Model;
+namespace Vertex\Tax\Test\Unit\Model;
 
 use Magento\Framework\Exception\NotFoundException;
 use Magento\Framework\Filesystem;

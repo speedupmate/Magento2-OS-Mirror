@@ -89,9 +89,9 @@
         <actionGroup ref="GoToStoreViewAdvancedCatalogSearchActionGroup" stepKey="GoToStoreViewAdvancedCatalogSearchActionGroupCustom"/>
         <actionGroup ref="StorefrontSwitchStoreViewActionGroup" stepKey="StorefrontSwitchStoreViewActionGroup"/>
         <actionGroup ref="StorefrontAdvancedCatalogSearchByProductNameAndPriceActionGroup" stepKey="searchByNameCustom">
-            <argument name="name" value="&quot;$$createProductOne.name$$&quot;"/>
-            <argument name="priceFrom" value="$$createProductOne.price$$0"/>
-            <argument name="priceTo" value="$$createProductOne.price$$0"/>
+            <argument name="name" value="&quot;$createProductOne.name$&quot;"/>
+            <argument name="priceFrom" value="$createProductOne.price$0"/>
+            <argument name="priceTo" value="$createProductOne.price$0"/>
         </actionGroup>
         <actionGroup ref="StorefrontCheckAdvancedSearchResultActionGroup" stepKey="StorefrontCheckAdvancedSearchResultCustom"/>
         <waitForElementVisible selector="{{StorefrontCatalogSearchAdvancedResultMainSection.itemFound}}" stepKey="waitForSearchResultInCustomView"/>

@@ -26,7 +26,7 @@ interface ApiInterface
      *
      * @return DataObject
      */
-    public function capture($orderId, $amount, $invoice = null);
+    public function capture(string $orderId, float $amount, Invoice $invoice);
 
     /**
      * Refund for an order
@@ -37,7 +37,7 @@ interface ApiInterface
      *
      * @return DataObject
      */
-    public function refund($orderId, $amount, $creditMemo = null);
+    public function refund(string $orderId, float $amount, Creditmemo $creditMemo);
 
     /**
      * Cancel an order

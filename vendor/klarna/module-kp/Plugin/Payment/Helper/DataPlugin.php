@@ -145,7 +145,7 @@ class DataPlugin
             return $result;
         }
         $quote = $this->getQuote();
-        if (!$quote) {
+        if (!$quote || !$quote->getIsActive()) {
             return $result;
         }
 

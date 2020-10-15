@@ -1,6 +1,6 @@
 <?php
 
-namespace Vertex\Tax\Block\Adminhtml\Config\Form\Field;
+namespace Vertex\Tax\Test\Unit\Block\Adminhtml\Config\Form\Field;
 
 use Magento\Backend\Block\Template\Context;
 use Magento\Framework\App\Request\Http;

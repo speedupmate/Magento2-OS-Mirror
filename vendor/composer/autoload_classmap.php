@@ -634,6 +634,7 @@ return array(
     'TheSeer\\fDOM\\fDOMNode' => $vendorDir . '/theseer/fdomdocument/src/fDOMNode.php',
     'TheSeer\\fDOM\\fDOMXPath' => $vendorDir . '/theseer/fdomdocument/src/fDOMXPath.php',
     'TypeError' => $vendorDir . '/symfony/polyfill-php70/Resources/stubs/TypeError.php',
+    'UnhandledMatchError' => $vendorDir . '/symfony/polyfill-php80/Resources/stubs/UnhandledMatchError.php',
     'ValueError' => $vendorDir . '/symfony/polyfill-php80/Resources/stubs/ValueError.php',
     'lessc' => $vendorDir . '/wikimedia/less.php/lessc.inc.php',
     'u2flib_server\\Error' => $vendorDir . '/yubico/u2flib-server/src/u2flib_server/U2F.php',

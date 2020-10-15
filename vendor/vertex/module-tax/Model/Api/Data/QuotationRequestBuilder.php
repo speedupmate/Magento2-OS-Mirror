@@ -31,7 +31,7 @@ use Vertex\Tax\Model\IncompleteAddressDeterminer;
  */
 class QuotationRequestBuilder
 {
-    const TRANSACTION_TYPE = 'SALE';
+    public const TRANSACTION_TYPE = 'SALE';
 
     /** @var AddressDeterminer */
     private $addressDeterminer;
@@ -69,19 +69,6 @@ class QuotationRequestBuilder
     /** @var MapperFactoryProxy */
     private $mapperFactory;
 
-    /**
-     * @param LineItemBuilder $lineItemBuilder
-     * @param RequestInterfaceFactory $requestFactory
-     * @param CustomerBuilder $customerBuilder
-     * @param SellerBuilder $sellerBuilder
-     * @param Config $config
-     * @param OrderDeliveryTermProcessor $deliveryTerm
-     * @param DateTimeImmutableFactory $dateTimeFactory
-     * @param AddressDeterminer $addressDeterminer
-     * @param StoreManagerInterface $storeManager
-     * @param StringUtils $stringUtils
-     * @param MapperFactoryProxy $mapperFactory
-     */
     public function __construct(
         LineItemBuilder $lineItemBuilder,
         RequestInterfaceFactory $requestFactory,
@@ -138,7 +125,7 @@ class QuotationRequestBuilder
             $this->incompleteAddressDeterminer->isIncompleteAddress($quoteDetails->getShippingAddress()) ?
                 $quoteDetails->getBillingAddress() :
                 $quoteDetails->getShippingAddress(),
-            $quoteDetails->getCustomerId(),
+            $quoteDetails->getCustomerId() === null ? null : (int)$quoteDetails->getCustomerId(),
             $this->isVirtual($quoteDetails)
         );
 
@@ -234,7 +221,7 @@ class QuotationRequestBuilder
                 if (!$billingCustomer) {
                     $address = $this->addressDeterminer->determineAddress(
                         $quoteDetails->getBillingAddress(),
-                        $quoteDetails->getCustomerId(),
+                        $quoteDetails->getCustomerId() === null ? null : (int)$quoteDetails->getCustomerId(),
                         $isVirtual
                     );
                     $billingCustomer = $this->customerBuilder->buildFromCustomerAddress($address);

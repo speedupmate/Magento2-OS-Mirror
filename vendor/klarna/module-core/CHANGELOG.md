@@ -1,4 +1,12 @@
 
+5.3.1 / 2020-07-31
+==================
+
+  * MAGE-1252 Fix orderline for giftcards having the wrong name
+  * MAGE-1897 Fix issue with shipping method not showing "Capture" badge in Merchant Portal
+  * MAGE-2190 Change admin configuration labels for API credentials
+  * MAGE-2354 Add sanitization of country data
+
 5.3.0 / 2020-02-11
 ==================
 

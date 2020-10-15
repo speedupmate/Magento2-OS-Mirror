@@ -71,10 +71,10 @@
                 <argument name="sourceCode" value="{{_defaultSource.name}}"/>
             </actionGroup>
             <click selector="{{AdminProductFormActionSection.saveButton}}" stepKey="saveEditedSimpleProduct2"/>
-
-            <actionGroup ref="CliRunReindexUsingCronJobsActionGroup" stepKey="reindexInvalidatedIndices"/>
-            <magentoCLI command="indexer:reindex" arguments="catalogsearch_fulltext" stepKey="performReindexAfterElasticSearchEnable"/>
-            <magentoCLI command="cache:clean" arguments="full_page" stepKey="cleanCacheAfterElasticSearchEnable"/>
+            <!--Enable ElasticSearch as search engine.-->
+            <magentoCLI command="config:set {{SearchEngineElasticsearchConfigData.path}} {{SearchEngineElasticsearchConfigData.value}}" stepKey="enableElasticSearchAsSearchEngine"/>
+            <magentoCLI command="indexer:reindex" stepKey="performReindexAfterElasticSearchEnable"/>
+            <magentoCLI command="cache:flush" stepKey="cleanCacheAfterElasticSearchEnable"/>
         </before>
         <after>
             <comment userInput="Assign Default Stock to Main Website " stepKey="assignDefaultStockToMainWebsiteComment"/>

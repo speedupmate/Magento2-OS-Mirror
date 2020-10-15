@@ -13,7 +13,7 @@ use Vertex\Tax\Api\Data\LogEntryInterface;
 use Vertex\Tax\Api\Data\LogEntrySearchResultsInterface;
 use Vertex\Tax\Api\LogEntryRepositoryInterface;
 use Vertex\Tax\Model\Config\Source\RotationAction;
-use Vertex\Tax\Model\LogEntryExportFactory;
+use Magento\Framework\Stdlib\DateTime\TimezoneInterface;
 
 /**
  * Move DB-based log entries to flat-file format.
@@ -35,40 +35,37 @@ class LogEntryRotator
     /** @var LogEntryRepositoryInterface */
     private $logEntryRepository;
 
-    /**
-     * @param DateTime $dateTime
-     * @param LogEntryRepositoryInterface $logEntryRepository
-     * @param SearchCriteriaBuilderFactory $criteriaBuilderFactory
-     * @param \Vertex\Tax\Model\LogEntryExportFactory $exportFactory
-     * @param Config $config
-     */
+    /** @var TimezoneInterface */
+    private $timezone;
+
     public function __construct(
         DateTime $dateTime,
         LogEntryRepositoryInterface $logEntryRepository,
         SearchCriteriaBuilderFactory $criteriaBuilderFactory,
         LogEntryExportFactory $exportFactory,
+        TimezoneInterface $timezone,
         Config $config
     ) {
         $this->dateTime = $dateTime;
         $this->logEntryRepository = $logEntryRepository;
         $this->criteriaBuilderFactory = $criteriaBuilderFactory;
         $this->exportFactory = $exportFactory;
+        $this->timezone = $timezone;
         $this->config = $config;
     }
 
     /**
      * Rotate log entries older than the given lifetime value.
      *
-     * @param int $lifetime The lifetime in seconds
-     * @return void
      * @throws \Magento\Framework\Exception\CouldNotDeleteException
      * @throws \Magento\Framework\Exception\FileSystemException
      * @throws \Magento\Framework\Exception\NotFoundException
      * @throws \Magento\Framework\Exception\LocalizedException
      */
-    public function rotate($lifetime)
+    public function rotate(int $lifetime) :void
     {
-        $clearAfter = $this->dateTime->formatDate(time() - $lifetime);
+        $dateTime = $this->timezone->scopeDate(null, time() - $lifetime, true);
+        $clearAfter = $this->dateTime->formatDate($dateTime);
 
         /** @var SearchCriteriaBuilder $findCriteriaBuilder */
         $findCriteriaBuilder = $this->criteriaBuilderFactory->create();

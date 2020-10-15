@@ -402,7 +402,7 @@
                     <depends>
                         <field id="enable_rotation">1</field>
                     </depends>
-                    <comment><![CDATA[The time of day the Rotation Action should occur]]></comment>
+                    <comment><![CDATA[The time of day the Rotation Action should occur. (hour, minute, second)]]></comment>
                 </field>
             </group>
         </section>

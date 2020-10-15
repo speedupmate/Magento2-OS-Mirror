@@ -18,7 +18,7 @@
             <testCaseId value="MC-110"/>
             <group value="Bundle"/>
             <skip>
-                <issueId value="MC-34256"/>
+                <issueId value="MC-34447"/>
             </skip>
         </annotations>
         <before>

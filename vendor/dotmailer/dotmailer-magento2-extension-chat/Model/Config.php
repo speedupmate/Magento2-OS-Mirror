@@ -152,19 +152,6 @@ class Config
             (string) $this->websiteId
         );
     }
-    /**
-     *
-     * @return string|null
-     */
-    public function getApiToken()
-    {
-        $value = $this->scopeConfig->getValue(
-            self::XML_PATH_LIVECHAT_API_TOKEN,
-            $this->scopeInterface,
-            (string) $this->websiteId
-        );
-        return $this->encryptor->decrypt($value);
-    }
 
     /**
      * @return string
@@ -208,13 +195,12 @@ class Config
     }
 
     /**
-     * Save chat API space ID and token
+     * Save chat API space ID
      *
      * @param string $apiSpaceId
-     * @param string $token
      * @return $this
      */
-    public function saveChatApiSpaceIdAndToken(string $apiSpaceId, string $token)
+    public function saveChatApiSpaceId(string $apiSpaceId)
     {
         $this->configWriter->save(
             self::XML_PATH_LIVECHAT_API_SPACE_ID,
@@ -222,6 +208,17 @@ class Config
             $this->scopeInterface,
             $this->websiteId
         );
+        return $this;
+    }
+
+    /**
+     * Save chat API token
+     *
+     * @param string $token
+     * @return $this
+     */
+    public function saveChatApiToken(string $token)
+    {
         $this->configWriter->save(
             self::XML_PATH_LIVECHAT_API_TOKEN,
             $this->encryptor->encrypt($token),

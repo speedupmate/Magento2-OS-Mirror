@@ -23,7 +23,7 @@ define([
          */
         initObservable: function () {
             this.hasMessage = ko.pureComputed(function() {
-                return Object.entries(this.message).length !== 0;
+                return this._objectHasEntries(this.message);
             }.bind(this));
 
             return this._super();
@@ -72,11 +72,9 @@ define([
          * @returns {Boolean}
          */
         hasMessage: function () {
-            var message = this.message;
-
             return ko.computed(function () {
-                return Object.entries(message).length !== 0
-            });
+                return this._objectHasEntries(this.message);
+            }.bind(this));
         },
 
         /**
@@ -86,6 +84,28 @@ define([
          */
         clear: function () {
             this.message = {};
-        }
+        },
+
+        /**
+         * Return whether or not the object has any entries
+         *
+         * Object.entries is not supported by IE11 or Opera Mini.
+         * Writing a quick method to serve the same purpose was easier than
+         * importing a shim.
+         *
+         * @param {Object} object
+         * @returns {boolean}
+         * @private
+         */
+        _objectHasEntries: function(object) {
+            if (typeof Object.entries !== 'undefined') {
+                return Object.entries(object).length !== 0;
+            }
+            for (let key in object) {
+                if (object.hasOwnProperty(key)) {
+                    return true;
+                }
+            }
+        },
     });
 });

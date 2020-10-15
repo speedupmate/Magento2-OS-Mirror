@@ -1,4 +1,16 @@
 
+6.5.2 / 2020-07-31
+==================
+
+  * MAGE-2227 Fix "Missing required attribute(s)" errors
+  * MAGE-2351 Fix configuration displaying settings being available at "store view" when they are not
+
+6.5.1 / 2020-05-27
+==================
+
+  * MAGE-1646 Add Full credit MFTF test back
+  * MAGE-2116 Fix issue with displaying non-Klarna payment methods in Admin area
+
 6.5.0 / 2020-02-11
 ==================
 
@@ -39,7 +51,7 @@
 
 6.4.0 / 2019-10-22
 ==================
- 
+
   * MAGE-2 Add unit tests
   * MAGE-518 Fix issue with placing a reorder
   * MAGE-698 Add switch to allow disabling sharing info during load JS call

@@ -6,8 +6,6 @@
 
 namespace Vertex\Tax\Model;
 
-use Magento\Customer\Api\Data\AddressInterface;
-use Magento\Customer\Api\Data\RegionInterface;
 use Magento\Framework\Message\ManagerInterface;
 use Magento\Framework\Pricing\PriceCurrencyInterface;
 use Magento\Tax\Api\Data\AppliedTaxInterface;
@@ -134,7 +132,9 @@ class Calculator
             || $this->addressDeterminer->determineAddress(
                 !$this->incompleteAddressDeterminer->isIncompleteAddress($quoteDetails->getShippingAddress())
                     ? $quoteDetails->getShippingAddress()
-                    : $quoteDetails->getBillingAddress()
+                    : $quoteDetails->getBillingAddress(),
+                $quoteDetails->getCustomerId() === null ? null : (int) $quoteDetails->getCustomerId(),
+                $this->isVirtualDeterminer->isVirtual($quoteDetails)
             ) === null
         ) {
             /*
@@ -286,6 +286,8 @@ class Calculator
                     ->setAmount($itemAppliedTax->getAmount())
                     ->setTaxRateKey($itemAppliedTax->getTaxRateKey())
                     ->setRates($rates);
+
+                $appliedTaxes[$taxId] = $appliedTax;
             } else {
                 $appliedTaxes[$taxId]->setAmount($appliedTaxes[$taxId]->getAmount() + $itemAppliedTax->getAmount());
             }

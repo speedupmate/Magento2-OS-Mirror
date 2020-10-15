@@ -1053,7 +1053,12 @@ class Data extends \Magento\Framework\App\Helper\AbstractHelper
             return [];
         }
 
-        return $this->serializer->unserialize($attr);
+        try {
+            return $this->serializer->unserialize($attr);
+        } catch (\InvalidArgumentException $e) {
+            $this->logger->debug((string) $e);
+            return [];
+        }
     }
 
     /**

@@ -54,13 +54,15 @@ class ItemProcessor
      * (b/c Vertex was disabled or older versions or any number of scenarios)
      *
      * @param string[] $productSku
+     * @param string $orderId
      * @return ProductInterface[] Indexed by sku
      */
-    public function getProductsIndexedBySku(array $productSku)
+    public function getProductsIndexedBySku(array $productSku, $orderId)
     {
         /** @var SearchCriteriaBuilder $criteriaBuilder */
         $criteriaBuilder = $this->criteriaBuilderFactory->create();
         $criteriaBuilder->addFilter(OrderItemInterface::SKU, $productSku, 'in');
+        $criteriaBuilder->addFilter(OrderItemInterface::ORDER_ID, $orderId);
         $criteria = $criteriaBuilder->create();
 
         $items = $this->orderItemRepository->getList($criteria)->getItems();

@@ -110,7 +110,11 @@ class SessionInitiator implements SessionInitiatorInterface
      */
     private function checkMethodAvailable(CartInterface $quote, string $code)
     {
-        $kQuote = $this->quoteRepository->getActiveByQuote($quote);
+        try {
+            $kQuote = $this->quoteRepository->getActiveByQuote($quote);
+        } catch (NoSuchEntityException $e) {
+            return false;
+        }
         return (in_array($code, $kQuote->getPaymentMethods()));
     }
 }

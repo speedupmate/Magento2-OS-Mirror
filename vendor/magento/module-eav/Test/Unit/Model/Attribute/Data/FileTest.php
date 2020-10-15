@@ -6,32 +6,15 @@
 
 namespace Magento\Eav\Test\Unit\Model\Attribute\Data;
 
-use Magento\Eav\Model\Attribute;
-use Magento\Eav\Model\Attribute\Data\File;
-use Magento\Eav\Model\AttributeDataFactory;
-use Magento\Framework\Filesystem;
-use Magento\Framework\Filesystem\Io\File as FileIo;
-use Magento\Framework\Locale\ResolverInterface;
-use Magento\Framework\Model\AbstractModel;
-use Magento\Framework\Stdlib\DateTime\TimezoneInterface;
-use Magento\Framework\Url\EncoderInterface;
-use Magento\MediaStorage\Model\File\Validator\NotProtectedExtension;
-use Psr\Log\LoggerInterface;
-
-/**
- * Test for Magento\Eav\Model\Attribute\Data\File class.
- *
- * @SuppressWarnings(PHPMD.CouplingBetweenObjects)
- */
 class FileTest extends \PHPUnit\Framework\TestCase
 {
     /**
-     * @var File
+     * @var \Magento\Eav\Model\Attribute\Data\File
      */
     protected $model;
 
     /**
-     * @var \PHPUnit_Framework_MockObject_MockObject|EncoderInterface
+     * @var \PHPUnit_Framework_MockObject_MockObject|\Magento\Framework\Url\EncoderInterface
      */
     protected $urlEncoder;
 
@@ -42,25 +25,23 @@ class FileTest extends \PHPUnit\Framework\TestCase
 
     protected function setUp()
     {
-        $timezoneMock = $this->createMock(TimezoneInterface::class);
-        $loggerMock = $this->createMock(LoggerInterface::class);
-        $localeResolverMock = $this->createMock(ResolverInterface::class);
-        $this->urlEncoder = $this->createMock(EncoderInterface::class);
+        $timezoneMock = $this->createMock(\Magento\Framework\Stdlib\DateTime\TimezoneInterface::class);
+        $loggerMock = $this->createMock(\Psr\Log\LoggerInterface::class);
+        $localeResolverMock = $this->createMock(\Magento\Framework\Locale\ResolverInterface::class);
+        $this->urlEncoder = $this->createMock(\Magento\Framework\Url\EncoderInterface::class);
         $this->fileValidatorMock = $this->createPartialMock(
-            NotProtectedExtension::class,
+            \Magento\MediaStorage\Model\File\Validator\NotProtectedExtension::class,
             ['isValid', 'getMessages']
         );
-        $filesystemMock = $this->createMock(Filesystem::class);
-        $fileIo = $this->createMock(FileIo::class);
+        $filesystemMock = $this->createMock(\Magento\Framework\Filesystem::class);
 
-        $this->model = new File(
+        $this->model = new \Magento\Eav\Model\Attribute\Data\File(
             $timezoneMock,
             $loggerMock,
             $localeResolverMock,
             $this->urlEncoder,
             $this->fileValidatorMock,
-            $filesystemMock,
-            $fileIo
+            $filesystemMock
         );
     }
 
@@ -75,10 +56,10 @@ class FileTest extends \PHPUnit\Framework\TestCase
      */
     public function testOutputValue($format, $value, $callTimes, $expectedResult)
     {
-        $entityMock = $this->createMock(AbstractModel::class);
+        $entityMock = $this->createMock(\Magento\Framework\Model\AbstractModel::class);
         $entityMock->expects($this->once())->method('getData')->will($this->returnValue($value));
 
-        $attributeMock = $this->createMock(Attribute::class);
+        $attributeMock = $this->createMock(\Magento\Eav\Model\Attribute::class);
         $this->urlEncoder->expects($this->exactly($callTimes))
             ->method('encode')
             ->will($this->returnValue('url_key'));
@@ -95,19 +76,19 @@ class FileTest extends \PHPUnit\Framework\TestCase
     {
         return [
             [
-                'format' => AttributeDataFactory::OUTPUT_FORMAT_JSON,
+                'format' => \Magento\Eav\Model\AttributeDataFactory::OUTPUT_FORMAT_JSON,
                 'value' => 'value',
                 'callTimes' => 1,
                 'expectedResult' => ['value' => 'value', 'url_key' => 'url_key'],
             ],
             [
-                'format' => AttributeDataFactory::OUTPUT_FORMAT_TEXT,
+                'format' => \Magento\Eav\Model\AttributeDataFactory::OUTPUT_FORMAT_TEXT,
                 'value' => 'value',
                 'callTimes' => 0,
                 'expectedResult' => ''
             ],
             [
-                'format' => AttributeDataFactory::OUTPUT_FORMAT_TEXT,
+                'format' => \Magento\Eav\Model\AttributeDataFactory::OUTPUT_FORMAT_TEXT,
                 'value' => false,
                 'callTimes' => 0,
                 'expectedResult' => ''
@@ -138,10 +119,10 @@ class FileTest extends \PHPUnit\Framework\TestCase
         $expectedResult
     ) {
         $this->markTestSkipped('MAGETWO-34751: Test fails after being moved.  Might have hidden dependency.');
-        $entityMock = $this->createMock(AbstractModel::class);
+        $entityMock = $this->createMock(\Magento\Framework\Model\AbstractModel::class);
         $entityMock->expects($this->any())->method('getData')->will($this->returnValue($originalValue));
 
-        $attributeMock = $this->createMock(Attribute::class);
+        $attributeMock = $this->createMock(\Magento\Eav\Model\Attribute::class);
         $attributeMock->expects($this->any())->method('getStoreLabel')->will($this->returnValue('Label'));
         $attributeMock->expects($this->any())->method('getIsRequired')->will($this->returnValue($isRequired));
         $attributeMock->expects($this->any())->method('getIsAjaxRequest')->will($this->returnValue($isAjaxRequest));
