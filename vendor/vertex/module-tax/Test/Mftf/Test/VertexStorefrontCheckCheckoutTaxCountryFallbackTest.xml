@@ -1,0 +1,100 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!--
+ /**
+  * Copyright © Magento, Inc. All rights reserved.
+  * See COPYING.txt for license details.
+  */
+-->
+
+<tests xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+       xsi:noNamespaceSchemaLocation="urn:magento:mftf:Test/etc/testSchema.xsd">
+    <test name="VertexStorefrontCheckCheckoutTaxCountryFallbackTest">
+        <annotations>
+            <group value="Vertex"/>
+            <features value="Vertex Tax"/>
+            <testCaseId value="VRTX-774"/>
+
+            <stories value="As a customer, I want to specify a single VAT Registration Number for my account that is used when one of my addresses does not have one"/>
+            <title value="Ensure that the correct VAT number is passed to Vertex during storefront order placement"/>
+            <description value="Validate if the tax rate generated on checkout is following the fallback system"/>
+            <severity value="MAJOR"/>
+        </annotations>
+        <before>
+            <actionGroup ref="AdminLoginActionGroup" stepKey="loginAsAdmin"/>
+            <actionGroup ref="AdminSetAddressVatIdVisibleOnStorefrontActionGroup" stepKey="setAddressVatIdVisible"/>
+            <actionGroup ref="VertexAdminSetTaxvatShowOnStorefrontActionGroup" stepKey="showTaxvatStorefront" />
+            <actionGroup ref="AdminLogoutActionGroup" stepKey="logoutOfAdmin"/>
+
+            <createData entity="SimpleProduct2" stepKey="createSimpleProduct">
+                <field key="price">{{Vertex_100USD_TaxRegistration_VRTXMFTF01_Values.price}}</field>
+            </createData>
+
+            <createData entity="Vertex_Customer_CateDeMedici" stepKey="createCustomer"/>
+
+            <actionGroup ref="LoginToStorefrontActionGroup" stepKey="loginToStorefront">
+                <argument name="Customer" value="$createCustomer$"/>
+            </actionGroup>
+
+            <actionGroup ref="VertexStoreFrontSetCustomerVatIdActionGroup" stepKey="setCustomerVatId">
+                <argument name="vatId" value="{{Vertex_Customer_TaxRegistration_VRTXMFTF01.taxvat}}" />
+                <argument name="countryId" value="{{Vertex_Customer_TaxRegistration_VRTXMFTF01_Country_Id.vertex_customer_country}}" />
+            </actionGroup>
+
+            <amOnPage url="{{StorefrontProductPage.url($$createSimpleProduct.custom_attributes[url_key]$$)}}" stepKey="navigateToSimpleProductPage"/>
+            <waitForPageLoad stepKey="waitForSimpleProductPageLoad"/>
+            <actionGroup ref="AddToCartFromStorefrontProductPageActionGroup" stepKey="addToCartFromStorefrontProductPage">
+                <argument name="productName" value="$$createSimpleProduct.name$$"/>
+            </actionGroup>
+
+            <actionGroup ref="GoToCheckoutFromMinicartActionGroup" stepKey="gotoCheckout"/>
+            <waitForPageLoad stepKey="waitForProceedToCheckout"/>
+
+            <actionGroup ref="VertexStorefrontGoToCheckoutLastStepActionGroup" stepKey="onCheckoutWithCustomerVatId"/>
+        </before>
+        <after>
+            <deleteData createDataKey="createSimpleProduct" stepKey="deleteSimpleProduct"/>
+            <deleteData createDataKey="createCustomer" stepKey="deleteCustomer"/>
+        </after>
+
+        <!-- Assert Customer with Italian address and Customer VAT ID. Using VRTXMFTF01 rule. -->
+        <actionGroup ref="VertexCheckTotalsInCheckoutActionGroup" stepKey="checkTotals">
+            <argument name="subtotalExclTax" value="{{Vertex_100USD_TaxRegistration_VRTXMFTF01_Totals.subtotal}}"/>
+            <argument name="subtotalInclTax" value="{{Vertex_100USD_TaxRegistration_VRTXMFTF01_Totals.subtotalInclTax}}"/>
+            <argument name="shippingExclTax" value="{{Vertex_100USD_TaxRegistration_VRTXMFTF01_Totals.shipping}}"/>
+            <argument name="shippingInclTax" value="{{Vertex_100USD_TaxRegistration_VRTXMFTF01_Totals.shippingInclTax}}"/>
+            <argument name="tax" value="{{Vertex_100USD_TaxRegistration_VRTXMFTF01_Totals.tax}}"/>
+            <argument name="totalExclTax" value="{{Vertex_100USD_TaxRegistration_VRTXMFTF01_Totals.total}}"/>
+            <argument name="totalInclTax" value="{{Vertex_100USD_TaxRegistration_VRTXMFTF01_Totals.totalInclTax}}"/>
+        </actionGroup>
+        <actionGroup ref="VertexCheckProductAndShippingTaxTotalsInCheckoutActionGroup" stepKey="checkTaxSummary">
+            <argument name="product" value="{{Vertex_100USD_TaxRegistration_VRTXMFTF01_Totals.productTax}}" />
+            <argument name="shipping" value="{{Vertex_100USD_TaxRegistration_VRTXMFTF01_Totals.shippingTax}}" />
+        </actionGroup>
+
+        <!-- Set a VAT Id to the customer address -->
+        <actionGroup ref="VertexStorefrontSetCustomerAddressVatIDActionGroup" stepKey="setCustomerShippingAddressVatId">
+            <argument name="vatId" value="{{Vertex_Customer_TaxRegistration_VRTXMFTF02.taxvat}}" />
+            <argument name="editAddress" value="{{StorefrontCustomerAccountInformationSection.editShippingAddress}}" />
+        </actionGroup>
+
+        <actionGroup ref="VertexStorefrontGoToCheckoutLastStepActionGroup" stepKey="goToCheckoutWithAddressVatId"/>
+
+        <!--
+            Assert Customer with Italian address and Address VAT ID.
+            Using VRTXMFTF02 rule set on Address ID while VRTXMFTF01 is set on Customer.
+        -->
+        <actionGroup ref="VertexCheckTotalsInCheckoutActionGroup" stepKey="checkTotalsAddressVatId">
+            <argument name="subtotalExclTax" value="{{Vertex_100USD_TaxRegistration_VRTXMFTF02_Totals.subtotal}}"/>
+            <argument name="subtotalInclTax" value="{{Vertex_100USD_TaxRegistration_VRTXMFTF02_Totals.subtotalInclTax}}"/>
+            <argument name="shippingExclTax" value="{{Vertex_100USD_TaxRegistration_VRTXMFTF02_Totals.shipping}}"/>
+            <argument name="shippingInclTax" value="{{Vertex_100USD_TaxRegistration_VRTXMFTF02_Totals.shippingInclTax}}"/>
+            <argument name="tax" value="{{Vertex_100USD_TaxRegistration_VRTXMFTF02_Totals.tax}}"/>
+            <argument name="totalExclTax" value="{{Vertex_100USD_TaxRegistration_VRTXMFTF02_Totals.total}}"/>
+            <argument name="totalInclTax" value="{{Vertex_100USD_TaxRegistration_VRTXMFTF02_Totals.totalInclTax}}"/>
+        </actionGroup>
+        <actionGroup ref="VertexCheckProductAndShippingTaxTotalsInCheckoutActionGroup" stepKey="checkTaxSummaryAddressVatId">
+            <argument name="product" value="{{Vertex_100USD_TaxRegistration_VRTXMFTF02_Totals.productTax}}" />
+            <argument name="shipping" value="{{Vertex_100USD_TaxRegistration_VRTXMFTF02_Totals.shippingTax}}" />
+        </actionGroup>
+    </test>
+</tests>

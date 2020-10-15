@@ -12,6 +12,7 @@ use Magento\Payment\Gateway\Data\OrderAdapterInterface;
 use PayPal\Braintree\Gateway\Helper\SubjectReader;
 use Magento\Payment\Gateway\Request\BuilderInterface;
 use Magento\Payment\Helper\Formatter;
+use PayPal\Braintree\Model\Ui\ConfigProvider;
 
 class ThreeDSecureDataBuilder implements BuilderInterface
 {
@@ -49,6 +50,10 @@ class ThreeDSecureDataBuilder implements BuilderInterface
         $paymentDO = $this->subjectReader->readPayment($buildSubject);
         $amount = $this->formatPrice($this->subjectReader->readAmount($buildSubject));
 
+        // disable 3d secure for vault CC payment method
+        if ($paymentDO->getPayment()->getMethod() == ConfigProvider::CC_VAULT_CODE && $paymentDO->getOrder()->isMultishipping()) {
+            return $result;
+        }
         if ($this->is3DSecureEnabled($paymentDO->getOrder(), $amount)) {
             $result['options']['threeDSecure'] = ['required' => true]; // 'three_d_secure' was removed in version 4.x.x
         }

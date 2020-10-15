@@ -261,6 +261,22 @@
     <data key="tax">11.00</data>
     <data key="taxPercent">11</data>
   </entity>
+  <entity name="Vertex_100USD_TaxRegistration_VRTXMFTF01_Values">
+    <data key="price">100.00</data>
+    <data key="priceInclTax">108.87</data>
+    <data key="subtotal">100.00</data>
+    <data key="subtotalInclTax">108.87</data>
+    <data key="tax">8.89</data>
+    <data key="taxPercent">8.887</data>
+  </entity>
+  <entity name="Vertex_100USD_TaxRegistration_VRTXMFTF02_Values">
+    <data key="price">100.00</data>
+    <data key="priceInclTax">109.50</data>
+    <data key="subtotal">100.00</data>
+    <data key="subtotalInclTax">109.50</data>
+    <data key="tax">9.50</data>
+    <data key="taxPercent">9.5</data>
+  </entity>
   <entity name="Vertex_19USD_TCSIX_Values">
     <data key="price">20.00</data>
     <data key="priceInclTax">21.90</data>
@@ -268,6 +284,10 @@
     <data key="subtotalInclTax">21.90</data>
     <data key="tax">1.90</data>
     <data key="taxPercent">9.5</data>
+  </entity>
+  <entity name="Vertex_USD_ZeroPrice_Values">
+    <data key="price">9.99</data>
+    <data key="custom_zero_price">0.00</data>
   </entity>
   <entity name="Vertex_Bundle_Fixed_With_Ball_TCSIX_Values">
     <data key="basePrice">15.00</data>
@@ -484,6 +504,28 @@
     <data key="totalInclTax">26.28</data>
     <data key="tax">2.28</data>
     <data key="productTax">1.81</data>
+    <data key="shipping">5.00</data>
+    <data key="shippingTax">0.48</data>
+    <data key="shippingInclTax">5.48</data>
+  </entity>
+  <entity name="Vertex_100USD_TaxRegistration_VRTXMFTF01_Totals">
+    <data key="subtotal">100.00</data>
+    <data key="subtotalInclTax">108.87</data>
+    <data key="total">105.00</data>
+    <data key="totalInclTax">114.32</data>
+    <data key="tax">9.32</data>
+    <data key="productTax">8.87</data>
+    <data key="shipping">5.00</data>
+    <data key="shippingTax">0.45</data>
+    <data key="shippingInclTax">5.45</data>
+  </entity>
+  <entity name="Vertex_100USD_TaxRegistration_VRTXMFTF02_Totals">
+    <data key="subtotal">100.00</data>
+    <data key="subtotalInclTax">109.50</data>
+    <data key="total">105.00</data>
+    <data key="totalInclTax">114.98</data>
+    <data key="tax">9.98</data>
+    <data key="productTax">9.50</data>
     <data key="shipping">5.00</data>
     <data key="shippingTax">0.48</data>
     <data key="shippingInclTax">5.48</data>

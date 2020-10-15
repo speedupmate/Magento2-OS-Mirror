@@ -24,6 +24,7 @@
         </before>
         <after>
             <actionGroup ref="AdminOpenStandaloneMediaGalleryActionGroup" stepKey="openStandaloneMediaGallery"/>
+            <actionGroup ref="ResetAdminDataGridToDefaultViewActionGroup" stepKey="resetAdminDataGridToDefaultView"/>
             <actionGroup ref="AdminEnhancedMediaGalleryViewImageDetails" stepKey="viewContentImageDetails"/>
             <actionGroup ref="AdminEnhancedMediaGalleryImageDetailsDeleteActionGroup" stepKey="deleteCategoryImage"/>
             <deleteData createDataKey="category" stepKey="deleteCategory"/>
@@ -35,8 +36,9 @@
         <actionGroup ref="AddCategoryImageActionGroup" stepKey="addCategoryImage"/>
         <actionGroup ref="AdminSaveCategoryFormActionGroup" stepKey="saveCategoryForm"/>
         <actionGroup ref="AdminOpenMediaGalleryFromCategoryImageUploaderActionGroup" stepKey="openMediaGalleryFromImageUploader"/>
+        <actionGroup ref="ResetAdminDataGridToDefaultViewActionGroup" stepKey="resetAdminDataGridToDefaultView"/>
         <actionGroup ref="AdminMediaGalleryAssertImageInGridActionGroup" stepKey="assertImageInGrid">
-            <argument name="image" value="ProductImage"/>
+            <argument name="title" value="ProductImage.filename"/>
         </actionGroup>
     </test>
 </tests>

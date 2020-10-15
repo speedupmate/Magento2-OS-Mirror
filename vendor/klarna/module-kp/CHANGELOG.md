@@ -1,4 +1,11 @@
 
+7.1.0 / 2020-08-10
+==================
+
+  * MAGE-724 Add support for headless commerce (GraphQL)
+  * MAGE-2306 Fix issue with missing required attributes on create_session calls
+  * MAGE-2352 Change [store view] to [Website] for all settings
+
 7.0.0 / 2020-04-28
 ==================
 
@@ -9,9 +16,16 @@
   * MAGE-2015 Update order line code to handle discounts on item level instead of separate line
   * MAGE-2036 Remove duplicated unit test mocking code
 
+6.5.2 / 2020-07-31
+==================
+
+  * MAGE-2227 Fix "Missing required attribute(s)" errors
+  * MAGE-2351 Fix configuration displaying settings being available at "store view" when they are not
+
 6.5.1 / 2020-05-27
 ==================
 
+  * MAGE-1646 Add Full credit MFTF test back
   * MAGE-2116 Fix issue with displaying non-Klarna payment methods in Admin area
 
 6.5.0 / 2020-02-11

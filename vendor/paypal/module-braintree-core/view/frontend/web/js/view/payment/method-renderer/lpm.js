@@ -233,7 +233,6 @@ define(
                     return true;
                 }
 
-                this.paymentMethodsAvailable(false);
                 return false;
             },
 

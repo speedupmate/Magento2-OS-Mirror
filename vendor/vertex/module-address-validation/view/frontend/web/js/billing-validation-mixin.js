@@ -4,9 +4,10 @@
  */
 
 define([
+    'jquery',
     'uiRegistry',
     'Magento_Checkout/js/checkout-data'
-], function (registry, checkoutData) {
+], function ($, registry, checkoutData) {
     'use strict';
 
     return function (Component) {
@@ -35,6 +36,8 @@ define([
              * @returns {self}
              */
             updateAddress: function () {
+                this.registerAddressInvalidationTrigger();
+
                 var billingData = checkoutData.getBillingAddressFromData();
 
                 if (!this.validationConfig.isAddressValidationEnabled ||
@@ -51,6 +54,26 @@ define([
                         return this.updateAddress();
                     }
                 }.bind(this));
+            },
+
+            /**
+             * When called, register a single (mind the "one") address invalidation trigger,
+             * that sets the "this.addressValidator.isAddressValid = false" for any further billing address field change.
+             */
+            registerAddressInvalidationTrigger: function () {
+                let that = this;
+                $('fieldset')
+                    .find('[data-form="billing-new-address"]')
+                    .one(
+                        'keyup change paste',
+                        'input[name^="street"]' +
+                        ', input[name="postcode"]' +
+                        ', input[name="city"]' +
+                        ', input[name="country_id"]' +
+                        ', select[name="region_id"]',
+                        function () {
+                            that.addressValidator.isAddressValid = false;
+                        });
             }
         });
     };

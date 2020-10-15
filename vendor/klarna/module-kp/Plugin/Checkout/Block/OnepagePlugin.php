@@ -10,10 +10,8 @@
 
 namespace Klarna\Kp\Plugin\Checkout\Block;
 
-use Klarna\Kp\Model\Payment\Kp;
 use Klarna\Kp\Model\Session as KlarnaKpSession;
 use Magento\Framework\App\Config\ScopeConfigInterface;
-use Magento\Store\Model\ScopeInterface;
 use Magento\Store\Model\StoreManagerInterface;
 
 /**
@@ -64,12 +62,7 @@ class OnepagePlugin
      */
     public function beforeGetJsLayout(\Magento\Checkout\Block\Onepage $subject)
     {
-        $store = $this->storeManager->getStore();
-        if ($this->config->isSetFlag(
-            sprintf('payment/%s/active', Kp::METHOD_CODE),
-            ScopeInterface::SCOPE_STORES,
-            $store
-        )) {
+        if ($this->kpSession->canSendRequest()) {
             $this->kpSession->init();
         }
         return [];

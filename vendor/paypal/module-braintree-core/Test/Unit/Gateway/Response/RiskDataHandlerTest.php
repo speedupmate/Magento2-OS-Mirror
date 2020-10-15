@@ -10,7 +10,7 @@ use PayPal\Braintree\Gateway\Helper\SubjectReader;
 use PayPal\Braintree\Gateway\Response\RiskDataHandler;
 use Magento\Payment\Gateway\Data\PaymentDataObjectInterface;
 use Magento\Sales\Model\Order\Payment;
-use PHPUnit_Framework_MockObject_MockObject as MockObject;
+use PHPUnit\Framework\MockObject\MockObject as MockObject;
 
 /**
  * @see \PayPal\Braintree\Gateway\Response\RiskDataHandler
@@ -30,7 +30,7 @@ class RiskDataHandlerTest extends \PHPUnit\Framework\TestCase
     /**
      * Set up
      */
-    protected function setUp()
+    protected function setUp(): void
     {
         $this->subjectReader = $this->getMockBuilder(SubjectReader::class)
             ->disableOriginalConstructor()

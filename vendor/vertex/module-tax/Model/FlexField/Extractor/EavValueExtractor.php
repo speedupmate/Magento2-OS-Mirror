@@ -12,6 +12,7 @@ use Magento\Eav\Model\Config;
 use Magento\Eav\Model\Entity\Attribute\Source\Boolean;
 use Magento\Eav\Model\Entity\Attribute\Source\SourceInterface;
 use Magento\Framework\Api\CustomAttributesDataInterface;
+use Magento\Framework\DataObject;
 use Magento\Framework\Exception\LocalizedException;
 use Vertex\Tax\Model\DateTimeImmutableFactory;
 use Vertex\Tax\Model\ExceptionLogger;
@@ -21,11 +22,11 @@ use Vertex\Tax\Model\ExceptionLogger;
  */
 class EavValueExtractor
 {
-    /** @var Config */
-    private $eavConfig;
-
     /** @var DateTimeImmutableFactory */
     private $dateTimeFactory;
+
+    /** @var Config */
+    private $eavConfig;
 
     /** @var ExceptionLogger */
     private $logger;
@@ -71,6 +72,15 @@ class EavValueExtractor
                 $customAttribute = $item->getCustomAttribute($attributeName);
                 $value = $customAttribute ? $customAttribute->getValue() : null;
 
+                if ($value === null && $item instanceof DataObject && $item->hasData($attributeName)) {
+                    /*
+                     * In some cases, a custom attribute may be loaded into the product's join and stored with the rest
+                     * of the attributes, but nothing properly places it into the custom attribute data.  (I'm looking
+                     * at you, Customer Custom Attributes).  In this case, we can still load it via ->getData.
+                     */
+                    $value = $item->getData($attributeName);
+                }
+
                 if ($value === null) {
                     return null;
                 }
@@ -85,25 +95,6 @@ class EavValueExtractor
             return $this->valueExtractor->extract($item, $attributeCode, $prefix, $dateFields);
         } catch (Exception $e) {
             $this->logger->warning($e);
-            return null;
-        }
-    }
-
-    /**
-     * Process a value with a source model
-     *
-     * @param string $entityType Entity type ID
-     * @param string $attributeCode Attribute code
-     * @param string $value Attribute value
-     * @return string|null
-     */
-    private function processValue($entityType, $attributeCode, $value)
-    {
-        try {
-            $attribute = $this->eavConfig->getAttribute($entityType, $attributeCode);
-            return $attribute->usesSource() ? $this->getValueFromSource($value, $attribute->getSource()) : $value;
-        } catch (LocalizedException $exception) {
-            $this->logger->error($exception);
             return null;
         }
     }
@@ -133,5 +124,24 @@ class EavValueExtractor
 
         sort($values);
         return implode(',', $values);
+    }
+
+    /**
+     * Process a value with a source model
+     *
+     * @param string $entityType Entity type ID
+     * @param string $attributeCode Attribute code
+     * @param string $value Attribute value
+     * @return string|null
+     */
+    private function processValue($entityType, $attributeCode, $value)
+    {
+        try {
+            $attribute = $this->eavConfig->getAttribute($entityType, $attributeCode);
+            return $attribute->usesSource() ? $this->getValueFromSource($value, $attribute->getSource()) : $value;
+        } catch (LocalizedException $exception) {
+            $this->logger->error($exception);
+            return null;
+        }
     }
 }

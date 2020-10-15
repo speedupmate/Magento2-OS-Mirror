@@ -33,14 +33,16 @@
                     <field id="merchant_id" sortOrder="20" translate="label" type="text" showInDefault="1"
                            showInWebsite="1"
                            showInStore="0">
-                        <label>Merchant ID</label>
+                        <label>Klarna API username</label>
+                        <comment>Use the API username you downloaded in the Klarna Merchant Portal. Don’t use your email address.</comment>
                         <config_path>klarna/api/merchant_id</config_path>
                     </field>
                     <field id="shared_secret" sortOrder="30" translate="label" type="obscure" showInDefault="1"
                            showInWebsite="1"
                            showInStore="0">
-                        <label>Password</label>
+                        <label>Klarna API password</label>
                         <config_path>klarna/api/shared_secret</config_path>
+                        <comment>Use the API password you downloaded in the Klarna Merchant Portal.</comment>
                         <backend_model>Magento\Config\Model\Config\Backend\Encrypted</backend_model>
                     </field>
                     <field id="test_mode" sortOrder="40" translate="label" type="select" showInDefault="1"

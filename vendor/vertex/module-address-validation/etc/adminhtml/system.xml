@@ -1,8 +1,10 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <!--
-  @copyright  Vertex. All rights reserved.  https://www.vertexinc.com/
-  @author     Mediotype                     https://www.mediotype.com/
-  -->
+/**
+ * @copyright  Vertex. All rights reserved.  https://www.vertexinc.com/
+ * @author     Mediotype                     https://www.mediotype.com/
+ */
+-->
 <config xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="urn:magento:module:Magento_Config:etc/system_file.xsd">
     <system>
         <section id="vertex_address_validation" translate="label" type="text" sortOrder="510" showInDefault="1" showInWebsite="1" showInStore="1">
@@ -43,21 +45,33 @@
                     <comment><![CDATA[This configuration value is shared with Vertex Tax settings.]]></comment>
                     <config_path>tax/vertex_settings/trustedId</config_path>
                     <depends>
-                        <field id="enable_vertex">1</field>
+                        <field id="enable">1</field>
                     </depends>
                 </field>
             </group>
             <group id="display" translate="label" sortOrder="20" showInDefault="1" showInWebsite="1" showInStore="1">
                 <label>Display Settings</label>
                 <attribute type="expanded">1</attribute>
+                <depends>
+                    <field id="vertex_address_validation/connection/enable">1</field>
+                </depends>
                 <field id="always_message" translate="label" type="select" sortOrder="30" showInDefault="1" showInWebsite="1" showInStore="1">
                     <label><![CDATA[Confirmation Message When No Action Is Needed]]></label>
                     <source_model>Magento\Config\Model\Config\Source\Enabledisable</source_model>
                     <comment><![CDATA[Display Confirmation Message when Original Address EXACTLY matches the Suggested Address]]></comment>
                     <config_path>vertex_address_validation/vertex_settings/always_message</config_path>
-                    <depends>
-                        <field id="enable">1</field>
-                    </depends>
+                </field>
+            </group>
+            <group id="integration" translate="label" sortOrder="30" showInDefault="1" showInWebsite="1" showInStore="0">
+                <label>Integration Settings</label>
+                <attribute type="expanded">1</attribute>
+                <depends>
+                    <field id="vertex_address_validation/connection/enable">1</field>
+                </depends>
+                <field id="use_legacy_api" translate="label comment" type="select" sortOrder="10" showInDefault="1" showInWebsite="1" showInStore="0" canRestore="1">
+                    <label><![CDATA[Legacy WebAPI]]></label>
+                    <source_model>Magento\Config\Model\Config\Source\Enabledisable</source_model>
+                    <comment><![CDATA[Allow use of the /V1/vertex-address-validation endpoint.  <strong>Note:</strong> This endpoint is not closed off to outside use and can theoretically be used to run calls through the Vertex Address Cleansing API that you have not authorized.  Only enable this setting if you have a custom integration that uses the API and need it temporarily during transition.]]></comment>
                 </field>
             </group>
         </section>

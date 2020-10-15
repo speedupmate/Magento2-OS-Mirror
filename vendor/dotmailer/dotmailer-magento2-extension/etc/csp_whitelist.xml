@@ -1,0 +1,25 @@
+<?xml version="1.0"?>
+<csp_whitelist xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="urn:magento:module:Magento_Csp:etc/csp_whitelist.xsd">
+    <policies>
+        <policy id="script-src">
+            <values>
+                <value id="dotdigital_trackedlink" type="host">*.trackedlink.net</value>
+                <value id="dotdigital_trackedweb" type="host">*.trackedweb.net</value>
+                <value id="dotdigital_pages" type="host">*.dotdigital-pages.com</value>
+            </values>
+        </policy>
+        <policy id="connect-src">
+            <values>
+                <value id="dotdigital_trackedlink" type="host">*.trackedlink.net</value>
+                <value id="dotdigital_trackedweb" type="host">*.trackedweb.net</value>
+                <value id="dotdigital_pages" type="host">*.dotdigital-pages.com</value>
+            </values>
+        </policy>
+        <policy id="frame-src">
+            <values>
+                <value id="dotdigital_pages" type="host">*.dotdigital-pages.com</value>
+                <value id="dotdigital_com" type="host">*.dotdigital.com</value>
+            </values>
+        </policy>
+    </policies>
+</csp_whitelist>

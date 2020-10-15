@@ -199,6 +199,7 @@ class Codes
     const DOCUMENT_UPLOAD_FILE_TYPE_IS_INVALID           = '84903';
     const DOCUMENT_UPLOAD_FILE_IS_MALFORMED_OR_ENCRYPTED = '84904';
     const DOCUMENT_UPLOAD_FILE_IS_TOO_LONG               = '84905';
+    const DOCUMENT_UPLOAD_FILE_IS_EMPTY                  = '84906';
 
     const FAILED_AUTH_ADJUSTMENT_ALLOW_RETRY                    = '95603';
     const FAILED_AUTH_ADJUSTMENT_HARD_DECLINE                   = '95602';
@@ -456,24 +457,6 @@ class Codes
     const PAYPAL_ACCOUNT_PAYPAL_COMMUNICATION_ERROR                              = '92910';
     const PAYPAL_ACCOUNT_TOKEN_IS_IN_USE                                         = '92906';
 
-    const SEPA_BANK_ACCOUNT_ACCOUNT_HOLDER_NAME_IS_REQUIRED = '93003';
-    const SEPA_BANK_ACCOUNT_BIC_IS_REQUIRED                 = '93002';
-    const SEPA_BANK_ACCOUNT_IBAN_IS_REQUIRED                = '93001';
-
-    const SEPA_MANDATE_ACCOUNT_HOLDER_NAME_IS_REQUIRED = '83301';
-    const SEPA_MANDATE_BIC_INVALID_CHARACTER           = '83306';
-    const SEPA_MANDATE_BIC_IS_REQUIRED                 = '83302';
-    const SEPA_MANDATE_BIC_LENGTH_IS_INVALID           = '83307';
-    const SEPA_MANDATE_BIC_UNSUPPORTED_COUNTRY         = '83308';
-    const SEPA_MANDATE_BILLING_ADDRESS_CONFLICT        = '93311';
-    const SEPA_MANDATE_BILLING_ADDRESS_ID_IS_INVALID   = '93312';
-    const SEPA_MANDATE_IBAN_INVALID_CHARACTER          = '83305';
-    const SEPA_MANDATE_IBAN_INVALID_FORMAT             = '83310';
-    const SEPA_MANDATE_IBAN_IS_REQUIRED                = '83303';
-    const SEPA_MANDATE_IBAN_UNSUPPORTED_COUNTRY        = '83309';
-    const SEPA_MANDATE_TYPE_IS_REQUIRED                = '93304';
-    const SEPA_MANDATE_TYPE_IS_INVALID                 = '93313';
-
     const SETTLEMENT_BATCH_SUMMARY_SETTLEMENT_DATE_IS_INVALID  = '82302';
     const SETTLEMENT_BATCH_SUMMARY_SETTLEMENT_DATE_IS_REQUIRED = '82301';
     const SETTLEMENT_BATCH_SUMMARY_CUSTOM_FIELD_IS_INVALID     = '82303';
@@ -635,6 +618,8 @@ class Codes
     const TRANSACTION_PURCHASE_ORDER_NUMBER_IS_INVALID                                = '91548';
     const TRANSACTION_PURCHASE_ORDER_NUMBER_IS_TOO_LONG                               = '91537';
     const TRANSACTION_REFUND_AMOUNT_IS_TOO_LARGE                                      = '91521';
+    const TRANSACTION_REFUND_AUTH_HARD_DECLINED                                       = '915200';
+    const TRANSACTION_REFUND_AUTH_SOFT_DECLINED                                       = '915201';
     const TRANSACTION_SERVICE_FEE_AMOUNT_CANNOT_BE_NEGATIVE                           = '91554';
     const TRANSACTION_SERVICE_FEE_AMOUNT_FORMAT_IS_INVALID                            = '91555';
     const TRANSACTION_SERVICE_FEE_AMOUNT_IS_TOO_LARGE                                 = '91556';
@@ -689,5 +674,23 @@ class Codes
     const VERIFICATION_OPTIONS_MERCHANT_ACCOUNT_CANNOT_BE_SUB_MERCHANT_ACCOUNT = '94208';
     const VERIFICATION_OPTIONS_ACCOUNT_TYPE_IS_INVALID                         = '942184';
     const VERIFICATION_OPTIONS_ACCOUNT_TYPE_NOT_SUPPORTED                      = '942185';
+ 
+    const VERIFICATION_THREE_D_SECURE_ECI_FLAG_IS_REQUIRED                                                    = "942113";
+    const VERIFICATION_THREE_D_SECURE_ECI_FLAG_IS_INVALID                                                     = "942114";
+    const VERIFICATION_THREE_D_SECURE_CAVV_IS_REQUIRED                                                        = "942116";
+    const VERIFICATION_THREE_D_SECURE_THREE_D_SECURE_VERSION_IS_REQUIRED                                      = '942117';
+    const VERIFICATION_THREE_D_SECURE_THREE_D_SECURE_VERSION_IS_INVALID                                       = "942119";
+    const VERIFICATION_THREE_D_SECURE_AUTHENTICATION_RESPONSE_IS_INVALID                                      = "942120";
+    const VERIFICATION_THREE_D_SECURE_DIRECTORY_RESPONSE_IS_INVALID                                           = "942121";
+    const VERIFICATION_THREE_D_SECURE_CAVV_ALGORITHM_IS_INVALID                                               = "942122";
+    const THREE_D_SECURE_AUTHENTICATION_ID_IS_INVALID                                                         = "942196";
+    const THREE_D_SECURE_AUTHENTICATION_ID_DOESNT_MATCH_NONCE_THREE_D_SECURE_AUTHENTICATION                   = "942198";
+    const THREE_D_SECURE_TRANSACTION_PAYMENT_METHOD_DOESNT_MATCH_THREE_D_SECURE_AUTHENTICATION_PAYMENT_METHOD = "942197";
+    const THREE_D_SECURE_AUTHENTICATION_ID_WITH_THREE_D_SECURE_PASS_THRU_IS_INVALID                           = "942199";
+    const THREE_D_SECURE_AUTHENTICATION_FAILED                                                                = "94271";
+    const THREE_D_SECURE_TOKEN_IS_INVALID                                                                     = "94268";
+    const THREE_D_SECURE_VERIFICATION_DATA_DOESNT_MATCH_VERIFY                                                = "94270";
+    const MERCHANT_ACCOUNT_DOES_NOT_SUPPORT3_D_SECURE                                                         = "942169";
+    const MERCHANT_ACOUNT_DOES_NOT_MATCH3_D_SECURE_MERCHANT_ACCOUNT                                           = "94284";
+    const AMOUNT_DOES_NOT_MATCH3_D_SECURE_AMOUNT                                                              = "94285";
 }
-class_alias('Braintree\Error\Codes', 'Braintree_Error_Codes');

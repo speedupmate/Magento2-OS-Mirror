@@ -4,6 +4,7 @@ namespace Dotdigitalgroup\Email\Model\Newsletter;
 
 use Dotdigitalgroup\Email\Setup\SchemaInterface as Schema;
 use Dotdigitalgroup\Email\Helper\Config;
+use Dotdigitalgroup\Email\Model\Apiconnector\ContactData;
 
 class SubscriberExporter
 {
@@ -58,6 +59,11 @@ class SubscriberExporter
     private $contactResource;
 
     /**
+     * @var ContactData
+     */
+    private $contactData;
+
+    /**
      * SubscriberExporter constructor.
      * @param \Dotdigitalgroup\Email\Model\ImporterFactory $importerFactory
      * @param \Dotdigitalgroup\Email\Helper\Data $helper
@@ -68,6 +74,7 @@ class SubscriberExporter
      * @param \Magento\Framework\Stdlib\DateTime\DateTime $dateTime
      * @param \Magento\Newsletter\Model\ResourceModel\Subscriber\CollectionFactory $subscriberCollectionFactory
      * @param CsvGeneratorFactory $csvGeneratorFactory
+     * @param ContactData $contactData
      */
     public function __construct(
         \Dotdigitalgroup\Email\Model\ImporterFactory $importerFactory,
@@ -78,7 +85,8 @@ class SubscriberExporter
         \Dotdigitalgroup\Email\Model\ResourceModel\Contact $contactResource,
         \Magento\Framework\Stdlib\DateTime\DateTime $dateTime,
         \Magento\Newsletter\Model\ResourceModel\Subscriber\CollectionFactory $subscriberCollectionFactory,
-        CsvGeneratorFactory $csvGeneratorFactory
+        CsvGeneratorFactory $csvGeneratorFactory,
+        ContactData $contactData
     ) {
         $this->csvGeneratorFactory    = $csvGeneratorFactory;
         $this->helper          = $helper;
@@ -89,6 +97,7 @@ class SubscriberExporter
         $this->contactResource = $contactResource;
         $this->importerFactory = $importerFactory;
         $this->subscriberCollectionFactory = $subscriberCollectionFactory;
+        $this->contactData = $contactData;
     }
 
     /**
@@ -105,19 +114,23 @@ class SubscriberExporter
         $websiteId = $store->getWebsiteId();
         $subscribersFilename = strtolower($store->getCode() . '_subscribers_' . date('d_m_Y_His') . '.csv');
         $consentModel = $this->consentFactory->create();
-        $subscriberStorename = $store->getWebsite()->getConfig(
+        $subscriberStorenameKey = $store->getWebsite()->getConfig(
             Config::XML_PATH_CONNECTOR_MAPPING_CUSTOMER_STORENAME
         );
-        $subscriberWebsiteName = $store->getWebsite()->getConfig(
+        $subscriberWebsiteNameKey = $store->getWebsite()->getConfig(
             Config::XML_PATH_CONNECTOR_CUSTOMER_WEBSITE_NAME
+        );
+        $subscriberStatusKey = $store->getWebsite()->getConfig(
+            Config::XML_PATH_CONNECTOR_CUSTOMER_SUBSCRIBER_STATUS
         );
 
         $csv = $this->csvGeneratorFactory->create()
             ->createCsv($subscribersFilename)
             ->createHeaders(
                 $store,
-                $subscriberStorename ?: '',
-                $subscriberWebsiteName ?: ''
+                $subscriberStorenameKey ?: '',
+                $subscriberWebsiteNameKey ?: '',
+                $subscriberStatusKey ?: ''
             );
 
         // If consent insight is enabled, include additional headers
@@ -136,11 +149,24 @@ class SubscriberExporter
         $optInType = $csv->isOptInTypeDouble($store);
 
         foreach ($emailContactCollection as $contact) {
+            try {
+                $subscriberStatus = $this->contactData->getSubscriberStatusString(
+                    $contact->getData('subscriber_status')
+                );
+            } catch (\InvalidArgumentException $e) {
+                $this->helper->debug(
+                    'Error fetching subscriber status for contact ' . $contact->getEmail(),
+                    [(string) $e]
+                );
+                $subscriberStatus = "";
+            }
+
             $outputData = [
                 $contact->getEmail(),
                 'Html',
                 $store->getName(),
-                $store->getWebsite()->getName()
+                $store->getWebsite()->getName(),
+                $subscriberStatus
             ];
 
             if ($optInType) {

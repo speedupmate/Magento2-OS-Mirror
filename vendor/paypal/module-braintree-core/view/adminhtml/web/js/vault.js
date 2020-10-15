@@ -131,7 +131,7 @@ define([
             this.createPublicHashSelector();
 
             this.$selector.find('[name="payment[public_hash]"]').val(this.publicHash);
-            this.$container.find('#' + this.getNonceSelectorName()).val(nonce);
+            this.$selector.find('[name="payment[payment_method_nonce]"]').val(nonce).prop('disabled', false);
         },
 
         /**
@@ -140,7 +140,7 @@ define([
         createPublicHashSelector: function () {
             var $input;
 
-            if (this.$container.find('#' + this.getNonceSelectorName()).size() === 0) {
+            if (this.$selector.find('[name="payment[payment_method_nonce]"]').size() === 0) {
                 $input = $('<input>').attr(
                     {
                         type: 'hidden',
@@ -149,7 +149,7 @@ define([
                     }
                 );
 
-                $input.appendTo(this.$container);
+                $input.appendTo(this.$selector);
                 $input.prop('disabled', false);
             }
         },

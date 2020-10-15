@@ -24,32 +24,32 @@ use Magento\Quote\Model\Quote;
 class PlaceOrderTest extends \PHPUnit\Framework\TestCase
 {
     /**
-     * @var OrderPlace|\PHPUnit_Framework_MockObject_MockObject
+     * @var OrderPlace|\PHPUnit\Framework\MockObject\MockObject
      */
     private $orderPlaceMock;
 
     /**
-     * @var Config|\PHPUnit_Framework_MockObject_MockObject
+     * @var Config|\PHPUnit\Framework\MockObject\MockObject
      */
     private $configMock;
 
     /**
-     * @var Session|\PHPUnit_Framework_MockObject_MockObject
+     * @var Session|\PHPUnit\Framework\MockObject\MockObject
      */
     private $checkoutSessionMock;
 
     /**
-     * @var RequestInterface|\PHPUnit_Framework_MockObject_MockObject
+     * @var RequestInterface|\PHPUnit\Framework\MockObject\MockObject
      */
     private $requestMock;
 
     /**
-     * @var ResultFactory|\PHPUnit_Framework_MockObject_MockObject
+     * @var ResultFactory|\PHPUnit\Framework\MockObject\MockObject
      */
     private $resultFactoryMock;
 
     /**
-     * @var ManagerInterface|\PHPUnit_Framework_MockObject_MockObject
+     * @var ManagerInterface|\PHPUnit\Framework\MockObject\MockObject
      */
     protected $messageManagerMock;
 
@@ -59,13 +59,13 @@ class PlaceOrderTest extends \PHPUnit\Framework\TestCase
     private $placeOrder;
 
     /**
-     * @var \PHPUnit_Framework_MockObject_MockObject
+     * @var \PHPUnit\Framework\MockObject\MockObject
      */
     private $loggerMock;
 
-    protected function setUp()
+    protected function setUp(): void
     {
-        /** @var Context|\PHPUnit_Framework_MockObject_MockObject $contextMock */
+        /** @var Context|\PHPUnit\Framework\MockObject\MockObject $contextMock */
         $contextMock = $this->getMockBuilder(Context::class)
             ->disableOriginalConstructor()
             ->getMock();
@@ -191,7 +191,7 @@ class PlaceOrderTest extends \PHPUnit\Framework\TestCase
     }
 
     /**
-     * @return ResultInterface|\PHPUnit_Framework_MockObject_MockObject
+     * @return ResultInterface|\PHPUnit\Framework\MockObject\MockObject
      */
     private function getResultMock()
     {
@@ -201,7 +201,7 @@ class PlaceOrderTest extends \PHPUnit\Framework\TestCase
     }
 
     /**
-     * @return Quote|\PHPUnit_Framework_MockObject_MockObject
+     * @return Quote|\PHPUnit\Framework\MockObject\MockObject
      */
     private function getQuoteMock()
     {

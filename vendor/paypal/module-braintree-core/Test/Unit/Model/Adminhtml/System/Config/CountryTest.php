@@ -18,7 +18,7 @@ class CountryTest extends \PHPUnit\Framework\TestCase
     protected $model;
 
     /**
-     * @var \Magento\Directory\Model\ResourceModel\Country\Collection|\PHPUnit_Framework_MockObject_MockObject
+     * @var \Magento\Directory\Model\ResourceModel\Country\Collection|\PHPUnit\Framework\MockObject\MockObject
      */
     protected $countryCollectionMock;
 
@@ -27,7 +27,7 @@ class CountryTest extends \PHPUnit\Framework\TestCase
      */
     protected $objectManager;
 
-    protected function setUp()
+    protected function setUp(): void
     {
         $this->countryCollectionMock = $this->getMockBuilder(Collection::class)
             ->disableOriginalConstructor()

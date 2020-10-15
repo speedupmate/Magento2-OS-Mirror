@@ -26,7 +26,6 @@ class FormTest extends \PHPUnit\Framework\TestCase
         'MC' => 'MasterCard',
         'DI' => 'Discover',
         'JBC' => 'JBC',
-        'CUP' => 'China Union Pay',
         'MI' => 'Maestro',
     ];
 

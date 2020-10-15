@@ -1,0 +1,75 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!--
+ /**
+  * @copyright  Vertex. All rights reserved.  https://www.vertexinc.com/
+  * @author     Mediotype                     https://www.mediotype.com/
+  */
+-->
+<tests xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+       xsi:noNamespaceSchemaLocation="urn:magento:mftf:Test/etc/testSchema.xsd">
+
+    <test name="VertexAsRegisteredCustomerInUSWithBillToAndShipToTheSameCheckPhysicalZeroPriceProductTaxInAdminCreateOrderTest">
+        <annotations>
+            <features value="Vertex"/>
+            <group value="Vertex"/>
+            <testCaseId value="VRTX-788"/>
+            <stories value="As a store owner, I must have accurate taxes calculated for a registered customer"/>
+            <title value="Validate Taxes during Admin Order Create, Registered User, Physical Product, Bill-To=Ship-To, VAT US, $0 Product"/>
+            <description value="Validate that a registered customer with a bill-to and a ship-to that are the same and in US receives properly calculated taxes after admin order create with custom zero price product"/>
+
+            <severity value="CRITICAL"/>
+        </annotations>
+        <before>
+            <!-- Create simple product -->
+            <createData entity="_defaultCategory" stepKey="createCategory"/>
+            <createData entity="VertexProductTaxClass_Clothing" stepKey="createTaxClass" />
+            <createData entity="VertexSimpleProduct" stepKey="createSimpleProduct">
+                <field key="price">{{Vertex_USD_ZeroPrice_Values.price}}</field>
+                <field key="sku">test-zero-price-sku</field>
+                <requiredEntity createDataKey="createCategory"/>
+                <requiredEntity createDataKey="createTaxClass"/>
+            </createData>
+            <magentoCron stepKey="runCronIndex" groups="index"/>
+
+            <!-- Create customer -->
+
+            <createData entity="Vertex_Customer_ManuelWillis" stepKey="createCustomer" />
+
+            <actionGroup ref="AdminLoginActionGroup" stepKey="loginAsAdmin"/>
+            <!-- Vertex configuration -->
+            <amOnPage url="{{AdminSalesTaxClassPage.url}}" stepKey="navigateToSalesTaxPage"/>
+
+            <magentoCLI command="cache:clean config" stepKey="cleanConfigCache"/>
+        </before>
+        <after>
+            <deleteData createDataKey="createSimpleProduct" stepKey="deleteSimpleProduct"/>
+            <deleteData createDataKey="createTaxClass" stepKey="deleteTaxClass"/>
+            <deleteData createDataKey="createCategory" stepKey="deleteCategory"/>
+            <deleteData createDataKey="createCustomer" stepKey="deleteCustomer"/>
+            <actionGroup ref="AdminLogoutActionGroup" stepKey="logoutOfAdmin"/>
+        </after>
+
+        <!-- Create new order with customer -->
+        <actionGroup ref="NavigateToNewOrderPageExistingCustomerActionGroup" stepKey="createNewOrderForCustomer">
+            <argument name="customer" value="$$createCustomer$$"/>
+        </actionGroup>
+        <actionGroup ref="AddSimpleProductToOrderActionGroup" stepKey="addSimpleProductToOrder">
+            <argument name="product" value="$$createSimpleProduct$$"/>
+        </actionGroup>
+        <waitForPageLoad time="30" stepKey="waitForPageLoadOrder"/>
+
+        <!-- Set custom price to product -->
+        <checkOption selector="{{AdminOrderFormItemsSection.customPriceCheckbox}}" stepKey="checkCustomPriceCheckbox"/>
+        <waitForElementVisible selector="{{AdminOrderFormItemsSection.customPriceField}}" stepKey="waitForPriceFieldAppears"/>
+        <fillField selector="{{AdminOrderFormItemsSection.customPriceField}}" userInput="{{Vertex_USD_ZeroPrice_Values.custom_zero_price}}" stepKey="fillCustomPriceField"/>
+        <click selector="{{AdminOrderFormItemsSection.updateItemsAndQuantities}}" stepKey="clickUpdateItemsAndQuantitiesButton"/>
+
+        <!-- Validate tax -->
+        <waitForPageLoad time="30" stepKey="waitForCustomPriceUpdate"/>
+        <actionGroup ref="OrderSelectFlatRateShippingActionGroup" stepKey="setShippingMethod"/>
+        <waitForPageLoad time="30" stepKey="waitForShippingMethodUpdate"/>
+        <dontSeeElement selector="{{AdminVertexSettingsConfigSection.errorMessage}}" stepKey="seeNoError"/>
+        <see userInput="{{Vertex_USD_ZeroPrice_Values.custom_zero_price}}" selector="{{AdminNewOrderTotalSection.totalByName('Tax')}}" stepKey="seeTotalTax"/>
+
+    </test>
+</tests>

@@ -7,6 +7,7 @@
         xsi:noNamespaceSchemaLocation="urn:magento:framework:Api/etc/extension_attributes.xsd">
     <extension_attributes for="Magento\Customer\Api\Data\CustomerInterface">
         <attribute code="vertex_customer_code" type="string"/>
+        <attribute code="vertex_customer_country" type="string"/>
     </extension_attributes>
     <extension_attributes for="Magento\Tax\Api\Data\QuoteDetailsItemInterface">
         <!-- @api For all QuoteDetailsItemInterface extension attributes -->
@@ -18,6 +19,9 @@
         <attribute code="product_id" type="string"/>
         <attribute code="quote_item_id" type="string"/>
         <attribute code="customer_id" type="string"/>
+    </extension_attributes>
+    <extension_attributes for="Magento\Sales\Api\Data\OrderAddressInterface">
+        <attribute code="vertex_vat_country_code" type="string"/>
     </extension_attributes>
     <extension_attributes for="Magento\Sales\Api\Data\OrderItemInterface">
         <attribute code="vertex_tax_codes" type="string[]"/>

@@ -15,6 +15,7 @@ use Klarna\Kp\Api\QuoteInterface;
 use Klarna\Kp\Api\QuoteRepositoryInterface;
 use Klarna\Kp\Model\ResourceModel\Quote as QuoteResource;
 use Magento\Framework\Exception\CouldNotSaveException;
+use Magento\Framework\Exception\LocalizedException;
 use Magento\Framework\Exception\NoSuchEntityException;
 use Magento\Quote\Api\Data\CartInterface as MageQuoteInterface;
 
@@ -60,9 +61,9 @@ class QuoteRepository implements QuoteRepositoryInterface
         QuoteResource $resourceModel,
         CreditApiInterface $api
     ) {
-        $this->quoteFactory = $quoteFactory;
+        $this->quoteFactory  = $quoteFactory;
         $this->resourceModel = $resourceModel;
-        $this->api = $api;
+        $this->api           = $api;
     }
 
     /**
@@ -70,8 +71,10 @@ class QuoteRepository implements QuoteRepositoryInterface
      *
      * @param MageQuoteInterface $mageQuote
      * @return QuoteInterface
-     * @throws \Magento\Framework\Exception\NoSuchEntityException
-     * @throws \Magento\Framework\Exception\LocalizedException
+     * @throws NoSuchEntityException
+     * @throws LocalizedException
+     *
+     * @SuppressWarnings(PMD.StaticAccess)
      */
     public function getActiveByQuote(MageQuoteInterface $mageQuote)
     {
@@ -83,13 +86,27 @@ class QuoteRepository implements QuoteRepositoryInterface
     }
 
     /**
+     * Get quote by Magento quote
+     *
+     * @param int $mageQuoteId
+     * @return QuoteInterface
+     * @throws NoSuchEntityException
+     */
+    public function getActiveByQuoteId(int $mageQuoteId): QuoteInterface
+    {
+        return $this->loadQuote('load', 'quote_id', $mageQuoteId);
+    }
+
+    /**
      * Load quote with different methods
      *
      * @param string $loadMethod
      * @param string $loadField
      * @param int    $identifier
-     * @throws NoSuchEntityException
      * @return QuoteInterface
+     *
+     * @SuppressWarnings(PMD.StaticAccess)
+     * @throws NoSuchEntityException
      */
     public function loadQuote($loadMethod, $loadField, $identifier)
     {
@@ -107,7 +124,7 @@ class QuoteRepository implements QuoteRepositoryInterface
      *
      * @param int $id
      * @return void
-     * @throws \Magento\Framework\Exception\NoSuchEntityException
+     * @throws NoSuchEntityException
      */
     public function deleteById($id)
     {
@@ -119,10 +136,11 @@ class QuoteRepository implements QuoteRepositoryInterface
      *
      * @param QuoteInterface $quote
      * @return void
+     * @throws \Exception
      */
     public function delete(QuoteInterface $quote)
     {
-        $quoteId = $quote->getId();
+        $quoteId   = $quote->getId();
         $sessionId = $quote->getSessionId();
         $authToken = $quote->getAuthorizationToken();
         if ($authToken) { // Only need to call cancel if the Authorization Token is set
@@ -139,7 +157,9 @@ class QuoteRepository implements QuoteRepositoryInterface
      * @param int  $quoteId
      * @param bool $forceReload
      * @return QuoteInterface
-     * @throws \Magento\Framework\Exception\NoSuchEntityException
+     * @throws NoSuchEntityException
+     *
+     * @SuppressWarnings(PMD.BooleanArgumentFlag)
      */
     public function getById($quoteId, $forceReload = false)
     {
@@ -158,7 +178,7 @@ class QuoteRepository implements QuoteRepositoryInterface
      */
     private function cacheInstance(QuoteInterface $quote)
     {
-        $this->instancesById[$quote->getId()] = $quote;
+        $this->instancesById[$quote->getId()]    = $quote;
         $this->instances[$quote->getSessionId()] = $quote;
     }
 
@@ -166,6 +186,7 @@ class QuoteRepository implements QuoteRepositoryInterface
      * Mark quote as inactive and cancel it with API
      *
      * @param QuoteInterface $quote
+     * @throws CouldNotSaveException
      */
     public function markInactive(QuoteInterface $quote)
     {
@@ -181,7 +202,7 @@ class QuoteRepository implements QuoteRepositoryInterface
      * Save Klarna Quote
      *
      * @param QuoteInterface $quote
-     * @return \Klarna\Kp\Api\QuoteInterface
+     * @return QuoteResource
      * @throws CouldNotSaveException
      */
     public function save(QuoteInterface $quote)
@@ -199,7 +220,9 @@ class QuoteRepository implements QuoteRepositoryInterface
      * @param string $sessionId
      * @param bool   $forceReload
      * @return QuoteInterface
-     * @throws \Magento\Framework\Exception\NoSuchEntityException
+     * @throws NoSuchEntityException
+     *
+     * @SuppressWarnings(PMD.BooleanArgumentFlag)
      */
     public function getBySessionId($sessionId, $forceReload = false)
     {

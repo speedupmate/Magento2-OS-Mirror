@@ -13,11 +13,24 @@ define([
 
     addressResolver = $.extend({}, addressResolver, {
         updateFields: function (element, value) {
-            var name = element.key !== undefined
-                ? element.name + '[' + element.key + ']'
-                : element.name;
-
-            $('.payment-method input[name="' + name + '"]').val(value).trigger('change');
+            if (element.name === 'street') {
+                const streetInputs = $('.payment-method input[name^="street["]');
+                streetInputs.val('');
+                if (typeof value === 'string') {
+                    $(streetInputs[0]).val(value);
+                } else {
+                    for (let index = 0, length = value.length;index < length;++index) {
+                        $(streetInputs[index])
+                            .val(value[index]);
+                    }
+                }
+                streetInputs.trigger('change').trigger('blur');
+            } else {
+                $('.payment-method input[name="' + element.name + '"]')
+                    .val(value)
+                    .trigger('change')
+                    .trigger('blur');
+            }
         }
     });
     return addressResolver;

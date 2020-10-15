@@ -8,5 +8,6 @@
 <operations xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="urn:magento:mftf:DataGenerator/etc/dataOperation.xsd">
     <operation name="CreateCustomerExtensionAttribute" dataType="customer_extension_attribute" type="create">
         <field key="vertex_customer_code">string</field>
+        <field key="vertex_customer_country">string</field>
     </operation>
 </operations>

@@ -169,6 +169,7 @@ namespace Braintree;
  * @property-read \Braintree\FacilitatedDetails $facilitatedDetails
  * @property-read \Braintree\FacilitatorDetails $facilitatorDetails
  * @property-read string $gatewayRejectionReason
+ * @property-read string $graphQLId transaction graphQLId
  * @property-read string $id transaction id
  * @property-read \Braintree\TransactionLineItem[] $lineItems
  * @property-read \Braintree\Transaction\MasterpassCardDetails $masterpassCardDetails transaction Masterpass card info
@@ -190,6 +191,7 @@ namespace Braintree;
  * @property-read mixed $reccuring
  * @property-read mixed $refundIds
  * @property-read string $refundedTransactionId
+ * @property-read string $retrievalReferenceNumber
  * @property-read \Braintree\RiskData $riskData
  * @property-read \Braintree\Transaction\SamsungPayCardDetails $samsungPayCardDetails transaction Samsung Pay card info
  * @property-read string $serviceFeeAmount
@@ -653,4 +655,3 @@ class Transaction extends Base
         return Configuration::gateway()->transaction()->refund($transactionId, $amount);
     }
 }
-class_alias('Braintree\Transaction', 'Braintree_Transaction');

@@ -17,6 +17,7 @@
         <element name="addressValidationWsdlUrl" type="input" selector="#tax_vertex_connection_address_api_url"/>
         <element name="trustedId" type="input" selector="#tax_vertex_connection_trusted_id"/>
         <element name="trustedIdError" type="text" selector="#tax_vertex_connection_trusted_id-error"/>
+        <element name="errorMessage" type="text" selector="//div[@class='message message-error error']/div"/>
         <element name="invoiceOrder" type="select" selector="#tax_vertex_integration_invoice_order"/>
         <element name="invoiceOrderStatus" type="select" selector="#tax_vertex_integration_invoice_order_status"/>
 

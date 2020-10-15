@@ -12,6 +12,8 @@
             <features value="Vertex"/>
             <group value="Vertex"/>
 
+            <testCaseId value="VRTX-710"/>
+            <testCaseId value="BUNDLE-555"/>
             <severity value="MAJOR"/>
             <stories value="As a store owner, I must have accurate taxes committed to the tax journal"/>
             <title value="Validate Tax Journal during CreditMemo after Storefront Order, Registered User, Physical Product, Bill-To=Ship-To"/>

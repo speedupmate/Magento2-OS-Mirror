@@ -9,6 +9,7 @@ use Dotdigitalgroup\Email\Setup\SchemaInterface as Schema;
 use Magento\Config\Model\ResourceModel\Config\Data\CollectionFactory;
 use Magento\Framework\App\Config\ReinitableConfigInterface;
 use Magento\Framework\App\Config\ScopeConfigInterface;
+use Magento\Config\Model\ResourceModel\Config as ConfigResource;
 use Magento\Framework\Encryption\EncryptorInterface;
 use Magento\Framework\Setup\ModuleContextInterface;
 use Magento\Framework\Setup\ModuleDataSetupInterface;
@@ -16,6 +17,8 @@ use Magento\Framework\Setup\UpgradeDataInterface;
 use Magento\Store\Model\ScopeInterface;
 use Magento\User\Model\ResourceModel\User;
 use Magento\User\Model\ResourceModel\User\CollectionFactory as UserCollectionFactory;
+use Dotdigitalgroup\Email\Model\Sync\DummyRecordsFactory;
+use Magento\Authorization\Model\ResourceModel\Role\CollectionFactory as RoleCollectionFactory;
 
 /**
  * @codeCoverageIgnore
@@ -53,32 +56,65 @@ class UpgradeData implements UpgradeDataInterface
     private $encryptor;
 
     /**
+     * @var DummyRecordsFactory
+     */
+    private $dummyRecordsFactory;
+
+    /**
+     * @var ScopeConfigInterface
+     */
+    private $scopeConfig;
+
+    /**
+     * @var ConfigResource
+     */
+    private $configResource;
+
+    /**
+     * @var RoleCollectionFactory
+     */
+    private $roleCollection;
+
+    /**
      * UpgradeData constructor.
      * @param Data $helper
      * @param CollectionFactory $configCollectionFactory
      * @param ReinitableConfigInterface $config
      * @param UserCollectionFactory $userCollectionFactory
+     * @param RoleCollectionFactory $roleCollection
      * @param User $userResource
      * @param EncryptorInterface $encryptor
+     * @param DummyRecordsFactory $dummyRecordsFactory
+     * @param ConfigResource $configResource
      */
     public function __construct(
         Data $helper,
         CollectionFactory $configCollectionFactory,
         ReinitableConfigInterface $config,
         UserCollectionFactory $userCollectionFactory,
+        RoleCollectionFactory $roleCollection,
         User $userResource,
-        EncryptorInterface $encryptor
+        EncryptorInterface $encryptor,
+        DummyRecordsFactory $dummyRecordsFactory,
+        ScopeConfigInterface $scopeConfig,
+        ConfigResource $configResource
     ) {
         $this->configCollectionFactory = $configCollectionFactory;
         $this->helper = $helper;
         $this->config = $config;
         $this->userCollectionFactory = $userCollectionFactory;
+        $this->roleCollection = $roleCollection;
         $this->userResource = $userResource;
         $this->encryptor = $encryptor;
+        $this->dummyRecordsFactory = $dummyRecordsFactory;
+        $this->scopeConfig = $scopeConfig;
+        $this->configResource = $configResource;
     }
 
     /**
-     * {@inheritdoc}
+     * @param ModuleDataSetupInterface $setup
+     * @param ModuleContextInterface $context
+     * @throws \Magento\Framework\Exception\NoSuchEntityException
      */
     public function upgrade(ModuleDataSetupInterface $setup, ModuleContextInterface $context)
     {
@@ -133,7 +169,8 @@ class UpgradeData implements UpgradeDataInterface
         $this->upgradeFourOhOne($setup, $context);
         $this->upgradeFourThreeSix($setup, $context);
         $this->upgradeFourFourZero($setup, $context);
-
+        $this->upgradeFourFiveTwo($context);
+        $this->upgradeFourFiveThree($context);
         $installer->endSetup();
     }
 
@@ -154,6 +191,7 @@ class UpgradeData implements UpgradeDataInterface
      * Encrypt token and save
      *
      * @param \Magento\User\Model\User $user
+     * @throws \Magento\Framework\Exception\AlreadyExistsException
      */
     private function encryptAndSaveRefreshToken($user)
     {
@@ -348,6 +386,46 @@ class UpgradeData implements UpgradeDataInterface
                     ['config_id = ?' => $configRow['config_id']]
                 );
             }
+        }
+    }
+
+    /**
+     * @param ModuleContextInterface $context
+     * @throws \Magento\Framework\Exception\NoSuchEntityException
+     */
+    private function upgradeFourFiveTwo(
+        ModuleContextInterface $context
+    ) {
+        if (version_compare($context->getVersion(), '4.5.2', '<')) {
+            if (!$this->scopeConfig->isSetFlag(Config::XML_PATH_CONNECTOR_SYSTEM_ALERTS_USER_ROLES)) {
+                $defaultRole = $this->roleCollection->create()
+                    ->setRolesFilter()
+                    ->getFirstItem();
+
+                $this->configResource->saveConfig(
+                    Config::XML_PATH_CONNECTOR_SYSTEM_ALERTS_USER_ROLES,
+                    $defaultRole->getId(),
+                    ScopeConfigInterface::SCOPE_TYPE_DEFAULT,
+                    0
+                );
+
+                //Clear config cache
+                $this->config->reinit();
+            }
+        }
+    }
+
+    /**
+     * @param $context
+     * @throws \Magento\Framework\Exception\NoSuchEntityException
+     */
+    private function upgradeFourFiveThree($context)
+    {
+        if (version_compare($context->getVersion(), '4.5.3', '<')) {
+            //Send dummy cartInsight Data
+            $this->dummyRecordsFactory
+                ->create()
+                ->sync();
         }
     }
 }

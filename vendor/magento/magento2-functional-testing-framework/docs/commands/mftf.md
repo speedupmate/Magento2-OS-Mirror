@@ -39,13 +39,13 @@ vendor/bin/mftf generate:tests
 ### Generate tests by test name
 
 ```bash
-vendor/bin/mftf generate:tests AdminLoginTest StorefrontPersistedCustomerLoginTest
+vendor/bin/mftf generate:tests AdminLoginSuccessfulTest StorefrontPersistedCustomerLoginTest
 ```
 
 ### Generate test by test and suite name
 
 ```bash
-vendor/bin/mftf generate:tests LoginSuite:AdminLoginTest
+vendor/bin/mftf generate:tests WYSIWYGDisabledSuite:AdminCMSPageCreatePageTest
 ```
 
 ### Generate and run the tests for a specified group
@@ -59,18 +59,18 @@ This command cleans up the previously generated tests; generates and runs tests 
 ### Generate and run particular tests
 
 ```bash
-vendor/bin/mftf run:test AdminLoginTest StorefrontPersistedCustomerLoginTest -r
+vendor/bin/mftf run:test AdminLoginSuccessfulTest StorefrontPersistedCustomerLoginTest -r
 ```
 
-This command cleans up the previously generated tests; generates and runs the `LoginAsAdminTest` and `LoginAsCustomerTest` tests.
+This command cleans up the previously generated tests; generates and runs the `AdminLoginSuccessfulTest` and `StorefrontPersistedCustomerLoginTest` tests.
 
 ### Generate and run particular test in a specific suite's context
 
 ```bash
-vendor/bin/mftf run:test LoginSuite:AdminLoginTest -r
+vendor/bin/mftf run:test WYSIWYGDisabledSuite:AdminCMSPageCreatePageTest -r
 ```
 
-This command cleans up previously generated tests; generates and run `AdminLoginTest` within the context of the `LoginSuite`.
+This command cleans up previously generated tests; generates and run `AdminCMSPageCreatePageTest` within the context of the `WYSIWYGDisabledSuite`.
 
 ### Generate and run a testManifest.txt file
 
@@ -362,7 +362,7 @@ vendor/bin/mftf run:manifest path/to/your/testManifest.txt
 Each line should contain either: one test path or one group (-g) reference.
 
 ```
-tests/functional/tests/MFTF/_generated/default/AdminLoginTestCest.php
+tests/functional/tests/MFTF/_generated/default/AdminLoginSuccessfulTestCest.php
 -g PaypalTestSuite
 tests/functional/tests/MFTF/_generated/default/SomeOtherTestCest.php
 tests/functional/tests/MFTF/_generated/default/ThirdTestCest.php
@@ -449,7 +449,7 @@ vendor/bin/mftf static-checks [<names>]...
 
 | Option                | Description                                                                                               |
 |-----------------------|-----------------------------------------------------------------------------------------------------------|
-| `-p, --path` | Path to a MFTF test module to run "deprecatedEntityUsage" static check script. Option is ignored by other static check scripts.
+| `-p, --path` | Path to a MFTF test module to run "deprecatedEntityUsage" and "pauseActionUsage" static check scripts. Option is ignored by other static check scripts.
                 
 #### Examples
 
@@ -480,11 +480,19 @@ vendor/bin/mftf static-checks deprecatedEntityUsage
 ```
 
 ```bash
+vendor/bin/mftf static-checks pauseActionUsage
+```
+
+```bash
 vendor/bin/mftf static-checks annotations
 ```
 
 ```bash
 vendor/bin/mftf static-checks deprecatedEntityUsage -p path/to/mftf/test/module
+```
+
+```bash
+vendor/bin/mftf static-checks pauseActionUsage -p path/to/mftf/test/module
 ```
 
 ```bash
@@ -499,6 +507,7 @@ vendor/bin/mftf static-checks testDependencies actionGroupArguments
 |`actionGroupArguments` | Checks that action groups do not have unused arguments.|
 |`deprecatedEntityUsage`| Checks that deprecated test entities are not being referenced.|
 |`annotations`| Checks various details of test annotations, such as missing annotations or duplicate annotations.|
+|`pauseUsage`| Checks that pause action is not used in action groups, tests or suites.|
          
 #### Defining ruleset
 
@@ -558,6 +567,47 @@ To upgrade all test components inside the `Catalog` module:
 ```bash
 vendor/bin/mftf upgrade:tests /Users/user/magento2/app/code/Magento/Catalog/Test/Mftf/
 ```
+
+### `codecept:run`
+
+A MFTF wrapper command that invokes `vendor/bin/codecept run`. This command runs tests in functional suite. Tests must be generated before using this command.
+
+#### Usage
+
+See the [Run Command](https://codeception.com/docs/reference/Commands#Run).
+
+```bash
+vendor/bin/mftf codecept:run [<suite|test>] --[<option(s)>]
+```
+
+#### Examples
+
+```bash
+# Run all tests in functional suite
+vendor/bin/mftf codecept:run functional
+```
+
+```bash
+# Run all tests in functional suite with options
+vendor/bin/mftf codecept:run functional --verbose --steps --debug
+```
+
+```bash
+# Run one test
+vendor/bin/mftf codecept:run functional Magento/_generated/default/AdminCreateCmsPageTestCest.php --debug
+```
+
+```bash
+# Run all tests in default group
+vendor/bin/mftf codecept:run functional --verbose --steps -g default
+```
+
+<div class="bs-callout-warning">
+<p>
+Note: You may want to limit the usage of this Codeception command with arguments and options for "acceptance" only, since it is what's supported by MFTF. 
+When using this command, you should change "acceptance" to "functional" when referring to Codeception documentation.
+</p>
+</div>
 
 <!-- LINK DEFINITIONS -->
 

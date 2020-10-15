@@ -18,6 +18,7 @@ namespace Braintree;
  * @property-read \DateTime $createdAt
  * @property-read \Braintree\CreditCard $creditCard
  * @property-read string|null $gatewayRejectionReason
+ * @property-read string $graphQLId
  * @property-read string $id
  * @property-read string $merchantAccountId
  * @property-read string $processorResponseCode
@@ -65,4 +66,3 @@ class CreditCardVerification extends Result\CreditCardVerification
                 ]];
     }
 }
-class_alias('Braintree\CreditCardVerification', 'Braintree_CreditCardVerification');

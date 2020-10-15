@@ -33,10 +33,14 @@ const TAX_RATE_US_CA = 9.5;
 const TAX_RATE_US_IL_DANVILLE = 2.75;
 const TAX_RATE_US_IL_VERMILION = 0.25;
 
+const TAX_RATE_COMBINED_US_IL_DANVILLE = TAX_RATE_COMBINED_US_IL_DANVILLE;
+
 /** Tax rate for River Grive, Illinois */
 const TAX_RATE_US_IL_COOK = 1.75;
 const TAX_RATE_US_IL_RIVER_GROVE = 2;
 const TAX_RATE_US_IL_COOK_RTA = 1;
+const TAX_RATE_COMBINED_US_IL_RIVER_GROVE = TAX_RATE_US_IL + TAX_RATE_US_IL_COOK + TAX_RATE_US_IL_RIVER_GROVE +
+    TAX_RATE_US_IL_COOK_RTA;
 
 $entities = [
     'Vertex_100USD_PA_Only_Values' => [
@@ -280,31 +284,35 @@ $entities = [
     ],
     'Vertex_EcoProduct_Values' => [
         'price' => 100,
-        'priceInclTax' => floor(
-                100 * 100 * ((TAX_RATE_US_IL + TAX_RATE_US_IL_VERMILION + TAX_RATE_US_IL_DANVILLE) / 100 + 1)
-            ) / 100,
+        'priceInclTax' => floor(100 * 100 * ((TAX_RATE_COMBINED_US_IL_DANVILLE) / 100 + 1)) / 100,
         'subtotal' => 100,
-        'subtotalInclTax' => floor(
-                100 * 100 * ((TAX_RATE_US_IL + TAX_RATE_US_IL_VERMILION + TAX_RATE_US_IL_DANVILLE) / 100 + 1)
-            ) / 100,
-        'tax' => floor(100 * 100 * (TAX_RATE_US_IL + TAX_RATE_US_IL_VERMILION + TAX_RATE_US_IL_DANVILLE) / 100) / 100,
-        'taxPercent' => TAX_RATE_US_IL + TAX_RATE_US_IL_VERMILION + TAX_RATE_US_IL_DANVILLE,
+        'subtotalInclTax' => floor(100 * 100 * ((TAX_RATE_COMBINED_US_IL_DANVILLE) / 100 + 1)) / 100,
+        'tax' => floor(100 * 100 * (TAX_RATE_COMBINED_US_IL_DANVILLE) / 100) / 100,
+        'taxPercent' => TAX_RATE_COMBINED_US_IL_DANVILLE,
     ],
     'Vertex_ElectronicProduct_Values' => [
         'price' => 100,
-        'priceInclTax' => floor(
-                100 * 100 * (
-                    (TAX_RATE_US_IL + TAX_RATE_US_IL_COOK + TAX_RATE_US_IL_RIVER_GROVE + TAX_RATE_US_IL_COOK_RTA) / 100 + 1)
-            ) / 100,
+        'priceInclTax' => floor(100 * 100 * ((TAX_RATE_COMBINED_US_IL_RIVER_GROVE) / 100 + 1)) / 100,
         'subtotal' => 100,
-        'subtotalInclTax' => floor(
-                100 * 100 * (
-                    (TAX_RATE_US_IL + TAX_RATE_US_IL_COOK + TAX_RATE_US_IL_RIVER_GROVE + TAX_RATE_US_IL_COOK_RTA) / 100 + 1)
-            ) / 100,
-        'tax' => floor(
-                100 * 100 * (TAX_RATE_US_IL + TAX_RATE_US_IL_COOK + TAX_RATE_US_IL_RIVER_GROVE + TAX_RATE_US_IL_COOK_RTA) / 100
-            ) / 100,
-        'taxPercent' => TAX_RATE_US_IL + TAX_RATE_US_IL_COOK + TAX_RATE_US_IL_RIVER_GROVE + TAX_RATE_US_IL_COOK_RTA,
+        'subtotalInclTax' => floor(100 * 100 * ((TAX_RATE_COMBINED_US_IL_RIVER_GROVE) / 100 + 1)) / 100,
+        'tax' => floor(100 * 100 * (TAX_RATE_COMBINED_US_IL_RIVER_GROVE) / 100) / 100,
+        'taxPercent' => TAX_RATE_COMBINED_US_IL_RIVER_GROVE,
+    ],
+    'Vertex_100USD_TaxRegistration_VRTXMFTF01_Values' => [
+        'price' => 100,
+        'priceInclTax' => 100 * 1.0887,
+        'subtotal' => 100,
+        'subtotalInclTax' => 100 * 1.0887,
+        'tax' => 100 * 8.887 / 100,
+        'taxPercent' => 8.887,
+    ],
+    'Vertex_100USD_TaxRegistration_VRTXMFTF02_Values' => [
+        'price' => 100,
+        'priceInclTax' => 100 * 1.0950,
+        'subtotal' => 100,
+        'subtotalInclTax' => 100 * 1.0950,
+        'tax' => 100 * .095,
+        'taxPercent' => 9.5
     ],
     'Vertex_19USD_TCSIX_Values' => [
         'price' => 20,
@@ -313,6 +321,10 @@ $entities = [
         'subtotalInclTax' => 20 * (TAX_RATE_US_CA / 100 + 1),
         'tax' => 20 * TAX_RATE_US_CA / 100,
         'taxPercent' => TAX_RATE_US_CA,
+    ],
+    'Vertex_USD_ZeroPrice_Values' => [
+        'price' => 9.99,
+        'custom_zero_price' => 0,
     ],
     'Vertex_Bundle_Fixed_With_Ball_TCSIX_Values' => [
         'basePrice' => 15,
@@ -493,6 +505,24 @@ $totals = [
         'shippingTax' => ceil(100 * 5 * (TAX_RATE_US_CA / 100)) / 100,
         'shippingInclTax' => ceil(100 * 5 * (TAX_RATE_US_CA / 100 + 1)) / 100,
     ],
+    'Vertex_100USD_TaxRegistration_VRTXMFTF01_Totals' => [
+        'taxRate' => 8.87,
+        'pieces' => [
+            'Vertex_100USD_TaxRegistration_VRTXMFTF01_Values'
+        ],
+        'shipping' => 5,
+        'shippingTax' => ceil(100 * 5 * .0887) / 100,
+        'shippingInclTax' => ceil(100 * 5 * 1.0887) / 100,
+    ],
+    'Vertex_100USD_TaxRegistration_VRTXMFTF02_Totals' => [
+        'taxRate' => 9.50,
+        'pieces' => [
+            'Vertex_100USD_TaxRegistration_VRTXMFTF02_Values'
+        ],
+        'shipping' => 5,
+        'shippingTax' => ceil(100 * 5 * .095) / 100,
+        'shippingInclTax' => ceil(100 * 5 * 1.095) / 100,
+    ]
 ];
 
 $jurisdictions = [

@@ -126,6 +126,11 @@ define([
             quote.totals.subscribe(function () {
                 if (self.grandTotalAmount !== quote.totals()['base_grand_total']) {
                     self.grandTotalAmount = quote.totals()['base_grand_total'];
+                    var methodCode = quote.paymentMethod();
+
+                    if (methodCode === 'braintree_paypal' || methodCode === 'braintree_paypal_vault') {
+                        self.reInitPayPal();
+                    }
                 }
             });
 

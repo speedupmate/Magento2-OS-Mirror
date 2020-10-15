@@ -23,7 +23,6 @@ return array(
     'Doctrine\\Common\\Inflector\\' => array($vendorDir . '/doctrine/inflector/lib'),
     'Cm\\RedisSession\\' => array($vendorDir . '/colinmollenhour/php-redis-session-abstract/src'),
     'CBOR' => array($vendorDir . '/2tvenom/cborencode/src'),
-    'Braintree' => array($vendorDir . '/braintree/braintree_php/lib'),
     'Behat\\Gherkin' => array($vendorDir . '/behat/gherkin/src'),
     '' => array($baseDir . '/app/code', $baseDir . '/generated/code'),
 );

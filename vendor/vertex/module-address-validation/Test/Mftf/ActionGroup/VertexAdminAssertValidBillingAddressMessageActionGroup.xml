@@ -1,0 +1,17 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!--
+/**
+ * @copyright  Vertex. All rights reserved.  https://www.vertexinc.com/
+ * @author     Mediotype                     https://www.mediotype.com/
+ */
+-->
+<actionGroups xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+              xsi:noNamespaceSchemaLocation="urn:magento:mftf:Test/etc/actionGroupSchema.xsd">
+    <actionGroup name="VertexAdminAssertValidBillingAddressMessageActionGroup">
+        <annotations>
+            <description>Assert that a message indicating the address is perfect as-is is displayed.</description>
+        </annotations>
+
+        <see stepKey="assertValidAddressMessage" selector="{{AdminOrderFormBillingAddressSection.VertexMessageText}}" userInput="The address is valid"/>
+    </actionGroup>
+</actionGroups>

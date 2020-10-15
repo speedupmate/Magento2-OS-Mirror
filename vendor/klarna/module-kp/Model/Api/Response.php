@@ -20,37 +20,34 @@ class Response implements ResponseInterface
      * @var string
      */
     private $session_id;
-
     /**
      * @var string
      */
     private $client_token;
-
     /**
      * @var int
      */
     private $fraud_status;
-
     /**
      * @var string
      */
     private $redirect_url;
-
     /**
      * @var string
      */
     private $order_id;
-
     /**
      * @var int
      */
     private $response_code = 418;
-
     /**
      * @var  string
      */
     private $message;
-
+    /**
+     * @var  string
+     */
+    private $response_status_message;
     /**
      * @var array
      */
@@ -139,5 +136,13 @@ class Response implements ResponseInterface
     public function getMessage()
     {
         return $this->message;
+    }
+
+    /**
+     * @return string
+     */
+    public function getResponseStatusMessage(): string
+    {
+        return $this->response_status_message;
     }
 }

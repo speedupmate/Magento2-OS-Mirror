@@ -1,3 +1,42 @@
+## 5.2.0
+* Add `retrieval_reference_number` to `Transaction`
+* Fix class alias issue where Exceptions could not be thrown for missing libraries or older PHP versions.
+* Fix issue where `proxyHost`, `proxyPort`, `proxyType`, `proxyUser`, `proxyPassword`, and `sslVersion` were not being set on Gateway or Configuration objects.
+
+## 5.1.0
+* Add `threeDSecurePassThru` parameters to `Customer.create`, `PaymentMethod.create`, `CreditCard.create`, `Customer.update`, `PaymentMethod.update` and `CreditCard.update` 
+* Add `recurringCustomerConsent` and `recurringMaxAmount` to `authenticationInsightOptions` for `PaymentMethodNonce.create`
+* Add `DOCUMENT_UPLOAD_FILE_IS_EMPTY` error code
+* phpDocs fixes (thanks @pupitooo)
+
+## 5.0.0
+* Add `DISPUTE_ACCEPTED`, `DISPUTE_DISPUTED`, and `DISPUTE_EXPIRED` webhook constants
+* Breaking Changes:
+  * Upgrade API version to retrieve declined refund transactions
+  * Throw `RequestTimeout` instead of `Timeout` for transaction search
+  * Drop PSR-0 Support and remove class aliases
+  * Remove EuropeBankAccount and IbanBankAccount modules
+  * Remove deprecated SEPA error codes
+  * Remove `paypalVaultWithoutUpgrade`
+  * Invalid transaction IDs are validated by the gateway and not the SDK
+
+## 4.8.0
+* Add `Authentication Insight` to payment method nonce create
+* Add `threeDSecureAuthenticationId` support to transaction sale
+* Add ThreeDSecure test payment method nonces
+* Add test `AuthenticationId`s
+
+## 4.7.0
+* Add `RefundAuthHardDeclined` and `RefundAuthSoftDeclined` to validation errors
+* Add level 2 processing options `purchaseOrderNumber`, `taxAmount`, and `taxExempt` to Transaction submit for settlement
+* Add level 3 processing options `discountAmount`, `shippingAmount`, `shipsFromPostalCode`, and `lineItems` to Transaction submit for settlement
+
+## 4.6.0
+* Add `isNetworkTokenized` to `AndroidPayCard` and `AndroidPayCardDetails`
+* Add GraphQL ID to `CreditCardVerification`, `Customer`, `Dispute`, and `Transaction`
+* Add support for PHP 7.4 (#262 thanks @slt)
+* Add `threeDSecurePassThru` params to PaymentMethod update
+
 ## 4.5.0
 * Add `PROCESSOR_DOES_NOT_SUPPORT_MOTO_FOR_CARD_TYPE` to validation errors
 * Make errors JSON serializable (#256 thanks @sebdesign)
@@ -41,6 +80,7 @@
 
 ## 4.0.0
 * Add support for PHP 7 (Thanks to @briandotdev)
+* Require PHP 7.2 or higher
 * Remove support for HHVM and PHP 5
 * Update to PHPUnit 7
 * Remove deprecated `GRANTED_PAYMENT_INSTRUMENT_UPDATE`

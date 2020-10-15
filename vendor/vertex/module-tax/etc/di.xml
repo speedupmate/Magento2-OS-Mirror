@@ -100,7 +100,15 @@
     <type name="Magento\Customer\Api\CustomerRepositoryInterface">
         <plugin name="extensionAttributeVertexCustomerCode" type="Vertex\Tax\Model\Plugin\CustomerRepositoryPlugin"/>
     </type>
-
+    <type name="Magento\Sales\Api\OrderRepositoryInterface">
+        <plugin name="addVertexCustomerCountryToOrderAddress" type="Vertex\Tax\Model\Plugin\AddCustomerCountryToOrderAddressPlugin"/>
+    </type>
+    <type name="Magento\Customer\Api\CustomerRepositoryInterface">
+        <plugin name="extensionAttributeVertexCustomerCountry" type="Vertex\Tax\Model\Plugin\CustomerCountryAttributePlugin"/>
+    </type>
+    <type name="Magento\Sales\Api\OrderAddressRepositoryInterface">
+        <plugin name="extensionAttributeVertexVatCountryCode" type="Vertex\Tax\Model\Plugin\VatCountryCodeAttributePlugin"/>
+    </type>
     <type name="Magento\Tax\Api\TaxCalculationInterface">
         <plugin name="vertexTaxCalculation" type="Vertex\Tax\Model\Plugin\TaxCalculationPlugin" sortOrder="1"/>
     </type>

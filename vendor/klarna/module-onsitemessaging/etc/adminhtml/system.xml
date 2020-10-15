@@ -34,6 +34,7 @@
                            showInWebsite="1"
                            showInStore="0">
                         <label>Design theme</label>
+                        <validate>required-entry</validate>
                         <config_path>klarna/osm/theme</config_path>
                     </field>
                     <field id="product_enabled" sortOrder="40" translate="label" type="select" showInDefault="1"

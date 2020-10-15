@@ -46,7 +46,6 @@ class VaultMigrate extends Command
         'visa' => 'VI',
         'maestro' => 'MI',
         'diners-club' => 'DN',
-        'unionpay' => 'CUP'
     ];
 
     /**

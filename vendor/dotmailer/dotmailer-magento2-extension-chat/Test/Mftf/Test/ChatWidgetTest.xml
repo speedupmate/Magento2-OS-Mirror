@@ -36,6 +36,7 @@
         <comment userInput="I am on the website home page, waiting for a widget to load" stepKey="storeFrontComment"/>
         <waitForPageLoad stepKey="waitForPageLoad6"/>
         <waitForAjaxLoad stepKey="waitForAjaxLoad"/>
-        <seeElement selector="#comapi-launcher-frame" stepKey="seeTheChatWidgetBubble"/>
+        <wait time="10" stepKey="nowJustKeepWaiting"/>
+        <seeElement selector="#ddg-launcher-frame" stepKey="seeTheChatWidgetBubble"/>
     </test>
 </tests>

@@ -1,0 +1,61 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<!--
+/**
+ * @copyright  Vertex. All rights reserved.  https://www.vertexinc.com/
+ * @author     Mediotype                     https://www.mediotype.com/
+ */
+-->
+<tests xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+       xsi:noNamespaceSchemaLocation="urn:magento:mftf:Test/etc/testSchema.xsd">
+    <test name="VertexStorefrontQuoteWithZipTest">
+        <annotations>
+            <group value="Vertex"/>
+            <features value="Vertex Tax"/>
+            <testCaseId value="VRTX-814"/>
+
+            <stories value="As a store owner, I must have accurate taxes calculated during checkout"/>
+            <title value="Ensure taxes are calculated for a stateless ZIP in the cart"/>
+            <description value="When a customer estimates shipping and tax on the cart page but only types a ZIP, taxes should still be estimated for that ZIP"/>
+
+            <severity value="AVERAGE"/>
+        </annotations>
+        <before>
+            <createData entity="_defaultCategory" stepKey="createCategory"/>
+            <createData entity="_defaultProduct" stepKey="createProduct">
+                <field key="price">34.00</field>
+                <requiredEntity createDataKey="createCategory"/>
+            </createData>
+
+            <actionGroup ref="AddSimpleProductToCartActionGroup" stepKey="addProductToCart">
+                <argument name="product" value="$$createProduct$$"/>
+            </actionGroup>
+
+            <actionGroup ref="StorefrontOpenCartFromMinicartActionGroup" stepKey="gotoCart"/>
+
+            <actionGroup ref="FillShippingZipForm" stepKey="fillEstimateShippingInformation">
+                <argument name="address" value="Vertex_Customer_BobSaget_Address_ZIP_Only"/>
+            </actionGroup>
+
+            <checkOption selector="{{CheckoutCartSummarySection.flatRateShippingMethod}}" stepKey="selectFlatRateShipping"/>
+            <waitForPageLoad stepKey="waitForTotals"/>
+        </before>
+        <after>
+            <deleteData stepKey="deleteCategory" createDataKey="createCategory"/>
+            <deleteData stepKey="deleteProduct" createDataKey="createProduct"/>
+        </after>
+
+        <actionGroup ref="VertexCheckTotalsInCartActionGroup" stepKey="checkTotals">
+            <argument name="subtotalExclTax" value="{{Vertex_34USD_PA_Only_Totals.subtotal}}"/>
+            <argument name="subtotalInclTax" value="{{Vertex_34USD_PA_Only_Totals.subtotalInclTax}}"/>
+            <argument name="shippingExclTax" value="{{Vertex_34USD_PA_Only_Totals.shipping}}" />
+            <argument name="shippingInclTax" value="{{Vertex_34USD_PA_Only_Totals.shippingInclTax}}" />
+            <argument name="tax" value="{{Vertex_34USD_PA_Only_Totals.tax}}"/>
+            <argument name="totalExclTax" value="{{Vertex_34USD_PA_Only_Totals.total}}"/>
+            <argument name="totalInclTax" value="{{Vertex_34USD_PA_Only_Totals.totalInclTax}}"/>
+        </actionGroup>
+        <actionGroup ref="VertexCheckProductAndShippingTaxTotalsInCartActionGroup" stepKey="checkTaxSummary">
+            <argument name="product" value="{{Vertex_34USD_PA_Only_Totals.productTax}}"/>
+            <argument name="shipping" value="{{Vertex_34USD_PA_Only_Totals.shippingTax}}"/>
+        </actionGroup>
+    </test>
+</tests>

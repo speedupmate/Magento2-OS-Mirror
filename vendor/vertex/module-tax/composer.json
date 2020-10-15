@@ -3,7 +3,7 @@
     "description": "Vertex Tax Links for Magento 2",
     "type": "magento2-module",
     "license": "proprietary",
-    "version": "4.0.0",
+    "version": "4.1.0",
     "require": {
         "php": "^7.1",
         "ext-soap": "*",
@@ -16,9 +16,9 @@
         "magento/module-config": "^100|^101",
         "magento/module-customer": "^100|^101|^102|^103",
         "magento/module-directory": "^100",
-        "magento/module-eav": "^100|^101|^102|^103",
+        "magento/module-eav": "^100|^101|^102",
         "magento/module-store": "^100|^101",
-        "magento/module-quote": "^100|^101|^102 ",
+        "magento/module-quote": ">=101.1.0 <= 101.1.5 || ^101.2",
         "magento/module-sales": "^100|^101|^102|^103",
         "magento/module-shipping": "^100",
         "magento/module-tax": "^100",
@@ -50,7 +50,8 @@
         "magento/module-offline-shipping": "^100.2",
         "magento/module-usps": "^100.2",
         "ext-simplexml": "*",
-        "ext-dom": "*"
+        "ext-dom": "*",
+        "dealerdirect/phpcodesniffer-composer-installer": "^0.6.2"
     },
     "autoload": {
         "files": [
@@ -69,7 +70,8 @@
         "exclude": [
             "/Vertex for Magento 2 Installation.docx",
             ".gitignore",
-            ".gitattributes"
+            ".gitattributes",
+            "phpcs.xml"
         ]
     }
 }

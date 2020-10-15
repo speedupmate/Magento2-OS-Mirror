@@ -13,9 +13,8 @@
             <description>Assert that an image was deleted from Enhanced Media Gallery.</description>
         </annotations>
         <arguments>
-            <argument name="imageName" type="string" defaultValue="magento"/>
+            <argument name="title"/>
         </arguments>
-        <see userInput='You have successfully removed the image "{{imageName}}"' stepKey="verifyDeleteImage"/>
-        <dontSeeElement selector="{{AdminEnhancedMediaGalleryImageActionsSection.imageInGrid(imageName)}}" stepKey="dontSeeImage"/>
+        <see userInput='The asset "{{title}}" has been successfully deleted' stepKey="verifyDeleteImage"/>
     </actionGroup>
 </actionGroups>

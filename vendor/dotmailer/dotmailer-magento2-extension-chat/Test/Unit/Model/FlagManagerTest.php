@@ -38,7 +38,7 @@ class FlagManagerTest extends \PHPUnit\Framework\TestCase
     /**
      * @inheritdoc
      */
-    protected function setUp()
+    protected function setUp() :void
     {
         $this->flagFactoryMock = $this->getMockBuilder(FlagFactory::class)
             ->disableOriginalConstructor()

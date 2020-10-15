@@ -1,0 +1,20 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!--
+ /**
+  * @copyright  Vertex. All rights reserved.  https://www.vertexinc.com/
+  * @author     Mediotype                     https://www.mediotype.com/
+  */
+-->
+<actionGroups xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+              xsi:noNamespaceSchemaLocation="urn:magento:mftf:Test/etc/actionGroupSchema.xsd">
+    <actionGroup name="VertexStorefrontCheckoutCheckTaxRateWithCustomerVATActionGroup">
+        <arguments>
+            <argument name="taxRate" type="string" defaultValue="$0.00"/>
+        </arguments>
+        <click selector="{{CheckoutShippingGuestInfoSection.next}}" stepKey="clickNext"/>
+        <waitForPageLoad stepKey="waitForShipmentPageLoad"/>
+        <checkOption selector="{{CheckoutPaymentSection.billingAddressNotSameCheckbox}}" stepKey="selectPaymentSolution" />
+        <waitForElement selector="{{CheckoutPaymentSection.paymentSectionTitle}}" stepKey="waitForPaymentSectionLoaded"/>
+        <see selector=".totals-tax .price" userInput="{{taxRate}}" stepKey="seeTaxRateWithCustomerVAT"/>
+    </actionGroup>
+</actionGroups>

@@ -1,0 +1,46 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!--
+/**
+ * @copyright  Vertex. All rights reserved.  https://www.vertexinc.com/
+ * @author     Mediotype                     https://www.mediotype.com/
+ */
+-->
+<tests xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+       xsi:noNamespaceSchemaLocation="urn:magento:mftf:Test/etc/testSchema.xsd">
+    <test name="VertexAdminOrderCleanseDisabledForNonUSAddressTest">
+        <annotations>
+            <features value="Vertex AddressCleanse AdminOrderAddressCleanse"/>
+            <group value="VertexAddressValidation"/>
+            <testCaseId value="VRTX-661"/>
+            <testCaseId value="BUNDLE-2624"/>
+
+            <stories value="As a merchant, I want to validate billing addresses during admin order creation."/>
+            <title value="Ensure that the cleanse option does not appear for non-US addresses"/>
+            <description value="Create a new order in the admin panel and test that the Validate Address button does not become available if the address is not in the United States"/>
+
+            <severity value="MAJOR"/>
+        </annotations>
+        <before>
+            <actionGroup ref="AdminLoginActionGroup" stepKey="loginAsAdmin"/>
+            <createData entity="Simple_US_Customer" stepKey="createCustomer"/>
+
+            <actionGroup ref="NavigateToNewOrderPageExistingCustomerActionGroup" stepKey="startNewOrder">
+                <argument name="customer" value="$$createCustomer$$"/>
+            </actionGroup>
+            <selectOption selector="{{AdminOrderFormBillingAddressSection.selectAddress}}" userInput="" stepKey="selectNewAddress"/>
+        </before>
+        <after>
+            <deleteData stepKey="deleteCustomer" createDataKey="createCustomer"/>
+        </after>
+
+        <seeElement selector="{{AdminOrderFormBillingAddressSection.DisabledValidateAddressButton}}" stepKey="assertValidateAddressButtonDisabled"/>
+
+        <actionGroup ref="VertexAdminOrderFillBillingAddressWithStateActionGroup" stepKey="fillBillingAddress">
+            <argument name="Street1" value="{{Vertex_Customer_BirminghamAlabama_Address.street1}}"/>
+            <argument name="State" value="{{Vertex_Customer_BirminghamAlabama_Address.state}}"/>
+            <argument name="Country" value="{{Vertex_Customer_BirminghamAlabama_Address.country}}"/>
+        </actionGroup>
+
+        <seeElement selector="{{AdminOrderFormBillingAddressSection.ValidateAddressButton}}" stepKey="assertValidateAddressButtonEnabled"/>
+    </test>
+</tests>

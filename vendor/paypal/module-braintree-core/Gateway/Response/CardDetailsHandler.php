@@ -63,15 +63,24 @@ class CardDetailsHandler implements HandlerInterface
         $payment = $paymentDO->getPayment();
         ContextHelper::assertOrderPayment($payment);
 
-        $creditCard = $transaction->creditCard;
-        $payment->setCcLast4($creditCard[self::CARD_LAST4]);
-        $payment->setCcExpMonth($creditCard[self::CARD_EXP_MONTH]);
-        $payment->setCcExpYear($creditCard[self::CARD_EXP_YEAR]);
-        $payment->setCcType($this->getCreditCardType($creditCard[self::CARD_TYPE]));
-
-        // set card details to additional info
-        $payment->setAdditionalInformation(self::CARD_NUMBER, 'xxxx-' . $creditCard[self::CARD_LAST4]);
-        $payment->setAdditionalInformation(OrderPaymentInterface::CC_TYPE, $creditCard[self::CARD_TYPE]);
+        // Web Payments API - Google Pay
+        if (!empty($transaction->androidPayCard['sourceCardLast4'])) {
+            $creditCard = $transaction->androidPayCard;
+            $payment->setCcLast4($creditCard['sourceCardLast4']);
+            $payment->setCcExpMonth($creditCard[self::CARD_EXP_MONTH]);
+            $payment->setCcExpYear($creditCard[self::CARD_EXP_YEAR]);
+            $payment->setCcType($this->getCreditCardType($creditCard['sourceCardType']));
+            $payment->setAdditionalInformation(OrderPaymentInterface::CC_TYPE, $creditCard['sourceCardType']);
+            $payment->setAdditionalInformation(self::CARD_NUMBER, 'xxxx-' . $creditCard['sourceCardLast4']);
+        } else {
+            $creditCard = $transaction->creditCard;
+            $payment->setCcLast4($creditCard[self::CARD_LAST4]);
+            $payment->setCcExpMonth($creditCard[self::CARD_EXP_MONTH]);
+            $payment->setCcExpYear($creditCard[self::CARD_EXP_YEAR]);
+            $payment->setCcType($this->getCreditCardType($creditCard[self::CARD_TYPE]));
+            $payment->setAdditionalInformation(OrderPaymentInterface::CC_TYPE, $creditCard[self::CARD_TYPE]);
+            $payment->setAdditionalInformation(self::CARD_NUMBER, 'xxxx-' . $creditCard[self::CARD_LAST4]);
+        }
     }
 
     /**

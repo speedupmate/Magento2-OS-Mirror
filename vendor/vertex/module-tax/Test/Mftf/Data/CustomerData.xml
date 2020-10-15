@@ -152,4 +152,32 @@
         <data key="website_id">0</data>
         <requiredEntity type="address">Vertex_Customer_AlanRobinson_Address</requiredEntity>
     </entity>
+
+    <entity name="Vertex_Customer_TaxRegistration_VRTXMFTF01" type="customer">
+        <data key="taxvat">VRTXMFTF01</data>
+        <requiredEntity type="customer_extension_attribute">Vertex_Customer_TaxRegistration_VRTXMFTF01_Country_Id</requiredEntity>
+    </entity>
+    <entity name="Vertex_Customer_TaxRegistration_VRTXMFTF01_Country_Id" type="customer_extension_attribute">
+        <data key="vertex_customer_country">IT</data>
+    </entity>
+
+    <entity name="Vertex_Customer_TaxRegistration_VRTXMFTF02" type="customer">
+        <data key="taxvat">VRTXMFTF02</data>
+        <requiredEntity type="customer_extension_attribute">Vertex_Customer_TaxRegistration_VRTXMFTF02_Country_Id</requiredEntity>
+    </entity>
+    <entity name="Vertex_Customer_TaxRegistration_VRTXMFTF02_Country_Id" type="customer_extension_attribute">
+        <data key="vertex_customer_country">BE</data>
+    </entity>
+
+    <entity name="Vertex_Customer_ManuelWillis" type="customer">
+        <data key="group_id">1</data>
+        <data key="email" unique="prefix">manuel.willis@example.com</data>
+        <data key="firstname">Manuel</data>
+        <data key="lastname">Willis</data>
+        <data key="fullname">Manuel Willis</data>
+        <data key="password">manuelWillis123!</data>
+        <data key="store_id">0</data>
+        <data key="website_id">0</data>
+        <requiredEntity type="address">Vertex_Customer_ManuelWillis_Address</requiredEntity>
+    </entity>
 </entities>

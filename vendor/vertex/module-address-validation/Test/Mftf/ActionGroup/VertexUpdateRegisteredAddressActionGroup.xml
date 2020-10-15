@@ -13,7 +13,7 @@
 
         <see stepKey="warningMessage"
              selector="{{CheckoutShippingSection.addressMessageWarning}}"
-             userInput="The address is not valid"/>
+             userInput="We found potential improvements for this address:"/>
 
         <conditionalClick selector="{{CheckoutShippingSection.updateLinkToValidAddress}}"
                           dependentSelector="{{CheckoutShippingSection.addressMessageWarning}}"

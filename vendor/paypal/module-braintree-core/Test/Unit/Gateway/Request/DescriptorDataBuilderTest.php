@@ -7,7 +7,7 @@ namespace PayPal\Braintree\Test\Unit\Gateway\Request;
 
 use PayPal\Braintree\Gateway\Config\Config;
 use PayPal\Braintree\Gateway\Request\DescriptorDataBuilder;
-use PHPUnit_Framework_MockObject_MockObject as MockObject;
+use PHPUnit\Framework\MockObject\MockObject as MockObject;
 
 class DescriptorDataBuilderTest extends \PHPUnit\Framework\TestCase
 {
@@ -21,7 +21,7 @@ class DescriptorDataBuilderTest extends \PHPUnit\Framework\TestCase
      */
     private $builder;
 
-    protected function setUp()
+    protected function setUp(): void
     {
         $this->config = $this->getMockBuilder(Config::class)
             ->disableOriginalConstructor()

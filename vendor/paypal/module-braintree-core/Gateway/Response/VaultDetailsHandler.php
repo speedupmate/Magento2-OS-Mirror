@@ -108,7 +108,7 @@ class VaultDetailsHandler implements HandlerInterface
     {
         // Check token existing in gateway response
         $token = $transaction->creditCardDetails->token;
-        if (empty($token)) {
+        if (empty($token) || empty($transaction->creditCardDetails->expirationYear)) {
             return null;
         }
 

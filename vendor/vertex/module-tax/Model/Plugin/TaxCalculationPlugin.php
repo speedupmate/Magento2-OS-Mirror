@@ -103,19 +103,12 @@ class TaxCalculationPlugin
      */
     private function useVertex(QuoteDetailsInterface $quoteDetails, $storeId, $isVirtual, $checkCalculation = false)
     {
-        $anItemHasPrice = false;
-        foreach ($quoteDetails->getItems() as $item) {
-            if ($item->getUnitPrice()) {
-                $anItemHasPrice = true;
-            }
-        }
-        return $anItemHasPrice
-            && $this->usageDeterminer->shouldUseVertex(
-                $storeId,
-                $quoteDetails->getShippingAddress(),
-                $quoteDetails->getCustomerId() === null ? null : (int)$quoteDetails->getCustomerId(),
-                $isVirtual,
-                $checkCalculation
-            );
+        return $this->usageDeterminer->shouldUseVertex(
+            $storeId,
+            $quoteDetails->getShippingAddress(),
+            $quoteDetails->getCustomerId() === null ? null : (int)$quoteDetails->getCustomerId(),
+            $isVirtual,
+            $checkCalculation
+        );
     }
 }

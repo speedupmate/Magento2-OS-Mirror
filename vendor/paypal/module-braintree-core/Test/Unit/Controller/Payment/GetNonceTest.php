@@ -15,6 +15,7 @@ use Magento\Framework\Controller\ResultInterface;
 use Magento\Framework\TestFramework\Unit\Helper\ObjectManager;
 use Magento\Framework\Webapi\Exception;
 use Magento\Payment\Gateway\Command\ResultInterface as CommandResultInterface;
+use Magento\Framework\App\RequestInterface;
 use Psr\Log\LoggerInterface;
 
 /**
@@ -28,48 +29,48 @@ class GetNonceTest extends \PHPUnit\Framework\TestCase
     private $action;
 
     /**
-     * @var GetPaymentNonceCommand|\PHPUnit_Framework_MockObject_MockObject
+     * @var GetPaymentNonceCommand|\PHPUnit\Framework\MockObject\MockObject
      */
     private $command;
 
     /**
-     * @var Session|\PHPUnit_Framework_MockObject_MockObject
+     * @var Session|\PHPUnit\Framework\MockObject\MockObject
      */
     private $session;
 
     /**
-     * @var LoggerInterface|\PHPUnit_Framework_MockObject_MockObject
+     * @var LoggerInterface|\PHPUnit\Framework\MockObject\MockObject
      */
     private $logger;
 
     /**
-     * @var ResultFactory|\PHPUnit_Framework_MockObject_MockObject
+     * @var ResultFactory|\PHPUnit\Framework\MockObject\MockObject
      */
     private $resultFactory;
 
     /**
-     * @var ResultInterface|\PHPUnit_Framework_MockObject_MockObject
+     * @var ResultInterface|\PHPUnit\Framework\MockObject\MockObject
      */
     private $result;
 
     /**
-     * @var Http|\PHPUnit_Framework_MockObject_MockObject
+     * @var Http|\PHPUnit\Framework\MockObject\MockObject
      */
     private $request;
 
     /**
-     * @var CommandResultInterface|\PHPUnit_Framework_MockObject_MockObject
+     * @var CommandResultInterface|\PHPUnit\Framework\MockObject\MockObject
      */
     private $commandResult;
 
-    protected function setUp()
+    protected function setUp(): void
     {
         $this->initResultFactoryMock();
 
         $this->request = $this->getMockBuilder(RequestInterface::class)
             ->disableOriginalConstructor()
             ->setMethods(['getParam'])
-            ->getMock();
+            ->getMockForAbstractClass();
 
         $this->command = $this->getMockBuilder(GetPaymentNonceCommand::class)
             ->disableOriginalConstructor()
@@ -78,7 +79,7 @@ class GetNonceTest extends \PHPUnit\Framework\TestCase
 
         $this->commandResult = $this->getMockBuilder(CommandResultInterface::class)
             ->setMethods(['get'])
-            ->getMock();
+            ->getMockForAbstractClass();
 
         $this->session = $this->getMockBuilder(Session::class)
             ->disableOriginalConstructor()
@@ -186,7 +187,7 @@ class GetNonceTest extends \PHPUnit\Framework\TestCase
     {
         $this->result = $this->getMockBuilder(ResultInterface::class)
             ->setMethods(['setHttpResponseCode', 'renderResult', 'setHeader', 'setData'])
-            ->getMock();
+            ->getMockForAbstractClass();
 
         $this->resultFactory = $this->getMockBuilder(ResultFactory::class)
             ->disableOriginalConstructor()

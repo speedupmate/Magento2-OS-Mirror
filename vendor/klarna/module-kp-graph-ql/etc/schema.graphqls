@@ -1,0 +1,40 @@
+#
+# This file is part of the Klarna KpGraphQl module
+#
+# (c) Klarna Bank AB (publ)
+#
+# For the full copyright and license information, please view the NOTICE
+# and LICENSE files that were distributed with this source code.
+#
+
+type Mutation {
+    createKlarnaPaymentsSession(input: createKlarnaPaymentsSessionInput): createKlarnaPaymentsSessionOutput @resolver(class: "\\Klarna\\KpGraphQl\\Model\\Resolver\\CreateKlarnaPaymentsSession") @doc(description:"Creates a Klarna Payments Session.")
+}
+
+input createKlarnaPaymentsSessionInput {
+    cart_id: String!
+}
+
+input PaymentMethodInput {
+    klarna: KlarnaInput
+}
+
+input KlarnaInput {
+    authorization_token: String! @doc(description:"The authorization token must be provided to set any Klarna Payments method")
+}
+
+type createKlarnaPaymentsSessionOutput {
+    client_token:  String @doc(description: "The payment method client token")
+    payment_method_categories: [Categories] @doc(description: "The payment method categories")
+}
+
+type Categories {
+    identifier: String! @doc(description: "The payment method identifier")
+    name: String! @doc(description: "The payment method name")
+    asset_urls: [Assets] @doc(description: "The payment method assets")
+}
+
+type Assets {
+    descriptive: String @doc(description: "The payment method logo url (descriptive)")
+    standard: String @doc(description: "The payment method logo url (standard)")
+}

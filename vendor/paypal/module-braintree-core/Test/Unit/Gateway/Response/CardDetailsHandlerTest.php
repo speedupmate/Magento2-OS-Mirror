@@ -21,21 +21,21 @@ class CardDetailsHandlerTest extends \PHPUnit\Framework\TestCase
     private $cardHandler;
 
     /**
-     * @var \Magento\Sales\Model\Order\Payment|\PHPUnit_Framework_MockObject_MockObject
+     * @var \Magento\Sales\Model\Order\Payment|\PHPUnit\Framework\MockObject\MockObject
      */
     private $payment;
 
     /**
-     * @var \PayPal\Braintree\Gateway\Config\Config|\PHPUnit_Framework_MockObject_MockObject
+     * @var \PayPal\Braintree\Gateway\Config\Config|\PHPUnit\Framework\MockObject\MockObject
      */
     private $config;
 
     /**
-     * @var SubjectReader|\PHPUnit_Framework_MockObject_MockObject
+     * @var SubjectReader|\PHPUnit\Framework\MockObject\MockObject
      */
     private $subjectReaderMock;
 
-    protected function setUp()
+    protected function setUp(): void
     {
         $this->initConfigMock();
         $this->subjectReaderMock = $this->getMockBuilder(SubjectReader::class)
@@ -103,7 +103,7 @@ class CardDetailsHandlerTest extends \PHPUnit\Framework\TestCase
 
     /**
      * Create mock for payment data object and order payment
-     * @return \PHPUnit_Framework_MockObject_MockObject
+     * @return \PHPUnit\Framework\MockObject\MockObject
      */
     private function getPaymentDataObjectMock()
     {

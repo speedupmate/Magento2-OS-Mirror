@@ -23,6 +23,12 @@
         <data key="default_billing">true</data>
         <data key="default_shipping">true</data>
     </entity>
+    <entity name="Vertex_Customer_BobSaget_Address_ZIP_Only" type="address">
+        <data key="country">US</data>
+        <data key="country_id">US</data>
+        <data key="state"><![CDATA[]]></data>
+        <data key="postcode">16803-3503</data>
+    </entity>
 
     <entity name="Vertex_Customer_JacindaArdern_Address" type="address">
         <array key="street">
@@ -231,6 +237,23 @@
         <data key="country">US</data>
         <data key="country_id">US</data>
         <data key="telephone">666-111-8888</data>
+        <data key="default_shipping">true</data>
+        <data key="default_billing">true</data>
+    </entity>
+    <entity name="Vertex_Customer_ManuelWillis_Address" type="address">
+        <data key="firstname">Manuel</data>
+        <data key="lastname">Willis</data>
+        <data key="company">Vertex</data>
+        <array key="street">
+            <item>3040 Excelsior Blvd Ste 101</item>
+        </array>
+        <data key="city">Minneapolis</data>
+        <requiredEntity type="region">RegionMN</requiredEntity>
+        <data key="state">Minnesota</data>
+        <data key="postcode">55416-4690</data>
+        <data key="country">US</data>
+        <data key="country_id">US</data>
+        <data key="telephone">952-858-0590</data>
         <data key="default_shipping">true</data>
         <data key="default_billing">true</data>
     </entity>

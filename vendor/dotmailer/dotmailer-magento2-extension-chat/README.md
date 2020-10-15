@@ -15,6 +15,17 @@
 - Ensure you have set valid API credentials in **Configuration > dotdigital > Account Settings**
 - Turn on the chat bubble by enabling chat in **Configuration > dotdigital > Chat Settings**
 
+## 1.0.3
+
+###### Improvements
+- We've added a Content Security Policy whitelist for specific domains used by this module. [External contribution](https://github.com/dotmailer/dotmailer-magento2-extension-chat/pull/1)
+
+## 1.0.2
+
+###### Bug fixes
+- Access tokens for the Chat API are now refreshed when they expire.
+- We resolved some access control issues relating to non-admin user accounts.
+
 ## 1.0.1
 
 ###### What's new

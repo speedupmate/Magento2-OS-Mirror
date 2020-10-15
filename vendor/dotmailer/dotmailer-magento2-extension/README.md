@@ -19,6 +19,101 @@ You are welcome to contribute to Engagement Cloud for Magento! You can either:
 - Fix a bug: please clone and use our [Develop branch](https://github.com/dotmailer/dotmailer-magento2-extension/tree/develop) to submit your Pull Request
 - Request a feature on our [roadmap](https://roadmap.dotdigital.com)
 
+# 4.7.0
+
+###### Improvements
+- Our composer dependencies have been updated to support Magento 2.4.
+- Our MFTF tests have been updated to be compatible with v3.0.0 of the Magento Functional Testing Framework.
+
+###### Bug fixes
+- We've fixed empty product categories in web insight data.
+- Web Behaviour Tracking was not working for some merchants with certain theme configurations; we’ve added a fallback selector to fix this.
+- The subscriber status data field could have an empty value when customer sync was run using cron. We fixed this using App Emulation.
+- We've fixed an issue with address book mapping if a dotdigital account is enabled at default level but disabled for the main website.
+
+# 4.8.0-RC2
+
+###### Improvements
+- In-app system messages for system alerts are now enabled by default.
+- We've added new API methods to fetch pages and forms from Engagement Cloud.
+- dotdigital forms embedded in CMS pages and blocks can now add email addresses to Magento’s newsletter subscribers list. 
+- _Easy Email Capture_ for newsletter subscriptions now happens on the server side after submit (this supports our forms integration for Page Builder).
+- We've added a helper method to check if Magento has an active Engagement Cloud account enabled at any level. 
+- The program select in **dotdigital > Abandoned Carts > Abandoned Cart Program** now lists all programs, even those with a status of 'Draft' or 'Deactivated'. 
+- We've fixed a small omission in the install schema script, by adding a `nullable` property to the `last_subscribed_at`  column in `email_contact`.
+- Our MFTF test suite has been updated.
+
+# 4.5.7
+
+###### Bug fixes
+- We fixed a problem with order sync breaking if an order contained product SKUs that no longer exist in the catalog.
+
+# 4.5.6
+
+###### Improvements
+- We are moving the `ddg_automation_abandonedcarts` cron job to its own cron group, in order to protect it from scheduling delays caused by over-running sync jobs. 
+- We've added a Content Security Policy whitelist for specific domains used by this module.
+
+# 4.8.0-RC1
+
+###### What’s new
+- System alerts now report on transactional email send failures. 
+- Our unit tests have been updated to be compatible with PHPUnit v9+. This change was required for Magento 2.4.
+- Module dependencies have been updated in line with Magento 2.4 requirements. 
+- Cart insight data is now sent for the Engagement Cloud account owner’s email address when validating API credentials, and at upgrade. This allows the Abandoned cart block to be visible in EasyEditor before customer data is received.
+- All active dotdigital modules are now displayed with their version numbers in the Email module dashboard (**Reports > Customer Engagement > Dashboard**).
+- We’ve added a new API method to fetch surveys and forms from Engagement Cloud.
+
+# 4.5.5
+
+###### Improvements
+- We've improved the performance of catalog sync by optimising our `StockFinder` class. Batches of configurable products are now processed up to 25% quicker.
+- The timing for the automation sync has been changed to every 16 minutes, so it coincides less often with the contact sync.
+
+###### Bug fixes
+- We've fixed a regression introduced in 4.5.3, relating to using a magic method to obtain the subscriber status when preparing subscriber export.
+- The total figure for synced subscribers, presented in the logs and on screen, is now correctly calculated.
+
+# 4.5.4
+
+###### Improvements
+- We're revising the order insight data schema to show bundle products as distinct items with their child components listed as `sub_items`.
+- For system alerts relating to pending automations, we now limit these to automations that have been pending for longer than an hour, but whose created date still falls within the alert time window.
+
+###### Bug fixes
+- Coupons are now generated (using the external dynamic content URL for coupon generation) for email addresses containing plus ('+') signs.
+- We fixed an issue with contacts being resubscribed even if their `last_subscribed_at` value was `null`.
+- System alert email notifications now work as expected in Magento 2.2.
+- We've fixed an upgrade error (dating from 4.5.2) affecting Magento versions 2.2.0 - 2.2.4.
+
+# 4.5.3
+
+###### Improvements
+- The _Subscriber Status_ data field is now synced during all types of subscriber sync.  
+
+###### Bug fixes
+- We fixed an error relating to type-hinting, introduced with our system alerts feature in 4.5.2.
+- We've restored success messages missing from the admin screen after running specific syncs in **dotdigital > Developer** (orders, reviews, contacts and subscribers).  
+
+# 4.5.2
+
+###### What's new
+- We have introduced diagnostic system alerts via two channels: in-app system messages and email notifications. At this stage these are set to disabled by default.
+
+###### Bug fixes
+- Data migration now functions correctly in a split-database setup.
+- We’ve improved the way we parse Engagement Cloud contact import report faults.
+- Deletion of automation enrolments and abandoned carts from their respective report grids now works as expected.
+- Automations with the status _Cancelled_ are now labelled as such in the Automation Report.
+- We’ve improved our handling of the API response we receive when processing resubscribes.
+- We resolved some access control issues relating to non-admin user accounts.
+- We removed some excessive logging from the `Cron` class and catalog sync.
+- Deprecated `imported` and `modified` columns are now dropped from the `email_catalog` table.
+- We’ve fixed a possible insight data error by ensuring website name defaults to string in catalog sync.
+- We’re catching exceptions thrown by `unserialize()` to protect against unserialisable data stored for custom attributes.
+- Our syntax for `where` clauses has been updated to use question mark placeholders.
+- The configurable product thumbnail used in cart insight data when the cart image is set to be _Product Thumbnail Itself_ now uses the correct store scope. 
+
 # 4.5.1
 
 ###### What’s new

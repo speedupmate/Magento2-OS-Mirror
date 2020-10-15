@@ -13,10 +13,13 @@ namespace Klarna\Kp\Tests\Unit\Gateway;
 
 use Klarna\Core\Test\Unit\Mock\MockFactory;
 use Klarna\Core\Test\Unit\Mock\TestObjectFactory;
+use Klarna\Kp\Model\QuoteRepository;
+use Klarna\Kp\Model\Quote as KlarnaQuote;
 use PHPUnit\Framework\TestCase;
 use Klarna\Kp\Gateway\Handler\TitleHandler;
-use Magento\Payment\Model\InfoInterface;
 use Magento\Payment\Gateway\Data\PaymentDataObject;
+use Magento\Quote\Model\Quote;
+use Magento\Quote\Model\Quote\Payment;
 
 /**
  * @coversDefaultClass Klarna\Kp\Gateway\Handler\TitleHandler
@@ -28,23 +31,30 @@ class TitleHandlerTest extends TestCase
      */
     private $titleHandler;
     /**
-     * @var InfoInterface|MockObject
+     * @var Payment|MockObject
      */
-    private $infoInterface;
+    private $payment;
     /**
-     * PaymentDataObject|MockObject
+     * @var PaymentDataObject|MockObject
      */
     private $paymentDataObject;
+    /**
+     * @var KlarnaQuote|MockObject
+     */
+    private $klarnaQuote;
+    /**
+     * @var QuoteRepository|MockObject
+     */
+    private $klarnaQuoteRepository;
 
     /**
-     * Payment set returns payment method title 'Klarna Payments'.
+     * The fallback 'Klarna Payments' will be returned, if the title can't be determined
      *
      * @covers ::handle
      */
-    public function testHandleWithPayment(): void
+    public function testHandleFallback(): void
     {
-        $this->paymentDataObject->method('getPayment')->willReturn($this->infoInterface);
-
+        $this->paymentDataObject->method('getPayment')->willReturn($this->payment);
         $actual = $this->titleHandler->handle(['payment' => $this->paymentDataObject]);
         static::assertEquals('Klarna Payments', $actual);
     }
@@ -54,7 +64,7 @@ class TitleHandlerTest extends TestCase
      *
      * @covers ::handle
      */
-    public function testHandleWithoutPayment(): void
+    public function testHandleFallbackWithoutPayment(): void
     {
         $actual = $this->titleHandler->handle([]);
         static::assertEquals('Klarna Payments', $actual);
@@ -65,40 +75,28 @@ class TitleHandlerTest extends TestCase
      *
      * @covers ::getTitle
      */
-    public function testGetTitleWithMethodTitle(): void
+    public function testGetTitleFromAdditionalInformation(): void
     {
         $expected = 'Pay Later';
-
-        $this->infoInterface->method('hasAdditionalInformation')->willReturn(true, false);
-        $this->infoInterface->method('getAdditionalInformation')->willReturn($expected);
-
-        $actual = $this->titleHandler->getTitle($this->infoInterface);
+        $this->payment->method('getAdditionalInformation')->willReturn($expected);
+        $actual = $this->titleHandler->getTitle($this->payment);
         static::assertEquals($expected, $actual);
     }
 
     /**
-     * Only method code is set, return title 'Klarna Payments (Pay Later)'.
+     * Only method code is set, return title 'Pay Later'.
      *
      * @covers ::getTitle
      */
     public function testGetTitleWithMethodCode(): void
     {
-        $this->infoInterface->method('hasAdditionalInformation')->willReturn(false, true, 'Pay Later');
-        $this->infoInterface->method('getAdditionalInformation')->willReturn('Pay Later');
-
-        $actual = $this->titleHandler->getTitle($this->infoInterface);
-        static::assertEquals('Klarna Payments (Pay Later)', $actual);
-    }
-
-    /**
-     * Neither method title nor method code is set, return title 'Klarna Payments'.
-     *
-     * @covers ::getTitle
-     */
-    public function testGetTitleWithoutMethodTitleAndMethodCode(): void
-    {
-        $actual = $this->titleHandler->getTitle($this->infoInterface);
-        static::assertEquals('Klarna Payments', $actual);
+        $expected = 'Pay Later';
+        $this->payment->method('getMethod')->willReturn('klarna_pay_later');
+        $this->klarnaQuote->method('getPaymentMethodInfo')->willReturn(
+            [(object) ['name'=>'Pay Later','identifier'=>'pay_now'],(object) ['name'=>'Pay Later','identifier'=>'pay_later']]
+        );
+        $actual = $this->titleHandler->getTitle($this->payment);
+        static::assertEquals($expected, $actual);
     }
 
     /**
@@ -106,10 +104,23 @@ class TitleHandlerTest extends TestCase
      */
     protected function setUp(): void
     {
-        $mockFactory             = new MockFactory();
-        $objectFactory           = new TestObjectFactory($mockFactory);
-        $this->titleHandler      = $objectFactory->create(TitleHandler::class);
-        $this->infoInterface     = $mockFactory->create(InfoInterface::class);
-        $this->paymentDataObject = $mockFactory->create(PaymentDataObject::class);
+        $mockFactory                 = new MockFactory();
+        $objectFactory               = new TestObjectFactory($mockFactory);
+        $this->titleHandler          = $objectFactory->create(TitleHandler::class);
+        $this->paymentDataObject     = $mockFactory->create(PaymentDataObject::class);
+        $this->klarnaQuoteRepository = $mockFactory->create(QuoteRepository::class);
+        $this->klarnaQuote           = $mockFactory->create(KlarnaQuote::class);
+        $this->quote                 = $mockFactory->create(Quote::class);
+        $this->payment               = $mockFactory->create(Payment::class);
+        $this->dependencyMocks       = $objectFactory->getDependencyMocks();
+
+        $this->dependencyMocks['klarnaQuoteRepository']
+            ->expects($this->once())
+            ->method('getActiveByQuote')
+            ->willReturn($this->klarnaQuote);
+
+        $this->payment
+            ->method('getQuote')
+            ->willReturn($this->quote);
     }
 }

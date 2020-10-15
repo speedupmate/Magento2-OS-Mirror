@@ -146,16 +146,10 @@ class ProcessorTest extends \PHPUnit\Framework\TestCase
      */
     public function testGetViewFileUrl(): void
     {
-        $this->processor->_indexDir = __DIR__ . DIRECTORY_SEPARATOR . 'version1' . DIRECTORY_SEPARATOR . 'magento2';
-        $this->processor->_errorDir = __DIR__ . DIRECTORY_SEPARATOR . 'version2' . DIRECTORY_SEPARATOR . 'magento2';
+        $this->processor->_indexDir = __DIR__ . '/version1/magento2';
+        $this->processor->_errorDir = __DIR__ . '/version2/magento2';
 
-        $this->assertStringNotContainsString(
-            'version2' . DIRECTORY_SEPARATOR . 'magento2',
-            $this->processor->getViewFileUrl()
-        );
-        $this->assertStringContainsString(
-            'pub' . DIRECTORY_SEPARATOR . 'errors' . DIRECTORY_SEPARATOR,
-            $this->processor->getViewFileUrl()
-        );
+        $this->assertStringNotContainsString('version2/magento2', $this->processor->getViewFileUrl());
+        $this->assertStringContainsString('pub/errors/', $this->processor->getViewFileUrl());
     }
 }

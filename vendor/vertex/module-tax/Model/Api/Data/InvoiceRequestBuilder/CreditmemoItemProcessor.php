@@ -129,10 +129,10 @@ class CreditmemoItemProcessor implements CreditmemoProcessorInterface
             $productSku[] = $item->getSku();
         }
 
-        $products = $this->itemProcessor->getProductsIndexedBySku($productSku);
+        $orderId = $creditmemo->getOrderId();
+        $products = $this->itemProcessor->getProductsIndexedBySku($productSku, $orderId);
 
         $storeId = $creditmemo->getStoreId();
-        $orderId = $creditmemo->getOrderId();
 
         $lineItemMapper = $this->mapperFactory->getForClass(LineItemInterface::class, $storeId);
 

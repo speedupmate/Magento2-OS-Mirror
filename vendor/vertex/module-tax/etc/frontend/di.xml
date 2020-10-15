@@ -18,6 +18,22 @@
     <type name="Magento\Multishipping\Controller\Checkout\OverviewPost">
         <plugin name="vertex_multishipping_errors_on" type="Vertex\Tax\Model\Plugin\MultishippingErrorMessageSupport" />
     </type>
+    <type name="Magento\Customer\Block\Widget\Taxvat">
+        <plugin name="vertex_taxvat_html" type="Vertex\Tax\Model\Plugin\TaxvatWidgetHtml" />
+    </type>
+    <type name="Magento\Customer\Model\Metadata\Form">
+        <plugin name="vertex_frontend_extension_attributes" type="Vertex\Tax\Model\Plugin\ExtensionAttributesFrontendForm" />
+    </type>
+
+    <type name="Vertex\Tax\Block\Customer\Widget\TaxCountry">
+        <arguments>
+            <argument name="data" xsi:type="array">
+                <item name="template" xsi:type="string">Vertex_Tax::customer/widget/vat-country.phtml</item>
+            </argument>
+        </arguments>
+    </type>
+
+
     <type name="Magento\Checkout\Block\Onepage">
         <arguments>
             <argument name="layoutProcessors" xsi:type="array">

@@ -68,7 +68,6 @@ class ChatStatusChanged implements \Magento\Framework\Event\ObserverInterface
     public function execute(Observer $observer)
     {
         $website = $this->helper->getWebsiteForSelectedScopeInAdmin();
-        $this->config->setScopeAndWebsiteId($website);
 
         $groups = $this->context->getRequest()->getPost('groups');
 

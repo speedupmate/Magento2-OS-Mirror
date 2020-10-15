@@ -11,7 +11,6 @@
 namespace Klarna\Kp\Plugin\Payment\Helper;
 
 use Klarna\Kp\Api\PaymentMethodListInterface;
-use Klarna\Kp\Model\Payment\Kp;
 use Magento\Checkout\Model\Session;
 use Magento\Framework\App\Config\ScopeConfigInterface;
 use Magento\Framework\App\RequestInterface;
@@ -21,8 +20,6 @@ use Magento\Payment\Model\MethodInterface;
 use Magento\Quote\Api\CartRepositoryInterface;
 use Magento\Quote\Api\Data\CartInterface;
 use Magento\Sales\Api\OrderRepositoryInterface;
-use Magento\Store\Model\StoreManagerInterface;
-use Magento\Store\Model\ScopeInterface;
 use Klarna\Kp\Api\QuoteRepositoryInterface;
 use Klarna\Kp\Model\Session as KlarnaSession;
 use Klarna\Core\Exception as KlarnaException;
@@ -67,11 +64,6 @@ class DataPlugin
      * @var ScopeConfigInterface
      */
     private $config;
-
-    /**
-     * @var StoreManagerInterface $storeManager
-     */
-    private $storeManager;
     /**
      * @var QuoteRepositoryInterface
      */
@@ -92,7 +84,6 @@ class DataPlugin
      * @param Session                    $session
      * @param ScopeConfigInterface       $config
      * @param PaymentMethodListInterface $paymentMethodList
-     * @param StoreManagerInterface      $storeManager
      * @param QuoteRepositoryInterface   $quoteRepository
      * @param KlarnaSession              $klarnaSession
      * @param LoggerInterface            $logger
@@ -105,7 +96,6 @@ class DataPlugin
         Session $session,
         ScopeConfigInterface $config,
         PaymentMethodListInterface $paymentMethodList,
-        StoreManagerInterface $storeManager,
         QuoteRepositoryInterface $quoteRepository,
         KlarnaSession $klarnaSession,
         LoggerInterface $logger
@@ -116,7 +106,6 @@ class DataPlugin
         $this->session = $session;
         $this->config = $config;
         $this->paymentMethodList = $paymentMethodList;
-        $this->storeManager = $storeManager;
         $this->quoteRepository = $quoteRepository;
         $this->klarnaSession = $klarnaSession;
         $this->logger = $logger;
@@ -129,18 +118,14 @@ class DataPlugin
      * @param                              $result
      * @return array
      * @SuppressWarnings(PMD.UnusedFormalParameter)
-     * @throws NoSuchEntityException
      */
     public function afterGetPaymentMethods(\Magento\Payment\Helper\Data $subject, $result)
     {
-        $store = $this->storeManager->getStore();
-        $scope = ($store === null ? ScopeConfigInterface::SCOPE_TYPE_DEFAULT : ScopeInterface::SCOPE_STORES);
-
-        if (!$this->config->isSetFlag('payment/' . Kp::METHOD_CODE . '/active', $scope, $store)) {
+        if (!$this->klarnaSession->canSendRequest()) {
             return $result;
         }
         $quote = $this->getQuote();
-        if (!$quote) {
+        if (!$quote || !$quote->getIsActive()) {
             return $result;
         }
 
@@ -194,7 +179,8 @@ class DataPlugin
             return $this->quote;
         }
         try {
-            if ($order = $this->getOrder()) {
+            $order = $this->getOrder();
+            if ($order) {
                 $this->quote = $this->mageQuoteRepository->get($order->getQuoteId());
                 return $this->quote;
             }

@@ -72,7 +72,7 @@ class ChatStatusChangedTest extends TestCase
      */
     private $loggerMock;
 
-    protected function setUp()
+    protected function setUp() :void
     {
         $this->configMock = $this->createMock(Config::class);
         $this->clientMock = $this->createMock(Client::class);

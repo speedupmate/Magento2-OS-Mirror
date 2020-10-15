@@ -12,6 +12,6 @@
         <element name="updateLinkToValidAddress" type="text" selector="div.field.vertex-message.address-message button.update-address" />
         <element name="addressMessageWarning" type="text" selector="div.field.vertex-message.address-message .message.warning" />
         <element name="addressMessageWasValid" type="text" selector="div.field.vertex-message.address-message .message.success" />
-        <element name="addressInvalidFieldsContainer" type="text" selector="div.address-different" />
+        <element name="addressInvalidFieldsContainer" type="text" selector=".vertex__address-suggestion" />
     </section>
 </sections>

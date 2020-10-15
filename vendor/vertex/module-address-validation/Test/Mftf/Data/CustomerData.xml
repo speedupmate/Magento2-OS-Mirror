@@ -1,0 +1,64 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!--
+/**
+ * @copyright  Vertex. All rights reserved.  https://www.vertexinc.com/
+ * @author     Mediotype                     https://www.mediotype.com/
+ */
+-->
+<entities xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+          xsi:noNamespaceSchemaLocation="urn:magento:mftf:DataGenerator/etc/dataProfileSchema.xsd">
+    <entity name="VertexUsCustomerWithNonsenseAddress" type="customer">
+        <data key="group_id">1</data>
+        <data key="default_billing">true</data>
+        <data key="default_shipping">true</data>
+        <data key="email" unique="prefix">John.Doe@example.com</data>
+        <data key="firstname">John</data>
+        <data key="lastname">Doe</data>
+        <data key="fullname">John Doe</data>
+        <data key="password">pwdTest123!</data>
+        <data key="store_id">0</data>
+        <data key="website_id">0</data>
+        <data key="group">General</data>
+        <requiredEntity type="address">Vertex_Customer_California_Nonsense_Address</requiredEntity>
+    </entity>
+    <entity name="VertexUsCustomerWithImprovableAddress" type="customer">
+        <data key="group_id">1</data>
+        <data key="default_billing">true</data>
+        <data key="default_shipping">true</data>
+        <data key="email" unique="prefix">John.Doe@example.com</data>
+        <data key="firstname">John</data>
+        <data key="lastname">Doe</data>
+        <data key="fullname">John Doe</data>
+        <data key="password">pwdTest123!</data>
+        <data key="store_id">0</data>
+        <data key="website_id">0</data>
+        <data key="group">General</data>
+        <requiredEntity type="address">Vertex_Customer_PhiladelphiaPennsylvania_Address_Incorrect</requiredEntity>
+    </entity>
+    <entity name="VertexUsCustomerWithPerfectAddress" type="customer">
+        <data key="group_id">1</data>
+        <data key="default_billing">true</data>
+        <data key="default_shipping">true</data>
+        <data key="email" unique="prefix">John.Doe@example.com</data>
+        <data key="firstname">John</data>
+        <data key="lastname">Doe</data>
+        <data key="fullname">John Doe</data>
+        <data key="password">pwdTest123!</data>
+        <data key="store_id">0</data>
+        <data key="website_id">0</data>
+        <data key="group">General</data>
+        <requiredEntity type="address">Vertex_Customer_PhiladelphiaPennsylvania_Address</requiredEntity>
+    </entity>
+    <entity name="Simple_US_Customer_Mass_Addresses" extends="Simple_US_Customer_Multiple_Addresses" type="customer">
+        <requiredEntity type="address">Vertex_Customer_BirminghamAlabama_Address</requiredEntity>
+        <requiredEntity type="address">Vertex_Customer_BirminghamAlabama_Address</requiredEntity>
+        <requiredEntity type="address">Vertex_Customer_BirminghamAlabama_Address_Correct</requiredEntity>
+        <requiredEntity type="address">Vertex_Customer_BirminghamAlabama_Address_Correct</requiredEntity>
+        <requiredEntity type="address">Vertex_Customer_ChesterPennsylvania_Address</requiredEntity>
+        <requiredEntity type="address">Vertex_Customer_ChesterPennsylvania_Address</requiredEntity>
+        <requiredEntity type="address">Vertex_Customer_PhiladelphiaPennsylvania_Address</requiredEntity>
+        <requiredEntity type="address">Vertex_Customer_PhiladelphiaPennsylvania_Address</requiredEntity>
+        <requiredEntity type="address">Vertex_Customer_PhiladelphiaPennsylvania_InvalidAddress</requiredEntity>
+        <requiredEntity type="address">Vertex_Customer_PhiladelphiaPennsylvania_InvalidAddress</requiredEntity>
+    </entity>
+</entities>

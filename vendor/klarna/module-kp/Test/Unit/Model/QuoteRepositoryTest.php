@@ -231,6 +231,29 @@ class QuoteRepositoryTest extends \PHPUnit\Framework\TestCase
     }
 
     /**
+     * @covers ::getActiveByQuoteId()
+     */
+    public function testGetActiveByQuoteId()
+    {
+        $klarnaQuoteId = 14;
+
+        $this->quoteFactoryMock->expects(static::once())
+            ->method('create')
+            ->willReturn($this->quoteMock);
+        $this->quoteMock->expects(static::once())
+            ->method('load')
+            ->with($klarnaQuoteId)
+            ->willReturn($this->quoteMock);
+        $this->quoteMock->expects(static::exactly(2))
+            ->method('getId')
+            ->willReturn($klarnaQuoteId);
+
+        $klarnaQuote = $this->model->getActiveByQuoteId($klarnaQuoteId);
+
+        static::assertEquals($klarnaQuote->getId(), $klarnaQuoteId);
+    }
+
+    /**
      * @covers ::save()
      */
     public function testSave()

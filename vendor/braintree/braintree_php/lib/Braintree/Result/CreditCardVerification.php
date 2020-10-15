@@ -4,6 +4,7 @@ namespace Braintree\Result;
 use Braintree\RiskData;
 use Braintree\ThreeDSecureInfo;
 use Braintree\Util;
+use Braintree\Base;
 
 /**
  * Braintree Credit Card Verification Result
@@ -22,7 +23,7 @@ use Braintree\Util;
  * @property-read string $status
  *
  */
-class CreditCardVerification
+class CreditCardVerification extends Base
 {
     // Status
     const FAILED                   = 'failed';
@@ -30,7 +31,6 @@ class CreditCardVerification
     const PROCESSOR_DECLINED       = 'processor_declined';
     const VERIFIED                 = 'verified';
 
-    private $_attributes;
     private $_amount;
     private $_avsErrorResponseCode;
     private $_avsPostalCodeResponseCode;
@@ -60,6 +60,11 @@ class CreditCardVerification
         if(isset($attributes['riskData']))
         {
             $attributes['riskData'] = RiskData::factory($attributes['riskData']);
+        }
+
+        if(isset($attributes['globalId']))
+        {
+            $attributes['graphQLId'] = $attributes['globalId'];
         }
 
         if(isset($attributes['threeDSecureInfo'])) {
@@ -101,4 +106,3 @@ class CreditCardVerification
         ];
     }
 }
-class_alias('Braintree\Result\CreditCardVerification', 'Braintree_Result_CreditCardVerification');

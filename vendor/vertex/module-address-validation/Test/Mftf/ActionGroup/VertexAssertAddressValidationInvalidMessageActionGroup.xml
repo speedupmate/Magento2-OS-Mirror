@@ -1,0 +1,21 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!--
+ /**
+  * @copyright  Vertex. All rights reserved.  https://www.vertexinc.com/
+  * @author     Mediotype                     https://www.mediotype.com/
+  */
+-->
+<actionGroups xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="urn:magento:mftf:Test/etc/actionGroupSchema.xsd">
+    <actionGroup name="VertexAssertAddressValidationInvalidMessageActionGroup">
+        <annotations>
+            <description>See the validation message: The address is not valid</description>
+        </annotations>
+
+        <waitForElementVisible selector="{{StorefrontCustomerAddressFormSection.messageDifference}}" stepKey="assertMessageVisible"/>
+        <grabTextFrom selector="{{StorefrontCustomerAddressFormSection.messageContainer}}" stepKey="getMessageContent"/>
+        <assertContains stepKey="assertValidationMessage">
+            <expectedResult type="string">We found potential improvements for this address:</expectedResult>
+            <actualResult type="variable">$getMessageContent</actualResult>
+        </assertContains>
+    </actionGroup>
+</actionGroups>

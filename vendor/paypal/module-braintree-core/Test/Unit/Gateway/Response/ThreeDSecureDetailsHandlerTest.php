@@ -11,7 +11,7 @@ use Magento\Payment\Gateway\Data\PaymentDataObject;
 use Magento\Sales\Model\Order;
 use Magento\Sales\Model\Order\Payment;
 use PayPal\Braintree\Gateway\Helper\SubjectReader;
-use PHPUnit_Framework_MockObject_MockObject as MockObject;
+use PHPUnit\Framework\MockObject\MockObject as MockObject;
 
 class ThreeDSecureDetailsHandlerTest extends \PHPUnit\Framework\TestCase
 {
@@ -29,11 +29,11 @@ class ThreeDSecureDetailsHandlerTest extends \PHPUnit\Framework\TestCase
     private $payment;
 
     /**
-     * @var SubjectReader|\PHPUnit_Framework_MockObject_MockObject
+     * @var SubjectReader|\PHPUnit\Framework\MockObject\MockObject
      */
     private $subjectReaderMock;
 
-    protected function setUp()
+    protected function setUp(): void
     {
         $this->payment = $this->getMockBuilder(Payment::class)
             ->disableOriginalConstructor()

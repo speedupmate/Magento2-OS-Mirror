@@ -37,4 +37,9 @@
         <data key="region_code">RM</data>
         <data key="region_id">739</data>
     </entity>
+    <entity name="RegionMN" type="region">
+        <data key="region">Minnesota</data>
+        <data key="region_code">MN</data>
+        <data key="region_id">34</data>
+    </entity>
 </entities>

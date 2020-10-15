@@ -7,16 +7,18 @@ declare(strict_types=1);
 
 namespace Magento\AdobeStockImage\Test\Unit\Model;
 
-use Magento\AdobeStockImage\Model\Extract\MediaGalleryAsset as DocumentToMediaGalleryAsset;
+use Magento\AdobeStockImage\Model\Extract\MediaGalleryAsset as DocumentToAsset;
+use Magento\AdobeStockImage\Model\SaveKeywords;
 use Magento\AdobeStockImage\Model\SaveMediaGalleryAsset;
 use Magento\Framework\Api\Search\Document;
-use Magento\Framework\App\Filesystem\DirectoryList;
 use Magento\Framework\Exception\CouldNotSaveException;
-use Magento\Framework\Filesystem;
+use Magento\Framework\Exception\LocalizedException;
 use Magento\Framework\Filesystem\Directory\Read;
 use Magento\Framework\TestFramework\Unit\Helper\ObjectManager;
-use Magento\MediaGallery\Model\Asset;
+use Magento\MediaGalleryApi\Api\Data\AssetInterface;
+use Magento\MediaGalleryApi\Api\GetAssetsByPathsInterface;
 use Magento\MediaGalleryApi\Api\SaveAssetsInterface;
+use Magento\MediaGallerySynchronizationApi\Api\SynchronizeFilesInterface;
 use PHPUnit\Framework\MockObject\MockObject;
 use PHPUnit\Framework\TestCase;
 
@@ -32,14 +34,9 @@ class SaveMediaGalleryAssetTest extends TestCase
     private $saveAssets;
 
     /**
-     * @var DocumentToMediaGalleryAsset|MockObject
+     * @var DocumentToAsset|MockObject
      */
-    private $converter;
-
-    /**
-     * @var FileSystem|MockObject
-     */
-    private $filesystem;
+    private $documentToAsset;
 
     /**
      * @var Read|MockObject
@@ -52,69 +49,101 @@ class SaveMediaGalleryAssetTest extends TestCase
     private $saveMediaAsset;
 
     /**
+     * @var SaveKeywords|MockObject
+     */
+    private $saveKeywords;
+
+    /**
+     * @var GetAssetsByPathsInterface|MockObject
+     */
+    private $getAssetsByPaths;
+
+    /**
+     * @var SynchronizeFilesInterface|MockObject
+     */
+    private $importFiles;
+
+    /**
      * @inheritdoc
      */
     protected function setUp(): void
     {
         $this->saveAssets = $this->createMock(SaveAssetsInterface::class);
-        $this->converter = $this->createMock(DocumentToMediaGalleryAsset::class);
-        $this->filesystem = $this->createMock(Filesystem::class);
+        $this->saveKeywords = $this->createMock(SaveKeywords::class);
+        $this->documentToAsset = $this->createMock(DocumentToAsset::class);
         $this->mediaDirectory = $this->createMock(Read::class);
+        $this->getAssetsByPaths = $this->createMock(GetAssetsByPathsInterface::class);
+        $this->importFiles = $this->createMock(SynchronizeFilesInterface::class);
 
         $this->saveMediaAsset = (new ObjectManager($this))->getObject(
             SaveMediaGalleryAsset::class,
             [
-                'saveMediaAsset' =>  $this->saveAssets,
-                'documentToMediaGalleryAsset' =>  $this->converter,
-                'fileSystem' => $this->filesystem
+                'saveAssets' =>  $this->saveAssets,
+                'saveKeywords' =>  $this->saveKeywords,
+                'documentToAsset' =>  $this->documentToAsset,
+                'getAssetsByPaths' => $this->getAssetsByPaths,
+                'importFiles' => $this->importFiles
             ]
         );
-        $reflection = new \ReflectionClass(get_class($this->saveMediaAsset));
-        $reflectionMethod = $reflection->getMethod('calculateFileSize');
-        $reflectionMethod->setAccessible(true);
     }
 
     /**
      * Verify successful save of a media gallery asset id.
      *
+     * @dataProvider imageDataProvider
+     * @param Document $document
+     * @param string $path
      * @throws CouldNotSaveException
+     * @throws LocalizedException
      */
-    public function testExecute(): void
+    public function testExecute(Document $document, string $path): void
     {
-        $document = $this->createMock(Document::class);
-        $destinationPath = 'path';
+        $asset = $this->createMock(AssetInterface::class);
+        $assetId = 42;
 
-        $this->filesystem->expects($this->once())
-            ->method('getDirectoryRead')
-            ->with(DirectoryList::MEDIA)
-            ->willReturn($this->mediaDirectory);
-
-        $this->mediaDirectory->expects($this->once())
-            ->method('getAbsolutePath')
-            ->with($destinationPath)
-            ->willReturn('root/pub/media/catalog/test-image.jpeg');
-
-        $fileSize = 42;
-        $this->mediaDirectory->expects($this->once())
-            ->method('stat')
-            ->willReturn(['size' => $fileSize]);
-
-        $additionalData = [
-            'id' => null,
-            'path' => $destinationPath,
-            'source' => 'Adobe Stock',
-            'size' => $fileSize,
-        ];
-        $mediaGalleryAssetMock = $this->createMock(Asset::class);
-        $this->converter->expects($this->once())
+        $this->documentToAsset->expects($this->once())
             ->method('convert')
-            ->with($document, $additionalData)
-            ->willReturn($mediaGalleryAssetMock);
+            ->willReturn($asset);
 
         $this->saveAssets->expects($this->once())
             ->method('execute')
-            ->with([$mediaGalleryAssetMock]);
+            ->with([$asset]);
 
-        $this->saveMediaAsset->execute($document, $destinationPath);
+        $this->getAssetsByPaths->expects($this->once())
+            ->method('execute')
+            ->with([$path])
+            ->willReturn([$asset]);
+
+        $asset->expects($this->any())
+            ->method('getId')
+            ->willReturn($assetId);
+
+        $this->saveKeywords->expects($this->once())
+            ->method('execute')
+            ->with($assetId, $document);
+
+        $this->importFiles->expects($this->once())
+            ->method('execute')
+            ->with([$path]);
+
+        $this->assertEquals(
+            $assetId,
+            $this->saveMediaAsset->execute($document, $path)
+        );
+    }
+
+    /**
+     * Data provider for testExecute
+     *
+     * @return array[]
+     */
+    public function imageDataProvider(): array
+    {
+        return [
+            [
+                $this->createMock(Document::class),
+                'catalog/test-image.jpeg'
+            ]
+        ];
     }
 }

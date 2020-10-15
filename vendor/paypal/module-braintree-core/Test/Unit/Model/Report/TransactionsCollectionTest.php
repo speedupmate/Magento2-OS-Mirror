@@ -17,38 +17,38 @@ use Magento\Framework\Data\Collection\EntityFactoryInterface;
 class TransactionsCollectionTest extends \PHPUnit\Framework\TestCase
 {
     /**
-     * @var BraintreeAdapter|\PHPUnit_Framework_MockObject_MockObject
+     * @var BraintreeAdapter|\PHPUnit\Framework\MockObject\MockObject
      */
     private $braintreeAdapterMock;
 
     /**
-     * @var EntityFactoryInterface|\PHPUnit_Framework_MockObject_MockObject
+     * @var EntityFactoryInterface|\PHPUnit\Framework\MockObject\MockObject
      */
     private $entityFactoryMock;
 
     /**
-     * @var FilterMapper|\PHPUnit_Framework_MockObject_MockObject
+     * @var FilterMapper|\PHPUnit\Framework\MockObject\MockObject
      */
     private $filterMapperMock;
 
     /**
-     * @var DocumentInterface|\PHPUnit_Framework_MockObject_MockObject
+     * @var DocumentInterface|\PHPUnit\Framework\MockObject\MockObject
      */
     private $transactionMapMock;
 
     /**
      * Setup
      */
-    protected function setUp()
+    protected function setUp(): void
     {
         $this->transactionMapMock = $this->getMockBuilder(DocumentInterface::class)
             ->disableOriginalConstructor()
-            ->getMock();
+            ->getMockForAbstractClass();
 
         $this->entityFactoryMock = $this->getMockBuilder(EntityFactoryInterface::class)
             ->setMethods(['create'])
             ->disableOriginalConstructor()
-            ->getMock();
+            ->getMockForAbstractClass();
 
         $this->filterMapperMock = $this->getMockBuilder(FilterMapper::class)
             ->setMethods(['getFilter'])
@@ -116,7 +116,7 @@ class TransactionsCollectionTest extends \PHPUnit\Framework\TestCase
 
         $collection->addFieldToFilter('orderId', ['like' => '0']);
         $items = $collection->getItems();
-        $this->assertEquals(0, count($items));
+        $this->assertCount(0, $items);
     }
 
     /**

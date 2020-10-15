@@ -9,6 +9,7 @@ use Magento\Payment\Gateway\Data\AddressAdapterInterface;
 use Magento\Payment\Gateway\Data\Order\AddressAdapter;
 use Magento\Payment\Gateway\Data\Order\AddressAdapterFactory;
 use Magento\Payment\Gateway\Data\OrderAdapterInterface;
+use Magento\Quote\Api\CartRepositoryInterface;
 use Magento\Sales\Model\Order;
 
 class OrderAdapter implements OrderAdapterInterface
@@ -24,15 +25,23 @@ class OrderAdapter implements OrderAdapterInterface
     private $addressAdapterFactory;
 
     /**
+     * @var CartRepositoryInterface
+     */
+    private $quoteRepository;
+
+    /**
      * @param Order $order
      * @param AddressAdapterFactory $addressAdapterFactory
+     * @param CartRepositoryInterface $quoteRepository
      */
     public function __construct(
         Order $order,
-        AddressAdapterFactory $addressAdapterFactory
+        AddressAdapterFactory $addressAdapterFactory,
+        CartRepositoryInterface $quoteRepository
     ) {
         $this->order = $order;
         $this->addressAdapterFactory = $addressAdapterFactory;
+        $this->quoteRepository = $quoteRepository;
     }
 
     /**
@@ -43,6 +52,22 @@ class OrderAdapter implements OrderAdapterInterface
     public function getCurrencyCode()
     {
         return $this->order->getBaseCurrencyCode();
+    }
+
+    /**
+     * Check whether order is multi shipping
+     *
+     * @return bool
+     */
+    public function isMultishipping()
+    {
+        $quoteId = $this->order->getQuoteId();
+        if (!$quoteId) {
+            return false;
+        }
+        $quote = $this->quoteRepository->get($quoteId);
+
+        return (bool)$quote->getIsMultiShipping();
     }
 
     /**

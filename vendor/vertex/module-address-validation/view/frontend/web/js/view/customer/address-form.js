@@ -7,12 +7,11 @@ define([
     'jquery',
     'ko',
     'underscore',
-    'Vertex_AddressValidation/js/model/address-converter',
     'Vertex_AddressValidation/js/model/customer/address-resolver'
-], function ($, ko, _, addressConverter, addressResolver) {
+], function ($, ko, _, addressResolver) {
     'use strict';
 
-    var config = window.vertexAddressValidationConfig || {};
+    const config = window.vertexAddressValidationConfig || {};
 
     return {
         form: {},
@@ -106,10 +105,82 @@ define([
         /**
          * Retrieves form address and converts it to customer address
          *
-         * @returns {Object}
+         * @returns {UncleanAddress}
          */
         getAddress: function () {
-            return addressConverter(this.form);
+            const address = {},
+                city = this.form.find('input[name="city"]').val(),
+                streetAddress = this.form.find('input[name="street[]"]')
+                    .map(function (index, element) {
+                        return $(element).val();
+                    })
+                    .toArray()
+                    .filter(function (value) {
+                        return value.length > 0;
+                    }),
+                mainDivisionValue = this.form.find('select[name="region_id"]').val(),
+                mainDivision = this.form.find('select[name="region_id"] option[value="' + mainDivisionValue + '"]').text(),
+                postalCode = this.form.find('input[name="postcode"]').val(),
+                country = this.form.find('select[name="country_id"]').val();
+
+            address.street_address = streetAddress;
+            if (city.length > 0) {
+                address.city = city;
+            }
+            if (mainDivisionValue.length > 0) {
+                address.main_division = mainDivision;
+            }
+            if (postalCode.length > 0) {
+                address.postal_code = postalCode;
+            }
+            address.country = country;
+
+            return address;
+        },
+
+        updateAddress: function (differences) {
+            for (let index = 0, length = differences.length;index < length;++index) {
+                let difference = differences[index];
+                switch (difference.type) {
+                    case 'street':
+                        this.form.find('input[name="street[]"]').val('');
+                        for (
+                            let streetIndex = 0, streetLength = difference.rawValue.length;
+                            streetIndex < streetLength;
+                            ++streetIndex
+                        ) {
+                            $(this.form.find('input[name="street[]"]')[streetIndex])
+                                .val(difference.rawValue[streetIndex])
+                                .trigger('change')
+                                .trigger('blur');
+                        }
+                        break;
+                    case 'city':
+                        this.form.find('input[name="city"]')
+                            .val(difference.rawValue)
+                            .trigger('change')
+                            .trigger('blur');
+                        break;
+                    case 'region':
+                        this.form.find('select[name="region_id"]')
+                            .val(difference.rawValue)
+                            .trigger('change')
+                            .trigger('blur');
+                        break;
+                    case 'postcode':
+                        this.form.find('input[name="postcode"]')
+                            .val(difference.rawValue)
+                            .trigger('change')
+                            .trigger('blur');
+                        break;
+                    case 'country':
+                        this.form.find('select[name="country_id"]')
+                            .val(difference.rawValue)
+                            .trigger('change')
+                            .trigger('blur');
+                        break;
+                }
+            }
         },
 
         /**

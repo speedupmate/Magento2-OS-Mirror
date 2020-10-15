@@ -12,7 +12,7 @@ use PayPal\Braintree\Model\Report\ConditionAppliers\ApplierInterface;
 use PayPal\Braintree\Model\Report\ConditionAppliers\AppliersPool;
 use PayPal\Braintree\Model\Report\FilterMapper;
 use PHPUnit\Framework\TestCase;
-use PHPUnit_Framework_MockObject_MockObject;
+use PHPUnit\Framework\MockObject\MockObject;
 
 /**
  * Test for class \PayPal\Braintree\Model\Report\FilterMapper
@@ -20,24 +20,24 @@ use PHPUnit_Framework_MockObject_MockObject;
 class FilterMapperTest extends TestCase
 {
     /**
-     * @var BraintreeSearchAdapter|PHPUnit_Framework_MockObject_MockObject
+     * @var BraintreeSearchAdapter|PHPUnit\Framework\MockObject\MockObject
      */
     private $braintreeSearchAdapterMock;
 
     /**
-     * @var AppliersPool|PHPUnit_Framework_MockObject_MockObject
+     * @var AppliersPool|PHPUnit\Framework\MockObject\MockObject
      */
     private $appliersPoolMock;
 
     /**
-     * @var ApplierInterface|PHPUnit_Framework_MockObject_MockObject
+     * @var ApplierInterface|PHPUnit\Framework\MockObject\MockObject
      */
     private $applierMock;
 
     /**
      * Setup
      */
-    protected function setUp()
+    protected function setUp(): void
     {
         $methods = [
             'id',
@@ -66,7 +66,7 @@ class FilterMapperTest extends TestCase
         $this->applierMock = $this->getMockBuilder(ApplierInterface::class)
             ->setMethods(['apply'])
             ->disableOriginalConstructor()
-            ->getMock();
+            ->getMockForAbstractClass();
     }
 
     /**
@@ -109,6 +109,6 @@ class FilterMapperTest extends TestCase
 
         $mapper = new FilterMapper($this->appliersPoolMock, $this->braintreeSearchAdapterMock);
         $result = $mapper->getFilter('orderId', []);
-        $this->assertEquals(null, $result);
+        $this->assertNull($result);
     }
 }

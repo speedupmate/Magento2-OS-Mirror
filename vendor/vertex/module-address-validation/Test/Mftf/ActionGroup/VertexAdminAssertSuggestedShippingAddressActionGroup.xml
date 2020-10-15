@@ -1,0 +1,28 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!--
+/**
+ * @copyright  Vertex. All rights reserved.  https://www.vertexinc.com/
+ * @author     Mediotype                     https://www.mediotype.com/
+ */
+-->
+<actionGroups xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+              xsi:noNamespaceSchemaLocation="urn:magento:mftf:Test/etc/actionGroupSchema.xsd">
+    <actionGroup name="VertexAdminAssertSuggestedShippingAddressActionGroup">
+        <annotations>
+            <description>Assert that a message indicating the shipping address can be improved is displayed</description>
+        </annotations>
+        <arguments>
+            <argument type="string" name="Street1" defaultValue=""/>
+            <argument type="string" name="Street2" defaultValue=""/>
+            <argument type="string" name="City" defaultValue=""/>
+            <argument type="string" name="State" defaultValue=""/>
+            <argument type="string" name="PostalCode" defaultValue=""/>
+        </arguments>
+
+        <see stepKey="assertSeeStreet1" selector="{{AdminOrderFormShippingAddressSection.VertexMessageDifference}}" userInput="{{Street1}}"/>
+        <see stepKey="assertSeeStreet2" selector="{{AdminOrderFormShippingAddressSection.VertexMessageDifference}}" userInput="{{Street2}}"/>
+        <see stepKey="assertSeeCity" selector="{{AdminOrderFormShippingAddressSection.VertexMessageDifference}}" userInput="{{City}}"/>
+        <see stepKey="assertSeeState" selector="{{AdminOrderFormShippingAddressSection.VertexMessageDifference}}" userInput="{{State}}"/>
+        <see stepKey="assertSeePostalCode" selector="{{AdminOrderFormShippingAddressSection.VertexMessageDifference}}" userInput="{{PostalCode}}"/>
+    </actionGroup>
+</actionGroups>

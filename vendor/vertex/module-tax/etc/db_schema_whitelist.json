@@ -127,7 +127,8 @@
     "vertex_sales_order_item_vertex_tax_code": {
         "column": {
             "item_id": true,
-            "tax_code": true
+            "tax_code": true,
+            "vertex_tax_code": true
         },
         "index": {
             "VERTEX_SALES_ORDER_ITEM_VERTEX_TAX_CODE_ITEM_ID": true,
@@ -153,12 +154,31 @@
     },
     "sales_order_address": {
         "column": {
-            "tax_area_id": true
+            "tax_area_id": true,
+            "vertex_vat_country_code": true
         }
     },
     "quote_address": {
         "column": {
             "tax_area_id": true
+        }
+    },
+    "vertex_customer_country": {
+        "column": {
+            "customer_id": true,
+            "customer_country": true
+        },
+        "constraint": {
+            "PRIMARY": true
+        }
+    },
+    "vertex_vat_country_code": {
+        "column": {
+            "address_id": true,
+            "customer_country": true
+        },
+        "constraint": {
+            "PRIMARY": true
         }
     }
 }

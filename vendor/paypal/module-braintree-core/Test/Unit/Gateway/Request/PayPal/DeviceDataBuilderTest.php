@@ -9,7 +9,7 @@ use PayPal\Braintree\Gateway\Helper\SubjectReader;
 use PayPal\Braintree\Gateway\Request\PayPal\DeviceDataBuilder;
 use Magento\Payment\Gateway\Data\PaymentDataObjectInterface;
 use Magento\Payment\Model\InfoInterface;
-use PHPUnit_Framework_MockObject_MockObject as MockObject;
+use PHPUnit\Framework\MockObject\MockObject as MockObject;
 
 class DeviceDataBuilderTest extends \PHPUnit\Framework\TestCase
 {
@@ -33,7 +33,7 @@ class DeviceDataBuilderTest extends \PHPUnit\Framework\TestCase
      */
     private $builder;
 
-    protected function setUp()
+    protected function setUp(): void
     {
         $this->subjectReader = $this->getMockBuilder(SubjectReader::class)
             ->disableOriginalConstructor()
