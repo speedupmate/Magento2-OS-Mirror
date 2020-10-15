@@ -1,4 +1,4 @@
-### Git repo of Magento2 (https://magento.com/tech-resources/download) packages with and without sample data. 
+### Git repo of Magento2 (https://magento.com/tech-resources/download) packages with and without sample data.
 
 Goal for this repo is to provide unified and version controlled access to all Magento2
 downloadable packages with respected tools (git) and therefore ease devops related actions on managing codebases.
@@ -8,6 +8,10 @@ downloadable packages with respected tools (git) and therefore ease devops relat
 * magento2-os-2.4
   * magento2-os-2.4.0
   * magento2-os-2.4.0-with-samples
+  * magento2-os-2.4.0-p1
+  * magento2-os-2.4.0-p1-with-samples
+  * magento2-os-2.4.1
+  * magento2-os-2.4.1-with-samples
 * magento2-os-2.3
   * magento2-os-2.3.0
   * magento2-os-2.3.0-with-samples
@@ -25,6 +29,8 @@ downloadable packages with respected tools (git) and therefore ease devops relat
   * magento2-os-2.3.5-p1-with-samples
   * magento2-os-2.3.5-p2
   * magento2-os-2.3.5-p2-with-samples
+  * magento2-os-2.3.6
+  * magento2-os-2.3.6-with-samples
 * magento2-os-2.2
   * magento2-os-2.2.0
   * magento2-os-2.2.0-with-samples
