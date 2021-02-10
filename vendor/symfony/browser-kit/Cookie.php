@@ -136,7 +136,7 @@ class Cookie
             throw new \InvalidArgumentException(sprintf('The cookie string "%s" is not valid.', $parts[0]));
         }
 
-        list($name, $value) = explode('=', array_shift($parts), 2);
+        [$name, $value] = explode('=', array_shift($parts), 2);
 
         $values = [
             'name' => trim($name),
@@ -309,7 +309,7 @@ class Cookie
      */
     public function isExpired()
     {
-        return null !== $this->expires && 0 != $this->expires && $this->expires < time();
+        return null !== $this->expires && 0 != $this->expires && $this->expires <= time();
     }
 
     /**

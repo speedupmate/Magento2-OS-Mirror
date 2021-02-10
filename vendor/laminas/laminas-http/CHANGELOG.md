@@ -2,6 +2,89 @@
 
 All notable changes to this project will be documented in this file, in reverse chronological order by release.
 
+## 2.14.2 - 2021-01-05
+
+
+-----
+
+### Release Notes for [2.14.2](https://github.com/laminas/laminas-http/milestone/7)
+
+2.14.x bugfix release (patch)
+
+### 2.14.2
+
+- Total issues resolved: **0**
+- Total pull requests resolved: **1**
+- Total contributors: **1**
+
+#### Bug,Enhancement
+
+ - [48: Security tightening: verify a stream file name is a string before unlinking](https://github.com/laminas/laminas-http/pull/48) thanks to @weierophinney
+
+## 2.14.1 - 2020-12-31
+
+
+-----
+
+### Release Notes for [2.14.1](https://github.com/laminas/laminas-http/milestone/4)
+
+2.14.x bugfix release (patch)
+
+### 2.14.1
+
+- Total issues resolved: **0**
+- Total pull requests resolved: **1**
+- Total contributors: **1**
+
+#### Bug
+
+ - [46: fix Curl error &quot;transfer closed with ... bytes remaining to read&quot; with HEAD HTTP method](https://github.com/laminas/laminas-http/pull/46) thanks to @karneds
+
+## 2.14.0 - 2020-12-29
+
+
+-----
+
+### Release Notes for [2.14.0](https://github.com/laminas/laminas-http/milestone/2)
+
+
+
+### 2.14.0
+
+- Total issues resolved: **0**
+- Total pull requests resolved: **2**
+- Total contributors: **2**
+
+#### Enhancement,hacktoberfest-accepted
+
+ - [45: PHP 8 support](https://github.com/laminas/laminas-http/pull/45) thanks to @ocean
+
+#### Enhancement
+
+ - [33: Add Content-Security-Policy-Report-Only header](https://github.com/laminas/laminas-http/pull/33) thanks to @xmorave2
+
+## 2.13.0 - 2020-08-18
+
+### Added
+
+- [#41](https://github.com/laminas/laminas-http/pull/41) adds a new method to `Laminas\Http\PhpEnvironment\Response`, `setHeadersSentHandler(callable $handler): void`. When a handler is injected, `sendHeaders()` will call it with the current response instance if it detects headers have already been sent (e.g., by the SAPI due to emitting content). Prior to this change, the class would silently ignore the fact, and simply not emit headers from the response instance. Now it is possible to log those headers, or raise an exception.
+
+### Changed
+
+- Nothing.
+
+### Deprecated
+
+- Nothing.
+
+### Removed
+
+- Nothing.
+
+### Fixed
+
+- Nothing.
+
 ## 2.12.0 - 2020-06-23
 
 ### Added

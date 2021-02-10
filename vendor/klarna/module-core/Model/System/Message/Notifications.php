@@ -10,29 +10,32 @@
 
 namespace Klarna\Core\Model\System\Message;
 
+use Klarna\Core\Model\Config;
+use Magento\Framework\UrlInterface;
+use Magento\Store\Api\Data\StoreInterface;
+use Magento\Store\Model\StoreManagerInterface;
 use Ramsey\Uuid\Uuid;
+use Ramsey\Uuid\UuidFactory;
+use Ramsey\Uuid\UuidFactoryInterface;
 
-/**
- * Notifications class
- */
 class Notifications implements \Magento\Framework\Notification\MessageInterface
 {
     /**
      * Store manager object
      *
-     * @var \Magento\Store\Model\StoreManagerInterface
+     * @var StoreManagerInterface
      */
     private $storeManager;
 
     /**
-     * @var \Magento\Framework\UrlInterface
+     * @var UrlInterface
      */
     private $urlBuilder;
 
     /**
      * Klarna configuration object
      *
-     * @var \Klarna\Core\Model\Config
+     * @var Config
      */
     private $klarnaConfig;
 
@@ -44,14 +47,14 @@ class Notifications implements \Magento\Framework\Notification\MessageInterface
     private $regionRequired;
 
     /**
-     * @var \Ramsey\Uuid\UuidFactoryInterface
+     * @var UuidFactoryInterface
      */
     private $uuidFactory;
 
     /**
-     * @param \Magento\Store\Model\StoreManagerInterface $storeManager
-     * @param \Magento\Framework\UrlInterface            $urlBuilder
-     * @param \Klarna\Core\Model\Config                  $klarnaConfig
+     * @param StoreManagerInterface $storeManager
+     * @param UrlInterface          $urlBuilder
+     * @param Config                $klarnaConfig
      */
     public function __construct(
         \Magento\Store\Model\StoreManagerInterface $storeManager,
@@ -65,7 +68,7 @@ class Notifications implements \Magento\Framework\Notification\MessageInterface
          * Temp solution because Magento 2.1 DI breaks on classes with type-hints
          * @codingStandardsIgnoreLine
          */
-        $this->uuidFactory = new \Ramsey\Uuid\UuidFactory();
+        $this->uuidFactory = new UuidFactory();
     }
 
     /**
@@ -158,7 +161,7 @@ class Notifications implements \Magento\Framework\Notification\MessageInterface
      *      Tax Calculation Method Based On 'Total' or 'Row'
      *      and at least one Price Display Settings has 'Including and Excluding Tax' value
      *
-     * @param null|int|bool|string|\Magento\Store\Model\Store $store $store
+     * @param null|int|bool|string|StoreInterface $store $store
      * @return bool
      */
     public function checkAddressSettings($store = null)
@@ -192,7 +195,7 @@ class Notifications implements \Magento\Framework\Notification\MessageInterface
      *      Before Discount / Excluding Tax
      *      Before Discount / Including Tax
      *
-     * @param null|int|bool|string|\Magento\Store\Model\Store $store $store
+     * @param null|int|bool|string|StoreInterface $store $store
      * @return bool
      */
     public function checkDebugSettings($store = null)

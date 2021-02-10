@@ -145,8 +145,8 @@ class Items extends AbstractLine
         ];
 
         if ($product && $product->getId()) {
-            $item['product_url'] = $product->getUrlInStore();
-            $item['image_url']   = $this->getImageUrl($product);
+            $_item['product_url'] = $product->getUrlInStore();
+            $_item['image_url']   = $this->getImageUrl($product);
         }
 
         if ($this->klarnaConfig->isSeparateTaxLine($item->getStore())) {

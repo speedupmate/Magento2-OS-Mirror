@@ -30,6 +30,11 @@ class Response extends HttpResponse
     protected $contentSent = false;
 
     /**
+     * @var null|callable
+     */
+    private $headersSentHandler;
+
+    /**
      * Return the HTTP version for this response
      *
      * @return string
@@ -75,6 +80,14 @@ class Response extends HttpResponse
     }
 
     /**
+     * @return void
+     */
+    public function setHeadersSentHandler(callable $handler)
+    {
+        $this->headersSentHandler = $handler;
+    }
+
+    /**
      * Send HTTP headers
      *
      * @return $this
@@ -82,6 +95,10 @@ class Response extends HttpResponse
     public function sendHeaders()
     {
         if ($this->headersSent()) {
+            if ($this->headersSentHandler) {
+                call_user_func($this->headersSentHandler, $this);
+            }
+
             return $this;
         }
 

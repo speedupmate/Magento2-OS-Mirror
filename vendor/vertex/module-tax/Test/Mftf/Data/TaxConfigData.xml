@@ -62,10 +62,10 @@
         <data key="value">https://mgcsconnect.vertexsmb.com/vertex-ws/services/LookupTaxAreas70</data>
     </entity>
     <entity name="VertexTrustedId" type="VertexTrustedId">
-        <data key="value">{{_CREDS.vertex_config_trusted_id}}</data>
+        <data key="value">{{_CREDS.vertex/vertex_config_trusted_id}}</data>
     </entity>
     <entity name="VertexSellerCompanyCode" type="VertexSellerCompanyCode">
-        <data key="value">{{_CREDS.vertex_seller_company_code}}</data>
+        <data key="value">{{_CREDS.vertex/vertex_seller_company_code}}</data>
     </entity>
     <entity name="VertexSellerLocationCode" type="VertexSellerLocationCode">
         <data key="value">Test-Automation</data>

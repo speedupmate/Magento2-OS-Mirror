@@ -30,8 +30,12 @@ class ValidatorPluginManager extends AbstractPluginManager
         'Barcode'                  => Barcode::class,
         'between'                  => Between::class,
         'Between'                  => Between::class,
+        'BIC'                      => BusinessIdentifierCode::class,
+        'bic'                      => BusinessIdentifierCode::class,
         'bitwise'                  => Bitwise::class,
         'Bitwise'                  => Bitwise::class,
+        'BusinessIdentifierCode'   => BusinessIdentifierCode::class,
+        'businessidentifiercode'   => BusinessIdentifierCode::class,
         'callback'                 => Callback::class,
         'Callback'                 => Callback::class,
         'creditcard'               => CreditCard::class,
@@ -327,6 +331,7 @@ class ValidatorPluginManager extends AbstractPluginManager
         Barcode::class                         => InvokableFactory::class,
         Between::class                         => InvokableFactory::class,
         Bitwise::class                         => InvokableFactory::class,
+        BusinessIdentifierCode::class          => InvokableFactory::class,
         Callback::class                        => InvokableFactory::class,
         CreditCard::class                      => InvokableFactory::class,
         Csrf::class                            => InvokableFactory::class,
@@ -368,9 +373,7 @@ class ValidatorPluginManager extends AbstractPluginManager
         I18nValidator\IsInt::class             => InvokableFactory::class,
         Ip::class                              => InvokableFactory::class,
         Isbn::class                            => InvokableFactory::class,
-        I18nValidator\IsFloat::class           => InvokableFactory::class,
         IsInstanceOf::class                    => InvokableFactory::class,
-        I18nValidator\IsInt::class             => InvokableFactory::class,
         LessThan::class                        => InvokableFactory::class,
         NotEmpty::class                        => InvokableFactory::class,
         I18nValidator\PhoneNumber::class       => InvokableFactory::class,
@@ -538,6 +541,7 @@ class ValidatorPluginManager extends AbstractPluginManager
      * Proxies to `validate()`.
      *
      * @param mixed $plugin
+     * @return void
      * @throws Exception\RuntimeException
      */
     public function validatePlugin($plugin)

@@ -1,4 +1,10 @@
 
+5.3.2 / 2020-12-07
+==================
+
+  * MAGE-2602 Remove dependency on PayPal module
+  * MAGE-2711 Fix issue with product URL and images being sent to API
+
 5.3.1 / 2020-07-31
 ==================
 

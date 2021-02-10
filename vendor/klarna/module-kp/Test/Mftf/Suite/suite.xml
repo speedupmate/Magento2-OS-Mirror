@@ -24,8 +24,8 @@
             <actionGroup ref="LoginAsAdmin" stepKey="loginAsAdmin"/>
             <actionGroup ref="ConfigureKlarna" stepKey="kpConfigureCredentials">
                 <argument name="api_version" value="kp_na"/>
-                <argument name="merchant_id" value="{{_CREDS.klarna_us_merchant_id}}"/>
-                <argument name="shared_secret" value="{{_CREDS.klarna_us_shared_secret}}"/>
+                <argument name="merchant_id" value="{{_CREDS.klarna/klarna_us_merchant_id}}"/>
+                <argument name="shared_secret" value="{{_CREDS.klarna/klarna_us_shared_secret}}"/>
             </actionGroup>
             <actionGroup ref="logout" stepKey="signOutFromAdmin"/>
         </before>
@@ -43,8 +43,8 @@
             <actionGroup ref="LoginAsAdmin" stepKey="loginAsAdmin"/>
             <actionGroup ref="ConfigureKlarna" stepKey="kpConfigureCredentials">
                 <argument name="api_version" value="kp_na"/>
-                <argument name="merchant_id" value="{{_CREDS.klarna_us_merchant_id}}"/>
-                <argument name="shared_secret" value="{{_CREDS.klarna_us_shared_secret}}"/>
+                <argument name="merchant_id" value="{{_CREDS.klarna/klarna_us_merchant_id}}"/>
+                <argument name="shared_secret" value="{{_CREDS.klarna/klarna_us_shared_secret}}"/>
             </actionGroup>
             <actionGroup ref="logout" stepKey="signOutFromAdmin"/>
         </before>

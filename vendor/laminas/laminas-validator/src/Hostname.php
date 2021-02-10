@@ -1864,9 +1864,8 @@ class Hostname extends AbstractValidator
     }
 
     /**
-     *
      * @param Ip $ipValidator OPTIONAL
-     * @return Hostname;
+     * @return self
      */
     public function setIpValidator(Ip $ipValidator = null)
     {
@@ -1975,6 +1974,14 @@ class Hostname extends AbstractValidator
             }
 
             return true;
+        }
+
+        // Handle Regex compilation failure that may happen on .biz domain with has @ character, eg: tapi4457@hsoqvf.biz
+        // Technically, hostname with '@' character is invalid, so mark as invalid immediately
+        // @see https://github.com/laminas/laminas-validator/issues/8
+        if (strpos($value, '@') !== false) {
+            $this->error(self::INVALID_HOSTNAME);
+            return false;
         }
 
         // Local hostnames are allowed to be partial (ending '.')

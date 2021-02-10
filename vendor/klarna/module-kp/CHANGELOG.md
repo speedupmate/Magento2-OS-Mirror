@@ -1,4 +1,9 @@
 
+6.5.3 / 2020-12-07
+==================
+
+  * MAGE-2194 Add MFTF test to verify $0 subtotal virtual product orders
+
 6.5.2 / 2020-07-31
 ==================
 

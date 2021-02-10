@@ -15,6 +15,7 @@ use Klarna\Kp\Model\Session as KlarnaKpSession;
 use Magento\Framework\App\Config\ScopeConfigInterface;
 use Magento\Store\Model\ScopeInterface;
 use Magento\Store\Model\StoreManagerInterface;
+use Klarna\Core\Model\Api\Exception as KlarnaApiException;
 
 /**
  * This onepage checkout block run before or after specific actions of the magento onepage checkout block
@@ -70,7 +71,11 @@ class OnepagePlugin
             ScopeInterface::SCOPE_STORES,
             $store
         )) {
-            $this->kpSession->init();
+            try {
+                $this->kpSession->init();
+            } catch (KlarnaApiException $e) {
+                return [];
+            }
         }
         return [];
     }

@@ -6,8 +6,7 @@ $vendorDir = dirname(dirname(__FILE__));
 $baseDir = dirname($vendorDir);
 
 return array(
-    'ArithmeticError' => $vendorDir . '/symfony/polyfill-php70/Resources/stubs/ArithmeticError.php',
-    'AssertionError' => $vendorDir . '/symfony/polyfill-php70/Resources/stubs/AssertionError.php',
+    'Attribute' => $vendorDir . '/symfony/polyfill-php80/Resources/stubs/Attribute.php',
     'Cm_Cache_Backend_File' => $vendorDir . '/colinmollenhour/cache-backend-file/File.php',
     'Cm_Cache_Backend_Redis' => $vendorDir . '/colinmollenhour/cache-backend-redis/Cm/Cache/Backend/Redis.php',
     'CredisException' => $vendorDir . '/colinmollenhour/credis/Client.php',
@@ -15,8 +14,6 @@ return array(
     'Credis_Cluster' => $vendorDir . '/colinmollenhour/credis/Cluster.php',
     'Credis_Module' => $vendorDir . '/colinmollenhour/credis/Module.php',
     'Credis_Sentinel' => $vendorDir . '/colinmollenhour/credis/Sentinel.php',
-    'DivisionByZeroError' => $vendorDir . '/symfony/polyfill-php70/Resources/stubs/DivisionByZeroError.php',
-    'Error' => $vendorDir . '/symfony/polyfill-php70/Resources/stubs/Error.php',
     'File_Iterator' => $vendorDir . '/phpunit/php-file-iterator/src/Iterator.php',
     'File_Iterator_Facade' => $vendorDir . '/phpunit/php-file-iterator/src/Facade.php',
     'File_Iterator_Factory' => $vendorDir . '/phpunit/php-file-iterator/src/Factory.php',
@@ -395,7 +392,6 @@ return array(
     'PHP_Token_XOR_EQUAL' => $vendorDir . '/phpunit/php-token-stream/src/Token.php',
     'PHP_Token_YIELD' => $vendorDir . '/phpunit/php-token-stream/src/Token.php',
     'PHP_Token_YIELD_FROM' => $vendorDir . '/phpunit/php-token-stream/src/Token.php',
-    'ParseError' => $vendorDir . '/symfony/polyfill-php70/Resources/stubs/ParseError.php',
     'PharIo\\Manifest\\Application' => $vendorDir . '/phar-io/manifest/src/values/Application.php',
     'PharIo\\Manifest\\ApplicationName' => $vendorDir . '/phar-io/manifest/src/values/ApplicationName.php',
     'PharIo\\Manifest\\Author' => $vendorDir . '/phar-io/manifest/src/values/Author.php',
@@ -608,7 +604,6 @@ return array(
     'SebastianBergmann\\RecursionContext\\InvalidArgumentException' => $vendorDir . '/sebastian/recursion-context/src/InvalidArgumentException.php',
     'SebastianBergmann\\ResourceOperations\\ResourceOperations' => $vendorDir . '/sebastian/resource-operations/src/ResourceOperations.php',
     'SebastianBergmann\\Version' => $vendorDir . '/sebastian/version/src/Version.php',
-    'SessionUpdateTimestampHandlerInterface' => $vendorDir . '/symfony/polyfill-php70/Resources/stubs/SessionUpdateTimestampHandlerInterface.php',
     'Stringable' => $vendorDir . '/symfony/polyfill-php80/Resources/stubs/Stringable.php',
     'Text_Template' => $vendorDir . '/phpunit/php-text-template/src/Template.php',
     'TheSeer\\Tokenizer\\Exception' => $vendorDir . '/theseer/tokenizer/src/Exception.php',
@@ -633,7 +628,6 @@ return array(
     'TheSeer\\fDOM\\fDOMException' => $vendorDir . '/theseer/fdomdocument/src/fDOMException.php',
     'TheSeer\\fDOM\\fDOMNode' => $vendorDir . '/theseer/fdomdocument/src/fDOMNode.php',
     'TheSeer\\fDOM\\fDOMXPath' => $vendorDir . '/theseer/fdomdocument/src/fDOMXPath.php',
-    'TypeError' => $vendorDir . '/symfony/polyfill-php70/Resources/stubs/TypeError.php',
     'UnhandledMatchError' => $vendorDir . '/symfony/polyfill-php80/Resources/stubs/UnhandledMatchError.php',
     'ValueError' => $vendorDir . '/symfony/polyfill-php80/Resources/stubs/ValueError.php',
     'lessc' => $vendorDir . '/wikimedia/less.php/lessc.inc.php',
