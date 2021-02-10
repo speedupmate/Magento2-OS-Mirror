@@ -38,6 +38,7 @@ class Tokens extends \SplFixedArray
     const BLOCK_TYPE_GROUP_IMPORT_BRACE = 8;
     const BLOCK_TYPE_DESTRUCTURING_SQUARE_BRACE = 9;
     const BLOCK_TYPE_BRACE_CLASS_INSTANTIATION = 10;
+    const BLOCK_TYPE_ATTRIBUTE = 11;
 
     /**
      * Static class cache.
@@ -190,6 +191,7 @@ class Tokens extends \SplFixedArray
         }
 
         $tokens->generateCode(); // regenerate code to calculate code hash
+        $tokens->clearChanged();
 
         return $tokens;
     }
@@ -231,7 +233,7 @@ class Tokens extends \SplFixedArray
      */
     public static function getBlockEdgeDefinitions()
     {
-        return [
+        $definitions = [
             self::BLOCK_TYPE_CURLY_BRACE => [
                 'start' => '{',
                 'end' => '}',
@@ -273,6 +275,15 @@ class Tokens extends \SplFixedArray
                 'end' => [CT::T_BRACE_CLASS_INSTANTIATION_CLOSE, ')'],
             ],
         ];
+
+        if (\defined('T_ATTRIBUTE')) {
+            $definitions[self::BLOCK_TYPE_ATTRIBUTE] = [
+                'start' => [T_ATTRIBUTE, '#['],
+                'end' => [CT::T_ATTRIBUTE_CLOSE, ']'],
+            ];
+        }
+
+        return $definitions;
     }
 
     /**
@@ -362,9 +373,7 @@ class Tokens extends \SplFixedArray
 
         for ($count = $index; $index < $limit; ++$index) {
             if (!$this->isEmptyAt($index)) {
-                /** @var Token $token */
-                $token = $this[$index];
-                $this[$count++] = $token;
+                $this[$count++] = $this[$index];
             }
         }
 
@@ -422,15 +431,14 @@ class Tokens extends \SplFixedArray
         }
 
         $whitespace = $removeLastCommentLine($this, $index, $indexOffset, $whitespace);
+
         if ('' === $whitespace) {
             return false;
         }
 
         $this->insertAt(
             $index + $indexOffset,
-            [
-                new Token([T_WHITESPACE, $whitespace]),
-            ]
+            [new Token([T_WHITESPACE, $whitespace])]
         );
 
         return true;
@@ -476,7 +484,6 @@ class Tokens extends \SplFixedArray
      */
     public function findGivenKind($possibleKind, $start = 0, $end = null)
     {
-        $this->rewind();
         if (null === $end) {
             $end = $this->count();
         }
@@ -595,9 +602,7 @@ class Tokens extends \SplFixedArray
                 return null;
             }
 
-            $token = $this[$index];
-
-            if (!$token->isWhitespace($whitespaces)) {
+            if (!$this[$index]->isWhitespace($whitespaces)) {
                 return $index;
             }
         }
@@ -662,9 +667,7 @@ class Tokens extends \SplFixedArray
                 return null;
             }
 
-            $token = $this[$index];
-
-            if ($token->equalsAny($tokens, $caseSensitive)) {
+            if ($this[$index]->equalsAny($tokens, $caseSensitive)) {
                 return $index;
             }
         }
@@ -681,27 +684,37 @@ class Tokens extends \SplFixedArray
      */
     public function getTokenNotOfKindSibling($index, $direction, array $tokens = [])
     {
-        while (true) {
-            $index += $direction;
-
-            if (!$this->offsetExists($index)) {
-                return null;
+        return $this->getTokenNotOfKind(
+            $index,
+            $direction,
+            function ($a) use ($tokens) {
+                return $this[$a]->equalsAny($tokens);
             }
-
-            if ($this->isEmptyAt($index)) {
-                continue;
-            }
-
-            if ($this[$index]->equalsAny($tokens)) {
-                continue;
-            }
-
-            return $index;
-        }
+        );
     }
 
     /**
-     * Get index for closest sibling token that is not a whitespace or comment.
+     * Get index for closest sibling token not of given kind.
+     *
+     * @param int   $index     token index
+     * @param int   $direction direction for looking, +1 or -1
+     * @param array $kinds     possible tokens kinds
+     *
+     * @return null|int
+     */
+    public function getTokenNotOfKindsSibling($index, $direction, array $kinds = [])
+    {
+        return $this->getTokenNotOfKind(
+            $index,
+            $direction,
+            function ($index) use ($kinds) {
+                return $this[$index]->isGivenKind($kinds);
+            }
+        );
+    }
+
+    /**
+     * Get index for closest sibling token that is not a whitespace, comment or attribute.
      *
      * @param int $index     token index
      * @param int $direction direction for looking, +1 or -1
@@ -710,10 +723,10 @@ class Tokens extends \SplFixedArray
      */
     public function getMeaningfulTokenSibling($index, $direction)
     {
-        return $this->getTokenNotOfKindSibling(
+        return $this->getTokenNotOfKindsSibling(
             $index,
             $direction,
-            [[T_WHITESPACE], [T_COMMENT], [T_DOC_COMMENT]]
+            [T_WHITESPACE, T_COMMENT, T_DOC_COMMENT]
         );
     }
 
@@ -790,6 +803,8 @@ class Tokens extends \SplFixedArray
             return null;
         }
 
+        $nonMeaningFullKind = [T_COMMENT, T_DOC_COMMENT, T_WHITESPACE];
+
         // make sure the sequence content is "meaningful"
         foreach ($sequence as $key => $token) {
             // if not a Token instance already, we convert it to verify the meaningfulness
@@ -799,11 +814,16 @@ class Tokens extends \SplFixedArray
                     // although optional for search purposes
                     $token[1] = 'DUMMY';
                 }
+
                 $token = new Token($token);
             }
 
-            if ($token->isWhitespace() || $token->isComment() || '' === $token->getContent()) {
+            if ($token->isGivenKind($nonMeaningFullKind)) {
                 throw new \InvalidArgumentException(sprintf('Non-meaningful token at position: "%s".', $key));
+            }
+
+            if ('' === $token->getContent()) {
+                throw new \InvalidArgumentException(sprintf('Non-meaningful (empty) token at position: "%s".', $key));
             }
         }
 
@@ -968,18 +988,6 @@ class Tokens extends \SplFixedArray
      */
     public function overrideRange($indexStart, $indexEnd, $items)
     {
-        $oldCode = $this->generatePartialCode($indexStart, $indexEnd);
-
-        $newCode = '';
-        foreach ($items as $item) {
-            $newCode .= $item->getContent();
-        }
-
-        // no changes, return
-        if ($oldCode === $newCode) {
-            return;
-        }
-
         $indexToChange = $indexEnd - $indexStart + 1;
         $itemsCount = \count($items);
 
@@ -987,10 +995,12 @@ class Tokens extends \SplFixedArray
         // add placeholders for overhead items.
         if ($itemsCount > $indexToChange) {
             $placeholders = [];
+
             while ($itemsCount > $indexToChange) {
                 $placeholders[] = new Token('__PLACEHOLDER__');
                 ++$indexToChange;
             }
+
             $this->insertAt($indexEnd + 1, $placeholders);
         }
 
@@ -1054,11 +1064,15 @@ class Tokens extends \SplFixedArray
         $transformers->transform($this);
 
         $this->foundTokenKinds = [];
+
         foreach ($this as $token) {
             $this->registerFoundToken($token);
         }
 
-        $this->rewind();
+        if (\PHP_VERSION_ID < 80000) {
+            $this->rewind();
+        }
+
         $this->changeCodeHash(self::calculateCodeHash($code));
         $this->changed = true;
     }
@@ -1077,7 +1091,9 @@ class Tokens extends \SplFixedArray
             $output[$index] = $token->toArray();
         }
 
-        $this->rewind();
+        if (\PHP_VERSION_ID < 80000) {
+            $this->rewind();
+        }
 
         return json_encode($output, $options);
     }
@@ -1209,6 +1225,21 @@ class Tokens extends \SplFixedArray
     }
 
     /**
+     * @return bool
+     */
+    public function hasAlternativeSyntax()
+    {
+        return $this->isAnyTokenKindsFound([
+            T_ENDDECLARE,
+            T_ENDFOR,
+            T_ENDFOREACH,
+            T_ENDIF,
+            T_ENDSWITCH,
+            T_ENDWHILE,
+        ]);
+    }
+
+    /**
      * @param int $index
      */
     public function clearTokenAndMergeSurroundingWhitespace($index)
@@ -1237,6 +1268,73 @@ class Tokens extends \SplFixedArray
         $this->clearAt($nextIndex);
     }
 
+    /**
+     * @internal
+     *
+     * @deprecated Do not call directly, not available on PHP8 and will be removed in the future
+     */
+    public function current()
+    {
+        $this->warnPhp8SplFixerArrayChange(__METHOD__);
+
+        return parent::current();
+    }
+
+    /**
+     * @internal
+     *
+     * @deprecated Do not call directly, not available on PHP8 and will be removed in the future
+     */
+    public function key()
+    {
+        $this->warnPhp8SplFixerArrayChange(__METHOD__);
+
+        return parent::key();
+    }
+
+    /**
+     * @internal
+     *
+     * @deprecated Do not call directly, not available on PHP8 and will be removed in the future
+     */
+    public function next()
+    {
+        $this->warnPhp8SplFixerArrayChange(__METHOD__);
+
+        parent::next();
+    }
+
+    /**
+     * @internal
+     *
+     * @deprecated Do not call directly, not available on PHP8 and will be removed in the future
+     */
+    public function rewind()
+    {
+        $this->warnPhp8SplFixerArrayChange(__METHOD__);
+
+        parent::rewind();
+    }
+
+    /**
+     * @internal
+     *
+     * @deprecated Do not call directly, not available on PHP8 and will be removed in the future
+     */
+    public function valid()
+    {
+        $this->warnPhp8SplFixerArrayChange(__METHOD__);
+
+        return parent::valid();
+    }
+
+    private function warnPhp8SplFixerArrayChange($method)
+    {
+        if (80000 <= \PHP_VERSION_ID) {
+            throw new \BadMethodCallException(sprintf('"%s" has been removed on PHP8, use ::getIterator() in place.', $method));
+        }
+    }
+
     private function removeWhitespaceSafely($index, $direction, $whitespaces = null)
     {
         $whitespaceIndex = $this->getNonEmptySibling($index, $direction);
@@ -1247,9 +1345,11 @@ class Tokens extends \SplFixedArray
             // if the token candidate to remove is preceded by single line comment we do not consider the new line after this comment as part of T_WHITESPACE
             if (isset($this[$whitespaceIndex - 1]) && $this[$whitespaceIndex - 1]->isComment() && '/*' !== substr($this[$whitespaceIndex - 1]->getContent(), 0, 2)) {
                 list($emptyString, $newContent, $whitespacesToCheck) = Preg::split('/^(\R)/', $this[$whitespaceIndex]->getContent(), -1, PREG_SPLIT_DELIM_CAPTURE);
+
                 if ('' === $whitespacesToCheck) {
                     return;
                 }
+
                 $tokenToCheck = new Token([T_WHITESPACE, $whitespacesToCheck]);
             }
 
@@ -1449,5 +1549,29 @@ class Tokens extends \SplFixedArray
             ? ($token->isArray() ? $token->getId() : $token->getContent())
             : (\is_array($token) ? $token[0] : $token)
         ;
+    }
+
+    /**
+     * @param int      $index     token index
+     * @param int      $direction direction for looking, +1 or -1
+     * @param callable $filter
+     *
+     * @return null|int
+     */
+    private function getTokenNotOfKind($index, $direction, $filter)
+    {
+        while (true) {
+            $index += $direction;
+
+            if (!$this->offsetExists($index)) {
+                return null;
+            }
+
+            if ($this->isEmptyAt($index) || $filter($index)) {
+                continue;
+            }
+
+            return $index;
+        }
     }
 }

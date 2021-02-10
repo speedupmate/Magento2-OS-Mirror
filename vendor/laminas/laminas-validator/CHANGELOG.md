@@ -2,6 +2,68 @@
 
 All notable changes to this project will be documented in this file, in reverse chronological order by release.
 
+## 2.14.0 - 2021-01-07
+
+### Added
+
+- [#58](https://github.com/laminas/laminas-validator/pull/58) adds a `Laminas\Validator\BusinessIdentifierCode` validator, which can be used for validating SWIFT business identifier codes.
+
+- [#75](https://github.com/laminas/laminas-validator/pull/75) adds support for PHP 8.0.
+
+### Changed
+
+- [#75](https://github.com/laminas/laminas-validator/pull/75) With the update to support PHP 8, please be aware that the `InArray` validator may work differently than under PHP 7 when doing non-strict comparisons involving numbers and strings. Under PHP versions prior to v8, strings would be cast to numbers before comparing to a numeric value; now, the opposite occurs, which means that while `"b" == 0` was true in PHP 7, it no longer is in PHP 8. We recommend only using the `InArray` validator with strict comparisons enabled to prevent issues moving from PHP 7 to PHP 8.
+
+### Removed
+
+- [#75](https://github.com/laminas/laminas-validator/pull/75) removes support for PHP versions 7.1 and 7.2.
+
+
+-----
+
+### Release Notes for [2.14.0](https://github.com/laminas/laminas-validator/milestone/1)
+
+next feature release (minor)
+
+### 2.14.0
+
+- Total issues resolved: **0**
+- Total pull requests resolved: **7**
+- Total contributors: **6**
+
+#### Enhancement
+
+ - [77: add heic to valid isImage mime checks](https://github.com/laminas/laminas-validator/pull/77) thanks to @christaggart
+ - [63: qa: Replace array by data providers in unit tests for the hostname validator](https://github.com/laminas/laminas-validator/pull/63) thanks to @codisart
+ - [58: feat: Add the support for SWIFT Business Identifier Code (BIC) format](https://github.com/laminas/laminas-validator/pull/58) thanks to @codisart
+
+#### Enhancement,hacktoberfest-accepted
+
+ - [76: Add vimeo/psalm](https://github.com/laminas/laminas-validator/pull/76) thanks to @lukaslangen
+ - [75: PHP 8.0 support](https://github.com/laminas/laminas-validator/pull/75) thanks to @jfernancordova
+
+#### Bug,Documentation
+
+ - [72: Fixed parameter types](https://github.com/laminas/laminas-validator/pull/72) thanks to @svycka
+
+#### Documentation,Enhancement
+
+ - [71: Fix php-fig.org &quot;PSR-7 UploadedFileInterface&quot; link](https://github.com/laminas/laminas-validator/pull/71) thanks to @jbelien
+
+## 2.13.5 - 2021-01-06
+
+### Release Notes for [2.13.5](https://github.com/laminas/laminas-validator/milestone/4)
+
+- Total issues resolved: **0**
+- Total pull requests resolved: **3**
+- Total contributors: **2**
+
+#### Bug
+
+- [68: Remove duplicate keys in ValidatorPluginManager::factories](https://github.com/laminas/laminas-validator/pull/68) thanks to @samsonasik
+- [67: Possible fixes #8 compilation failed regex too large](https://github.com/laminas/laminas-validator/pull/67) thanks to @samsonasik
+- [62: qa: Replace array by data providers in unit tests](https://github.com/laminas/laminas-validator/pull/62) thanks to @codisart
+
 ## 2.13.4 - 2020-03-31
 
 ### Added

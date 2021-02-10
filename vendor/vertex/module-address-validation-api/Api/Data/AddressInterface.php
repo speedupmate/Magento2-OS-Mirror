@@ -14,6 +14,9 @@ use Vertex\Data\AddressInterface as SdkAddressInterface;
  * This is the interface for submission to the API.  For ease the API only takes interfaces the same as the SDK, but the
  * SDK model cannot implement the interface.  Since the SDK model technically isn't API, we re-implement a simple DTO to
  * handle the scenario.
+ *
+ * @api
+ * @since 1.0.0
  */
 interface AddressInterface extends SdkAddressInterface
 {

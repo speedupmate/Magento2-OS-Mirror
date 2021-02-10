@@ -4,7 +4,7 @@
 
 namespace Composer\Autoload;
 
-class ComposerStaticInit60d28c457b4a93f2e121b1b41f93f31c
+class ComposerStaticInite3623dee44b2e51bcfab8e529a120823
 {
     public static $files = array (
         'a4a119a56e50fbb293281d9a48007e0e' => __DIR__ . '/..' . '/symfony/polyfill-php80/bootstrap.php',
@@ -14,6 +14,7 @@ class ComposerStaticInit60d28c457b4a93f2e121b1b41f93f31c
         'e69f7f6ee287b969198c3c9d6777bd38' => __DIR__ . '/..' . '/symfony/polyfill-intl-normalizer/bootstrap.php',
         '0d59ee240a4cd96ddbb4ff164fccea4d' => __DIR__ . '/..' . '/symfony/polyfill-php73/bootstrap.php',
         'b6b991a57620e2fb6b2f66f03fe9ddc2' => __DIR__ . '/..' . '/symfony/string/Resources/functions.php',
+        'ad155f8f1cf0d418fe49e248db8c661b' => __DIR__ . '/..' . '/react/promise/src/functions_include.php',
         '43a898c2b52882ecca1f7b0558d3af2c' => __DIR__ . '/..' . '/magento/composer-root-update-plugin/registration.php',
     );
 
@@ -34,6 +35,10 @@ class ComposerStaticInit60d28c457b4a93f2e121b1b41f93f31c
             'Symfony\\Component\\Console\\' => 26,
             'Seld\\PharUtils\\' => 15,
             'Seld\\JsonLint\\' => 14,
+        ),
+        'R' => 
+        array (
+            'React\\Promise\\' => 14,
         ),
         'P' => 
         array (
@@ -115,6 +120,10 @@ class ComposerStaticInit60d28c457b4a93f2e121b1b41f93f31c
         array (
             0 => __DIR__ . '/..' . '/seld/jsonlint/src/Seld/JsonLint',
         ),
+        'React\\Promise\\' => 
+        array (
+            0 => __DIR__ . '/..' . '/react/promise/src',
+        ),
         'Psr\\Log\\' => 
         array (
             0 => __DIR__ . '/..' . '/psr/log/Psr/Log',
@@ -154,6 +163,7 @@ class ComposerStaticInit60d28c457b4a93f2e121b1b41f93f31c
     );
 
     public static $classMap = array (
+        'Attribute' => __DIR__ . '/..' . '/symfony/polyfill-php80/Resources/stubs/Attribute.php',
         'JsonException' => __DIR__ . '/..' . '/symfony/polyfill-php73/Resources/stubs/JsonException.php',
         'Normalizer' => __DIR__ . '/..' . '/symfony/polyfill-intl-normalizer/Resources/stubs/Normalizer.php',
         'Stringable' => __DIR__ . '/..' . '/symfony/polyfill-php80/Resources/stubs/Stringable.php',
@@ -164,9 +174,9 @@ class ComposerStaticInit60d28c457b4a93f2e121b1b41f93f31c
     public static function getInitializer(ClassLoader $loader)
     {
         return \Closure::bind(function () use ($loader) {
-            $loader->prefixLengthsPsr4 = ComposerStaticInit60d28c457b4a93f2e121b1b41f93f31c::$prefixLengthsPsr4;
-            $loader->prefixDirsPsr4 = ComposerStaticInit60d28c457b4a93f2e121b1b41f93f31c::$prefixDirsPsr4;
-            $loader->classMap = ComposerStaticInit60d28c457b4a93f2e121b1b41f93f31c::$classMap;
+            $loader->prefixLengthsPsr4 = ComposerStaticInite3623dee44b2e51bcfab8e529a120823::$prefixLengthsPsr4;
+            $loader->prefixDirsPsr4 = ComposerStaticInite3623dee44b2e51bcfab8e529a120823::$prefixDirsPsr4;
+            $loader->classMap = ComposerStaticInite3623dee44b2e51bcfab8e529a120823::$classMap;
 
         }, null, ClassLoader::class);
     }

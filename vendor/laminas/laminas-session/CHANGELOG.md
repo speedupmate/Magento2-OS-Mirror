@@ -2,6 +2,49 @@
 
 All notable changes to this project will be documented in this file, in reverse chronological order by release.
 
+## 2.10.0 - 2020-10-31
+
+### Added
+
+- [#35](https://github.com/laminas/laminas-session/pull/35) Adds PHP 8.0 support
+
+### Deprecated
+
+- [#35](https://github.com/laminas/laminas-session/pull/35) Marks some methods in `StandardConfig` and `SessionConfig` as deprecated as the functionality behind these methods was dropped in PHP 7.1
+  - `StandardConfig::setEntropyFile`
+  - `StandardConfig::getEntropyFile`
+  - `StandardConfig::setEntropyLength`
+  - `StandardConfig::getEntropyLength`
+  - `StandardConfig::setHashFunction`
+  - `StandardConfig::getHashFunction`
+  - `StandardConfig::setHashBitsPerCharacter`
+  - `StandardConfig::getHashBitsPerCharacter`
+  - `SessionConfig::setHashFunction`
+  - `SessionConfig::setHashBitsPerCharacter`
+
+- [#35](https://github.com/laminas/laminas-session/pull/35) Marks the `AbstractValidatorChain`, `ValidatorChainTrait` and `AbstractValidatorChainEM3` as deprecated as they can be replaced by using the `ValidatorChain` instead.
+
+### Removed
+
+- [#35](https://github.com/laminas/laminas-session/pull/35) Removed compatibility with laminas-eventmanager v2
+
+
+-----
+
+### Release Notes for [2.10.0](https://github.com/laminas/laminas-session/milestone/2)
+
+
+
+### 2.10.0
+
+- Total issues resolved: **0**
+- Total pull requests resolved: **1**
+- Total contributors: **1**
+
+#### Enhancement,hacktoberfest-accepted
+
+ - [35: PHP 8 support](https://github.com/laminas/laminas-session/pull/35) thanks to @rieschl
+
 ## 2.9.3 - 2020-03-29
 
 ### Added

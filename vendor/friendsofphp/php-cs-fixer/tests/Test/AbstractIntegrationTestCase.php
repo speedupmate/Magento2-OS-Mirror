@@ -22,6 +22,7 @@ use PhpCsFixer\FixerFactory;
 use PhpCsFixer\Linter\CachingLinter;
 use PhpCsFixer\Linter\Linter;
 use PhpCsFixer\Linter\LinterInterface;
+use PhpCsFixer\Linter\ProcessLinter;
 use PhpCsFixer\Runner\Runner;
 use PhpCsFixer\Tests\TestCase;
 use PhpCsFixer\Tokenizer\Tokens;
@@ -74,9 +75,9 @@ abstract class AbstractIntegrationTestCase extends TestCase
      */
     private static $fileRemoval;
 
-    public static function setUpBeforeClass()
+    public static function doSetUpBeforeClass()
     {
-        parent::setUpBeforeClass();
+        parent::doSetUpBeforeClass();
 
         $tmpFile = static::getTempFile();
         self::$fileRemoval = new FileRemoval();
@@ -92,9 +93,9 @@ abstract class AbstractIntegrationTestCase extends TestCase
         }
     }
 
-    public static function tearDownAfterClass()
+    public static function doTearDownAfterClass()
     {
-        parent::tearDownAfterClass();
+        parent::doTearDownAfterClass();
 
         $tmpFile = static::getTempFile();
 
@@ -102,9 +103,9 @@ abstract class AbstractIntegrationTestCase extends TestCase
         self::$fileRemoval = null;
     }
 
-    protected function setUp()
+    protected function doSetUp()
     {
-        parent::setUp();
+        parent::doSetUp();
 
         $this->linter = $this->getLinter();
 
@@ -114,9 +115,9 @@ abstract class AbstractIntegrationTestCase extends TestCase
         }
     }
 
-    protected function tearDown()
+    protected function doTearDown()
     {
-        parent::tearDown();
+        parent::doTearDown();
 
         $this->linter = null;
 
@@ -382,10 +383,12 @@ abstract class AbstractIntegrationTestCase extends TestCase
                     ->lintSource(Argument::type('string'))
                     ->willReturn($this->prophesize(\PhpCsFixer\Linter\LintingResultInterface::class)->reveal())
                 ;
+
                 $linterProphecy
                     ->lintFile(Argument::type('string'))
                     ->willReturn($this->prophesize(\PhpCsFixer\Linter\LintingResultInterface::class)->reveal())
                 ;
+
                 $linterProphecy
                     ->isAsync()
                     ->willReturn(false)
@@ -393,7 +396,9 @@ abstract class AbstractIntegrationTestCase extends TestCase
 
                 $linter = $linterProphecy->reveal();
             } else {
-                $linter = new CachingLinter(new Linter());
+                $linter = new CachingLinter(
+                    getenv('FAST_LINT_TEST_CASES') ? new Linter() : new ProcessLinter()
+                );
             }
         }
 

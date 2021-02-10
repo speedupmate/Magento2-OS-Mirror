@@ -16,6 +16,7 @@ use PhpCsFixer\ConfigurationException\InvalidFixerConfigurationException;
 use PhpCsFixer\Fixer\ConfigurableFixerInterface;
 use PhpCsFixer\Fixer\FixerInterface;
 use PhpCsFixer\Fixer\WhitespacesAwareFixerInterface;
+use PhpCsFixer\RuleSet\RuleSetInterface;
 use Symfony\Component\Finder\Finder as SymfonyFinder;
 use Symfony\Component\Finder\SplFileInfo;
 
@@ -96,7 +97,7 @@ final class FixerFactory
             $builtInFixers = [];
 
             /** @var SplFileInfo $file */
-            foreach (SymfonyFinder::create()->files()->in(__DIR__.'/Fixer') as $file) {
+            foreach (SymfonyFinder::create()->files()->in(__DIR__.'/Fixer')->depth(1) as $file) {
                 $relativeNamespace = $file->getRelativePath();
                 $fixerClass = 'PhpCsFixer\\Fixer\\'.($relativeNamespace ? $relativeNamespace.'\\' : '').$file->getBasename('.php');
                 if ('Fixer' === substr($fixerClass, -5)) {

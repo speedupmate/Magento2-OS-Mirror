@@ -167,7 +167,7 @@ class YamlFileLoader extends FileLoader
             return false;
         }
 
-        if (null === $type && \in_array(pathinfo($resource, PATHINFO_EXTENSION), ['yaml', 'yml'], true)) {
+        if (null === $type && \in_array(pathinfo($resource, \PATHINFO_EXTENSION), ['yaml', 'yml'], true)) {
             return true;
         }
 
@@ -848,7 +848,7 @@ class YamlFileLoader extends FileLoader
                     throw new InvalidArgumentException(sprintf('Creating an alias using the tag "!service" is not allowed in "%s".', $file));
                 }
 
-                $this->container->getDefinition($id)->setPublic(false);
+                $this->container->getDefinition($id);
 
                 $this->isLoadingInstanceof = $isLoadingInstanceof;
                 $this->instanceof = $instanceof;

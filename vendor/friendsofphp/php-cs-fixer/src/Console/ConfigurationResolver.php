@@ -33,7 +33,7 @@ use PhpCsFixer\Linter\Linter;
 use PhpCsFixer\Linter\LinterInterface;
 use PhpCsFixer\Report\ReporterFactory;
 use PhpCsFixer\Report\ReporterInterface;
-use PhpCsFixer\RuleSet;
+use PhpCsFixer\RuleSet\RuleSet;
 use PhpCsFixer\StdinFileInfo;
 use PhpCsFixer\ToolInfoInterface;
 use PhpCsFixer\Utils;
@@ -193,9 +193,13 @@ final class ConfigurationResolver
     public function getCacheManager()
     {
         if (null === $this->cacheManager) {
-            if ($this->getUsingCache() && ($this->toolInfo->isInstalledAsPhar() || $this->toolInfo->isInstalledByComposer())) {
+            $cacheFile = $this->getCacheFile();
+
+            if (null === $cacheFile) {
+                $this->cacheManager = new NullCacheManager();
+            } else {
                 $this->cacheManager = new FileCacheManager(
-                    new FileHandler($this->getCacheFile()),
+                    new FileHandler($cacheFile),
                     new Signature(
                         PHP_VERSION,
                         $this->toolInfo->getVersion(),
@@ -206,8 +210,6 @@ final class ConfigurationResolver
                     $this->isDryRun(),
                     $this->getDirectory()
                 );
-            } else {
-                $this->cacheManager = new NullCacheManager();
             }
         }
 
@@ -344,7 +346,7 @@ final class ConfigurationResolver
                 );
 
                 if (\count($riskyFixers)) {
-                    throw new InvalidConfigurationException(sprintf('The rules contain risky fixers (%s), but they are not allowed to run. Perhaps you forget to use --allow-risky=yes option?', implode(', ', $riskyFixers)));
+                    throw new InvalidConfigurationException(sprintf('The rules contain risky fixers (%s), but they are not allowed to run. Perhaps you forget to use --allow-risky=yes option?', implode('", "', $riskyFixers)));
                 }
             }
         }
@@ -515,6 +517,8 @@ final class ConfigurationResolver
             }
         }
 
+        $this->usingCache = $this->usingCache && ($this->toolInfo->isInstalledAsPhar() || $this->toolInfo->isInstalledByComposer());
+
         return $this->usingCache;
     }
 
@@ -586,10 +590,11 @@ final class ConfigurationResolver
             $configDir = $this->cwd;
         } elseif (1 < \count($path)) {
             throw new InvalidConfigurationException('For multiple paths config parameter is required.');
-        } elseif (is_file($path[0]) && $dirName = pathinfo($path[0], PATHINFO_DIRNAME)) {
-            $configDir = $dirName;
-        } else {
+        } elseif (!is_file($path[0])) {
             $configDir = $path[0];
+        } else {
+            $dirName = pathinfo($path[0], PATHINFO_DIRNAME);
+            $configDir = $dirName ?: $path[0];
         }
 
         $candidates = [
@@ -768,7 +773,7 @@ final class ConfigurationResolver
             if (isset($rules[$fixerName]) && $fixer instanceof DeprecatedFixerInterface) {
                 $successors = $fixer->getSuccessorsNames();
                 $messageEnd = [] === $successors
-                    ? sprintf(' and will be removed in version %d.0.', Application::getMajorVersion())
+                    ? sprintf(' and will be removed in version %d.0.', Application::getMajorVersion() + 1)
                     : sprintf('. Use %s instead.', str_replace('`', '"', Utils::naturalLanguageJoinWithBackticks($successors)));
 
                 $message = "Rule \"{$fixerName}\" is deprecated{$messageEnd}";

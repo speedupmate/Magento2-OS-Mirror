@@ -2,6 +2,33 @@
 
 All notable changes to this project will be documented in this file, in reverse chronological order by release.
 
+## 2.8.0 - 2020-10-31
+
+### Added
+
+- [#12](https://github.com/laminas/laminas-uri/pull/12) Adds PHP 8.0 support
+
+
+-----
+
+### Release Notes for [2.8.0](https://github.com/laminas/laminas-uri/milestone/1)
+
+
+
+### 2.8.0
+
+- Total issues resolved: **0**
+- Total pull requests resolved: **2**
+- Total contributors: **2**
+
+#### Enhancement
+
+ - [13: Introducing laminas-coding-standard v2](https://github.com/laminas/laminas-uri/pull/13) thanks to @boesing
+
+#### Awaiting Author Updates,Enhancement,hacktoberfest-accepted
+
+ - [12: Added support for PHP 8.0](https://github.com/laminas/laminas-uri/pull/12) thanks to @vpn
+
 ## 2.7.1 - 2019-10-07
 
 ### Added
