@@ -36,6 +36,7 @@
             <deleteData stepKey="deleteVirtualProduct" createDataKey="createVirtualProduct"/>
             <deleteData stepKey="deleteDownloadableProduct" createDataKey="createDownloadableProductCreateDownloadableProduct"/>
             <deleteData stepKey="deleteCustomer" createDataKey="createCustomer"/>
+            <actionGroup ref="VertexTaxDefaultConfigActionGroup" stepKey="revertDefaultConfiguration"/>
             <actionGroup ref="AdminLogoutActionGroup" stepKey="logoutOfAdmin"/>
             <actionGroup ref="StorefrontCustomerLogoutActionGroup" stepKey="customerLogout"/>
         </after>

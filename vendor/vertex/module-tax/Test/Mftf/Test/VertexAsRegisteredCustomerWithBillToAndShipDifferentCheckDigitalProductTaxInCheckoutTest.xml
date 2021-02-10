@@ -28,7 +28,7 @@
             <actionGroup ref="VertexCreateDownloadableProductActionGroup" stepKey="createDownloadableProduct">
                 <argument name="price" value="{{Vertex_100USD_PA_Only_Values.price}}" />
             </actionGroup>
-            <createData entity="Vertex_Customer_JohnWinston" stepKey="createCustomer"/>
+            <createData entity="Vertex_Customer_WinstonJohn" stepKey="createCustomer"/>
         </before>
         <after>
             <deleteData stepKey="deleteCategory" createDataKey="createCategory"/>

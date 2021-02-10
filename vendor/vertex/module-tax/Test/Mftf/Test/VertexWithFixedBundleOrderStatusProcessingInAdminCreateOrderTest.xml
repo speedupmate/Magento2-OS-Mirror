@@ -58,6 +58,7 @@
 
             <!-- Configuration -->
             <actionGroup ref="AdminLoginActionGroup" stepKey="loginAsAdmin"/>
+            <actionGroup ref="VertexTaxDefaultConfigActionGroup" stepKey="revertDefaultConfiguration"/>
             <actionGroup ref="VertexTaxConfigOrderStatusPendingActionGroup" stepKey="setupTaxConfigOrderStatusProcessing"/>
 
             <magentoCLI command="cache:clean config" stepKey="cleanConfigCache"/>

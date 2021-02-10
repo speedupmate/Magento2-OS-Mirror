@@ -20,3 +20,7 @@ input BraintreeCcVaultInput {
     public_hash: String!
     device_data: String
 }
+
+type StoreConfig {
+    braintree_cc_vault_active: String @doc(description: "Braintree cc vault status.")
+}

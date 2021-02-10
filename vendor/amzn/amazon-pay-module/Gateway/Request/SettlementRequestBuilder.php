@@ -24,6 +24,14 @@ use Magento\Payment\Model\Method\Logger;
 use Magento\Sales\Api\OrderRepositoryInterface;
 use Magento\Quote\Api\CartRepositoryInterface;
 
+/**
+ * @deprecated As of February 2021, this Legacy Amazon Pay plugin has been
+ * deprecated, in favor of a newer Amazon Pay version available through GitHub
+ * and Magento Marketplace. Please download the new plugin for automatic
+ * updates and to continue providing your customers with a seamless checkout
+ * experience. Please see https://pay.amazon.com/help/E32AAQBC2FY42HS for details
+ * and installation instructions.
+ */
 class SettlementRequestBuilder implements BuilderInterface
 {
     /**
@@ -128,11 +136,17 @@ class SettlementRequestBuilder implements BuilderInterface
         $data = [];
 
         $paymentDO = $this->subjectReader->readPayment($buildSubject);
-
         $orderDO = $paymentDO->getOrder();
+        $order = $paymentDO->getPayment()->getOrder();
+        $payment = $paymentDO->getPayment();
 
-        $currencyCode = $orderDO->getCurrencyCode();
-        $total = $buildSubject['amount'];
+        $currencyCode = $order->getOrderCurrencyCode();
+        if ($payment->getAmazonDisplayInvoiceAmount()) {
+            $total = $payment->getAmazonDisplayInvoiceAmount();
+        }
+        else {
+            $total = $payment->getAmountOrdered();
+        }
 
         if ($buildSubject['multicurrency']['multicurrency']) {
             $currencyCode = $buildSubject['multicurrency']['order_currency'];

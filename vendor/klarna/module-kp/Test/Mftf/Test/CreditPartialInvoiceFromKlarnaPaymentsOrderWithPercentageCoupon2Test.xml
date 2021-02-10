@@ -21,7 +21,7 @@
             <title value="Partially credit invoice with two of the same product and % coupon"/>
             <description value="A merchant can partially credit/refund a Klarna Payments order with two of the same product and a percentage coupon"/>
             <severity value="CRITICAL"/>
-            <testCaseId value="KP_CM_8"/>
+            <testCaseId value="KP_CM_9"/>
             <group value="Klarna_KP_Country_US"/>
             <group value="Klarna_KP_Order_Guest"/>
             <group value="Klarna_KP_Order_Pay_Later"/>

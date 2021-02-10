@@ -132,10 +132,12 @@
         },
         "index": {
             "VERTEX_SALES_ORDER_ITEM_VERTEX_TAX_CODE_ITEM_ID": true,
-            "VERTEX_SALES_ORDER_ITEM_VERTEX_TAX_CODE_TAX_CODE": true
+            "VERTEX_SALES_ORDER_ITEM_VERTEX_TAX_CODE_TAX_CODE": true,
+            "VERTEX_SALES_ORDER_ITEM_VERTEX_TAX_CODE_VERTEX_TAX_CODE": true
         },
         "constraint": {
-            "VERTEX_SALES_ORDER_ITEM_VERTEX_TAX_CODE_ITEM_ID_TAX_CODE": true
+            "VERTEX_SALES_ORDER_ITEM_VERTEX_TAX_CODE_ITEM_ID_TAX_CODE": true,
+            "VERTEX_SALES_ORDER_ITEM_VERTEX_TAX_CODE_ITEM_ID_VERTEX_TAX_CODE": true
         }
     },
     "vertex_invoice_sent": {
@@ -176,6 +178,26 @@
         "column": {
             "address_id": true,
             "customer_country": true
+        },
+        "constraint": {
+            "PRIMARY": true
+        }
+    },
+    "vertex_commodity_code_product": {
+        "column": {
+            "product_id": true,
+            "code": true,
+            "type": true
+        },
+        "constraint": {
+            "PRIMARY": true
+        }
+    },
+    "vertex_commodity_code_order_item": {
+        "column": {
+            "order_item_id": true,
+            "code": true,
+            "type": true
         },
         "constraint": {
             "PRIMARY": true

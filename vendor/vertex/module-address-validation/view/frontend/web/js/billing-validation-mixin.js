@@ -19,6 +19,7 @@ define([
              * @returns {Object}
              */
             initialize: function () {
+                let self = this;
                 this._super();
 
                 registry.get(
@@ -29,6 +30,11 @@ define([
                         this.addressValidator = validator;
                     }.bind(this)
                 );
+
+                this.isAddressDetailsVisible.subscribe(function (isVisible) {
+                    self.addressDetailsVisibilityChanged(isVisible);
+                });
+
                 return this;
             },
 
@@ -74,6 +80,18 @@ define([
                         function () {
                             that.addressValidator.isAddressValid = false;
                         });
+            },
+
+            /**
+             * If the address details are visible, then remove the validation address warning message
+             *
+             * @param isVisible
+             */
+            addressDetailsVisibilityChanged: function (isVisible) {
+                let message = this.addressValidator.message;
+                if (isVisible && message.hasMessage() && message.message.type === 1) {
+                    message.clear();
+                }
             }
         });
     };

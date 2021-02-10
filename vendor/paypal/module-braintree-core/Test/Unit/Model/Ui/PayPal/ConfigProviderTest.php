@@ -47,12 +47,6 @@ class ConfigProviderTest extends \PHPUnit\Framework\TestCase
             ->getMock();
 
         $this->localeResolver = $this->getMockForAbstractClass(ResolverInterface::class);
-
-        $this->configProvider = new ConfigProvider(
-            $this->config,
-            $this->creditConfig,
-            $this->localeResolver
-        );
     }
 
     /**
@@ -64,6 +58,11 @@ class ConfigProviderTest extends \PHPUnit\Framework\TestCase
     public function testGetConfig($expected)
     {
         $this->markTestSkipped('Skip this test');
+        $this->configProvider = new ConfigProvider(
+            $this->config,
+            $this->creditConfig,
+            $this->localeResolver
+        );
         $this->config->method('isActive')
             ->willReturn(true);
 

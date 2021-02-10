@@ -154,6 +154,7 @@ define([
             this.cleanseAddressButton = this.node.find(this.cleanseAddressButtonSelector);
             this.updateAddressButton = this.node.find(this.updateAddressButtonSelector);
             this.messageContainer = this.node.find(this.messageContainerSelector);
+
             this.form = $('#' + window.order[this.prefix + 'Container']);
 
             this.streetInputs = this.form.find('input[name*="[street]"]');

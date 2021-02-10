@@ -200,22 +200,6 @@ class Config
     }
 
     /**
-     * @return string
-     */
-    public function getConfigureChatTeamButtonUrl()
-    {
-        return $this->urlBuilder->getUrl('dotdigitalgroup_chat/studio/team');
-    }
-
-    /**
-     * @return string
-     */
-    public function getConfigureChatWidgetButtonUrl()
-    {
-        return $this->urlBuilder->getUrl('dotdigitalgroup_chat/studio/widget');
-    }
-
-    /**
      * Save chat API space ID
      *
      * @param string $apiSpaceId

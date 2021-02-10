@@ -1,0 +1,64 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<tests xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+       xsi:noNamespaceSchemaLocation="urn:magento:mftf:Test/etc/testSchema.xsd">
+    <test name="TransactionalSmsFieldsInteractionTest">
+        <annotations>
+            <features value="Engagement Cloud module"/>
+            <stories value="dotdigital Transactional SMS"/>
+            <title value="Test Transactional SMS field interactions"/>
+            <description value="Check that SMS character counting and unicode detectio work as expected."/>
+            <severity value="MINOR"/>
+            <group value="FS/mftf-130088"/>
+            <group value="dotmailer"/>
+        </annotations>
+
+        <before>
+            <actionGroup ref="AdminLoginActionGroup" stepKey="AdminLoginActionGroup1"/>
+            <actionGroup ref="SetDotmailerAccountData" stepKey="SetDotmailerAccountData"/>
+        </before>
+
+        <after>
+            <actionGroup ref="ResetDotmailerAccountData" stepKey="resetAccountData"/>
+            <actionGroup ref="AdminLogoutActionGroup" stepKey="logout"/>
+        </after>
+
+        <amOnPage url="{{AdminTransactionalSmsPage.url}}" stepKey="amOnDotdigitalTransactionalSmsPage"/>
+        <waitForPageLoad stepKey="waitForPageLoad"/>
+
+        <!-- Hold on to the default value of AdminTransactionalSmsSection.newOrderSmsMessage -->
+        <grabValueFrom selector="{{AdminTransactionalSmsSection.newOrderSmsMessage}}" stepKey="grabDefaultNewOrderMessage"/>
+
+        <actionGroup ref="FillSmsFields" stepKey="FillSmsTextAreaWithVariables">
+            <argument name="smsText" value="{{SmsMessages.smsTextWithVariables}}"/>
+        </actionGroup>
+
+        <see userInput="150" selector="#transactional_sms_sms_templates_new_order_confirmation_message_counter" stepKey="validateCharCounter1"/>
+        <see userInput="minimum" selector="#transactional_sms_sms_templates_new_order_confirmation_message_comment" stepKey="validateComment1"/>
+        <see userInput="1" selector="#transactional_sms_sms_templates_new_order_confirmation_message_total" stepKey="validateTotalSms1"/>
+
+        <actionGroup ref="FillSmsFields" stepKey="FillSmsTextAreaWithoutVariables">
+            <argument name="smsText" value="{{SmsMessages.smsTextWithoutVariables}}"/>
+        </actionGroup>
+
+        <see userInput="23" selector="#transactional_sms_sms_templates_new_order_confirmation_message_counter" stepKey="validateCharCounter2"/>
+        <dontSee userInput="" selector="#transactional_sms_sms_templates_new_order_confirmation_message_comment" stepKey="validateComment2"/>
+        <see userInput="1" selector="#transactional_sms_sms_templates_new_order_confirmation_message_total" stepKey="validateTotalSms2"/>
+
+        <actionGroup ref="FillSmsFields" stepKey="FillSmsTextAreaWithUnicode">
+            <argument name="smsText" value="{{SmsMessages.smsUnicodeTextWithoutVariables}}"/>
+        </actionGroup>
+
+        <see userInput="15" selector="#transactional_sms_sms_templates_new_order_confirmation_message_counter" stepKey="validateCharCounter3"/>
+        <dontSee userInput="" selector="#transactional_sms_sms_templates_new_order_confirmation_message_comment" stepKey="validateComment3"/>
+        <see userInput="1" selector="#transactional_sms_sms_templates_new_order_confirmation_message_total" stepKey="validateTotalSms3"/>
+
+        <scrollToTopOfPage stepKey="scrollToTop"/>
+        <see userInput="One or more of your templates contain unicode characters. Consider replacing them if you would like to reduce your character count. Read more about SMS message length and Unicode. " selector="#ddg-unicode" stepKey="validateUnicode"/>
+
+        <actionGroup ref="ResetSmsFields" stepKey="ResetSmsFields">
+            <argument name="originalNewOrderSmsMessage" value="{$grabDefaultNewOrderMessage}"/>
+        </actionGroup>
+    </test>
+</tests>
+
+

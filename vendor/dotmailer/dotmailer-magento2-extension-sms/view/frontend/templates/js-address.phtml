@@ -1,0 +1,25 @@
+<?php
+/**
+ * @var $block \Magento\Framework\View\Element\Template
+ * @var $view \Dotdigitalgroup\Sms\ViewModel\TelephoneInputConfig
+ */
+// @codingStandardsIgnoreFile
+$view = $block->getData('config');
+?>
+<script type="text/x-magento-init">
+    {
+        "input[name='telephone']": {
+            "Dotdigitalgroup_Sms/js/internationalTelephoneInput": <?= $view->getConfig(); ?>
+        },
+
+        ".form-address-edit": {
+            "validation": {
+                "rules": {
+                    "telephone": {
+                        "validate-phone-number":true
+                    }
+                }
+            }
+        }
+    }
+</script>

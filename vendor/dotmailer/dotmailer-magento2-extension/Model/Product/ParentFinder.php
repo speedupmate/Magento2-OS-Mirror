@@ -57,11 +57,18 @@ class ParentFinder
 
     /**
      * @param $product
+     * @param string $type
      * @return \Magento\Catalog\Api\Data\ProductInterface|null
      */
-    public function getParentProduct($product)
+    public function getParentProduct($product, $type = 'first_parent_id')
     {
-        $parentId = $this->getFirstParentId($product);
+        switch ($type) {
+            case 'grouped':
+                $parentId = $this->getGroupedFirstParentId($product);
+                break;
+            default:
+                $parentId = $this->getFirstParentId($product);
+        }
 
         if ($parentId) {
             try {
@@ -76,6 +83,25 @@ class ParentFinder
         }
 
         return null;
+    }
+
+    /**
+     * @param Product $product
+     * @param string $imageRole
+     * @return \Magento\Catalog\Api\Data\ProductInterface|Product|null
+     * @throws \Magento\Framework\Exception\NoSuchEntityException
+     */
+    public function getParentProductForNoImageSelection(Product $product, $imageRole = 'small_image')
+    {
+        $imageRole = $imageRole ?? 'small_image';
+        if ($product->getTypeId() == \Magento\Catalog\Model\Product\Type::TYPE_SIMPLE
+            && (empty($product->getData($imageRole)) || $product->getData($imageRole) == 'no_selection')
+            && $parentProduct = $this->getParentProduct($product)
+        ) {
+            return $parentProduct;
+        }
+
+        return $product;
     }
 
     /**
@@ -143,6 +169,20 @@ class ParentFinder
         $bundleProducts = $this->bundleSelection->getParentIdsByChild($product->getId());
         if (isset($bundleProducts[0])) {
             return $bundleProducts[0];
+        }
+
+        return null;
+    }
+
+    /**
+     * @param $product
+     * @return string|null
+     */
+    private function getGroupedFirstParentId($product)
+    {
+        $groupedProducts = $this->groupedType->getParentIdsByChild($product->getId());
+        if (isset($groupedProducts[0])) {
+            return $groupedProducts[0];
         }
 
         return null;

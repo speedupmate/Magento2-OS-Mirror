@@ -18,7 +18,6 @@ define(
         let config = window.checkoutConfig.payment,
             braintreeType = 'braintree',
             payPalType = 'braintree_paypal',
-            payPalCreditType = 'braintree_paypal_credit',
             braintreeAchDirectDebit = 'braintree_ach_direct_debit';
 
         if (config[braintreeType].isActive) {
@@ -35,15 +34,6 @@ define(
                 {
                     type: payPalType,
                     component: 'PayPal_Braintree/js/view/payment/method-renderer/paypal'
-                }
-            );
-        }
-
-        if (config[payPalCreditType].isActive) {
-            rendererList.push(
-                {
-                    type: payPalCreditType,
-                    component: 'PayPal_Braintree/js/view/payment/method-renderer/paypal-credit'
                 }
             );
         }

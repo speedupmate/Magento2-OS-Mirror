@@ -126,6 +126,24 @@
         </constraint>
     </table>
 
+    <table name="vertex_commodity_code_product" comment="Vertex Commodity Code">
+        <column xsi:type="int" name="product_id" padding="10" nullable="false" unsigned="true" comment="Product ID"/>
+        <column xsi:type="varchar" name="code" nullable="true" comment="Commodity Code"/>
+        <column xsi:type="varchar" name="type" nullable="true" comment="Commodity Type"/>
+        <constraint xsi:type="primary" referenceId="PRIMARY">
+            <column name="product_id"/>
+        </constraint>
+    </table>
+
+    <table name="vertex_commodity_code_order_item" comment="Vertex Commodity Code">
+        <column xsi:type="int" name="order_item_id" padding="10" nullable="false" unsigned="true" comment="Item ID"/>
+        <column xsi:type="varchar" name="code" nullable="true" comment="Commodity Code"/>
+        <column xsi:type="varchar" name="type" nullable="true" comment="Commodity Type"/>
+        <constraint xsi:type="primary" referenceId="PRIMARY">
+            <column name="order_item_id"/>
+        </constraint>
+    </table>
+
     <table name="vertex_order_invoice_status" comment="Invoice has been logged in Vertex">
         <column xsi:type="int" name="order_id" padding="10" nullable="false" unsigned="true" comment="Order ID"/>
         <column xsi:type="boolean" name="sent_to_vertex" nullable="false" default="0" comment="Invoice has been logged in Vertex"/>

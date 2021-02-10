@@ -11,10 +11,10 @@ use Magento\Catalog\Api\ProductRepositoryInterface;
 use Magento\Customer\Api\Data\AddressInterface;
 use Magento\Framework\Api\SearchCriteriaBuilder;
 use Magento\Framework\Api\SearchCriteriaBuilderFactory;
+use Magento\Framework\Exception\NoSuchEntityException;
 use Magento\Quote\Api\Data\ShippingAssignmentInterface;
 use Magento\Quote\Model\Quote\Address;
 use Magento\Quote\Model\Quote\Item\AbstractItem;
-use Magento\Tax\Api\Data\QuoteDetailsItemExtensionInterface;
 use Magento\Tax\Api\Data\QuoteDetailsItemInterface;
 use Magento\Tax\Api\Data\QuoteDetailsItemInterfaceFactory;
 use Magento\Tax\Api\Data\TaxClassKeyInterface;
@@ -159,7 +159,8 @@ class CommonTaxCollectorPlugin
         $itemDataObject = call_user_func_array($super, $arguments);
 
         $store = $this->getStoreCodeFromShippingAssignment($shippingAssignment);
-        if ($itemDataObject === null || !$this->config->isVertexActive($store) || !$this->config->isTaxCalculationEnabled($store)) {
+        if ($itemDataObject === null
+            || !$this->config->isVertexActive($store) || !$this->config->isTaxCalculationEnabled($store)) {
             return $itemDataObject;
         }
 
@@ -182,11 +183,11 @@ class CommonTaxCollectorPlugin
     /**
      * Add VAT ID to Address used in Tax Calculation
      *
-     * @see CommonTaxCollector::mapAddress()
      * @param CommonTaxCollector $subject
      * @param callable $super
      * @param Address $address
      * @return AddressInterface
+     * @see CommonTaxCollector::mapAddress()
      */
     public function aroundMapAddress(
         CommonTaxCollector $subject,
@@ -207,7 +208,6 @@ class CommonTaxCollectorPlugin
     /**
      * Add Vertex data to QuoteDetailsItems
      *
-     * @see CommonTaxCollector::mapItem()
      * @param CommonTaxCollector $subject
      * @param callable $super
      * @param QuoteDetailsItemInterfaceFactory $dataObjectFactory
@@ -216,6 +216,7 @@ class CommonTaxCollectorPlugin
      * @param bool $useBaseCurrency
      * @param string|null $parentCode
      * @return QuoteDetailsItemInterface
+     * @see CommonTaxCollector::mapItem()
      */
     public function aroundMapItem(
         CommonTaxCollector $subject,
@@ -235,6 +236,15 @@ class CommonTaxCollectorPlugin
 
         if ($this->config->isVertexActive($item->getStoreId())) {
             $extensionData = $taxData->getExtensionAttributes();
+            try {
+                $product = $this->productRepository->get($item->getProduct()->getSku());
+                $commodityCode = $product->getExtensionAttributes()->getVertexCommodityCode();
+                if ($commodityCode) {
+                    $extensionData->setVertexCommodityCode($commodityCode);
+                }
+            } catch (NoSuchEntityException $e) { // phpcs:ignore Magento2.CodeAnalysis.EmptyBlock.DetectedCatch
+                /* Fake product, Exception expected, NOOP for commodity code lookup */
+            }
             $extensionData->setVertexProductCode($item->getProduct()->getSku());
             $extensionData->setVertexIsConfigurable($item->getProduct()->getTypeId() === 'configurable');
             $extensionData->setStoreId($item->getStore()->getStoreId());
@@ -294,7 +304,7 @@ class CommonTaxCollectorPlugin
 
             // Set the Product Code
             $extensionData = $quoteItem->getExtensionAttributes();
-            $extensionData->setVertexProductCode($gwPrefix.$productSku);
+            $extensionData->setVertexProductCode($gwPrefix . $productSku);
 
             // Change the Tax Class ID
             $quoteItem->setTaxClassId($taxClassId);

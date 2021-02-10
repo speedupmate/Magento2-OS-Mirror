@@ -1,0 +1,47 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!--
+ /**
+  * Copyright © Magento, Inc. All rights reserved.
+  * See COPYING.txt for license details.
+  *
+  * This file is part of the Klarna KP module
+  *
+  * (c) Klarna Bank AB (publ)
+  *
+  * For the full copyright and license information, please view the NOTICE
+  * and LICENSE files that were distributed with this source code.
+  */
+-->
+<tests xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+       xsi:noNamespaceSchemaLocation="urn:magento:mftf:Test/etc/testSchema.xsd">
+    <test name="CancelFromKlarnaPaymentsGuestOrderTest" extends="PlacePayLaterOrderAsGuestTest">
+        <annotations>
+            <features value="Klarna Payments"/>
+            <stories value="Cancel an order placed by a guest"/>
+            <title value="BUNDLE-664 - Cancel guest order"/>
+            <description value="A merchant can cancel a Klarna Payments order placed by a guest customer"/>
+            <severity value="CRITICAL"/>
+            <testCaseId value="KP_US_C_1P"/>
+            <group value="Klarna_KP_Country_US"/>
+            <group value="Klarna_KP_Order_Guest"/>
+            <group value="Klarna_KP_Order_Pay_Later"/>
+            <group value="Klarna_KP_Order_Cancel"/>
+        </annotations>
+        <before>
+            <actionGroup ref="AdminLoginActionGroup" stepKey="loginAsAdmin"/>
+        </before>
+        <after>
+            <actionGroup ref="AdminLogoutActionGroup" stepKey="logout"/>
+        </after>
+
+        <!--Go to order page-->
+        <grabTextFrom selector="{{CheckoutSuccessMainSection.orderNumber}}" stepKey="grabOrderNumber"/>
+        <actionGroup ref="OpenOrderByIdActionGroup" stepKey="goToOrderPage">
+            <argument name="orderId" value="{$grabOrderNumber}"/>
+        </actionGroup>
+        <waitForPageLoad stepKey="waitForOrderPageLoad"/>
+
+        <!--Cancel Order-->
+        <actionGroup ref="CancelPendingOrderActionGroup" stepKey="cancelOrder"/>
+    </test>
+</tests>

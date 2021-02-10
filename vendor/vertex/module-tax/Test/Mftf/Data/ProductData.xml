@@ -36,6 +36,26 @@
         <requiredEntity type="custom_attribute_array">CustomAttributeCategoryIds</requiredEntity>
         <requiredEntity type="custom_attribute_array">VertexProductTaxClass</requiredEntity>
     </entity>
+    <entity name="VertexSimpleProductCommodityCode" type="product">
+        <data key="name" unique="suffix">SimpleProductCommodityCode</data>
+        <data key="sku" unique="suffix">SimpleProductCommodityCode</data>
+        <data key="type_id">simple</data>
+        <data key="attribute_set_id">4</data>
+        <data key="price">123.00</data>
+        <data key="visibility">4</data>
+        <data key="status">1</data>
+        <data key="quantity">100</data>
+        <data key="weight">1</data>
+        <requiredEntity type="product_extension_attribute">Vertex_CommodityCode_And_StockItem</requiredEntity>
+    </entity>
+    <entity name="Vertex_CommodityCode_And_StockItem" type="product_extension_attribute">
+        <requiredEntity type="vertex_commodity_code">Clothing_CommodityCode</requiredEntity>
+        <requiredEntity type="stock_item">Qty_100</requiredEntity>
+    </entity>
+    <entity name="Clothing_CommodityCode" type="vertex_commodity_code">
+        <data key="code">53100000</data>
+        <data key="type">UNSPSC</data>
+    </entity>
     <entity name="VertexProductAttributeInSet" type="ProductAttributeSet">
         <data key="attributeSetId">4</data>
         <data key="sortOrder">0</data>

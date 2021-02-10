@@ -16,6 +16,7 @@ use Vertex\AddressValidation\Block\Adminhtml\CleanseAddressButton;
 class AddBlockToOrderCreateForm
 {
     private const ELEMENT_NAME = 'address_validation_type';
+    private const DEFAULT_FORM_ID = 'edit_form';
 
     /** @var LayoutInterface */
     private $layout;
@@ -36,11 +37,15 @@ class AddBlockToOrderCreateForm
             );
         }
 
+        if (!$subject->getData('js_variable_prefix')) {
+            return $result;
+        }
+
         /** @var CleanseAddressButton $block */
         $block = $this->layout->createBlock(
             CleanseAddressButton::class,
             '',
-            ['prefix' => $subject->getJsVariablePrefix()]
+            ['prefix' => $subject->getData('js_variable_prefix')]
         );
 
         $validationElement->setRenderer($block);

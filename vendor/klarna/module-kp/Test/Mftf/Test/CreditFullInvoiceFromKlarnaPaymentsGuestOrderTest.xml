@@ -14,7 +14,7 @@
 -->
 <tests xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
        xsi:noNamespaceSchemaLocation="urn:magento:mftf:Test/etc/testSchema.xsd">
-    <test name="CreditFullInvoiceFromKlarnaPaymentsGuestOrderTest" extends="PlacePayLaterOrderAsGuestUSTest">
+    <test name="CreditFullInvoiceFromKlarnaPaymentsGuestOrderTest" extends="PlacePayLaterOrderAsGuestTest">
         <annotations>
             <features value="Klarna Payments"/>
             <stories value="Fully credit/refund an invoice from an order placed by a guest"/>

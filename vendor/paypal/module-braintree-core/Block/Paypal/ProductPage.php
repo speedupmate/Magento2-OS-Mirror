@@ -5,6 +5,7 @@ namespace PayPal\Braintree\Block\Paypal;
 use PayPal\Braintree\Gateway\Config\Config as BraintreeConfig;
 use PayPal\Braintree\Gateway\Config\PayPal\Config;
 use PayPal\Braintree\Gateway\Config\PayPalCredit\Config as PayPalCreditConfig;
+use PayPal\Braintree\Gateway\Config\PayPalPayLater\Config as PayPalPayLaterConfig;
 use PayPal\Braintree\Model\Ui\ConfigProvider;
 use Magento\Catalog\Model\Product;
 use Magento\Checkout\Model\Session;
@@ -30,6 +31,7 @@ class ProductPage extends Button
      * @param Session $checkoutSession
      * @param Config $config
      * @param PayPalCreditConfig $payPalCreditConfig
+     * @param PayPalPayLaterConfig $payPalPayLaterConfig
      * @param BraintreeConfig $braintreeConfig
      * @param ConfigProvider $configProvider
      * @param MethodInterface $payment
@@ -42,6 +44,7 @@ class ProductPage extends Button
         Session $checkoutSession,
         Config $config,
         PayPalCreditConfig $payPalCreditConfig,
+        PayPalPayLaterConfig $payPalPayLaterConfig,
         BraintreeConfig $braintreeConfig,
         ConfigProvider $configProvider,
         MethodInterface $payment,
@@ -54,6 +57,7 @@ class ProductPage extends Button
             $checkoutSession,
             $config,
             $payPalCreditConfig,
+            $payPalPayLaterConfig,
             $braintreeConfig,
             $configProvider,
             $payment,
@@ -101,7 +105,7 @@ class ProductPage extends Button
                 return $groupedProducts[0]->getPrice();
             }
 
-            return $product->getPrice();
+            return $product->getFinalPrice();
         }
 
         return 100; // TODO There must be a better return value than this?
@@ -113,6 +117,14 @@ class ProductPage extends Button
     public function getContainerId(): string
     {
         return 'oneclick';
+    }
+
+    /**
+     * @return string
+     */
+    public function getLocation(): string
+    {
+        return 'productpage';
     }
 
     /**

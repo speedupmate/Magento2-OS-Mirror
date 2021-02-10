@@ -1,0 +1,11 @@
+<?php
+/** @var \Dotdigitalgroup\Sms\Block\Adminhtml\Config\UnicodeWarningMessage $block */
+?>
+
+<div class="message message-warning" id="ddg-unicode" style="display: none">
+    <?= $block->escapeHtml(__('One or more of your templates contain unicode characters.
+    Consider replacing them if you would like to reduce your character count.')); ?>
+    <a href="https://support.dotdigital.com/hc/en-gb/articles/360011201040-SMS-message-length-and-Unicode"
+       target="_blank">
+        <?= $block->escapeHtml(__('Read more about SMS message length and Unicode')); ?></a>.
+</div>

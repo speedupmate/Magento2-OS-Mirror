@@ -146,7 +146,7 @@ class MediaTest extends TestCase
      *
      * @return void
      */
-    public function testExecute(): void
+    public function testExecute()
     {
         $this->prepareProductMock();
         $this->productMock
@@ -179,7 +179,7 @@ class MediaTest extends TestCase
      *
      * @return void
      */
-    public function testExecuteNonExistingProduct(): void
+    public function testExecuteNonExistingProduct()
     {
         $this->prepareProductMock();
         $this->productMock
@@ -202,7 +202,7 @@ class MediaTest extends TestCase
      *
      * @return void
      */
-    public function testExecuteDisabledProduct(): void
+    public function testExecuteDisabledProduct()
     {
         $this->prepareProductMock();
         $this->productMock

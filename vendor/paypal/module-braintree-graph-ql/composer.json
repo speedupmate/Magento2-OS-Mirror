@@ -5,7 +5,7 @@
     "require": {
         "php": "~7.1.3||~7.2.0||~7.3.0||~7.4.0",
         "magento/framework": "^102||^103",
-        "paypal/module-braintree": "^4.1",
+        "paypal/module-braintree-core": "^4.1",
         "magento/module-store": "^101",
         "magento/module-quote": "^101",
         "magento/module-quote-graph-ql": "^100"
@@ -25,6 +25,6 @@
             "PayPal\\BraintreeGraphQl\\": ""
         }
     },
-    "version": "4.1.1"
+    "version": "4.1.2"
 }
 

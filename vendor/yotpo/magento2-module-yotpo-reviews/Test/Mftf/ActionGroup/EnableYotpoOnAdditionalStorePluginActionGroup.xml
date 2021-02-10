@@ -9,8 +9,8 @@
               xsi:noNamespaceSchemaLocation="urn:magento:mftf:Test/etc/actionGroupSchema.xsd">
   <actionGroup name="EnableYotpoOnAdditionalStorePlugin">
     <arguments>
-      <argument name="yotpo_app_key_2" type="string" defaultValue="{{_CREDS.yotpo_app_key_2}}"/>
-      <argument name="yotpo_secret_2" type="string" defaultValue="{{_CREDS.yotpo_secret_2}}"/>
+      <argument name="yotpo_app_key_2" type="string" defaultValue="{{_CREDS.yotpo/yotpo_app_key_2}}"/>
+      <argument name="yotpo_secret_2" type="string" defaultValue="{{_CREDS.yotpo/yotpo_secret_2}}"/>
     </arguments>
 
     <!-- enable Yotpo plugin -->

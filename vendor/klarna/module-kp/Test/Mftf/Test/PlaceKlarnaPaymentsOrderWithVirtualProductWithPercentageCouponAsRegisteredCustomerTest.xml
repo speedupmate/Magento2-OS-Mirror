@@ -17,8 +17,8 @@
     <test name="PlaceKlarnaPaymentsOrderWithVirtualProductWithPercentageCouponAsRegisteredCustomerTest">
         <annotations>
             <features value="Klarna Payments"/>
-            <stories value="It's possible to place an order with virtual product"/>
-            <title value="Placing order with virtual product"/>
+            <stories value="It's possible to place an order with virtual product and a coupon"/>
+            <title value="Placing order with virtual product and coupon"/>
             <description value="Successfully placing an order with Klarna Payments with a virtual product and a percentage coupon as registered customer"/>
             <severity value="CRITICAL"/>
             <testCaseId value="KP_V_R_2"/>

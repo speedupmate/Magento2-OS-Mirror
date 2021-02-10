@@ -1,0 +1,119 @@
+<?xml version="1.0"?>
+<config xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="urn:magento:module:Magento_Config:etc/system_file.xsd">
+    <system>
+        <section id="transactional_sms" translate="label" sortOrder="191" showInDefault="1" showInWebsite="1" showInStore="1">
+            <class>separator-top</class>
+            <label>Transactional SMS</label>
+            <tab>ddg_automation</tab>
+            <resource>Dotdigitalgroup_Sms::config</resource>
+            <group id="sms_settings" translate="label" type="text" sortOrder="6" showInDefault="1" showInWebsite="1" showInStore="1">
+                <label>Transactional SMS Settings</label>
+                <attribute type="expanded">1</attribute>
+                <field id="account_info" translate="label" type="select" sortOrder="1" showInDefault="1" showInWebsite="1" showInStore="1">
+                    <frontend_model>Dotdigitalgroup\Sms\Block\Adminhtml\Config\AccountMessage</frontend_model>
+                </field>
+                <field id="enabled" translate="label" type="select" sortOrder="1" showInDefault="1" showInWebsite="1" showInStore="1">
+                    <label>Enabled</label>
+                    <source_model>Magento\Config\Model\Config\Source\Yesno</source_model>
+                    <frontend_model>Dotdigitalgroup\Sms\Block\Adminhtml\Config\Enabled</frontend_model>
+                    <backend_model>Dotdigitalgroup\Sms\Model\Adminhtml\Backend\SmsEnabledValue</backend_model>
+                </field>
+                <field id="sms_report" type="button" sortOrder="2" showInDefault="1" showInWebsite="1" showInStore="0">
+                    <frontend_model>Dotdigitalgroup\Sms\Block\Adminhtml\Report\Sms</frontend_model>
+                </field>
+                <field id="manage_account" translate="label" sortOrder="12" showInDefault="1" showInWebsite="1" showInStore="1">
+                    <label>Manage account</label>
+                    <frontend_model>Dotdigitalgroup\Sms\Block\Adminhtml\Config\SettingsButton</frontend_model>
+                </field>
+                <field id="phone_number_validation" translate="label" type="select" sortOrder="3" showInDefault="1" showInWebsite="1" showInStore="1">
+                    <label>Enable phone number validation</label>
+                    <source_model>Magento\Config\Model\Config\Source\Yesno</source_model>
+                    <frontend_model>Dotdigitalgroup\Sms\Block\Adminhtml\Config\Enabled</frontend_model>
+                </field>
+            </group>
+            <group id="sms_templates" translate="label" type="text" sortOrder="10" showInDefault="1" showInWebsite="1" showInStore="1">
+                <label>SMS Templates</label>
+                <group id="frontend_assets" translate="label" type="text" sortOrder="1" showInWebsite="1" showInStore="1"
+                       showInDefault="1">
+                    <frontend_model>Dotdigitalgroup\Sms\Block\Adminhtml\Config\FrontendAssets</frontend_model>
+                </group>
+                <group id="unicode_detection" translate="label" type="text" sortOrder="1" showInWebsite="1" showInStore="1"
+                       showInDefault="1">
+                    <frontend_model>Dotdigitalgroup\Sms\Block\Adminhtml\Config\UnicodeWarningMessage</frontend_model>
+                </group>
+                <attribute type="expanded">1</attribute>
+                <!-- New Order Confirmation -->
+                <field id="new_order_confirmation_heading" translate="label" sortOrder="5" showInStore="1" showInWebsite="1" showInDefault="1">
+                    <label>New Order Confirmation</label>
+                    <frontend_model>Magento\Config\Block\System\Config\Form\Field\Heading</frontend_model>
+                </field>
+                <field id="new_order_confirmation_enabled" translate="label" type="select" sortOrder="5" showInDefault="1" showInWebsite="1" showInStore="1">
+                    <label>Enabled</label>
+                    <source_model>Magento\Config\Model\Config\Source\Yesno</source_model>
+                </field>
+                <field id="new_order_confirmation_message" translate="comment label" sortOrder="10" type="textarea" showInStore="1" showInWebsite="1" showInDefault="1">
+                    <label>Message</label>
+                    <tooltip><![CDATA[Variables: {{ first_name }}, {{ last_name }}, {{ email }}, {{ store_name }}, {{ order_id }}, {{ order_status }}.]]></tooltip>
+                    <frontend_model>Dotdigitalgroup\Sms\Block\Adminhtml\AppendNote</frontend_model>
+                </field>
+                <!-- Order Update -->
+                <field id="order_update_heading" translate="label" sortOrder="15" showInStore="1" showInWebsite="1" showInDefault="1">
+                    <label>Order Update</label>
+                    <frontend_model>Magento\Config\Block\System\Config\Form\Field\Heading</frontend_model>
+                </field>
+                <field id="order_update_enabled" translate="label" type="select" sortOrder="20" showInDefault="1" showInWebsite="1" showInStore="1">
+                    <label>Enabled</label>
+                    <source_model>Magento\Config\Model\Config\Source\Yesno</source_model>
+                </field>
+                <field id="order_update_message" translate="comment label" sortOrder="30" type="textarea" showInStore="1" showInWebsite="1" showInDefault="1">
+                    <label>Message</label>
+                    <tooltip><![CDATA[Messages will be sent for the order statuses 'On Hold' and 'Canceled'. Variables: {{ first_name }}, {{ last_name }}, {{ email }}, {{ store_name }}, {{ order_id }}, {{ order_status }}.]]></tooltip>
+                    <frontend_model>Dotdigitalgroup\Sms\Block\Adminhtml\AppendNote</frontend_model>
+                </field>
+                <!-- New Shipment -->
+                <field id="new_shipment_heading" translate="label" sortOrder="35" showInStore="1" showInWebsite="1" showInDefault="1">
+                    <label>New Shipment</label>
+                    <frontend_model>Magento\Config\Block\System\Config\Form\Field\Heading</frontend_model>
+                </field>
+                <field id="new_shipment_enabled" translate="label" type="select" sortOrder="40" showInDefault="1" showInWebsite="1" showInStore="1">
+                    <label>Enabled</label>
+                    <source_model>Magento\Config\Model\Config\Source\Yesno</source_model>
+                </field>
+                <field id="new_shipment_message" translate="comment label" sortOrder="45" type="textarea" showInStore="1"
+                       showInWebsite="1" showInDefault="1">
+                    <label>Message</label>
+                    <tooltip><![CDATA[Variables: {{ first_name }}, {{ last_name }}, {{ email }}, {{ store_name }}, {{ order_id }}, {{ order_status }}, {{ tracking_number }}, {{ tracking_carrier }}.]]></tooltip>
+                    <frontend_model>Dotdigitalgroup\Sms\Block\Adminhtml\AppendNote</frontend_model>
+                </field>
+                <!-- Shipment Update -->
+                <field id="shipment_update_heading" translate="label" sortOrder="50" showInStore="1" showInWebsite="1" showInDefault="1">
+                    <label>Shipment Update</label>
+                    <frontend_model>Magento\Config\Block\System\Config\Form\Field\Heading</frontend_model>
+                </field>
+                <field id="shipment_update_enabled" translate="label" type="select" sortOrder="55" showInDefault="1" showInWebsite="1" showInStore="1">
+                    <label>Enabled</label>
+                    <source_model>Magento\Config\Model\Config\Source\Yesno</source_model>
+                </field>
+                <field id="shipment_update_message" translate="comment label" sortOrder="60" type="textarea" showInStore="1" showInWebsite="1" showInDefault="1">
+                    <label>Message</label>
+                    <tooltip><![CDATA[Variables: {{ first_name }}, {{ last_name }}, {{ email }}, {{ store_name }}, {{ order_id }}, {{ order_status }}, {{ tracking_number }}, {{ tracking_carrier }}.]]></tooltip>
+                    <frontend_model>Dotdigitalgroup\Sms\Block\Adminhtml\AppendNote</frontend_model>
+                </field>
+                <!-- Credit Memo -->
+                <field id="new_credit_memo_heading" translate="label" sortOrder="65" showInStore="1" showInWebsite="1" showInDefault="1">
+                    <label>New Credit Memo</label>
+                    <frontend_model>Magento\Config\Block\System\Config\Form\Field\Heading</frontend_model>
+                </field>
+                <field id="new_credit_memo_enabled" translate="label" type="select" sortOrder="70" showInDefault="1" showInWebsite="1" showInStore="1">
+                    <label>Enabled</label>
+                    <source_model>Magento\Config\Model\Config\Source\Yesno</source_model>
+                </field>
+                <field id="new_credit_memo_message" translate="comment label" sortOrder="75" type="textarea" showInStore="1" showInWebsite="1" showInDefault="1">
+                    <label>Message</label>
+                    <tooltip><![CDATA[Variables: {{ first_name }}, {{ last_name }}, {{ email }}, {{ store_name }}, {{ order_id }}, {{ order_status }}, {{ refund_amount }}.]]></tooltip>
+                    <frontend_model>Dotdigitalgroup\Sms\Block\Adminhtml\AppendNote</frontend_model>
+                </field>
+            </group>
+        </section>
+    </system>
+</config>

@@ -15,7 +15,7 @@
             <title value="User should be able to review ordered products with only 'Reports' permission"/>
             <description value="User should be able to review ordered products with only 'Reports' permission"/>
             <severity value="MAJOR"/>
-            <testCaseId value="MC-25812"/>
+            <testCaseId value="MAGETWO-25812"/>
             <group value="user"/>
         </annotations>
         <before>

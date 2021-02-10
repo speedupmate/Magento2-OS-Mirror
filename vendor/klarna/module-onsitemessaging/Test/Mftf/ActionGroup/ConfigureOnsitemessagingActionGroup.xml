@@ -1,0 +1,36 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!--
+ /**
+  * This file is part of the Klarna Onsitemessaging module
+  *
+  * (c) Klarna Bank AB (publ)
+  *
+  * For the full copyright and license information, please view the NOTICE
+  * and LICENSE files that were distributed with this source code.
+  */
+-->
+<actionGroups xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+              xsi:noNamespaceSchemaLocation="urn:magento:mftf:Test/etc/actionGroupSchema.xsd">
+    <actionGroup name="ConfigureOnsitemessaging" extends="ConfigureKlarna">
+        <arguments>
+            <argument name="data_id" type="string"/>
+        </arguments>
+        <!-- Fill Klarna Onsitemessaging Setting Tab -->
+        <scrollTo stepKey="scrollToKlarnaKp"
+                  selector="{{AdminConfigPaymentSection.KlarnaKpSection}}"
+                  after="disableKlarnaPaymentsSolution"/>
+        <conditionalClick selector="{{AdminConfigPaymentSection.KlarnaOnsitemessagingSection}}"
+                          dependentSelector="{{AdminConfigPaymentSection.KlarnaOnsitemessagingEnabled}}"
+                          visible="false"
+                          stepKey="clickKlarnaOnsitemessagingSection"
+                          after="scrollToKlarnaKp"/>
+        <selectOption stepKey="enableKlarnaOnsitemessagingSolution"
+                      selector="{{AdminConfigPaymentSection.KlarnaOnsitemessagingEnabled}}"
+                      userInput="Yes"
+                      after="clickKlarnaOnsitemessagingSection"/>
+        <fillField stepKey="enterKlarnaOnsitemessagingDataId"
+                   selector="{{AdminConfigPaymentSection.KlarnaOnsitemessagingDataId}}"
+                   userInput="{{data_id}}"
+                   after="enableKlarnaOnsitemessagingSolution"/>
+    </actionGroup>
+</actionGroups>

@@ -36,6 +36,7 @@
             <requiredEntity createDataKey="createCategory"/>
         </createData>
         <createData entity="ApiBundleProduct" stepKey="createBundle">
+            <field key="price">{{basePrice}}</field>
             <requiredEntity createDataKey="createCategory"/>
         </createData>
 

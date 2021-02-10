@@ -5,34 +5,33 @@ require(['jquery',
     'use strict';
 
     /**
-     * Removes The Tooltip
-     * @param element
+     * Removes the tooltip
+     * @param {Object} element
      */
-    function removeTooltip(element)
-    {
-        element.css('position','');
+    function removeTooltip(element) {
+        element.css('position', '');
         $('.ddg-tooltip').remove();
     }
 
     /**
      * Adds the tooltip
-     * @param toolTipText
-     * @param element
+     * @param {String} toolTipText
+     * @param {Object} element
      */
-    function addTooltip(toolTipText,element)
-    {
+    function addTooltip(toolTipText, element) {
         element.attr('data-title', toolTipText);
-        element.parent().append("<div class='ddg-tooltip'>" + toolTipText + "</div>");
-        element.parent().css('position','relative');
+        element.parent().append('<div class="ddg-tooltip">' + toolTipText + '</div>');
+        element.parent().css('position', 'relative');
     }
 
-    $('.ddg-disabled-button').hover(function() {
-            var toolTipText = $.mage.__('Your API credentials are not set. Please make sure that you have a valid Engagement Cloud account.');
+    $('.ddg-disabled-button').hover(function () {
+            var toolTipText = $.mage.__(
+                'Your API credentials are not set. Please make sure that you have a valid Engagement Cloud account.'
+            );
 
             $(this).attr('onClick', '#');
             addTooltip(toolTipText, $(this));
-        }
-        ,function() {
+        }, function () {
             removeTooltip($(this));
         }
     );

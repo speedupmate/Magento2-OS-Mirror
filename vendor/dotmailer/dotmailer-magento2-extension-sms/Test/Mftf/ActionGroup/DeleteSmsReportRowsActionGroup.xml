@@ -1,0 +1,13 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<actionGroups xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+              xsi:noNamespaceSchemaLocation="urn:magento:mftf:Test/etc/actionGroupSchema.xsd">
+    <actionGroup name="DeleteSmsReportRows">
+        <amOnPage url="{{AdminTransactionalSmsReportPage.url}}" stepKey="amOnDotdigitalTransactionalSmsReportPage"/>
+        <checkOption selector="{{AdminTransactionalSmsReportSection.selectRowByIndex('1')}}" stepKey="selectRule"/>
+        <click selector="{{AdminTransactionalSmsReportSection.actionMenu}}" stepKey="clickActionMenu"/>
+        <click selector="{{AdminTransactionalSmsReportSection.deleteBtn}}" stepKey="clickDelete"/>
+        <click selector="{{AdminTransactionalSmsReportSection.modalAcceptButton}}" stepKey="confirmDelete"/>
+        <waitForPageLoad stepKey="waitForDelete"/>
+    </actionGroup>
+</actionGroups>

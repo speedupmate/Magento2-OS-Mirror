@@ -16,7 +16,7 @@
             <group id="klarna_section" sortOrder="6" showInDefault="1" showInWebsite="1" showInStore="0">
                 <comment><![CDATA[<div class="klarna-payment-logo"></div><div class="klarna-payment-text">Offer more ways to pay with Klarna. <br/>It's the smooothest way to boost sales and increase your average order value. <br/>You get more customers who buy more and do it more often. And you always get paid in full upfront while your customers pay at a later date.</div>]]></comment>
                 <fieldset_css>complex klarna-section</fieldset_css>
-                <frontend_model>Magento\Paypal\Block\Adminhtml\System\Config\Fieldset\Payment</frontend_model>
+                <frontend_model>Klarna\Core\Block\Adminhtml\System\Config\Fieldset\Payment</frontend_model>
                 <group id="api" type="text" sortOrder="10" showInDefault="1" showInWebsite="1" showInStore="0"
                        translate="label">
                     <label>API Configuration</label>

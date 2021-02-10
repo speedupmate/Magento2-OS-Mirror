@@ -43,6 +43,7 @@
             <deleteData stepKey="deleteProduct1" createDataKey="createDownloadableProduct240LV07" />
             <deleteData stepKey="deleteCategory" createDataKey="createCategory" />
             <deleteData stepKey="deleteCustomer" createDataKey="createCustomer" />
+            <actionGroup ref="VertexTaxDefaultConfigActionGroup" stepKey="revertDefaultConfiguration"/>
             <actionGroup ref="AdminLogoutActionGroup" stepKey="logoutOfAdmin" />
         </after>
 

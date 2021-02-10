@@ -13,12 +13,18 @@ use Magento\Framework\Data\Form\Element\AbstractElement;
 use Magento\Shipping\Model\Config;
 use Magento\Store\Api\GroupRepositoryInterface;
 use Magento\Store\Model\ScopeInterface;
+use Vertex\Exception\ConfigurationException;
+use Vertex\Mapper\LineItemMapperInterface;
+use Vertex\Tax\Model\Api\Utility\MapperFactoryProxy;
 
 /**
  * Renders a list of shipping codes to be used as a reference when setting up Vertex
  */
 class ShippingCodes extends Field
 {
+    /** @var MapperFactoryProxy */
+    private $mapperFactory;
+
     /** @var Config */
     private $shippingConfig;
 
@@ -32,18 +38,38 @@ class ShippingCodes extends Field
      * @param Context $context
      * @param Config $shippingConfig
      * @param GroupRepositoryInterface $groupRepository
+     * @param MapperFactoryProxy $mapperFactory
+     * @param array $data
      */
     public function __construct(
         Context $context,
         Config $shippingConfig,
         GroupRepositoryInterface $groupRepository,
+        MapperFactoryProxy $mapperFactory,
         array $data = []
     ) {
         $this->shippingConfig = $shippingConfig;
         $this->scopeConfig = $context->getScopeConfig();
         $this->groupRepository = $groupRepository;
+        $this->mapperFactory = $mapperFactory;
 
         parent::__construct($context, $data);
+    }
+
+    /**
+     * Retrieve the mapper class if defined
+     *
+     * @return LineItemMapperInterface|bool
+     */
+    private function getMapper()
+    {
+        try {
+            return $this->mapperFactory->getForClass(LineItemMapperInterface::class);
+        } catch (\InvalidArgumentException $exception) {
+            return false;
+        } catch (ConfigurationException $e) {
+            return false;
+        }
     }
 
     /**
@@ -79,13 +105,18 @@ class ShippingCodes extends Field
         $html = '<table cellspacing="0" class="data-grid"><thead>';
         $html .= '<tr><th class="data-grid-th">Shipping Method</th><th class="data-grid-th">Product Code</th></tr>';
         $html .= '</thead><tbody>';
-        $allowedMethods = ['ups', 'usps', 'fedex', 'dhl'];
         $methods = $this->shippingConfig->getActiveCarriers($storeId);
 
-        foreach ($methods as $carrierCode => $carrier) {
-            $methodOptions = [];
+        /** @var LineItemMapperInterface $mapper */
+        $mapper = $this->getMapper();
+        $productCodeMaxLength = 0;
+        if ($mapper) {
+            $productCodeMaxLength = $mapper->getProductCodeMaxLength();
+        }
 
+        foreach ($methods as $carrierCode => $carrier) {
             if ($carrierMethods = $carrier->getAllowedMethods()) {
+
                 $title = $this->scopeConfig->getValue(
                     "carriers/$carrierCode/title",
                     ScopeInterface::SCOPE_STORE,
@@ -100,24 +131,14 @@ class ShippingCodes extends Field
 
                 foreach ($carrierMethods as $methodCode => $method) {
                     $code = $carrierCode . '_' . $methodCode;
-                    $methodOptions[] = [
-                        'value' => $code,
-                        'label' => $method
-                    ];
-                }
 
-                $html .= '<tr class="" >';
-                $html .= '<td class="label"  style="padding:1rem;" >' . $this->escapeHtml($method) . ': </td>';
-                $html .= '<td class="value" style="padding:1rem;" > ' . $this->escapeHtml($code) . '</td>';
-                $html .= '</tr>';
-            }
+                    if ($productCodeMaxLength) {
+                        $code = mb_substr($code, 0, $productCodeMaxLength);
+                    }
 
-            if (in_array($carrierCode, $allowedMethods)) {
-                foreach ($carrierMethods as $k => $v) {
-                    $html .= '<tr>';
-                    $html .= '<td class="label"  style="padding:1rem;">' . $this->escapeHtml($v) . ': </td>';
-                    $html .= '<td class="value" style="padding:1rem;" > ';
-                    $html .= $this->escapeHtml($carrierCode . '_' . $k) . '</td>';
+                    $html .= '<tr class="" >';
+                    $html .= '<td class="label"  style="padding:1rem;" >' . $this->escapeHtml($method) . ': </td>';
+                    $html .= '<td class="value" style="padding:1rem;" > ' . $this->escapeHtml($code) . '</td>';
                     $html .= '</tr>';
                 }
             }

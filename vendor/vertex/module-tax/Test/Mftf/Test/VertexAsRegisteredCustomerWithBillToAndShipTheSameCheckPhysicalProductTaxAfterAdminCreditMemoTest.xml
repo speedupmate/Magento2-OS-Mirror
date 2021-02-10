@@ -101,6 +101,7 @@
             <deleteData stepKey="deleteConfigProductAttributeConfig2" createDataKey="ProductAttributeCreateConfigurableProduct2" />
             <deleteData stepKey="deleteCategoryConfig2" createDataKey="createCategoryCreateConfigurableProduct2"/>
             <deleteData stepKey="deleteCustomer" createDataKey="createCustomer"/>
+            <actionGroup ref="VertexTaxDefaultConfigActionGroup" stepKey="revertDefaultConfiguration"/>
             <actionGroup ref="StorefrontCustomerLogoutActionGroup" stepKey="customerLogout"/>
         </after>
 

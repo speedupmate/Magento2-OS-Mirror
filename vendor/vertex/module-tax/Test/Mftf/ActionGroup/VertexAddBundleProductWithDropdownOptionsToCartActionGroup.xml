@@ -24,7 +24,6 @@
         <selectOption selector="{{StorefrontBundledSection.dropDownOptionOneProducts('bundle-option')}}" userInput="{{optionProduct.name}} +${{optionProduct.price}}.00" stepKey="selectOption0Product0"/>
         <seeOptionIsSelected selector="{{StorefrontBundledSection.dropDownOptionOneProducts('bundle-option')}}" userInput="{{optionProduct.name}} +${{optionProduct.price}}.00" stepKey="checkOption0Product0"/>
         <fillField selector="{{StorefrontBundledSection.dropDownOptionOneQuantity('bundle-option')}}" userInput="1" stepKey="fillQuantity"/>
-        <seeInField selector="{{StorefrontBundledSection.dropDownOptionOneQuantity('bundle-option')}}" userInput="1" stepKey="checkQuantity"/>
 
         <click selector="{{StorefrontBundledSection.addToCartConfigured}}" stepKey="addToCartProduct"/>
         <waitForAjaxLoad stepKey="waitForLoad"/>

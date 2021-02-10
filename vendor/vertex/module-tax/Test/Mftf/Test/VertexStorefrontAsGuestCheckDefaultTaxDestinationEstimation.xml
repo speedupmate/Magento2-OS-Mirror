@@ -34,6 +34,7 @@
             <waitForPageLoad stepKey="waitForTotals"/>
         </before>
         <after>
+            <magentoCLI stepKey="unsetDefaultZip" command="config:set" arguments="tax/defaults/postcode ''" />
             <createData entity="DefaultTaxConfig" stepKey="setDefaultTaxConfig"/>
             <deleteData createDataKey="createCategory" stepKey="deleteCategory"/>
             <deleteData createDataKey="createProduct" stepKey="deleteProduct"/>

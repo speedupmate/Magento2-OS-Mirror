@@ -32,7 +32,7 @@
                 <requiredEntity createDataKey="createTaxClass"/>
             </createData>
             <magentoCron stepKey="runCronIndex" groups="index"/>
-            <createData entity="Vertex_Customer_JohnWinston" stepKey="createCustomer"/>
+            <createData entity="Vertex_Customer_WinstonJohn" stepKey="createCustomer"/>
         </before>
         <after>
             <deleteData stepKey="deleteSimpleProduct" createDataKey="createSimpleProduct"/>

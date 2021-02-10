@@ -12,6 +12,9 @@
 /** Tax rate when a product is shipped from PA to PA without any city sales tax applied */
 const TAX_RATE_PA_ONLY = 6;
 
+/** Sales and Use Tax */
+const TAX_RATE_PA_SALES_AND_USE = 2;
+
 /** Tax rate when a product is shipped from PA to Santa Monica, California */
 const TAX_RATE_PA_TO_SANTAMONICA = 10.25;
 
@@ -33,7 +36,7 @@ const TAX_RATE_US_CA = 9.5;
 const TAX_RATE_US_IL_DANVILLE = 2.75;
 const TAX_RATE_US_IL_VERMILION = 0.25;
 
-const TAX_RATE_COMBINED_US_IL_DANVILLE = TAX_RATE_COMBINED_US_IL_DANVILLE;
+const TAX_RATE_COMBINED_US_IL_DANVILLE = TAX_RATE_US_IL_DANVILLE + TAX_RATE_US_IL_VERMILION;
 
 /** Tax rate for River Grive, Illinois */
 const TAX_RATE_US_IL_COOK = 1.75;
@@ -91,6 +94,14 @@ $entities = [
         'subtotalInclTax' => 100,
         'tax' => 0,
         'taxPercent' => 0,
+    ],
+    'Vertex_100USD_53100000_UNSPSC_Commodity_Code_Values' => [
+        'price' => 100,
+        'priceInclTax' => 100,
+        'subtotal' => 100,
+        'subtotalInclTax' => 100,
+        'tax' => 0,
+        'taxPercent' => 0
     ],
     'Vertex_100USD_SantaMonica_Values' => [
         'price' => 100,
@@ -522,6 +533,15 @@ $totals = [
         'shipping' => 5,
         'shippingTax' => ceil(100 * 5 * .095) / 100,
         'shippingInclTax' => ceil(100 * 5 * 1.095) / 100,
+    ],
+    'Vertex_100USD_53100000_UNSPSC_Commodity_Code_Totals' => [
+        'productTax' => 0.00,
+        'pieces' => [
+            'Vertex_100USD_53100000_UNSPSC_Commodity_Code_Values'
+        ],
+        'shipping' => 5,
+        'shippingTax' => ceil(100 * 5 * ((TAX_RATE_PA_ONLY) / 100)) / 100,
+        'shippingInclTax' => (ceil(100 * 5 * ((TAX_RATE_PA_ONLY) / 100)) / 100) + 5
     ]
 ];
 

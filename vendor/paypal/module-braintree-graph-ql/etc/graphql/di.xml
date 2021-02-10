@@ -17,4 +17,12 @@
     <type name="Magento\QuoteGraphQl\Model\Cart\SetPaymentMethodOnCart">
         <plugin name="braintree_generate_vault_nonce" type="PayPal\BraintreeGraphQl\Plugin\SetVaultPaymentNonce" />
     </type>
+
+    <type name="Magento\StoreGraphQl\Model\Resolver\Store\StoreConfigDataProvider">
+        <arguments>
+            <argument name="extendedConfigData" xsi:type="array">
+                <item name="braintree_cc_vault_active" xsi:type="string">payment/braintree_cc_vault/active</item>
+            </argument>
+        </arguments>
+    </type>
 </config>

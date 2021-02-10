@@ -19,6 +19,67 @@ You are welcome to contribute to Engagement Cloud for Magento! You can either:
 - Fix a bug: please clone and use our [Develop branch](https://github.com/dotmailer/dotmailer-magento2-extension/tree/develop) to submit your Pull Request
 - Request a feature on our [roadmap](https://roadmap.dotdigital.com)
 
+# 4.9.2
+
+###### Improvements
+- We've swapped `TimezoneInterface` for `DateTime` when setting the wishlist `updatedAt` date in the wishlist sync. This appeared to be causing erratic data in some versions of Magento.
+
+###### Bug Fixes
+- We’ve added caching to our coupon block. This fixes a bug that prevented coupon code generation in some setups.
+- We now respect the configuration of Stores > Configuration > Sales > Checkout > Grouped Product Image, and retrieve the parent grouped product image for cart insight data, where necessary.
+- Our cart insight dummy data schema has been updated to use the correct data types.
+- The currency code in order insight data now indicates the store currency, in line with the synced prices.
+
+# 4.10.0-RC1
+
+###### What's new
+- We have a new feature that enables merchants to choose which image size they prefer to use for different contexts in Magento. Configurable via **Stores > Configuration > dotdigital > Configuration > Image Types**.
+
+###### Improvements
+- We’ve added the `email_coupon_attribute` table to the list of tables to drop in the module’s `Uninstall` class.
+- We added a new MFTF test to check the Swagger API page, in case our code had caused it to break.
+
+###### Bug fixes
+- We made a small change to improve our error handling when retrieving lists of programs from Engagement Cloud.
+
+# 4.9.1
+
+###### Bug fixes
+- The value synced in the store name column in guest sync is now the store view name instead of the website name. We are now syncing website name, store name and store view name in guest sync - all with the correct values.
+- We fixed a problem that prevented contacts subscribing to multiple stores in the same subscriber sync.
+- We added an array check before looping over order status automations after an order is saved.
+- We adjusted the module's dependency on `magento/module-authorization`; this fixes composer upgrades for merchants on Magento 2.4.
+- We’ve added try/catch to methods in the `Serialized` backend model. This swallows exceptions thrown by unreadable data stored for any field in our configuration that stores data in JSON format.  
+
+# 4.9.0
+
+###### What’s new
+- System alerts now report on transactional email send failures.
+- In-app system messages for system alerts are now enabled by default.
+- dotdigital forms embedded in CMS pages and blocks can now add email addresses to Magento’s newsletter subscribers list. [requires Enterprise module 1.2.0+]
+
+###### Improvements
+- Cart insight data is now sent for the Engagement Cloud account owner’s email address when validating API credentials, and at upgrade. This allows the Abandoned cart block to be visible in EasyEditor before customer data is received.
+- All active dotdigital modules are now displayed with their version numbers in the Email module dashboard (Reports > Customer Engagement > Dashboard).
+- Easy Email Capture for newsletter subscriptions now happens on the server side after submit (this supports our forms integration for Page Builder).
+- Programs listed in dotdigital > Abandoned Carts > Abandoned Cart Program now list all programs, even those whose status is Draft or Deactivated. 
+- We've added a helper method to check if Magento has an active Engagement Cloud account enabled at any level.
+- The timing for the automation sync has been changed to every 16 minutes, so it coincides less often with the contact sync.
+- We’ve fixed a small omission in the install schema script, by adding a `nullable` property to the `last_subscribed_at`  column in `email_contact`.
+- Module dependencies have been updated in line with Magento 2.4 requirements.
+- Our unit tests have been updated to be compatible with PHPUnit v9+. This change was required for Magento 2.4.
+- Our MFTF test suite has been updated.
+
+###### Bug fixes
+- We fixed a problem with finding the wrong product IDs from a batch of SKUs, when importing or updating products in bulk.
+- All types of tracking (Page, ROI and Web Behaviour) now function at website level if tracking is disabled at default level.
+- Newsletter preferences captured in date format are now synced to Engagement Cloud correctly for non-UTC locales.
+
+# 4.7.1
+
+###### Bug fixes
+- We fixed a problem with unserialize exception errors when processing `product_options` for order items in order sync.
+
 # 4.7.0
 
 ###### Improvements

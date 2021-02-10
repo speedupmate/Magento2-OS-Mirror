@@ -14,6 +14,6 @@
         <element name="itemSubtotalInclTaxByName" type="text" parameterized="true" selector="//table[contains(@class,'order-creditmemo-tables')]//tr[./td[@class='col-product']//div[@class='product-title'][contains(text(),'{{name}}')]]/td[@class='col-subtotal']/div[@class='price-incl-tax']//span[@class='price']" />
         <element name="itemTaxByName" type="text" parameterized="true" selector="//table[contains(@class,'order-creditmemo-tables')]//tr[./td[@class='col-product']//div[@class='product-title'][contains(text(),'{{name}}')]]/td[@class='col-tax-amount']//span[@class='price']" />
         <element name="itemTotalByName" type="text" parameterized="true" selector="//table[contains(@class,'order-creditmemo-tables')]//tr[./td[@class='col-product']//div[@class='product-title'][contains(text(),'{{name}}')]]/td[contains(@class,'col-total')]//span[@class='price']" />
-        <element name="itemQtyToRefundByName" type="input" selector="//table[contains(@class,'order-creditmemo-tables')]//div[@class='product-title'|@class='option-value'][contains(text(), '{{name}}')]/parent::td/parent::tr/td[contains(@class,'col-qty')]//input" parameterized="true"/>
+        <element name="itemQtyToRefundByName" type="input" selector="//table[contains(@class,'order-creditmemo-tables')]//div[@class='product-title' or @class='option-value'][contains(text(), '{{name}}')]/parent::td/parent::tr/td[contains(@class,'col-qty')]//input" parameterized="true"/>
     </section>
 </sections>

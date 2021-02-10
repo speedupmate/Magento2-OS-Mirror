@@ -118,6 +118,7 @@ class CaptureStrategyCommandTest extends \PHPUnit\Framework\TestCase
     {
         $paymentData = $this->getPaymentDataObjectMock();
         $subject['payment'] = $paymentData;
+        $subject['amount'] = 100;
 
         $this->subjectReaderMock->expects(self::once())
             ->method('readPayment')
@@ -153,6 +154,7 @@ class CaptureStrategyCommandTest extends \PHPUnit\Framework\TestCase
     {
         $paymentData = $this->getPaymentDataObjectMock();
         $subject['payment'] = $paymentData;
+        $subject['amount'] = 100;
         $lastTransId = 'txnds';
 
         $this->subjectReaderMock->expects(self::once())
@@ -238,6 +240,7 @@ class CaptureStrategyCommandTest extends \PHPUnit\Framework\TestCase
     {
         $paymentData = $this->getPaymentDataObjectMock();
         $subject['payment'] = $paymentData;
+        $subject['amount'] = 100;
         $lastTransId = 'txnds';
 
         $this->subjectReaderMock->expects(self::once())
@@ -284,6 +287,7 @@ class CaptureStrategyCommandTest extends \PHPUnit\Framework\TestCase
     {
         $paymentData = $this->getPaymentDataObjectMock();
         $subject['payment'] = $paymentData;
+        $subject['amount'] = 100;
 
         $this->subjectReaderMock->expects(self::once())
             ->method('readPayment')

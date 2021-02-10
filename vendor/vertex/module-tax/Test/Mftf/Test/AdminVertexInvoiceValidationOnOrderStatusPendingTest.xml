@@ -46,8 +46,8 @@
             <deleteData createDataKey="createTaxClass" stepKey="deleteTaxClass"/>
             <deleteData createDataKey="createCategory" stepKey="deleteCategory"/>
             <deleteData createDataKey="createCustomer" stepKey="deleteCustomer"/>
-            <actionGroup ref="AdminLogoutActionGroup" stepKey="adminLogout"/>
             <actionGroup ref="VertexTaxDefaultConfigActionGroup" stepKey="revertDefaultConfiguration"/>
+            <actionGroup ref="AdminLogoutActionGroup" stepKey="adminLogout"/>
             <magentoCLI stepKey="cleanConfigCache" command="cache:clean config"/>
         </after>
 

@@ -25,42 +25,36 @@ class Service implements ServiceInterface
      * @var array
      */
     private $headers = [];
-
     /**
      * The base URL to interact with
      *
      * @var string
      */
     private $uri = '';
-
     /**
      * @var string
      */
     private $username = '';
-
     /**
      * @var string
      */
     private $password = '';
-
     /**
      * @var LoggerInterface $log
      */
     private $log;
-
     /**
      * @var Client
      */
     private $client;
 
     /**
-     * Initialize class
-     *
      * @param LoggerInterface $log
      */
     public function __construct(LoggerInterface $log)
     {
         $this->log = $log;
+
         // Client cannot be injected in constructor because Magento Object Manager in 2.1 has problems with it
         $this->client = new Client();
     }
@@ -92,7 +86,7 @@ class Service implements ServiceInterface
     /**
      * @inheritdoc
      */
-    public function makeRequest($url, $body = '', $method = ServiceInterface::POST, $klarnaId = null)
+    public function makeRequest($url, $body = [], $method = ServiceInterface::POST, $klarnaId = null)
     {
         $response = [
             'is_successful' => false
@@ -107,6 +101,7 @@ class Service implements ServiceInterface
             /** @var ResponseInterface $response */
             $response = $this->client->$method($this->uri . $url, $data);
             $response = $this->processResponse($response);
+
             $response['is_successful'] = true;
         } catch (BadResponseException $e) {
             $this->log->error('Bad Response: ' . $e->getMessage());

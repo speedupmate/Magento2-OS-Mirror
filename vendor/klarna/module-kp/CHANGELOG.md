@@ -1,4 +1,13 @@
 
+7.1.1 / 2020-11-24
+==================
+
+  * MAGE-2194 Add MFTF test to verify $0 subtotal virtual product orders
+  * MAGE-2604 Add MFTF test for canceling an order without an invoice
+  * MAGE-2605 Add MFTF test for canceling an order with a virutal product without an invoice
+  * MAGE-2640 Add MFTF test for attempting to cancel an order with an invoice
+  * MAGE-2641 Add MFTF test for canceling an order that is partially invoiced
+
 7.1.0 / 2020-08-10
 ==================
 

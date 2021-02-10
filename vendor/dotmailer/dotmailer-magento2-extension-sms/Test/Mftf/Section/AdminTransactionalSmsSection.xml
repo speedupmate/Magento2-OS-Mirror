@@ -1,0 +1,17 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<sections xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="urn:magento:mftf:Page/etc/SectionObject.xsd">
+    <section name="AdminTransactionalSmsSection">
+        <element name="smsEnabled" type="select" selector="#transactional_sms_sms_settings_enabled" />
+        <element name="newOrderSmsEnabled" type="select" selector="#transactional_sms_sms_templates_new_order_confirmation_enabled" />
+        <element name="updateOrderSmsEnabled" type="select" selector="#transactional_sms_sms_templates_order_update_enabled" />
+        <element name="newShipmentSmsEnabled" type="select" selector="#transactional_sms_sms_templates_new_shipment_enabled" />
+        <element name="updateShipmentSmsEnabled" type="select" selector="#transactional_sms_sms_templates_shipment_update_enabled" />
+        <element name="newCreditMemoSmsEnabled" type="select" selector="#transactional_sms_sms_templates_new_credit_memo_enabled" />
+        <element name="newOrderSmsMessage" type="text" selector="#transactional_sms_sms_templates_new_order_confirmation_message" />
+        <element name="updateOrderSmsMessage" type="text" selector="#transactional_sms_sms_templates_order_update_message" />
+        <element name="newShipmentSmsMessage" type="text" selector="#transactional_sms_sms_templates_new_shipment_message" />
+        <element name="updateShipmentSmsMessage" type="text" selector="#transactional_sms_sms_templates_shipment_update_message" />
+        <element name="newCreditMemoSmsMessage" type="text" selector="#transactional_sms_sms_templates_new_credit_memo_message" />
+        <element name="save" type="button" selector="#save" />
+    </section>
+</sections>

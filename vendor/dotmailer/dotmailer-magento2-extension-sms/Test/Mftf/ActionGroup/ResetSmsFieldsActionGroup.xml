@@ -1,0 +1,17 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<actionGroups xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+              xsi:noNamespaceSchemaLocation="urn:magento:mftf:Test/etc/actionGroupSchema.xsd">
+    <actionGroup name="ResetSmsFields">
+        <arguments>
+            <argument name="originalNewOrderSmsMessage" defaultValue="" type="string"/>
+        </arguments>
+        <amOnPage url="{{AdminTransactionalSmsPage.url}}" stepKey="amOnDotdigitalTransactionalSmsPage"/>
+        <selectOption selector="{{AdminTransactionalSmsSection.smsEnabled}}" userInput="No" stepKey="disableSms"/>
+        <scrollTo selector="{{AdminTransactionalSmsSection.newOrderSmsEnabled}}" stepKey="scrollToSection"/>
+        <selectOption selector="{{AdminTransactionalSmsSection.newOrderSmsEnabled}}" userInput="No" stepKey="disableNewOrderSms"/>
+        <fillField selector="{{AdminTransactionalSmsSection.newOrderSmsMessage}}" userInput="{{originalNewOrderSmsMessage}}" stepKey="restoreNewOrderMessage"/>
+        <click selector="{{AdminDotdigitalDataMappingSection.save}}" stepKey="savePage" />
+        <waitForPageLoad stepKey="waitForPageLoad"/>
+    </actionGroup>
+</actionGroups>

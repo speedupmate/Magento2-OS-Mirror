@@ -1,0 +1,15 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<actionGroups xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+              xsi:noNamespaceSchemaLocation="urn:magento:mftf:Test/etc/actionGroupSchema.xsd">
+    <actionGroup name="EnableSms">
+        <arguments>
+            <argument name="enabled" defaultValue="Yes" type="string"/>
+        </arguments>
+        <amOnPage url="{{AdminTransactionalSmsPage.url}}" stepKey="amOnDotdigitalTransactionalSmsPage"/>
+        <selectOption selector="{{AdminTransactionalSmsSection.smsEnabled}}" userInput="{{enabled}}" stepKey="setSmsEnabled"/>
+        <selectOption selector="{{AdminTransactionalSmsSection.newOrderSmsEnabled}}" userInput="{{enabled}}" stepKey="setNewOrderSmsEnabled"/>
+        <click selector="{{AdminTransactionalSmsSection.save}}" stepKey="savePage" />
+        <waitForPageLoad stepKey="waitForPageLoad"/>
+    </actionGroup>
+</actionGroups>

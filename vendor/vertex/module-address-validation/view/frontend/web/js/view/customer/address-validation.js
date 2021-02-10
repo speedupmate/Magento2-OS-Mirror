@@ -13,7 +13,8 @@ define([
     'Vertex_AddressValidation/js/model/customer/address-resolver',
     'Vertex_AddressValidation/js/view/validation-message',
     'Vertex_AddressValidation/js/view/customer/address-form',
-    'Vertex_AddressValidation/js/model/difference-determiner'
+    'Vertex_AddressValidation/js/model/difference-determiner',
+    'Vertex_AddressValidation/uiRegistry!addressValidationMessage'
 ], function (
     $,
     ko,
@@ -24,7 +25,8 @@ define([
     addressResolver,
     message,
     addressForm,
-    differenceDeterminer
+    differenceDeterminer,
+    addressValidationMessage
 ) {
     'use strict';
 
@@ -41,7 +43,7 @@ define([
         initialize: function () {
             this._super();
 
-            this.message = registry.get('addressValidationMessage');
+            this.message = addressValidationMessage;
             addressForm.formUpdated.extend({notify: 'always'}).subscribe(this.addressUpdated.bind(this));
 
             return this;

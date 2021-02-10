@@ -26,6 +26,14 @@ use Magento\Framework\DataObject;
 use Amazon\Payment\Plugin\AdditionalInformation;
 use Amazon\Core\Helper\CategoryExclusion;
 
+/**
+ * @deprecated As of February 2021, this Legacy Amazon Pay plugin has been
+ * deprecated, in favor of a newer Amazon Pay version available through GitHub
+ * and Magento Marketplace. Please download the new plugin for automatic
+ * updates and to continue providing your customers with a seamless checkout
+ * experience. Please see https://pay.amazon.com/help/E32AAQBC2FY42HS for details
+ * and installation instructions.
+ */
 class AuthorizationRequestBuilder implements BuilderInterface
 {
     /**
@@ -100,8 +108,13 @@ class AuthorizationRequestBuilder implements BuilderInterface
         $storeId = $orderDO->getStoreId();
         $storeName = '';
 
-        $currencyCode = $orderDO->getCurrencyCode();
-        $total = $buildSubject['amount'];
+        $currencyCode = $payment->getOrder()->getOrderCurrencyCode();
+        if ($payment->getAmazonDisplayInvoiceAmount()) {
+            $total = $payment->getAmazonDisplayInvoiceAmount();
+        }
+        else {
+            $total = $payment->getAmountOrdered();
+        }
 
         // capture sale or new auth/capture for partial capture
         if (isset($buildSubject['multicurrency']) && $buildSubject['multicurrency']['multicurrency']) {

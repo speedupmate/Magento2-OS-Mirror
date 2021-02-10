@@ -13,6 +13,9 @@
             <group value="VertexAddressValidation"/>
             <testCaseId value="VRTX-747"/>
 
+            <severity value="MAJOR"/>
+
+
             <stories value="As a Customer with already defined addresses, I must be able to add and validate new address in checkout"/>
             <title value="Validate address when added during checkout steps for already registered customer having addresses already defined in his account."/>
             <description value="Registered customer adds new Address during the checkout. Show notice about adjusting the address to make ZIP code more precise."/>

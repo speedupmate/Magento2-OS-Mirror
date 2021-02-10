@@ -23,6 +23,22 @@
                                             <item name="children" xsi:type="array">
                                                 <item name="payment" xsi:type="array">
                                                     <item name="children" xsi:type="array">
+                                                        <item name="payments-list" xsi:type="array">
+                                                            <item name="children" xsi:type="array">
+                                                                <item name="braintree-recaptcha" xsi:type="array">
+                                                                    <item name="component" xsi:type="string">uiComponent</item>
+                                                                    <item name="displayArea" xsi:type="string">braintree-recaptcha</item>
+                                                                    <item name="children" xsi:type="array">
+                                                                        <item name="recaptcha_braintree" xsi:type="array">
+                                                                            <item name="component" xsi:type="string">PayPal_Braintree/js/reCaptcha/reCaptcha</item>
+                                                                            <item name="displayArea" xsi:type="string">braintree-recaptcha</item>
+                                                                            <item name="configSource" xsi:type="string">checkoutConfig</item>
+                                                                            <item name="reCaptchaId" xsi:type="string">recaptcha-checkout-braintree</item>
+                                                                        </item>
+                                                                    </item>
+                                                                </item>
+                                                            </item>
+                                                        </item>
                                                         <item name="renders" xsi:type="array">
                                                             <!-- merge payment method renders here -->
                                                             <item name="children" xsi:type="array">
@@ -33,10 +49,7 @@
                                                                             <item name="isBillingAddressRequired" xsi:type="boolean">true</item>
                                                                         </item>
                                                                         <item name="braintree_paypal" xsi:type="array">
-                                                                            <item name="isBillingAddressRequired" xsi:type="boolean">false</item>
-                                                                        </item>
-                                                                        <item name="braintree_paypal_credit" xsi:type="array">
-                                                                            <item name="isBillingAddressRequired" xsi:type="boolean">false</item>
+                                                                            <item name="isBillingAddressRequired" xsi:type="boolean">true</item>
                                                                         </item>
                                                                         <item name="braintree_venmo" xsi:type="array">
                                                                             <item name="isBillingAddressRequired" xsi:type="boolean">true</item>

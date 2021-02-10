@@ -1,0 +1,44 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!--
+ /**
+  * Copyright © Magento, Inc. All rights reserved.
+  * See COPYING.txt for license details.
+  *
+  * This file is part of the Klarna KP module
+  *
+  * (c) Klarna Bank AB (publ)
+  *
+  * For the full copyright and license information, please view the NOTICE
+  * and LICENSE files that were distributed with this source code.
+  */
+-->
+<tests xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+       xsi:noNamespaceSchemaLocation="urn:magento:mftf:Test/etc/testSchema.xsd">
+    <test name="CancelFromPlaceKlarnaPaymentsOrderWithVirtualProductTest" extends="PlaceKlarnaPaymentsOrderWithVirtualProductTest">
+        <annotations>
+            <features value="Klarna Payments"/>
+            <stories value="Cancel an order placed with virtual product"/>
+            <title value="BUNDLE-664 - Cancel order with virtual product"/>
+            <description value="A merchant can cancel a Klarna Payments order placed with virtual product"/>
+            <severity value="CRITICAL"/>
+            <testCaseId value="KP_US_C_1VP"/>
+            <group value="Klarna_KP_Country_US"/>
+            <group value="Klarna_KP_Order_Registered"/>
+            <group value="Klarna_KP_Order_Pay_Later"/>
+            <group value="Klarna_KP_Order_Cancel"/>
+        </annotations>
+        <after>
+            <actionGroup ref="AdminLogoutActionGroup" stepKey="logout"/>
+        </after>
+
+        <!--Grab order number-->
+        <waitForElementVisible selector="{{CheckoutSuccessMainSection.orderNumber22}}" stepKey="waitForOrderNumber"/>
+        <grabTextFrom selector="{{CheckoutSuccessMainSection.orderNumber22}}" stepKey="grabOrderNumber"/>
+        <actionGroup ref="OpenOrderByIdActionGroup" stepKey="goToOrderPage">
+            <argument name="orderId" value="{$grabOrderNumber}"/>
+        </actionGroup>
+
+        <!--Cancel Order-->
+        <actionGroup ref="CancelPendingOrderActionGroup" stepKey="cancelOrder"/>
+    </test>
+</tests>

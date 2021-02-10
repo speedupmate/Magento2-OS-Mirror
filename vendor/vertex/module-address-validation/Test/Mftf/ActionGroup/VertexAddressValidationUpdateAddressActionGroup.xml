@@ -14,11 +14,7 @@
         <waitForElementVisible selector="{{StorefrontCustomerAddressFormSection.messageDifference}}" stepKey="assertMessageVisible"/>
         <click stepKey="updateAddress" selector="{{StorefrontCustomerAddressFormSection.updateAddress}}"/>
         <waitForElementVisible selector="{{StorefrontCustomerAddressFormSection.messageContainer}}" stepKey="assertMessageUpdated"/>
-        <grabTextFrom selector="{{StorefrontCustomerAddressFormSection.messageContainer}}" stepKey="getMessageContents"/>
-        <assertContains stepKey="assertSuccessMessage">
-            <expectedResult type="string">The address was updated</expectedResult>
-            <actualResult type="variable">getMessageContents</actualResult>
-        </assertContains>
+        <see userInput="The address was updated" selector="{{StorefrontCustomerAddressFormSection.messageContainer}}" stepKey="assertSuccessMessage" />
         <waitForLoadingMaskToDisappear stepKey="waitForLoadingElements"/>
     </actionGroup>
 </actionGroups>

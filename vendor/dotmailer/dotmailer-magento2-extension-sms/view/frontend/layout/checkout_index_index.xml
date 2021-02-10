@@ -1,0 +1,14 @@
+<?xml version="1.0"?>
+<page xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" layout="checkout" xsi:noNamespaceSchemaLocation="urn:magento:framework:View/Layout/etc/page_configuration.xsd">
+    <body>
+        <referenceContainer name="page.bottom.container">
+            <block ifconfig="transactional_sms/sms_settings/phone_number_validation"
+                   template="Dotdigitalgroup_Sms::js-checkout.phtml"
+                   name="international.telephone.input">
+                <arguments>
+                    <argument name="config" xsi:type="object">Dotdigitalgroup\Sms\ViewModel\TelephoneInputConfig</argument>
+                </arguments>
+            </block>
+        </referenceContainer>
+    </body>
+</page>

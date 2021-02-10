@@ -1,0 +1,47 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!--
+ /**
+  * Copyright © Magento, Inc. All rights reserved.
+  * See COPYING.txt for license details.
+  *
+  * This file is part of the Klarna KP module
+  *
+  * (c) Klarna Bank AB (publ)
+  *
+  * For the full copyright and license information, please view the NOTICE
+  * and LICENSE files that were distributed with this source code.
+  */
+-->
+<tests xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+       xsi:noNamespaceSchemaLocation="urn:magento:mftf:Test/etc/testSchema.xsd">
+    <test name="PartiallyCancelOrderWithInvoiceFromKlarnaPaymentsGuestTest" extends="PlaceKlarnaPaymentsOrderWithTwoOfSameProductTest">
+        <annotations>
+            <features value="Klarna Payments"/>
+            <stories value="Cancel a partially invoice from an order with two of the same product"/>
+            <title value="BUNDLE-665 - Partially cancel guest order with invoice"/>
+            <description value="A merchant can cancel a partially invoiced Klarna Payments order with two of the same product"/>
+            <severity value="AVERAGE"/>
+            <testCaseId value="KP_US_PI_C"/>
+            <group value="Klarna_KP_Country_US"/>
+            <group value="Klarna_KP_Order_Guest"/>
+            <group value="Klarna_KP_Order_Pay_Later"/>
+            <group value="Klarna_KP_Order_Cancel"/>
+        </annotations>
+        <!--Create invoice-->
+        <actionGroup ref="StartCreateInvoiceFromOrderPageActionGroup" stepKey="startCreateInvoice"/>
+        <actionGroup ref="AdminFillQuantityForPartialInvoiceActionGroup" stepKey="createInvoice">
+            <argument name="itemRow" value="1"/>
+            <argument name="quantity" value="1"/>
+        </actionGroup>
+        <actionGroup ref="SubmitInvoiceActionGroup" stepKey="submitInvoice"/>
+        <!--Cancel Order-->
+        <actionGroup ref="CancelPendingOrderActionGroup" stepKey="cancelOrder">
+            <!--Still says 'Processing' because we only canceled part of the order-->
+            <argument name="orderStatus" value="Processing"/>
+        </actionGroup>
+    </test>
+</tests>
+
+
+
+

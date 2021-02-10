@@ -59,7 +59,7 @@ class HeaderTest extends TestCase
         $this->dependencyMocks['_scopeConfig']
             ->method('getValue')
             ->willReturn(null);
-        $this->assertEquals('https://-library.playground.klarnaservices.com/lib.js', $this->model->getJsUrl());
+        $this->assertEquals('https://eu-library.playground.klarnaservices.com/lib.js', $this->model->getJsUrl());
     }
 
     /**

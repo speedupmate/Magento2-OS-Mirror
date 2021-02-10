@@ -1,0 +1,62 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<tests xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+       xsi:noNamespaceSchemaLocation="urn:magento:mftf:Test/etc/testSchema.xsd">
+    <test name="SmsSendsReportTest">
+        <annotations>
+            <features value="Engagement Cloud module"/>
+            <stories value="Test dotdigital report grids"/>
+            <title value="Test SMS Sends Report grid"/>
+            <description value="The dotdigital SMS Sends Report can be viewed, filtered and sorted."/>
+            <severity value="MINOR"/>
+            <group value="dotmailer"/>
+        </annotations>
+
+        <before>
+            <actionGroup ref="AdminLoginActionGroup" stepKey="AdminLoginActionGroup1"/>
+        </before>
+
+        <after>
+            <actionGroup ref="AdminLogoutActionGroup" stepKey="logout"/>
+        </after>
+
+        <amOnPage url="{{AdminTransactionalSmsReportPage.url}}" stepKey="amOnSmsSendsReportPage"/>
+        <waitForPageLoad stepKey="waitForPageLoad"/>
+
+        <!-- Confirm That Columns Exist -->
+        <seeElement selector="{{AdminDotdigitalReportColumnsSection.columnHeader('Type')}}" stepKey="seeType"/>
+        <seeElement selector="{{AdminDotdigitalReportColumnsSection.columnHeader('Order ID')}}" stepKey="seeOrderId"/>
+        <seeElement selector="{{AdminDotdigitalReportColumnsSection.columnHeader('Store')}}" stepKey="seeStore"/>
+        <seeElement selector="{{AdminDotdigitalReportColumnsSection.columnHeader('Website')}}" stepKey="seeWebsite"/>
+        <seeElement selector="{{AdminDotdigitalReportColumnsSection.columnHeader('Phone')}}" stepKey="seePhone"/>
+        <seeElement selector="{{AdminDotdigitalReportColumnsSection.columnHeader('Customer Email')}}" stepKey="seeEmail"/>
+        <seeElement selector="{{AdminDotdigitalReportColumnsSection.columnHeader('Content')}}" stepKey="seeContent"/>
+        <seeElement selector="{{AdminDotdigitalReportColumnsSection.columnHeader('Status')}}" stepKey="seeStatus"/>
+        <seeElement selector="{{AdminDotdigitalReportColumnsSection.columnHeader('Message')}}" stepKey="seeMessage"/>
+        <seeElement selector="{{AdminDotdigitalReportColumnsSection.columnHeader('Created At')}}" stepKey="seeCreatedAt"/>
+        <seeElement selector="{{AdminDotdigitalReportColumnsSection.columnHeader('Sent At')}}" stepKey="seeSentAt"/>
+
+        <!-- Sorting -->
+        <click selector="{{AdminDotdigitalReportColumnsSection.columnHeader('Customer Email')}}" stepKey="clickCustomerEmailToSortAsc"/>
+        <seeElement selector="{{AdminDotdigitalReportColumnsSection.columnHeaderAsc('Customer Email')}}" stepKey="checkIfEmailAsc"/>
+
+        <click selector="{{AdminDotdigitalReportColumnsSection.columnHeader('Customer Email')}}" stepKey="clickCustomerEmailToSortDesc"/>
+        <seeElement selector="{{AdminDotdigitalReportColumnsSection.columnHeaderDesc('Customer Email')}}" stepKey="checkIfEmailDesc"/>
+
+        <!-- Filtering -->
+        <actionGroup ref="FilterReport" stepKey="validateFilters"/>
+        <!-- Indicates that filter is on -->
+        <seeElementInDOM selector="div.admin__data-grid-filters-current" stepKey="seeFilterIsOn"/>
+
+        <actionGroup ref="ClearAndNavigateFilterFields" stepKey="validateFilterFields"/>
+        <seeElement selector="{{AdminFilterFieldsSection.filterInput('email')}}" stepKey="seeEmailFilter"/>
+        <seeElement selector="{{AdminFilterFieldsSection.filterInput('order_id')}}" stepKey="seeOrderIdFilter"/>
+        <seeElement selector="{{AdminFilterFieldsSection.filterSelect('type_id')}}" stepKey="seeTypeFilter"/>
+        <seeElement selector="{{AdminFilterFieldsSection.filterSelect('store_id')}}" stepKey="seeStoreFilter"/>
+        <seeElement selector="{{AdminFilterFieldsSection.filterSelect('website_id')}}" stepKey="seeWebsiteFilter"/>
+        <seeElement selector="{{AdminFilterFieldsSection.filterInput('phone_number')}}" stepKey="seePhoneFilter"/>
+        <seeElement selector="{{AdminFilterFieldsSection.filterInput('content')}}" stepKey="seeContentFilter"/>
+        <seeElement selector="{{AdminFilterFieldsSection.filterInput('message')}}" stepKey="seeMessageFilter"/>
+        <seeElement selector="{{AdminFilterFieldsSection.filterSelect('status')}}" stepKey="seeStatusFilter"/>
+
+    </test>
+</tests>

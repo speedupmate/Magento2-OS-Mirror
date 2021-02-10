@@ -42,16 +42,16 @@
         <see selector="{{AdminVertexSettingsConfigSection.vertexApiStatusSeverityCritical}}" userInput="Disabled" stepKey="seeDisabledInitStatus"/>
 
         <!-- Validate valid status -->
-        <fillField stepKey="setCalculationWsdl" selector="{{AdminVertexSettingsConfigSection.calculationWsdlUrl}}" userInput="{{_CREDS.vertex_config_calculation_wsdl}}"/>
-        <fillField stepKey="setAddressValidationWsdl" selector="{{AdminVertexSettingsConfigSection.addressValidationWsdlUrl}}" userInput="{{_CREDS.vertex_config_address_validation_wsdl}}"/>
-        <fillField stepKey="setTrustedId" selector="{{AdminVertexSettingsConfigSection.trustedId}}" userInput="{{_CREDS.vertex_config_trusted_id}}"/>
+        <fillField stepKey="setCalculationWsdl" selector="{{AdminVertexSettingsConfigSection.calculationWsdlUrl}}" userInput="{{_CREDS.vertex/vertex_config_calculation_wsdl}}"/>
+        <fillField stepKey="setAddressValidationWsdl" selector="{{AdminVertexSettingsConfigSection.addressValidationWsdlUrl}}" userInput="{{_CREDS.vertex/vertex_config_address_validation_wsdl}}"/>
+        <fillField stepKey="setTrustedId" selector="{{AdminVertexSettingsConfigSection.trustedId}}" userInput="{{_CREDS.vertex/vertex_config_trusted_id}}"/>
 
         <actionGroup ref="VertexAdminIntegrationConfigurationOpenActionGroup" stepKey="openIntegrationConfigurationAfterDisableInit"/>
         <selectOption userInput="{{VertexTaxUseForCalculation.value}}" selector="{{AdminVertexSettingsConfigSection.enableVertexCalculation}}" stepKey="enableVertexCalculation"/>
 
         <actionGroup ref="VertexAdminSellerConfigurationOpenActionGroup" stepKey="openVertexCompanyInformation"/>
 
-        <fillField selector="{{AdminVertexSellerSettingsConfigSection.companyCode}}" userInput="{{_CREDS.vertex_seller_company_code}}" stepKey="setCompanyCode"/>
+        <fillField selector="{{AdminVertexSellerSettingsConfigSection.companyCode}}" userInput="{{_CREDS.vertex/vertex_seller_company_code}}" stepKey="setCompanyCode"/>
         <fillField selector="{{AdminVertexSellerSettingsConfigSection.locationCode}}" userInput="{{VertexSellerLocationCode.value}}" stepKey="setLocationCode"/>
         <selectOption userInput="0" selector="{{AdminVertexSellerSettingsConfigSection.useShippingSource}}" stepKey="setDontUseShippingSource"/>
         <fillField selector="{{AdminVertexSellerSettingsConfigSection.streetAddress1}}" userInput="{{VertexSellerStreetAddress1.value}}" stepKey="setAddress1"/>

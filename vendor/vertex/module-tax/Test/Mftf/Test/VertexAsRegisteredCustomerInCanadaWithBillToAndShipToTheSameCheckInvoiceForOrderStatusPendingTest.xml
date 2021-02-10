@@ -47,6 +47,7 @@
             <deleteData stepKey="deleteCustomerGroup" createDataKey="createCustomerGroup"/>
             <deleteData stepKey="deleteTaxClass" createDataKey="createTaxClass"/>
             <deleteData stepKey="deleteCustomer" createDataKey="createCustomer"/>
+            <actionGroup ref="VertexTaxDefaultConfigActionGroup" stepKey="revertDefaultConfiguration"/>
             <actionGroup ref="AdminLogoutActionGroup" stepKey="logoutOfAdmin"/>
         </after>
 

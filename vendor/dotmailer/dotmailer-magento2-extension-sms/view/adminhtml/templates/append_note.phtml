@@ -1,0 +1,13 @@
+<?php
+/** @var \Dotdigitalgroup\Sms\Block\Adminhtml\AppendNote $block */
+
+$counterSelector = sprintf('%s_counter', $block->getElement()->getId());
+$commentSelector = sprintf('%s_comment', $block->getElement()->getId());
+$totalSelector = sprintf('%s_total', $block->getElement()->getId());
+?>
+<?= $block->getElement()->getElementHtml(); ?>
+<p class="note ddg-note">
+    <?php //@codingStandardsIgnoreStart?>
+    <span id="<?= $block->escapeHtml($counterSelector); ?>"></span><span><?= $block->escapeHtml(__(' characters (')); ?></span><span id="<?= $block->escapeHtml($commentSelector)?>" style="display: none"><?= $block->escapeHtml(__('minimum ')); ?></span><span id="<?= $block->escapeHtml($totalSelector); ?>"></span><?= $block->escapeHtml(__(' SMS)')); ?>
+    <?php //@codingStandardsIgnoreEnd?>
+</p>

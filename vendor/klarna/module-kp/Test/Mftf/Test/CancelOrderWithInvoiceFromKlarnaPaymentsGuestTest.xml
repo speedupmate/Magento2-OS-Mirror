@@ -1,0 +1,54 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!--
+ /**
+  * Copyright © Magento, Inc. All rights reserved.
+  * See COPYING.txt for license details.
+  *
+  * This file is part of the Klarna KP module
+  *
+  * (c) Klarna Bank AB (publ)
+  *
+  * For the full copyright and license information, please view the NOTICE
+  * and LICENSE files that were distributed with this source code.
+  */
+-->
+<tests xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+       xsi:noNamespaceSchemaLocation="urn:magento:mftf:Test/etc/testSchema.xsd">
+    <test name="CancelOrderWithInvoiceFromKlarnaPaymentsGuestTest" extends="PlacePayLaterOrderAsGuestTest">
+        <annotations>
+            <features value="Klarna Payments"/>
+            <stories value="Attempt to cancel an order with an invoice from an order placed by a guest"/>
+            <title value="BUNDLE-666 - Try to cancel guest order with invoice"/>
+            <description value="A merchant is unable to cancel a Klarna Payments order placed by a guest customer that has already been invoiced"/>
+            <severity value="AVERAGE"/>
+            <testCaseId value="KP_US_I_C"/>
+            <group value="Klarna_KP_Country_US"/>
+            <group value="Klarna_KP_Order_Guest"/>
+            <group value="Klarna_KP_Order_Pay_Later"/>
+            <group value="Klarna_KP_Order_Cancel"/>
+        </annotations>
+        <before>
+            <actionGroup ref="AdminLoginActionGroup" stepKey="loginAsAdmin"/>
+        </before>
+        <after>
+            <actionGroup ref="AdminLogoutActionGroup" stepKey="logout"/>
+        </after>
+
+        <!--Go to order page-->
+        <grabTextFrom selector="{{CheckoutSuccessMainSection.orderNumber}}" stepKey="grabOrderNumber"/>
+        <actionGroup ref="OpenOrderByIdActionGroup" stepKey="goToOrderPage">
+            <argument name="orderId" value="{$grabOrderNumber}"/>
+        </actionGroup>
+        <waitForPageLoad stepKey="waitForOrderPageLoad"/>
+
+        <!--Verify we see "Cancel Order" button-->
+        <seeElement selector="{{AdminOrderDetailsMainActionsSection.cancel}}" stepKey="seeCancelOrder"/>
+
+        <!--Create and confirm invoice-->
+        <actionGroup ref="AdminCreateInvoiceActionGroup" stepKey="createInvoice"/>
+
+        <!--Confirm we don't see "Cancel Order" button-->
+        <dontSeeElement selector="{{AdminOrderDetailsMainActionsSection.cancel}}" stepKey="dontSeeCancelOrder"/>
+    </test>
+</tests>
+

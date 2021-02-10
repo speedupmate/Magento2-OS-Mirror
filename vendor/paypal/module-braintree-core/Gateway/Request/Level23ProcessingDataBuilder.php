@@ -9,10 +9,13 @@ use PayPal\Braintree\Gateway\Data\Order\OrderAdapter;
 use PayPal\Braintree\Gateway\Helper\SubjectReader;
 use Magento\Framework\App\Config\ScopeConfigInterface;
 use Magento\Payment\Gateway\Request\BuilderInterface;
-use Magento\Sales\Api\Data\OrderItemInterface;
 use Magento\Sales\Api\Data\OrderPaymentInterface;
 use Magento\Store\Model\ScopeInterface;
 
+/**
+ * Class Level23ProcessingDataBuilder
+ * @package PayPal\Braintree\Gateway\Request
+ */
 class Level23ProcessingDataBuilder implements BuilderInterface
 {
     const KEY_PURCHASE_ORDER_NUMBER = 'purchaseOrderNumber';
@@ -40,10 +43,12 @@ class Level23ProcessingDataBuilder implements BuilderInterface
      * @var SubjectReader
      */
     private $subjectReader;
+
     /**
      * @var ScopeConfigInterface
      */
     private $scopeConfig;
+
     /**
      * @var ISO3166
      */
@@ -117,7 +122,7 @@ class Level23ProcessingDataBuilder implements BuilderInterface
                     $filteredFields['unit_of_measure'],
                     $this->numberToString((float)$item->getQtyOrdered() * $itemPrice, 2),
                     $item->getTaxAmount() === null ? '0.00' : $this->numberToString($item->getTaxAmount(), 2),
-                    $item->getTaxAmount() === null ? '0.00' : $this->numberToString($item->getDiscountAmount(), 2),
+                    $item->getDiscountAmount() === null ? '0.00' : $this->numberToString($item->getDiscountAmount(), 2),
                     $filteredFields['sku'],
                     $filteredFields['sku']
                 ]

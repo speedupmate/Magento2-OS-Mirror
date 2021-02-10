@@ -16,8 +16,8 @@
 
   <!-- set Yotpo credentials -->
 
-  <fillField userInput="{{_CREDS.yotpo_app_key}}" selector="{{AdminLoginToYotpo.yotpoAppKey}}" stepKey="fillAppKey"/>
-  <fillField userInput="{{_CREDS.yotpo_secret}}" selector="{{AdminLoginToYotpo.yotpoSecret}}" stepKey="fillSecret"/>
+  <fillField userInput="{{_CREDS.yotpo/yotpo_app_key}}" selector="{{AdminLoginToYotpo.yotpoAppKey}}" stepKey="fillAppKey"/>
+  <fillField userInput="{{_CREDS.yotpo/yotpo_secret}}" selector="{{AdminLoginToYotpo.yotpoSecret}}" stepKey="fillSecret"/>
 
   <!-- save Yotpo configuration -->
   <click selector="{{AdminLoginToYotpo.SaveConfiguration}}" stepKey="ClickOnSaveConfig"/>

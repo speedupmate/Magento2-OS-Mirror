@@ -1,0 +1,33 @@
+<?xml version="1.0"?>
+<schema xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+        xsi:noNamespaceSchemaLocation="urn:magento:framework:Setup/Declaration/Schema/etc/schema.xsd">
+    <table name="email_sms_order_queue" resource="default" engine="innodb" comment="Dotdigital SMS order queue table">
+        <column xsi:type="int" name="id" padding="10" unsigned="true" nullable="false" identity="true"
+                comment="Primary key"/>
+        <column xsi:type="smallint" name="website_id" unsigned="true" nullable="false" padding="5" default="0" comment="Website ID"/>
+        <column xsi:type="smallint" name="store_id" unsigned="true" nullable="false" padding="5" default="0" comment="Store ID"/>
+        <column xsi:type="smallint" name="type_id" unsigned="true" nullable="false" padding="5" default="0" comment="Type ID"/>
+        <column xsi:type="smallint" name="order_id" unsigned="true" nullable="false" comment="Order ID"/>
+        <column xsi:type="varchar" name="phone_number" nullable="true" length="255" comment="Phone number"/>
+        <column xsi:type="varchar" name="email" nullable="true" length="255" comment="Customer email"/>
+        <column xsi:type="text" name="additional_data" nullable="true" comment="Additional data"/>
+        <column xsi:type="smallint" name="status" nullable="true" padding="2" comment="Status"/>
+        <column xsi:type="text" name="content" nullable="true" comment="Message content"/>
+        <column xsi:type="varchar" name="message_id" nullable="true" length="255" comment="Message ID"/>
+        <column xsi:type="text" name="message" nullable="true" comment="Delivery message"/>
+        <column xsi:type="timestamp" name="sent_at" on_update="false" nullable="true" comment="Sent at date"/>
+        <column xsi:type="timestamp" name="created_at" on_update="false" nullable="false" default="CURRENT_TIMESTAMP" comment="Creation time"/>
+        <column xsi:type="timestamp" name="updated_at" on_update="false" nullable="true" comment="Update time"/>
+        <constraint xsi:type="primary" referenceId="PRIMARY">
+            <column name="id"/>
+        </constraint>
+        <constraint xsi:type="foreign" referenceId="EMAIL_SMS_ORDER_QUEUE_WEBSITE_ID_STORE_WEBSITE_WEBSITE_ID" table="email_sms_order_queue" column="website_id" referenceTable="store_website" referenceColumn="website_id" onDelete="CASCADE"/>
+        <constraint xsi:type="foreign" referenceId="EMAIL_SMS_ORDER_QUEUE_STORE_ID_STORE_STORE_ID" table="email_sms_order_queue" column="store_id" referenceTable="store" referenceColumn="store_id" onDelete="CASCADE"/>
+        <index referenceId="EMAIL_SMS_ORDER_QUEUE_WEBSITE_ID">
+            <column name="website_id"/>
+        </index>
+        <index referenceId="EMAIL_SMS_ORDER_QUEUE_STORE_ID">
+            <column name="store_id"/>
+        </index>
+    </table>
+</schema>

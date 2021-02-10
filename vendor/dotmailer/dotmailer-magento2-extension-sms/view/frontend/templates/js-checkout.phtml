@@ -1,0 +1,17 @@
+<?php
+/**
+ * @var $block \Magento\Framework\View\Element\Template
+ * @var $view \Dotdigitalgroup\Sms\ViewModel\TelephoneInputConfig
+ */
+// @codingStandardsIgnoreFile
+$view = $block->getData('config');
+?>
+<script type="application/javascript">
+    require([
+        'jquery'
+    ], function ($) {
+        ddgTelephoneRenderComplete = function(node) {
+            window.intlTelInput($(node)[0], <?= $view->getConfig(); ?>)
+        }
+    });
+</script>

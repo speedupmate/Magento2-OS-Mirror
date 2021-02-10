@@ -1,0 +1,24 @@
+<?xml version="1.0"?>
+<config xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="urn:magento:module:Magento_Store:etc/config.xsd">
+    <default>
+        <transactional_sms>
+            <sms_settings>
+                <enabled>0</enabled>
+                <phone_number_validation>0</phone_number_validation>
+                <batch_size>1000</batch_size>
+            </sms_settings>
+            <sms_templates>
+                <new_order_confirmation_enabled>0</new_order_confirmation_enabled>
+                <new_order_confirmation_message>Thanks {{ first_name }}, your order has been placed on {{ store_name }}. We'll notify you when it ships. View order {{ order_id }}</new_order_confirmation_message>
+                <order_update_enabled>0</order_update_enabled>
+                <order_update_message>{{ first_name }}, your order {{ order_id }} has been updated with a status: {{ order_status }}. View order {{ order_id }}</order_update_message>
+                <new_shipment_enabled>0</new_shipment_enabled>
+                <new_shipment_message>Great news, your order from {{ store_name }} has been shipped. {{ tracking_carrier }} tracking number: {{ tracking_number }}</new_shipment_message>
+                <shipment_update_enabled>0</shipment_update_enabled>
+                <shipment_update_message>{{ first_name }}, the recent shipment of order {{ order_id }} has been updated. {{ tracking_carrier }} tracking number: {{ tracking_number }}</shipment_update_message>
+                <new_credit_memo_enabled>0</new_credit_memo_enabled>
+                <new_credit_memo_message>{{first_name}}, your order {{ order_id }} from {{ store_name }} has been refunded for {{ refund_amount }}</new_credit_memo_message>
+            </sms_templates>
+        </transactional_sms>
+    </default>
+</config>

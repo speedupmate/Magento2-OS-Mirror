@@ -26,6 +26,13 @@ use Amazon\Payment\Gateway\Data\Order\OrderAdapterFactory;
 /**
  * Class RefundRequestBuilder
  * Builds refund request for Amazon Pay
+ *
+ * @deprecated As of February 2021, this Legacy Amazon Pay plugin has been
+ * deprecated, in favor of a newer Amazon Pay version available through GitHub
+ * and Magento Marketplace. Please download the new plugin for automatic
+ * updates and to continue providing your customers with a seamless checkout
+ * experience. Please see https://pay.amazon.com/help/E32AAQBC2FY42HS for details
+ * and installation instructions.
  */
 class RefundRequestBuilder implements BuilderInterface
 {
@@ -91,8 +98,8 @@ class RefundRequestBuilder implements BuilderInterface
 
         $orderDO = $paymentDO->getOrder();
 
-        $currencyCode = $orderDO->getCurrencyCode();
-        $total = $buildSubject['amount'];
+        $currencyCode = $payment->getOrder()->getOrderCurrencyCode();
+        $total = $payment->getCreditMemo()->getGrandTotal();
         $storeId = $orderDO->getStoreId();
 
         // The magento order adapter doesn't expose everything we need to send a request to the AP API so we

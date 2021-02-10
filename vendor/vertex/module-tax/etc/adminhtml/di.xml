@@ -50,6 +50,10 @@
                     <item name="class" xsi:type="string">Vertex\Tax\Ui\DataProvider\Product\Form\Modifier\FlexibleFields</item>
                     <item name="sortOrder" xsi:type="number">71</item>
                 </item>
+                <item name="vertex-commodity-code" xsi:type="array">
+                    <item name="class" xsi:type="string">Vertex\Tax\Ui\DataProvider\Product\Form\Modifier\CommodityCode</item>
+                    <item name="sortOrder" xsi:type="number">75</item>
+                </item>
             </argument>
         </arguments>
     </virtualType>

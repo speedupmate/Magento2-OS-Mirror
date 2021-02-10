@@ -50,18 +50,31 @@ class Header extends Template
     }
 
     /**
-     * Get endpoint to use (eg, na, eu, oc)
+     * Get endpoint to use (na, eu, oc), depending on market
      *
      * @return string
      */
     private function getEndpoint(): string
     {
         $version = $this->getValue('klarna/api/api_version');
-        // This shouldn't really ever happen, but if a merchant enables OSM without configuring KP...
-        if (!$version) {
-            return '';
+        switch ($version) {
+            case "dach_v3":
+            case "uk":
+            case "nl":
+            case "kp_eu":
+                $endpoint = 'eu';
+                break;
+            case "na":
+            case "kp_na":
+                $endpoint = 'na';
+                break;
+            case "kp_oc":
+                $endpoint = 'oc';
+                break;
+            default:
+                $endpoint = 'eu';
         }
-        return str_replace('kp_', '', $version);
+        return $endpoint;
     }
 
     /**

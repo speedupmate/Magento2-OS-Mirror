@@ -18,7 +18,6 @@ use Magento\Framework\File\Uploader;
 use Magento\Framework\File\UploaderFactory;
 use Magento\Framework\Filesystem;
 use Magento\Framework\Filesystem\Directory\WriteInterface;
-use Magento\Framework\Filesystem\Io\File as FileIo;
 use Magento\Framework\Url\EncoderInterface;
 use Magento\MediaStorage\Model\File\Validator\NotProtectedExtension;
 use PHPUnit\Framework\MockObject\MockObject;
@@ -65,11 +64,6 @@ class FileTest extends AbstractFormTestCase
      */
     private $fileProcessorFactoryMock;
 
-    /**
-     * @var FileIo|MockObject
-     */
-    private $fileIoMock;
-
     protected function setUp(): void
     {
         parent::setUp();
@@ -96,7 +90,6 @@ class FileTest extends AbstractFormTestCase
         $this->fileProcessorFactoryMock->expects($this->any())
             ->method('create')
             ->willReturn($this->fileProcessorMock);
-        $this->fileIoMock = $this->createMock(FileIo::class);
     }
 
     /**
@@ -111,29 +104,31 @@ class FileTest extends AbstractFormTestCase
         $value = 'value';
 
         $this->requestMock->expects(
-            $this->any()
+            $this->at(0)
         )->method(
             'getParam'
-        )->willReturn(
-            ['delete' => $delete]
+        )->will(
+            $this->returnValue(['delete' => $delete])
         );
 
         $this->attributeMetadataMock->expects(
             $this->any()
         )->method(
             'getAttributeCode'
-        )->willReturn(
-            $attributeCode
+        )->will(
+            $this->returnValue($attributeCode)
         );
         if (!empty($attributeCode)) {
             $_FILES[$attributeCode] = ['attributeCodeValue'];
         }
 
-        $model = $this->initialize([
-            'value' => $value,
-            'isAjax' => false,
-            'entityTypeCode' => self::ENTITY_TYPE,
-        ]);
+        $model = $this->initialize(
+            [
+                'value' => $value,
+                'isAjax' => false,
+                'entityTypeCode' => self::ENTITY_TYPE,
+            ]
+        );
 
         $this->assertEquals($expected, $model->extractValue($this->requestMock));
         if (!empty($attributeCode)) {
@@ -165,33 +160,35 @@ class FileTest extends AbstractFormTestCase
         $value = 'value';
 
         $this->requestMock->expects(
-            $this->any()
+            $this->at(0)
         )->method(
             'getParam'
-        )->willReturn(
-            ['delete' => true]
+        )->will(
+            $this->returnValue(['delete' => true])
         );
         $this->requestMock->expects(
             $this->any()
         )->method(
             'getParams'
-        )->willReturn(
-            ['delete' => true]
+        )->will(
+            $this->returnValue(['delete' => true])
         );
 
         $this->attributeMetadataMock->expects(
             $this->any()
         )->method(
             'getAttributeCode'
-        )->willReturn(
-            'attributeCode'
+        )->will(
+            $this->returnValue('attributeCode')
         );
 
-        $model = $this->initialize([
-            'value' => $value,
-            'isAjax' => false,
-            'entityTypeCode' => self::ENTITY_TYPE,
-        ]);
+        $model = $this->initialize(
+            [
+                'value' => $value,
+                'isAjax' => false,
+                'entityTypeCode' => self::ENTITY_TYPE,
+            ]
+        );
 
         $model->setRequestScope($requestScope);
 
@@ -237,22 +234,24 @@ class FileTest extends AbstractFormTestCase
             $this->any()
         )->method(
             'isRequired'
-        )->willReturn(
-            $isRequired
+        )->will(
+            $this->returnValue($isRequired)
         );
         $this->attributeMetadataMock->expects(
             $this->any()
         )->method(
             'getStoreLabel'
-        )->willReturn(
-            'attributeLabel'
+        )->will(
+            $this->returnValue('attributeLabel')
         );
 
-        $model = $this->initialize([
-            'value' => $value,
-            'isAjax' => $isAjax,
-            'entityTypeCode' => self::ENTITY_TYPE,
-        ]);
+        $model = $this->initialize(
+            [
+                'value' => $value,
+                'isAjax' => $isAjax,
+                'entityTypeCode' => self::ENTITY_TYPE,
+            ]
+        );
 
         $this->assertEquals($expected, $model->validateValue($value));
     }
@@ -280,33 +279,32 @@ class FileTest extends AbstractFormTestCase
     {
         $parameters = array_merge(['uploaded' => true, 'valid' => true], $parameters);
 
-        $this->attributeMetadataMock->expects($this->any())->method('isRequired')->willReturn(false);
+        $this->attributeMetadataMock->expects($this->any())->method('isRequired')->will($this->returnValue(false));
         $this->attributeMetadataMock->expects(
             $this->any()
         )->method(
             'getStoreLabel'
-        )->willReturn(
-            'File Input Field Label'
+        )->will(
+            $this->returnValue('File Input Field Label')
         );
 
         $this->fileValidatorMock->expects(
             $this->any()
         )->method(
             'getMessages'
-        )->willReturn(
-            ['Validation error message.']
+        )->will(
+            $this->returnValue(['Validation error message.'])
         );
         $this->fileValidatorMock->expects(
             $this->any()
         )->method(
             'isValid'
-        )->willReturn(
-            $parameters['valid']
+        )->will(
+            $this->returnValue($parameters['valid'])
         );
 
-        $this->fileIoMock->expects($this->any())
-            ->method('getPathInfo')
-            ->with($value['name'])
+        $this->fileProcessorMock->expects($this->any())
+            ->method('getStat')
             ->willReturn([
                 'extension' => $value['extension'],
                 'basename' => $value['basename']
@@ -316,11 +314,13 @@ class FileTest extends AbstractFormTestCase
             ->method('isExist')
             ->willReturn($parameters['uploaded']);
 
-        $model = $this->initialize([
-            'value' => $value,
-            'isAjax' => false,
-            'entityTypeCode' => self::ENTITY_TYPE,
-        ]);
+        $model = $this->initialize(
+            [
+                'value' => $value,
+                'isAjax' => false,
+                'entityTypeCode' => self::ENTITY_TYPE,
+            ]
+        );
 
         $this->assertEquals($expected, $model->validateValue($value));
     }
@@ -365,24 +365,28 @@ class FileTest extends AbstractFormTestCase
 
     public function testCompactValueIsAjax()
     {
-        $model = $this->initialize([
-            'value' => 'value',
-            'isAjax' => true,
-            'entityTypeCode' => self::ENTITY_TYPE,
-        ]);
+        $model = $this->initialize(
+            [
+                'value' => 'value',
+                'isAjax' => true,
+                'entityTypeCode' => self::ENTITY_TYPE,
+            ]
+        );
 
         $this->assertSame($model, $model->compactValue('aValue'));
     }
 
     public function testCompactValueNoDelete()
     {
-        $this->attributeMetadataMock->expects($this->any())->method('isRequired')->willReturn(false);
+        $this->attributeMetadataMock->expects($this->any())->method('isRequired')->will($this->returnValue(false));
 
-        $model = $this->initialize([
-            'value' => 'value',
-            'isAjax' => false,
-            'entityTypeCode' => self::ENTITY_TYPE,
-        ]);
+        $model = $this->initialize(
+            [
+                'value' => 'value',
+                'isAjax' => false,
+                'entityTypeCode' => self::ENTITY_TYPE,
+            ]
+        );
 
         $this->fileProcessorMock->expects($this->once())
             ->method('removeUploadedFile')
@@ -394,10 +398,10 @@ class FileTest extends AbstractFormTestCase
 
     public function testCompactValueDelete()
     {
-        $this->attributeMetadataMock->expects($this->any())->method('isRequired')->willReturn(false);
+        $this->attributeMetadataMock->expects($this->any())->method('isRequired')->will($this->returnValue(false));
 
         $mediaDirMock = $this->getMockForAbstractClass(
-            WriteInterface::class
+            \Magento\Framework\Filesystem\Directory\WriteInterface::class
         );
         $mediaDirMock->expects($this->once())
             ->method('delete')
@@ -406,13 +410,15 @@ class FileTest extends AbstractFormTestCase
         $this->fileSystemMock->expects($this->once())
             ->method('getDirectoryWrite')
             ->with(DirectoryList::MEDIA)
-            ->willReturn($mediaDirMock);
+            ->will($this->returnValue($mediaDirMock));
 
-        $model = $this->initialize([
-            'value' => 'value',
-            'isAjax' => false,
-            'entityTypeCode' => self::ENTITY_TYPE,
-        ]);
+        $model = $this->initialize(
+            [
+                'value' => 'value',
+                'isAjax' => false,
+                'entityTypeCode' => self::ENTITY_TYPE,
+            ]
+        );
 
         $this->assertSame('', $model->compactValue(['delete' => true]));
     }
@@ -423,16 +429,16 @@ class FileTest extends AbstractFormTestCase
         $expected = 'saved.file';
 
         $mediaDirMock = $this->getMockForAbstractClass(
-            WriteInterface::class
+            \Magento\Framework\Filesystem\Directory\WriteInterface::class
         );
         $this->fileSystemMock->expects($this->once())
             ->method('getDirectoryWrite')
             ->with(DirectoryList::MEDIA)
-            ->willReturn($mediaDirMock);
+            ->will($this->returnValue($mediaDirMock));
         $mediaDirMock->expects($this->any())
             ->method('getAbsolutePath')
-            ->willReturnArgument(0);
-        $uploaderMock = $this->createMock(Uploader::class);
+            ->will($this->returnArgument(0));
+        $uploaderMock = $this->createMock(\Magento\Framework\File\Uploader::class);
         $this->uploaderFactoryMock->expects($this->once())
             ->method('create')
             ->with(['fileId' => $value])
@@ -456,13 +462,15 @@ class FileTest extends AbstractFormTestCase
             ->with(self::ENTITY_TYPE, 'new.file');
         $uploaderMock->expects($this->once())
             ->method('getUploadedFileName')
-            ->willReturn($expected);
+            ->will($this->returnValue($expected));
 
-        $model = $this->initialize([
-            'value' => null,
-            'isAjax' => false,
-            'entityTypeCode' => self::ENTITY_TYPE,
-        ]);
+        $model = $this->initialize(
+            [
+                'value' => null,
+                'isAjax' => false,
+                'entityTypeCode' => self::ENTITY_TYPE,
+            ]
+        );
 
         $this->assertSame($expected, $model->compactValue($value));
     }
@@ -471,11 +479,13 @@ class FileTest extends AbstractFormTestCase
     {
         $value = 'value';
 
-        $model = $this->initialize([
-            'value' => $value,
-            'isAjax' => false,
-            'entityTypeCode' => self::ENTITY_TYPE,
-        ]);
+        $model = $this->initialize(
+            [
+                'value' => $value,
+                'isAjax' => false,
+                'entityTypeCode' => self::ENTITY_TYPE,
+            ]
+        );
 
         $this->assertEquals($value, $model->restoreValue('aValue'));
     }
@@ -486,11 +496,13 @@ class FileTest extends AbstractFormTestCase
      */
     public function testOutputValueNonJson($format)
     {
-        $model = $this->initialize([
-            'value' => 'value',
-            'isAjax' => false,
-            'entityTypeCode' => self::ENTITY_TYPE,
-        ]);
+        $model = $this->initialize(
+            [
+                'value' => 'value',
+                'isAjax' => false,
+                'entityTypeCode' => self::ENTITY_TYPE,
+            ]
+        );
 
         $this->assertSame('', $model->outputValue($format));
     }
@@ -519,29 +531,31 @@ class FileTest extends AbstractFormTestCase
         )->method(
             'encode'
         )->with(
-            $value
-        )->willReturn(
-            $urlKey
+            $this->equalTo($value)
+        )->will(
+            $this->returnValue($urlKey)
         );
 
         $expected = ['value' => $value, 'url_key' => $urlKey];
 
-        $model = $this->initialize([
-            'value' => $value,
-            'isAjax' => false,
-            'entityTypeCode' => self::ENTITY_TYPE,
-        ]);
+        $model = $this->initialize(
+            [
+                'value' => $value,
+                'isAjax' => false,
+                'entityTypeCode' => self::ENTITY_TYPE,
+            ]
+        );
 
         $this->assertSame($expected, $model->outputValue(ElementFactory::OUTPUT_FORMAT_JSON));
     }
 
     /**
      * @param array $data
-     * @return File
+     * @return \Magento\Customer\Model\Metadata\Form\File
      */
     private function initialize(array $data)
     {
-        return new File(
+        return new \Magento\Customer\Model\Metadata\Form\File(
             $this->localeMock,
             $this->loggerMock,
             $this->attributeMetadataMock,
@@ -567,22 +581,26 @@ class FileTest extends AbstractFormTestCase
             ->method('getAttributeCode')
             ->willReturn($attributeCode);
 
-        $this->requestMock->expects($this->once())
+        $this->requestMock->expects($this->at(0))
             ->method('getParam')
             ->with($requestScope)
-            ->willReturn([
-                $attributeCode => [
-                    [
-                        'file' => $fileName,
+            ->willReturn(
+                [
+                    $attributeCode => [
+                        [
+                            'file' => $fileName,
+                        ],
                     ],
-                ],
-            ]);
+                ]
+            );
 
-        $model = $this->initialize([
-            'value' => 'value',
-            'isAjax' => false,
-            'entityTypeCode' => self::ENTITY_TYPE,
-        ]);
+        $model = $this->initialize(
+            [
+                'value' => 'value',
+                'isAjax' => false,
+                'entityTypeCode' => self::ENTITY_TYPE,
+            ]
+        );
 
         $model->setRequestScope($requestScope);
         $result = $model->extractValue($this->requestMock);
@@ -594,11 +612,13 @@ class FileTest extends AbstractFormTestCase
     {
         $value = 'value';
 
-        $model = $this->initialize([
-            'value' => $value,
-            'isAjax' => false,
-            'entityTypeCode' => self::ENTITY_TYPE,
-        ]);
+        $model = $this->initialize(
+            [
+                'value' => $value,
+                'isAjax' => false,
+                'entityTypeCode' => self::ENTITY_TYPE,
+            ]
+        );
 
         $this->fileProcessorMock->expects($this->once())
             ->method('removeUploadedFile')
@@ -612,11 +632,13 @@ class FileTest extends AbstractFormTestCase
     {
         $value = 'value';
 
-        $model = $this->initialize([
-            'value' => $value,
-            'isAjax' => false,
-            'entityTypeCode' => self::ENTITY_TYPE,
-        ]);
+        $model = $this->initialize(
+            [
+                'value' => $value,
+                'isAjax' => false,
+                'entityTypeCode' => self::ENTITY_TYPE,
+            ]
+        );
 
         $this->assertEquals($value, $model->compactValue($value));
     }
@@ -627,11 +649,13 @@ class FileTest extends AbstractFormTestCase
             'file' => 'filename',
         ];
 
-        $model = $this->initialize([
-            'value' => null,
-            'isAjax' => false,
-            'entityTypeCode' => self::ENTITY_TYPE,
-        ]);
+        $model = $this->initialize(
+            [
+                'value' => null,
+                'isAjax' => false,
+                'entityTypeCode' => self::ENTITY_TYPE,
+            ]
+        );
 
         $this->fileProcessorMock->expects($this->once())
             ->method('moveTemporaryFile')
@@ -652,7 +676,7 @@ class FileTest extends AbstractFormTestCase
         $uploadedFilename = 'filename.ext1';
 
         $mediaDirectoryMock = $this->getMockBuilder(
-            WriteInterface::class
+            \Magento\Framework\Filesystem\Directory\WriteInterface::class
         )
             ->getMockForAbstractClass();
         $mediaDirectoryMock->expects($this->once())
@@ -699,11 +723,13 @@ class FileTest extends AbstractFormTestCase
             ->with(['fileId' => $value])
             ->willReturn($uploaderMock);
 
-        $model = $this->initialize([
-            'value' => null,
-            'isAjax' => false,
-            'entityTypeCode' => self::ENTITY_TYPE,
-        ]);
+        $model = $this->initialize(
+            [
+                'value' => null,
+                'isAjax' => false,
+                'entityTypeCode' => self::ENTITY_TYPE,
+            ]
+        );
 
         $this->assertEquals($uploadedFilename, $model->compactValue($value));
     }
@@ -718,7 +744,7 @@ class FileTest extends AbstractFormTestCase
         $originValue = 'origin';
 
         $mediaDirectoryMock = $this->getMockBuilder(
-            WriteInterface::class
+            \Magento\Framework\Filesystem\Directory\WriteInterface::class
         )->getMockForAbstractClass();
         $mediaDirectoryMock->expects($this->once())
             ->method('delete')
@@ -763,11 +789,13 @@ class FileTest extends AbstractFormTestCase
             ->with($exception)
             ->willReturnSelf();
 
-        $model = $this->initialize([
-            'value' => $originValue,
-            'isAjax' => false,
-            'entityTypeCode' => self::ENTITY_TYPE,
-        ]);
+        $model = $this->initialize(
+            [
+                'value' => $originValue,
+                'isAjax' => false,
+                'entityTypeCode' => self::ENTITY_TYPE,
+            ]
+        );
 
         $this->assertEquals('', $model->compactValue($value));
     }

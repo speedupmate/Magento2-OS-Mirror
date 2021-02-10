@@ -1,0 +1,19 @@
+<?php
+/** @var \Dotdigitalgroup\Sms\Block\Adminhtml\Config\AccountMessage $block */
+?>
+<?php if ($block->shouldDisplayAccountMessage()): ?>
+<div class="comment">
+    <?=
+    // @codingStandardsIgnoreStart
+    $block
+        ->escapeHtml(
+            __('Transactional SMS (powered by dotdigital Engagement Cloud) requires SMS pay-as-you-go to be enabled on your account.')
+        );
+    // @codingStandardsIgnoreStart
+    ?>
+    <a href="https://support.dotdigital.com/hc/en-gb/articles/360015527219-Understand-SMS-pay-as-you-go-and-spend-limit"
+       target="_blank">
+        <?= $block->escapeHtml(__('Learn how to activate SMS pay-as-you-go')); ?>
+    </a>.
+</div>
+<?php endif; ?>

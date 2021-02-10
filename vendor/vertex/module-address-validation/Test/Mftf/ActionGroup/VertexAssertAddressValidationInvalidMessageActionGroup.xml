@@ -12,10 +12,6 @@
         </annotations>
 
         <waitForElementVisible selector="{{StorefrontCustomerAddressFormSection.messageDifference}}" stepKey="assertMessageVisible"/>
-        <grabTextFrom selector="{{StorefrontCustomerAddressFormSection.messageContainer}}" stepKey="getMessageContent"/>
-        <assertContains stepKey="assertValidationMessage">
-            <expectedResult type="string">We found potential improvements for this address:</expectedResult>
-            <actualResult type="variable">$getMessageContent</actualResult>
-        </assertContains>
+        <see userInput="We found potential improvements for this address:" selector="{{StorefrontCustomerAddressFormSection.messageContainer}}" stepKey="assertValidationMessage"/>
     </actionGroup>
 </actionGroups>

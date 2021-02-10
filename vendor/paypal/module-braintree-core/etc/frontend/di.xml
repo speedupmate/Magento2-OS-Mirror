@@ -104,4 +104,19 @@
     <type name="Magento\Vault\Api\PaymentTokenRepositoryInterface">
         <plugin name="braintreeDeleteStoredPaymentPlugin" type="\PayPal\Braintree\Plugin\DeleteStoredPaymentPlugin" />
     </type>
+
+    <type name="Magento\Checkout\Block\Onepage">
+        <arguments>
+            <argument name="layoutProcessors" xsi:type="array">
+                <item name="braintree_recaptcha" xsi:type="object">\PayPal\Braintree\Block\LayoutProcessor\Checkout\Onepage</item>
+            </argument>
+        </arguments>
+    </type>
+    <type name="Magento\Checkout\Model\CompositeConfigProvider">
+        <arguments>
+            <argument name="configProviders" xsi:type="array">
+                <item name="recaptcha_config_provider" xsi:type="object">PayPal\Braintree\Model\CheckoutConfigProvider</item>
+            </argument>
+        </arguments>
+    </type>
 </config>

@@ -1,0 +1,45 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!--
+ /**
+  * This file is part of the Klarna Onsitemessaging module
+  *
+  * (c) Klarna Bank AB (publ)
+  *
+  * For the full copyright and license information, please view the NOTICE
+  * and LICENSE files that were distributed with this source code.
+  */
+-->
+<tests xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+       xsi:noNamespaceSchemaLocation="urn:magento:mftf:Test/etc/testSchema.xsd">
+    <test name="EnableOnsitemessaging">
+        <annotations>
+            <features value="Klarna Onsitemessaging"/>
+            <stories value="Verify Klarna Onsitemessaging appears on product page and cart"/>
+            <title value="BUNDLE-2579 - Verify Klarna Onsitemessaging appears on product page and in cart"/>
+            <description value="Klarna Onsitemessaging should appear on a product page and in the cart when it is enabled"/>
+            <severity value="CRITICAL"/>
+            <testCaseId value="OSM_US_?"/>
+            <group value="Klarna_Onsitemessaging_Country_US"/>
+        </annotations>
+        <before>
+            <createData entity="SimpleTwo" stepKey="createSimpleProduct">
+                <field key="price">123.45</field> <!--A more realistic price point than the default 1.23-->
+            </createData>
+        </before>
+        <after>
+            <deleteData createDataKey="createSimpleProduct" stepKey="deleteSimpleProduct"/>
+        </after>
+        <!--Go to product page-->
+        <actionGroup ref="GoToCreatedProductPageAndWaitForAddToCart" stepKey="goToCreatedProductPageAndWaitForAddToCart">
+            <argument name="url" value="$$createSimpleProduct.custom_attributes[url_key]$$.html"/>
+        </actionGroup>
+        <seeElement stepKey="seeOnProductPage" selector="{{ProductsPageSection.klarnaMessaging}}" />
+
+        <!--Add product to shopping cart-->
+        <actionGroup ref="AddToCartFromStorefrontProductPageActionGroup" stepKey="addToCartFromStorefrontProductPage">
+            <argument name="productName" value="$$createSimpleProduct.name$$"/>
+        </actionGroup>
+        <actionGroup ref="ClickViewAndEditCartFromMiniCartActionGroup" stepKey="goToCart"/>
+        <seeElement stepKey="seeOnCartPage" selector="{{CheckoutCartSummarySection.klarnaMessaging}}" />
+    </test>
+</tests>

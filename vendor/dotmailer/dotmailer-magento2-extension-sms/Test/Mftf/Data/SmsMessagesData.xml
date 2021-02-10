@@ -1,0 +1,14 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<entities xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+          xsi:noNamespaceSchemaLocation="urn:magento:mftf:DataGenerator/etc/dataProfileSchema.xsd">
+    <entity name="SmsMessages">
+        <data key="smsTextWithVariables">{{ first_name }}, {{ last_name }}, {{ email }}, {{ store_name }}, {{ order_id }}, {{ order_status }}, {{ refund_amount }}.</data>
+        <data key="smsTextWithoutVariables">This is an Sms Message.</data>
+        <data key="smsUnicodeTextWithoutVariables">Τσαζ Κανγκαρου.</data>
+        <data key="statusPending">Pending</data>
+        <data key="statusInProgress">In progress</data>
+        <data key="statusFailed">Failed</data>
+        <data key="statusDelivered">Delivered</data>
+    </entity>
+</entities>

@@ -1,0 +1,50 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<tests xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+       xsi:noNamespaceSchemaLocation="urn:magento:mftf:Test/etc/testSchema.xsd">
+    <test name="TransactionalSmsFieldsTest">
+        <annotations>
+            <features value="Engagement Cloud module"/>
+            <stories value="dotdigital Transactional SMS"/>
+            <title value="Validate Transactional SMS fields"/>
+            <description value="Test that required fields exist in the Transactional SMS section."/>
+            <severity value="MINOR"/>
+            <group value="FS/mftf-130088"/>
+            <group value="dotmailer"/>
+        </annotations>
+
+        <before>
+            <actionGroup ref="AdminLoginActionGroup" stepKey="AdminLoginActionGroup1"/>
+            <actionGroup ref="SetDotmailerAccountData" stepKey="SetDotmailerAccountData"/>
+        </before>
+
+        <after>
+            <actionGroup ref="ResetDotmailerAccountData" stepKey="resetAccountData"/>
+            <actionGroup ref="AdminLogoutActionGroup" stepKey="logout"/>
+        </after>
+
+        <amOnPage url="{{AdminTransactionalSmsPage.url}}" stepKey="amOnDotdigitalTransactionalSmsPage"/>
+        <waitForPageLoad stepKey="waitForPageLoad"/>
+
+        <seeElement selector="{{AdminTransactionalSmsSection.smsEnabled}}" stepKey="seeSmsEnabled"/>
+
+        <seeElement selector="{{AdminTransactionalSmsSection.newOrderSmsEnabled}}" stepKey="seeNewOrderSmsEnabled"/>
+        <seeElement selector="{{AdminTransactionalSmsSection.newOrderSmsMessage}}" stepKey="seeNewOrderSmsMessage"/>
+
+        <seeElement selector="{{AdminTransactionalSmsSection.updateOrderSmsEnabled}}" stepKey="seeUpdateOrderSmsEnabled"/>
+        <seeElement selector="{{AdminTransactionalSmsSection.updateOrderSmsMessage}}" stepKey="seeUpdateOrderSmsMessage"/>
+
+        <seeElement selector="{{AdminTransactionalSmsSection.newShipmentSmsEnabled}}" stepKey="seeNewShipmentSmsEnabled"/>
+        <seeElement selector="{{AdminTransactionalSmsSection.newShipmentSmsMessage}}" stepKey="seeNewShipmentSmsMessage"/>
+
+        <seeElement selector="{{AdminTransactionalSmsSection.updateShipmentSmsEnabled}}" stepKey="seeUpdateShipmentSmsEnabled"/>
+        <seeElement selector="{{AdminTransactionalSmsSection.updateShipmentSmsMessage}}" stepKey="seeUpdateShipmentSmsMessage"/>
+
+        <seeElement selector="{{AdminTransactionalSmsSection.newCreditMemoSmsEnabled}}" stepKey="seeNewCreditMemoSmsEnabled"/>
+        <seeElement selector="{{AdminTransactionalSmsSection.newCreditMemoSmsMessage}}" stepKey="seeNewCreditMemoSmsMessage"/>
+    </test>
+</tests>
+
+
+
+
+

@@ -31,6 +31,19 @@
         <requiredEntity type="address">Vertex_Customer_JacindaArdern_Address</requiredEntity>
     </entity>
 
+    <entity name="Vertex_Customer_WinstonJohn" type="customer">
+        <data key="group_id">1</data>
+        <data key="email" unique="prefix">John.Winston@example.com</data>
+        <data key="firstname">John</data>
+        <data key="lastname">Winston</data>
+        <data key="fullname">John Winston</data>
+        <data key="password">johnWinston123!</data>
+        <data key="store_id">0</data>
+        <data key="website_id">0</data>
+        <requiredEntity type="address">Vertex_Customer_WinstonJohn_BillingAddress</requiredEntity>
+        <requiredEntity type="address">Vertex_Customer_WinstonJohn_ShippingAddress</requiredEntity>
+    </entity>
+
     <entity name="Vertex_Customer_JohnWinston" type="customer">
         <data key="group_id">1</data>
         <data key="email" unique="prefix">John.Winston@example.com</data>

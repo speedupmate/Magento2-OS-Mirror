@@ -1,0 +1,24 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!--
+ /**
+  * Copyright © Magento, Inc. All rights reserved.
+  * See COPYING.txt for license details.
+  */
+-->
+
+<entities xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+        xsi:noNamespaceSchemaLocation="urn:magento:mftf:DataGenerator/etc/dataProfileSchema.xsd">
+    <entity name="KcoCatalogRuleByFixed" type="catalogRule">
+        <data key="name" unique="suffix">CatalogPriceRule</data>
+        <data key="description">Catalog Price Rule Description</data>
+        <data key="is_active">1</data>
+        <array key="customer_group_ids">
+            <item>0</item>
+        </array>
+        <array key="website_ids">
+            <item>1</item>
+        </array>
+        <data key="simple_action">by_fixed</data>
+        <data key="discount_amount">50</data>
+    </entity>
+</entities>

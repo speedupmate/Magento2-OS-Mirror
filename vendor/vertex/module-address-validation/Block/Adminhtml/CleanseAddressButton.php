@@ -25,7 +25,7 @@ class CleanseAddressButton extends Element
     /** @var Config */
     private $config;
 
-    /** @var null|string */
+    /** @var string */
     private $prefix;
 
     public function __construct(

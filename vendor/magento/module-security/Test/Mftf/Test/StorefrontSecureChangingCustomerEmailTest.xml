@@ -15,7 +15,7 @@
             <title value="Changing Customer Email Test"/>
             <description value="Changing Customer's email with correct and wrong passwords"/>
             <testCaseId value="MC-14385"/>
-            <useCaseId value="MC-38674"/>
+            <useCaseId value="MC-38673"/>
             <severity value="CRITICAL"/>
             <group value="security"/>
             <group value="mtf_migrated"/>
@@ -50,7 +50,7 @@
         </actionGroup>
         <!-- Navigate to "Account Information" tab Second Time-->
         <actionGroup ref="StorefrontOpenCustomerAccountInfoEditPageActionGroup" stepKey="goToCustomerEditPageSecondTime" />
-        <!-- Enter new email and save with wrong password -->
+        <!-- Enter new email and save with correct password -->
         <actionGroup ref="StorefrontCustomerChangeEmailActionGroup" stepKey="changeEmailWrongAttempt">
             <argument name="email" value="$customer.email$"/>
             <argument name="password" value="WRONG_PASSWORD_123123q"/>

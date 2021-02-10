@@ -68,7 +68,6 @@ define([
          */
         beforePlaceOrder: function (data) {
             this._super(data);
-            this.updateSubmitButtonTitle(true);
         },
 
         /**

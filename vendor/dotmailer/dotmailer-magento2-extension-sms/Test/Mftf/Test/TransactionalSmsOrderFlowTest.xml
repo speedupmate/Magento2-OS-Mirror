@@ -1,0 +1,90 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<tests xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+       xsi:noNamespaceSchemaLocation="urn:magento:mftf:Test/etc/testSchema.xsd">
+    <test name="TransactionalSmsOrderFlowTest">
+        <annotations>
+            <features value="Engagement Cloud module"/>
+            <stories value="dotdigital Transactional SMS"/>
+            <title value="Test SMS order flow"/>
+            <description value="Validate that order creation creates new SMS message records."/>
+            <severity value="MINOR"/>
+            <group value="FS/mftf-130088"/>
+            <group value="dotmailer"/>
+        </annotations>
+
+        <before>
+            <actionGroup ref="AdminLoginActionGroup" stepKey="AdminLoginActionGroup1"/>
+            <comment userInput="Set default flat rate shipping method settings" stepKey="setDefaultFlatRateShippingMethodComment"/>
+            <createData entity="FlatRateShippingMethodDefault" stepKey="setDefaultFlatRateShippingMethod"/>
+            <!-- Create simple customer -->
+            <comment userInput="Create simple customer" stepKey="createSimpleCustomerComment"/>
+            <createData entity="Simple_US_Customer_CA" stepKey="simpleCustomer"/>
+            <!-- Create the category -->
+            <comment userInput="Create the category" stepKey="createCategoryComment"/>
+            <createData entity="ApiCategory" stepKey="createCategory"/>
+            <!-- Create Simple Product -->
+            <comment userInput="Create Simple Product" stepKey="createSimpleProductComment"/>
+            <createData entity="SimpleProductPrice10Qty1" stepKey="simpleProduct">
+                <requiredEntity createDataKey="createCategory"/>
+            </createData>
+
+            <actionGroup ref="SetDotmailerAccountData" stepKey="SetDotmailerAccountData"/>
+            <actionGroup ref="EnableSms" stepKey="EnableSmsOptions" />
+
+            <actionGroup ref="CreateOrderActionGroup" stepKey="createNewOrder">
+                <argument name="product" value="$$simpleProduct$$"/>
+                <argument name="customer" value="$$simpleCustomer$$"/>
+            </actionGroup>
+        </before>
+
+        <after>
+            <deleteData createDataKey="simpleCustomer" stepKey="deleteSimpleCustomer"/>
+            <deleteData createDataKey="simpleProduct" stepKey="deleteSimpleProduct"/>
+            <actionGroup ref="EnableSms" stepKey="DisableSmsOptions">
+                <argument name="enabled" value="No"/>
+            </actionGroup>
+            <actionGroup ref="ResetDotmailerAccountData" stepKey="resetAccountData"/>
+            <actionGroup ref="ClearTransactionalSmsFilterFields" stepKey="ClearFilterFields"/>
+            <actionGroup ref="DeleteSmsReportRows" stepKey="DeleteSmsRows"/>
+            <actionGroup ref="AdminLogoutActionGroup" stepKey="logout"/>
+        </after>
+
+        <!-- Check initial Pending state -->
+        <actionGroup ref="FilterTransactionalSmsStatusFields" stepKey="selectStatusPending">
+            <argument name="smsStatus" value="SmsMessages.statusPending"/>
+        </actionGroup>
+        <seeElement selector="{{AdminTransactionalSmsReportSection.textInGridRow('Pending')}}" stepKey="seeStatusPending"/>
+        <seeElement selector="{{AdminTransactionalSmsReportSection.textInGridRow(Simple_US_Customer_CA.email)}}" stepKey="seeCustomerEmail1"/>
+
+        <!-- Run SmsSenderManager -->
+        <magentoCLI command="dotdigital:task SmsSenderManager" stepKey="triggerSmsSends"/>
+        <wait time="5" stepKey="waitFiveSeconds1"/>
+
+        <!-- Check In Progress state -->
+        <actionGroup ref="FilterTransactionalSmsStatusFields" stepKey="selectStatusInProgress">
+            <argument name="smsStatus" value="SmsMessages.statusInProgress"/>
+        </actionGroup>
+        <seeElement selector="{{AdminTransactionalSmsReportSection.textInGridRow('In progress')}}" stepKey="seeStatusInProgress"/>
+        <seeElement selector="{{AdminTransactionalSmsReportSection.textInGridRow(Simple_US_Customer_CA.email)}}" stepKey="seeCustomerEmail2"/>
+        <seeElement selector="{{AdminTransactionalSmsReportSection.textInGridRow('your order has been placed on')}}" stepKey="seeContent"/>
+
+        <!-- Run SmsSenderManager -->
+        <magentoCLI command="dotdigital:task SmsSenderManager" stepKey="triggerSmsSends2"/>
+        <wait time="5" stepKey="waitFiveSeconds2"/>
+
+        <!-- Check expected Failed state (number is not valid) -->
+        <actionGroup ref="FilterTransactionalSmsStatusFields" stepKey="selectStatusFailed">
+            <argument name="smsStatus" value="SmsMessages.statusFailed"/>
+        </actionGroup>
+        <seeElement selector="{{AdminTransactionalSmsReportSection.textInGridRow('Failed')}}" stepKey="seeStatusFailed"/>
+
+        <!-- Check no rows returned for Delivered -->
+        <actionGroup ref="FilterTransactionalSmsStatusFields" stepKey="selectStatusDelivered">
+            <argument name="smsStatus" value="SmsMessages.statusDelivered"/>
+        </actionGroup>
+        <dontSeeElement selector=".data-row" stepKey="seeRecordNotFound"/>
+        <seeInSource html="We couldn't find any records." stepKey="seeNotFoundMessage"/>
+    </test>
+</tests>
+
+

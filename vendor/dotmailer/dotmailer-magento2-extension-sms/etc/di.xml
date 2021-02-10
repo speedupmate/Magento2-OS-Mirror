@@ -1,0 +1,27 @@
+<?xml version="1.0"?>
+<config xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="urn:magento:framework:ObjectManager/etc/config.xsd">
+    <preference for="Dotdigitalgroup\Sms\Api\SmsOrderRepositoryInterface" type="Dotdigitalgroup\Sms\Model\SmsOrderRepository" />
+    <preference for="Dotdigitalgroup\Sms\Api\Data\SmsOrderInterface" type="Dotdigitalgroup\Sms\Model\SmsOrder" />
+    <type name="Magento\Shipping\Controller\Adminhtml\Order\Shipment\Save">
+        <plugin name="ddg_new_shipment_plugin" type="Dotdigitalgroup\Sms\Plugin\Order\Shipment\NewShipmentPlugin" sortOrder="1"/>
+    </type>
+    <type name="Magento\Shipping\Controller\Adminhtml\Order\Shipment\AddTrack">
+        <plugin name="ddg_update_shipment_plugin" type="Dotdigitalgroup\Sms\Plugin\Order\Shipment\ShipmentUpdatePlugin" sortOrder="3"/>
+    </type>
+    <type name="Magento\Framework\View\Element\UiComponent\DataProvider\CollectionFactory">
+        <arguments>
+            <argument name="collections" xsi:type="array">
+                <item name="sms_report_grid_data_source" xsi:type="string">Dotdigitalgroup\Sms\Ui\Model\ResourceModel\SmsOrder\Collection</item>
+            </argument>
+        </arguments>
+    </type>
+    <type name="Dotdigitalgroup\Email\Model\Cron\Cleaner">
+        <plugin name="ddg_sms_cron_cleaner_plugin" type="Dotdigitalgroup\Sms\Plugin\CronCleanerPlugin"/>
+    </type>
+    <type name="Dotdigitalgroup\Email\Console\Command\Provider\TaskProvider">
+        <plugin name="ddg_sms_task_provider_plugin" type="Dotdigitalgroup\Sms\Plugin\TaskProviderPlugin"/>
+    </type>
+    <type name="Magento\Checkout\Block\Checkout\LayoutProcessor">
+        <plugin name="ddg_sms_international_telephone_layout_processor_plugin" type="Dotdigitalgroup\Sms\Plugin\Block\Checkout\LayoutProcessor"/>
+    </type>
+</config>
