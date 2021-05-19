@@ -21,14 +21,19 @@ Quick start
 
     use Vault\AuthenticationStrategies\AppRoleAuthenticationStrategy;
     use Vault\AuthenticationStrategies\UserPassAuthenticationStrategy;
+    use Vault\AuthenticationStrategies\TokenAuthenticationStrategy;
     use Vault\Client;
-    use VaultTransports\Guzzle5Transport;
-    use VaultTransports\Guzzle6Transport;
+    use Zend\Diactoros\RequestFactory;
+    use Zend\Diactoros\StreamFactory;
+    use Zend\Diactoros\Uri;
 
     // Creating the client
-    $client = new Client(new Guzzle5Transport()); //Using Guzzle5 Transport
-    $client = new Client(new Guzzle6Transport()); //Using Guzzle6 Transport
-    $client = new Client(new Guzzle5Transport(['base_url' => 'http://10.10.3.39:8200'])); // Passing a custom url
+    $client = new Client(
+        new Uri('http://127.0.0.1:8200'),
+        new \AlexTartan\GuzzlePsr18Adapter\Client(),
+        new RequestFactory(),
+        new StreamFactory()
+    ); // Using alextartan/guzzle-psr18-adapter and zendframework/zend-diactoros
 
     // Authenticating using userpass auth backend.
 
@@ -44,6 +49,50 @@ Quick start
             'cac86a12-c566-3932-09f3-5823ccdfa606'
         ))
         ->authenticate();
+
+    // Authenticating using token auth backend.
+    $authenticated = $client
+        ->setAuthenticationStrategy(new TokenAuthenticationStrategy('463763ae-0c3b-ff77-e137-af668941465c'))
+        ->authenticate();
+
+Fetching a secret
+-----------------
+
+.. code-block:: php
+
+    <?php
+
+    use Vault\AuthenticationStrategies\TokenAuthenticationStrategy;
+    use Vault\Client;
+    use Zend\Diactoros\RequestFactory;
+    use Zend\Diactoros\StreamFactory;
+    use Zend\Diactoros\Uri;
+
+    // Creating the client
+    $client = new Client(
+        new Uri('http://127.0.0.1:8200'),
+        new \AlexTartan\GuzzlePsr18Adapter\Client(),
+        new RequestFactory(),
+        new StreamFactory()
+    ); // Using alextartan/guzzle-psr18-adapter and zendframework/zend-diactoros
+
+    // Authenticating using token auth backend.
+    // Request exception could appear here.
+    $authenticated = $client
+        ->setAuthenticationStrategy(new TokenAuthenticationStrategy('463763ae-0c3b-ff77-e137-af668941465c'))
+        ->authenticate();
+
+    if (!$authenticated) {
+        // Throw an exception or handle authentication failure.
+    }
+
+    // Request exception could appear here.
+    /** @var \Vault\ResponseModels\Response $response */
+    $response = $client->read('/secret/database');
+
+    $data = $response->getData(); // Raw array with secret's content.
+
+    // ...
 
 Indices and tables
 ==================

@@ -122,7 +122,7 @@ final class PhpDocTypeHelper
             $collectionKeyType = $this->getTypes($type->getKeyType())[0];
 
             $collectionValueTypes = $this->getTypes($type->getValueType());
-            if (\count($collectionValueTypes) != 1) {
+            if (1 != \count($collectionValueTypes)) {
                 // the Type class does not support union types yet, so assume that no type was defined
                 $collectionValueType = null;
             } else {
@@ -170,6 +170,10 @@ final class PhpDocTypeHelper
     {
         if (\in_array($docType, Type::$builtinTypes)) {
             return [$docType, null];
+        }
+
+        if (\in_array($docType, ['parent', 'self', 'static'], true)) {
+            return ['object', $docType];
         }
 
         return ['object', substr($docType, 1)]; // substr to strip the namespace's `\`-prefix

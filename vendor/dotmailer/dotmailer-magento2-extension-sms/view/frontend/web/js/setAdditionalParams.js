@@ -17,7 +17,8 @@ define([
                     uid: this.uid
                 };
             }
-            this._super();
+
+            return this._super();
         }
     };
 

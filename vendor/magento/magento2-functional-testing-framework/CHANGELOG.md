@@ -1,6 +1,49 @@
 Magento Functional Testing Framework Changelog
 ================================================
 
+3.5.0
+---------
+
+### Enhancements
+
+* Customizability
+    * Added new `config:parallel --groups` option in `generate:tests` command to generate and split tests/suites into required number of execution time balanced groups. 
+
+### Fixes
+
+* Added --no-sandbox chrome option in functional suite configuration.
+
+### GitHub Pull Requests:
+
+* [#824](https://github.com/magento/magento2-functional-testing-framework/pull/824) -- Fix typo in introduction.md
+* [#816](https://github.com/magento/magento2-functional-testing-framework/pull/816) -- Update mftf.md
+* [#812](https://github.com/magento/magento2-functional-testing-framework/pull/812) -- Added examples and modified url links in assertions.md
+
+3.4.0
+---------
+
+### Enhancements
+
+* Maintainability
+  * Added support for composer 2.
+    
+3.3.0
+---------
+
+### Enhancements
+
+* Usability
+  * [#817](https://github.com/magento/magento2-functional-testing-framework/pull/817) -- Add support for admin WebAPI token refresh.
+    
+* Maintainability
+  * [#814](https://github.com/magento/magento2-functional-testing-framework/pull/814) -- Update dependencies in order to make mftf php8 compatible, fix running phpcpd
+  * [#815](https://github.com/magento/magento2-functional-testing-framework/pull/815) -- Upgrade csharpru/vault-php to 4.1  
+    
+### Fixes
+
+* Fixed test generation error in a split suite group (--config=parallel) to allow generation of subsequent groups.
+* Fixed an issue where test extends from a skipped parent is not properly skipped.
+
 3.2.1
 ---------
 

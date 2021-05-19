@@ -51,7 +51,7 @@ define([
                     this.clientConfig[name] = fn.bind(this);
                 }
             }, this);
-            this.clientConfig.buttonId = 'payment-continue';
+            this.clientConfig.buttonPayPalId = 'parent-payment-continue';
 
         },
 
@@ -105,11 +105,11 @@ define([
                 isActiveVaultEnabler = this.isActiveVault();
 
             config.paypal = {
-                flow: isActiveVaultEnabler ? 'vault' : 'checkout',
+                flow: 'checkout',
                 amount: parseFloat(this.grandTotalAmount).toFixed(2),
                 currency: totals['base_currency_code'],
                 locale: this.getLocale(),
-
+                requestBillingAgreement: true,
                 /**
                  * Triggers on any Braintree error
                  */
@@ -179,7 +179,9 @@ define([
          * @param {Boolean} isActive
          */
         updateSubmitButtonHtml: function (isActive) {
+            $(this.submitButtonSelector).removeClass("primary");
             if (this.isPaymentMethodNonceReceived() || !isActive) {
+                $(this.submitButtonSelector).addClass("primary");
                 $(this.submitButtonSelector).html(this.reviewButtonHtml);
             }
         },

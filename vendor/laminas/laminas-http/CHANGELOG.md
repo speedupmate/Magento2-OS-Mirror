@@ -2,6 +2,25 @@
 
 All notable changes to this project will be documented in this file, in reverse chronological order by release.
 
+## 2.14.3 - 2021-02-18
+
+
+-----
+
+### Release Notes for [2.14.3](https://github.com/laminas/laminas-http/milestone/8)
+
+2.14.x bugfix release (patch)
+
+### 2.14.3
+
+- Total issues resolved: **0**
+- Total pull requests resolved: **1**
+- Total contributors: **1**
+
+#### Enhancement
+
+ - [50: Migrate to Laminas CI workflow for GHA](https://github.com/laminas/laminas-http/pull/50) thanks to @weierophinney
+
 ## 2.14.2 - 2021-01-05
 
 
