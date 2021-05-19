@@ -6,6 +6,12 @@
 
 namespace Vertex\Tax\Test\Integration\ApiValidation;
 
+use Magento\Framework\Exception\CouldNotSaveException;
+use Magento\Framework\Exception\InputException;
+use Magento\Framework\Exception\LocalizedException;
+use Magento\Framework\Exception\NoSuchEntityException;
+use Magento\Framework\Exception\StateException;
+use Magento\Quote\Api\Data\CartInterface;
 use Magento\Catalog\Api\Data\ProductInterface;
 use Magento\Catalog\Model\Product\Attribute\Source\Status;
 use Magento\Catalog\Model\Product\Visibility;
@@ -54,7 +60,7 @@ class ProductTaxClassSentToVertexTest extends TestCase
     /**
      * Fetch objects necessary for running our test
      */
-    protected function setUp()
+    protected function setUp(): void
     {
         parent::setUp();
 
@@ -72,38 +78,40 @@ class ProductTaxClassSentToVertexTest extends TestCase
      * Ensure that when totals are collected our tax request being sent to Vertex also sends the Product's Tax Class
      *
      * @magentoConfigFixture default_store tax/vertex_settings/enable_vertex 1
+     * @magentoConfigFixture default_store tax/vertex_settings/trustedId 0123456789ABCDEF
      * @magentoConfigFixture default_store tax/vertex_settings/api_url https://example.org/CalculateTax70
      * @magentoDbIsolation enabled
      *
-     * @throws \Magento\Framework\Exception\CouldNotSaveException
-     * @throws \Magento\Framework\Exception\InputException
-     * @throws \Magento\Framework\Exception\LocalizedException
-     * @throws \Magento\Framework\Exception\NoSuchEntityException
-     * @throws \Magento\Framework\Exception\StateException
+     * @throws CouldNotSaveException
+     * @throws InputException
+     * @throws LocalizedException
+     * @throws NoSuchEntityException
+     * @throws StateException
      * @return void
      */
     public function testOutgoingRequestContainsProductTaxClass()
     {
         $taxClassId = $this->createTaxClass(static::TAX_CLASS_NAME);
-        $product = $this->createProduct($taxClassId);
-        $cart = $this->createCartWithProduct($product);
+        $productMock = $this->createProduct($taxClassId);
+        $cart = $this->createCartWithProduct($productMock);
 
-        $soapClient = $this->createPartialMock(\SoapClient::class, ['CalculateTax70']);
+        $soapClient = $this->getMockBuilder(\SoapClient::class)
+            ->disableOriginalConstructor()->addMethods(['CalculateTax70'])->getMock();
         $soapClient->expects($this->atLeastOnce())
             ->method('CalculateTax70')
             ->with(
                 $this->callback(
-                    function (\stdClass $request) {
+                    function (\stdClass $request) use ($productMock) {
                         $lineItems = $request->QuotationRequest->LineItem;
                         foreach ($lineItems as $lineItem) {
                             $product = $lineItem->Product;
-                            if ($product->_ === static::PRODUCT_SKU) {
+                            if ($product->_ === $productMock->getSku()) {
                                 $this->assertEquals(static::TAX_CLASS_NAME, $product->productClass);
                                 return true;
                             }
                         }
                         $this->fail(
-                            'Product with SKU "' . static::PRODUCT_SKU . '" not found in Vertex Request:' . PHP_EOL
+                            'Product with SKU "' . $productMock->getSku() . '" not found in Vertex Request:' . PHP_EOL
                             . print_r($request, true)
                         );
                         return false;
@@ -128,9 +136,9 @@ class ProductTaxClassSentToVertexTest extends TestCase
      * Creates a guest cart containing 1 of the provided product
      *
      * @param ProductInterface $product
-     * @return \Magento\Quote\Api\Data\CartInterface
-     * @throws \Magento\Framework\Exception\CouldNotSaveException
-     * @throws \Magento\Framework\Exception\NoSuchEntityException
+     * @return CartInterface
+     * @throws CouldNotSaveException
+     * @throws NoSuchEntityException
      */
     private function createCartWithProduct(ProductInterface $product)
     {
@@ -144,10 +152,10 @@ class ProductTaxClassSentToVertexTest extends TestCase
      *
      * @param int|string $taxClassId
      * @return ProductInterface
-     * @throws \Magento\Framework\Exception\CouldNotSaveException
-     * @throws \Magento\Framework\Exception\InputException
-     * @throws \Magento\Framework\Exception\NoSuchEntityException
-     * @throws \Magento\Framework\Exception\StateException
+     * @throws CouldNotSaveException
+     * @throws InputException
+     * @throws NoSuchEntityException
+     * @throws StateException
      */
     private function createProduct($taxClassId)
     {
@@ -187,8 +195,8 @@ class ProductTaxClassSentToVertexTest extends TestCase
      *
      * @param string $taxClassName
      * @return string Tax Class ID
-     * @throws \Magento\Framework\Exception\InputException
-     * @throws \Magento\Framework\Exception\LocalizedException
+     * @throws InputException
+     * @throws LocalizedException
      */
     private function createTaxClass($taxClassName)
     {

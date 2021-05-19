@@ -45,7 +45,7 @@ class AttributeExtractor
      * Retrieve all attributes
      *
      * This creates an attribute data object for every getter on an object type, minus any already listed in the
-     * blacklist.
+     * blocklist.
      *
      * We use this in several places to allow for the easy import of data from interfaces, without having to
      * hard-code all the various attributes and their getters.
@@ -54,15 +54,15 @@ class AttributeExtractor
      * @param string $prefix Prefix to use on generated attribute codes
      * @param string $optionGroup Option Group to attach the generated attribute to
      * @param string $processor Class to use for processing the attribute
-     * @param string[] $blacklist Methods in the provided class to prevent generation for
+     * @param string[] $blocklist Methods in the provided class to prevent generation for
      * @return FlexFieldProcessableAttribute[]
      */
-    public function extract($className, $prefix, $optionGroup, $processor, array $blacklist = [])
+    public function extract($className, $prefix, $optionGroup, $processor, array $blocklist = [])
     {
         $methods = array_filter(
             get_class_methods($className),
-            static function ($methodName) use ($blacklist) {
-                return !in_array($methodName, $blacklist, true) && strpos($methodName, 'get') === 0;
+            static function ($methodName) use ($blocklist) {
+                return !in_array($methodName, $blocklist, true) && strpos($methodName, 'get') === 0;
             }
         );
         $attributes = [];

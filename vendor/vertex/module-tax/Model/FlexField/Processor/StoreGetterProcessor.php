@@ -31,7 +31,7 @@ class StoreGetterProcessor implements
     const PREFIX = 'store';
 
     /** @var string[] */
-    const WHITE_LIST = [
+    const ALLOW_LIST = [
         'getId',
         'getCode'
     ];
@@ -43,7 +43,7 @@ class StoreGetterProcessor implements
     private $attributeRenamer;
 
     /** @var string[] List of non date allowed methods to be selected in */
-    private $blackListMethods;
+    private $blockListMethods;
 
     /** @var OrderItemRepositoryInterface */
     private $orderItemRepository;
@@ -83,7 +83,7 @@ class StoreGetterProcessor implements
     public function getAttributes()
     {
 
-        $blacklistMethods = $this->getBlackListMethods();
+        $blocklistMethods = $this->getBlockListMethods();
 
         /** @var FlexFieldProcessableAttribute[] $results */
         return $this->attributeRenamer->execute(
@@ -93,7 +93,7 @@ class StoreGetterProcessor implements
                     static::PREFIX,
                     'Store',
                     static::class,
-                    array_merge(static::DATE_FIELDS, $blacklistMethods)
+                    array_merge(static::DATE_FIELDS, $blocklistMethods)
                 ),
                 $this->attributeExtractor->extractDateFields(
                     static::PREFIX,
@@ -174,19 +174,19 @@ class StoreGetterProcessor implements
      *
      * @return string[]
      */
-    private function getBlackListMethods()
+    private function getBlockListMethods()
     {
-        if (empty($this->blackListMethods)) {
-            $whitelist = static::WHITE_LIST;
+        if (empty($this->blockListMethods)) {
+            $allowlist = static::ALLOW_LIST;
 
-            $this->blackListMethods = array_filter(
+            $this->blockListMethods = array_filter(
                 get_class_methods(StoreInterface::class),
-                static function ($methodName) use ($whitelist) {
-                    return !in_array($methodName, $whitelist, true) && strpos($methodName, 'get') === 0;
+                static function ($methodName) use ($allowlist) {
+                    return !in_array($methodName, $allowlist, true) && strpos($methodName, 'get') === 0;
                 }
             );
         }
-        return $this->blackListMethods;
+        return $this->blockListMethods;
     }
 
     /**

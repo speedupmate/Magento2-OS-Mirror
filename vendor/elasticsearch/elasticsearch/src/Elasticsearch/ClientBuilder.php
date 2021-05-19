@@ -137,6 +137,11 @@ class ClientBuilder
     /**
      * @var bool
      */
+    private $elasticMetaHeader = true;
+
+    /**
+     * @var bool
+     */
     private $includePortInHostHeader = false;
 
     public static function create(): ClientBuilder
@@ -312,10 +317,6 @@ class ClientBuilder
 
     public function setLogger(LoggerInterface $logger): ClientBuilder
     {
-        if (!$logger instanceof LoggerInterface) {
-            throw new InvalidArgumentException('$logger must implement \Psr\Log\LoggerInterface!');
-        }
-
         $this->logger = $logger;
 
         return $this;
@@ -323,10 +324,6 @@ class ClientBuilder
 
     public function setTracer(LoggerInterface $tracer): ClientBuilder
     {
-        if (!$tracer instanceof LoggerInterface) {
-            throw new InvalidArgumentException('$tracer must implement \Psr\Log\LoggerInterface!');
-        }
-
         $this->tracer = $tracer;
 
         return $this;
@@ -481,6 +478,16 @@ class ClientBuilder
     }
 
     /**
+     * Set or disable the x-elastic-client-meta header
+     */
+    public function setElasticMetaHeader($value = true): ClientBuilder
+    {
+        $this->elasticMetaHeader = $value;
+
+        return $this;
+    }
+
+    /**
      * Include the port in Host header
      *
      * @see https://github.com/elastic/elasticsearch-php/issues/993
@@ -532,6 +539,7 @@ class ClientBuilder
             $this->serializer = new $this->serializer;
         }
 
+        $this->connectionParams['client']['x-elastic-client-meta']= $this->elasticMetaHeader;
         $this->connectionParams['client']['port_in_header'] = $this->includePortInHostHeader;
 
         if (is_null($this->connectionFactory)) {

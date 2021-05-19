@@ -2,13 +2,13 @@
 namespace Codeception;
 
 use Codeception\Lib\Actor\Shared\Comment;
-use Codeception\Lib\Actor\Shared\Friend;
 use Codeception\Step\Executor;
+use Codeception\Lib\Actor\Shared\Pause;
 
 abstract class Actor
 {
     use Comment;
-    use Friend;
+    use Pause;
 
     /**
      * @var \Codeception\Scenario
@@ -35,7 +35,7 @@ abstract class Actor
 
     public function wantTo($text)
     {
-        $this->scenario->setFeature(mb_strtolower($text, 'utf-8'));
+        $this->scenario->setFeature($text);
     }
 
     public function __call($method, $arguments)

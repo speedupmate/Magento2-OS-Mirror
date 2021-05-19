@@ -114,7 +114,11 @@ class AddressBuilder
             $address->setCity($city);
         }
         if ($companyState !== null) {
-            $mainDivision = $this->stringUtilities->substr($companyState, 0, $addressMapper->getMainDivisionMaxLength());
+            $mainDivision = $this->stringUtilities->substr(
+                $companyState,
+                0,
+                $addressMapper->getMainDivisionMaxLength()
+            );
             $address->setMainDivision($mainDivision);
         }
         if (!empty($this->postalCode)) {

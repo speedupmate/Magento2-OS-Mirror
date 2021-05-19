@@ -1,4 +1,10 @@
 
+5.2.0 / 2021-03-01
+==================
+
+  * MAGE-2843 Change how connection object is cached (Potential fix for some bulk invoice operations)
+  * MAGE-2905 Add support for PHP 7.4
+
 5.1.1 / 2020-07-31
 ==================
 

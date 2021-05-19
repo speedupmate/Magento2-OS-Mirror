@@ -1,0 +1,22 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!--
+ /**
+  * @copyright  Vertex. All rights reserved.  https://www.vertexinc.com/
+  * @author     Mediotype                     https://www.mediotype.com/
+  */
+-->
+<actionGroups xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+              xsi:noNamespaceSchemaLocation="urn:magento:mftf:Test/etc/actionGroupSchema.xsd">
+    <actionGroup name="VertexStorefrontSetCustomerAddressVatIDActionGroup">
+        <arguments>
+            <argument name="vatId" type="string" defaultValue="9999"/>
+            <argument name="editAddress" type="string" defaultValue="{{StorefrontCustomerAccountInformationSection.editShippingAddress}}" />
+        </arguments>
+
+        <amOnPage url="{{StorefrontCustomerDashboardPage.url}}" stepKey="goToCustomerDashboard"/>
+        <click selector="{{editAddress}}" stepKey="clickEditAddress"/>
+        <fillField selector="{{StorefrontCustomerAddressFormSection.vatId}}" userInput="{{vatId}}" stepKey="addAddressVatId"/>
+        <click selector="{{StorefrontCustomerAddressFormSection.saveAddress}}" stepKey="saveCustomerAddress"/>
+        <see userInput="You saved the address." stepKey="verifyAddressAdded"/>
+    </actionGroup>
+</actionGroups>

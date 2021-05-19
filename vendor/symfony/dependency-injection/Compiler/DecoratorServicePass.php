@@ -24,8 +24,15 @@ use Symfony\Component\DependencyInjection\Reference;
  * @author Fabien Potencier <fabien@symfony.com>
  * @author Diego Saint Esteben <diego@saintesteben.me>
  */
-class DecoratorServicePass implements CompilerPassInterface
+class DecoratorServicePass extends AbstractRecursivePass
 {
+    private $innerId = '.inner';
+
+    public function __construct(?string $innerId = '.inner')
+    {
+        $this->innerId = $innerId;
+    }
+
     public function process(ContainerBuilder $container)
     {
         $definitions = new \SplPriorityQueue();
@@ -49,6 +56,10 @@ class DecoratorServicePass implements CompilerPassInterface
             if (!$renamedId) {
                 $renamedId = $id.'.inner';
             }
+
+            $this->currentId = $renamedId;
+            $this->processValue($definition);
+
             $definition->innerServiceId = $renamedId;
             $definition->decorationOnInvalid = $invalidBehavior;
 
@@ -93,7 +104,16 @@ class DecoratorServicePass implements CompilerPassInterface
                 $decoratingDefinitions[$inner] = $definition;
             }
 
-            $container->setAlias($inner, $id)->setPublic($public)->setPrivate($private);
+            $container->setAlias($inner, $id)->setPublic($public);
         }
+    }
+
+    protected function processValue($value, bool $isRoot = false)
+    {
+        if ($value instanceof Reference && $this->innerId === (string) $value) {
+            return new Reference($this->currentId, $value->getInvalidBehavior());
+        }
+
+        return parent::processValue($value, $isRoot);
     }
 }

@@ -1,14 +1,15 @@
 <?php
 namespace Yandex\Allure\Codeception;
 
+use Codeception\Codecept;
 use Codeception\Configuration;
+use Codeception\Extension;
 use Codeception\Event\FailEvent;
 use Codeception\Event\StepEvent;
 use Codeception\Event\SuiteEvent;
 use Codeception\Event\TestEvent;
 use Codeception\Events;
 use Codeception\Exception\ConfigurationException;
-use Codeception\Platform\Extension;
 use Codeception\Test\Cept;
 use Codeception\Test\Cest;
 use Codeception\Test\Gherkin;
@@ -23,7 +24,9 @@ use Yandex\Allure\Adapter\Annotation\Features;
 use Yandex\Allure\Adapter\Annotation\Issues;
 use Yandex\Allure\Adapter\Annotation\Stories;
 use Yandex\Allure\Adapter\Annotation\Title;
+use Yandex\Allure\Adapter\Event\AddAttachmentEvent;
 use Yandex\Allure\Adapter\Event\AddParameterEvent;
+use Yandex\Allure\Adapter\Event\StepFailedEvent;
 use Yandex\Allure\Adapter\Event\StepFinishedEvent;
 use Yandex\Allure\Adapter\Event\StepStartedEvent;
 use Yandex\Allure\Adapter\Event\TestCaseBrokenEvent;
@@ -35,6 +38,7 @@ use Yandex\Allure\Adapter\Event\TestCaseStartedEvent;
 use Yandex\Allure\Adapter\Event\TestSuiteFinishedEvent;
 use Yandex\Allure\Adapter\Event\TestSuiteStartedEvent;
 use Yandex\Allure\Adapter\Model;
+use Yandex\Allure\Adapter\Model\Attachment;
 use Yandex\Allure\Adapter\Model\Label;
 use Yandex\Allure\Adapter\Model\LabelType;
 use Yandex\Allure\Adapter\Model\ParameterKind;
@@ -259,7 +263,12 @@ class AllureCodeception extends Extension
         $testName = $this->buildTestName($test);
         $event = new TestCaseStartedEvent($this->uuid, $testName);        
         if ($test instanceof Cest) {
+            $methodName = $test->getName();
             $className = get_class($test->getTestClass());
+            $event->setLabels(array_merge($event->getLabels(), [
+                new Label("testMethod", $methodName),
+                new Label("testClass", $className)
+            ]));
             $annotations = [];
             if (class_exists($className, false)) {
                 $annotations = array_merge($annotations, Annotation\AnnotationProvider::getClassAnnotations($className));
@@ -286,7 +295,7 @@ class AllureCodeception extends Extension
                 $annotationManager = new Annotation\AnnotationManager($annotations);
                 $annotationManager->updateTestCaseEvent($event);
             }
-        } else if ($test instanceof \PHPUnit_Framework_TestCase) {
+        } else if ($test instanceof \PHPUnit\Framework\TestCase) {
             $methodName = $this->methodName = $test->getName(false);
             $className = get_class($test);
             if (class_exists($className, false)) {
@@ -377,8 +386,15 @@ class AllureCodeception extends Extension
         $this->getLifecycle()->fire($event->withException($e)->withMessage($message));
     }
 
-    public function testEnd()
+    public function testEnd(TestEvent $testEvent)
     {
+        // attachments supported since Codeception 3.0
+        if (version_compare(Codecept::VERSION, '3.0.0') > -1 && $testEvent->getTest() instanceof Cest) {
+            $artifacts = $testEvent->getTest()->getMetadata()->getReports();
+            foreach ($artifacts as $name => $artifact) {
+                Allure::lifecycle()->fire(new AddAttachmentEvent($artifact, $name, null));
+            }
+        }
         $this->getLifecycle()->fire(new TestCaseFinishedEvent());
     }
 
@@ -396,15 +412,15 @@ class AllureCodeception extends Extension
 
         $stepName = $stepAction . ' ' . $stepArgs;
 
-        //Workaround for https://github.com/allure-framework/allure-core/issues/442
-        $stepName = str_replace('.', '•', $stepName);
-
         $this->emptyStep = false;
         $this->getLifecycle()->fire(new StepStartedEvent($stepName));
 }
 
-    public function stepAfter()
+    public function stepAfter(StepEvent $stepEvent)
     {
+        if ($stepEvent->getStep()->hasFailed()) {
+            $this->getLifecycle()->fire(new StepFailedEvent());
+        }
         $this->getLifecycle()->fire(new StepFinishedEvent());
     }
 

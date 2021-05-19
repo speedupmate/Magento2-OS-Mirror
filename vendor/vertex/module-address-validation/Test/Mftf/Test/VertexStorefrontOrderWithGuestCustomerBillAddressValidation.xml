@@ -157,7 +157,7 @@
 
         <see stepKey="warningMessage"
              selector="{{CheckoutShippingSection.addressMessageWarning}}"
-             userInput="We did not find a valid address"/>
+             userInput="The address could not be validated. Please ensure it is correct before continuing."/>
 
         <conditionalClick selector="{{CheckoutPaymentSection.update}}"
                           dependentSelector="{{CheckoutShippingSection.addressMessageWarning}}"

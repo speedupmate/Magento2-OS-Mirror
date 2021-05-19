@@ -2,6 +2,56 @@
 
 All notable changes to this project will be documented in this file, in reverse chronological order by release.
 
+## 3.4.1 - 2019-12-10
+
+### Added
+
+- [zendframework/zend-code#180](https://github.com/zendframework/zend-code/pull/180) adds support for PHP 7.4.
+
+### Changed
+
+- Nothing.
+
+### Deprecated
+
+- Nothing.
+
+### Removed
+
+- Nothing.
+
+### Fixed
+
+- [zendframework/zend-code#179](https://github.com/zendframework/zend-code/pull/179) fixes exception message when invalid value provided in `Laminas\Code\Generator\ValueGenerator`.
+
+- [zendframework/zend-code#180](https://github.com/zendframework/zend-code/pull/190) fixes PHP 7.4 compatibility.
+
+## 3.4.0 - 2019-10-06
+
+### Added
+
+- [zendframework/zend-code#170](https://github.com/zendframework/zend-code/pull/170) adds class constant visibility modifiers support.
+
+- [zendframework/zend-code#169](https://github.com/zendframework/zend-code/pull/169) adds the ability to define declare statements.
+
+- [zendframework/zend-code#167](https://github.com/zendframework/zend-code/pull/167) adds the ability to remove doc block of a member.
+
+### Changed
+
+- [zendframework/zend-code#166](https://github.com/zendframework/zend-code/pull/166) changes omitting default property value if it is null.
+
+### Deprecated
+
+- Nothing.
+
+### Removed
+
+- Nothing.
+
+### Fixed
+
+- [zendframework/zend-code#172](https://github.com/zendframework/zend-code/pull/172) fixes PHP 7.4 compatibility.
+
 ## 3.3.2 - 2019-08-31
 
 ### Added

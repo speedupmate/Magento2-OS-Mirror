@@ -16,6 +16,7 @@ use Codeception\Step\Comment;
 use Codeception\Suite;
 use Codeception\Test\Descriptor;
 use Codeception\Test\Interfaces\ScenarioDriven;
+use Codeception\TestInterface;
 use Codeception\Util\Debug;
 use Symfony\Component\Console\Output\OutputInterface;
 use Symfony\Component\Console\Formatter\OutputFormatter;
@@ -75,14 +76,16 @@ class Console implements EventSubscriberInterface
     protected $chars = ['success' => '+', 'fail' => 'x', 'of' => ':'];
 
     protected $options = [
-        'debug'     => false,
-        'ansi'      => false,
-        'steps'     => true,
-        'verbosity' => 0,
-        'xml'       => null,
-        'html'      => null,
-        'tap'       => null,
-        'json'      => null,
+        'debug'         => false,
+        'ansi'          => false,
+        'steps'         => true,
+        'verbosity'     => 0,
+        'xml'           => null,
+        'phpunit-xml'   => null,
+        'html'          => null,
+        'tap'           => null,
+        'json'          => null,
+        'no-artifacts'  => false,
     ];
 
     /**
@@ -105,7 +108,7 @@ class Console implements EventSubscriberInterface
             $this->chars['fail'] = '✖';
         }
 
-        foreach (['html', 'xml', 'tap', 'json'] as $report) {
+        foreach (['html', 'xml', 'phpunit-xml', 'tap', 'json'] as $report) {
             if (!$this->options[$report]) {
                 continue;
             }
@@ -291,11 +294,7 @@ class Console implements EventSubscriberInterface
 
     protected function isDetailed($test)
     {
-        if ($test instanceof ScenarioDriven && $this->steps) {
-            return true;
-        }
-
-        return false;
+        return $test instanceof ScenarioDriven && $this->steps;
     }
 
     public function beforeStep(StepEvent $e)
@@ -363,12 +362,29 @@ class Console implements EventSubscriberInterface
 
         if ($failedTest instanceof ScenarioDriven) {
             $this->printScenarioFail($failedTest, $fail);
-
+            $this->printReports($failedTest);
             return;
         }
 
         $this->printException($fail);
         $this->printExceptionTrace($fail);
+    }
+
+    public function printReports(TestInterface $failedTest)
+    {
+        if ($this->options['no-artifacts']) {
+            return;
+        }
+        $reports = $failedTest->getMetadata()->getReports();
+        if (count($reports)) {
+            $this->output->writeln('<comment>Artifacts:</comment>');
+            $this->output->writeln('');
+        }
+
+        foreach ($reports as $type => $report) {
+            $type = ucfirst($type);
+            $this->output->writeln("$type: <debug>$report</debug>");
+        }
     }
 
     public function printException($e, $cause = null)

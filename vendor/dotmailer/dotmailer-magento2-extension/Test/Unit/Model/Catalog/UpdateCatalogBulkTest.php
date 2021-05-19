@@ -78,7 +78,7 @@ class UpdateCatalogBulkTest extends TestCase
      */
     private $bunchMock;
 
-    protected function setUp()
+    protected function setUp(): void
     {
         $this->productRepositoryMock = $this->createMock(ProductRepositoryInterface::class);
         $this->resourceCatalogMock = $this->createMock(Catalog::class);
@@ -238,7 +238,7 @@ class UpdateCatalogBulkTest extends TestCase
 
         for ($i=0; $i<$numberOfProducts; $i++) {
             $bunch[] = [
-              'sku' => substr(hash("sha256", random_int(1, 9)), 0, 8)
+                'sku' => substr(hash("sha256", random_int(1, 9)), 0, 8)
             ];
         }
         return$bunch;

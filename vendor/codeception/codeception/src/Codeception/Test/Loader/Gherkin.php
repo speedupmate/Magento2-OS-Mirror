@@ -68,11 +68,27 @@ class Gherkin implements LoaderInterface
 
         if (empty($this->steps) && empty($contexts['default']) && $this->settings['actor']) { // if no context is set, actor to be a context
             $actorContext = $this->settings['namespace']
-                ? rtrim($this->settings['namespace'] . '\\' . $this->settings['actor'], '\\')
+                ? rtrim($this->settings['namespace'], '\\') . '\\' . rtrim($this->settings['actor'], '\\')
                 : $this->settings['actor'];
             if ($actorContext) {
                 $contexts['default'][] = $actorContext;
             }
+        }
+
+        if (isset($this->settings['gherkin']['contexts']['path']) &&
+            isset($this->settings['gherkin']['contexts']['namespace_prefix'])) {
+            $files = glob($this->settings['gherkin']['contexts']['path'] . '/*/*.php');
+
+            // Strip off include path
+            $files = str_replace([$this->settings['gherkin']['contexts']['path'], '.php', '/'], ['', '', '\\'], $files);
+
+            // Add namespace prefix
+            $namespace = $this->settings['gherkin']['contexts']['namespace_prefix'];
+            $dynamicContexts = array_map(function ($path) use ($namespace) {
+                return $namespace . $path;
+            }, $files);
+
+            $this->addSteps($dynamicContexts, 'default');
         }
 
         $this->addSteps($contexts['default']);
@@ -80,7 +96,10 @@ class Gherkin implements LoaderInterface
 
     protected function addSteps(array $contexts, $group = 'default')
     {
-        $this->steps[$group] = [];
+        if (!isset($this->steps[$group])) {
+            $this->steps[$group] = [];
+        }
+
         foreach ($contexts as $context) {
             $methods = get_class_methods($context);
             if (!$methods) {
@@ -147,7 +166,7 @@ class Gherkin implements LoaderInterface
         }
 
         foreach ($featureNode->getScenarios() as $scenarioNode) {
-            /** @var $scenarioNode ScenarioInterface  **/
+            /** @var $scenarioNode ScenarioInterface * */
             $steps = $this->steps['default']; // load default context
 
             foreach (array_merge($scenarioNode->getTags(), $featureNode->getTags()) as $tag) { // load tag contexts

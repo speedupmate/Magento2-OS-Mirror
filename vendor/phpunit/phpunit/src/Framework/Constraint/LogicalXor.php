@@ -1,4 +1,4 @@
-<?php
+<?php declare(strict_types=1);
 /*
  * This file is part of PHPUnit.
  *
@@ -14,12 +14,12 @@ use PHPUnit\Framework\ExpectationFailedException;
 /**
  * Logical XOR.
  */
-class LogicalXor extends Constraint
+final class LogicalXor extends Constraint
 {
     /**
      * @var Constraint[]
      */
-    protected $constraints = [];
+    private $constraints = [];
 
     public static function fromConstraints(Constraint ...$constraints): self
     {
@@ -31,9 +31,9 @@ class LogicalXor extends Constraint
     }
 
     /**
-     * @param Constraint[] $constraints
+     * @param mixed[] $constraints
      */
-    public function setConstraints(array $constraints)
+    public function setConstraints(array $constraints): void
     {
         $this->constraints = [];
 
@@ -58,19 +58,13 @@ class LogicalXor extends Constraint
      * a boolean value instead: true in case of success, false in case of a
      * failure.
      *
-     * @param mixed  $other        Value or object to evaluate.
-     * @param string $description  Additional information about the test
-     * @param bool   $returnResult Whether to return a result or throw an exception
-     *
-     * @return mixed
-     *
      * @throws ExpectationFailedException
+     * @throws \SebastianBergmann\RecursionContext\InvalidArgumentException
      */
-    public function evaluate($other, $description = '', $returnResult = false)
+    public function evaluate($other, string $description = '', bool $returnResult = false): ?bool
     {
         $success    = true;
         $lastResult = null;
-        $constraint = null;
 
         foreach ($this->constraints as $constraint) {
             $result = $constraint->evaluate($other, $description, true);
@@ -91,14 +85,14 @@ class LogicalXor extends Constraint
         if (!$success) {
             $this->fail($other, $description);
         }
+
+        return null;
     }
 
     /**
      * Returns a string representation of the constraint.
-     *
-     * @return string
      */
-    public function toString()
+    public function toString(): string
     {
         $text = '';
 
@@ -115,10 +109,8 @@ class LogicalXor extends Constraint
 
     /**
      * Counts the number of constraint elements.
-     *
-     * @return int
      */
-    public function count()
+    public function count(): int
     {
         $count = 0;
 

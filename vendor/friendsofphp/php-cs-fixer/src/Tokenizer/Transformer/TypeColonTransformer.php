@@ -29,14 +29,6 @@ final class TypeColonTransformer extends AbstractTransformer
     /**
      * {@inheritdoc}
      */
-    public function getCustomTokens()
-    {
-        return [CT::T_TYPE_COLON];
-    }
-
-    /**
-     * {@inheritdoc}
-     */
     public function getPriority()
     {
         // needs to run after ReturnRefTransformer and UseTransformer
@@ -76,8 +68,22 @@ final class TypeColonTransformer extends AbstractTransformer
             $prevToken = $tokens[$prevIndex];
         }
 
-        if ($prevToken->isGivenKind([T_FUNCTION, CT::T_RETURN_REF, CT::T_USE_LAMBDA])) {
+        $prevKinds = [T_FUNCTION, CT::T_RETURN_REF, CT::T_USE_LAMBDA];
+
+        if (\PHP_VERSION_ID >= 70400) {
+            $prevKinds[] = T_FN;
+        }
+
+        if ($prevToken->isGivenKind($prevKinds)) {
             $tokens[$index] = new Token([CT::T_TYPE_COLON, ':']);
         }
+    }
+
+    /**
+     * {@inheritdoc}
+     */
+    protected function getDeprecatedCustomTokens()
+    {
+        return [CT::T_TYPE_COLON];
     }
 }

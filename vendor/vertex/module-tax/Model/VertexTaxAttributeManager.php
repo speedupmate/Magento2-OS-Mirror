@@ -96,26 +96,19 @@ class VertexTaxAttributeManager
     {
         $insertData = [];
         foreach ($itemsArray as $item) {
-            if ($id = $item->getLineItemId()) {
-                $taxArray = $item->getTaxes();
-                foreach ($taxArray as $tax) {
-                    if ($invoiceTextCode = $tax->getInvoiceTextCodes()) {
-                        if ($invoiceTextCode !== null) {
-                            foreach ($invoiceTextCode as $taxItem) {
-                                $insertData[$id][] = [
-                                    InvoiceTextCodeResource::FIELD_ID => $id,
-                                    InvoiceTextCodeResource::FIELD_CODE => $taxItem
-                                ];
-                                $insertData[$id] = array_unique($insertData[$id], SORT_REGULAR);
-                            }
-                        } else {
-                            $insertData[$id][] = [
-                                InvoiceTextCodeResource::FIELD_ID => $id,
-                                InvoiceTextCodeResource::FIELD_CODE => $invoiceTextCode
-                            ];
-                            $insertData[$id] = array_unique($insertData[$id], SORT_REGULAR);
-                        }
-                    }
+            $id = $item->getLineItemId();
+            if (!$id) {
+                continue;
+            }
+            $taxArray = $item->getTaxes();
+            foreach ($taxArray as $tax) {
+                $invoiceTextCode = $tax->getInvoiceTextCodes() ?? [null];
+                foreach ($invoiceTextCode as $taxItem) {
+                    $insertData[$id][] = [
+                        InvoiceTextCodeResource::FIELD_ID => $id,
+                        InvoiceTextCodeResource::FIELD_CODE => $taxItem
+                    ];
+                    $insertData[$id] = array_unique($insertData[$id], SORT_REGULAR);
                 }
             }
         }
@@ -135,18 +128,20 @@ class VertexTaxAttributeManager
     {
         $insertData = [];
         foreach ($itemsArray as $item) {
-            if ($id = $item->getLineItemId()) {
-                $taxArray = $item->getTaxes();
-                foreach ($taxArray as $tax) {
-                    if (!$tax->getTaxCode()) {
-                        continue;
-                    }
-                    $insertData[$id][] = [
-                        TaxCodeResource::FIELD_ID => $id,
-                        TaxCodeResource::FIELD_TAX_CODE => $tax->getTaxCode()
-                    ];
-                    $insertData[$id] = array_unique($insertData[$id], SORT_REGULAR);
+            $id = $item->getLineItemId();
+            if (!$id) {
+                continue;
+            }
+            $taxArray = $item->getTaxes();
+            foreach ($taxArray as $tax) {
+                if (!$tax->getTaxCode()) {
+                    continue;
                 }
+                $insertData[$id][] = [
+                    TaxCodeResource::FIELD_ID => $id,
+                    TaxCodeResource::FIELD_TAX_CODE => $tax->getTaxCode()
+                ];
+                $insertData[$id] = array_unique($insertData[$id], SORT_REGULAR);
             }
         }
 
@@ -165,18 +160,20 @@ class VertexTaxAttributeManager
     {
         $insertData = [];
         foreach ($itemsArray as $item) {
-            if ($id = $item->getLineItemId()) {
-                $taxArray = $item->getTaxes();
-                foreach ($taxArray as $tax) {
-                    if (!$tax->getVertexTaxCode()) {
-                        continue;
-                    }
-                    $insertData[$id][] = [
-                        VertexTaxCodeResource::FIELD_ID => $id,
-                        VertexTaxCodeResource::FIELD_VERTEX_TAX_CODE => $tax->getVertexTaxCode()
-                    ];
-                    $insertData[$id] = array_unique($insertData[$id], SORT_REGULAR);
+            $id = $item->getLineItemId();
+            if (!$id) {
+                continue;
+            }
+            $taxArray = $item->getTaxes();
+            foreach ($taxArray as $tax) {
+                if (!$tax->getVertexTaxCode()) {
+                    continue;
                 }
+                $insertData[$id][] = [
+                    VertexTaxCodeResource::FIELD_ID => $id,
+                    VertexTaxCodeResource::FIELD_VERTEX_TAX_CODE => $tax->getVertexTaxCode()
+                ];
+                $insertData[$id] = array_unique($insertData[$id], SORT_REGULAR);
             }
         }
 

@@ -8,6 +8,7 @@ namespace Vertex\Tax\Model\TaxRegistry;
 
 use Magento\Framework\App\Cache\StateInterface;
 use Magento\Framework\Cache\FrontendInterface;
+use Magento\Framework\Serialize\SerializerInterface;
 use Vertex\Tax\Model\Cache\Type as CacheType;
 use Vertex\Tax\Model\Cache\Serializer;
 
@@ -75,9 +76,9 @@ class CacheStorage extends GenericStorage
             return parent::unsetData($key);
         }
 
-        $this->cache->remove($key);
+        $this->cache->remove($this->getCacheId($key));
 
-        return $this->cache->load($key) === null;
+        return $this->cache->load($this->getCacheId($key)) === null;
     }
 
     /**

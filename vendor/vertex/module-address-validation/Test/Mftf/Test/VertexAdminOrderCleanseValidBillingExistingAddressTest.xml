@@ -1,0 +1,42 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!--
+/**
+ * @copyright  Vertex. All rights reserved.  https://www.vertexinc.com/
+ * @author     Mediotype                     https://www.mediotype.com/
+ */
+-->
+<tests xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+       xsi:noNamespaceSchemaLocation="urn:magento:mftf:Test/etc/testSchema.xsd">
+    <test name="VertexAdminOrderCleanseValidBillingExistingAddressTest">
+        <annotations>
+            <features value="Vertex AddressCleanse AdminOrderAddressCleanse"/>
+            <group value="VertexAddressValidation"/>
+            <testCaseId value="VRTX-661"/>
+            <testCaseId value="BUNDLE-2624"/>
+
+            <stories value="As a merchant, I want to validate billing addresses during admin order creation."/>
+            <title value="Ensure that an appropriate message is displayed when a billing address is perfect."/>
+            <description value="Attempt to validate a perfect address and then assert that an appropriate message is displayed indicating that the address is perfect as-is."/>
+
+            <severity value="AVERAGE"/>
+        </annotations>
+        <before>
+            <actionGroup ref="LoginAsAdmin" stepKey="loginAsAdmin"/>
+            <actionGroup ref="VertexAddressValidationDefaultConfig"
+                         stepKey="setupDefaultVertexAddressValidationTestConfiguration"/>
+            <actionGroup ref="ClearCacheActionGroup" stepKey="clearCache"/>
+            <createData entity="VertexUsCustomerWithPerfectAddress" stepKey="createCustomer"/>
+        </before>
+        <after>
+            <deleteData stepKey="deleteCustomer" createDataKey="createCustomer"/>
+        </after>
+
+        <actionGroup ref="NavigateToNewOrderPageExistingCustomerActionGroup" stepKey="startNewOrder">
+            <argument name="customer" value="$$createCustomer$$"/>
+        </actionGroup>
+
+        <actionGroup ref="VertexAdminClickOrderCreateValidateBillingAddressButtonActionGroup" stepKey="clickValidateAddress"/>
+
+        <actionGroup stepKey="assertValidAddressMessage" ref="VertexAdminAssertValidBillingAddressMessageActionGroup"/>
+    </test>
+</tests>

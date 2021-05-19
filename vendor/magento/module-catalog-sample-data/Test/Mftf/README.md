@@ -1,3 +1,0 @@
-# Catalog Sample Data Functional Tests
-
-The Functional Test Module for **Magento CatalogSampleData** module.

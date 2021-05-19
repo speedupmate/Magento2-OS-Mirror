@@ -60,9 +60,9 @@ class CustomOptionFlexibleField extends AbstractDb
     {
         $db = $this->getConnection();
         return $db->delete(
-                $this->_resources->getTableName(static::TABLE),
-                [static::FIELD_OPTION_ID . ' = ?' => $optionId]
-            ) > 0;
+            $this->_resources->getTableName(static::TABLE),
+            [static::FIELD_OPTION_ID . ' = ?' => $optionId]
+        ) > 0;
     }
 
     /**

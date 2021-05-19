@@ -16,7 +16,7 @@
             <description value="Customer should be able to re-submit register form after correcting invalid form data on storefront."/>
             <severity value="CRITICAL"/>
             <testCaseId value="MC-38681"/>
-            <useCaseId value="MC-38678"/>
+            <useCaseId value="MC-38680"/>
             <group value="customer"/>
         </annotations>
 

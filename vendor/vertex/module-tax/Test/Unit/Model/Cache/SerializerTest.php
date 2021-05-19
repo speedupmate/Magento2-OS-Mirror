@@ -1,4 +1,4 @@
-<?php
+<?php declare(strict_types=1);
 /**
  * @copyright  Vertex. All rights reserved.  https://www.vertexinc.com/
  * @author     Mediotype                     https://www.mediotype.com/
@@ -20,7 +20,7 @@ class SerializerTest extends TestCase
     /**
      * Perform test setup.
      */
-    protected function setUp()
+    protected function setUp(): void
     {
         parent::setUp();
 
@@ -143,7 +143,7 @@ class SerializerTest extends TestCase
     public function testArrayRecursion()
     {
         // For local environment tests in which XDebug is enabled.
-        ini_set('xdebug.max_nesting_level', Serializer::MAX_ARRAY_DEPTH + 1);
+        ini_set('xdebug.max_nesting_level', (string)(Serializer::MAX_ARRAY_DEPTH + 1));
 
         $this->expectException(\InvalidArgumentException::class);
         $this->expectExceptionMessage(
@@ -169,7 +169,7 @@ class SerializerTest extends TestCase
     {
         return [
             [$this->getMockBuilder('NonStandardObject')],
-            [['key' => $this->getMockBuilder('NonStandardObject')],],
+            [['key' => $this->getMockBuilder('NonStandardObject')]],
             [['key' => ['otherKey' => $this->getMockBuilder('NonStandardObject')]]],
         ];
     }

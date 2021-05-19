@@ -140,7 +140,7 @@ class PriorityTaggedServiceUtil
         $defaultIndex = $rm->invoke(null);
 
         if (!\is_string($defaultIndex)) {
-            throw new InvalidArgumentException(implode(sprintf('return a string (got "%s")', \gettype($defaultIndex)), $message));
+            throw new InvalidArgumentException(implode(sprintf('return a string (got "%s")', get_debug_type($defaultIndex)), $message));
         }
 
         return $defaultIndex;
@@ -166,7 +166,7 @@ class PriorityTaggedServiceUtil
         $defaultPriority = $rm->invoke(null);
 
         if (!\is_int($defaultPriority)) {
-            throw new InvalidArgumentException(sprintf('Method "%s::%s()" should return an integer (got "%s") or tag "%s" on service "%s" is missing attribute "priority".', $class, $defaultPriorityMethod, \gettype($defaultPriority), $tagName, $serviceId));
+            throw new InvalidArgumentException(sprintf('Method "%s::%s()" should return an integer (got "%s") or tag "%s" on service "%s" is missing attribute "priority".', $class, $defaultPriorityMethod, get_debug_type($defaultPriority), $tagName, $serviceId));
         }
 
         return $defaultPriority;

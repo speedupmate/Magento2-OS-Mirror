@@ -6,7 +6,12 @@
 
 namespace Vertex\Tax\Test\Integration\Logging;
 
+use Magento\Framework\Exception\CouldNotDeleteException;
+use Magento\Framework\Exception\LocalizedException;
+use Magento\Framework\Exception\CouldNotSaveException;
+use Magento\Framework\ObjectManagerInterface;
 use Magento\Framework\Api\SearchCriteriaInterface;
+use Magento\Framework\Stdlib\DateTime\TimezoneInterface;
 use Vertex\Tax\Api\Data\LogEntryInterface;
 use Vertex\Tax\Api\Data\LogEntryInterfaceFactory;
 use Vertex\Tax\Api\LogEntryRepositoryInterface;
@@ -30,7 +35,7 @@ class LogEntryRotatorTest extends TestCase
     /**
      * @inheritdoc
      */
-    protected function setUp()
+    protected function setUp(): void
     {
         parent::setUp();
 
@@ -48,8 +53,8 @@ class LogEntryRotatorTest extends TestCase
      * @magentoDbIsolation enabled
      *
      * @return void
-     * @throws \Magento\Framework\Exception\CouldNotDeleteException
-     * @throws \Magento\Framework\Exception\LocalizedException
+     * @throws CouldNotDeleteException
+     * @throws LocalizedException
      */
     public function testDeletionWithLifetimeOfOne()
     {
@@ -74,8 +79,8 @@ class LogEntryRotatorTest extends TestCase
      * @magentoDbIsolation enabled
      *
      * @return void
-     * @throws \Magento\Framework\Exception\CouldNotDeleteException
-     * @throws \Magento\Framework\Exception\LocalizedException
+     * @throws CouldNotDeleteException
+     * @throws LocalizedException
      */
     public function testDeletionWithLifetimeOfTwo()
     {
@@ -95,11 +100,11 @@ class LogEntryRotatorTest extends TestCase
      * Load in test log entries
      *
      * @return void
-     * @throws \Magento\Framework\Exception\CouldNotSaveException
+     * @throws CouldNotSaveException
      */
     public static function loadFixture()
     {
-        /** @var \Magento\Framework\ObjectManagerInterface $om */
+        /** @var ObjectManagerInterface $om */
         $om = \Magento\TestFramework\Helper\Bootstrap::getObjectManager();
 
         /** @var LogEntryRepositoryInterface $repository */
@@ -112,7 +117,11 @@ class LogEntryRotatorTest extends TestCase
         $periodTwoDaysTwoHours = new \DateInterval('P1DT2H');
         $periodThreeDaysTwoHours = new \DateInterval('P2DT2H');
 
-        $now = new \DateTimeImmutable();
+        /** @var TimezoneInterface $magentoTimezone */
+        $magentoTimezone = $om->get(TimezoneInterface::class);
+        $timezone = new \DateTimeZone($magentoTimezone->getConfigTimezone());
+
+        $now = new \DateTimeImmutable('now', $timezone);
         $twoHoursAgo = $now->sub($periodTwoHours);
         $oneDayTwoHoursAgo = $now->sub($periodTwoDaysTwoHours);
         $twoDaysTwoHoursAgo = $now->sub($periodThreeDaysTwoHours);

@@ -84,6 +84,11 @@ class ConfigurationValidator
         /** @var Result $result */
         $result = $this->resultFactory->create();
 
+        $this->validateUriValid($result, $scopeType, $scopeCode);
+        if (!$result->isValid()) {
+            return $result;
+        }
+
         $this->validateConfigurationCompatibility($result, $scopeType, $scopeCode);
         if (!$result->isValid()) {
             return $result;
@@ -107,6 +112,33 @@ class ConfigurationValidator
 
         if ($result->isValid()) {
             $this->validateCalculationService($result, $scopeType, $scopeCode);
+        }
+
+        return $result;
+    }
+
+    /**
+     * Validate Vertex Address WSDL Is Valid
+     *
+     * @param Result $result
+     * @param string $scopeType
+     * @param string|int $scopeCode
+     * @return Result
+     */
+    private function validateUriValid(Result $result, $scopeType, $scopeCode)
+    {
+        $result->setValid(true);
+
+        if (!filter_var($this->config->getVertexHost($scopeCode, $scopeType), FILTER_VALIDATE_URL)) {
+            $result->setValid(false);
+            $result->setMessage('Vertex Calculation API URL is not valid');
+            return $result;
+        }
+
+        if (!filter_var($this->config->getVertexAddressHost($scopeCode, $scopeType), FILTER_VALIDATE_URL)) {
+            $result->setValid(false);
+            $result->setMessage('Vertex Address Validation API URL is not valid');
+            return $result;
         }
 
         return $result;

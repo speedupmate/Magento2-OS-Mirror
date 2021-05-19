@@ -47,6 +47,9 @@
                     <object key="location_code" dataType="VertexSellerLocationCode">
                         <field key="value">string</field>
                     </object>
+                    <object key="shipping_origin_source" dataType="VertexSellerUseShippingOrigin">
+                        <field key="value">string</field>
+                    </object>
                     <object key="streetAddress1" dataType="VertexSellerStreetAddress1">
                         <field key="value">string</field>
                     </object>

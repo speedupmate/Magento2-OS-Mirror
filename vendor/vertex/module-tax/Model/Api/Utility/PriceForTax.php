@@ -32,7 +32,8 @@ class PriceForTax
     public function getPriceForTaxCalculationFromQuoteItem(QuoteDetailsItemInterface $item, float $price): float
     {
         if ($this->taxHelper->applyTaxOnOriginalPrice($item->getExtensionAttributes()->getStoreId())
-            && $item->getExtensionAttributes()->getPriceForTaxCalculation()) {
+            && $item->getExtensionAttributes()->getPriceForTaxCalculation()
+        ) {
             // Due to bugs with bundled products (magento/magento2#27700) only use price_for_tax_calc when we're only
             // supposed to apply tax on the original price.
             $priceForTaxCalculation = (float)$this->calculationTool->round(

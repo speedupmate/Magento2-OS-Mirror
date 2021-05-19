@@ -9,5 +9,5 @@ use Magento\Framework\Component\ComponentRegistrar;
 ComponentRegistrar::register(
     ComponentRegistrar::MODULE,
     'Vertex_Tax',
-    isset($file) ? realpath(dirname($file)) : __DIR__
+    __DIR__
 );

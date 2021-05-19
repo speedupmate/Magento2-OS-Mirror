@@ -42,6 +42,9 @@
             <argument name="customer" value="$$createCustomer$$"/>
         </actionGroup>
 
+        <checkOption selector="#order-shipping_same_as_billing" stepKey="setShippingSameAsBilling"/>
+        <waitForLoadingMaskToDisappear stepKey="waitForAjaxLoad"/>
+
         <actionGroup ref="addSimpleProductToOrder" stepKey="addProductToOrder">
             <argument name="product" value="$$createProduct$$"/>
         </actionGroup>
@@ -101,6 +104,9 @@
             <actionGroup ref="navigateToNewOrderPageExistingCustomer" stepKey="startNewOrder">
                 <argument name="customer" value="$$createCustomer$$"/>
             </actionGroup>
+
+            <checkOption selector="#order-shipping_same_as_billing" stepKey="setShippingSameAsBilling"/>
+            <waitForLoadingMaskToDisappear stepKey="waitForAjaxLoad"/>
 
             <actionGroup ref="addSimpleProductToOrder" stepKey="addProductToOrder">
                 <argument name="product" value="$$createProduct$$"/>
@@ -172,6 +178,9 @@
                 <argument name="customer" value="$$createCustomer$$"/>
             </actionGroup>
 
+            <checkOption selector="#order-shipping_same_as_billing" stepKey="setShippingSameAsBilling"/>
+            <waitForLoadingMaskToDisappear stepKey="waitForAjaxLoad"/>
+
             <actionGroup ref="addSimpleProductToOrder" stepKey="addProductToOrder">
                 <argument name="product" value="$$createProduct$$"/>
             </actionGroup>
@@ -225,6 +234,9 @@
             <actionGroup ref="navigateToNewOrderPageExistingCustomer" stepKey="startNewOrder">
                 <argument name="customer" value="$$createCustomer$$"/>
             </actionGroup>
+
+            <checkOption selector="#order-shipping_same_as_billing" stepKey="setShippingSameAsBilling"/>
+            <waitForLoadingMaskToDisappear stepKey="waitForAjaxLoad"/>
 
             <actionGroup ref="addSimpleProductToOrder" stepKey="addProductToOrder">
                 <argument name="product" value="$$createProduct$$"/>

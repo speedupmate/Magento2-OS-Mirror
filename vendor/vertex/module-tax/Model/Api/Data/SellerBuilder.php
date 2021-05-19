@@ -91,7 +91,11 @@ class SellerBuilder
         $configCompanyCode = $this->config->getCompanyCode($this->scopeCode, $this->scopeType);
 
         if ($configCompanyCode) {
-            $companyCode = $this->stringUtilities->substr($configCompanyCode, 0, $sellerMapper->getCompanyCodeMaxLength());
+            $companyCode = $this->stringUtilities->substr(
+                $configCompanyCode,
+                0,
+                $sellerMapper->getCompanyCodeMaxLength()
+            );
 
             $seller->setCompanyCode($companyCode);
         }

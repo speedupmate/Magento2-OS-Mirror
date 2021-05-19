@@ -1,4 +1,4 @@
-<?php
+<?php declare(strict_types=1);
 /*
  * This file is part of PHP Copy/Paste Detector (PHPCPD).
  *
@@ -13,22 +13,19 @@ namespace SebastianBergmann\PHPCPD\Log;
 use SebastianBergmann\PHPCPD\CodeCloneMap;
 use Symfony\Component\Console\Output\OutputInterface;
 
-class Text
+final class Text
 {
     /**
      * Prints a result set from Detector::copyPasteDetection().
-     *
-     * @param OutputInterface $output
-     * @param CodeCloneMap    $clones
      */
-    public function printResult(OutputInterface $output, CodeCloneMap $clones)
+    public function printResult(OutputInterface $output, CodeCloneMap $clones): void
     {
         $verbose = $output->getVerbosity() > OutputInterface::VERBOSITY_NORMAL;
 
         if (\count($clones) > 0) {
             $output->write(
                 \sprintf(
-                    'Found %d clones with %d duplicated lines in %d files:' . PHP_EOL . PHP_EOL,
+                    'Found %d clones with %d duplicated lines in %d files:' . \PHP_EOL . \PHP_EOL,
                     \count($clones),
                     $clones->getNumberOfDuplicatedLines(),
                     $clones->getNumberOfFilesWithClones()
@@ -42,11 +39,12 @@ class Text
             foreach ($clone->getFiles() as $file) {
                 $output->writeln(
                     \sprintf(
-                        '  %s%s:%d-%d',
+                        '  %s%s:%d-%d%s',
                         $firstOccurrence ? '- ' : '  ',
                         $file->getName(),
                         $file->getStartLine(),
-                        $file->getStartLine() + $clone->getSize()
+                        $file->getStartLine() + $clone->getSize(),
+                        $firstOccurrence ? ' (' . $clone->getSize() . ' lines)' : ''
                     )
                 );
 
@@ -54,17 +52,26 @@ class Text
             }
 
             if ($verbose) {
-                $output->write(PHP_EOL . $clone->getLines('    '));
+                $output->write(\PHP_EOL . $clone->getLines('    '));
             }
 
             $output->writeln('');
         }
 
+        if ($clones->isEmpty()) {
+            $output->write("No clones found.\n\n");
+
+            return;
+        }
+
         $output->write(
             \sprintf(
-                "%s duplicated lines out of %d total lines of code.\n\n",
+                "%s duplicated lines out of %d total lines of code.\n" .
+                "Average size of duplication is %d lines, largest clone has %d of lines\n\n",
                 $clones->getPercentage(),
-                $clones->getNumLines()
+                $clones->getNumLines(),
+                $clones->getAverageSize(),
+                $clones->getLargestSize()
             )
         );
     }

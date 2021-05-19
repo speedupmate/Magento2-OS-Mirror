@@ -64,7 +64,9 @@ class FieldsetWithComment extends Fieldset
         $dom = $this->documentFactory->create();
 
         // supress warnings due to ampersands inside of HTML
-        @$dom->loadHtml($sectionHtml, LIBXML_HTML_NOIMPLIED | LIBXML_HTML_NODEFDTD);
+        libxml_use_internal_errors(true);
+        $dom->loadHtml($sectionHtml, LIBXML_HTML_NOIMPLIED | LIBXML_HTML_NODEFDTD | LIBXML_NOWARNING | LIBXML_NOERROR);
+        libxml_use_internal_errors(false);
 
         // grab the hidden legend as starting point
         $legends = $dom->getElementsByTagName('legend');

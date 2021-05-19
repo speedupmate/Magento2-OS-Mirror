@@ -1,57 +1,16 @@
 <?php
 
-/*
- * (c) Jeroen van den Enden <info@endroid.nl>
- *
- * This source file is subject to the MIT license that is bundled
- * with this source code in the file LICENSE.
- */
+declare(strict_types=1);
 
 namespace Endroid\QrCode\Writer;
 
+use Endroid\QrCode\Label\LabelInterface;
+use Endroid\QrCode\Logo\LogoInterface;
 use Endroid\QrCode\QrCodeInterface;
+use Endroid\QrCode\Writer\Result\ResultInterface;
 
 interface WriterInterface
 {
-    /**
-     * @param QrCodeInterface $qrCode
-     *
-     * @return string
-     */
-    public function writeString(QrCodeInterface $qrCode);
-
-    /**
-     * @param QrCodeInterface $qrCode
-     *
-     * @return string
-     */
-    public function writeDataUri(QrCodeInterface $qrCode);
-
-    /**
-     * @param QrCodeInterface $qrCode
-     * @param string          $path
-     */
-    public function writeFile(QrCodeInterface $qrCode, $path);
-
-    /**
-     * @return string
-     */
-    public static function getContentType();
-
-    /**
-     * @param string $extension
-     *
-     * @return bool
-     */
-    public static function supportsExtension($extension);
-
-    /**
-     * @return string[]
-     */
-    public static function getSupportedExtensions();
-
-    /**
-     * @return string
-     */
-    public function getName();
+    /** @param array<mixed> $options */
+    public function write(QrCodeInterface $qrCode, LogoInterface $logo = null, LabelInterface $label = null, array $options = []): ResultInterface;
 }

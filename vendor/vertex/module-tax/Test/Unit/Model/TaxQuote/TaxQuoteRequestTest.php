@@ -1,4 +1,4 @@
-<?php
+<?php declare(strict_types=1);
 /**
  * @copyright  Vertex. All rights reserved.  https://www.vertexinc.com/
  * @author     Mediotype                     https://www.mediotype.com/
@@ -6,7 +6,9 @@
 
 namespace Vertex\Tax\Test\Unit\Model\TaxQuote;
 
+use PHPUnit\Framework\MockObject\MockObject;
 use Vertex\Data\ConfigurationInterface;
+use Vertex\Mapper\MapperFactory;
 use Vertex\Services\Quote\Request;
 use Vertex\Services\Quote\Response;
 use Vertex\Services\Quote\ResponseInterface;
@@ -24,19 +26,19 @@ use Vertex\Utility\VersionDeterminer;
  */
 class TaxQuoteRequestTest extends TestCase
 {
-    /** @var \PHPUnit_Framework_MockObject_MockObject|QuoteInterface */
+    /** @var MockObject|QuoteInterface */
     private $quoteMock;
 
     /** @var TaxQuoteRequest */
     private $taxQuoteRequest;
 
-    /** @var \PHPUnit_Framework_MockObject_MockObject|TaxRegistry */
+    /** @var MockObject|TaxRegistry */
     private $taxRegistryMock;
 
     /**
      * Perform test setup.
      */
-    public function setUp()
+    public function setUp(): void
     {
         parent::setUp();
 
@@ -54,7 +56,7 @@ class TaxQuoteRequestTest extends TestCase
         $configBuilderMock->method('build')
             ->willReturn($this->createMock(ConfigurationInterface::class));
 
-        $realMapperFactory = new \Vertex\Mapper\MapperFactory();
+        $realMapperFactory = new MapperFactory();
 
         $mapperFactory = $this->getObject(
             MapperFactoryProxy::class,

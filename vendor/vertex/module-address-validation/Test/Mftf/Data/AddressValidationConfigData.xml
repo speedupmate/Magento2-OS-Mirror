@@ -10,6 +10,9 @@
     <entity name="VertexAddressValidationEnabled" type="VertexAddressValidationEnabled">
         <data key="value">1</data>
     </entity>
+    <entity name="VertexAddressValidationDisabled" type="VertexAddressValidationEnabled">
+        <data key="value">0</data>
+    </entity>
     <entity name="VertexAddressValidationMessage" type="VertexAddressValidationMessage">
         <data key="value">1</data>
     </entity>
@@ -22,6 +25,12 @@
 
     <entity name="VertexAddressValidationConfigAll" type="vertex_address_validation_config">
         <requiredEntity type="VertexAddressValidationEnabled">VertexAddressValidationEnabled</requiredEntity>
+        <requiredEntity type="VertexAddressValidationMessage">VertexAddressValidationMessage</requiredEntity>
+        <requiredEntity type="VertexAddressValidationWsdlApiUrl">VertexAddressValidationWsdlApiUrl</requiredEntity>
+    </entity>
+
+    <entity name="VertexAddressValidationConfigDisabled" type="vertex_address_validation_config">
+        <requiredEntity type="VertexAddressValidationEnabled">VertexAddressValidationDisabled</requiredEntity>
         <requiredEntity type="VertexAddressValidationMessage">VertexAddressValidationMessage</requiredEntity>
         <requiredEntity type="VertexAddressValidationWsdlApiUrl">VertexAddressValidationWsdlApiUrl</requiredEntity>
     </entity>

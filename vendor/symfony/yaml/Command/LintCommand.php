@@ -53,7 +53,7 @@ class LintCommand extends Command
     protected function configure()
     {
         $this
-            ->setDescription('Lints a file and outputs encountered errors')
+            ->setDescription('Lint a file and outputs encountered errors')
             ->addArgument('filename', InputArgument::IS_ARRAY, 'A file, a directory or "-" for reading from STDIN')
             ->addOption('format', null, InputOption::VALUE_REQUIRED, 'The output format', 'txt')
             ->addOption('parse-tags', null, InputOption::VALUE_NONE, 'Parse custom tags')
@@ -91,14 +91,7 @@ EOF
             return $this->display($io, [$this->validate(file_get_contents('php://stdin'), $flags)]);
         }
 
-        // @deprecated to be removed in 5.0
         if (!$filenames) {
-            if (0 === ftell(\STDIN)) {
-                @trigger_error('Piping content from STDIN to the "lint:yaml" command without passing the dash symbol "-" as argument is deprecated since Symfony 4.4.', \E_USER_DEPRECATED);
-
-                return $this->display($io, [$this->validate(file_get_contents('php://stdin'), $flags)]);
-            }
-
             throw new RuntimeException('Please provide a filename or pipe file content to STDIN.');
         }
 

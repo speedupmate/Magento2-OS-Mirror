@@ -9,5 +9,5 @@ use Magento\Framework\Component\ComponentRegistrar;
 ComponentRegistrar::register(
     ComponentRegistrar::MODULE,
     'Vertex_AddressValidation',
-    isset($file) ? realpath(dirname($file)) : __DIR__
+    __DIR__
 );

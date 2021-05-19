@@ -1,4 +1,4 @@
-<?php
+<?php declare(strict_types=1);
 /**
  * @copyright  Vertex. All rights reserved.  https://www.vertexinc.com/
  * @author     Mediotype                     https://www.mediotype.com/
@@ -14,6 +14,7 @@ use Vertex\Tax\Model\Data\LogEntry;
 use Vertex\Tax\Model\Data\LogEntryFactory;
 use Vertex\Tax\Model\Repository\LogEntryRepository;
 use Vertex\Tax\Model\ResourceModel\LogEntry as LogEntryResource;
+use Vertex\Tax\Model\ResourceModel\LogEntry\Collection;
 use Vertex\Tax\Test\Unit\TestCase;
 
 class LogEntryRepositoryTest extends TestCase
@@ -50,9 +51,12 @@ class LogEntryRepositoryTest extends TestCase
         $factory->method('create')
             ->willReturnCallback(
                 function () {
-                    return $this->getCollection(LogEntryResource\Collection::class, [
+                    return $this->getCollection(
+                        Collection::class,
+                        [
                         12
-                    ]);
+                        ]
+                    );
                 }
             );
         return $factory;

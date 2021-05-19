@@ -16,6 +16,7 @@
         <amOnPage url="{{AdminTaxConfigPage.url('vertex_settings')}}" stepKey="loadVertexConfig"/>
 
         <!-- Vertex Settings -->
+        <conditionalClick selector="{{AdminVertexSettingsConfigSection.vertexHeader}}" dependentSelector="{{AdminVertexSettingsConfigSection.vertexSettingsHeader}}" visible="false" stepKey="openVertexConfigSection"/>
         <conditionalClick selector="{{AdminVertexSettingsConfigSection.vertexSettingsHeader}}" dependentSelector="{{AdminVertexSettingsConfigSection.enableVertex}}" visible="false" stepKey="openVertexConfiguration"/>
         <fillField stepKey="setCalculationWsdl" selector="{{AdminVertexSettingsConfigSection.calculationWsdlUrl}}" userInput="{{_CREDS.vertex/vertex_config_calculation_wsdl}}"/>
         <fillField stepKey="setAddressValidationWsdl" selector="{{AdminVertexSettingsConfigSection.addressValidationWsdlUrl}}" userInput="{{_CREDS.vertex/vertex_config_address_validation_wsdl}}"/>
@@ -390,7 +391,7 @@
         <see stepKey="seeTotalRefunded" userInput="${{refunded}}" selector="{{AdminOrderTotalFooterSection.totalRefunded}}"/>
         <see stepKey="seeTotalDue" userInput="${{due}}" selector="{{AdminOrderTotalFooterSection.totalDue}}"/>
     </actionGroup>
-    
+
     <actionGroup name="VertexCheckJurisdictionPercentageInAdminOrderView">
         <arguments>
             <argument name="name" type="string"/>
@@ -528,9 +529,13 @@
     <actionGroup name="VertexCheckInvoiceSuccessNote">
         <arguments>
             <argument type="string" name="amount"/>
+            <argument type="string" name="currency" defaultValue="USD" />
+            <argument type="string" name="locale" defaultValue="en_US"/>
         </arguments>
 
-        <see stepKey="seeNote" selector="{{AdminOrderNotesSection.noteContaining('Vertex Invoice sent successfully.')}}" userInput="${{amount}}"/>
+        <formatCurrency stepKey="formatMoney" currency="{{currency}}" locale="{{locale}}" userInput="{{amount}}"/>
+
+        <see stepKey="seeNote" selector="{{AdminOrderNotesSection.noteContaining('Vertex Invoice sent successfully.')}}" userInput="$formatMoney"/>
     </actionGroup>
 
     <actionGroup name="VertexCheckCreditMemoSuccessMessage">
@@ -539,8 +544,12 @@
     <actionGroup name="VertexCheckCreditMemoSuccessNote">
         <arguments>
             <argument type="string" name="amount"/>
+            <argument type="string" name="currency" defaultValue="USD" />
+            <argument type="string" name="locale" defaultValue="en_US"/>
         </arguments>
 
-        <see stepKey="seeNote" selector="{{AdminOrderNotesSection.noteContaining('Vertex Invoice refunded successfully.')}}" userInput="${{amount}}"/>
+        <formatCurrency stepKey="formatMoney" currency="{{currency}}" locale="{{locale}}" userInput="{{amount}}"/>
+
+        <see stepKey="seeNote" selector="{{AdminOrderNotesSection.noteContaining('Vertex Invoice refunded successfully.')}}" userInput="$formatMoney"/>
     </actionGroup>
 </actionGroups>

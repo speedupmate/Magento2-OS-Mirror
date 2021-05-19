@@ -1,8 +1,10 @@
 <?xml version="1.0"?>
 <!--
-  @copyright  Vertex. All rights reserved.  https://www.vertexinc.com/
-  @author     Mediotype                     https://www.mediotype.com/
-  -->
+/**
+ * @copyright  Vertex. All rights reserved.  https://www.vertexinc.com/
+ * @author     Mediotype                     https://www.mediotype.com/
+ */
+-->
 <config xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
         xsi:noNamespaceSchemaLocation="urn:magento:framework:ObjectManager/etc/config.xsd">
     <!-- API Preferences -->
@@ -10,6 +12,9 @@
     <preference for="Vertex\Tax\Api\Data\LogEntrySearchResultsInterface" type="Vertex\Tax\Model\Repository\LogEntrySearchResult"/>
     <preference for="Vertex\Tax\Api\LogEntryRepositoryInterface" type="Vertex\Tax\Model\Repository\LogEntryRepository"/>
     <preference for="Vertex\Tax\Model\TaxRegistry\StorageInterface" type="Vertex\Tax\Model\TaxRegistry\CacheStorage"/>
+    <preference for="Vertex\Tax\Api\Data\CommodityCodeInterface" type="Vertex\Tax\Model\Data\CommodityCode" />
+    <preference for="Vertex\Tax\Model\ProductLoadIdResolverInterface" type="Vertex\Tax\Model\TypicalProductLoadIdResolver"/>
+
     <type name="Vertex\Tax\Model\TaxRegistry\CacheStorage">
         <arguments>
             <argument name="cache" xsi:type="object">Vertex\Tax\Model\Cache\Type</argument>
@@ -100,16 +105,16 @@
     </type>
     <type name="Magento\Customer\Api\CustomerRepositoryInterface">
         <plugin name="extensionAttributeVertexCustomerCode" type="Vertex\Tax\Model\Plugin\CustomerRepositoryPlugin"/>
+        <plugin name="extensionAttributeVertexCustomerCountry" type="Vertex\Tax\Model\Plugin\CustomerCountryAttributePlugin"/>
     </type>
-
+    <type name="Magento\Sales\Api\OrderAddressRepositoryInterface">
+        <plugin name="extensionAttributeVertexVatCountryCode" type="Vertex\Tax\Model\Plugin\VatCountryCodeAttributePlugin"/>
+    </type>
     <type name="Magento\Tax\Api\TaxCalculationInterface">
         <plugin name="vertexTaxCalculation" type="Vertex\Tax\Model\Plugin\TaxCalculationPlugin" sortOrder="1"/>
     </type>
     <type name="Magento\Tax\Model\Sales\Total\Quote\CommonTaxCollector">
         <plugin name="vertexItemLevelMap" type="Vertex\Tax\Model\Plugin\CommonTaxCollectorPlugin" sortOrder="1"/>
-    </type>
-    <type name="Magento\Tax\Model\Sales\Total\Quote\Subtotal">
-        <plugin name="vertexDoesNotCalculateSubtotal" type="Vertex\Tax\Model\Plugin\SubtotalPlugin" sortOrder="10"/>
     </type>
     <type name="Magento\Tax\Model\Sales\Total\Quote\Tax">
         <plugin name="vertexOrderLevelMap" type="Vertex\Tax\Model\Plugin\TaxPlugin" sortOrder="1"/>
@@ -123,6 +128,18 @@
     </type>
     <type name="Magento\Catalog\Controller\Adminhtml\Product\Initialization\Helper">
         <plugin name="vertex_custom_option_flex_field_after_save_initialization" type="Vertex\Tax\Model\Plugin\CustomOptionFlexFieldExtensionAttributeInitializer"/>
+    </type>
+
+    <type name="Magento\Catalog\Api\ProductRepositoryInterface">
+        <plugin name="vertex_commodity_code_product_repository" type="Vertex\Tax\Model\Plugin\CommodityCodeExtensionAttributeProductRepositoryPlugin"/>
+    </type>
+
+    <type name="Magento\Catalog\Model\ResourceModel\Product">
+        <plugin name="vertex_commodity_code_product_resource_model" type="Vertex\Tax\Model\Plugin\CommodityCodeExtensionAttributeProductResourceModelPlugin"/>
+    </type>
+
+    <type name="Magento\Sales\Api\OrderItemRepositoryInterface">
+        <plugin name="vertex_commodity_code_order_item_repository" type="Vertex\Tax\Model\Plugin\CommodityCodeExtensionAttributeOrderItemRepository"/>
     </type>
 
     <!-- Create virtual Resource modules for Vertex Tax credit memo -->
@@ -161,9 +178,10 @@
         </arguments>
     </type>
 
-    <!-- This plugin adds vertex tax atttributes as extension attribute for OrderItem -->
     <type name="Magento\Sales\Api\OrderRepositoryInterface">
         <plugin name="get_vertex_order_item_attributes" type="Vertex\Tax\Model\Plugin\OrderRepositoryPlugin"/>
+        <plugin name="vertex_commodity_code_order_item_order_save" type="Vertex\Tax\Model\Plugin\AddCommodityCodeToOrderItemPlugin"/>
+        <plugin name="addVertexCustomerCountryToOrderAddress" type="Vertex\Tax\Model\Plugin\AddCustomerCountryToOrderAddressPlugin"/>
     </type>
     <!-- This plugin adds vertex tax atttributes as extension attribute for CreditmemoItem -->
     <type name="Magento\Sales\Api\CreditmemoRepositoryInterface">
@@ -382,6 +400,25 @@
                     <item name="processor" xsi:type="object">Vertex\Tax\Model\FlexField\Processor\ProductCustomOptionProcessor</item>
                 </item>
             </argument>
+        </arguments>
+    </type>
+    <type name="Magento\Framework\Setup\Declaration\Schema\Operations\CreateTable">
+        <arguments>
+            <argument name="triggers" xsi:type="array">
+                <item name="migrateVertexInvoiceSent" xsi:type="object">Vertex\Tax\Setup\Schema\Triggers\MigrateVertexInvoiceSent</item>
+            </argument>
+        </arguments>
+    </type>
+    <type name="Magento\Framework\Console\CommandListInterface">
+        <arguments>
+            <argument name="commands" xsi:type="array">
+                <item name="vertex_wsdl_cache" xsi:type="object">Vertex\Tax\Console\Command\ExecuteWsdlCache</item>
+            </argument>
+        </arguments>
+    </type>
+    <type name="Vertex\Tax\Console\Command\ExecuteWsdlCache">
+        <arguments>
+            <argument name="wsdlCache" xsi:type="object">Vertex\Tax\Model\WsdlCache\Proxy</argument>
         </arguments>
     </type>
 </config>

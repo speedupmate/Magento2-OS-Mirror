@@ -6,7 +6,8 @@ function myFunction() {}
 /* testReturnFunction */
 function myFunction(array ...$arrays): array
 {
-    return array_map(/* testNestedClosure */function(array $array): int {
+    /* testNestedClosure */
+    return array_map(function(array $array): int {
         return array_sum($array);
     }, $arrays);
 }
@@ -59,3 +60,26 @@ interface MyInterface
     /* testInterfaceMethod */
     function myFunction();
 }
+
+$result = array_map(
+    /* testArrowFunction */
+    static fn(int $number) : int => $number + 1,
+    $numbers
+);
+
+class ReturnMe {
+    /* testReturnTypeStatic */
+    private function myFunction(): static {
+        return $this;
+    }
+}
+
+/* testPHP8MixedTypeHint */
+function mixedTypeHint() :mixed {}
+
+/* testPHP8MixedTypeHintNullable */
+// Intentional fatal error - nullability is not allowed with mixed, but that's not the concern of the method.
+function mixedTypeHintNullable(): ?mixed {}
+
+/* testNamespaceOperatorTypeHint */
+function namespaceOperatorTypeHint() : ?namespace\Name {}

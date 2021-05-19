@@ -2,6 +2,121 @@
 
 All notable changes to this project will be documented in this file, in reverse chronological order by release.
 
+## 2.1.2 - 2021-02-15
+
+
+-----
+
+### Release Notes for [2.1.2](https://github.com/laminas/laminas-dependency-plugin/milestone/8)
+
+2.1.x bugfix release (patch)
+
+### 2.1.2
+
+- Total issues resolved: **0**
+- Total pull requests resolved: **1**
+- Total contributors: **1**
+
+#### Bug,Enhancement
+
+ - [32: bugfix: use proper methods to receive input option informations](https://github.com/laminas/laminas-dependency-plugin/pull/32) thanks to @boesing
+
+## 2.1.1 - 2021-02-15
+
+### Fixed
+
+- [#29](https://github.com/laminas/laminas-dependency-plugin/pull/29) Pass `ignore-platform-reqs` **and/or** `ignore-platform-req=<requirement>` options to the `composer update --lock` command when these were originally passed to the composer command aswell.
+
+
+-----
+
+### Release Notes for [2.1.1](https://github.com/laminas/laminas-dependency-plugin/milestone/6)
+
+2.1.x bugfix release (patch)
+
+### 2.1.1
+
+- Total issues resolved: **1**
+- Total pull requests resolved: **1**
+- Total contributors: **1**
+
+#### Bug
+
+ - [29: bugfix: pass `--ignore-platform-reqs` and `--ignore-platform-req` to `composer update --lock`](https://github.com/laminas/laminas-dependency-plugin/pull/29) thanks to @boesing
+
+## 2.1.0 - 2020-11-02
+
+### Added
+
+- [#25](https://github.com/laminas/laminas-dependency-plugin/pull/25) adds support for PHP 8.
+
+### Removed
+
+- [#25](https://github.com/laminas/laminas-dependency-plugin/pull/25) removes support for PHP versions prior to 7.3.
+
+
+-----
+
+### Release Notes for [2.1.0](https://github.com/laminas/laminas-dependency-plugin/milestone/4)
+
+Feature release (minor)
+
+### 2.1.0
+
+- Total issues resolved: **1**
+- Total pull requests resolved: **2**
+- Total contributors: **2**
+
+#### Enhancement
+
+ - [26: Add psalm integration](https://github.com/laminas/laminas-dependency-plugin/pull/26) thanks to @weierophinney and @boesing
+ - [25: Add support for PHP 8](https://github.com/laminas/laminas-dependency-plugin/pull/25) thanks to @weierophinney
+
+## 2.0.0 - 2020-10-30
+
+### Added
+
+- Adds support for Composer version 2 releases.
+
+
+-----
+
+### Release Notes for [2.0.0](https://github.com/laminas/laminas-dependency-plugin/milestone/2)
+
+
+
+### 2.0.0
+
+- Total issues resolved: **1**
+- Total pull requests resolved: **1**
+- Total contributors: **1**
+
+#### Bug
+
+ - [24: Fix: DependencyRewriterV1 should implement DependencySolvingCapableInterface](https://github.com/laminas/laminas-dependency-plugin/pull/24) thanks to @rieschl
+
+## 2.0.0beta1 - 2020-07-01
+
+### Added
+
+- [#18](https://github.com/laminas/laminas-dependency-plugin/pull/18) adds support for Composer version 2 releases.
+
+### Changed
+
+- Nothing.
+
+### Deprecated
+
+- Nothing.
+
+### Removed
+
+- Nothing.
+
+### Fixed
+
+- Nothing.
+
 ## 1.0.4 - 2020-05-20
 
 ### Added

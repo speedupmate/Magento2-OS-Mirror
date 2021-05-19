@@ -6,6 +6,11 @@
 
 namespace Vertex\Tax\Test\Integration\ApiValidation;
 
+use Magento\Framework\Exception\CouldNotSaveException;
+use Magento\Framework\Exception\InputException;
+use Magento\Framework\Exception\LocalizedException;
+use Magento\Framework\Exception\NoSuchEntityException;
+use Magento\Framework\Exception\StateException;
 use Magento\Checkout\Api\Data\TotalsInformationInterface;
 use Magento\Checkout\Api\Data\TotalsInformationInterfaceFactory;
 use Magento\Checkout\Api\TotalsInformationManagementInterface;
@@ -60,7 +65,7 @@ class BaseCurrencyCodeSentToVertexTest extends TestCase
     /**
      * Fetch objects necessary for running our test
      */
-    protected function setUp()
+    protected function setUp(): void
     {
         parent::setUp();
 
@@ -79,6 +84,7 @@ class BaseCurrencyCodeSentToVertexTest extends TestCase
      * Ensure that when totals are collected our tax request being sent to Vertex sends a base currency of CNY
      *
      * @magentoConfigFixture default_store tax/vertex_settings/enable_vertex 1
+     * @magentoConfigFixture default_store tax/vertex_settings/trustedId 0123456789ABCDEF
      * @magentoConfigFixture default_store tax/vertex_settings/api_url https://example.org/CalculateTax70
      * @magentoConfigFixture current_store currency/options/base EUR
      * @magentoConfigFixture current_store currency/options/default EUR
@@ -87,11 +93,11 @@ class BaseCurrencyCodeSentToVertexTest extends TestCase
      * @magentoDbIsolation enabled
      * @magentoCache all disabled
      *
-     * @throws \Magento\Framework\Exception\CouldNotSaveException
-     * @throws \Magento\Framework\Exception\InputException
-     * @throws \Magento\Framework\Exception\LocalizedException
-     * @throws \Magento\Framework\Exception\NoSuchEntityException
-     * @throws \Magento\Framework\Exception\StateException
+     * @throws CouldNotSaveException
+     * @throws InputException
+     * @throws LocalizedException
+     * @throws NoSuchEntityException
+     * @throws StateException
      * @return void
      */
     public function testBaseCurrencyOfEUR()
@@ -102,7 +108,8 @@ class BaseCurrencyCodeSentToVertexTest extends TestCase
             ->addItem($product)
             ->create($customer->getId());
 
-        $soapClient = $this->createPartialMock(\SoapClient::class, ['CalculateTax70']);
+        $soapClient = $this->getMockBuilder(\SoapClient::class)->disableOriginalConstructor()
+            ->addMethods(['CalculateTax70'])->getMock();
         $soapClient->expects($this->atLeastOnce())
             ->method('CalculateTax70')
             ->with(
@@ -136,6 +143,7 @@ class BaseCurrencyCodeSentToVertexTest extends TestCase
      * Ensure that when totals are collected our tax request being sent to Vertex sends a base currency of USD
      *
      * @magentoConfigFixture default_store tax/vertex_settings/enable_vertex 1
+     * @magentoConfigFixture default_store tax/vertex_settings/trustedId 0123456789ABCDEF
      * @magentoConfigFixture default_store tax/vertex_settings/api_url https://example.org/CalculateTax70
      * @magentoConfigFixture current_store currency/options/base USD
      * @magentoConfigFixture current_store currency/options/default USD
@@ -143,11 +151,11 @@ class BaseCurrencyCodeSentToVertexTest extends TestCase
      * @magentoDbIsolation enabled
      * @magentoCache all disabled
      *
-     * @throws \Magento\Framework\Exception\CouldNotSaveException
-     * @throws \Magento\Framework\Exception\InputException
-     * @throws \Magento\Framework\Exception\LocalizedException
-     * @throws \Magento\Framework\Exception\NoSuchEntityException
-     * @throws \Magento\Framework\Exception\StateException
+     * @throws CouldNotSaveException
+     * @throws InputException
+     * @throws LocalizedException
+     * @throws NoSuchEntityException
+     * @throws StateException
      * @return void
      */
     public function testBaseCurrencyOfUSD()
@@ -158,7 +166,8 @@ class BaseCurrencyCodeSentToVertexTest extends TestCase
             ->addItem($product)
             ->create($customer->getId());
 
-        $soapClient = $this->createPartialMock(\SoapClient::class, ['CalculateTax70']);
+        $soapClient = $this->getMockBuilder(\SoapClient::class)->disableOriginalConstructor()
+            ->addMethods(['CalculateTax70'])->getMock();
         $soapClient->expects($this->atLeastOnce())
             ->method('CalculateTax70')
             ->with(

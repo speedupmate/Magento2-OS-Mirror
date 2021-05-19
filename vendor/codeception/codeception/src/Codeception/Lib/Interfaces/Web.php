@@ -47,7 +47,7 @@ interface Web
      * For checking the raw source code, use `seeInSource()`.
      *
      * @param string $text
-     * @param string $selector optional
+     * @param array|string $selector optional
      */
     public function see($text, $selector = null);
 
@@ -78,7 +78,7 @@ interface Web
      * For checking the raw source code, use `seeInSource()`.
      *
      * @param string $text
-     * @param string $selector optional
+     * @param array|string $selector optional
      */
     public function dontSee($text, $selector = null);
     
@@ -301,7 +301,7 @@ interface Web
      * // CSS button
      * $I->click('#form input[type=submit]');
      * // XPath
-     * $I->click('//form/*[@type=submit]');
+     * $I->click('//form/*[@type="submit"]');
      * // link in context
      * $I->click('Logout', '#nav');
      * // using strict locator
@@ -383,7 +383,7 @@ interface Web
      * ``` php
      * <?php
      * // to match root url
-     * $I->seeCurrentUrlMatches('~$/users/(\d+)~');
+     * $I->seeCurrentUrlMatches('~^/users/(\d+)~');
      * ?>
      * ```
      *
@@ -425,7 +425,7 @@ interface Web
      * ``` php
      * <?php
      * // to match root url
-     * $I->dontSeeCurrentUrlMatches('~$/users/(\d+)~');
+     * $I->dontSeeCurrentUrlMatches('~^/users/(\d+)~');
      * ?>
      * ```
      *
@@ -439,7 +439,7 @@ interface Web
      *
      * ``` php
      * <?php
-     * $user_id = $I->grabFromCurrentUrl('~$/user/(\d+)/~');
+     * $user_id = $I->grabFromCurrentUrl('~^/user/(\d+)/~');
      * $uri = $I->grabFromCurrentUrl();
      * ?>
      * ```
@@ -690,7 +690,7 @@ interface Web
      * ``` php
      * <?php
      * $I->fillField("//input[@type='text']", "Hello World!");
-     * $I->fillField(['name' => 'email'], 'jon@mail.com');
+     * $I->fillField(['name' => 'email'], 'jon@example.com');
      * ?>
      * ```
      *
@@ -966,6 +966,7 @@ interface Web
     /**
      * Grabs a cookie value.
      * You can set additional cookie params like `domain`, `path` in array passed as last argument.
+     * If the cookie is set by an ajax request (XMLHttpRequest), there might be some delay caused by the browser, so try `$I->wait(0.1)`.
      *
      * @param $cookie
      *

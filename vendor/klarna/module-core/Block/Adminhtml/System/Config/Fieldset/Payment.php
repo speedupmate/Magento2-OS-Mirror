@@ -69,9 +69,7 @@ class Payment extends Fieldset
         $html = '<div class="config-heading" >';
         $htmlId = $element->getHtmlId();
         $html .= '<div class="button-container"><button type="button"' .
-            ' disabled="disabled"' .
             ' class="button action-configure' .
-            ' disabled' .
             '" id="' .
             $htmlId .
             '-head" onclick="klarnaToggleSolution.call(this, \'' .

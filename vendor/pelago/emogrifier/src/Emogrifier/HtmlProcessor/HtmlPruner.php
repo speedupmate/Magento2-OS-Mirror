@@ -2,10 +2,14 @@
 
 namespace Pelago\Emogrifier\HtmlProcessor;
 
+use Pelago\Emogrifier\CssInliner;
+use Pelago\Emogrifier\Utilities\ArrayIntersector;
+
 /**
  * This class can remove things from HTML.
  *
  * @author Oliver Klee <github@oliverklee.de>
+ * @author Jake Hotson <jake.github@qzdesign.co.uk>
  */
 class HtmlPruner extends AbstractHtmlProcessor
 {
@@ -17,29 +21,122 @@ class HtmlPruner extends AbstractHtmlProcessor
      *
      * @var string
      */
-    const DISPLAY_NONE_MATCHER = '//*[contains(translate(translate(@style," ",""),"NOE","noe"),"display:none")]';
+    const DISPLAY_NONE_MATCHER
+        = '//*[@style and contains(translate(translate(@style," ",""),"NOE","noe"),"display:none")'
+        . ' and not(@class and contains(concat(" ", normalize-space(@class), " "), " -emogrifier-keep "))]';
 
     /**
-     * Removes nodes that have a "display: none;" style.
+     * Removes elements that have a "display: none;" style.
      *
      * @return self fluent interface
      */
-    public function removeInvisibleNodes()
+    public function removeElementsWithDisplayNone()
     {
-        $nodesWithStyleDisplayNone = $this->xPath->query(self::DISPLAY_NONE_MATCHER);
-        if ($nodesWithStyleDisplayNone->length === 0) {
+        $elementsWithStyleDisplayNone = $this->xPath->query(self::DISPLAY_NONE_MATCHER);
+        if ($elementsWithStyleDisplayNone->length === 0) {
             return $this;
         }
 
-        // The checks on parentNode and is_callable below ensure that if we've deleted the parent node,
-        // we don't try to call removeChild on a nonexistent child node.
-        /** @var \DOMNode $node */
-        foreach ($nodesWithStyleDisplayNone as $node) {
-            $parentNode = $node->parentNode;
-            if ($parentNode !== null && \is_callable([$parentNode, 'removeChild'])) {
-                $parentNode->removeChild($node);
+        /** @var \DOMNode $element */
+        foreach ($elementsWithStyleDisplayNone as $element) {
+            $parentNode = $element->parentNode;
+            if ($parentNode !== null) {
+                $parentNode->removeChild($element);
             }
         }
+
+        return $this;
+    }
+
+    /**
+     * Removes classes that are no longer required (e.g. because there are no longer any CSS rules that reference them)
+     * from `class` attributes.
+     *
+     * Note that this does not inspect the CSS, but expects to be provided with a list of classes that are still in use.
+     *
+     * This method also has the (presumably beneficial) side-effect of minifying (removing superfluous whitespace from)
+     * `class` attributes.
+     *
+     * @param string[] $classesToKeep names of classes that should not be removed
+     *
+     * @return self fluent interface
+     */
+    public function removeRedundantClasses(array $classesToKeep = [])
+    {
+        $elementsWithClassAttribute = $this->xPath->query('//*[@class]');
+
+        if ($classesToKeep !== []) {
+            $this->removeClassesFromElements($elementsWithClassAttribute, $classesToKeep);
+        } else {
+            // Avoid unnecessary processing if there are no classes to keep.
+            $this->removeClassAttributeFromElements($elementsWithClassAttribute);
+        }
+
+        return $this;
+    }
+
+    /**
+     * Removes classes from the `class` attribute of each element in `$elements`, except any in `$classesToKeep`,
+     * removing the `class` attribute itself if the resultant list is empty.
+     *
+     * @param \DOMNodeList $elements
+     * @param string[] $classesToKeep
+     *
+     * @return void
+     */
+    private function removeClassesFromElements(\DOMNodeList $elements, array $classesToKeep)
+    {
+        $classesToKeepIntersector = new ArrayIntersector($classesToKeep);
+
+        /** @var \DOMNode $element */
+        foreach ($elements as $element) {
+            $elementClasses = \preg_split('/\\s++/', \trim($element->getAttribute('class')));
+            $elementClassesToKeep = $classesToKeepIntersector->intersectWith($elementClasses);
+            if ($elementClassesToKeep !== []) {
+                $element->setAttribute('class', \implode(' ', $elementClassesToKeep));
+            } else {
+                $element->removeAttribute('class');
+            }
+        }
+    }
+
+    /**
+     * Removes the `class` attribute from each element in `$elements`.
+     *
+     * @param \DOMNodeList $elements
+     *
+     * @return void
+     */
+    private function removeClassAttributeFromElements(\DOMNodeList $elements)
+    {
+        /** @var \DOMNode $element */
+        foreach ($elements as $element) {
+            $element->removeAttribute('class');
+        }
+    }
+
+    /**
+     * After CSS has been inlined, there will likely be some classes in `class` attributes that are no longer referenced
+     * by any remaining (uninlinable) CSS.  This method removes such classes.
+     *
+     * Note that it does not inspect the remaining CSS, but uses information readily available from the `CssInliner`
+     * instance about the CSS rules that could not be inlined.
+     *
+     * @param CssInliner $cssInliner object instance that performed the CSS inlining
+     *
+     * @return self fluent interface
+     *
+     * @throws \BadMethodCallException if `inlineCss` has not first been called on `$cssInliner`
+     */
+    public function removeRedundantClassesAfterCssInlined(CssInliner $cssInliner)
+    {
+        $classesToKeepAsKeys = [];
+        foreach ($cssInliner->getMatchingUninlinableSelectors() as $selector) {
+            \preg_match_all('/\\.(-?+[_a-zA-Z][\\w\\-]*+)/', $selector, $matches);
+            $classesToKeepAsKeys += \array_fill_keys($matches[1], true);
+        }
+
+        $this->removeRedundantClasses(\array_keys($classesToKeepAsKeys));
 
         return $this;
     }

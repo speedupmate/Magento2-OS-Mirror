@@ -1,13 +1,16 @@
 <?php
 namespace Codeception;
 
+use Codeception\Event\DispatcherWrapper;
 use Codeception\Exception\ConfigurationException;
 use Codeception\Subscriber\ExtensionLoader;
 use Symfony\Component\EventDispatcher\EventDispatcher;
 
 class Codecept
 {
-    const VERSION = "2.4.5";
+    use DispatcherWrapper;
+
+    const VERSION = '4.1.20';
 
     /**
      * @var \Codeception\PHPUnit\Runner
@@ -42,6 +45,8 @@ class Codecept
         'steps'           => false,
         'html'            => false,
         'xml'             => false,
+        'phpunit-xml'     => false,
+        'no-redirect'     => true,
         'json'            => false,
         'tap'             => false,
         'report'          => false,
@@ -51,6 +56,7 @@ class Codecept
         'coverage-html'   => false,
         'coverage-text'   => false,
         'coverage-crap4j' => false,
+        'coverage-cobertura' => false,
         'coverage-phpunit'=> false,
         'groups'          => null,
         'excludeGroups'   => null,
@@ -148,36 +154,47 @@ class Codecept
         );
 
         $config = $config ?: Configuration::config();
-
-        $settings = Configuration::suiteSettings($suite, $config);
+        $config = Configuration::suiteSettings($suite, $config);
 
         $selectedEnvironments = $this->options['env'];
-        $environments = Configuration::suiteEnvironments($suite);
 
-        if (!$selectedEnvironments or empty($environments)) {
-            $this->runSuite($settings, $suite, $test);
+        if (!$selectedEnvironments || empty($config['env'])) {
+            $this->runSuite($config, $suite, $test);
             return;
         }
 
+        // Iterate over all unique environment sets and runs the given suite with each of the merged configurations.
         foreach (array_unique($selectedEnvironments) as $envList) {
-            $envArray = explode(',', $envList);
-            $config = [];
-            foreach ($envArray as $env) {
-                if (isset($environments[$env])) {
-                    $currentEnvironment = isset($config['current_environment']) ? [$config['current_environment']] : [];
-                    $config = Configuration::mergeConfigs($config, $environments[$env]);
-                    $currentEnvironment[] = $config['current_environment'];
-                    $config['current_environment'] = implode(',', $currentEnvironment);
+            $envSet = explode(',', $envList);
+            $suiteEnvConfig = $config;
+
+            // contains a list of the environments used in this suite configuration env set.
+            $envConfigs = [];
+            foreach ($envSet as $currentEnv) {
+                if (isset($config['env'])) {
+                    // The $settings['env'] actually contains all parsed configuration files as a
+                    // filename => filecontents key-value array. If there is no configuration file for the
+                    // $currentEnv the merge will be skipped.
+                    if (!array_key_exists($currentEnv, $config['env'])) {
+                        return;
+                    }
+
+                    // Merge configuration consecutively with already build configuration
+                    $suiteEnvConfig = Configuration::mergeConfigs($suiteEnvConfig, $config['env'][$currentEnv]);
+                    $envConfigs[] = $currentEnv;
                 }
             }
-            if (empty($config)) {
+
+            $suiteEnvConfig['current_environment'] = implode(',', $envConfigs);
+
+            if (empty($suiteEnvConfig)) {
                 continue;
             }
             $suiteToRun = $suite;
             if (!empty($envList)) {
-                $suiteToRun .= ' (' . implode(', ', $envArray) . ')';
+                $suiteToRun .= ' (' . implode(', ', $envSet) . ')';
             }
-            $this->runSuite($config, $suiteToRun, $test);
+            $this->runSuite($suiteEnvConfig, $suiteToRun, $test);
         }
     }
 
@@ -185,7 +202,9 @@ class Codecept
     {
         $suiteManager = new SuiteManager($this->dispatcher, $suite, $settings);
         $suiteManager->initialize();
+        srand($this->options['seed']);
         $suiteManager->loadTests($test);
+        srand();
         $suiteManager->run($this->runner, $this->result, $this->options);
         return $this->result;
     }
@@ -203,7 +222,7 @@ class Codecept
         $printer = $this->runner->getPrinter();
         $printer->printResult($result);
 
-        $this->dispatcher->dispatch(Events::RESULT_PRINT_AFTER, new Event\PrintResultEvent($result, $printer));
+        $this->dispatch($this->dispatcher, Events::RESULT_PRINT_AFTER, new Event\PrintResultEvent($result, $printer));
     }
 
     /**

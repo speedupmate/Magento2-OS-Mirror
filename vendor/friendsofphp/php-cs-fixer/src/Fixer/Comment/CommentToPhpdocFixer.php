@@ -13,7 +13,10 @@
 namespace PhpCsFixer\Fixer\Comment;
 
 use PhpCsFixer\AbstractFixer;
+use PhpCsFixer\Fixer\ConfigurationDefinitionFixerInterface;
 use PhpCsFixer\Fixer\WhitespacesAwareFixerInterface;
+use PhpCsFixer\FixerConfiguration\FixerConfigurationResolver;
+use PhpCsFixer\FixerConfiguration\FixerOptionBuilder;
 use PhpCsFixer\FixerDefinition\CodeSample;
 use PhpCsFixer\FixerDefinition\FixerDefinition;
 use PhpCsFixer\Preg;
@@ -25,8 +28,13 @@ use PhpCsFixer\Utils;
 /**
  * @author Kuba Werłos <werlos@gmail.com>
  */
-final class CommentToPhpdocFixer extends AbstractFixer implements WhitespacesAwareFixerInterface
+final class CommentToPhpdocFixer extends AbstractFixer implements ConfigurationDefinitionFixerInterface, WhitespacesAwareFixerInterface
 {
+    /**
+     * @var string[]
+     */
+    private $ignoredTags = [];
+
     /**
      * {@inheritdoc}
      */
@@ -45,6 +53,8 @@ final class CommentToPhpdocFixer extends AbstractFixer implements WhitespacesAwa
 
     /**
      * {@inheritdoc}
+     *
+     * Must run before GeneralPhpdocAnnotationRemoveFixer, NoBlankLinesAfterPhpdocFixer, NoEmptyPhpdocFixer, NoSuperfluousPhpdocTagsFixer, PhpdocAddMissingParamAnnotationFixer, PhpdocAlignFixer, PhpdocAlignFixer, PhpdocAnnotationWithoutDotFixer, PhpdocInlineTagFixer, PhpdocLineSpanFixer, PhpdocNoAccessFixer, PhpdocNoAliasTagFixer, PhpdocNoEmptyReturnFixer, PhpdocNoPackageFixer, PhpdocNoUselessInheritdocFixer, PhpdocOrderFixer, PhpdocReturnSelfReferenceFixer, PhpdocSeparationFixer, PhpdocSingleLineVarSpacingFixer, PhpdocSummaryFixer, PhpdocToCommentFixer, PhpdocToParamTypeFixer, PhpdocToReturnTypeFixer, PhpdocTrimConsecutiveBlankLineSeparationFixer, PhpdocTrimFixer, PhpdocTypesOrderFixer, PhpdocVarAnnotationCorrectOrderFixer, PhpdocVarWithoutNameFixer.
      */
     public function getPriority()
     {
@@ -59,10 +69,41 @@ final class CommentToPhpdocFixer extends AbstractFixer implements WhitespacesAwa
     {
         return new FixerDefinition(
             'Comments with annotation should be docblock when used on structural elements.',
-            [new CodeSample("<?php /* header */ \$x = true; /* @var bool \$isFoo */ \$isFoo = true;\n")],
+            [
+                new CodeSample("<?php /* header */ \$x = true; /* @var bool \$isFoo */ \$isFoo = true;\n"),
+                new CodeSample("<?php\n// @todo do something later\n\$foo = 1;\n\n// @var int \$a\n\$a = foo();\n", ['ignored_tags' => ['todo']]),
+            ],
             null,
-            'Risky as new docblocks might mean more, e.g. a Doctrine entity might have a new column in database'
+            'Risky as new docblocks might mean more, e.g. a Doctrine entity might have a new column in database.'
         );
+    }
+
+    /**
+     * {@inheritdoc}
+     */
+    public function configure(array $configuration = null)
+    {
+        parent::configure($configuration);
+
+        $this->ignoredTags = array_map(
+            static function ($tag) {
+                return strtolower($tag);
+            },
+            $this->configuration['ignored_tags']
+        );
+    }
+
+    /**
+     * {@inheritdoc}
+     */
+    protected function createConfigurationDefinition()
+    {
+        return new FixerConfigurationResolver([
+            (new FixerOptionBuilder('ignored_tags', sprintf('List of ignored tags')))
+                ->setAllowedTypes(['array'])
+                ->setDefault([])
+                ->getOption(),
+        ]);
     }
 
     /**
@@ -98,8 +139,7 @@ final class CommentToPhpdocFixer extends AbstractFixer implements WhitespacesAwa
     }
 
     /**
-     * @param Tokens $tokens
-     * @param int[]  $indices
+     * @param int[] $indices
      *
      * @return bool
      */
@@ -108,15 +148,21 @@ final class CommentToPhpdocFixer extends AbstractFixer implements WhitespacesAwa
         return array_reduce(
             $indices,
             function ($carry, $index) use ($tokens) {
-                return $carry || 1 === Preg::match('~(#|//|/\*+|\R(\s*\*)?)\s*\@[a-zA-Z0-9_\\\\-]+(?=\s|\(|$)~', $tokens[$index]->getContent());
+                if ($carry) {
+                    return true;
+                }
+                if (1 !== Preg::match('~(?:#|//|/\*+|\R(?:\s*\*)?)\s*\@([a-zA-Z0-9_\\\\-]+)(?=\s|\(|$)~', $tokens[$index]->getContent(), $matches)) {
+                    return false;
+                }
+
+                return !\in_array(strtolower($matches[1]), $this->ignoredTags, true);
             },
             false
         );
     }
 
     /**
-     * @param Tokens $tokens
-     * @param int[]  $indices
+     * @param int[] $indices
      */
     private function fixComment(Tokens $tokens, $indices)
     {
@@ -128,8 +174,7 @@ final class CommentToPhpdocFixer extends AbstractFixer implements WhitespacesAwa
     }
 
     /**
-     * @param Tokens $tokens
-     * @param int    $index
+     * @param int $index
      */
     private function fixCommentSingleLine(Tokens $tokens, $index)
     {
@@ -147,8 +192,7 @@ final class CommentToPhpdocFixer extends AbstractFixer implements WhitespacesAwa
     }
 
     /**
-     * @param Tokens $tokens
-     * @param int[]  $indices
+     * @param int[] $indices
      */
     private function fixCommentMultiLine(Tokens $tokens, array $indices)
     {

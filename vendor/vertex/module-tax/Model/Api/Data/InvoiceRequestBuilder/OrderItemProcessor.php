@@ -2,7 +2,6 @@
 
 namespace Vertex\Tax\Model\Api\Data\InvoiceRequestBuilder;
 
-use Exception;
 use Magento\Catalog\Api\Data\ProductInterface;
 use Magento\Catalog\Api\ProductRepositoryInterface;
 use Magento\Framework\Api\SearchCriteriaBuilder;
@@ -10,17 +9,12 @@ use Magento\Framework\Api\SearchCriteriaBuilderFactory;
 use Magento\Framework\Stdlib\StringUtils;
 use Magento\Sales\Api\Data\OrderInterface;
 use Magento\Sales\Api\Data\OrderItemInterface;
-use Magento\Sales\Api\OrderAddressRepositoryInterface;
 use Magento\Sales\Model\Order\Item;
-use Vertex\Data\CustomerInterface;
 use Vertex\Data\LineItemInterface;
 use Vertex\Data\LineItemInterfaceFactory;
 use Vertex\Services\Invoice\RequestInterface;
-use Vertex\Tax\Model\Api\Data\CustomerBuilder;
 use Vertex\Tax\Model\Api\Data\FlexFieldBuilder;
-use Vertex\Tax\Model\Api\Utility\IsVirtualLineItemDeterminer;
 use Vertex\Tax\Model\Api\Utility\MapperFactoryProxy;
-use Vertex\Tax\Model\ExceptionLogger;
 use Vertex\Tax\Model\Repository\TaxClassNameRepository;
 
 /**
@@ -34,23 +28,14 @@ class OrderItemProcessor implements OrderProcessorInterface
     /** @var SearchCriteriaBuilderFactory */
     private $criteriaBuilderFactory;
 
-    /** @var CustomerBuilder */
-    private $customerBuilder;
-
     /** @var FlexFieldBuilder */
     private $flexFieldBuilder;
 
     /** @var LineItemInterfaceFactory */
     private $lineItemFactory;
 
-    /** @var ExceptionLogger */
-    private $logger;
-
     /** @var MapperFactoryProxy */
     private $mapperFactory;
-
-    /** @var OrderAddressRepositoryInterface */
-    private $orderAddressRepository;
 
     /** @var ProductRepositoryInterface */
     private $productRepository;
@@ -58,22 +43,6 @@ class OrderItemProcessor implements OrderProcessorInterface
     /** @var StringUtils */
     private $stringUtilities;
 
-    /** @var IsVirtualLineItemDeterminer */
-    private $virtualLineItemDeterminer;
-
-    /**
-     * @param LineItemInterfaceFactory $lineItemFactory
-     * @param ProductRepositoryInterface $productRepository
-     * @param SearchCriteriaBuilderFactory $criteriaBuilderFactory
-     * @param TaxClassNameRepository $classNameRepository
-     * @param StringUtils $stringUtils
-     * @param MapperFactoryProxy $mapperFactory
-     * @param FlexFieldBuilder $flexFieldBuilder
-     * @param IsVirtualLineItemDeterminer $virtualLineItemDeterminer
-     * @param OrderAddressRepositoryInterface $orderAddressRepository
-     * @param CustomerBuilder $customerBuilder
-     * @param ExceptionLogger $logger
-     */
     public function __construct(
         LineItemInterfaceFactory $lineItemFactory,
         ProductRepositoryInterface $productRepository,
@@ -81,11 +50,7 @@ class OrderItemProcessor implements OrderProcessorInterface
         TaxClassNameRepository $classNameRepository,
         StringUtils $stringUtils,
         MapperFactoryProxy $mapperFactory,
-        FlexFieldBuilder $flexFieldBuilder,
-        IsVirtualLineItemDeterminer $virtualLineItemDeterminer,
-        OrderAddressRepositoryInterface $orderAddressRepository,
-        CustomerBuilder $customerBuilder,
-        ExceptionLogger $logger
+        FlexFieldBuilder $flexFieldBuilder
     ) {
         $this->lineItemFactory = $lineItemFactory;
         $this->productRepository = $productRepository;
@@ -94,10 +59,6 @@ class OrderItemProcessor implements OrderProcessorInterface
         $this->stringUtilities = $stringUtils;
         $this->mapperFactory = $mapperFactory;
         $this->flexFieldBuilder = $flexFieldBuilder;
-        $this->virtualLineItemDeterminer = $virtualLineItemDeterminer;
-        $this->orderAddressRepository = $orderAddressRepository;
-        $this->customerBuilder = $customerBuilder;
-        $this->logger = $logger;
     }
 
     /**
@@ -184,12 +145,6 @@ class OrderItemProcessor implements OrderProcessorInterface
             $lineItem->setExtendedPrice($extendedPrice);
             $lineItem->setLineItemId($item->getItemId());
 
-            if ($this->virtualLineItemDeterminer->isOrderItemVirtual($item)
-                && $customer = $this->buildCustomerWithBillingAddress($order)
-            ) {
-                $lineItem->setCustomer($customer);
-            }
-
             $lineItem->setFlexibleFields($this->flexFieldBuilder->buildAllFromOrderItem($item, $storeId));
             $lineItems[] = $lineItem;
         }
@@ -208,23 +163,6 @@ class OrderItemProcessor implements OrderProcessorInterface
 
         $request->setLineItems(array_merge($request->getLineItems(), $lineItems));
         return $request;
-    }
-
-    /**
-     * Build a customer from order billing address
-     *
-     * @param OrderInterface $order
-     * @return null|CustomerInterface
-     */
-    private function buildCustomerWithBillingAddress(OrderInterface $order)
-    {
-        try {
-            $billingAddress = $this->orderAddressRepository->get($order->getBillingAddressId());
-            return $this->customerBuilder->buildFromOrderAddress($billingAddress);
-        } catch (Exception $e) {
-            $this->logger->warning($e);
-            return null;
-        }
     }
 
     /**

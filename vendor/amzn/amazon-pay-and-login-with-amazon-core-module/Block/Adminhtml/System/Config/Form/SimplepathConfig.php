@@ -17,6 +17,14 @@ namespace Amazon\Core\Block\Adminhtml\System\Config\Form;
 
 use Magento\Backend\Block\Template\Context;
 
+/**
+ * @deprecated As of February 2021, this Legacy Amazon Pay plugin has been
+ * deprecated, in favor of a newer Amazon Pay version available through GitHub
+ * and Magento Marketplace. Please download the new plugin for automatic
+ * updates and to continue providing your customers with a seamless checkout
+ * experience. Please see https://pay.amazon.com/help/E32AAQBC2FY42HS for details
+ * and installation instructions.
+ */
 class SimplepathConfig extends \Magento\Config\Block\System\Config\Form\Field
 {
 
@@ -35,6 +43,6 @@ class SimplepathConfig extends \Magento\Config\Block\System\Config\Form\Field
             ->setCacheable(false)
             ->toHtml();
 
-        return $html;
+        return '<div id="row_' . $element->getHtmlId() . '">' . $html . '</div>';
     }
 }

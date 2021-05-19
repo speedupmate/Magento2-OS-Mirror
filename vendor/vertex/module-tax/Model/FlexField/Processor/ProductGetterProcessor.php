@@ -25,7 +25,7 @@ use Vertex\Tax\Model\FlexField\FlexFieldProcessableAttribute;
 class ProductGetterProcessor implements InvoiceFlexFieldProcessorInterface, TaxCalculationFlexFieldProcessorInterface
 {
     /** @var string[] */
-    const BLACK_LIST = [
+    const BLOCK_LIST = [
         'getExtensionAttributes',
         'getMediaGalleryEntries',
         'getProductLinks',
@@ -48,7 +48,7 @@ class ProductGetterProcessor implements InvoiceFlexFieldProcessorInterface, TaxC
     const DATE_FIELDS = [];
 
     /** @var string[] */
-    const EAV_ATTRIBUTE_BLACK_LIST = [
+    const EAV_ATTRIBUTE_BLOCK_LIST = [
         'name',
         'description',
         'short_description',
@@ -179,7 +179,7 @@ class ProductGetterProcessor implements InvoiceFlexFieldProcessorInterface, TaxC
                     static::PREFIX,
                     $optionGroup,
                     static::class,
-                    array_merge(static::DATE_FIELDS, static::BLACK_LIST)
+                    array_merge(static::DATE_FIELDS, static::BLOCK_LIST)
                 ),
                 $this->attributeExtractor->extractDateFields(
                     static::PREFIX,
@@ -192,7 +192,7 @@ class ProductGetterProcessor implements InvoiceFlexFieldProcessorInterface, TaxC
                     static::PREFIX,
                     $optionGroup,
                     static::class,
-                    static::EAV_ATTRIBUTE_BLACK_LIST
+                    static::EAV_ATTRIBUTE_BLOCK_LIST
                 )
             ),
             [static::PREFIX . '.getTypeId' => __('Product Type')]

@@ -23,6 +23,14 @@ use Magento\Customer\Api\Data\RegionInterfaceFactory;
 use Magento\Directory\Model\RegionFactory;
 use Magento\Framework\App\Config\ScopeConfigInterface;
 
+/**
+ * @deprecated As of February 2021, this Legacy Amazon Pay plugin has been
+ * deprecated, in favor of a newer Amazon Pay version available through GitHub
+ * and Magento Marketplace. Please download the new plugin for automatic
+ * updates and to continue providing your customers with a seamless checkout
+ * experience. Please see https://pay.amazon.com/help/E32AAQBC2FY42HS for details
+ * and installation instructions.
+ */
 class Address
 {
     /**
@@ -79,6 +87,9 @@ class Address
         $address->setTelephone($amazonAddress->getTelephone());
         $address->setCountryId($this->getCountryId($amazonAddress));
 
+        $company = !empty($amazonAddress->getCompany()) ? $amazonAddress->getCompany() : '';
+        $address->setCompany($company);
+
         /*
          * The number of lines in a street address is configurable via 'customer/address/street_lines'.
          * To avoid discarding information, we'll concatenate additional lines so that they fit within the configured
@@ -94,9 +105,6 @@ class Address
             }
         }
         $address->setStreet(array_values($lines));
-
-        $company = !empty($amazonAddress->getCompany()) ? $amazonAddress->getCompany() : '';
-        $address->setCompany($company);
 
         if ($amazonAddress->getState()) {
             $address->setRegion($this->getRegionData($amazonAddress, $address->getCountryId()));

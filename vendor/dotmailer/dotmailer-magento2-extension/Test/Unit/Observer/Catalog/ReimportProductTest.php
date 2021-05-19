@@ -24,7 +24,7 @@ class ReimportProductTest extends TestCase
      */
     private $reimportProduct;
 
-    protected function setUp()
+    protected function setUp(): void
     {
         $this->updaterMock = $this->createMock(UpdateCatalog::class);
         $this->observerMock = $this->getMockBuilder(Observer::class)

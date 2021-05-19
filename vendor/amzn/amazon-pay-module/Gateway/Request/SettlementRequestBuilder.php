@@ -18,13 +18,20 @@ namespace Amazon\Payment\Gateway\Request;
 
 use Amazon\Payment\Gateway\Config\Config;
 use Magento\Payment\Gateway\Request\BuilderInterface;
-use Magento\Framework\App\ProductMetadata;
 use Amazon\Payment\Gateway\Helper\SubjectReader;
 use Amazon\Core\Helper\Data;
 use Magento\Payment\Model\Method\Logger;
 use Magento\Sales\Api\OrderRepositoryInterface;
 use Magento\Quote\Api\CartRepositoryInterface;
 
+/**
+ * @deprecated As of February 2021, this Legacy Amazon Pay plugin has been
+ * deprecated, in favor of a newer Amazon Pay version available through GitHub
+ * and Magento Marketplace. Please download the new plugin for automatic
+ * updates and to continue providing your customers with a seamless checkout
+ * experience. Please see https://pay.amazon.com/help/E32AAQBC2FY42HS for details
+ * and installation instructions.
+ */
 class SettlementRequestBuilder implements BuilderInterface
 {
     /**
@@ -36,11 +43,6 @@ class SettlementRequestBuilder implements BuilderInterface
      * @var Logger
      */
     private $logger;
-
-    /**
-     * @var ProductMetadata
-     */
-    private $productMetaData;
 
     /**
      * @var SubjectReader
@@ -66,7 +68,6 @@ class SettlementRequestBuilder implements BuilderInterface
      * SettlementRequestBuilder constructor.
      *
      * @param Config $config
-     * @param ProductMetadata $productMetadata
      * @param OrderRepositoryInterface $orderRepository
      * @param CartRepositoryInterface $quoteRepository
      * @param SubjectReader $subjectReader
@@ -75,7 +76,6 @@ class SettlementRequestBuilder implements BuilderInterface
      */
     public function __construct(
         Config $config,
-        ProductMetaData $productMetadata,
         OrderRepositoryInterface $orderRepository,
         CartRepositoryInterface $quoteRepository,
         SubjectReader $subjectReader,
@@ -86,11 +86,45 @@ class SettlementRequestBuilder implements BuilderInterface
         $this->orderRepository = $orderRepository;
         $this->quoteRepository = $quoteRepository;
         $this->coreHelper = $coreHelper;
-        $this->productMetaData = $productMetadata;
         $this->subjectReader = $subjectReader;
         $this->logger = $logger;
     }
 
+    /**
+     * @param \Magento\Sales\Model\Order\Payment $payment
+     * @return \Magento\Sales\Model\Order\Invoice
+     */
+    protected function getCurrentInvoice($payment)
+    {
+        $result = null;
+        $order = $payment->getOrder();
+        foreach ($order->getInvoiceCollection() as $invoice) {
+            if (!$invoice->getId()) {
+                $result = $invoice;
+                break;
+            }
+        }
+        return $result;
+    }
+
+    /**
+     * @param \Magento\Sales\Model\Order\Payment $payment
+     * @return string
+     */
+    protected function getSellerNote($payment)
+    {
+        $result = '';
+        $invoice = $this->getCurrentInvoice($payment);
+        if ($invoice && $invoice->getComments()) {
+            foreach ($invoice->getComments() as $comment) {
+                if ($comment->getComment()) {
+                    $result = $comment->getComment();
+                    break;
+                }
+            }
+        }
+        return $result;
+    }
 
     /**
      * @param array $buildSubject
@@ -102,11 +136,17 @@ class SettlementRequestBuilder implements BuilderInterface
         $data = [];
 
         $paymentDO = $this->subjectReader->readPayment($buildSubject);
-
         $orderDO = $paymentDO->getOrder();
+        $order = $paymentDO->getPayment()->getOrder();
+        $payment = $paymentDO->getPayment();
 
-        $currencyCode = $orderDO->getCurrencyCode();
-        $total = $buildSubject['amount'];
+        $currencyCode = $order->getOrderCurrencyCode();
+        if ($payment->getAmazonDisplayInvoiceAmount()) {
+            $total = $payment->getAmazonDisplayInvoiceAmount();
+        }
+        else {
+            $total = $payment->getAmountOrdered();
+        }
 
         if ($buildSubject['multicurrency']['multicurrency']) {
             $currencyCode = $buildSubject['multicurrency']['order_currency'];
@@ -123,7 +163,7 @@ class SettlementRequestBuilder implements BuilderInterface
                     'store_id' => $buildSubject['multicurrency']['store_id'],
                     'store_name' => $buildSubject['multicurrency']['store_name'],
                     'custom_information' =>
-                        'Magento Version : ' . $this->productMetaData->getVersion() . ' ' .
+                        'Magento Version : 2, ' .
                         'Plugin Version : ' . $this->coreHelper->getVersion(),
                     'platform_id' => $this->config->getValue('platform_id'),
                     'request_payment_authorization' => false
@@ -132,6 +172,10 @@ class SettlementRequestBuilder implements BuilderInterface
                 if (isset($buildSubject['request_payment_authorization']) && $buildSubject['request_payment_authorization']) {
                     $data['request_payment_authorization'] = true;
                 }
+        }
+
+        if ($this->coreHelper->isSandboxEnabled('store', $orderDO->getStoreId())) {
+            $data['seller_note'] = $this->getSellerNote($paymentDO->getPayment());
         }
 
         return $data;

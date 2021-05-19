@@ -40,16 +40,16 @@
         <dontSee userInput="401 Unauthorized" selector="h1" stepKey="dontSeeUnauthorized"/>
         <amOnPage url="{{StorefrontAbandonedCartPage.url}}/hacked" stepKey="amOnACHackedPage"/>
         <see selector="{{StorefrontAbandonedCartEdcSection.dynamicPageContent}}" userInput="401" stepKey="seeUnauthorized"/>
-        <amOnPage url="{{AdminDotmailerDashboardPage.url}}" stepKey="amOnDashboardPage"/>
+        <amOnPage url="{{DotdigitalDashboardPage.url}}" stepKey="amOnDashboardPage"/>
         <waitForPageLoad stepKey="waitForPageLoad3"/>
-        <seeInCurrentUrl url="{{AdminDotmailerDashboardPage.url}}" stepKey="seeDashboard"/>
-        <see userInput="Not Locked." selector="{{AdminDashboardSection.lockStatus}}" stepKey="SeeLockStatus"/>
+        <seeInCurrentUrl url="{{DotdigitalDashboardPage.url}}" stepKey="seeDashboard"/>
+        <see userInput="Not Locked." selector="{{DotdigitalDashboardSection.lockStatus}}" stepKey="SeeLockStatus"/>
         <amOnPage url="{{StorefrontAbandonedCartPage.url}}/hacked" stepKey="amOnAbandonedCartPage_1"/>
         <amOnPage url="{{StorefrontAbandonedCartPage.url}}/hacked" stepKey="amOnAbandonedCartPage_2"/>
         <amOnPage url="{{StorefrontAbandonedCartPage.url}}/hacked" stepKey="amOnAbandonedCartPage_3"/>
         <amOnPage url="{{StorefrontAbandonedCartPage.url}}/hacked" stepKey="amOnAbandonedCartPage_4"/>
         <amOnPage url="{{StorefrontAbandonedCartPage.url}}/hacked" stepKey="amOnAbandonedCartPage_5"/>
-        <amOnPage url="{{AdminDotmailerDashboardPage.url}}" stepKey="amBackOnDashboard"/>
-        <see userInput="Locked." selector="{{AdminDashboardSection.lockStatus}}" stepKey="SeeLockStatus1"/>
+        <amOnPage url="{{DotdigitalDashboardPage.url}}" stepKey="amBackOnDashboard"/>
+        <see userInput="Locked." selector="{{DotdigitalDashboardSection.lockStatus}}" stepKey="SeeLockStatus1"/>
     </test>
 </tests>

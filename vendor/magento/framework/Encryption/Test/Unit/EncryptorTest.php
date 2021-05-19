@@ -31,22 +31,22 @@ class EncryptorTest extends \PHPUnit\Framework\TestCase
     private $encryptor;
 
     /**
-     * @var Random|\PHPUnit_Framework_MockObject_MockObject
+     * @var Random|\PHPUnit\Framework\MockObject\MockObject
      */
     private $randomGeneratorMock;
 
     /**
-     * @var KeyValidator|\PHPUnit_Framework_MockObject_MockObject
+     * @var KeyValidator|\PHPUnit\Framework\MockObject\MockObject
      */
     private $keyValidatorMock;
 
     /**
      * @inheritdoc
      */
-    protected function setUp()
+    protected function setUp(): void
     {
         $this->randomGeneratorMock = $this->createMock(Random::class);
-        /** @var DeploymentConfig | \PHPUnit_Framework_MockObject_MockObject $deploymentConfigMock */
+        /** @var DeploymentConfig | \PHPUnit\Framework\MockObject\MockObject $deploymentConfigMock */
         $deploymentConfigMock = $this->createMock(DeploymentConfig::class);
         $deploymentConfigMock->expects($this->any())
             ->method('get')
@@ -96,15 +96,14 @@ class EncryptorTest extends \PHPUnit\Framework\TestCase
      */
     public function testGetHashRandomSaltDefaultLength(): void
     {
-        $salt = 'random-salt';
         //phpcs:disable PHPCompatibility.Constants.NewConstants
+        $salt = 'random-salt';
         $salt = str_pad(
             $salt,
             $this->encryptor->getLatestHashVersion() >= Encryptor::HASH_VERSION_ARGON2ID13
                 ? SODIUM_CRYPTO_PWHASH_SALTBYTES : 32,
             $salt
         );
-        //phpcs:enable PHPCompatibility.Constants.NewConstants
         if ($this->encryptor->getLatestHashVersion() >= Encryptor::HASH_VERSION_ARGON2ID13) {
             $version = Encryptor::HASH_VERSION_ARGON2ID13;
             $expected = '2d78b5e93b683c4d3b0574c1ced8e40ddec7730c2e1b35f282b2c955b5cb7262:' . $salt . ':2';
@@ -118,6 +117,7 @@ class EncryptorTest extends \PHPUnit\Framework\TestCase
             ->willReturn($salt);
         $actual = $this->encryptor->getHash('password', true, $version);
         $this->assertEquals($expected, $actual);
+        //phpcs:enable PHPCompatibility.Constants.NewConstants
     }
 
     /**
@@ -178,10 +178,11 @@ class EncryptorTest extends \PHPUnit\Framework\TestCase
      * @param mixed $key
      *
      * @dataProvider emptyKeyDataProvider
-     * @expectedException \SodiumException
      */
     public function testEncryptWithEmptyKey($key): void
     {
+        $this->expectException(\SodiumException::class);
+
         $deploymentConfigMock = $this->createMock(DeploymentConfig::class);
         $deploymentConfigMock->expects($this->any())
             ->method('get')
@@ -310,10 +311,11 @@ class EncryptorTest extends \PHPUnit\Framework\TestCase
     /**
      * Checking that encryptor relies on key validator.
      *
-     * @expectedException \Exception
      */
     public function testValidateKeyInvalid(): void
     {
+        $this->expectException(\Exception::class);
+
         $this->keyValidatorMock->method('isValid')->willReturn(false);
         $this->encryptor->validateKey('-----    ');
     }
@@ -381,7 +383,7 @@ class EncryptorTest extends \PHPUnit\Framework\TestCase
                 }
             );
         $hash = $this->encryptor->getHash($password, $salt, $hashAlgo);
-        $this->assertRegExp($pattern, $hash);
+        $this->assertMatchesRegularExpression($pattern, $hash);
     }
 
     /**

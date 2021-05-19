@@ -35,7 +35,7 @@ abstract class AbstractMemberGenerator extends AbstractGenerator
     /**#@-*/
 
     /**
-     * @var DocBlockGenerator
+     * @var DocBlockGenerator|null
      */
     protected $docBlock;
 
@@ -235,8 +235,13 @@ abstract class AbstractMemberGenerator extends AbstractGenerator
         return $this;
     }
 
+    public function removeDocBlock(): void
+    {
+        $this->docBlock = null;
+    }
+
     /**
-     * @return DocBlockGenerator
+     * @return DocBlockGenerator|null
      */
     public function getDocBlock()
     {

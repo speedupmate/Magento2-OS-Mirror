@@ -58,12 +58,13 @@ class ConfigValidate extends Command
 
         if ($suite = $input->getArgument('suite')) {
             $output->write("Validating <bold>$suite</bold> config... ");
-            $config = $this->getSuiteConfig($suite, $input->getOption('config'));
+            $config = $this->getSuiteConfig($suite);
             $output->writeln("Ok");
             $output->writeln("------------------------------\n");
             $output->writeln("<info>$suite Suite Config</info>:\n");
             $output->writeln($this->formatOutput($config));
-            return;
+
+            return 0;
         }
 
         $output->write("Validating global config... ");
@@ -95,6 +96,7 @@ class ConfigValidate extends Command
 
 
         $output->writeln("Execute <info>codecept config:validate [<suite>]</info> to see config for a suite");
+        return 0;
     }
 
     protected function formatOutput($config)

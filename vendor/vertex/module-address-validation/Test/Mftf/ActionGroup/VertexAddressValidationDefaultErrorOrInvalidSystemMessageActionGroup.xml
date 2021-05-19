@@ -1,0 +1,28 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!--
+ /**
+  * @copyright  Vertex. All rights reserved.  https://www.vertexinc.com/
+  * @author     Mediotype                     https://www.mediotype.com/
+  */
+-->
+<actionGroups xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+              xsi:noNamespaceSchemaLocation="urn:magento:mftf:Test/etc/actionGroupSchema.xsd">
+    <actionGroup name="VertexAddressValidationDefaultErrorOrInvalidSystemMessageActionGroup">
+
+        <waitForLoadingMaskToDisappear stepKey="waitForLoadingMask"/>
+        <waitForElementVisible selector="{{CheckoutShippingSection.addressMessageWarning}}" time="30" stepKey="waitForAddressMessage"/>
+
+        <see stepKey="warningMessage"
+             selector="{{CheckoutShippingSection.addressMessageWarning}}"
+             userInput="The address could not be validated.  Please ensure it is correct before continuing."/>
+
+        <conditionalClick selector="{{CheckoutShippingSection.next}}"
+                          dependentSelector="{{CheckoutShippingSection.updateLinkToValidAddress}}"
+                          visible="false"
+                          stepKey="clickNext"/>
+
+        <waitForElement selector="{{CheckoutPaymentSection.paymentSectionTitle}}" time="30"
+                        stepKey="waitForPaymentSectionLoaded"/>
+        <seeInCurrentUrl url="{{CheckoutPage.url}}/#payment" stepKey="assertCheckoutPaymentUrl"/>
+    </actionGroup>
+</actionGroups>

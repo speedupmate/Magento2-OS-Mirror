@@ -26,6 +26,5 @@ return array(
     'Cm\\RedisSession\\' => array($vendorDir . '/colinmollenhour/php-redis-session-abstract/src'),
     'Braintree' => array($vendorDir . '/braintree/braintree_php/lib'),
     'Behat\\Gherkin' => array($vendorDir . '/behat/gherkin/src'),
-    'BaconQrCode' => array($vendorDir . '/bacon/bacon-qr-code/src'),
     '' => array($baseDir . '/app/code', $baseDir . '/generated/code'),
 );

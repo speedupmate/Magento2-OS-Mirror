@@ -56,7 +56,7 @@
         <see userInput="Save As Is"
              selector="{{StorefrontCustomerAddressFormSection.saveAddressAsIs}}"
              stepKey="verifyAsIsButtonValue"/>
-        <see userInput="The address is not valid"
+        <see userInput="We found potential improvements for this address:"
              selector="{{StorefrontCustomerAddressFormSection.messageText}}"
              stepKey="verifyMessageText"/>
         <see userInput="{{Vertex_Customer_BirminghamAlabama_Address_Correct.postcode}}"
@@ -120,7 +120,7 @@
         <see userInput="Save As Is"
              selector="{{StorefrontCustomerAddressFormSection.saveAddressAsIs}}"
              stepKey="verifyAsIsButtonValue"/>
-        <see userInput="The address is not valid"
+        <see userInput="We found potential improvements for this address:"
              selector="{{StorefrontCustomerAddressFormSection.messageText}}"
              stepKey="verifyMessageText"/>
         <see userInput="{{Vertex_Customer_BirminghamAlabama_Address_Correct.postcode}}"
@@ -183,7 +183,7 @@
         <see userInput="Save As Is"
              selector="{{StorefrontCustomerAddressFormSection.saveAddressAsIs}}"
              stepKey="verifyAsIsButtonValue"/>
-        <see userInput="The address is not valid"
+        <see userInput="We found potential improvements for this address:"
              selector="{{StorefrontCustomerAddressFormSection.messageText}}"
              stepKey="verifyMessageText"/>
         <see userInput="{{Vertex_Customer_BirminghamAlabama_Address_Correct.postcode}}"
@@ -243,7 +243,7 @@
         <see userInput="Save As Is"
              selector="{{StorefrontCustomerAddressFormSection.saveAddress}}"
              stepKey="verifyButtonValue"/>
-        <see userInput="We did not find a valid address"
+        <see userInput="The address could not be validated. Please ensure it is correct before continuing."
              selector="{{StorefrontCustomerAddressFormSection.messageText}}"
              stepKey="verifyMessageText"/>
         <dontSeeElement selector="{{StorefrontCustomerAddressFormSection.messageDifference}}"

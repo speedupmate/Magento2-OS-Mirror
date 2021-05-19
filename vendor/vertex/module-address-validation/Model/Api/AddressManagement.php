@@ -8,55 +8,83 @@ declare(strict_types=1);
 
 namespace Vertex\AddressValidation\Model\Api;
 
-use Magento\Framework\Webapi\Exception;
+use Magento\Framework\Webapi\Exception as WebapiException;
 use Magento\Quote\Api\Data\AddressInterface;
+use Magento\Quote\Api\Data\AddressInterfaceFactory;
+use Magento\Store\Model\ScopeInterface;
 use Magento\Store\Model\StoreManagerInterface;
-use Vertex\AddressValidation\Model\Address\BuilderInterface;
-use Vertex\AddressValidation\Model\Address\BuilderInterfaceFactory;
-use Vertex\AddressValidation\Model\Config;
 use Vertex\AddressValidation\Api\AddressManagementInterface;
+use Vertex\AddressValidation\Model\AddressBuilderFactory;
+use Vertex\AddressValidation\Model\Config;
+use Vertex\AddressValidationApi\Api\CleanseAddressInterface;
 
+/**
+ * @deprecated Unsecured API
+ * @see CleanseAddressInterface
+ */
 class AddressManagement implements AddressManagementInterface
 {
-    /** @var BuilderInterface */
-    private $builderFactory;
+    /** @var AddressCleanser */
+    private $addressCleanser;
 
-    /** @var StoreManagerInterface */
-    private $storeManager;
+    /** @var AddressBuilderFactory */
+    private $builderFactory;
 
     /** @var Config */
     private $config;
 
+    /** @var AddressInterfaceFactory */
+    private $quoteAddressFactory;
+
+    /** @var StoreManagerInterface */
+    private $storeManager;
+
     public function __construct(
-        BuilderInterfaceFactory $builderFactory,
+        AddressBuilderFactory $builderFactory,
         StoreManagerInterface $storeManager,
-        Config $config
+        Config $config,
+        AddressCleanser $addressCleanser,
+        AddressInterfaceFactory $quoteAddressFactory
     ) {
         $this->builderFactory = $builderFactory;
         $this->storeManager = $storeManager;
         $this->config = $config;
+        $this->addressCleanser = $addressCleanser;
+        $this->quoteAddressFactory = $quoteAddressFactory;
     }
 
     public function getValidAddress(AddressInterface $address): AddressInterface
     {
-        if (!$this->config->isAddressValidationEnabled()) {
-            throw new Exception(
+        if (!$this->config->isAddressValidationEnabled() || !$this->config->isLegacyWebApiEnabled()) {
+            throw new WebapiException(
                 __('Request does not match any route.'),
                 0,
-                Exception::HTTP_NOT_FOUND
+                WebapiException::HTTP_NOT_FOUND
             );
         }
 
-        $storeId = (int) $this->storeManager->getStore()->getId();
+        $storeId = $this->storeManager->getStore()->getId();
 
-        /** @var BuilderInterface $builder */
         $builder = $this->builderFactory->create();
-        $vertexAddress = $builder->execute($address, $storeId);
+        $vertexAddress = $builder->buildFromQuoteAddress($address, (string)$storeId);
 
-        $address->setCity($vertexAddress->getCity());
-        $address->setPostcode($vertexAddress->getPostalCode());
-        $address->setStreet($vertexAddress->getStreetAddress());
+        $cleansedAddress = $this->addressCleanser->cleanseAddress(
+            $vertexAddress,
+            (string)$storeId,
+            ScopeInterface::SCOPE_STORE
+        );
 
-        return $address;
+        $quoteAddress = $this->quoteAddressFactory->create();
+        if ($cleansedAddress === null) {
+            return $quoteAddress;
+        }
+
+        $quoteAddress->setCity($cleansedAddress->getCity())
+            ->setStreet($cleansedAddress->getStreetAddress())
+            ->setRegionId($cleansedAddress->getRegionId())
+            ->setRegion($cleansedAddress->getRegionName())
+            ->setPostcode($cleansedAddress->getPostalCode());
+
+        return $quoteAddress;
     }
 }

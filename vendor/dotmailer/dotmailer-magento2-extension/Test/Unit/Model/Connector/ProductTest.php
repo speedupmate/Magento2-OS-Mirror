@@ -162,7 +162,7 @@ class ProductTest extends TestCase
      */
     private $tierPriceFinderMock;
 
-    protected function setUp()
+    protected function setUp(): void
     {
         $this->storeManagerMock = $this->createMock(StoreManagerInterface::class);
         $this->helperMock = $this->createMock(Data::class);

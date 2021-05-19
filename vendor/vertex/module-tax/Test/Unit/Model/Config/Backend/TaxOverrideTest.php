@@ -1,4 +1,4 @@
-<?php
+<?php declare(strict_types=1);
 /**
  * @copyright  Vertex. All rights reserved.  https://www.vertexinc.com/
  * @author     Mediotype                     https://www.mediotype.com/
@@ -6,13 +6,14 @@
 
 namespace Vertex\Tax\Test\Unit\Model\Config\Backend;
 
+use Magento\Framework\App\Cache\TypeListInterface;
+use Magento\Framework\App\Config\ScopeConfigInterface;
 use Magento\Framework\App\Config\Value;
+use Magento\Framework\Event\ManagerInterface;
 use Magento\Framework\Math\Random;
 use Magento\Framework\Model\Context;
 use Magento\Framework\Registry;
-use Magento\Framework\App\Cache\TypeListInterface;
-use Magento\Framework\App\Config\ScopeConfigInterface;
-use Magento\Framework\Event\ManagerInterface;
+use PHPUnit\Framework\MockObject\MockObject;
 use Vertex\Tax\Model\Config\Backend\TaxOverride;
 use Vertex\Tax\Model\Config\DeliveryTerm;
 use Vertex\Tax\Test\Unit\TestCase;
@@ -22,34 +23,34 @@ use Vertex\Tax\Test\Unit\TestCase;
  */
 class TaxOverrideTest extends TestCase
 {
-    /** @var DeliveryTerm|\PHPUnit_Framework_MockObject_MockObject */
+    /** @var DeliveryTerm|MockObject */
     private $deliveryTerm;
 
-    /** @var ScopeConfigInterface|\PHPUnit_Framework_MockObject_MockObject */
+    /** @var ScopeConfigInterface|MockObject */
     private $configMock;
 
-    /** @var TypeListInterface|\PHPUnit_Framework_MockObject_MockObject */
+    /** @var TypeListInterface|MockObject */
     private $cacheTypeListMock;
 
-    /** @var Context|\PHPUnit_Framework_MockObject_MockObject */
+    /** @var Context|MockObject */
     private $context;
 
-    /** @var ManagerInterface|\PHPUnit_Framework_MockObject_MockObject */
+    /** @var ManagerInterface|MockObject */
     private $eventManagerMock;
 
     /** @var Value */
     private $model;
 
-    /** @var Random|\PHPUnit_Framework_MockObject_MockObject */
+    /** @var Random|MockObject */
     private $random;
 
-    /** @var Registry|\PHPUnit_Framework_MockObject_MockObject */
+    /** @var Registry|MockObject */
     private $registry;
 
     /**
      * @inheritdoc
      */
-    protected function setUp() // @codingStandardsIgnoreLine MEQP2.PHP.ProtectedClassMember.FoundProtected
+    protected function setUp(): void // @codingStandardsIgnoreLine MEQP2.PHP.ProtectedClassMember.FoundProtected
     {
         parent::setUp();
         $this->context = $this->createMock(Context::class);
@@ -155,5 +156,4 @@ class TaxOverrideTest extends TestCase
             ],
         ];
     }
-
 }

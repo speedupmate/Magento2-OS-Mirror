@@ -2,36 +2,26 @@
 
 require(__DIR__ . '/../vendor/autoload.php');
 
-$jsonfile = __DIR__ . '/../Tests/user_agents.json';
+$jsonfile = __DIR__ . '/../Tests/user_agents.dist.json';
 
 $uas = json_decode(file_get_contents($jsonfile), true);
 
 foreach( $uas as $key => &$val ) {
 	$val['key'] = $key;
 }
-unset($val);
 
 uasort($uas, function ( $a, $b ) {
 
-	if( $a['platform'] === null && $b['platform'] !== null ) {
-		return 1;
-	}
-	if( $b['platform'] === null && $a['platform'] !== null ) {
-		return -1;
-	}
+	if($a['platform'] === null && $b['platform'] !== null) return 1;
+	if($b['platform'] === null && $a['platform'] !== null) return -1;
 
 	$desktop = array( 'Windows', 'Linux', 'Macintosh', 'Chrome OS' );
 
-	$ad = in_array($a['platform'], $desktop, true);
-	$bd = in_array($b['platform'], $desktop, true);
+	$ad = in_array($a['platform'], $desktop);
+	$bd = in_array($b['platform'], $desktop);
 
-	if( !$ad && $bd ) {
-		return 1;
-	}
-
-	if( $ad && !$bd ) {
-		return -1;
-	}
+	if( !$ad && $bd ) return 1;
+	if( $ad && !$bd ) return -1;
 
 	if( $ad ) {
 		$result = strnatcasecmp($a['browser'], $b['browser']);
@@ -42,6 +32,7 @@ uasort($uas, function ( $a, $b ) {
 			if( $result == 0 ) {
 				$result = compare_version($a['version'], $b['version']);
 			}
+
 		}
 	} else {
 		$result = strnatcasecmp($a['platform'], $b['platform']);
@@ -52,6 +43,7 @@ uasort($uas, function ( $a, $b ) {
 			if( $result == 0 ) {
 				$result = compare_version($a['version'], $b['version']);
 			}
+
 		}
 	}
 
@@ -65,12 +57,11 @@ uasort($uas, function ( $a, $b ) {
 foreach( $uas as &$val ) {
 	unset($val['key']);
 }
-unset($val);
 
 $jsonPretty = new Camspiers\JsonPretty\JsonPretty;
-
 $json = $jsonPretty->prettify($uas) . "\n";
 echo $json;
+file_put_contents($jsonfile, $json);
 
 
 function compare_version( $a, $b ) {
@@ -85,12 +76,12 @@ function compare_version( $a, $b ) {
 		$aa = strtolower(isset($cmp_a[$i]) ? $cmp_a[$i] : '0');
 		$bb = strtolower(isset($cmp_b[$i]) ? $cmp_b[$i] : '0');
 
-		if( is_numeric($aa) && is_numeric($bb) && $aa !== $bb ) {
-			$value = ($aa > $bb ? 1 : -1);
-			break;
-		}
-
-		if( $cmp = strcmp($aa, $bb) ) {
+		if( is_numeric($aa) && is_numeric($bb) ) {
+			if( $aa != $bb ) {
+				$value = ($aa > $bb ? 1 : -1);
+				break;
+			}
+		} else if( $cmp = strcmp($aa, $bb) ) {
 			$value = $cmp / abs($cmp);
 			break;
 		}

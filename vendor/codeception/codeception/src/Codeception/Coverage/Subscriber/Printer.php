@@ -3,8 +3,10 @@ namespace Codeception\Coverage\Subscriber;
 
 use Codeception\Configuration;
 use Codeception\Coverage\Filter;
+use Codeception\Coverage\PhpCodeCoverageFactory;
 use Codeception\Event\PrintResultEvent;
 use Codeception\Events;
+use Codeception\Exception\ConfigurationException;
 use Codeception\Subscriber\Shared\StaticEvents;
 use Symfony\Component\EventDispatcher\EventSubscriberInterface;
 
@@ -17,10 +19,11 @@ class Printer implements EventSubscriberInterface
     ];
 
     protected $settings = [
-        'enabled'        => true,
-        'low_limit'      => '35',
-        'high_limit'     => '70',
-        'show_uncovered' => false
+        'enabled'           => true,
+        'low_limit'         => '35',
+        'high_limit'        => '70',
+        'show_uncovered'    => false,
+        'show_only_summary' => false
     ];
 
     public static $coverage;
@@ -33,7 +36,8 @@ class Printer implements EventSubscriberInterface
         $this->options = $options;
         $this->logDir = Configuration::outputDir();
         $this->settings = array_merge($this->settings, Configuration::config()['coverage']);
-        self::$coverage = new \SebastianBergmann\CodeCoverage\CodeCoverage();
+
+        self::$coverage = PhpCodeCoverageFactory::build();
 
         // Apply filter
         $filter = new Filter(self::$coverage);
@@ -80,6 +84,10 @@ class Printer implements EventSubscriberInterface
             $this->printCrap4j();
             $printer->write("Crap4j report generated in {$this->options['coverage-crap4j']}\n");
         }
+        if ($this->options['coverage-cobertura']) {
+            $this->printCobertura();
+            $printer->write("Cobertura report generated in {$this->options['coverage-cobertura']}\n");
+        }
         if ($this->options['coverage-phpunit']) {
             $this->printPHPUnit();
             $printer->write("PHPUnit report generated in {$this->options['coverage-phpunit']}\n");
@@ -92,7 +100,7 @@ class Printer implements EventSubscriberInterface
             $this->settings['low_limit'],
             $this->settings['high_limit'],
             $this->settings['show_uncovered'],
-            false
+            $this->settings['show_only_summary']
         );
         $printer->write($writer->process(self::$coverage, $this->options['colors']));
     }
@@ -129,7 +137,7 @@ class Printer implements EventSubscriberInterface
             $this->settings['low_limit'],
             $this->settings['high_limit'],
             $this->settings['show_uncovered'],
-            false
+            $this->settings['show_only_summary']
         );
         file_put_contents(
             $this->absolutePath($this->options['coverage-text']),
@@ -141,6 +149,15 @@ class Printer implements EventSubscriberInterface
     {
         $writer = new \SebastianBergmann\CodeCoverage\Report\Crap4j;
         $writer->process(self::$coverage, $this->absolutePath($this->options['coverage-crap4j']));
+    }
+
+    protected function printCobertura()
+    {
+        if (!class_exists(\SebastianBergmann\CodeCoverage\Report\Cobertura::class)) {
+            throw new ConfigurationException("Cobertura report requires php-code-coverage >= 9.2");
+        }
+        $writer = new \SebastianBergmann\CodeCoverage\Report\Cobertura;
+        $writer->process(self::$coverage, $this->absolutePath($this->options['coverage-cobertura']));
     }
 
     protected function printPHPUnit()

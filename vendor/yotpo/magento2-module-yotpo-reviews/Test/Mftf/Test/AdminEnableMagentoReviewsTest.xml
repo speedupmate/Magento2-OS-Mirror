@@ -1,0 +1,46 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!--
+ /**
+  * Copyright © Magento, Inc. All rights reserved.
+  * See COPYING.txt for license details.
+  */
+-->
+
+<tests xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+       xsi:noNamespaceSchemaLocation="urn:magento:mftf:Test/etc/testSchema.xsd">
+    <test name="AdminEnableMagentoReviewsTest">
+        <annotations>
+            <features value="Yotpo"/>
+            <stories value="Enable Magento reviews and verify it appears on product page"/>
+            <title value="Test that Magento reviews appear on the product page"/>
+            <description value="Test that Magento reviews appear on the product page"/>
+            <severity value="AVERAGE"/>
+            <testCaseId value="MC-290"/>
+            <group value="YotpoDisable"/>
+        </annotations>
+
+        <before>
+            <actionGroup ref="LoginAsAdmin" stepKey="LoginAsAdmin"/>
+            <!-- Enable Magento Reviews Module -->
+            <actionGroup ref="AdminEnableMagentoReviews" stepKey="EnableMagentoReviews"/>
+            <createData entity="_defaultCategory" stepKey="createCategory"/>
+            <createData entity="SimpleProduct" stepKey="createSimpleProduct">
+                <field key="price">10.00</field>
+                <requiredEntity createDataKey="createCategory"/>
+            </createData>
+        </before>
+
+        <after>
+            <actionGroup ref="AdminDisableMagentoReviews" stepKey="DisableMagentoReviews"/>
+            <deleteData createDataKey="createSimpleProduct" stepKey="deleteProduct"/>
+            <deleteData  createDataKey="createCategory" stepKey="deleteCategory"/>
+            <amOnPage url="{{AdminLogoutPage.url}}" stepKey="amOnLogoutPage"/>
+        </after>
+        <!-- Go to product page -->
+        <actionGroup ref="OpenStoreFrontProductPageActionGroup" stepKey="openProductPage">
+            <argument name="productUrlKey" value="$$createSimpleProduct.custom_attributes[url_key]$$"/>
+        </actionGroup>
+        <waitForPageLoad stepKey="waitForProductPageLoad"/>
+        <seeElement selector="{{StorefrontMagentoReviewsProductPageSection.productReviewsSummary}}" stepKey="checkProductReviewsSummaryIsAppearsOnPage"/>
+    </test>
+</tests>

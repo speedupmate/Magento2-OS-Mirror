@@ -61,13 +61,12 @@ class OrderRepositoryTest extends \PHPUnit\Framework\TestCase
 
     /**
      * @covers ::getById()
-     * @expectedException \Magento\Framework\Exception\NoSuchEntityException
-     * @expectedExceptionMessage Order with id "" does not exist.
      */
     public function testGetByIdWithException()
     {
+        $this->expectException('\Magento\Framework\Exception\NoSuchEntityException');
+        $this->expectExceptionMessage('Order with id "" does not exist');
         $orderId = '';
-
         $this->orderFactoryMock->expects(static::once())->method('create')->willReturn($this->orderMock);
         $this->orderResourceMock->expects(static::once())
             ->method('load')
@@ -102,13 +101,12 @@ class OrderRepositoryTest extends \PHPUnit\Framework\TestCase
 
     /**
      * @covers ::getByOrder()
-     * @expectedException \Magento\Framework\Exception\NoSuchEntityException
-     * @expectedExceptionMessage Requested order doesn't exist
      */
     public function testGetByOrderWithException()
     {
+        $this->expectException('\Magento\Framework\Exception\NoSuchEntityException');
+        $this->expectExceptionMessage('Requested order doesn\'t exist');
         $orderId = '';
-
         $this->orderFactoryMock->expects(static::once())
             ->method('create')
             ->willReturn($this->orderMock);
@@ -145,14 +143,13 @@ class OrderRepositoryTest extends \PHPUnit\Framework\TestCase
 
     /**
      * @covers ::getByReservationId()
-     * @expectedException \Magento\Framework\Exception\NoSuchEntityException
-     * @expectedExceptionMessage Order with Reservation ID "" does not exist.
      */
     public function testGetByReservationIdWithException()
     {
+        $this->expectException('\Magento\Framework\Exception\NoSuchEntityException');
+        $this->expectExceptionMessage('Order with Reservation ID "" does not exist.');
         $orderId = '';
         $reservationId = '';
-
         $this->orderFactoryMock->expects(static::once())
             ->method('create')
             ->willReturn($this->orderMock);
@@ -189,14 +186,13 @@ class OrderRepositoryTest extends \PHPUnit\Framework\TestCase
 
     /**
      * @covers ::getBySessionId()
-     * @expectedException \Magento\Framework\Exception\NoSuchEntityException
-     * @expectedExceptionMessage Order with session_id "" does not exist.
      */
     public function testGetBySessionIdWithException()
     {
+        $this->expectException('\Magento\Framework\Exception\NoSuchEntityException');
+        $this->expectExceptionMessage('Order with session_id "" does not exist.');
         $orderId = '';
         $sessionId = '';
-
         $this->orderFactoryMock->expects(static::once())
             ->method('create')
             ->willReturn($this->orderMock);
@@ -289,12 +285,12 @@ class OrderRepositoryTest extends \PHPUnit\Framework\TestCase
 
     /**
      * @covers ::save()
-     * @expectedException \Magento\Framework\Exception\CouldNotSaveException
-     * @expectedExceptionMessage No such entity with payments_quote_id =
      */
     public function testSaveWithException()
     {
-        $exceptionMessage = 'No such entity with payments_quote_id = ';
+        $exceptionMessage = "No such entity with payments_quote_id = ''";
+        $this->expectException('\Magento\Framework\Exception\CouldNotSaveException');
+        $this->expectExceptionMessage($exceptionMessage);
         $this->orderResourceMock->expects(static::once())
             ->method('save')
             ->with($this->orderMock)
@@ -306,7 +302,7 @@ class OrderRepositoryTest extends \PHPUnit\Framework\TestCase
     /**
      * Set up
      */
-    protected function setUp()
+    protected function setUp(): void
     {
         $objectManager = new \Magento\Framework\TestFramework\Unit\Helper\ObjectManager($this);
 
@@ -318,12 +314,8 @@ class OrderRepositoryTest extends \PHPUnit\Framework\TestCase
             \Magento\Sales\Model\Order::class,
             [
                 'load',
-                'loadByIdWithoutStore',
-                'loadByCustomer',
-                'getIsActive',
                 'getId',
                 '__wakeup',
-                'setSharedStoreIds',
                 'save',
                 'delete',
                 'getCustomerId',

@@ -1,24 +1,38 @@
 <?php
 
 $autoloadFile = './vendor/codeception/codeception/autoload.php';
-if (file_exists('./vendor/autoload.php') && file_exists($autoloadFile) && __FILE__ != realpath($autoloadFile)) {
+if (( !isset($argv) || (isset($argv) && !in_array('--no-redirect', $argv)) ) && file_exists('./vendor/autoload.php') && file_exists($autoloadFile) && __FILE__ != realpath($autoloadFile)) {
     //for global installation or phar file
     fwrite(
         STDERR,
-        "\n==== Redirecting to Composer-installed version in vendor/codeception ====\n"
+        "\n==== Redirecting to Composer-installed version in vendor/codeception. You can skip this using --no-redirect ====\n"
     );
-    require $autoloadFile;
-    //require package/bin instead of codecept to avoid printing hashbang line
-    require './vendor/codeception/codeception/package/bin';
+
+    if (file_exists('./vendor/codeception/codeception/app.php')) {
+        //codeception v4+
+        require './vendor/codeception/codeception/app.php';
+    } else {
+        //older version
+        require $autoloadFile;
+        //require package/bin instead of codecept to avoid printing hashbang line
+        require './vendor/codeception/codeception/package/bin';
+    }
+
     die;
 } elseif (file_exists(__DIR__ . '/vendor/autoload.php')) {
     // for phar
-    require_once(__DIR__ . '/vendor/autoload.php');
+    require_once __DIR__ . '/vendor/autoload.php';
 } elseif (file_exists(__DIR__ . '/../../autoload.php')) {
     //for composer
     require_once __DIR__ . '/../../autoload.php';
 }
 unset($autoloadFile);
+if (isset($argv)) {
+    $argv = array_values(array_diff($argv, ['--no-redirect']));
+}
+if (isset($_SERVER['argv'])) {
+    $_SERVER['argv'] = array_values(array_diff($_SERVER['argv'], ['--no-redirect']));
+}
 
 // @codingStandardsIgnoreStart
 
@@ -33,27 +47,6 @@ if (PHP_MAJOR_VERSION < 7) {
     }
 }
 // @codingStandardsIgnoreEnd
-
-if (!function_exists('json_last_error_msg')) {
-    /**
-     * Copied from http://php.net/manual/en/function.json-last-error-msg.php#117393
-     * @return string
-     */
-    function json_last_error_msg()
-    {
-        static $errors = array(
-            JSON_ERROR_NONE => 'No error',
-            JSON_ERROR_DEPTH => 'Maximum stack depth exceeded',
-            JSON_ERROR_STATE_MISMATCH => 'State mismatch (invalid or malformed JSON)',
-            JSON_ERROR_CTRL_CHAR => 'Control character error, possibly incorrectly encoded',
-            JSON_ERROR_SYNTAX => 'Syntax error',
-            JSON_ERROR_UTF8 => 'Malformed UTF-8 characters, possibly incorrectly encoded'
-        );
-
-        $error = json_last_error();
-        return isset($errors[$error]) ? $errors[$error] : 'Unknown error';
-    }
-}
 
 // function not autoloaded in PHP, thus its a good place for them
 if (!function_exists('codecept_debug')) {
@@ -127,10 +120,6 @@ if (!function_exists('codecept_is_path_absolute')) {
      */
     function codecept_is_path_absolute($path)
     {
-        if (DIRECTORY_SEPARATOR === '/') {
-            return mb_substr($path, 0, 1) === DIRECTORY_SEPARATOR;
-        }
-
-        return preg_match('#^[A-Z]:(?![^/\\\])#i', $path) === 1;
+        return \Codeception\Util\PathResolver::isPathAbsolute($path);
     }
 }

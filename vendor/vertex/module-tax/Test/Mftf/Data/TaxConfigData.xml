@@ -70,6 +70,9 @@
     <entity name="VertexSellerLocationCode" type="VertexSellerLocationCode">
         <data key="value">Test-Automation</data>
     </entity>
+    <entity name="VertexSellerUseShippingOrigin" type="VertexSellerUseShippingOrigin">
+        <data key="value">0</data>
+    </entity>
     <entity name="VertexSellerStreetAddress1" type="VertexSellerStreetAddress1">
         <data key="value">2301 Renaissance Blvd</data>
     </entity>
@@ -114,6 +117,7 @@
 
         <requiredEntity type="VertexSellerCompanyCode">VertexSellerCompanyCode</requiredEntity>
         <requiredEntity type="VertexSellerLocationCode">VertexSellerLocationCode</requiredEntity>
+        <requiredEntity type="VertexSellerUseShippingOrigin">VertexSellerUseShippingOrigin</requiredEntity>
         <requiredEntity type="VertexSellerStreetAddress1">VertexSellerStreetAddress1</requiredEntity>
         <requiredEntity type="VertexSellerCity">VertexSellerCity</requiredEntity>
         <requiredEntity type="VertexSellerCountryId">VertexSellerCountryId</requiredEntity>

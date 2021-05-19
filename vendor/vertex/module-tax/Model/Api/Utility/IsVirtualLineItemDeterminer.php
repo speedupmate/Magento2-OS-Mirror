@@ -54,7 +54,7 @@ class IsVirtualLineItemDeterminer
 
     public function isCartItemVirtual(AbstractItem $cartItem) : bool
     {
-        if ($cartItem instanceof Item) {
+        if ($cartItem instanceof Item && $cartItem->getIsVirtual() !== null) {
             return (bool)$cartItem->getIsVirtual();
         }
 

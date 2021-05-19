@@ -30,19 +30,31 @@
         </after>
 
         <!-- Validate disabled status -->
+        <conditionalClick selector="{{AdminVertexSettingsConfigSection.vertexHeader}}" dependentSelector="{{AdminVertexSettingsConfigSection.vertexSettingsHeader}}" visible="false" stepKey="openVertexConfigSection"/>
         <conditionalClick selector="{{AdminVertexSettingsConfigSection.vertexSettingsHeader}}"
                           dependentSelector="{{AdminVertexSettingsConfigSection.enableVertex}}"
                           visible="false"
                           stepKey="openVertexConfiguration"/>
 
         <selectOption userInput="{{VertexTaxEnabled.value}}" selector="{{AdminVertexSettingsConfigSection.enableVertex}}" stepKey="enableVertex"/>
+        <!-- Other sections are not visible until enable has been flipped to on -->
+
+        <conditionalClick selector="{{AdminVertexSettingsConfigSection.vertexIntegrationSettingsHeader}}" dependentSelector="{{AdminVertexSettingsConfigSection.enableVertexCalculation}}" visible="false" stepKey="openVertexConnectionSection"/>
         <selectOption userInput="{{VertexTaxUseForCalculationDisabled.value}}" selector="{{AdminVertexSettingsConfigSection.enableVertexCalculation}}" stepKey="disableVertexCalculationInit"/>
         <click selector="#save" stepKey="saveVertexDisabledInit"/>
         <waitForPageLoad stepKey="waitForPageLoadAfterDisableInit"/>
+        <conditionalClick selector="{{AdminVertexSettingsConfigSection.vertexHeader}}" dependentSelector="{{AdminVertexSettingsConfigSection.vertexSettingsHeader}}" visible="false" stepKey="openVertexConfigSectionAfterSaveToSeeDisabledStatus"/>
+        <conditionalClick selector="{{AdminVertexSettingsConfigSection.vertexSettingsHeader}}"
+                          dependentSelector="{{AdminVertexSettingsConfigSection.enableVertex}}"
+                          visible="false"
+                          stepKey="openVertexConfigurationAfterSaveToSeeDisabledStatus"/>
         <see selector="{{vertexApiStatus.severityCritical}}" userInput="Disabled" stepKey="seeDisabledInitStatus"/>
 
         <!-- Validate valid status -->
+        <conditionalClick selector="{{AdminVertexSettingsConfigSection.vertexIntegrationSettingsHeader}}" dependentSelector="{{AdminVertexSettingsConfigSection.enableVertexCalculation}}" visible="false" stepKey="openVertexConnectionSectionAfterSaveToSeeDisabledStatus"/>
         <selectOption userInput="{{VertexTaxUseForCalculation.value}}" selector="{{AdminVertexSettingsConfigSection.enableVertexCalculation}}" stepKey="enableVertexCalculation"/>
+        <uncheckOption stepKey="uncheckDefaultCalculationWsdl" selector="{{AdminVertexSettingsConfigSection.useDefaultCalculationWsdlUrl}}" />
+        <uncheckOption stepKey="uncheckDefaultAddressValidationWsdl" selector="{{AdminVertexSettingsConfigSection.useDefaultAddressValidationWsdlUrl}}"/>
         <fillField stepKey="setCalculationWsdl" selector="{{AdminVertexSettingsConfigSection.calculationWsdlUrl}}" userInput="{{_CREDS.vertex/vertex_config_calculation_wsdl}}"/>
         <fillField stepKey="setAddressValidationWsdl" selector="{{AdminVertexSettingsConfigSection.addressValidationWsdlUrl}}" userInput="{{_CREDS.vertex/vertex_config_address_validation_wsdl}}"/>
         <fillField stepKey="setTrustedId" selector="{{AdminVertexSettingsConfigSection.trustedId}}" userInput="{{_CREDS.vertex/vertex_config_trusted_id}}"/>
@@ -54,9 +66,11 @@
 
         <fillField selector="{{AdminVertexSellerSettingsConfigSection.companyCode}}" userInput="{{_CREDS.vertex/vertex_seller_company_code}}" stepKey="setCompanyCode"/>
         <fillField selector="{{AdminVertexSellerSettingsConfigSection.locationCode}}" userInput="{{VertexSellerLocationCode.value}}" stepKey="setLocationCode"/>
+        <selectOption userInput="0" selector="{{AdminVertexSellerSettingsConfigSection.useShippingSource}}" stepKey="setDontUseShippingSource"/>
         <fillField selector="{{AdminVertexSellerSettingsConfigSection.streetAddress1}}" userInput="{{VertexSellerStreetAddress1.value}}" stepKey="setAddress1"/>
         <fillField selector="{{AdminVertexSellerSettingsConfigSection.city}}" userInput="{{VertexSellerCity.value}}" stepKey="setCity"/>
         <selectOption userInput="{{VertexSellerCountryId.value}}" selector="{{AdminVertexSellerSettingsConfigSection.countryId}}" stepKey="setCountryId"/>
+        <waitForAjaxLoad stepKey="allowCountryRegionsToLoadIn"/>
         <selectOption userInput="{{VertexSellerRegionId.value}}" selector="{{AdminVertexSellerSettingsConfigSection.regionId}}" stepKey="setRegionId"/>
         <fillField selector="{{AdminVertexSellerSettingsConfigSection.postalCode}}" userInput="{{VertexSellerPostcode.value}}" stepKey="setPostcode"/>
 
@@ -77,6 +91,13 @@
 
         <click selector="#save" stepKey="saveValidVertex"/>
         <waitForPageLoad stepKey="waitForPageLoadAfterValid"/>
+
+        <conditionalClick selector="{{AdminVertexSettingsConfigSection.vertexHeader}}" dependentSelector="{{AdminVertexSettingsConfigSection.vertexSettingsHeader}}" visible="false" stepKey="openVertexConfigSectionAfterSaveToSeeValid"/>
+        <conditionalClick selector="{{AdminVertexSettingsConfigSection.vertexSettingsHeader}}"
+                          dependentSelector="{{AdminVertexSettingsConfigSection.enableVertex}}"
+                          visible="false"
+                          stepKey="openVertexConfigurationAfterSaveToSeeValid"/>
+
         <see selector="{{vertexApiStatus.severityNotice}}" userInput="Valid" stepKey="seeValidStatus"/>
         <see selector="{{AdminMessagesSection.success}}" userInput="You saved the configuration." stepKey="seeSuccess"/>
 
@@ -85,15 +106,27 @@
                           dependentSelector="{{AdminVertexSettingsConfigSection.enableVertex}}"
                           visible="false"
                           stepKey="openVertexConfigurationToggle"/>
+        <conditionalClick selector="{{AdminVertexSettingsConfigSection.vertexIntegrationSettingsHeader}}" dependentSelector="{{AdminVertexSettingsConfigSection.enableVertexCalculation}}" visible="false" stepKey="openVertexConnectionSectionAfterSaveToSeeValid"/>
 
         <selectOption userInput="{{VertexTaxUseForCalculationDisabled.value}}" selector="{{AdminVertexSettingsConfigSection.enableVertexCalculation}}" stepKey="disableVertexCalculationToggle"/>
         <click selector="#save" stepKey="saveDisabledVertexToggle"/>
         <waitForPageLoad stepKey="waitForPageLoadAfterDisableToggle"/>
+        <conditionalClick selector="{{AdminVertexSettingsConfigSection.vertexHeader}}" dependentSelector="{{AdminVertexSettingsConfigSection.vertexSettingsHeader}}" visible="false" stepKey="openVertexConfigSectionAfterSaveToSeeDisabledWhenCalculationDisabled"/>
+        <conditionalClick selector="{{AdminVertexSettingsConfigSection.vertexSettingsHeader}}"
+                          dependentSelector="{{AdminVertexSettingsConfigSection.enableVertex}}"
+                          visible="false"
+                          stepKey="openVertexConfigurationAfterSaveToSeeDisabledWhenCalculationDisabled"/>
+        <conditionalClick selector="{{AdminVertexSettingsConfigSection.vertexIntegrationSettingsHeader}}" dependentSelector="{{AdminVertexSettingsConfigSection.enableVertexCalculation}}" visible="false" stepKey="openVertexConnectionSectionAfterSaveSeeDisabledWhenCalculationDisabled"/>
         <see selector="{{vertexApiStatus.severityCritical}}" userInput="Disabled" stepKey="seeVertexDisabledToggle"/>
 
         <selectOption userInput="{{VertexTaxUseForCalculation.value}}" selector="{{AdminVertexSettingsConfigSection.enableVertexCalculation}}" stepKey="enableVertexCalculationToggle"/>
         <click selector="#save" stepKey="saveEnabledVertexToggle"/>
         <waitForPageLoad stepKey="waitForPageLoadAfterEnableToggle"/>
+        <conditionalClick selector="{{AdminVertexSettingsConfigSection.vertexHeader}}" dependentSelector="{{AdminVertexSettingsConfigSection.vertexSettingsHeader}}" visible="false" stepKey="openVertexConfigSectionAfterSaveToSeeValidWhenCalculationEnabled"/>
+        <conditionalClick selector="{{AdminVertexSettingsConfigSection.vertexSettingsHeader}}"
+                          dependentSelector="{{AdminVertexSettingsConfigSection.enableVertex}}"
+                          visible="false"
+                          stepKey="openVertexConfigurationAfterSaveToSeeValidWhenCalculationEnabled"/>
         <see selector="{{vertexApiStatus.severityNotice}}" userInput="Valid" stepKey="seeVertexValidToggle"/>
     </test>
 

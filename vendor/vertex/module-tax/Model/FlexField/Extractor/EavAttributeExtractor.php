@@ -54,15 +54,15 @@ class EavAttributeExtractor
      * Retrieve a list of custom attributes
      *
      * @param $eavEntityCode
-     * @param string[] $blacklist List of attributes to be excluded
+     * @param string[] $blocklist List of attributes to be excluded
      * @return AttributeInterface[]
      */
-    private function getCustomAttributeList($eavEntityCode, array $blacklist = [])
+    private function getCustomAttributeList($eavEntityCode, array $blocklist = [])
     {
         $searchBuilder = $this->searchCriteriaBuilder;
 
-        if (!empty($blacklist)) {
-            $searchBuilder = $searchBuilder->addFilter('attribute_code', $blacklist, 'nin');
+        if (!empty($blocklist)) {
+            $searchBuilder = $searchBuilder->addFilter('attribute_code', $blocklist, 'nin');
         };
 
         $searchCriteria = $searchBuilder
@@ -102,13 +102,13 @@ class EavAttributeExtractor
      * @param string $prefix Prefix to use on generated attribute codes
      * @param string $optionGroup Option Group to attach the generated attribute to
      * @param string $processor Class to use for processing the attribute
-     * @param string[] $blacklist List of attributes to be excluded
+     * @param string[] $blocklist List of attributes to be excluded
      * @return FlexFieldProcessableAttribute[]
      */
-    public function extract($eavEntityCode, $prefix, $optionGroup, $processor, array $blacklist = [])
+    public function extract($eavEntityCode, $prefix, $optionGroup, $processor, array $blocklist = [])
     {
         $prefix .= '.' . self::CUSTOM_PREFIX;
-        $customAttributes = $this->getCustomAttributeList($eavEntityCode, $blacklist);
+        $customAttributes = $this->getCustomAttributeList($eavEntityCode, $blocklist);
         $attributes = [];
 
         foreach ($customAttributes as $eavAttribute) {

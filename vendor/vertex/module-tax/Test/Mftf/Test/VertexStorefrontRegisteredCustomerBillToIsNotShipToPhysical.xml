@@ -37,7 +37,7 @@
             <actionGroup ref="VertexTaxDefaultConfig" stepKey="setupDefaultVertexTestConfiguration"/>
             <actionGroup ref="ClearCacheActionGroup" stepKey="clearCache"/>
 
-            <createData entity="Vertex_Customer_JohnWinston" stepKey="createCustomer"/>
+            <createData entity="Vertex_Customer_JohnWilliams" stepKey="createCustomer"/>
             <actionGroup ref="LoginToStorefrontActionGroup" stepKey="customerLogin">
                 <argument name="Customer" value="$$createCustomer$$"/>
             </actionGroup>
@@ -133,7 +133,7 @@
             <actionGroup ref="VertexTaxDefaultConfig" stepKey="setupDefaultVertexTestConfiguration"/>
             <actionGroup ref="ClearCacheActionGroup" stepKey="clearCache"/>
 
-            <createData entity="Vertex_Customer_JohnWinston" stepKey="createCustomer"/>
+            <createData entity="Vertex_Customer_JohnWilliams" stepKey="createCustomer"/>
             <actionGroup ref="LoginToStorefrontActionGroup" stepKey="customerLogin">
                 <argument name="Customer" value="$$createCustomer$$"/>
             </actionGroup>

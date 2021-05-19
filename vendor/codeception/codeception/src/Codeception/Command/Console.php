@@ -3,6 +3,7 @@ namespace Codeception\Command;
 
 use Codeception\Codecept;
 use Codeception\Configuration;
+use Codeception\Event\DispatcherWrapper;
 use Codeception\Event\SuiteEvent;
 use Codeception\Event\TestEvent;
 use Codeception\Events;
@@ -27,6 +28,8 @@ use Symfony\Component\Console\Question\Question;
  */
 class Console extends Command
 {
+    use DispatcherWrapper;
+
     protected $test;
     protected $codecept;
     protected $suite;
@@ -94,58 +97,24 @@ class Console extends Command
 
         $output->writeln("<info>Interactive console started for suite $suiteName</info>");
         $output->writeln("<info>Try Codeception commands without writing a test</info>");
-        $output->writeln("<info>type 'exit' to leave console</info>");
-        $output->writeln("<info>type 'actions' to see all available actions for this suite</info>");
 
         $suiteEvent = new SuiteEvent($this->suite, $this->codecept->getResult(), $settings);
-        $dispatcher->dispatch(Events::SUITE_BEFORE, $suiteEvent);
+        $this->dispatch($dispatcher, Events::SUITE_BEFORE, $suiteEvent);
 
-        $dispatcher->dispatch(Events::TEST_PARSED, new TestEvent($this->test));
-        $dispatcher->dispatch(Events::TEST_BEFORE, new TestEvent($this->test));
+        $this->dispatch($dispatcher, Events::TEST_PARSED, new TestEvent($this->test));
+        $this->dispatch($dispatcher, Events::TEST_BEFORE, new TestEvent($this->test));
 
-        $output->writeln("\n\n<comment>\$I</comment> = new {$settings['actor']}(\$scenario);");
-        $this->executeCommands($input, $output, $I, $settings['bootstrap']);
-
-        $dispatcher->dispatch(Events::TEST_AFTER, new TestEvent($this->test));
-        $dispatcher->dispatch(Events::SUITE_AFTER, new SuiteEvent($this->suite));
-
-        $output->writeln("<info>Bye-bye!</info>");
-    }
-
-    protected function executeCommands(InputInterface $input, OutputInterface $output, $I, $bootstrap)
-    {
-        $dialog = new QuestionHelper();
-
-        if (file_exists($bootstrap)) {
-            require $bootstrap;
+        if (file_exists($settings['bootstrap'])) {
+            require $settings['bootstrap'];
         }
 
-        do {
-            $question = new Question("<comment>\$I-></comment>");
-            $question->setAutocompleterValues($this->actions);
+        $I->pause();
 
-            $command = $dialog->ask($input, $output, $question);
-            if ($command == 'actions') {
-                $output->writeln("<info>" . implode(' ', $this->actions));
-                continue;
-            }
-            if ($command == 'exit') {
-                return;
-            }
-            if ($command == '') {
-                continue;
-            }
-            try {
-                $value = eval("return \$I->$command;");
-                if ($value && !is_object($value)) {
-                    codecept_debug($value);
-                }
-            } catch (\PHPUnit\Framework\AssertionFailedError $fail) {
-                $output->writeln("<error>fail</error> " . $fail->getMessage());
-            } catch (\Exception $e) {
-                $output->writeln("<error>error</error> " . $e->getMessage());
-            }
-        } while (true);
+        $this->dispatch($dispatcher, Events::TEST_AFTER, new TestEvent($this->test));
+        $this->dispatch($dispatcher, Events::SUITE_AFTER, new SuiteEvent($this->suite));
+
+        $output->writeln("<info>Bye-bye!</info>");
+        return 0;
     }
 
     protected function listenToSignals()

@@ -1,4 +1,4 @@
-<?php
+<?php declare(strict_types=1);
 /**
  * @copyright  Vertex. All rights reserved.  https://www.vertexinc.com/
  * @author     Mediotype                     https://www.mediotype.com/
@@ -32,7 +32,7 @@ class CustomerCodeRepositoryTest extends TestCase
     /**
      * Setup the repository and it's dependencies for testing
      */
-    protected function setUp()
+    protected function setUp(): void
     {
         parent::setUp();
         $this->registry = $this->getObject(CustomerCodeRegistry::class);

@@ -70,7 +70,10 @@ class FileTest extends AbstractFormTestCase
      */
     private $fileIoMock;
 
-    protected function setUp()
+    /**
+     * @inheritDoc
+     */
+    protected function setUp(): void
     {
         parent::setUp();
         $this->urlEncode = $this->getMockBuilder(EncoderInterface::class)

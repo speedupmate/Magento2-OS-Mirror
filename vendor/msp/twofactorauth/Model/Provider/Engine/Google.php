@@ -20,6 +20,8 @@
 
 namespace MSP\TwoFactorAuth\Model\Provider\Engine;
 
+use Endroid\QrCode\Color\Color;
+use Endroid\QrCode\ErrorCorrectionLevel\ErrorCorrectionLevelHigh;
 use Endroid\QrCode\QrCode;
 use Endroid\QrCode\Writer\PngWriter;
 use Magento\Framework\App\Config\ScopeConfigInterface;
@@ -173,17 +175,15 @@ class Google implements EngineInterface
         // @codingStandardsIgnoreStart
         $qrCode = new QrCode($this->getProvisioningUrl($user));
         $qrCode->setSize(400);
-        $qrCode->setErrorCorrectionLevel('high');
-        $qrCode->setForegroundColor(['r' => 0, 'g' => 0, 'b' => 0, 'a' => 0]);
-        $qrCode->setBackgroundColor(['r' => 255, 'g' => 255, 'b' => 255, 'a' => 0]);
-        $qrCode->setLabelFontSize(16);
-        $qrCode->setEncoding('UTF-8');
+        $qrCode->setErrorCorrectionLevel(new ErrorCorrectionLevelHigh());
+        $qrCode->setForegroundColor(new Color(0, 0,0,0));
+        $qrCode->setBackgroundColor(new Color(255, 255,255,0));
 
         $writer = new PngWriter();
-        $pngData = $writer->writeString($qrCode);
+        $pngData = $writer->write($qrCode);
         // @codingStandardsIgnoreEnd
 
-        return $pngData;
+        return $pngData->getString();
     }
 
     /**

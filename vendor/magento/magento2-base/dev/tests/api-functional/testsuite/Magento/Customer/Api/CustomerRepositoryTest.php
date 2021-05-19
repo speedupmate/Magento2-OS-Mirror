@@ -102,7 +102,7 @@ class CustomerRepositoryTest extends WebapiAbstract
     /**
      * Execute per test initialization.
      */
-    public function setUp()
+    protected function setUp(): void
     {
         $this->customerRegistry = Bootstrap::getObjectManager()->get(CustomerRegistry::class);
 
@@ -120,7 +120,7 @@ class CustomerRepositoryTest extends WebapiAbstract
         $this->dataObjectProcessor = Bootstrap::getObjectManager()->create(DataObjectProcessor::class);
     }
 
-    public function tearDown()
+    protected function tearDown(): void
     {
         if (!empty($this->currentCustomerId)) {
             foreach ($this->currentCustomerId as $customerId) {
@@ -151,6 +151,7 @@ class CustomerRepositoryTest extends WebapiAbstract
     public function testInvalidCustomerUpdate()
     {
         $this->expectException(\Exception::class);
+
         //Create first customer and retrieve customer token.
         $firstCustomerData = $this->_createCustomer();
 
@@ -318,7 +319,7 @@ class CustomerRepositoryTest extends WebapiAbstract
 
             $this->fail("Expected exception");
         } catch (\SoapFault $e) {
-            $this->assertContains(
+            $this->assertStringContainsString(
                 $expectedMessage,
                 $e->getMessage(),
                 "SoapFault does not contain expected message."
@@ -407,7 +408,7 @@ class CustomerRepositoryTest extends WebapiAbstract
             $this->_webApiCall($serviceInfo, $requestData);
             $this->fail("Expected exception.");
         } catch (\SoapFault $e) {
-            $this->assertContains(
+            $this->assertStringContainsString(
                 $expectedMessage,
                 $e->getMessage(),
                 "SoapFault does not contain expected message."
@@ -458,7 +459,7 @@ class CustomerRepositoryTest extends WebapiAbstract
             $this->_webApiCall($serviceInfo, $requestData);
             $this->fail("Expected exception.");
         } catch (\SoapFault $e) {
-            $this->assertContains(
+            $this->assertStringContainsString(
                 $expectedMessage,
                 $e->getMessage(),
                 "SoapFault does not contain expected message."
@@ -881,7 +882,8 @@ class CustomerRepositoryTest extends WebapiAbstract
         $customerLoadedData = $this->_webApiCall($serviceInfo, ['customerId' => $customerData[Customer::ID]]);
         self::assertGreaterThanOrEqual($customerData[Customer::UPDATED_AT], $customerLoadedData[Customer::UPDATED_AT]);
         unset($customerData[Customer::UPDATED_AT]);
-        self::assertArraySubset($customerData, $customerLoadedData);
+        unset($customerLoadedData[Customer::UPDATED_AT], $customerLoadedData[Customer::CONFIRMATION]);
+        self::assertEquals($customerData, $customerLoadedData);
 
         $revokeToken = $customerTokenService->revokeCustomerAccessToken($customerData[Customer::ID]);
         self::assertTrue($revokeToken);
@@ -898,7 +900,7 @@ class CustomerRepositoryTest extends WebapiAbstract
         try {
             $this->_webApiCall($serviceInfo, ['customerId' => $customerData[Customer::ID]]);
         } catch (\SoapFault $e) {
-            $this->assertContains(
+            $this->assertStringContainsString(
                 $expectedMessage,
                 $e->getMessage(),
                 'SoapFault does not contain expected message.'
@@ -932,5 +934,208 @@ class CustomerRepositoryTest extends WebapiAbstract
         $customerData = $this->customerHelper->createSampleCustomer();
         $this->currentCustomerId[] = $customerData['id'];
         return $customerData;
+    }
+
+    /**
+     * Test customer create with invalid name's.
+     *
+     * @param string $fieldName
+     * @param string $fieldValue
+     * @param string $expectedMessage
+     * @return void
+     *
+     * @dataProvider customerDataProvider
+     */
+    public function testCreateCustomerWithInvalidCustomerFirstName(
+        string $fieldName,
+        string $fieldValue,
+        string $expectedMessage
+    ): void {
+        $customerData = $this->dataObjectProcessor->buildOutputDataArray(
+            $this->customerHelper->createSampleCustomerDataObject(),
+            Customer::class
+        );
+        $customerData[$fieldName] = $fieldValue;
+
+        $serviceInfo = [
+            'rest' => [
+                'resourcePath' => self::RESOURCE_PATH,
+                'httpMethod' => Request::HTTP_METHOD_POST,
+            ],
+            'soap' => [
+                'service' => self::SERVICE_NAME,
+                'serviceVersion' => self::SERVICE_VERSION,
+                'operation' => self::SERVICE_NAME . 'Save',
+            ],
+        ];
+
+        $requestData = ['customer' => $customerData];
+
+        try {
+            $this->_webApiCall($serviceInfo, $requestData);
+            $this->fail('Expected exception was not raised');
+        } catch (\SoapFault $e) {
+            $this->assertEquals($expectedMessage, $e->getMessage());
+        } catch (\Exception $e) {
+            $errorObj = $this->processRestExceptionResult($e);
+            $this->assertEquals(HTTPExceptionCodes::HTTP_BAD_REQUEST, $e->getCode());
+            $this->assertEquals($expectedMessage, $errorObj['message']);
+        }
+    }
+
+    /**
+     * Invalid customer data provider
+     *
+     * @return array
+     */
+    public function customerDataProvider(): array
+    {
+        return [
+            ['firstname', 'Jane ☺ ', 'First Name is not valid!'],
+            ['lastname', '☏ - Doe', 'Last Name is not valid!'],
+            ['middlename', '⚐ $(date)', 'Middle Name is not valid!'],
+            [
+                'firstname',
+                str_repeat('खाना अच्छा है', 20),
+                'First Name is not valid!',
+            ],
+            [
+                'lastname',
+                str_repeat('المغلوطة حول استنكار  النشوة وتمجيد الألمالمغلوطة حول', 5),
+                'Last Name is not valid!',
+            ],
+        ];
+    }
+
+    /**
+     * Test customer create with ultibyte chanracters in name's.
+     *
+     * @param string $fieldName
+     * @param string $fieldValue
+     * @return void
+     *
+     * @dataProvider customerWithMultiByteDataProvider
+     */
+    public function testCreateCustomerWithMultibyteCharacters(string $fieldName, string $fieldValue): void
+    {
+        $customerData = $this->dataObjectProcessor->buildOutputDataArray(
+            $this->customerHelper->createSampleCustomerDataObject(),
+            Customer::class
+        );
+        $customerData[$fieldName] = $fieldValue;
+
+        $serviceInfo = [
+            'rest' => [
+                'resourcePath' => self::RESOURCE_PATH,
+                'httpMethod' => Request::HTTP_METHOD_POST,
+            ],
+            'soap' => [
+                'service' => self::SERVICE_NAME,
+                'serviceVersion' => self::SERVICE_VERSION,
+                'operation' => self::SERVICE_NAME . 'Save',
+            ],
+        ];
+
+        $requestData = ['customer' => $customerData];
+
+        $response = $this->_webApiCall($serviceInfo, $requestData);
+
+        $this->assertNotNull($response);
+        $this->assertEquals($fieldValue, $response[$fieldName]);
+    }
+
+    /**
+     * Customer with multibyte characters data provider.
+     *
+     * @return array
+     */
+    public function customerWithMultiByteDataProvider(): array
+    {
+        return [
+            [
+                'firstname',
+                str_repeat('हैखान', 51),
+            ],
+            [
+                'lastname',
+                str_repeat('مغلوطة حول استنكار  النشوة وتمجيد الألمالمغلوطة حول', 5),
+            ],
+        ];
+    }
+
+    /**
+     * Test customer create with valid name's.
+     *
+     * @param string $fieldName
+     * @param string $fieldValue
+     * @return void
+     *
+     * @dataProvider customerValidNameDataProvider
+     */
+    public function testCreateCustomerWithValidName(string $fieldName, string $fieldValue): void
+    {
+        $customerData = $this->dataObjectProcessor->buildOutputDataArray(
+            $this->customerHelper->createSampleCustomerDataObject(),
+            Customer::class
+        );
+        $customerData[$fieldName] = $fieldValue;
+
+        $serviceInfo = [
+            'rest' => [
+                'resourcePath' => self::RESOURCE_PATH,
+                'httpMethod' => Request::HTTP_METHOD_POST,
+            ],
+            'soap' => [
+                'service' => self::SERVICE_NAME,
+                'serviceVersion' => self::SERVICE_VERSION,
+                'operation' => self::SERVICE_NAME . 'Save',
+            ],
+        ];
+
+        $requestData = ['customer' => $customerData];
+
+        $response = $this->_webApiCall($serviceInfo, $requestData);
+
+        $this->assertNotNull($response);
+        $this->assertEquals($fieldValue, $response[$fieldName]);
+    }
+
+    /**
+     * Customer valid name data provider.
+     *
+     * @return array
+     */
+    public function customerValidNameDataProvider(): array
+    {
+        return [
+            [
+                'firstname',
+                'Anne-Marie',
+            ],
+            [
+                'lastname',
+                'D\'Artagnan',
+            ],
+            [
+                'lastname',
+                'Guðmundsdóttir',
+            ],
+            [
+                'lastname',
+                'María José Carreño Quiñones',
+            ],
+            [
+                'lastname',
+                'Q. Public',
+            ],
+            [
+                'firstname',
+                'Elizabeth II',
+            ],
+            [
+                'firstname',
+                'X Æ A-12 Musk',
+            ],
+        ];
     }
 }

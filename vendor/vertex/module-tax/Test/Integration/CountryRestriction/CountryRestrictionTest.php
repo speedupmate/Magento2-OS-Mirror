@@ -6,6 +6,12 @@
 
 namespace Vertex\Tax\Test\Integration\CountryRestriction;
 
+use Magento\Framework\Exception\CouldNotSaveException;
+use Magento\Framework\Exception\InputException;
+use Magento\Framework\Exception\NoSuchEntityException;
+use Magento\Framework\Exception\StateException;
+use Magento\Framework\Exception\LocalizedException;
+use Magento\Framework\Exception\State\InputMismatchException;
 use Magento\Checkout\Api\Data\TotalsInformationInterface;
 use Magento\Checkout\Api\Data\TotalsInformationInterfaceFactory;
 use Magento\Checkout\Api\TotalsInformationManagementInterface;
@@ -42,7 +48,7 @@ class CountryRestrictionTest extends TestCase
     /**
      * Fetch objects necessary for running our test
      */
-    protected function setUp()
+    protected function setUp(): void
     {
         parent::setUp();
 
@@ -58,20 +64,24 @@ class CountryRestrictionTest extends TestCase
      * Ensure that the "use for countries shipping to" configuration setting is respected
      *
      * @magentoConfigFixture default_store tax/vertex_settings/enable_vertex 1
+     * @magentoConfigFixture default_store tax/vertex_settings/trustedId 0123456789ABCDEF
      * @magentoConfigFixture default_store tax/vertex_settings/api_url https://example.org/CalculateTax70
      * @magentoConfigFixture default_store tax/vertex_settings/allowed_countries MX
      * @magentoDbIsolation enabled
      *
      * @return void
-     * @throws \Magento\Framework\Exception\CouldNotSaveException
-     * @throws \Magento\Framework\Exception\InputException
-     * @throws \Magento\Framework\Exception\NoSuchEntityException
-     * @throws \Magento\Framework\Exception\StateException
-     * @throws \Magento\Framework\Exception\LocalizedException
+     * @throws CouldNotSaveException
+     * @throws InputException
+     * @throws NoSuchEntityException
+     * @throws StateException
+     * @throws LocalizedException
      */
     public function testUsesVertexWhenCountryIsEnabled()
     {
-        $soapClient = $this->createPartialMock(\SoapClient::class, ['CalculateTax70']);
+        $this->markTestIncomplete('To be fixed in scope of VRTX-754');
+
+        $soapClient = $this->getMockBuilder(\SoapClient::class)->disableOriginalConstructor()
+            ->addMethods(['CalculateTax70'])->getMock();
         $soapClient->expects($this->atLeastOnce())
             ->method('CalculateTax70')
             ->willReturn(new \stdClass());
@@ -85,20 +95,22 @@ class CountryRestrictionTest extends TestCase
      * Ensure that the "use for countries shipping to" configuration setting is respected
      *
      * @magentoConfigFixture default_store tax/vertex_settings/enable_vertex 1
+     * @magentoConfigFixture default_store tax/vertex_settings/trustedId 0123456789ABCDEF
      * @magentoConfigFixture default_store tax/vertex_settings/api_url https://example.org/CalculateTax70
      * @magentoConfigFixture default_store tax/vertex_settings/allowed_countries GB
      * @magentoDbIsolation enabled
      *
      * @return void
-     * @throws \Magento\Framework\Exception\CouldNotSaveException
-     * @throws \Magento\Framework\Exception\InputException
-     * @throws \Magento\Framework\Exception\NoSuchEntityException
-     * @throws \Magento\Framework\Exception\StateException
-     * @throws \Magento\Framework\Exception\LocalizedException
+     * @throws CouldNotSaveException
+     * @throws InputException
+     * @throws NoSuchEntityException
+     * @throws StateException
+     * @throws LocalizedException
      */
     public function testDoesNotUseVertexWhenCountryIsDisabled()
     {
-        $soapClient = $this->createPartialMock(\SoapClient::class, ['CalculateTax70']);
+        $soapClient = $this->getMockBuilder(\SoapClient::class)->disableOriginalConstructor()
+            ->addMethods(['CalculateTax70'])->getMock();
         $soapClient->expects($this->never())
             ->method('CalculateTax70')
             ->willReturn(new \stdClass());
@@ -114,23 +126,24 @@ class CountryRestrictionTest extends TestCase
      * Shared functionality for tests
      *
      * @return void
-     * @throws \Magento\Framework\Exception\CouldNotSaveException
-     * @throws \Magento\Framework\Exception\InputException
-     * @throws \Magento\Framework\Exception\LocalizedException
-     * @throws \Magento\Framework\Exception\NoSuchEntityException
-     * @throws \Magento\Framework\Exception\StateException
-     * @throws \Magento\Framework\Exception\State\InputMismatchException
+     * @throws CouldNotSaveException
+     * @throws InputException
+     * @throws LocalizedException
+     * @throws NoSuchEntityException
+     * @throws StateException
+     * @throws InputMismatchException
      */
     private function runTotalsWithMexicoAddress()
     {
-        $product = $this->productBuilder->createExampleProduct();
         $customer = $this->customerBuilder->createExampleCustomer();
+        $address = $this->createAddress($customer->getId());
 
+        $product = $this->productBuilder->createExampleProduct();
         $cart = $this->cartBuilder->setItems()
             ->addItem($product)
             ->create($customer->getId());
 
-        $address = $this->createAddress($customer);
+        $cart->setBillingAddress($address);
 
         /** @var TotalsInformationInterface $totalsInfo */
         $totalsInfo = $this->totalsInformationFactory->create();

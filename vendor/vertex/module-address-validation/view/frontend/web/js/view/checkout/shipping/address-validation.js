@@ -5,7 +5,6 @@
 
 define([
     'jquery',
-    'mage/translate',
     'uiRegistry',
     'uiComponent',
     'Vertex_AddressValidation/js/action/address-validation-request',
@@ -13,10 +12,13 @@ define([
     'Magento_Checkout/js/model/full-screen-loader',
     'Magento_Checkout/js/checkout-data',
     'Magento_Checkout/js/model/error-processor',
-    'Magento_Ui/js/model/messageList'
+    'Magento_Ui/js/model/messageList',
+    'Vertex_AddressValidation/js/validation-messages',
+    'Vertex_AddressValidation/js/action/convert-quote-address',
+    'Vertex_AddressValidation/js/action/build-quote-address',
+    'Vertex_AddressValidation/js/model/difference-determiner'
 ], function (
     $,
-    $t,
     registry,
     Component,
     addressValidationRequest,
@@ -24,7 +26,11 @@ define([
     fullScreenLoader,
     checkoutData,
     errorProcessor,
-    messageContainer
+    messageContainer,
+    validationMessages,
+    convertQuoteAddress,
+    buildQuoteAddress,
+    differenceDeterminer
 ) {
     'use strict';
 
@@ -69,7 +75,19 @@ define([
          * @returns {Object}
          */
         getFormData: function () {
-            return checkoutData.getShippingAddressFromData();
+            const formData = checkoutData.getShippingAddressFromData(),
+                checkoutProvider = registry.get('checkoutProvider');
+
+            if (checkoutProvider && checkoutProvider.dictionaries && checkoutProvider.dictionaries.region_id) {
+                const region = registry.get('checkoutProvider').dictionaries.region_id.find(function (obj) {
+                    return obj.value === formData.region_id;
+                });
+                if (region && region.label) {
+                    formData.region = region.label;
+                }
+            }
+
+            return formData;
         },
 
         /**
@@ -80,17 +98,17 @@ define([
             this.isAddressValid = false;
             fullScreenLoader.startLoader();
 
-            addressValidationRequest(this.getFormData())
+            addressValidationRequest(convertQuoteAddress(this.getFormData()))
                 .done(function (response) {
                     this.isAddressValid = true;
                     if (this.handleAddressDifferenceResponse(response) === true) {
                         deferred.resolve();
                     }
                 }.bind(this)).fail(function (response) {
-                    errorProcessor.process(response, messageContainer);
-                }).always(function () {
-                    fullScreenLoader.stopLoader();
-                });
+                errorProcessor.process(response, messageContainer);
+            }).always(function () {
+                fullScreenLoader.stopLoader();
+            });
 
             return deferred;
         },
@@ -98,20 +116,26 @@ define([
         /**
          * Get the message with the differences
          *
-         * @param {Object} response
+         * @param {?CleanAddress} response
          */
         handleAddressDifferenceResponse: function (response) {
-            var difference = this.resolver.resolveAddressDifference(response, this.getFormData());
-            var showSuccessMessage = this.validationConfig.showValidationSuccessMessage || false;
-
-            if (difference === true && showSuccessMessage) {
-                this.message.setSuccessMessage($t('The address is valid'));
-            } else if (difference.length === 0) {
-                this.message.setWarningMessage($t('We did not find a valid address'));
-            } else if (difference !== true) {
-                this.message.setWarningMessage($t('The address is not valid'), difference);
+            if (response === null || !Object.keys(response).length) {
+                this.message.setWarningMessage(validationMessages.noAddressFound);
+                return;
             }
-            return difference;
+
+            this.resolver.responseAddressData = buildQuoteAddress(response);
+
+            const differences = differenceDeterminer(convertQuoteAddress(this.getFormData()), response),
+                showSuccessMessage = this.validationConfig.showValidationSuccessMessage || false;
+
+            if (differences.length === 0 && showSuccessMessage) {
+                this.message.setSuccessMessage(validationMessages.noChangesNecessary);
+            } else if (differences.length > 0) {
+                this.message.setWarningMessage(validationMessages.changesFound, differences, response);
+            } else {
+                return true;
+            }
         },
 
         /**
@@ -120,7 +144,7 @@ define([
         updateVertexAddress: function () {
             this.resolver.resolveAddressUpdate();
 
-            this.message.setSuccessMessage($t('The address was updated'));
+            this.message.setSuccessMessage(validationMessages.addressUpdated);
             this.isAddressValid = true;
         }
     });

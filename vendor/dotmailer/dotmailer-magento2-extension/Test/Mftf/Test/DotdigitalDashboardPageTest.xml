@@ -20,13 +20,15 @@
             <actionGroup ref="logout" stepKey="logout"/>
         </after>
 
+        <!-- We need enough viewport to view the expanding menu. -->
+        <resizeWindow width="1400" height="600" stepKey="resizeWindow"/>
+
         <click selector="li#menu-magento-reports-report" stepKey="clickReportsButton"/>
-        <seeElement selector="div.submenu" stepKey="seeReportsAccordion"/>
+        <seeElement selector="li[data-ui-id='menu-dotdigitalgroup-email-marketing-automation-report']" stepKey="seeCustomerEngagementSubMenu"/>
         <seeElement selector="li.item-dashboards" stepKey="seeDDGDashboard"/>
+        <click selector="li.item-dashboards a" stepKey="clickOnDashboard"/>
 
-        <click selector="li.item-dashboards" stepKey="clickOnDashBoard"/>
-
-        <seeInCurrentUrl url="{{AdminDashboardPage.url}}" stepKey="confirmThatImOnDashboard"/>
+        <seeInCurrentUrl url="{{DotdigitalDashboardPage.url}}" stepKey="confirmThatImOnDashboard"/>
         <seeElement selector="div.dashboard-container" stepKey="seeDDGDescription"/>
     </test>
 </tests>

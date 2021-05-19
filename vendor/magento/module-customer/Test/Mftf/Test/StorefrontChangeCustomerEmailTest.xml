@@ -15,7 +15,7 @@
             <title value="Changing Customer Email Test"/>
             <description value="Changing Customer's email with correct and wrong passwords"/>
             <testCaseId value="MC-38725"/>
-            <useCaseId value="MC-38675"/>
+            <useCaseId value="MC-38676"/>
             <severity value="MAJOR"/>
             <group value="customer"/>
         </annotations>

@@ -67,6 +67,7 @@ class TotalsCalculationMessagePlugin
         array_splice($arguments, 0, 2);
 
         /** @var TotalSegmentInterface[] $totalSegment */
+        // phpcs:ignore Magento2.Functions.DiscouragedFunction.Discouraged
         $totalSegments = call_user_func_array($super, $arguments);
 
         $storeId = null;

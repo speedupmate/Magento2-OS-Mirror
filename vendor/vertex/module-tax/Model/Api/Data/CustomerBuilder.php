@@ -13,13 +13,20 @@ use Magento\Customer\Api\GroupManagementInterface as CustomerGroupManagement;
 use Magento\Customer\Api\GroupRepositoryInterface;
 use Magento\Framework\Stdlib\StringUtils;
 use Magento\Sales\Api\Data\OrderAddressInterface;
+use Magento\Sales\Api\Data\OrderInterface;
+use Magento\Sales\Api\OrderRepositoryInterface;
 use Magento\Sales\Model\Order;
+use Magento\Tax\Api\Data\QuoteDetailsInterface;
+use Magento\Tax\Api\Data\TaxClassKeyInterface;
 use Vertex\Data\CustomerInterface;
 use Vertex\Data\CustomerInterfaceFactory;
+use Vertex\Data\TaxRegistration;
 use Vertex\Exception\ConfigurationException;
+use Vertex\Tax\Model\AddressDeterminer;
 use Vertex\Tax\Model\Api\Utility\MapperFactoryProxy;
 use Vertex\Tax\Model\Config;
 use Vertex\Tax\Model\ExceptionLogger;
+use Vertex\Tax\Model\QuoteIsVirtualDeterminer;
 use Vertex\Tax\Model\Repository\TaxClassNameRepository;
 
 /**
@@ -29,6 +36,9 @@ class CustomerBuilder
 {
     /** @var AddressBuilder */
     private $addressBuilder;
+
+    /** @var AddressDeterminer */
+    private $addressDeterminer;
 
     /** @var Config */
     private $config;
@@ -42,11 +52,14 @@ class CustomerBuilder
     /** @var CustomerRepositoryInterface */
     private $customerRepository;
 
-    /** @var GroupRepositoryInterface */
-    private $groupRepository;
-
     /** @var ExceptionLogger */
     private $logger;
+
+    /** @var OrderRepositoryInterface */
+    private $orderRepository;
+
+    /** @var QuoteIsVirtualDeterminer */
+    private $quoteIsVirtualDeterminer;
 
     /** @var TaxClassNameRepository */
     private $taxClassNameRepository;
@@ -68,10 +81,11 @@ class CustomerBuilder
      * @param TaxClassNameRepository $taxClassNameRepository
      * @param CustomerInterfaceFactory $customerFactory
      * @param ExceptionLogger $logger
-     * @param GroupRepositoryInterface $groupRepository
      * @param TaxRegistrationBuilder $builder
      * @param StringUtils $stringUtils
      * @param MapperFactoryProxy $mapperFactory
+     * @param OrderRepositoryInterface $orderRepository
+     * @param AddressDeterminer $addressDeterminer
      */
     public function __construct(
         Config $config,
@@ -81,10 +95,12 @@ class CustomerBuilder
         TaxClassNameRepository $taxClassNameRepository,
         CustomerInterfaceFactory $customerFactory,
         ExceptionLogger $logger,
-        GroupRepositoryInterface $groupRepository,
         TaxRegistrationBuilder $builder,
         StringUtils $stringUtils,
-        MapperFactoryProxy $mapperFactory
+        MapperFactoryProxy $mapperFactory,
+        OrderRepositoryInterface $orderRepository,
+        AddressDeterminer $addressDeterminer,
+        QuoteIsVirtualDeterminer $quoteIsVirtualDeterminer
     ) {
         $this->addressBuilder = $addressBuilder;
         $this->config = $config;
@@ -93,144 +109,179 @@ class CustomerBuilder
         $this->taxClassNameRepository = $taxClassNameRepository;
         $this->customerFactory = $customerFactory;
         $this->logger = $logger;
-        $this->groupRepository = $groupRepository;
         $this->taxRegistrationBuilder = $builder;
         $this->stringUtilities = $stringUtils;
         $this->mapperFactory = $mapperFactory;
-    }
-
-    /**
-     * Create a properly formatted array of Customer Data for a Vertex API
-     *
-     * @param AddressInterface $taxAddress
-     * @param int|null $customerId
-     * @param int|null $taxClassId
-     * @param string|null $storeCode
-     * @return CustomerInterface
-     * @throws ConfigurationException
-     */
-    public function buildFromCustomerAddress(
-        AddressInterface $taxAddress = null,
-        $customerId = null,
-        $taxClassId = null,
-        $storeCode = null
-    ) {
-        return $this->buildFromAddress($taxAddress, $customerId, $taxClassId, $storeCode);
+        $this->orderRepository = $orderRepository;
+        $this->addressDeterminer = $addressDeterminer;
+        $this->quoteIsVirtualDeterminer = $quoteIsVirtualDeterminer;
     }
 
     /**
      * Create a {@see CustomerInterface} from an {@see Order}
      *
-     * @param Order $order
+     * @param OrderInterface $order
      * @return CustomerInterface
      * @throws ConfigurationException
      */
-    public function buildFromOrder(Order $order)
+    public function buildFromOrder(OrderInterface $order)
     {
-        $orderAddress = $order->getIsVirtual() ? $order->getBillingAddress() : $order->getShippingAddress();
-        $customer = $this->buildFromOrderAddress($orderAddress);
-
+        $customer = $this->customerFactory->create();
         $storeCode = $order->getStoreId();
         $customerMapper = $this->mapperFactory->getForClass(CustomerInterface::class, $storeCode);
+        $customerId = $order->getCustomerId();
 
-        $taxClass = $this->getCustomerClassById($order->getCustomerId());
-        $taxClassName = $this->stringUtilities->substr($taxClass, 0, $customerMapper->getCustomerTaxClassNameMaxLength());
-        $customer->setTaxClass($taxClassName);
+        $billingAddress = $order->getBillingAddress();
+        $shippingAddress = $this->getShippingFromOrder($order);
 
-        $code = $this->getCustomerCodeById($order->getCustomerId());
-        $customerCode = $this->stringUtilities->substr($code, 0, $customerMapper->getCustomerCodeMaxLength());
-        $customer->setCode($customerCode);
-
-        return $customer;
-    }
-
-    /**
-     * Create a properly formatted array of Customer Data for a Vertex API
-     *
-     * @param OrderAddressInterface $taxAddress
-     * @param int|null $customerId
-     * @param int|null $customerGroupId
-     * @param string|null $storeCode
-     * @return CustomerInterface
-     * @throws ConfigurationException
-     */
-    public function buildFromOrderAddress(
-        OrderAddressInterface $taxAddress = null,
-        $customerId = null,
-        $customerGroupId = null,
-        $storeCode = null
-    ) {
-        try {
-            $group = $customerGroupId ? $this->groupRepository->getById($customerGroupId) : null;
-        } catch (\Exception $e) {
-            $group = null;
+        if ($billingAddress !== null) {
+            $customer->setAdministrativeDestination($this->buildAddress($billingAddress, $storeCode));
         }
-        $taxClassId = $group ? $group->getTaxClassId() : null;
-        return $this->buildFromAddress($taxAddress, $customerId, $taxClassId, $storeCode);
-    }
-
-    /**
-     * Create a properly formatted array of Customer Data for the Vertex API
-     *
-     * This method exists to build addresses based off any number of Magento's
-     * Address interfaces.
-     *
-     * @param AddressInterface|OrderAddressInterface|null $taxAddress
-     * @param int $customerId
-     * @param int $taxClassId
-     * @param string $storeCode
-     * @return CustomerInterface
-     * @throws ConfigurationException
-     */
-    private function buildFromAddress($taxAddress = null, $customerId = null, $taxClassId = null, $storeCode = null)
-    {
-        /** @var CustomerInterface $customer */
-        $customer = $this->customerFactory->create();
-        $customerMapper = $this->mapperFactory->getForClass(CustomerInterface::class, $storeCode);
-
-        if ($taxAddress !== null) {
-            if (!($taxAddress instanceof AddressInterface || $taxAddress instanceof OrderAddressInterface)) {
-                throw new \InvalidArgumentException(
-                    '$taxAddress must be one of '
-                    . AddressInterface::class . ' or ' . OrderAddressInterface::class
-                );
-            }
-
-            $addressBuilder = $this->addressBuilder
-                ->setScopeCode($storeCode)
-                ->setStreet($taxAddress->getStreet())
-                ->setCity($taxAddress->getCity())
-                ->setPostalCode($taxAddress->getPostcode())
-                ->setCountryCode($taxAddress->getCountryId());
-
-            $region = $taxAddress->getRegion();
-
-            if ($region instanceof RegionInterface && $region->getRegionId()) {
-                $addressBuilder->setRegionId($region->getRegionId());
-            } elseif ($region instanceof RegionInterface && $region->getRegion()) {
-                $addressBuilder->setRegion($region->getRegion());
-            } elseif ($taxAddress->getRegionId()) {
-                $addressBuilder->setRegionId($taxAddress->getRegionId());
-            } else if (is_string($region)) {
-                $addressBuilder->setRegion($region);
-            }
-
-            $customer->setDestination($addressBuilder->build());
-
-            if ($taxAddress->getVatId()) {
-                $this->updateCustomerWithRegistration($customer, $taxAddress);
-            }
+        if ($shippingAddress !== null) {
+            $customer->setDestination($this->buildAddress($shippingAddress, $storeCode));
+        } elseif ($customer->getAdministrativeDestination() !== null) {
+            $customer->setDestination($customer->getAdministrativeDestination());
         }
+
+        $registration = array_filter([
+            $this->buildRegistrationFromAddress($billingAddress),
+            $this->buildRegistrationFromAddress($shippingAddress),
+            $this->buildRegistrationFromCustomer($customerId)
+        ]);
+
+        $customer->setTaxRegistrations($registration);
 
         $code = $this->getCustomerCodeById($customerId, $storeCode);
         $customerCode = $this->stringUtilities->substr($code, 0, $customerMapper->getCustomerCodeMaxLength());
         $customer->setCode($customerCode);
 
-        $class = $taxClassId
-            ? $this->taxClassNameRepository->getById($taxClassId)
-            : $this->getCustomerClassById($customerId);
+        $orderCustomerTaxClass = $this->taxClassNameRepository->getByCustomerGroupId($order->getCustomerGroupId());
+        $taxClass = $orderCustomerTaxClass !== 'None' ?
+            $orderCustomerTaxClass : $this->getCustomerClassById($customerId);
+        $taxClassName = $this->stringUtilities->substr(
+            $taxClass,
+            0,
+            $customerMapper->getCustomerTaxClassNameMaxLength()
+        );
+        $customer->setTaxClass($taxClassName);
 
-        $taxClassName = $this->stringUtilities->substr($class, 0, $customerMapper->getCustomerTaxClassNameMaxLength());
+        return $customer;
+    }
+
+    /**
+     * This method exists to build addresses based off any number of Magento's
+     * Address interfaces.
+     *
+     * @param AddressInterface|OrderAddressInterface|null $taxAddress
+     * @param null|string $storeCode
+     * @return \Vertex\Data\AddressInterface|AddressBuilder $addressBuilder
+     * @throws ConfigurationException
+     */
+    private function buildAddress($taxAddress, $storeCode = null)
+    {
+        if (!($taxAddress instanceof AddressInterface || $taxAddress instanceof OrderAddressInterface)) {
+            throw new \InvalidArgumentException(
+                '$taxAddress must be one of '
+                . AddressInterface::class . ' or ' . OrderAddressInterface::class
+            );
+        }
+
+        $addressBuilder = $this->addressBuilder->setScopeCode($storeCode)
+            ->setStreet($taxAddress->getStreet())
+            ->setCity($taxAddress->getCity())
+            ->setPostalCode($taxAddress->getPostcode())
+            ->setCountryCode($taxAddress->getCountryId());
+
+        $region = $taxAddress->getRegion();
+        if ($region instanceof RegionInterface && $region->getRegionId()) {
+            $addressBuilder->setRegionId($region->getRegionId());
+        } elseif ($region instanceof RegionInterface && $region->getRegion()) {
+            $addressBuilder->setRegion($region->getRegion());
+        } elseif ($taxAddress->getRegionId()) {
+            $addressBuilder->setRegionId($taxAddress->getRegionId());
+        } elseif (is_string($region)) {
+            $addressBuilder->setRegion($region);
+        }
+
+        return $addressBuilder->build();
+    }
+
+    /**
+     * @param QuoteDetailsInterface $quoteDetails
+     * @param string|null $storeCode
+     * @return CustomerInterface
+     * @throws ConfigurationException
+     */
+    public function buildFromQuoteDetails(QuoteDetailsInterface $quoteDetails, $storeCode = null)
+    {
+        $customer = $this->customerFactory->create();
+        $customerMapper = $this->mapperFactory->getForClass(CustomerInterface::class, $storeCode);
+        $customerId = $quoteDetails->getCustomerId();
+
+        $billingAddress = $this->addressDeterminer->determineAdministrativeDestination(
+            $quoteDetails->getBillingAddress(),
+            $quoteDetails->getCustomerId()
+        );
+
+        $shippingAddress = $this->addressDeterminer->determineDestination(
+            $quoteDetails->getShippingAddress(),
+            $quoteDetails->getCustomerId()
+        );
+
+        if ($billingAddress !== null) {
+            $customer->setAdministrativeDestination($this->buildAddress($billingAddress, $storeCode));
+        }
+
+        if ($shippingAddress !== null && !$this->quoteIsVirtualDeterminer->isVirtual($quoteDetails)) {
+            $customer->setDestination($this->buildAddress($shippingAddress, $storeCode));
+        } elseif ($customer->getAdministrativeDestination() !== null) {
+            $customer->setDestination($customer->getAdministrativeDestination());
+        }
+
+        $registration = array_filter([
+            $this->buildRegistrationFromAddress($billingAddress),
+            $this->buildRegistrationFromAddress($shippingAddress),
+            $this->buildRegistrationFromCustomer($customerId)
+        ]);
+
+        $customer->setTaxRegistrations($registration);
+
+        $code = $this->getCustomerCodeById($customerId, $storeCode);
+        $customerCode = $this->stringUtilities->substr(
+            $code,
+            0,
+            $customerMapper->getCustomerCodeMaxLength()
+        );
+        $customer->setCode($customerCode);
+
+        // Determine Tax Class
+        $taxClassName = null;
+
+        // Check if we're given the name straight up
+        $key = $quoteDetails->getCustomerTaxClassKey();
+        if ($key && $key->getType() === TaxClassKeyInterface::TYPE_NAME) {
+            $taxClassName = $key->getValue();
+        }
+
+        // Otherwise, determine a Tax Class ID to look up the name
+        $taxClassId = null;
+        if ($quoteDetails->getCustomerTaxClassId()) {
+            $taxClassId = $quoteDetails->getCustomerTaxClassId();
+        } elseif ($key && $key->getType() === TaxClassKeyInterface::TYPE_ID) {
+            $taxClassId = (int)$key->getValue();
+        }
+
+        if ($taxClassName === null && $taxClassId !== null) {
+            $taxClassName = $this->taxClassNameRepository->getById($taxClassId);
+        } elseif ($taxClassName === null) {
+            $taxClassName = $this->getCustomerClassById((int)$customerId);
+        }
+
+        $taxClassName = $this->stringUtilities->substr(
+            $taxClassName,
+            0,
+            $customerMapper->getCustomerTaxClassNameMaxLength()
+        );
         $customer->setTaxClass($taxClassName);
 
         return $customer;
@@ -290,24 +341,85 @@ class CustomerBuilder
     }
 
     /**
-     * Add a VAT Tax Registration to a Customer record
+     * Retrieve the shipping address from an Order
      *
-     * @param CustomerInterface $customer
-     * @param AddressInterface|OrderAddressInterface $taxAddress
-     * @return CustomerInterface
+     * @param OrderInterface $order
+     * @return OrderAddressInterface|null
      */
-    private function updateCustomerWithRegistration($customer, $taxAddress)
+    private function getShippingFromOrder(OrderInterface $order)
     {
-        if ($taxAddress instanceof AddressInterface) {
-            $registration = $this->taxRegistrationBuilder->buildFromCustomerAddress($taxAddress);
-        } elseif ($taxAddress instanceof OrderAddressInterface) {
-            $registration = $this->taxRegistrationBuilder->buildFromOrderAddress($taxAddress);
-        } else {
-            throw new \InvalidArgumentException('taxAddress must be one of AddressInterface, OrderAddressInterface');
+        if ($order instanceof Order && $order->getShippingAddress()) {
+            return $order->getShippingAddress();
         }
 
-        $customer->setTaxRegistrations([$registration]);
+        return $order->getExtensionAttributes() !== null
+        && $order->getExtensionAttributes()->getShippingAssignments()
+        && $order->getExtensionAttributes()->getShippingAssignments()[0]
+        && $order->getExtensionAttributes()->getShippingAssignments()[0]->getShipping()
+            ? $order->getExtensionAttributes()->getShippingAssignments()[0]->getShipping()->getAddress()
+            : null;
+    }
 
-        return $customer;
+    /**
+     * Return a VAT Tax Registration
+     *
+     * @param AddressInterface|OrderAddressInterface $taxAddress
+     * @return TaxRegistration
+     * @throws ConfigurationException
+     */
+    private function buildRegistrationFromAddress($taxAddress)
+    {
+        $registration = null;
+
+        if ($taxAddress === null) {
+            return null;
+        }
+
+        if ($taxAddress instanceof AddressInterface) {
+            if ($taxAddress->getVatId()) {
+                $registration =  $this->taxRegistrationBuilder->buildFromCustomerAddress($taxAddress);
+            }
+        } elseif ($taxAddress instanceof OrderAddressInterface) {
+            $registration = null;
+            $order = $this->orderRepository->get($taxAddress->getParentId());
+            if ($order) {
+                $registration = $this->taxRegistrationBuilder->buildFromOrderAddress(
+                    $taxAddress,
+                    $order->getCustomerTaxvat()
+                );
+            }
+        } else {
+            throw new \InvalidArgumentException(
+                'taxAddress must be one of AddressInterface, OrderAddressInterface'
+            );
+        }
+
+        return $registration;
+    }
+
+    /**
+     * Load VAT Tax Registration from Customer data
+     *
+     * @param int $customerId
+     * @return TaxRegistration|null
+     */
+    private function buildRegistrationFromCustomer($customerId)
+    {
+        $registration = null;
+
+        if (!$customerId) {
+            return null;
+        }
+
+        try {
+            $customer = $this->customerRepository->getById($customerId);
+            if ($customer->getTaxvat()) {
+                $registration = $this->taxRegistrationBuilder->buildFromCustomer($customer);
+            }
+        } catch (\Exception $e) {
+            $this->logger->warning($e);
+        }
+
+        return $registration;
     }
 }

@@ -1,95 +1,29 @@
 <?php
 
-/*
- * (c) Jeroen van den Enden <info@endroid.nl>
- *
- * This source file is subject to the MIT license that is bundled
- * with this source code in the file LICENSE.
- */
+declare(strict_types=1);
 
 namespace Endroid\QrCode;
 
+use Endroid\QrCode\Color\ColorInterface;
+use Endroid\QrCode\Encoding\EncodingInterface;
+use Endroid\QrCode\ErrorCorrectionLevel\ErrorCorrectionLevelInterface;
+use Endroid\QrCode\RoundBlockSizeMode\RoundBlockSizeModeInterface;
+
 interface QrCodeInterface
 {
-    /**
-     * @return string
-     */
-    public function getText();
+    public function getData(): string;
 
-    /**
-     * @return int
-     */
-    public function getSize();
+    public function getEncoding(): EncodingInterface;
 
-    /**
-     * @return int
-     */
-    public function getMargin();
+    public function getErrorCorrectionLevel(): ErrorCorrectionLevelInterface;
 
-    /**
-     * @return int[]
-     */
-    public function getForegroundColor();
+    public function getSize(): int;
 
-    /**
-     * @return int[]
-     */
-    public function getBackgroundColor();
+    public function getMargin(): int;
 
-    /**
-     * @return string
-     */
-    public function getEncoding();
+    public function getRoundBlockSizeMode(): RoundBlockSizeModeInterface;
 
-    /**
-     * @return string
-     */
-    public function getErrorCorrectionLevel();
+    public function getForegroundColor(): ColorInterface;
 
-    /**
-     * @return string
-     */
-    public function getLogoPath();
-
-    /**
-     * @return int
-     */
-    public function getLogoWidth();
-
-    /**
-     * @return string
-     */
-    public function getLabel();
-
-    /**
-     * @return string
-     */
-    public function getLabelFontPath();
-
-    /**
-     * @return int
-     */
-    public function getLabelFontSize();
-
-    /**
-     * @return string
-     */
-    public function getLabelAlignment();
-
-    /**
-     * @return int[]
-     */
-    public function getLabelMargin();
-
-    /**
-     * @return bool
-     */
-    public function getValidateResult();
-
-    /**
-     * @param WriterRegistryInterface $writerRegistry
-     *
-     * @return mixed
-     */
-    public function setWriterRegistry(WriterRegistryInterface $writerRegistry);
+    public function getBackgroundColor(): ColorInterface;
 }

@@ -23,7 +23,7 @@ class CalculatorTest extends TestCase
     private $quoteWithPaymentAndInvalidAddress;
 
     /** @inheritdoc */
-    protected function setUp()
+    protected function setUp(): void
     {
         parent::setUp();
         $this->quoteWithPaymentAndInvalidAddress = $this->getObject(
@@ -39,12 +39,14 @@ class CalculatorTest extends TestCase
      * @magentoAppIsolation enabled
      * @magentoCache all disabled
      * @magentoConfigFixture default_store tax/vertex_settings/enable_vertex 1
+     * @magentoConfigFixture default_store tax/vertex_settings/trustedId 0123456789ABCDEF
      * @magentoConfigFixture default_store tax/vertex_settings/api_url https://example.org/CalculateTax70
      */
     public function testShowErrorMessageToCustomer()
     {
-        $soapClient = $this->createPartialMock(\SoapClient::class, ['CalculateTax70']);
-        $soapClient->expects($this->atLeastOnce())
+        $soapClientMock = $this->getMockBuilder(\SoapClient::class)->disableOriginalConstructor()
+            ->addMethods(['CalculateTax70'])->getMock();
+        $soapClientMock->expects($this->atLeastOnce())
             ->method('CalculateTax70')
             ->with(
                 $this->callback(
@@ -68,7 +70,7 @@ class CalculatorTest extends TestCase
                 )
             )
             ->willReturn(new \stdClass());
-        $this->getSoapFactory()->setSoapClient($soapClient);
+        $this->getSoapFactory()->setSoapClient($soapClientMock);
 
         $cart = $this->quoteWithPaymentAndInvalidAddress->create('vertex_cart_with_invalid_address');
 
@@ -84,7 +86,7 @@ class CalculatorTest extends TestCase
 
         $messages = $totals->getTotalSegments()['tax']->getExtensionAttributes()->getVertexTaxCalculationMessages();
 
-        $this->assertInternalType('array', $messages);
+        $this->assertIsArray($messages);
         $this->assertContains(
             'Unable to calculate taxes. This could be caused by an invalid address provided in checkout.',
             $messages
@@ -99,12 +101,15 @@ class CalculatorTest extends TestCase
      * @magentoAppIsolation enabled
      * @magentoCache all disabled
      * @magentoConfigFixture default_store tax/vertex_settings/enable_vertex 1
+     * @magentoConfigFixture default_store tax/vertex_settings/trustedId 0123456789ABCDEF
      * @magentoConfigFixture default_store tax/vertex_settings/api_url https://example.org/CalculateTax70
      */
     public function testShowErrorMessageToAdminUser()
     {
-        $soapClient = $this->createPartialMock(\SoapClient::class, ['CalculateTax70']);
-        $soapClient->expects($this->atLeastOnce())
+        $this->markTestIncomplete('To be fixed in scope of VRTX-754');
+        $soapClientMock = $this->getMockBuilder(\SoapClient::class)->disableOriginalConstructor()
+            ->addMethods(['CalculateTax70'])->getMock();
+        $soapClientMock->expects($this->atLeastOnce())
             ->method('CalculateTax70')
             ->with(
                 $this->callback(
@@ -128,7 +133,7 @@ class CalculatorTest extends TestCase
                 )
             )
             ->willReturn(new \stdClass());
-        $this->getSoapFactory()->setSoapClient($soapClient);
+        $this->getSoapFactory()->setSoapClient($soapClientMock);
 
         $cart = $this->quoteWithPaymentAndInvalidAddress->create('vertex_cart_with_invalid_address');
 

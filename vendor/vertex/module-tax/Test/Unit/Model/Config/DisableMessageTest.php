@@ -1,4 +1,4 @@
-<?php
+<?php declare(strict_types=1);
 /**
  * @copyright  Vertex. All rights reserved.  https://www.vertexinc.com/
  * @author     Mediotype                     https://www.mediotype.com/
@@ -20,7 +20,7 @@ class DisableMessageTest extends TestCase
      */
     public function testGetMessage($message, $data)
     {
-        list ($affectedScopes, $scopeId, $showAffectedStores, $expected) = $data;
+        list($affectedScopes, $scopeId, $showAffectedStores, $expected) = $data;
         /** @var DisableMessage $disableMessage */
         $disableMessage = $this->getObject(DisableMessage::class);
         $this->setInaccessibleProperty($disableMessage, 'affectedScopes', $affectedScopes);
@@ -28,7 +28,7 @@ class DisableMessageTest extends TestCase
         if ($expected === '') {
             $this->assertEmpty($result);
         } else {
-            $this->assertContains($expected, $result, $message);
+            $this->assertStringContainsString($expected, $result, $message);
         }
     }
 
@@ -39,7 +39,6 @@ class DisableMessageTest extends TestCase
      */
     public function getMessageDataProvider()
     {
-
         return [
             [
                 'test if specific scope is disable',

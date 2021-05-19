@@ -3,15 +3,10 @@
  * @author     Mediotype                     https://www.mediotype.com/
  */
 
-define([
-    'jquery',
-    'uiRegistry',
-    'Vertex_AddressValidation/js/view/customer/address-form',
-    'Vertex_AddressValidation/js/view/customer/address-validation'
-], function ($, registry, addressForm, addressValidator) {
+define(['jquery'], function ($) {
     'use strict';
 
-    var config = window.vertexAddressValidationConfig || {};
+    const config = window.vertexAddressValidationConfig || {};
 
     return function (addressValidation) {
         if (!config.enabled) {
@@ -19,6 +14,9 @@ define([
         }
 
         $.widget('mage.addressValidation', addressValidation, {
+            _vertexValidator: null,
+            _vertexForm: null,
+
             /**
              * Initialize widget
              *
@@ -27,19 +25,28 @@ define([
              */
             _create: function () {
                 var result = this._super(),
-                    button = $(this.options.selectors.button, this.element),
-                    validator = addressValidator();
+                    button = $(this.options.selectors.button, this.element);
 
-                addressForm.initialize(this.element, button);
-                addressForm.renameSubmitButton(config.validateButtonText);
+                require([
+                    'Vertex_AddressValidation/js/view/customer/address-form',
+                    'Vertex_AddressValidation/js/view/customer/address-validation'
+                ], function (addressForm, addressValidator) {
+                    this._vertexValidator = addressValidator();
+                    this._vertexForm = addressForm;
+
+                    addressForm.initialize(this.element, button);
+                    addressForm.renameSubmitButton(config.validateButtonText);
+                }.bind(this));
 
                 this.element.data('validator').settings.submitHandler = function (form) {
-                    if (addressForm.isSaveAsIs) {
-                        addressForm.isSaveAsIs = false;
+                    if (this._vertexForm && this._vertexForm.isSaveAsIs) {
+                        this._vertexForm.isSaveAsIs = false;
                         return this.submitForm(form);
                     }
 
-                    validator.addressValidation(addressForm.getAddress()).done(this.submitForm.bind(this, form));
+                    if (this._vertexValidator && this._vertexForm) {
+                        this._vertexValidator.addressValidation(this._vertexForm.getAddress()).done(this.submitForm.bind(this, form));
+                    }
                 }.bind(this);
 
                 return result;
@@ -51,10 +58,12 @@ define([
              * @param {Object} form
              */
             submitForm: function (form) {
-                addressForm.disableSubmitButtons();
+                if (this._vertexForm) {
+                    this._vertexForm.disableSubmitButtons();
+                }
                 form.submit();
             }
         });
         return $.mage.addressValidation;
-    }
+    };
 });

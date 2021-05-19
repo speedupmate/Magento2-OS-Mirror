@@ -7,16 +7,13 @@
         "sort-packages": true
     },
     "require": {
-        "php": "^5.6 || ^7.0",
-        "composer-plugin-api": "^1.1"
+        "php": "^7.3 || ~8.0.0",
+        "composer-plugin-api": "^1.1 || ^2.0"
     },
     "require-dev": {
-        "composer/composer": "^1.9",
-        "dealerdirect/phpcodesniffer-composer-installer": "^0.5.0",
-        "phpcompatibility/php-compatibility": "^9.3",
-        "phpunit/phpunit": "^8.4",
-        "roave/security-advisories": "dev-master",
-        "webimpress/coding-standard": "^1.0"
+        "composer/composer": "^1.9 || ^2.0",
+        "mikey179/vfsstream": "^1.6",
+        "roave/security-advisories": "dev-master"
     },
     "autoload": {
         "psr-4": {
@@ -26,22 +23,21 @@
     "autoload-dev": {
         "psr-4": {
             "LaminasTest\\DependencyPlugin\\": "test/"
-        }
+        },
+        "files": ["autoload/composer-2.0.php"]
     },
     "extra": {
-        "branch-alias": {
-            "dev-master": "1.0.x-dev",
-            "dev-develop": "1.1.x-dev"
-        },
-        "class": "Laminas\\DependencyPlugin\\DependencyRewriterPlugin"
+        "class": "Laminas\\DependencyPlugin\\DependencyRewriterPluginDelegator"
     },
     "scripts": {
         "check": [
             "@cs-check",
+            "@compat",
             "@test"
         ],
         "cs-check": "phpcs",
         "cs-fix": "phpcbf",
+        "static-analysis": "psalm --shepherd --stats",
         "test": "phpunit --colors=always",
         "test-coverage": "phpunit --colors=always --coverage-clover clover.xml"
     }

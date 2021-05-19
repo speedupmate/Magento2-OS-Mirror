@@ -40,8 +40,8 @@ class Gherkin extends Test implements ScenarioDriven, Reported
         $this->steps = $steps;
         $this->setMetadata(new Metadata());
         $this->scenario = new Scenario($this);
-        $this->getMetadata()->setName($featureNode->getTitle());
-        $this->getMetadata()->setFeature($scenarioNode->getTitle());
+        $this->getMetadata()->setName($scenarioNode->getTitle());
+        $this->getMetadata()->setFeature($featureNode->getTitle());
         $this->getMetadata()->setFilename($featureNode->getFile());
     }
 
@@ -64,10 +64,10 @@ class Gherkin extends Test implements ScenarioDriven, Reported
             $this->getMetadata()->setIncomplete($this->getMetadata()->getIncomplete() . "\nRun gherkin:snippets to define missing steps");
         }
     }
-    
+
     public function getSignature()
     {
-        return basename($this->getFileName(), '.feature') . ':' . $this->getFeature();
+        return basename($this->getFileName(), '.feature') . ':' . $this->getScenarioTitle();
     }
 
     public function test()
@@ -95,15 +95,44 @@ class Gherkin extends Test implements ScenarioDriven, Reported
         if (GherkinSnippets::stepHasPyStringArgument($stepNode)) {
             $stepText .= ' ""';
         }
+        $matches = [];
         foreach ($this->steps as $pattern => $context) {
             $res = preg_match($pattern, $stepText);
             if (!$res) {
                 continue;
             }
-            return;
+            $matches[$pattern] = $context;
         }
-        $incomplete = $this->getMetadata()->getIncomplete();
-        $this->getMetadata()->setIncomplete("$incomplete\nStep definition for `$stepText` not found in contexts");
+        if (count($matches) === 0) {
+            // There were no matches, meaning that the user should first add a step definition for this step
+            $incomplete = $this->getMetadata()->getIncomplete();
+            $this->getMetadata()->setIncomplete("$incomplete\nStep definition for `$stepText` not found in contexts");
+        }
+        if (count($matches) > 1) {
+            // There were more than one match, meaning that we don't know which step definition to execute for this step
+            $incomplete = $this->getMetadata()->getIncomplete();
+            $matchingDefinitions = [];
+            foreach ($matches as $pattern => $context) {
+                $matchingDefinitions[] = '- ' . $pattern . ' (' . self::contextAsString($context) . ')';
+            }
+            $this->getMetadata()->setIncomplete(
+                "$incomplete\nAmbiguous step: `$stepText` matches multiple definitions:\n"
+                . implode("\n", $matchingDefinitions)
+            );
+        }
+    }
+
+    private function contextAsString($context)
+    {
+        if (is_array($context) && count($context) === 2) {
+            list($class, $method) = $context;
+
+            if (is_string($class) && is_string($method)) {
+                return $class . ':' . $method;
+            }
+        }
+
+        return var_export($context, true);
     }
 
     protected function runStep(StepNode $stepNode)
@@ -164,12 +193,17 @@ class Gherkin extends Test implements ScenarioDriven, Reported
 
     public function toString()
     {
-        return $this->featureNode->getTitle() . ': ' . $this->getFeature();
+        return $this->getFeature() . ': ' . $this->getScenarioTitle();
     }
 
     public function getFeature()
     {
         return $this->getMetadata()->getFeature();
+    }
+
+    public function getScenarioTitle()
+    {
+        return $this->getMetadata()->getName();
     }
 
     /**

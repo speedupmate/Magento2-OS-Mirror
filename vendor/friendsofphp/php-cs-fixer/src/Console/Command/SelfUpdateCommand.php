@@ -32,7 +32,7 @@ use Symfony\Component\Console\Output\OutputInterface;
  */
 final class SelfUpdateCommand extends Command
 {
-    const COMMAND_NAME = 'self-update';
+    protected static $defaultName = 'self-update';
 
     /**
      * @var NewVersionCheckerInterface
@@ -67,7 +67,6 @@ final class SelfUpdateCommand extends Command
     protected function configure()
     {
         $this
-            ->setName(self::COMMAND_NAME)
             ->setAliases(['selfupdate'])
             ->setDefinition(
                 [
@@ -172,5 +171,7 @@ EOT
         rename($tempFilename, $localFilename);
 
         $output->writeln(sprintf('<info>php-cs-fixer updated</info> (<comment>%s</comment>)', $remoteTag));
+
+        return 0;
     }
 }

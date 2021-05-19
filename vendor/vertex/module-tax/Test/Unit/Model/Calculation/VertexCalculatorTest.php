@@ -1,4 +1,4 @@
-<?php
+<?php declare(strict_types=1);
 /**
  * @copyright  Vertex. All rights reserved.  https://www.vertexinc.com/
  * @author     Mediotype                     https://www.mediotype.com/
@@ -6,9 +6,9 @@
 
 namespace Vertex\Tax\Test\Unit\Model\Calculation;
 
-use Magento\Tax\Api\Data\TaxDetailsItemInterfaceFactory;
 use Magento\Tax\Api\Data\AppliedTaxInterfaceFactory;
 use Magento\Tax\Api\Data\AppliedTaxRateInterfaceFactory;
+use Magento\Tax\Api\Data\TaxDetailsItemInterfaceFactory;
 use Vertex\Tax\Model\Calculation\VertexCalculator;
 use Vertex\Tax\Test\Unit\TestCase;
 

@@ -8,9 +8,10 @@
 <sections xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
           xsi:noNamespaceSchemaLocation="urn:magento:mftf:Page/etc/SectionObject.xsd">
     <section name="CheckoutShippingSection">
-        <!-- Imported from 2.3 for compatibility with 2.2 -->
-        <element name="addressDropdown" type="select" selector="[name=billing_address_id]"/>
-        <element name="saveAddress" type="button" selector=".action-save-address"/>
-        <element name="newAddressButton" type="button" selector=".action-show-popup" timeout="30"/>
+        <element name="addressMessageContainer" type="text" selector="div.field.vertex-message.address-message" />
+        <element name="updateLinkToValidAddress" type="text" selector="div.field.vertex-message.address-message button.update-address" />
+        <element name="addressMessageWarning" type="text" selector="div.field.vertex-message.address-message .message.warning" />
+        <element name="addressMessageWasValid" type="text" selector="div.field.vertex-message.address-message .message.success" />
+        <element name="addressInvalidFieldsContainer" type="text" selector=".vertex__address-suggestion" />
     </section>
 </sections>

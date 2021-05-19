@@ -1,6 +1,5 @@
 [![Latest Stable Version](https://img.shields.io/packagist/v/sebastian/phpcpd.svg?style=flat-square)](https://packagist.org/packages/sebastian/phpcpd)
-[![Minimum PHP Version](https://img.shields.io/badge/php-%3E%3D%205.6-8892BF.svg?style=flat-square)](https://php.net/)
-[![Build Status](https://img.shields.io/travis/sebastianbergmann/phpcpd/master.svg?style=flat-square)](https://travis-ci.org/sebastianbergmann/phpcpd)
+[![Minimum PHP Version](https://img.shields.io/badge/php-%3E%3D%207.3-8892BF.svg?style=flat-square)](https://php.net/)
 
 # PHP Copy/Paste Detector (PHPCPD)
 
@@ -12,39 +11,48 @@
 
 The easiest way to obtain PHPCPD is to download a [PHP Archive (PHAR)](http://php.net/phar) that has all required dependencies of PHPCPD bundled in a single file:
 
-    $ wget https://phar.phpunit.de/phpcpd.phar
-    $ chmod +x phpcpd.phar
-    $ mv phpcpd.phar /usr/local/bin/phpcpd
+```
+$ wget https://phar.phpunit.de/phpcpd.phar
+$ chmod +x phpcpd.phar
+$ mv phpcpd.phar /usr/local/bin/phpcpd
+```
 
 You can also immediately use the PHAR after you have downloaded it, of course:
 
-    $ wget https://phar.phpunit.de/phpcpd.phar
-    $ php phpcpd.phar
+```
+$ wget https://phar.phpunit.de/phpcpd.phar
+$ php phpcpd.phar
+```
 
 ### Composer
 
 You can add this tool as a local, per-project, development-time dependency to your project using [Composer](https://getcomposer.org/):
 
-    $ composer require --dev sebastian/phpcpd
+```
+$ composer require --dev sebastian/phpcpd
+```
 
 You can then invoke it using the `vendor/bin/phpcpd` executable.
 
 ## Usage Example
 
-    $ phpcpd wordpress-4.7.1
-    phpcpd 3.0.0 by Sebastian Bergmann.
+```
+$ phpcpd --fuzzy wordpress-4.9.8
+phpcpd 5.0.0 by Sebastian Bergmann.
 
-    Found 59 clones with 2548 duplicated lines in 39 files:
+Found 66 clones with 3014 duplicated lines in 40 files:
 
-      - /home/sb/wordpress-4.7.1/wp-admin/includes/class-ftp-pure.php:99-114
-        /home/sb/wordpress-4.7.1/wp-admin/includes/class-ftp-sockets.php:119-134
-      .
-      .
-      .
-      - /home/sb/wordpress-4.7.1/wp-includes/class-wp-customize-manager.php:277-329
-        /home/sb/wordpress-4.7.1/wp-includes/class-wp-customize-control.php:652-704
+  - /home/sb/wordpress-4.9.8/wp-includes/Requests/IRI.php:358-708 (350 lines)
+    /home/sb/wordpress-4.9.8/wp-includes/SimplePie/IRI.php:404-754
+.
+.
+.
+  - /home/sb/wordpress-4.9.8/wp-includes/SimplePie/File.php:133-144 (11 lines)
+    /home/sb/wordpress-4.9.8/wp-includes/SimplePie/File.php:215-226
 
-    0.77% duplicated lines out of 332387 total lines of code.
+0.86% duplicated lines out of 349460 total lines of code.
+Average size of duplication is 45 lines, largest clone has 350 of lines
 
-    Time: 2.91 seconds, Memory: 232.00MB
+Time: 1.79 seconds, Memory: 272.00MB
+```
 

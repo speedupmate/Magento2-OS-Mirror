@@ -15,6 +15,14 @@
  */
 namespace Amazon\Payment\Domain;
 
+/**
+ * @deprecated As of February 2021, this Legacy Amazon Pay plugin has been
+ * deprecated, in favor of a newer Amazon Pay version available through GitHub
+ * and Magento Marketplace. Please download the new plugin for automatic
+ * updates and to continue providing your customers with a seamless checkout
+ * experience. Please see https://pay.amazon.com/help/E32AAQBC2FY42HS for details
+ * and installation instructions.
+ */
 class AmazonConstraint
 {
     const PAYMENT_METHOD_NOT_ALLOWED_ID = 'PaymentMethodNotAllowed';
@@ -66,10 +74,11 @@ class AmazonConstraint
     {
         switch ($this->getId()) {
             case static::PAYMENT_METHOD_NOT_ALLOWED_ID:
+                return __('The selected payment method is not available for this transaction. Please select another one or add a new payment method to the wallet widget.');
             case static::PAYMENT_PLAN_NOT_SET_ID:
-                return 'Please select a payment method.';
+                return __('No payment instrument has been selected for this order, please try to refresh the page or add a new payment instrument in the wallet widget.');
             default:
-                return 'Amazon could not process your request.';
+                return __('The order failed due to a technical error, please select another payment method or contact our support.');
         }
     }
 }

@@ -39,15 +39,13 @@ class Bootstrap extends InitTemplate
             return;
         }
 
+        if (!class_exists('\\Codeception\\Module\\Asserts') || !class_exists('\\Codeception\\Module\\PhpBrowser')) {
+            $this->addModulesToComposer(['PhpBrowser', 'Asserts']);
+        }
+
         $this->createUnitSuite();
-        $this->say("tests/unit created                 <- unit tests");
-        $this->say("tests/unit.suite.yml written       <- unit tests suite configuration");
         $this->createFunctionalSuite();
-        $this->say("tests/functional created           <- functional tests");
-        $this->say("tests/functional.suite.yml written <- functional tests suite configuration");
         $this->createAcceptanceSuite();
-        $this->say("tests/acceptance created           <- acceptance tests");
-        $this->say("tests/acceptance.suite.yml written <- acceptance tests suite configuration");
 
         $this->say(" --- ");
         $this->say();
@@ -80,7 +78,7 @@ class Bootstrap extends InitTemplate
 #
 # Suite for functional tests
 # Emulate web requests and make application process them
-# Include one of framework modules (Symfony2, Yii2, Laravel5) to use it
+# Include one of framework modules (Symfony2, Yii2, Laravel5, Phalcon4) to use it
 # Remove this suite if you don't use frameworks
 
 actor: $actor{$this->actorSuffix}
@@ -88,8 +86,11 @@ modules:
     enabled:
         # add a framework module here
         - \\{$this->namespace}Helper\Functional
+    step_decorators: ~        
 EOF;
         $this->createSuite('functional', $actor, $suiteConfig);
+        $this->say("tests/functional created           <- functional tests");
+        $this->say("tests/functional.suite.yml written <- functional tests suite configuration");
     }
 
     protected function createAcceptanceSuite($actor = 'Acceptance')
@@ -107,8 +108,11 @@ modules:
         - PhpBrowser:
             url: http://localhost/myapp
         - \\{$this->namespace}Helper\Acceptance
+step_decorators: ~        
 EOF;
         $this->createSuite('acceptance', $actor, $suiteConfig);
+        $this->say("tests/acceptance created           <- acceptance tests");
+        $this->say("tests/acceptance.suite.yml written <- acceptance tests suite configuration");
     }
 
     protected function createUnitSuite($actor = 'Unit')
@@ -123,8 +127,11 @@ modules:
     enabled:
         - Asserts
         - \\{$this->namespace}Helper\Unit
+    step_decorators: ~        
 EOF;
         $this->createSuite('unit', $actor, $suiteConfig);
+        $this->say("tests/unit created                 <- unit tests");
+        $this->say("tests/unit.suite.yml written       <- unit tests suite configuration");
     }
 
     public function createGlobalConfig()

@@ -84,7 +84,7 @@ class NotificationPluginTest extends TestCase
     /**
      * Basic setup for test
      */
-    protected function setUp()
+    protected function setUp(): void
     {
         $mockFactory              = new MockFactory();
         $objectFactory            = new TestObjectFactory($mockFactory);

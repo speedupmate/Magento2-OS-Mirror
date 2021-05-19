@@ -21,6 +21,7 @@ class DisableModuleTest extends TestCase
      *
      * @return void
      * @magentoConfigFixture default_store tax/vertex_settings/enable_vertex 1
+     * @magentoConfigFixture default_store tax/vertex_settings/trustedId 0123456789ABCDEF
      * @magentoDbIsolation enabled
      */
     public function testEnable()
@@ -35,6 +36,7 @@ class DisableModuleTest extends TestCase
      *
      * @return void
      * @magentoConfigFixture default_store tax/vertex_settings/enable_vertex 1
+     * @magentoConfigFixture default_store tax/vertex_settings/trustedId 0123456789ABCDEF
      * @magentoConfigFixture default_store tax/display/type 2
      * @magentoDbIsolation enabled
      */
@@ -57,9 +59,9 @@ class DisableModuleTest extends TestCase
             $disableMessage->getMessage(),
             'disable message not showing'
         );
-        $this->assertContains(
+        $this->assertStringContainsString(
             'Default Store View',
-            $disableMessage->getMessage(Store::DEFAULT_STORE_ID, true),
+            (string)$disableMessage->getMessage(Store::DEFAULT_STORE_ID, true),
             'disable message not showing affect stores'
         );
     }

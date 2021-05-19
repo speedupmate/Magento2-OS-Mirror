@@ -71,6 +71,24 @@
     }
 }
 
+#tax_vertex-head {
+    background: url("Vertex_Tax::images/vertex-logo.svg") left/auto @collapsible-title-icon__size no-repeat;
+    height: 0;
+    overflow: hidden;
+    padding: (@collapsible-title__padding-top + (@line-height__base + 1rem) + @collapsible-title__padding-bottom) 0 0;
+}
+
+#row_tax_vertex_info .comment {
+    padding-left: (@collapsible-title-icon__size + 1rem);
+    color: @collapsible-title__color;
+
+    h2 {
+        font-weight: @font-weight__semibold;
+        color: @collapsible-title__color;
+        margin: 1.5rem 0 0.5rem;
+    }
+}
+
 /**
  * This is for our "Vertex Flexible Field" input on the Product Edit Page in the
  * "Customizable Options" section.  At the time of this writing (2.3.1) these

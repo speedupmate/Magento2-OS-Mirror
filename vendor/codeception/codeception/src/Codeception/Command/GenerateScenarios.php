@@ -2,7 +2,7 @@
 namespace Codeception\Command;
 
 use Codeception\Configuration;
-use Codeception\Exception\ConfigurationException as ConfigurationException;
+use Codeception\Exception\ConfigurationException;
 use Codeception\Test\Cest;
 use Codeception\Test\Interfaces\ScenarioDriven;
 use Symfony\Component\Console\Command\Command;
@@ -13,7 +13,7 @@ use Symfony\Component\Console\Output\OutputInterface;
 use Symfony\Component\EventDispatcher\EventDispatcher;
 
 /**
- * Generates user-friendly text scenarios from scenario-driven tests (Cest, Cept).
+ * Generates user-friendly text scenarios from scenario-driven tests (Cest).
  *
  * * `codecept g:scenarios acceptance` - for all acceptance tests
  * * `codecept g:scenarios acceptance --format html` - in html format
@@ -102,6 +102,7 @@ class GenerateScenarios extends Command
         if ($input->getOption('single-file')) {
             $this->createFile($path . $this->formatExtension($format), $this->decorate($scenarios, $format), true);
         }
+        return 0;
     }
 
     protected function decorate($text, $format)

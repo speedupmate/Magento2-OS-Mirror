@@ -23,6 +23,39 @@ class ModuleContainer
     const MODULE_NAMESPACE = '\\Codeception\\Module\\';
 
     /**
+     * @var integer
+     */
+    const MAXIMUM_LEVENSHTEIN_DISTANCE = 5;
+
+    public static $packages = [
+        'AMQP' => 'codeception/module-amqp',
+        'Apc' => 'codeception/module-apc',
+        'Asserts' => 'codeception/module-asserts',
+        'Cli' => 'codeception/module-cli',
+        'DataFactory' => 'codeception/module-datafactory',
+        'Db' => 'codeception/module-db',
+        'Doctrine2' => "codeception/module-doctrine2",
+        'Filesystem' => 'codeception/module-filesystem',
+        'FTP' => 'codeception/module-ftp',
+        'Laravel5' => 'codeception/module-laravel5',
+        'Lumen' => 'codeception/module-lumen',
+        'Memcache' => 'codeception/module-memcache',
+        'MongoDb' => 'codeception/module-mongodb',
+        'Phalcon' => 'codeception/module-phalcon',
+        'PhpBrowser' => 'codeception/module-phpbrowser',
+        'Queue' => 'codeception/module-queue',
+        'Redis' => 'codeception/module-redis',
+        'REST' => 'codeception/module-rest',
+        'Sequence' => 'codeception/module-sequence',
+        'SOAP' => 'codeception/module-soap',
+        'Symfony' => 'codeception/module-symfony',
+        'WebDriver' => "codeception/module-webdriver",
+        'Yii2' => "codeception/module-yii2",
+        'ZendExpressive' => 'codeception/module-zendexpressive',
+        'ZF2' => 'codeception/module-zf2',
+    ];
+
+    /**
      * @var array
      */
     private $config;
@@ -77,6 +110,10 @@ class ModuleContainer
 
         $moduleClass = $this->getModuleClass($moduleName);
         if (!class_exists($moduleClass)) {
+            if (isset(self::$packages[$moduleName])) {
+                $package = self::$packages[$moduleName];
+                throw new ConfigurationException("Module $moduleName is not installed.\nUse Composer to install corresponding package:\n\ncomposer require $package --dev");
+            }
             throw new ConfigurationException("Module $moduleName could not be found and loaded");
         }
 
@@ -243,10 +280,35 @@ class ModuleContainer
     public function getModule($moduleName)
     {
         if (!$this->hasModule($moduleName)) {
-            throw new ModuleException(__CLASS__, "Module $moduleName couldn't be connected");
+            $this->throwMissingModuleExceptionWithSuggestion(__CLASS__, $moduleName);
         }
 
         return $this->modules[$moduleName];
+    }
+
+    public function throwMissingModuleExceptionWithSuggestion($className, $moduleName)
+    {
+        $suggestedModuleNameInfo = $this->getModuleSuggestion($moduleName);
+        throw new ModuleException($className, "Module $moduleName couldn't be connected" . $suggestedModuleNameInfo);
+    }
+
+    protected function getModuleSuggestion($missingModuleName)
+    {
+        $shortestLevenshteinDistance = null;
+        $suggestedModuleName = null;
+        foreach ($this->modules as $moduleName => $module) {
+            $levenshteinDistance = levenshtein($missingModuleName, $moduleName);
+            if ($shortestLevenshteinDistance === null || $levenshteinDistance <= $shortestLevenshteinDistance) {
+                $shortestLevenshteinDistance = $levenshteinDistance;
+                $suggestedModuleName = $moduleName;
+            }
+        }
+
+        if ($suggestedModuleName !== null && $shortestLevenshteinDistance <= self::MAXIMUM_LEVENSHTEIN_DISTANCE) {
+            return " (did you mean '$suggestedModuleName'?)";
+        }
+
+        return '';
     }
 
     /**

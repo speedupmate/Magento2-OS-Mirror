@@ -21,7 +21,7 @@ use Vertex\Tax\Model\FlexField\FlexFieldProcessableAttributeFactory;
  */
 class OrderItemGetterProcessor implements InvoiceFlexFieldProcessorInterface
 {
-    const BLACK_LIST = [
+    const BLOCK_LIST = [
         'getAdditionalData',
         'getExtensionAttributes',
         'getAppliedRuleIds',
@@ -69,7 +69,7 @@ class OrderItemGetterProcessor implements InvoiceFlexFieldProcessorInterface
                 static::PREFIX,
                 'Order Item',
                 static::class,
-                array_merge(static::DATE_FIELDS, static::BLACK_LIST)
+                array_merge(static::DATE_FIELDS, static::BLOCK_LIST)
             ),
             $this->attributeExtractor->extractDateFields(
                 static::PREFIX,
@@ -101,8 +101,12 @@ class OrderItemGetterProcessor implements InvoiceFlexFieldProcessorInterface
     /**
      * @inheritdoc
      */
-    public function getValueFromCreditmemo(CreditmemoItemInterface $item, $attributeCode, $fieldType = null, $fieldId = null)
-    {
+    public function getValueFromCreditmemo(
+        CreditmemoItemInterface $item,
+        $attributeCode,
+        $fieldType = null,
+        $fieldId = null
+    ) {
         $orderItem = $this->orderItemRepository->get($item->getOrderItemId());
 
         return $this->getValueFromOrder($orderItem, $attributeCode);

@@ -16,8 +16,8 @@ use Symfony\Component\Console\Output\OutputInterface;
  * Usage:
  *
  * * `codecept run acceptance`: run all acceptance tests
- * * `codecept run tests/acceptance/MyCept.php`: run only MyCept
- * * `codecept run acceptance MyCept`: same as above
+ * * `codecept run tests/acceptance/MyCest.php`: run only MyCest
+ * * `codecept run acceptance MyCest`: same as above
  * * `codecept run acceptance MyCest:myTestInIt`: run one test from a Cest
  * * `codecept run acceptance checkout.feature`: run feature-file
  * * `codecept run acceptance -g slow`: run tests from *slow* group
@@ -27,9 +27,9 @@ use Symfony\Component\Console\Output\OutputInterface;
  *
  * * `codecept run -v`:
  * * `codecept run --steps`: print step-by-step execution
- * * `codecept run -vv`:
- * * `codecept run --debug`: print steps and debug information
- * * `codecept run -vvv`: print internal debug information
+ * * `codecept run -vv`: print steps and debug information
+ * * `codecept run --debug`: alias for `-vv`
+ * * `codecept run -vvv`: print Codeception-internal debug information
  *
  * Load config:
  *
@@ -60,31 +60,37 @@ use Symfony\Component\Console\Output\OutputInterface;
  *  --report              Show output in compact style
  *  --html                Generate html with results (default: "report.html")
  *  --xml                 Generate JUnit XML Log (default: "report.xml")
+ *  --phpunit-xml         Generate PhpUnit XML Log (default: "phpunit-report.xml")
+ *  --no-redirect         Do not redirect to Composer-installed version in vendor/codeception
  *  --tap                 Generate Tap Log (default: "report.tap.log")
  *  --json                Generate Json Log (default: "report.json")
  *  --colors              Use colors in output
  *  --no-colors           Force no colors in output (useful to override config file)
- *  --silent              Only outputs suite names and final results
+ *  --silent              Only outputs suite names and final results. Almost the same as `--quiet`
  *  --steps               Show steps in output
- *  --debug (-d)          Show debug and scenario output
+ *  --debug (-d)          Alias for `-vv`
+ *  --bootstrap           Execute bootstrap script before the test
  *  --coverage            Run with code coverage (default: "coverage.serialized")
  *  --coverage-html       Generate CodeCoverage HTML report in path (default: "coverage")
  *  --coverage-xml        Generate CodeCoverage XML report in file (default: "coverage.xml")
  *  --coverage-text       Generate CodeCoverage text report in file (default: "coverage.txt")
  *  --coverage-phpunit    Generate CodeCoverage PHPUnit report in file (default: "coverage-phpunit")
+ *  --coverage-cobertura  Generate CodeCoverage Cobertura report in file (default: "coverage-cobertura")
  *  --no-exit             Don't finish with exit code
  *  --group (-g)          Groups of tests to be executed (multiple values allowed)
  *  --skip (-s)           Skip selected suites (multiple values allowed)
  *  --skip-group (-x)     Skip selected groups (multiple values allowed)
  *  --env                 Run tests in selected environments. (multiple values allowed, environments can be merged with ',')
  *  --fail-fast (-f)      Stop after first failure
+ *  --no-rebuild          Do not rebuild actor classes on start
  *  --help (-h)           Display this help message.
- *  --quiet (-q)          Do not output any message.
- *  --verbose (-v|vv|vvv) Increase the verbosity of messages: 1 for normal output, 2 for more verbose output and 3 for debug
+ *  --quiet (-q)          Do not output any message. Almost the same as `--silent`
+ *  --verbose (-v|vv|vvv) Increase the verbosity of messages: `v` for normal output, `vv` for steps and debug, `vvv` for Codeception-internal debug
  *  --version (-V)        Display this application version.
  *  --ansi                Force ANSI output.
  *  --no-ansi             Disable ANSI output.
  *  --no-interaction (-n) Do not ask any interactive question.
+ *  --seed                Use the given seed for shuffling tests
  * ```
  *
  */
@@ -111,7 +117,6 @@ class Run extends Command
      */
     protected $output;
 
-
     /**
      * Sets Run arguments
      * @throws \Symfony\Component\Console\Exception\InvalidArgumentException
@@ -126,6 +131,7 @@ class Run extends Command
             new InputOption('report', '', InputOption::VALUE_NONE, 'Show output in compact style'),
             new InputOption('html', '', InputOption::VALUE_OPTIONAL, 'Generate html with results', 'report.html'),
             new InputOption('xml', '', InputOption::VALUE_OPTIONAL, 'Generate JUnit XML Log', 'report.xml'),
+            new InputOption('phpunit-xml', '', InputOption::VALUE_OPTIONAL, 'Generate PhpUnit XML Log', 'phpunit-report.xml'),
             new InputOption('tap', '', InputOption::VALUE_OPTIONAL, 'Generate Tap Log', 'report.tap.log'),
             new InputOption('json', '', InputOption::VALUE_OPTIONAL, 'Generate Json Log', 'report.json'),
             new InputOption('colors', '', InputOption::VALUE_NONE, 'Use colors in output'),
@@ -138,6 +144,8 @@ class Run extends Command
             new InputOption('silent', '', InputOption::VALUE_NONE, 'Only outputs suite names and final results'),
             new InputOption('steps', '', InputOption::VALUE_NONE, 'Show steps in output'),
             new InputOption('debug', 'd', InputOption::VALUE_NONE, 'Show debug and scenario output'),
+            new InputOption('bootstrap', '', InputOption::VALUE_OPTIONAL, 'Execute custom PHP script before running tests. Path can be absolute or relative to current working directory', false),
+            new InputOption('no-redirect', '', InputOption::VALUE_NONE, 'Do not redirect to Composer-installed version in vendor/codeception'),
             new InputOption(
                 'coverage',
                 '',
@@ -167,6 +175,12 @@ class Run extends Command
                 '',
                 InputOption::VALUE_OPTIONAL,
                 'Generate CodeCoverage report in Crap4J XML format'
+            ),
+            new InputOption(
+                'coverage-cobertura',
+                '',
+                InputOption::VALUE_OPTIONAL,
+                'Generate CodeCoverage report in Cobertura XML format'
             ),
             new InputOption(
                 'coverage-phpunit',
@@ -201,6 +215,13 @@ class Run extends Command
             ),
             new InputOption('fail-fast', 'f', InputOption::VALUE_NONE, 'Stop after first failure'),
             new InputOption('no-rebuild', '', InputOption::VALUE_NONE, 'Do not rebuild actor classes on start'),
+            new InputOption(
+                'seed',
+                '',
+                InputOption::VALUE_REQUIRED,
+                'Define random seed for shuffle setting'
+            ),
+            new InputOption('no-artifacts', '', InputOption::VALUE_NONE, 'Don\'t report about artifacts'),
         ]);
 
         parent::configure();
@@ -221,9 +242,14 @@ class Run extends Command
      */
     public function execute(InputInterface $input, OutputInterface $output)
     {
-        $this->ensureCurlIsAvailable();
+        $this->ensurePhpExtIsAvailable('CURL');
+        $this->ensurePhpExtIsAvailable('mbstring');
         $this->options = $input->getOptions();
         $this->output = $output;
+
+        if ($this->options['bootstrap']) {
+            Configuration::loadBootstrap($this->options['bootstrap'], getcwd());
+        }
 
         // load config
         $config = $this->getGlobalConfig();
@@ -239,10 +265,17 @@ class Run extends Command
         if (!$this->options['colors']) {
             $this->options['colors'] = $config['settings']['colors'];
         }
+
         if (!$this->options['silent']) {
             $this->output->writeln(
                 Codecept::versionString() . "\nPowered by " . \PHPUnit\Runner\Version::getVersionString()
             );
+
+            if ($this->options['seed']) {
+                $this->output->writeln(
+                    "Running with seed: <info>" . $this->options['seed'] . "</info>\n"
+                );
+            }
         }
         if ($this->options['debug']) {
             $this->output->setVerbosity(OutputInterface::VERBOSITY_VERY_VERBOSE);
@@ -253,6 +286,7 @@ class Run extends Command
             $userOptions,
             $this->booleanOptions($input, [
                 'xml' => 'report.xml',
+                'phpunit-xml' => 'phpunit-report.xml',
                 'html' => 'report.html',
                 'json' => 'report.json',
                 'tap' => 'report.tap.log',
@@ -261,12 +295,18 @@ class Run extends Command
                 'coverage-html' => 'coverage',
                 'coverage-text' => 'coverage.txt',
                 'coverage-crap4j' => 'crap4j.xml',
+                'coverage-cobertura' => 'cobertura.xml',
                 'coverage-phpunit' => 'coverage-phpunit'])
         );
         $userOptions['verbosity'] = $this->output->getVerbosity();
         $userOptions['interactive'] = !$input->hasParameterOption(['--no-interaction', '-n']);
         $userOptions['ansi'] = (!$input->hasParameterOption('--no-ansi') xor $input->hasParameterOption('ansi'));
 
+        if (!$this->options['seed']) {
+            $userOptions['seed'] = rand();
+        } else {
+            $userOptions['seed'] = intval($this->options['seed']);
+        }
         if ($this->options['no-colors'] || !$userOptions['ansi']) {
             $userOptions['colors'] = false;
         }
@@ -345,8 +385,14 @@ class Run extends Command
         }
 
         if ($test) {
-            $filter = $this->matchFilteredTestName($test);
-            $userOptions['filter'] = $filter;
+            $userOptions['filter'] = $this->matchFilteredTestName($test);
+        } elseif ($suite) {
+            $userOptions['filter'] = $this->matchFilteredTestName($suite);
+        }
+        if (!$this->options['silent'] && $config['settings']['shuffle']) {
+            $this->output->writeln(
+                "[Seed] <info>" . $userOptions['seed'] . "</info>"
+            );
         }
 
         $this->codecept = new Codecept($userOptions);
@@ -380,6 +426,7 @@ class Run extends Command
                 exit(1);
             }
         }
+        return 0;
     }
 
     protected function matchSingleTest($suite, $config)
@@ -408,9 +455,29 @@ class Run extends Command
             }
         }
 
-        // Run single test without included tests
-        if (! Configuration::isEmpty() && strpos($suite, $config['paths']['tests']) === 0) {
-            return $this->matchTestFromFilename($suite, $config['paths']['tests']);
+        if (! Configuration::isEmpty()) {
+            // Run single test without included tests
+            if (strpos($suite, $config['paths']['tests']) === 0) {
+                return $this->matchTestFromFilename($suite, $config['paths']['tests']);
+            }
+
+            // Run single test from working directory
+            $realTestDir = realpath(Configuration::testsDir());
+            $cwd = getcwd();
+            if (strpos($realTestDir, $cwd) === 0) {
+                $file = $suite;
+                if (strpos($file, ':') !== false) {
+                    list($file) = explode(':', $suite, -1);
+                }
+                $realPath = $cwd . DIRECTORY_SEPARATOR . $file;
+                if (file_exists($realPath) && strpos($realPath, $realTestDir) === 0) {
+                    //only match test if file is in tests directory
+                    return $this->matchTestFromFilename(
+                        $cwd . DIRECTORY_SEPARATOR . $suite,
+                        $realTestDir
+                    );
+                }
+            }
         }
     }
 
@@ -438,7 +505,6 @@ class Run extends Command
             }
         }
     }
-
 
     protected function currentNamespace()
     {
@@ -472,15 +538,38 @@ class Run extends Command
 
     protected function matchTestFromFilename($filename, $testsPath)
     {
+        $filter = '';
+        if (strpos($filename, ':') !== false) {
+            if ((PHP_OS === 'Windows' || PHP_OS === 'WINNT') && $filename[1] === ':') {
+                // match C:\...
+                list($drive, $path, $filter) = explode(':', $filename, 3);
+                $filename = $drive . ':' . $path;
+            } else {
+                list($filename, $filter) = explode(':', $filename, 2);
+            }
+
+            if ($filter) {
+                $filter = ':' . $filter;
+            }
+        }
+
         $testsPath = str_replace(['//', '\/', '\\'], '/', $testsPath);
         $filename = str_replace(['//', '\/', '\\'], '/', $filename);
+
+        if (rtrim($filename, '/') === $testsPath) {
+            //codecept run tests
+            return ['', '', $filter];
+        }
         $res = preg_match("~^$testsPath/(.*?)(?>/(.*))?$~", $filename, $matches);
 
         if (!$res) {
             throw new \InvalidArgumentException("Test file can't be matched");
         }
         if (!isset($matches[2])) {
-            $matches[2] = null;
+            $matches[2] = '';
+        }
+        if ($filter) {
+            $matches[2] .= $filter;
         }
 
         return $matches;
@@ -544,14 +633,18 @@ class Run extends Command
         return $values;
     }
 
-    private function ensureCurlIsAvailable()
+    /**
+     * @param string $ext
+     * @throws \Exception
+     */
+    private function ensurePhpExtIsAvailable($ext)
     {
-        if (!extension_loaded('curl')) {
+        if (!extension_loaded(strtolower($ext))) {
             throw new \Exception(
-                "Codeception requires CURL extension installed to make tests run\n"
-                . "If you are not sure, how to install CURL, please refer to StackOverflow\n\n"
+                "Codeception requires \"{$ext}\" extension installed to make tests run\n"
+                . "If you are not sure, how to install \"{$ext}\", please refer to StackOverflow\n\n"
                 . "Notice: PHP for Apache/Nginx and CLI can have different php.ini files.\n"
-                . "Please make sure that your PHP you run from console has CURL enabled."
+                . "Please make sure that your PHP you run from console has \"{$ext}\" enabled."
             );
         }
     }

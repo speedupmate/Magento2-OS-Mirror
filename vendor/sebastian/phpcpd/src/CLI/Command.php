@@ -1,4 +1,4 @@
-<?php
+<?php declare(strict_types=1);
 /*
  * This file is part of PHP Copy/Paste Detector (PHPCPD).
  *
@@ -10,24 +10,25 @@
 
 namespace SebastianBergmann\PHPCPD\CLI;
 
+use SebastianBergmann\FinderFacade\FinderFacade;
 use SebastianBergmann\PHPCPD\Detector\Detector;
 use SebastianBergmann\PHPCPD\Detector\Strategy\DefaultStrategy;
 use SebastianBergmann\PHPCPD\Log\PMD;
 use SebastianBergmann\PHPCPD\Log\Text;
-use SebastianBergmann\FinderFacade\FinderFacade;
+use SebastianBergmann\Timer\Timer;
 use Symfony\Component\Console\Command\Command as AbstractCommand;
+use Symfony\Component\Console\Helper\ProgressBar;
 use Symfony\Component\Console\Input\InputArgument;
 use Symfony\Component\Console\Input\InputInterface;
 use Symfony\Component\Console\Input\InputOption;
 use Symfony\Component\Console\Output\OutputInterface;
-use Symfony\Component\Console\Helper\ProgressBar;
 
-class Command extends AbstractCommand
+final class Command extends AbstractCommand
 {
     /**
      * Configures the current command.
      */
-    protected function configure()
+    protected function configure(): void
     {
         $this->setName('phpcpd')
              ->setDefinition(
@@ -36,7 +37,7 @@ class Command extends AbstractCommand
                          'values',
                          InputArgument::IS_ARRAY,
                          'Files and directories to analyze'
-                     )
+                     ),
                  ]
              )
              ->addOption(
@@ -102,13 +103,8 @@ class Command extends AbstractCommand
 
     /**
      * Executes the current command.
-     *
-     * @param InputInterface  $input  An InputInterface instance
-     * @param OutputInterface $output An OutputInterface instance
-     *
-     * @return null|int null or 0 if everything went fine, or an error code
      */
-    protected function execute(InputInterface $input, OutputInterface $output)
+    protected function execute(InputInterface $input, OutputInterface $output): int
     {
         $finder = new FinderFacade(
             $input->getArgument('values'),
@@ -122,7 +118,8 @@ class Command extends AbstractCommand
 
         if (empty($files)) {
             $output->writeln('No files found to scan');
-            exit(0);
+
+            return 0;
         }
 
         $progressBar = null;
@@ -138,9 +135,9 @@ class Command extends AbstractCommand
 
         $clones = $detector->copyPasteDetection(
             $files,
-            $input->getOption('min-lines'),
-            $input->getOption('min-tokens'),
-            $input->getOption('fuzzy')
+            (int) $input->getOption('min-lines'),
+            (int) $input->getOption('min-tokens'),
+            (bool) $input->getOption('fuzzy')
         );
 
         if ($input->getOption('progress')) {
@@ -163,26 +160,23 @@ class Command extends AbstractCommand
         }
 
         if (!$quiet) {
-            print \PHP_Timer::resourceUsage() . "\n";
+            print Timer::resourceUsage() . "\n";
         }
 
         if (\count($clones) > 0) {
-            exit(1);
+            return 1;
         }
+
+        return 0;
     }
 
-    /**
-     * @param \Symfony\Component\Console\Input\InputInterface $input
-     * @param string                                          $option
-     *
-     * @return array
-     */
-    private function handleCSVOption(InputInterface $input, $option)
+    private function handleCSVOption(InputInterface $input, string $option): array
     {
         $result = $input->getOption($option);
 
         if (!\is_array($result)) {
             $result = \explode(',', $result);
+
             \array_map('trim', $result);
         }
 

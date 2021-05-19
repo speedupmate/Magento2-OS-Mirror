@@ -1,4 +1,4 @@
-<?php
+<?php declare(strict_types=1);
 /**
  * @copyright  Vertex. All rights reserved.  https://www.vertexinc.com/
  * @author     Mediotype                     https://www.mediotype.com/
@@ -8,8 +8,7 @@ namespace Vertex\Tax\Test\Unit\Block\Adminhtml\Config\Form\Field;
 
 use Magento\Backend\Block\Template\Context;
 use Magento\Framework\Escaper;
-use PHPUnit\Framework\Constraint\IsType;
-use Vertex\Data\DeliveryTerm as SdkDeliveryTerm;
+use PHPUnit\Framework\MockObject\MockObject;
 use Vertex\Tax\Block\Adminhtml\Config\Form\Field\DeliveryTerms;
 use Vertex\Tax\Model\Config\Source\DeliveryTerm;
 use Vertex\Tax\Test\Unit\TestCase;
@@ -19,13 +18,13 @@ use Vertex\Tax\Test\Unit\TestCase;
  */
 class DeliveryTermsTest extends TestCase
 {
-    /** @var \PHPUnit_Framework_MockObject_MockObject|DeliveryTerms */
+    /** @var MockObject|DeliveryTerms */
     private $blockMock;
 
     /**
      * @inheritdoc
      */
-    protected function setUp()  // @codingStandardsIgnoreLine MEQP2.PHP.ProtectedClassMember.FoundProtected
+    protected function setUp(): void  // @codingStandardsIgnoreLine MEQP2.PHP.ProtectedClassMember.FoundProtected
     {
         parent::setUp();
         $escaper = $this->getObject(Escaper::class);

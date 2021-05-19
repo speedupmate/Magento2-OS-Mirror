@@ -22,12 +22,12 @@ class TaxInvoice implements OptionSourceInterface
     {
         return [
             [
-                'label' => __('When Invoice Created'),
+                'label' => __('Invoice Created'),
                 'value' => 'invoice_created'
             ],
 
             [
-                'label' => __('When Order Status Is Changed'),
+                'label' => __('Order Status Is Changed'),
                 'value' => 'order_status'
             ]
         ];

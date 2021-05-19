@@ -7,8 +7,6 @@ namespace Pelago\Emogrifier\HtmlProcessor;
  *
  * The "vanilla" subclass is the HtmlNormalizer.
  *
- * @internal This class currently is a new technology preview, and its API is still in flux. Don't use it in production.
- *
  * @author Oliver Klee <github@oliverklee.de>
  */
 abstract class AbstractHtmlProcessor
@@ -297,6 +295,8 @@ abstract class AbstractHtmlProcessor
      * Checks that $this->domDocument has a BODY element and adds it if it is missing.
      *
      * @return void
+     *
+     * @throws \UnexpectedValueException
      */
     private function ensureExistenceOfBodyElement()
     {
@@ -305,6 +305,9 @@ abstract class AbstractHtmlProcessor
         }
 
         $htmlElement = $this->domDocument->getElementsByTagName('html')->item(0);
+        if ($htmlElement === null) {
+            throw new \UnexpectedValueException('There is no HTML element although there should be one.', 1569930853);
+        }
         $htmlElement->appendChild($this->domDocument->createElement('body'));
     }
 }

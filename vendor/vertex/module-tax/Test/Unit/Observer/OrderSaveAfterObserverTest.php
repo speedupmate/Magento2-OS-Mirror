@@ -1,27 +1,30 @@
-<?php
+<?php declare(strict_types=1);
 
 namespace Vertex\Tax\Test\Unit\Observer;
 
 use Magento\Framework\DataObject;
 use Magento\Framework\Event;
+use Magento\Framework\Event\Observer;
+use Magento\Framework\Exception\LocalizedException;
 use Magento\Framework\Exception\NoSuchEntityException;
 use Magento\Framework\Message\ManagerInterface;
 use Magento\Sales\Api\Data\OrderExtension;
 use Magento\Sales\Model\Order;
+use PHPUnit\Framework\MockObject\MockObject;
 use Vertex\Services\Invoice\Request;
 use Vertex\Services\Invoice\Response;
 use Vertex\Tax\Model\Api\Data\InvoiceRequestBuilder;
 use Vertex\Tax\Model\Config;
 use Vertex\Tax\Model\ConfigurationValidator;
+use Vertex\Tax\Model\ConfigurationValidator\Result;
 use Vertex\Tax\Model\CountryGuard;
 use Vertex\Tax\Model\Data\OrderInvoiceStatus;
 use Vertex\Tax\Model\Data\OrderInvoiceStatusFactory;
-use Vertex\Tax\Model\ModuleManager;
+use Vertex\Tax\Model\Loader\GiftwrapExtensionLoader;
+use Vertex\Tax\Model\Loader\ShippingAssignmentExtensionLoader;
 use Vertex\Tax\Model\Repository\OrderInvoiceStatusRepository;
 use Vertex\Tax\Model\TaxInvoice;
-use Vertex\Tax\Model\Loader\GiftwrapExtensionLoader;
 use Vertex\Tax\Observer\OrderSavedAfterObserver;
-use Vertex\Tax\Model\Loader\ShippingAssignmentExtensionLoader;
 use Vertex\Tax\Test\Unit\TestCase;
 
 /**
@@ -31,55 +34,55 @@ use Vertex\Tax\Test\Unit\TestCase;
  */
 class OrderSaveAfterObserverTest extends TestCase
 {
-    /** @var \PHPUnit_Framework_MockObject_MockObject|Config */
+    /** @var MockObject|Config */
     private $configMock;
 
-    /** @var \PHPUnit_Framework_MockObject_MockObject|ConfigurationValidator */
+    /** @var MockObject|ConfigurationValidator */
     private $configValidatorMock;
 
-    /** @var \PHPUnit_Framework_MockObject_MockObject|CountryGuard */
+    /** @var MockObject|CountryGuard */
     private $countryGuardMock;
 
-    /** @var \PHPUnit_Framework_MockObject_MockObject|OrderInvoiceStatusFactory */
+    /** @var MockObject|OrderInvoiceStatusFactory */
     private $factoryMock;
 
-    /** @var \PHPUnit_Framework_MockObject_MockObject|GiftwrapExtensionLoader */
+    /** @var MockObject|GiftwrapExtensionLoader */
     private $giftwrapExtensionMock;
 
-    /** @var \PHPUnit_Framework_MockObject_MockObject|ManagerInterface */
+    /** @var MockObject|ManagerInterface */
     private $managerInterfaceMock;
 
     /** @var int */
     private $orderId;
 
-    /** @var \PHPUnit_Framework_MockObject_MockObject|OrderInvoiceStatus */
+    /** @var MockObject|OrderInvoiceStatus */
     private $orderInvoiceStatusMock;
 
-    /** @var \PHPUnit_Framework_MockObject_MockObject|Order */
+    /** @var MockObject|Order */
     private $orderMock;
 
     /** @var OrderSavedAfterObserver */
     private $orderSavedAfterObserver;
 
-    /** @var \PHPUnit_Framework_MockObject_MockObject|OrderInvoiceStatusRepository */
+    /** @var MockObject|OrderInvoiceStatusRepository */
     private $repositoryMock;
 
-    /** @var \PHPUnit_Framework_MockObject_MockObject|ShippingAssignmentExtensionLoader */
+    /** @var MockObject|ShippingAssignmentExtensionLoader */
     private $shipmentExtensionLoader;
 
-    /** @var \PHPUnit_Framework_MockObject_MockObject|TaxInvoice */
+    /** @var MockObject|TaxInvoice */
     private $taxInvoiceMock;
 
-    /** @var \PHPUnit_Framework_MockObject_MockObject|OrderExtension */
+    /** @var MockObject|OrderExtension */
     private $orderExtensionMock;
 
-    /** @var \PHPUnit_Framework_MockObject_MockObject|InvoiceRequestBuilder */
+    /** @var MockObject|InvoiceRequestBuilder */
     private $invoiceRequestBuilderMock;
 
     /**
      * @inheritdoc
      */
-    protected function setUp()
+    protected function setUp(): void
     {
         parent::setUp();
 
@@ -184,7 +187,7 @@ class OrderSaveAfterObserverTest extends TestCase
      *
      * @covers \Vertex\Tax\Observer\OrderSavedAfterObserver
      * @return void
-     * @throws \Magento\Framework\Exception\LocalizedException
+     * @throws LocalizedException
      */
     public function testInvoiceNotSentIfConfigurationInvalid()
     {
@@ -404,7 +407,7 @@ class OrderSaveAfterObserverTest extends TestCase
      */
     private function createObserver()
     {
-        $observer = $this->getObject(Event\Observer::class);
+        $observer = $this->getObject(Observer::class);
         $observer->setData('event', $observer);
         $observer->setData('order', $this->orderMock);
         return $observer;
@@ -441,7 +444,7 @@ class OrderSaveAfterObserverTest extends TestCase
      */
     private function setConfigValid($configValid = true)
     {
-        $validatorResult = new ConfigurationValidator\Result();
+        $validatorResult = new Result();
         $validatorResult->setValid($configValid);
 
         $this->configValidatorMock->method('execute')

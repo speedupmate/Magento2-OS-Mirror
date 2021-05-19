@@ -21,6 +21,12 @@ suites:
                     browser: {{browser}}
                 - \Helper\Acceptance
                 
+        # add Codeception\Step\Retry trait to AcceptanceTester to enable retries
+        step_decorators:
+            - Codeception\Step\ConditionalAssertion
+            - Codeception\Step\TryTo
+            - Codeception\Step\Retry
+                
 extensions:
     enabled: [Codeception\Extension\RunFailed]
 
@@ -73,10 +79,7 @@ EOF;
 
         $dir = $this->ask("Where tests will be stored?", 'tests');
 
-        $browser = $this->ask("Select a browser for testing", ['chrome', 'phantomjs', 'firefox']);
-        if ($browser === 'phantomjs') {
-            $this->sayInfo("Ensure that you have Phantomjs running before starting tests");
-        }
+        $browser = $this->ask("Select a browser for testing", ['chrome', 'firefox']);
         if ($browser === 'chrome') {
             $this->sayInfo("Ensure that you have Selenium Server and ChromeDriver installed before running tests");
         }
@@ -92,6 +95,11 @@ EOF;
         $this->gitIgnore($outputDir);
         $this->gitIgnore($supportDir . DIRECTORY_SEPARATOR . '_generated');
         $this->sayInfo("Created test directories inside at $dir");
+
+        if (!class_exists('\\Codeception\\Module\\WebDriver')) {
+            // composer version
+            $this->addModulesToComposer(['WebDriver']);
+        }
 
         $configFile = (new Template($this->configTemplate))
             ->place('url', $url)
@@ -117,10 +125,12 @@ EOF;
 
         $this->say();
         $this->say("<bold>Next steps:</bold>");
-        $this->say('1. Launch Selenium Server or PhantomJS and webserver');
+        $this->say('1. Launch Selenium Server and webserver');
         $this->say("2. Edit <bold>$dir/LoginCest.php</bold> to test login of your application");
         $this->say("3. Run tests using: <comment>codecept run</comment>");
         $this->say();
+        $this->say("HINT: Add '\\Codeception\\Step\\Retry' trait to AcceptanceTester class to enable auto-retries");
+        $this->say("HINT: See https://codeception.com/docs/03-AcceptanceTests#retry");
         $this->say("<bold>Happy testing!</bold>");
     }
 }

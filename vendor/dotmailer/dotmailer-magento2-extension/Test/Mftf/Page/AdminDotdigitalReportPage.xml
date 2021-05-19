@@ -10,7 +10,4 @@
     <page name="AdminCampaignReportPage" url="dotdigitalgroup_email/campaign" area="admin" module="Dotdigitalgroup_Email">
         <section name="AdminCampaignReportPageSection"/>
     </page>
-    <page name="AdminDashboardPage" url="dotdigitalgroup_email/dashboard" area="admin" module="Dotdigitalgroup_Email">
-        <section name="AdminDashboardPageSection"/>
-    </page>
 </pages>

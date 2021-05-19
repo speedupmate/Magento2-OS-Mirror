@@ -8,6 +8,8 @@
 
 namespace Laminas\Code\Generator;
 
+use Laminas\Code\DeclareStatement;
+use Laminas\Code\Exception\InvalidArgumentException;
 use Laminas\Code\Reflection\Exception as ReflectionException;
 use Laminas\Code\Reflection\FileReflection;
 
@@ -70,6 +72,11 @@ class FileGenerator extends AbstractGenerator
      * @var string
      */
     protected $body;
+
+    /**
+     * @var DeclareStatement[]
+     */
+    protected $declares = [];
 
     /**
      * Passes $options to {@link setOptions()}.
@@ -164,6 +171,11 @@ class FileGenerator extends AbstractGenerator
                     break;
                 case 'requiredfiles':
                     $fileGenerator->setRequiredFiles($value);
+                    break;
+                case 'declares':
+                    $fileGenerator->setDeclares(array_map(static function ($directive, $value) {
+                        return DeclareStatement::fromArray([$directive => $value]);
+                    }, array_keys($value), $value));
                     break;
                 default:
                     if (property_exists($fileGenerator, $name)) {
@@ -407,6 +419,25 @@ class FileGenerator extends AbstractGenerator
         return $this->body;
     }
 
+    public function setDeclares(array $declares)
+    {
+        foreach ($declares as $declare) {
+            if (! $declare instanceof DeclareStatement) {
+                throw new InvalidArgumentException(sprintf(
+                    '%s is expecting an array of %s objects',
+                    __METHOD__,
+                    DeclareStatement::class
+                ));
+            }
+
+            if (! array_key_exists($declare->getDirective(), $this->declares)) {
+                $this->declares[$declare->getDirective()] = $declare;
+            }
+        }
+
+        return $this;
+    }
+
     /**
      * @return bool
      */
@@ -488,6 +519,28 @@ class FileGenerator extends AbstractGenerator
             } else {
                 $output .= $namespace;
             }
+        }
+
+        // declares, if any
+        if ($this->declares) {
+            $declareStatements = '';
+
+            foreach ($this->declares as $declare) {
+                $declareStatements .= $declare->getStatement() . self::LINE_FEED;
+            }
+
+            if (preg_match('#/\* Laminas_Code_Generator_FileGenerator-DeclaresMarker \*/#m', $output)) {
+                $output = preg_replace(
+                    '#/\* Laminas_Code_Generator_FileGenerator-DeclaresMarker \*/#m',
+                    $declareStatements,
+                    $output,
+                    1
+                );
+            } else {
+                $output .= $declareStatements;
+            }
+
+            $output .= self::LINE_FEED;
         }
 
         // process required files

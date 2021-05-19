@@ -1,591 +1,162 @@
 <?php
 
-/*
- * (c) Jeroen van den Enden <info@endroid.nl>
- *
- * This source file is subject to the MIT license that is bundled
- * with this source code in the file LICENSE.
- */
+declare(strict_types=1);
 
 namespace Endroid\QrCode;
 
-use Endroid\QrCode\Exception\InvalidPathException;
-use Endroid\QrCode\Exception\InvalidWriterException;
-use Endroid\QrCode\Exception\UnsupportedExtensionException;
-use Endroid\QrCode\Writer\WriterInterface;
+use Endroid\QrCode\Color\Color;
+use Endroid\QrCode\Color\ColorInterface;
+use Endroid\QrCode\Encoding\Encoding;
+use Endroid\QrCode\Encoding\EncodingInterface;
+use Endroid\QrCode\ErrorCorrectionLevel\ErrorCorrectionLevelInterface;
+use Endroid\QrCode\ErrorCorrectionLevel\ErrorCorrectionLevelLow;
+use Endroid\QrCode\RoundBlockSizeMode\RoundBlockSizeModeInterface;
+use Endroid\QrCode\RoundBlockSizeMode\RoundBlockSizeModeMargin;
 
-class QrCode implements QrCodeInterface
+final class QrCode implements QrCodeInterface
 {
-    const LABEL_FONT_PATH_DEFAULT = __DIR__.'/../assets/noto_sans.otf';
+    /** @var string */
+    private $data;
 
-    /**
-     * @var string
-     */
-    protected $text;
+    /** @var EncodingInterface */
+    private $encoding;
 
-    /**
-     * @var int
-     */
-    protected $size = 300;
+    /** @var ErrorCorrectionLevelInterface */
+    private $errorCorrectionLevel;
 
-    /**
-     * @var int
-     */
-    protected $margin = 10;
+    /** @var int */
+    private $size;
 
-    /**
-     * @var array
-     */
-    protected $foregroundColor = [
-        'r' => 0,
-        'g' => 0,
-        'b' => 0,
-    ];
+    /** @var int */
+    private $margin;
 
-    /**
-     * @var array
-     */
-    protected $backgroundColor = [
-        'r' => 255,
-        'g' => 255,
-        'b' => 255,
-    ];
+    /** @var RoundBlockSizeModeInterface */
+    private $roundBlockSizeMode;
 
-    /**
-     * @var string
-     */
-    protected $encoding = 'UTF-8';
+    /** @var ColorInterface */
+    private $foregroundColor;
 
-    /**
-     * @var ErrorCorrectionLevel
-     */
-    protected $errorCorrectionLevel;
+    /** @var ColorInterface */
+    private $backgroundColor;
 
-    /**
-     * @var string
-     */
-    protected $logoPath;
-
-    /**
-     * @var int
-     */
-    protected $logoWidth;
-
-    /**
-     * @var string
-     */
-    protected $label;
-
-    /**
-     * @var int
-     */
-    protected $labelFontSize = 16;
-
-    /**
-     * @var string
-     */
-    protected $labelFontPath = self::LABEL_FONT_PATH_DEFAULT;
-
-    /**
-     * @var LabelAlignment
-     */
-    protected $labelAlignment;
-
-    /**
-     * @var array
-     */
-    protected $labelMargin = [
-        't' => 0,
-        'r' => 10,
-        'b' => 10,
-        'l' => 10,
-    ];
-
-    /**
-     * @var WriterRegistryInterface
-     */
-    protected $writerRegistry;
-
-    /**
-     * @var WriterInterface
-     */
-    protected $writer;
-
-    /**
-     * @var bool
-     */
-    protected $validateResult = false;
-
-    /**
-     * @param string $text
-     */
-    public function __construct($text = '')
-    {
-        $this->text = $text;
-
-        $this->errorCorrectionLevel = new ErrorCorrectionLevel(ErrorCorrectionLevel::LOW);
-        $this->labelAlignment = new LabelAlignment(LabelAlignment::CENTER);
-
-        $this->writerRegistry = new StaticWriterRegistry();
-    }
-
-    /**
-     * @param string $text
-     *
-     * @return $this
-     */
-    public function setText($text)
-    {
-        $this->text = $text;
-
-        return $this;
-    }
-
-    /**
-     * {@inheritdoc}
-     */
-    public function getText()
-    {
-        return $this->text;
-    }
-
-    /**
-     * @param int $size
-     *
-     * @return $this
-     */
-    public function setSize($size)
-    {
+    public function __construct(
+        string $data,
+        EncodingInterface $encoding = null,
+        ErrorCorrectionLevelInterface $errorCorrectionLevel = null,
+        int $size = 300,
+        int $margin = 10,
+        RoundBlockSizeModeInterface $roundBlockSizeMode = null,
+        ColorInterface $foregroundColor = null,
+        ColorInterface $backgroundColor = null
+    ) {
+        $this->data = $data;
+        $this->encoding = isset($encoding) ? $encoding : new Encoding('UTF-8');
+        $this->errorCorrectionLevel = isset($errorCorrectionLevel) ? $errorCorrectionLevel : new ErrorCorrectionLevelLow();
         $this->size = $size;
-
-        return $this;
-    }
-
-    /**
-     * {@inheritdoc}
-     */
-    public function getSize()
-    {
-        return $this->size;
-    }
-
-    /**
-     * @param int $margin
-     *
-     * @return $this
-     */
-    public function setMargin($margin)
-    {
         $this->margin = $margin;
+        $this->roundBlockSizeMode = isset($roundBlockSizeMode) ? $roundBlockSizeMode : new RoundBlockSizeModeMargin();
+        $this->foregroundColor = isset($foregroundColor) ? $foregroundColor : new Color(0, 0, 0);
+        $this->backgroundColor = isset($backgroundColor) ? $backgroundColor : new Color(255, 255, 255);
+    }
+
+    public static function create(string $data): self
+    {
+        return new self($data);
+    }
+
+    public function getData(): string
+    {
+        return $this->data;
+    }
+
+    public function setData(string $data): self
+    {
+        $this->data = $data;
 
         return $this;
     }
 
-    /**
-     * {@inheritdoc}
-     */
-    public function getMargin()
+    public function getEncoding(): EncodingInterface
     {
-        return $this->margin;
+        return $this->encoding;
     }
 
-    /**
-     * @param array $foregroundColor
-     *
-     * @return $this
-     */
-    public function setForegroundColor($foregroundColor)
-    {
-        $this->foregroundColor = $foregroundColor;
-
-        return $this;
-    }
-
-    /**
-     * {@inheritdoc}
-     */
-    public function getForegroundColor()
-    {
-        return $this->foregroundColor;
-    }
-
-    /**
-     * @param array $backgroundColor
-     *
-     * @return $this
-     */
-    public function setBackgroundColor($backgroundColor)
-    {
-        $this->backgroundColor = $backgroundColor;
-
-        return $this;
-    }
-
-    /**
-     * {@inheritdoc}
-     */
-    public function getBackgroundColor()
-    {
-        return $this->backgroundColor;
-    }
-
-    /**
-     * @param string $encoding
-     *
-     * @return $this
-     */
-    public function setEncoding($encoding)
+    public function setEncoding(Encoding $encoding): self
     {
         $this->encoding = $encoding;
 
         return $this;
     }
 
-    /**
-     * {@inheritdoc}
-     */
-    public function getEncoding()
+    public function getErrorCorrectionLevel(): ErrorCorrectionLevelInterface
     {
-        return $this->encoding;
+        return $this->errorCorrectionLevel;
     }
 
-    /**
-     * @param string $errorCorrectionLevel
-     *
-     * @return $this
-     */
-    public function setErrorCorrectionLevel($errorCorrectionLevel)
+    public function setErrorCorrectionLevel(ErrorCorrectionLevelInterface $errorCorrectionLevel): self
     {
-        $this->errorCorrectionLevel = new ErrorCorrectionLevel($errorCorrectionLevel);
+        $this->errorCorrectionLevel = $errorCorrectionLevel;
 
         return $this;
     }
 
-    /**
-     * {@inheritdoc}
-     */
-    public function getErrorCorrectionLevel()
+    public function getSize(): int
     {
-        return $this->errorCorrectionLevel->getValue();
+        return $this->size;
     }
 
-    /**
-     * @param string $logoPath
-     *
-     * @return $this
-     *
-     * @throws InvalidPathException
-     */
-    public function setLogoPath($logoPath)
+    public function setSize(int $size): self
     {
-        $logoPath = realpath($logoPath);
-
-        if (!is_file($logoPath)) {
-            throw new InvalidPathException('Invalid logo path: '.$logoPath);
-        }
-
-        $this->logoPath = $logoPath;
+        $this->size = $size;
 
         return $this;
     }
 
-    /**
-     * {@inheritdoc}
-     */
-    public function getLogoPath()
+    public function getMargin(): int
     {
-        return $this->logoPath;
+        return $this->margin;
     }
 
-    /**
-     * @param int $logoWidth
-     *
-     * @return $this
-     */
-    public function setLogoWidth($logoWidth)
+    public function setMargin(int $margin): self
     {
-        $this->logoWidth = $logoWidth;
+        $this->margin = $margin;
 
         return $this;
     }
 
-    /**
-     * {@inheritdoc}
-     */
-    public function getLogoWidth()
+    public function getRoundBlockSizeMode(): RoundBlockSizeModeInterface
     {
-        return $this->logoWidth;
+        return $this->roundBlockSizeMode;
     }
 
-    /**
-     * @param string $label
-     * @param int    $labelFontSize
-     * @param string $labelFontPath
-     * @param string $labelAlignment
-     * @param array  $labelMargin
-     *
-     * @return $this
-     */
-    public function setLabel($label, $labelFontSize = null, $labelFontPath = null, $labelAlignment = null, $labelMargin = null)
+    public function setRoundBlockSizeMode(RoundBlockSizeModeInterface $roundBlockSizeMode): self
     {
-        $this->label = $label;
-
-        if (null !== $labelFontSize) {
-            $this->setLabelFontSize($labelFontSize);
-        }
-
-        if (null !== $labelFontPath) {
-            $this->setLabelFontPath($labelFontPath);
-        }
-
-        if (null !== $labelAlignment) {
-            $this->setLabelAlignment($labelAlignment);
-        }
-
-        if (null !== $labelMargin) {
-            $this->setLabelMargin($labelMargin);
-        }
+        $this->roundBlockSizeMode = $roundBlockSizeMode;
 
         return $this;
     }
 
-    /**
-     * {@inheritdoc}
-     */
-    public function getLabel()
+    public function getForegroundColor(): ColorInterface
     {
-        return $this->label;
+        return $this->foregroundColor;
     }
 
-    /**
-     * @param int $labelFontSize
-     *
-     * @return $this
-     */
-    public function setLabelFontSize($labelFontSize)
+    public function setForegroundColor(ColorInterface $foregroundColor): self
     {
-        $this->labelFontSize = $labelFontSize;
+        $this->foregroundColor = $foregroundColor;
 
         return $this;
     }
 
-    /**
-     * {@inheritdoc}
-     */
-    public function getLabelFontSize()
+    public function getBackgroundColor(): ColorInterface
     {
-        return $this->labelFontSize;
+        return $this->backgroundColor;
     }
 
-    /**
-     * @param string $labelFontPath
-     *
-     * @return $this
-     *
-     * @throws InvalidPathException
-     */
-    public function setLabelFontPath($labelFontPath)
+    public function setBackgroundColor(ColorInterface $backgroundColor): self
     {
-        $labelFontPath = realpath($labelFontPath);
-
-        if (!is_file($labelFontPath)) {
-            throw new InvalidPathException('Invalid label font path: '.$labelFontPath);
-        }
-
-        $this->labelFontPath = $labelFontPath;
+        $this->backgroundColor = $backgroundColor;
 
         return $this;
-    }
-
-    /**
-     * {@inheritdoc}
-     */
-    public function getLabelFontPath()
-    {
-        return $this->labelFontPath;
-    }
-
-    /**
-     * @param string $labelAlignment
-     *
-     * @return $this
-     */
-    public function setLabelAlignment($labelAlignment)
-    {
-        $this->labelAlignment = new LabelAlignment($labelAlignment);
-
-        return $this;
-    }
-
-    /**
-     * {@inheritdoc}
-     */
-    public function getLabelAlignment()
-    {
-        return $this->labelAlignment->getValue();
-    }
-
-    /**
-     * @param int[] $labelMargin
-     *
-     * @return $this
-     */
-    public function setLabelMargin(array $labelMargin)
-    {
-        $this->labelMargin = array_merge($this->labelMargin, $labelMargin);
-
-        return $this;
-    }
-
-    /**
-     * {@inheritdoc}
-     */
-    public function getLabelMargin()
-    {
-        return $this->labelMargin;
-    }
-
-    /**
-     * @param WriterRegistryInterface $writerRegistry
-     *
-     * @return $this
-     */
-    public function setWriterRegistry(WriterRegistryInterface $writerRegistry)
-    {
-        $this->writerRegistry = $writerRegistry;
-
-        return $this;
-    }
-
-    /**
-     * @param WriterInterface $writer
-     *
-     * @return $this
-     */
-    public function setWriter(WriterInterface $writer)
-    {
-        $this->writer = $writer;
-
-        return $this;
-    }
-
-    /**
-     * @param WriterInterface $name
-     *
-     * @return WriterInterface
-     */
-    public function getWriter($name = null)
-    {
-        if (!is_null($name)) {
-            return $this->writerRegistry->getWriter($name);
-        }
-
-        if ($this->writer instanceof WriterInterface) {
-            return $this->writer;
-        }
-
-        return $this->writerRegistry->getDefaultWriter();
-    }
-
-    /**
-     * @param string $name
-     *
-     * @return $this
-     *
-     * @throws InvalidWriterException
-     */
-    public function setWriterByName($name)
-    {
-        $this->writer = $this->writerRegistry->getWriter($name);
-
-        return $this;
-    }
-
-    /**
-     * @param string $path
-     *
-     * @return $this
-     */
-    public function setWriterByPath($path)
-    {
-        $extension = pathinfo($path, PATHINFO_EXTENSION);
-
-        $this->setWriterByExtension($extension);
-
-        return $this;
-    }
-
-    /**
-     * @param string $extension
-     *
-     * @return $this
-     *
-     * @throws UnsupportedExtensionException
-     */
-    public function setWriterByExtension($extension)
-    {
-        foreach ($this->writerRegistry->getWriters() as $writer) {
-            if ($writer->supportsExtension($extension)) {
-                $this->writer = $writer;
-
-                return $this;
-            }
-        }
-
-        throw new UnsupportedExtensionException('Missing writer for extension "'.$extension.'"');
-    }
-
-    /**
-     * @param bool $validateResult
-     *
-     * @return $this
-     */
-    public function setValidateResult($validateResult)
-    {
-        $this->validateResult = $validateResult;
-
-        return $this;
-    }
-
-    /**
-     * {@inheritdoc}
-     */
-    public function getValidateResult()
-    {
-        return $this->validateResult;
-    }
-
-    /**
-     * @return string
-     */
-    public function writeString()
-    {
-        return $this->getWriter()->writeString($this);
-    }
-
-    /**
-     * @return string
-     */
-    public function writeDataUri()
-    {
-        return $this->getWriter()->writeDataUri($this);
-    }
-
-    /**
-     * @param string $path
-     */
-    public function writeFile($path)
-    {
-        return $this->getWriter()->writeFile($this, $path);
-    }
-
-    /**
-     * @return string
-     *
-     * @throws InvalidWriterException
-     */
-    public function getContentType()
-    {
-        return $this->getWriter()->getContentType();
     }
 }

@@ -4,12 +4,14 @@ namespace Codeception\Coverage;
 use Codeception\Configuration;
 use Codeception\Exception\ConfigurationException;
 use Codeception\Exception\ModuleException;
+use SebastianBergmann\CodeCoverage\CodeCoverage;
+use Symfony\Component\Finder\Exception\DirectoryNotFoundException;
 use Symfony\Component\Finder\Finder;
 
 class Filter
 {
     /**
-     * @var \SebastianBergmann\CodeCoverage\CodeCoverage
+     * @var CodeCoverage
      */
     protected $phpCodeCoverage = null;
 
@@ -23,27 +25,24 @@ class Filter
      */
     protected $filter = null;
 
-    public function __construct(\SebastianBergmann\CodeCoverage\CodeCoverage $phpCoverage)
+    public function __construct(CodeCoverage $phpCoverage)
     {
-        $this->phpCodeCoverage = $phpCoverage
-            ? $phpCoverage
-            : new \SebastianBergmann\CodeCoverage\CodeCoverage;
-
+        $this->phpCodeCoverage = $phpCoverage;
         $this->filter = $this->phpCodeCoverage->filter();
     }
 
     /**
-     * @param \SebastianBergmann\CodeCoverage\CodeCoverage $phpCoverage
+     * @param CodeCoverage $phpCoverage
      * @return Filter
      */
-    public static function setup(\SebastianBergmann\CodeCoverage\CodeCoverage $phpCoverage)
+    public static function setup(CodeCoverage $phpCoverage)
     {
         self::$c3 = new self($phpCoverage);
         return self::$c3;
     }
 
     /**
-     * @return null|\SebastianBergmann\CodeCoverage\CodeCoverage
+     * @return null|CodeCoverage
      */
     public function getPhpCodeCoverage()
     {
@@ -81,7 +80,13 @@ class Filter
                     : $this->matchWildcardPattern($fileOrDir);
 
                 foreach ($finder as $file) {
-                    $filter->addFileToWhitelist($file);
+                    if (method_exists($filter, 'addFileToWhitelist')) {
+                        //php-code-coverage 8 or older
+                        $filter->addFileToWhitelist($file);
+                    } else {
+                        //php-code-coverage 9+
+                        $filter->includeFile($file);
+                    }
                 }
             }
         }
@@ -91,12 +96,22 @@ class Filter
                 throw new ConfigurationException('Error parsing yaml. Config `whitelist: exclude:` should be an array');
             }
             foreach ($coverage['whitelist']['exclude'] as $fileOrDir) {
-                $finder = strpos($fileOrDir, '*') === false
-                    ? [Configuration::projectDir() . DIRECTORY_SEPARATOR . $fileOrDir]
-                    : $this->matchWildcardPattern($fileOrDir);
+                try {
+                    $finder = strpos($fileOrDir, '*') === false
+                        ? [Configuration::projectDir() . DIRECTORY_SEPARATOR . $fileOrDir]
+                        : $this->matchWildcardPattern($fileOrDir);
 
-                foreach ($finder as $file) {
-                    $filter->removeFileFromWhitelist($file);
+                    foreach ($finder as $file) {
+                        if (method_exists($filter, 'removeFileFromWhitelist')) {
+                            //php-code-coverage 8 or older
+                            $filter->removeFileFromWhitelist($file);
+                        } else {
+                            //php-code-coverage 9+
+                            $filter->excludeFile($file);
+                        }
+                    }
+                } catch (DirectoryNotFoundException $e) {
+                    continue;
                 }
             }
         }

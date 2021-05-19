@@ -144,8 +144,8 @@ class DisableMessage
 
         $html .= __(
             'Click here to go to <a href="%1">Price Display Settings</a> and change your settings.',
-            $this->getManageUrl())
-            . '</p>';
+            $this->getManageUrl()
+        ) . '</p>';
 
         return $html;
     }

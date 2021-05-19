@@ -67,18 +67,17 @@ class LocalServer extends SuiteSubscriber
 
         if ($this->settings['remote_config']) {
             $this->addC3AccessHeader(self::COVERAGE_HEADER_CONFIG, $this->settings['remote_config']);
-        }
-
-        $knock = $this->c3Request('clear');
-        if ($knock === false) {
-            throw new RemoteException(
-                '
-                CodeCoverage Error.
-                Check the file "c3.php" is included in your application.
-                We tried to access "/c3/report/clear" but this URI was not accessible.
-                You can review actual error messages in c3tmp dir.
-                '
-            );
+            $knock = $this->c3Request('clear');
+            if ($knock === false) {
+                throw new RemoteException(
+                    '
+                    CodeCoverage Error.
+                    Check the file "c3.php" is included in your application.
+                    We tried to access "/c3/report/clear" but this URI was not accessible.
+                    You can review actual error messages in c3tmp dir.
+                    '
+                );
+            }
         }
     }
 
@@ -122,7 +121,41 @@ class LocalServer extends SuiteSubscriber
         if ($coverage === false) {
             return;
         }
-        $this->mergeToPrint($coverage);
+
+        $this->preProcessCoverage($coverage)
+             ->mergeToPrint($coverage);
+    }
+
+    /**
+     * Allows Translating Remote Paths To Local (IE: When Using Docker)
+     *
+     * @param \SebastianBergmann\CodeCoverage\CodeCoverage $coverage
+     * @return $this
+     */
+    protected function preProcessCoverage($coverage)
+    {
+        //Only Process If Work Directory Set
+        if ($this->settings['work_dir'] === null) {
+            return $this;
+        }
+
+        $workDir    = rtrim($this->settings['work_dir'], '/\\') . DIRECTORY_SEPARATOR;
+        $projectDir = Configuration::projectDir();
+        $data       = $coverage->getData(true); //We only want covered files, not all whitelisted ones.
+
+        codecept_debug("Replacing all instances of {$workDir} with {$projectDir}");
+
+        foreach ($data as $path => $datum) {
+            unset($data[$path]);
+
+            $path = str_replace($workDir, $projectDir, $path);
+
+            $data[$path] = $datum;
+        }
+
+        $coverage->setData($data);
+
+        return $this;
     }
 
     protected function c3Request($action)
@@ -160,12 +193,16 @@ class LocalServer extends SuiteSubscriber
             $this->module->amOnPage('/');
         }
 
-        $c3Url = parse_url($this->settings['c3_url'] ? $this->settings['c3_url'] : $this->module->_getUrl());
+        $cookieDomain = isset($this->settings['cookie_domain']) ? $this->settings['cookie_domain'] : null;
 
-        // we need to separate coverage cookies by host; we can't separate cookies by port.
-        $c3Host = isset($c3Url['host']) ? $c3Url['host'] : 'localhost';
+        if (!$cookieDomain) {
+            $c3Url = parse_url($this->settings['c3_url'] ? $this->settings['c3_url'] : $this->module->_getUrl());
 
-        $this->module->setCookie(self::COVERAGE_COOKIE, $value, ['domain' => $c3Host]);
+            // we need to separate coverage cookies by host; we can't separate cookies by port.
+            $cookieDomain = isset($c3Url['host']) ? $c3Url['host'] : 'localhost';
+        }
+
+        $this->module->setCookie(self::COVERAGE_COOKIE, $value, ['domain' => $cookieDomain]);
 
         // putting in configuration ensures the cookie is used for all sessions of a MultiSession test
 
@@ -186,6 +223,8 @@ class LocalServer extends SuiteSubscriber
                 break;
             }
         }
+        unset($cookie);
+
         if (!$found) {
             $cookies[] = [
                 'Name' => self::COVERAGE_COOKIE,

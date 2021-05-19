@@ -30,6 +30,7 @@ EOF;
             enabled:
                 # add more modules here
                 - Asserts
+        step_decorators: ~ 
 EOF;
 
 
@@ -62,6 +63,10 @@ EOF;
         }
 
         $this->createFile('codeception.yml', $configFile);
+
+        if (!class_exists('\\Codeception\\Module\\Asserts')) {
+            $this->addModulesToComposer(['Asserts']);
+        }
 
         if ($haveTester) {
             $this->createHelper('Unit', $supportDir);

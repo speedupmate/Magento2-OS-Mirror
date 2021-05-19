@@ -1,38 +1,41 @@
-<?php
+<?php declare(strict_types=1);
 
 namespace Vertex\Tax\Test\Unit\Block\Adminhtml\Config\Form\Field;
 
 use Magento\Backend\Block\Template\Context;
 use Magento\Framework\App\Request\Http;
 use Magento\Framework\Data\Form\Element\AbstractElement;
+use PHPUnit\Framework\MockObject\MockObject;
+use Vertex\Tax\Block\Adminhtml\Config\Form\Field\VertexStatus;
 use Vertex\Tax\Model\Config;
 use Vertex\Tax\Model\ConfigurationValidator;
+use Vertex\Tax\Model\ConfigurationValidator\Result;
 use Vertex\Tax\Test\Unit\TestCase;
 
 class VertexStatusTest extends TestCase
 {
-    /** @var \PHPUnit_Framework_MockObject_MockObject|Context */
+    /** @var MockObject|Context */
     private $contextMock;
 
-    /** @var \PHPUnit_Framework_MockObject_MockObject|AbstractElement */
+    /** @var MockObject|AbstractElement */
     private $abstractElementMock;
 
-    /** @var \PHPUnit_Framework_MockObject_MockObject|Config */
+    /** @var MockObject|Config */
     private $configMock;
 
-    /** @var \PHPUnit_Framework_MockObject_MockObject|VertexStatus */
+    /** @var MockObject|VertexStatus */
     private $block;
 
-    /** @var \PHPUnit_Framework_MockObject_MockObject|VertexStatus */
+    /** @var MockObject|VertexStatus */
     private $blockMock;
 
-    /** @var \PHPUnit_Framework_MockObject_MockObject|Http */
+    /** @var MockObject|Http */
     private $httpMock;
 
-    /** @var \PHPUnit_Framework_MockObject_MockObject|ConfigurationValidator */
+    /** @var MockObject|ConfigurationValidator */
     private $configurationValidatorMock;
 
-    protected function setUp()
+    protected function setUp(): void
     {
         parent::setUp();
 
@@ -76,7 +79,7 @@ class VertexStatusTest extends TestCase
             ->method('isTaxCalculationEnabled')
             ->willReturn(true);
 
-        $credentialResult = $this->getObject(ConfigurationValidator\Result::class)
+        $credentialResult = $this->getObject(Result::class)
             ->setValid(false)
             ->setMessage('Invalid')
             ->setArguments([]);
@@ -100,7 +103,7 @@ class VertexStatusTest extends TestCase
             ->method('isTaxCalculationEnabled')
             ->willReturn(true);
 
-        $credentialResult = $this->getObject(ConfigurationValidator\Result::class)
+        $credentialResult = $this->getObject(Result::class)
             ->setValid(true);
 
         $this->configurationValidatorMock->method('execute')

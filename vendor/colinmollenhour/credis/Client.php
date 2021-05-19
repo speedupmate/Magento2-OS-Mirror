@@ -33,7 +33,7 @@ class CredisException extends Exception
 
     public function __construct($message, $code = 0, $exception = NULL)
     {
-        if ($exception && get_class($exception) == 'RedisException' && $message == 'read error on connection') {
+        if ($exception && get_class($exception) == 'RedisException' && strpos($message,'read error on connection') === 0) {
             $code = CredisException::CODE_DISCONNECTED;
         }
         parent::__construct($message, $code, $exception);
@@ -117,6 +117,7 @@ class CredisException extends Exception
  * @method array|Credis_Client         hGetAll(string $key)
  * @method bool|Credis_Client          hExists(string $key, string $field)
  * @method int|Credis_Client           hIncrBy(string $key, string $field, int $value)
+ * @method float|Credis_Client         hIncrByFloat(string $key, string $member, float $value)
  * @method bool|Credis_Client          hMSet(string $key, array $keysValues)
  * @method array|Credis_Client         hMGet(string $key, array $fields)
  *
@@ -187,6 +188,12 @@ class Credis_Client {
      * @var string
      */
     protected $host;
+
+    /**
+     * Scheme of the Redis server (tcp, tls, unix)
+     * @var string
+     */
+    protected $scheme;
 
     /**
      * Port on which the Redis server is running
@@ -309,12 +316,17 @@ class Credis_Client {
     {
         $this->host = (string) $host;
         $this->port = (int) $port;
+        $this->scheme = null;
         $this->timeout = $timeout;
         $this->persistent = (string) $persistent;
         $this->standalone = ! extension_loaded('redis');
         $this->authPassword = $password;
         $this->selectedDb = (int)$db;
         $this->convertHost();
+        if ($this->scheme == 'tls') {
+            // PHP Redis extension doesn't work with TLS
+            $this->standalone = true;
+        }
     }
 
     public function __destruct()
@@ -401,10 +413,11 @@ class Credis_Client {
     }
     protected function convertHost()
     {
-        if (preg_match('#^(tcp|unix)://(.*)$#', $this->host, $matches)) {
-            if($matches[1] == 'tcp') {
+        if (preg_match('#^(tcp|tls|unix)://(.*)$#', $this->host, $matches)) {
+            if($matches[1] == 'tcp' || $matches[1] == 'tls') {
+                $this->scheme = $matches[1];
                 if ( ! preg_match('#^([^:]+)(:([0-9]+))?(/(.+))?$#', $matches[2], $matches)) {
-                    throw new CredisException('Invalid host format; expected tcp://host[:port][/persistence_identifier]');
+                    throw new CredisException('Invalid host format; expected '.$this->scheme.'://host[:port][/persistence_identifier]');
                 }
                 $this->host = $matches[1];
                 $this->port = (int) (isset($matches[3]) ? $matches[3] : 6379);
@@ -412,6 +425,7 @@ class Credis_Client {
             } else {
                 $this->host = $matches[2];
                 $this->port = NULL;
+                $this->scheme = 'unix';
                 if (substr($this->host,0,1) != '/') {
                     throw new CredisException('Invalid unix socket format; expected unix:///path/to/redis.sock');
                 }
@@ -419,6 +433,10 @@ class Credis_Client {
         }
         if ($this->port !== NULL && substr($this->host,0,1) == '/') {
             $this->port = NULL;
+            $this->scheme = 'unix';
+        }
+        if (!$this->scheme) {
+            $this->scheme = 'tcp';
         }
     }
     /**
@@ -435,8 +453,8 @@ class Credis_Client {
         if ($this->standalone) {
             $flags = STREAM_CLIENT_CONNECT;
             $remote_socket = $this->port === NULL
-                ? 'unix://'.$this->host
-                : 'tcp://'.$this->host.':'.$this->port;
+                ? $this->scheme.'://'.$this->host
+                : $this->scheme.'://'.$this->host.':'.$this->port;
             if ($this->persistent && $this->port !== NULL) {
                 // Persistent connections to UNIX sockets are not supported
                 $remote_socket .= '/'.$this->persistent;
@@ -778,6 +796,15 @@ class Credis_Client {
         return null;
     }
 
+    /**
+     * @param string|null $name
+     * @return string|Credis_Client
+     */
+    public function ping($name = null)
+    {
+      return $this->__call('ping', $name ? array($name) : array());
+    }
+
     public function __call($name, $args)
     {
         // Lazy connection
@@ -797,6 +824,7 @@ class Credis_Client {
                     $eArgs = (array) array_shift($args);
                     $args = array($script, count($keys), $keys, $eArgs);
                     break;
+                case 'zinterstore':
                 case 'zunionstore':
                     $dest = array_shift($args);
                     $keys = (array) array_shift($args);
@@ -1048,6 +1076,7 @@ class Credis_Client {
                     }
                     $args = self::_flattenArguments($args);
                     break;
+                case 'zinterstore':
                 case 'zunionstore':
                     $cArgs = array();
                     $cArgs[] = array_shift($args); // destination
@@ -1189,6 +1218,15 @@ class Credis_Client {
                 case 'exists':
                     // smooth over phpredis-v4 vs earlier difference to match documented credis return results
                     $response = (int) $response;
+                    break;
+                case 'ping':
+                    if ($response) {
+                      if ($response === true) {
+                        $response = isset($args[0]) ? $args[0] : "PONG";
+                      } else if ($response[0] === '+') {
+                        $response = substr($response, 1);
+                      }
+                    }
                     break;
                 default:
                     $error = $this->redis->getLastError();
@@ -1411,7 +1449,7 @@ class Credis_Client {
      */
     private static function _prepare_command($args)
     {
-        return sprintf('*%d%s%s%s', count($args), CRLF, implode(array_map(array('self', '_map'), $args), CRLF), CRLF);
+        return sprintf('*%d%s%s%s', count($args), CRLF, implode(CRLF, array_map(array('self', '_map'), $args)), CRLF);
     }
 
     private static function _map($arg)

@@ -4,7 +4,10 @@
   @author     Mediotype                     https://www.mediotype.com/
   -->
 <config xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="urn:magento:module:Magento_Cron:etc/crontab.xsd">
-    <group id="default">
+    <group id="vertex">
+        <job name="vertex_wsdl_cache" instance="Vertex\Tax\Cron\WsdlCache" method="execute">
+            <config_path>crontab/default/jobs/vertex_wsdl_cache/schedule/cron_expr</config_path>
+        </job>
         <job name="vertex_log_rotation" instance="Vertex\Tax\Cron\LogRotate" method="execute">
             <config_path>crontab/default/jobs/vertex_log_rotation/schedule/cron_expr</config_path>
         </job>

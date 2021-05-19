@@ -12,6 +12,9 @@
 /** Tax rate when a product is shipped from PA to PA without any city sales tax applied */
 const TAX_RATE_PA_ONLY = 6;
 
+/** Tax Rate for PA (Sales & Use) */
+const TAX_RATE_PA_SALES_AND_USE = 6;
+
 /** Tax rate when a product is shipped from PA to Santa Monica, California */
 const TAX_RATE_PA_TO_SANTAMONICA = 10.25;
 
@@ -32,6 +35,7 @@ const TAX_RATE_US_CA = 9.5;
 /** Tax rate for Danville, Illinois */
 const TAX_RATE_US_IL_DANVILLE = 2.75;
 const TAX_RATE_US_IL_VERMILION = 0.25;
+const TAX_RATE_COMBINED_US_IL_DANVILLE = TAX_RATE_US_IL_DANVILLE + TAX_RATE_US_IL_VERMILION;
 
 /** Tax rate for River Grive, Illinois */
 const TAX_RATE_US_IL_COOK = 1.75;
@@ -86,6 +90,14 @@ $entities = [
         'subtotalInclTax' => 100,
         'tax' => 0,
         'taxPercent' => 0,
+    ],
+    'Vertex_100USD_53100000_UNSPSC_Commodity_Code_Values' => [
+        'price' => 100,
+        'priceInclTax' => 100,
+        'subtotal' => 100,
+        'subtotalInclTax' => 100,
+        'tax' => 0,
+        'taxPercent' => 0
     ],
     'Vertex_100USD_SantaMonica_Values' => [
         'price' => 100,
@@ -305,6 +317,22 @@ $entities = [
             ) / 100,
         'taxPercent' => TAX_RATE_US_IL + TAX_RATE_US_IL_COOK + TAX_RATE_US_IL_RIVER_GROVE + TAX_RATE_US_IL_COOK_RTA,
     ],
+    'Vertex_100USD_TaxRegistration_VRTXMFTF01_Values' => [
+        'price' => 100,
+        'priceInclTax' => 100 * 1.0887,
+        'subtotal' => 100,
+        'subtotalInclTax' => 100 * 1.0887,
+        'tax' => 100 * 8.887 / 100,
+        'taxPercent' => 8.887,
+    ],
+    'Vertex_100USD_TaxRegistration_VRTXMFTF02_Values' => [
+        'price' => 100,
+        'priceInclTax' => 100 * 1.0950,
+        'subtotal' => 100,
+        'subtotalInclTax' => 100 * 1.0950,
+        'tax' => 100 * .095,
+        'taxPercent' => 9.5
+    ],
     'Vertex_19USD_TCSIX_Values' => [
         'price' => 20,
         'priceInclTax' => 20 * (TAX_RATE_US_CA / 100 + 1),
@@ -492,6 +520,33 @@ $totals = [
         'shippingTax' => ceil(100 * 5 * (TAX_RATE_US_CA / 100)) / 100,
         'shippingInclTax' => ceil(100 * 5 * (TAX_RATE_US_CA / 100 + 1)) / 100,
     ],
+    'Vertex_100USD_53100000_UNSPSC_Commodity_Code_Totals' => [
+        'productTax' => 0.00,
+        'pieces' => [
+            'Vertex_100USD_53100000_UNSPSC_Commodity_Code_Values'
+        ],
+        'shipping' => 5,
+        'shippingTax' => ceil(100 * 5 * ((TAX_RATE_PA_SALES_AND_USE) / 100)) / 100,
+        'shippingInclTax' => (ceil(100 * 5 * ((TAX_RATE_PA_SALES_AND_USE) / 100)) / 100) + 5
+    ],
+    'Vertex_100USD_TaxRegistration_VRTXMFTF01_Totals' => [
+        'taxRate' => 8.87,
+        'pieces' => [
+            'Vertex_100USD_TaxRegistration_VRTXMFTF01_Values'
+        ],
+        'shipping' => 5,
+        'shippingTax' => ceil(100 * 5 * .0887) / 100,
+        'shippingInclTax' => ceil(100 * 5 * 1.0887) / 100,
+    ],
+    'Vertex_100USD_TaxRegistration_VRTXMFTF02_Totals' => [
+        'taxRate' => 9.50,
+        'pieces' => [
+            'Vertex_100USD_TaxRegistration_VRTXMFTF02_Values'
+        ],
+        'shipping' => 5,
+        'shippingTax' => ceil(100 * 5 * .095) / 100,
+        'shippingInclTax' => ceil(100 * 5 * 1.095) / 100,
+    ]
 ];
 
 $jurisdictions = [

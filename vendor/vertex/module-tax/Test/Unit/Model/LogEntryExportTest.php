@@ -1,4 +1,4 @@
-<?php
+<?php declare(strict_types=1);
 /**
  * @copyright  Vertex. All rights reserved.  https://www.vertexinc.com/
  * @author     Mediotype                     https://www.mediotype.com/
@@ -11,8 +11,8 @@ use Magento\Framework\Filesystem;
 use Magento\Framework\Filesystem\Directory\WriteInterface as DirectoryWriteInterface;
 use Magento\Framework\Filesystem\File\WriteInterface as FileWriteInterface;
 use Magento\Framework\Stdlib\DateTime;
+use PHPUnit\Framework\MockObject\MockObject;
 use Vertex\Tax\Api\Data\LogEntryInterface;
-use Vertex\Tax\Model\Data\LogEntry;
 use Vertex\Tax\Model\LogEntryExport;
 use Vertex\Tax\Test\Unit\TestCase;
 
@@ -21,16 +21,16 @@ use Vertex\Tax\Test\Unit\TestCase;
  */
 class LogEntryExportTest extends TestCase
 {
-    /** @var \PHPUnit_Framework_MockObject_MockObject|DateTime */
+    /** @var MockObject|DateTime */
     private $dateTimeMock;
 
-    /** @var \PHPUnit_Framework_MockObject_MockObject|DirectoryWriteInterface */
+    /** @var MockObject|DirectoryWriteInterface */
     private $directoryWriteMock;
 
-    /** @var \PHPUnit_Framework_MockObject_MockObject|Filesystem */
+    /** @var MockObject|Filesystem */
     private $fileSystemMock;
 
-    /** @var \PHPUnit_Framework_MockObject_MockObject|FileWriteInterface */
+    /** @var MockObject|FileWriteInterface */
     private $fileWriteMock;
 
     /** @var LogEntryExport */
@@ -39,7 +39,7 @@ class LogEntryExportTest extends TestCase
     /**
      * Perform test setup.
      */
-    protected function setUp()
+    protected function setUp(): void
     {
         parent::setUp();
 

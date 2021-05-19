@@ -61,7 +61,7 @@ class OnepagePluginTest extends TestCase
         static::assertEquals([], $result);
     }
 
-    protected function setUp()
+    protected function setUp(): void
     {
         $mockFactory = new MockFactory();
         $objectFactory = new TestObjectFactory($mockFactory);

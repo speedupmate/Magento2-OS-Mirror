@@ -18,6 +18,7 @@ namespace Amazon\Payment\Model;
 use Amazon\Core\Client\ClientFactoryInterface;
 use Amazon\Core\Exception\AmazonServiceUnavailableException;
 use Amazon\Core\Helper\Data as CoreHelper;
+use Amazon\Core\Model\AmazonConfig;
 use Amazon\Payment\Gateway\Config\Config;
 use Amazon\Payment\Api\Data\QuoteLinkInterfaceFactory;
 use Amazon\Payment\Api\OrderInformationManagementInterface;
@@ -25,7 +26,6 @@ use Amazon\Payment\Domain\AmazonSetOrderDetailsResponse;
 use Amazon\Payment\Domain\AmazonSetOrderDetailsResponseFactory;
 use Exception;
 use Magento\Checkout\Model\Session;
-use Magento\Framework\App\ProductMetadata;
 use Magento\Framework\Exception\LocalizedException;
 use Magento\Framework\Exception\ValidatorException;
 use Magento\Quote\Model\Quote;
@@ -37,6 +37,13 @@ use Magento\Framework\App\ObjectManager;
 
 /**
  * @SuppressWarnings(PHPMD.CouplingBetweenObjects)
+ *
+ * @deprecated As of February 2021, this Legacy Amazon Pay plugin has been
+ * deprecated, in favor of a newer Amazon Pay version available through GitHub
+ * and Magento Marketplace. Please download the new plugin for automatic
+ * updates and to continue providing your customers with a seamless checkout
+ * experience. Please see https://pay.amazon.com/help/E32AAQBC2FY42HS for details
+ * and installation instructions.
  */
 class OrderInformationManagement implements OrderInformationManagementInterface
 {
@@ -54,6 +61,11 @@ class OrderInformationManagement implements OrderInformationManagementInterface
      * @var CoreHelper
      */
     private $coreHelper;
+
+    /**
+     * @var AmazonConfig
+     */
+    private $amazonConfig;
 
     /**
      * @var AmazonSetOrderDetailsResponseFactory
@@ -76,40 +88,35 @@ class OrderInformationManagement implements OrderInformationManagementInterface
     private $config;
 
     /**
-     * @var ProductMetadata
-     */
-    private $productMetadata;
-
-    /**
      * OrderInformationManagement constructor.
      * @param Session $session
      * @param ClientFactoryInterface $clientFactory
      * @param CoreHelper $coreHelper
+     * @param AmazonConfig $amazonConfig
      * @param Config $config
      * @param AmazonSetOrderDetailsResponseFactory $amazonSetOrderDetailsResponseFactory
      * @param QuoteLinkInterfaceFactory $quoteLinkFactory
      * @param LoggerInterface $logger
-     * @param ProductMetadata $productMetadata
      */
     public function __construct(
         Session $session,
         ClientFactoryInterface $clientFactory,
         CoreHelper $coreHelper,
+        AmazonConfig $amazonConfig,
         Config $config,
         AmazonSetOrderDetailsResponseFactory $amazonSetOrderDetailsResponseFactory,
         QuoteLinkInterfaceFactory $quoteLinkFactory,
         LoggerInterface $logger,
-        ProductMetadata $productMetadata,
         UrlInterface $urlBuilder = null
     ) {
         $this->session                              = $session;
         $this->clientFactory                        = $clientFactory;
         $this->coreHelper                           = $coreHelper;
+        $this->amazonConfig                         = $amazonConfig;
         $this->config                               = $config;
         $this->amazonSetOrderDetailsResponseFactory = $amazonSetOrderDetailsResponseFactory;
         $this->quoteLinkFactory                     = $quoteLinkFactory;
         $this->logger                               = $logger;
-        $this->productMetadata                      = $productMetadata;
         $this->urlBuilder = $urlBuilder ?: ObjectManager::getInstance()->get(UrlInterface::class);
     }
 
@@ -127,9 +134,6 @@ class OrderInformationManagement implements OrderInformationManagementInterface
             $this->setReservedOrderId($quote);
 
             $storeName = $this->coreHelper->getStoreName(ScopeInterface::SCOPE_STORE, $storeId);
-            if (!$storeName) {
-                $storeName = $quote->getStore()->getName();
-            }
 
             $data = [
                 'amazon_order_reference_id' => $amazonOrderReferenceId,
@@ -137,7 +141,7 @@ class OrderInformationManagement implements OrderInformationManagementInterface
                 'currency_code'             => $quote->getQuoteCurrencyCode(),
                 'store_name'                => $storeName,
                 'custom_information'        =>
-                    'Magento Version : ' . $this->productMetadata->getVersion() . ' ' .
+                    'Magento Version : 2, ' .
                     'Plugin Version : ' . $this->coreHelper->getVersion()
                 ,
                 'platform_id'               => $this->config->getValue('platform_id')
@@ -159,7 +163,7 @@ class OrderInformationManagement implements OrderInformationManagementInterface
 
     protected function validateCurrency($code)
     {
-        if ($this->coreHelper->getCurrencyCode() !== $code) {
+        if ($this->coreHelper->getCurrencyCode() !== $code && !$this->amazonConfig->canUseCurrency($code)) {
             throw new LocalizedException(__('The currency selected is not supported by Amazon Pay'));
         }
     }
@@ -262,7 +266,7 @@ class OrderInformationManagement implements OrderInformationManagementInterface
     public function removeOrderReference()
     {
         $quote = $this->session->getQuote();
-        
+
         if ($quote->getId()) {
             $quoteLink = $this->quoteLinkFactory->create()->load($quote->getId(), 'quote_id');
 

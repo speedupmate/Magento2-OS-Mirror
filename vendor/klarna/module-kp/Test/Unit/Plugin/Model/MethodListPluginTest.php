@@ -86,7 +86,7 @@ class MethodListPluginTest extends TestCase
     /**
      * Basic setup for test
      */
-    protected function setUp()
+    protected function setUp(): void
     {
         $this->mockFactory = new MockFactory();
         $objectFactory = new TestObjectFactory($this->mockFactory);

@@ -12,57 +12,35 @@ use Magento\Catalog\Model\Product;
 use Magento\Framework\Stdlib\StringUtils;
 use Magento\Sales\Api\Data\CreditmemoInterface;
 use Magento\Sales\Api\Data\CreditmemoItemInterface;
-use Magento\Sales\Api\OrderAddressRepositoryInterface;
-use Magento\Sales\Api\OrderRepositoryInterface;
-use Vertex\Data\CustomerInterface;
 use Vertex\Data\LineItemInterface;
 use Vertex\Data\LineItemInterfaceFactory;
 use Vertex\Services\Invoice\RequestInterface;
-use Vertex\Tax\Model\Api\Data\CustomerBuilder;
-use Vertex\Tax\Model\Api\Utility\IsVirtualLineItemDeterminer;
 use Vertex\Tax\Model\Api\Utility\MapperFactoryProxy;
-use Vertex\Tax\Model\ExceptionLogger;
-use Vertex\Tax\Model\Repository\TaxClassNameRepository;
-use Vertex\Tax\Model\Api\Data\InvoiceRequestBuilder\FixedPriceProcessor;
 use Vertex\Tax\Model\Config;
+use Vertex\Tax\Model\Repository\TaxClassNameRepository;
 
 class CreditmemoItemFixedPriceProcessor implements CreditmemoProcessorInterface
 {
+    /** @var Config */
+    private $config;
+
+    /** @var FixedPriceProcessor */
+    private $fixedPriceProcessor;
+
     /** @var ItemProcessor */
     private $itemProcessor;
 
     /** @var LineItemInterfaceFactory */
     private $lineItemFactory;
 
-    /** @var TaxClassNameRepository */
-    private $taxClassNameRepository;
+    /** @var MapperFactoryProxy */
+    private $mapperFactory;
 
     /** @var StringUtils */
     private $stringUtilities;
 
-    /** @var MapperFactoryProxy */
-    private $mapperFactory;
-
-    /** @var FixedPriceProcessor  */
-    private $fixedPriceProcessor;
-
-    /** @var Config */
-    private $config;
-
-    /** @var CustomerBuilder */
-    private $customerBuilder;
-
-    /** @var OrderRepositoryInterface */
-    private $orderRepository;
-
-    /** @var OrderAddressRepositoryInterface */
-    private $orderAddressRepository;
-
-    /** @var IsVirtualLineItemDeterminer */
-    private $virtualLineItemDeterminer;
-
-    /** @var ExceptionLogger */
-    private $logger;
+    /** @var TaxClassNameRepository */
+    private $taxClassNameRepository;
 
     public function __construct(
         ItemProcessor $itemProcessor,
@@ -71,12 +49,7 @@ class CreditmemoItemFixedPriceProcessor implements CreditmemoProcessorInterface
         StringUtils $stringUtils,
         MapperFactoryProxy $mapperFactory,
         FixedPriceProcessor $fixedPriceProcessor,
-        Config $config,
-        IsVirtualLineItemDeterminer $virtualLineItemDeterminer,
-        CustomerBuilder $customerBuilder,
-        OrderRepositoryInterface $orderRepository,
-        OrderAddressRepositoryInterface $orderAddressRepository,
-        ExceptionLogger $logger
+        Config $config
     ) {
         $this->itemProcessor = $itemProcessor;
         $this->lineItemFactory = $lineItemFactory;
@@ -85,17 +58,12 @@ class CreditmemoItemFixedPriceProcessor implements CreditmemoProcessorInterface
         $this->mapperFactory = $mapperFactory;
         $this->fixedPriceProcessor = $fixedPriceProcessor;
         $this->config = $config;
-        $this->virtualLineItemDeterminer = $virtualLineItemDeterminer;
-        $this->customerBuilder = $customerBuilder;
-        $this->orderRepository = $orderRepository;
-        $this->orderAddressRepository = $orderAddressRepository;
-        $this->logger = $logger;
     }
 
     /**
      * @inheritdoc
      */
-    public function process(RequestInterface $request, CreditmemoInterface $creditmemo) :RequestInterface
+    public function process(RequestInterface $request, CreditmemoInterface $creditmemo): RequestInterface
     {
         /** @var CreditmemoItemInterface[] $memoItems All InvoiceItems indexed by id */
         $memoItems = [];
@@ -140,7 +108,8 @@ class CreditmemoItemFixedPriceProcessor implements CreditmemoProcessorInterface
                 $this->stringUtilities->substr(
                     $this->config->getItemPrefixCodeForFixedProductTax($storeId) . $item->getSku(),
                     0,
-                    $lineItemMapper->getProductCodeMaxLength())
+                    $lineItemMapper->getProductCodeMaxLength()
+                )
             );
 
             $fixedProductPriceTax = $this->fixedPriceProcessor->creditMemoItemFixedProductTax($item);
@@ -150,12 +119,6 @@ class CreditmemoItemFixedPriceProcessor implements CreditmemoProcessorInterface
             $lineItem->setUnitPrice(-1 * $fixedProductPriceTax);
             $lineItem->setExtendedPrice(-1 * $fixedProductPriceTaxRow);
             $lineItem->setLineItemId($item->getOrderItemId());
-
-            if ($this->virtualLineItemDeterminer->isCreditMemoItemVirtual($item)
-                && $customer = $this->buildCustomerWithBillingAddress($orderId)
-            ) {
-                $lineItem->setCustomer($customer);
-            }
 
             $taxClasses[$item->getOrderItemId()] = $taxClassId;
 
@@ -177,25 +140,14 @@ class CreditmemoItemFixedPriceProcessor implements CreditmemoProcessorInterface
                 $this->stringUtilities->substr(
                     $taxClassName,
                     0,
-                    $lineItemMapper->getProductTaxClassNameMaxLength())
+                    $lineItemMapper->getProductTaxClassNameMaxLength()
+                )
             );
         }
 
         $request->setLineItems(array_merge($request->getLineItems(), $lineItems));
 
         return $request;
-    }
-
-    private function buildCustomerWithBillingAddress($orderId):? CustomerInterface
-    {
-        try {
-            $order = $this->orderRepository->get($orderId);
-            $billingAddress = $this->orderAddressRepository->get($order->getBillingAddressId());
-            return $this->customerBuilder->buildFromOrderAddress($billingAddress);
-        } catch (\Exception $e) {
-            $this->logger->critical($e);
-            return null;
-        }
     }
 
     private function getFptTaxClassByProduct(Product $product): int
@@ -213,6 +165,6 @@ class CreditmemoItemFixedPriceProcessor implements CreditmemoProcessorInterface
             $taxClassId = $config->vertexTaxClassUsedForFixedProductTax();
         }
 
-        return (int) $taxClassId;
+        return (int)$taxClassId;
     }
 }

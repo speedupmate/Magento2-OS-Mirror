@@ -48,7 +48,7 @@
 
         <see stepKey="warningMessage"
              selector="{{CheckoutShippingSection.addressMessageWarning}}"
-             userInput="We did not find a valid address"/>
+             userInput="The address could not be validated. Please ensure it is correct before continuing."/>
 
         <conditionalClick selector="{{CheckoutShippingSection.next}}"
                           dependentSelector="{{CheckoutShippingSection.updateLinkToValidAddress}}"
@@ -100,7 +100,7 @@
 
         <see stepKey="warningMessage"
              selector="{{CheckoutShippingSection.addressMessageWarning}}"
-             userInput="The address is not valid"/>
+             userInput="We found potential improvements for this address:"/>
 
         <conditionalClick selector="{{CheckoutShippingSection.updateLinkToValidAddress}}"
                           dependentSelector="{{CheckoutShippingSection.addressMessageWarning}}"

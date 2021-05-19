@@ -9,7 +9,7 @@
  *
  */
 
-namespace Klarna\Kp\Tests\Unit\Block;
+namespace Klarna\Kp\Tests\Unit\Block\Adminhtml\System\Config\Form\Field;
 
 use Klarna\Kp\Test\Unit\Mock\MockFactory;
 use Klarna\Kp\Test\Unit\Mock\TestObjectFactory;
@@ -68,7 +68,7 @@ class OnboardingTest extends TestCase
     /**
      * Basic setup for test
      */
-    protected function setUp()
+    protected function setUp(): void
     {
         $mockFactory           = new MockFactory();
         $objectFactory         = new TestObjectFactory($mockFactory);

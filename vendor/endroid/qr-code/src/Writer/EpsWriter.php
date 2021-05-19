@@ -1,98 +1,42 @@
 <?php
 
-/*
- * (c) Jeroen van den Enden <info@endroid.nl>
- *
- * This source file is subject to the MIT license that is bundled
- * with this source code in the file LICENSE.
- */
+declare(strict_types=1);
 
 namespace Endroid\QrCode\Writer;
 
-use BaconQrCode\Renderer\Image\Eps;
-use BaconQrCode\Writer;
+use Endroid\QrCode\Bacon\MatrixFactory;
+use Endroid\QrCode\Label\LabelInterface;
+use Endroid\QrCode\Logo\LogoInterface;
 use Endroid\QrCode\QrCodeInterface;
+use Endroid\QrCode\Writer\Result\EpsResult;
+use Endroid\QrCode\Writer\Result\ResultInterface;
 
-class EpsWriter extends AbstractBaconWriter
+final class EpsWriter implements WriterInterface
 {
-    /**
-     * {@inheritdoc}
-     */
-    public function writeString(QrCodeInterface $qrCode)
+    public function write(QrCodeInterface $qrCode, LogoInterface $logo = null, LabelInterface $label = null, array $options = []): ResultInterface
     {
-        $renderer = new Eps();
-        $renderer->setWidth($qrCode->getSize());
-        $renderer->setHeight($qrCode->getSize());
-        $renderer->setMargin(0);
-        $renderer->setForegroundColor($this->convertColor($qrCode->getForegroundColor()));
-        $renderer->setBackgroundColor($this->convertColor($qrCode->getBackgroundColor()));
+        $matrixFactory = new MatrixFactory();
+        $matrix = $matrixFactory->create($qrCode);
 
-        $writer = new Writer($renderer);
-        $string = $writer->writeString($qrCode->getText(), $qrCode->getEncoding(), $this->convertErrorCorrectionLevel($qrCode->getErrorCorrectionLevel()));
+        $lines = [
+            '%!PS-Adobe-3.0 EPSF-3.0',
+            '%%BoundingBox: 0 0 '.$matrix->getOuterSize().' '.$matrix->getOuterSize(),
+            '/F { rectfill } def',
+            number_format($qrCode->getBackgroundColor()->getRed() / 100, 2, '.', ',').' '.number_format($qrCode->getBackgroundColor()->getGreen() / 100, 2, '.', ',').' '.number_format($qrCode->getBackgroundColor()->getBlue() / 100, 2, '.', ',').' setrgbcolor',
+            '0 0 '.$matrix->getOuterSize().' '.$matrix->getOuterSize().' F',
+            number_format($qrCode->getForegroundColor()->getRed() / 100, 2, '.', ',').' '.number_format($qrCode->getForegroundColor()->getGreen() / 100, 2, '.', ',').' '.number_format($qrCode->getForegroundColor()->getBlue() / 100, 2, '.', ',').' setrgbcolor',
+        ];
 
-        $string = $this->addMargin($string, $qrCode);
-
-        return $string;
-    }
-
-    /**
-     * @param string          $string
-     * @param QrCodeInterface $qrCode
-     *
-     * @return string
-     */
-    protected function addMargin($string, QrCodeInterface $qrCode)
-    {
-        $targetSize = $qrCode->getSize() + $qrCode->getMargin() * 2;
-
-        $lines = explode("\n", $string);
-
-        $sourceBlockSize = 0;
-        $additionalWhitespace = $qrCode->getSize();
-        foreach ($lines as $line) {
-            if (preg_match('#[0-9]+ [0-9]+ [0-9]+ [0-9]+ F#i', $line) && false === strpos($line, $qrCode->getSize().' '.$qrCode->getSize().' F')) {
-                $parts = explode(' ', $line);
-                $sourceBlockSize = $parts[2];
-                $additionalWhitespace = min($additionalWhitespace, $parts[0]);
+        for ($rowIndex = 0; $rowIndex < $matrix->getBlockCount(); ++$rowIndex) {
+            for ($columnIndex = 0; $columnIndex < $matrix->getBlockCount(); ++$columnIndex) {
+                if (1 === $matrix->getBlockValue($matrix->getBlockCount() - 1 - $rowIndex, $columnIndex)) {
+                    $x = $matrix->getMarginLeft() + $matrix->getBlockSize() * $columnIndex;
+                    $y = $matrix->getMarginLeft() + $matrix->getBlockSize() * $rowIndex;
+                    $lines[] = $x.' '.$y.' '.$matrix->getBlockSize().' '.$matrix->getBlockSize().' F';
+                }
             }
         }
 
-        $blockCount = ($qrCode->getSize() - 2 * $additionalWhitespace) / $sourceBlockSize;
-        $targetBlockSize = $qrCode->getSize() / $blockCount;
-
-        foreach ($lines as &$line) {
-            if (false !== strpos($line, 'BoundingBox')) {
-                $line = '%%BoundingBox: 0 0 '.$targetSize.' '.$targetSize;
-            } elseif (false !== strpos($line, $qrCode->getSize().' '.$qrCode->getSize().' F')) {
-                $line = '0 0 '.$targetSize.' '.$targetSize.' F';
-            } elseif (preg_match('#[0-9]+ [0-9]+ [0-9]+ [0-9]+ F#i', $line)) {
-                $parts = explode(' ', $line);
-                $parts[0] = $qrCode->getMargin() + $targetBlockSize * ($parts[0] - $additionalWhitespace) / $sourceBlockSize;
-                $parts[1] = $qrCode->getMargin() + $targetBlockSize * ($parts[1] - $sourceBlockSize - $additionalWhitespace) / $sourceBlockSize;
-                $parts[2] = $targetBlockSize;
-                $parts[3] = $targetBlockSize;
-                $line = implode(' ', $parts);
-            }
-        }
-
-        $string = implode("\n", $lines);
-
-        return $string;
-    }
-
-    /**
-     * {@inheritdoc}
-     */
-    public static function getContentType()
-    {
-        return 'image/eps';
-    }
-
-    /**
-     * {@inheritdoc}
-     */
-    public static function getSupportedExtensions()
-    {
-        return ['eps'];
+        return new EpsResult($lines);
     }
 }

@@ -50,12 +50,6 @@ class Calculator
     /** @var Config */
     private $config;
 
-    /** @var IncompleteAddressDeterminer */
-    private $incompleteAddressDeterminer;
-
-    /** @var QuoteIsVirtualDeterminer */
-    private $isVirtualDeterminer;
-
     /** @var ExceptionLogger */
     private $logger;
 
@@ -92,9 +86,7 @@ class Calculator
         Config $config,
         ManagerInterface $messageManager,
         PriceForTax $priceForTaxCalculation,
-        QuoteIsVirtualDeterminer $isVirtualDeterminer,
         AddressDeterminer $addressDeterminer,
-        IncompleteAddressDeterminer $incompleteAddressDeterminer,
         bool $addMessageToVertexGroup = true
     ) {
         $this->taxDetailsFactory = $taxDetailsFactory;
@@ -109,9 +101,7 @@ class Calculator
         $this->messageManager = $messageManager;
         $this->addMessageToVertexGroup = $addMessageToVertexGroup;
         $this->priceForTaxCalculation = $priceForTaxCalculation;
-        $this->isVirtualDeterminer = $isVirtualDeterminer;
         $this->addressDeterminer = $addressDeterminer;
-        $this->incompleteAddressDeterminer = $incompleteAddressDeterminer;
     }
 
     /**
@@ -127,22 +117,26 @@ class Calculator
         bool $round = true
     ): TaxDetailsInterface {
         $items = $quoteDetails->getItems();
-        if (empty($items)
-            || $this->onlyShipping($items)
-            || $this->addressDeterminer->determineAddress(
-                !$this->incompleteAddressDeterminer->isIncompleteAddress($quoteDetails->getShippingAddress())
-                    ? $quoteDetails->getShippingAddress()
-                    : $quoteDetails->getBillingAddress(),
-                $quoteDetails->getCustomerId() === null ? null : (int) $quoteDetails->getCustomerId(),
-                $this->isVirtualDeterminer->isVirtual($quoteDetails)
-            ) === null
-        ) {
-            /*
-             * Don't perform calculation when:
-             * - There are no items
-             * - There is no address
-             * - The only item is shipping
-             */
+
+        $destination = $this->addressDeterminer->determineDestination(
+            $quoteDetails->getShippingAddress(),
+            $quoteDetails->getCustomerId()
+        );
+
+        if ($destination === null) {
+            $administrativeDestination = $this->addressDeterminer->determineAdministrativeDestination(
+                $quoteDetails->getBillingAddress(),
+                $quoteDetails->getCustomerId()
+            );
+
+            // Don't perform calculation when administrativeDestination is null and destination is also null
+            if ($administrativeDestination === null) {
+                return $this->createEmptyDetails($quoteDetails);
+            }
+        }
+
+        // Don't perform calculation when there are no items or the only item is shipping
+        if (empty($items) || $this->onlyShipping($items)) {
             return $this->createEmptyDetails($quoteDetails);
         }
 
@@ -236,7 +230,7 @@ class Calculator
                     ->setRowTotal($this->optionalRound($rowTotal, $round))
                     ->setRowTotalInclTax($this->optionalRound($rowTotalInclTax, $round))
                     ->setRowTax($this->optionalRound($rowTax, $round));
-                // Aggregation to $taxDetails takes place on the child level
+            // Aggregation to $taxDetails takes place on the child level
             } else {
                 $resultItem = $resultItems[$item->getCode()];
                 $processedItem = $resultItem

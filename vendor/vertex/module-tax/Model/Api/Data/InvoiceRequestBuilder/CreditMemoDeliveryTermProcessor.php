@@ -25,8 +25,10 @@ class CreditMemoDeliveryTermProcessor implements CreditmemoProcessorInterface
     /**
      * Add a Delivery Term to a Line Item if applicable
      */
-    public function process(CreditMemoRequestInterface $request, CreditmemoInterface $creditmemo): CreditMemoRequestInterface
-    {
+    public function process(
+        CreditMemoRequestInterface $request,
+        CreditmemoInterface $creditmemo
+    ): CreditMemoRequestInterface {
         $deliveryTerm = $this->deliveryTerm->getDeliveryTermForCountry(
             $this->customerCountryFromRequest($request)
         );

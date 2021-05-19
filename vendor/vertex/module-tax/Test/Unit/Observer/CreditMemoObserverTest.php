@@ -1,4 +1,4 @@
-<?php
+<?php declare(strict_types=1);
 
 namespace Vertex\Tax\Test\Unit\Observer;
 
@@ -9,20 +9,21 @@ use Magento\Framework\Message\ManagerInterface;
 use Magento\Sales\Model\Order;
 use Magento\Sales\Model\Order\Creditmemo;
 use Magento\Store\Model\Store;
+use PHPUnit\Framework\MockObject\MockObject as MockObject;
 use Vertex\Services\Invoice\Request;
 use Vertex\Services\Invoice\Response;
 use Vertex\Services\Invoice\ResponseInterface;
 use Vertex\Tax\Model\Api\Data\InvoiceRequestBuilder;
 use Vertex\Tax\Model\Config;
 use Vertex\Tax\Model\ConfigurationValidator;
+use Vertex\Tax\Model\ConfigurationValidator\Result;
 use Vertex\Tax\Model\CountryGuard;
+use Vertex\Tax\Model\Loader\GiftwrapExtensionLoader;
 use Vertex\Tax\Model\OrderHasInvoiceDeterminer;
 use Vertex\Tax\Model\Repository\OrderInvoiceStatusRepository;
 use Vertex\Tax\Model\TaxInvoice;
 use Vertex\Tax\Observer\CreditMemoObserver;
-use Vertex\Tax\Model\Loader\GiftwrapExtensionLoader;
 use Vertex\Tax\Test\Unit\TestCase;
-use PHPUnit_Framework_MockObject_MockObject as MockObject;
 
 class CreditMemoObserverTest extends TestCase
 {
@@ -56,7 +57,7 @@ class CreditMemoObserverTest extends TestCase
     /** @var MockObject|GiftwrapExtensionLoader */
     private $extensionLoaderMock;
 
-    protected function setUp()
+    protected function setUp(): void
     {
         parent::setUp();
 
@@ -84,7 +85,7 @@ class CreditMemoObserverTest extends TestCase
             ->setMethods(['execute', 'isValid'])
             ->disableOriginalConstructor()
             ->getMockForAbstractClass();
-        $result = new ConfigurationValidator\Result();
+        $result = new Result();
         $result->setValid(true);
         $this->configValidatorMock->method('execute')
             ->willReturn($result);
@@ -143,7 +144,7 @@ class CreditMemoObserverTest extends TestCase
     public function testSendRefundRequest()
     {
         /** @var MockObject|Event $eventMock */
-        $eventMock = $this->createPartialMock(Event::class, ['getCreditmemo']);
+        $eventMock = $this->getMockBuilder(Event::class)->addMethods(['getCreditmemo'])->getMock();
 
         /** @var MockObject|Observer $observerMock */
         $observerMock = $this->createPartialMock(Observer::class, ['getEvent']);
@@ -160,7 +161,7 @@ class CreditMemoObserverTest extends TestCase
         $creditMemoMock->method('getOrder')->willReturn($orderMock);
 
         /** @var MockObject|ResponseInterface $responseMock */
-        $responseMock = $this->createPartialMock(Response::class, ['getItems']);
+        $responseMock = $this->getMockBuilder(Response::class)->addMethods(['getItems'])->getMock();
         $responseMock->method('getItems')->willReturn([]);
 
         $observerMock->expects($this->once())

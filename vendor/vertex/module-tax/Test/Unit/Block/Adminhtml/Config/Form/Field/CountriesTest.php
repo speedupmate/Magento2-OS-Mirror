@@ -1,4 +1,4 @@
-<?php
+<?php declare(strict_types=1);
 /**
  * @copyright  Vertex. All rights reserved.  https://www.vertexinc.com/
  * @author     Mediotype                     https://www.mediotype.com/
@@ -7,9 +7,10 @@
 namespace Vertex\Tax\Test\Unit\Block\Adminhtml\Config\Form\Field;
 
 use Magento\Backend\Block\Template\Context;
-use Vertex\Tax\Model\Config\Source\Country;
 use Magento\Framework\Escaper;
+use PHPUnit\Framework\MockObject\MockObject;
 use Vertex\Tax\Block\Adminhtml\Config\Form\Field\Countries;
+use Vertex\Tax\Model\Config\Source\Country;
 use Vertex\Tax\Test\Unit\TestCase;
 
 /**
@@ -17,13 +18,13 @@ use Vertex\Tax\Test\Unit\TestCase;
  */
 class CountriesTest extends TestCase
 {
-    /** @var \PHPUnit_Framework_MockObject_MockObject|Countries */
+    /** @var MockObject|Countries */
     private $blockMock;
 
     /**
      * @inheritdoc
      */
-    protected function setUp() // @codingStandardsIgnoreLine MEQP2.PHP.ProtectedClassMember.FoundProtected
+    protected function setUp(): void // @codingStandardsIgnoreLine MEQP2.PHP.ProtectedClassMember.FoundProtected
     {
         parent::setUp();
         $escaper = $this->getObject(Escaper::class);
@@ -83,5 +84,4 @@ class CountriesTest extends TestCase
         $this->blockMock->setInputName('Test');
         $this->assertEquals('Test', $this->blockMock->getName());
     }
-
 }

@@ -224,6 +224,7 @@ class CustomOptionFlexFieldExtensionAttributeHandler
     ) {
         $arguments = func_get_args();
         array_splice($arguments, 0, -2);
+        // phpcs:ignore Magento2.Functions.DiscouragedFunction.Discouraged
         $result = call_user_func_array($super, $arguments);
 
         $options = $originalProduct->getOptions();
@@ -311,7 +312,6 @@ class CustomOptionFlexFieldExtensionAttributeHandler
         }
         return (int)$this->storeManager->getStore()->getWebsiteId();
     }
-
 
     /**
      * Retrieve flexible field mapping objects given an array of Custom Option objects

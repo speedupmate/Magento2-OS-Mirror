@@ -1,52 +1,23 @@
 <?php
 
-/*
- * (c) Jeroen van den Enden <info@endroid.nl>
- *
- * This source file is subject to the MIT license that is bundled
- * with this source code in the file LICENSE.
- */
+declare(strict_types=1);
 
 namespace Endroid\QrCode\Writer;
 
+use Endroid\QrCode\Bacon\MatrixFactory;
+use Endroid\QrCode\Label\LabelInterface;
+use Endroid\QrCode\Logo\LogoInterface;
 use Endroid\QrCode\QrCodeInterface;
+use Endroid\QrCode\Writer\Result\BinaryResult;
+use Endroid\QrCode\Writer\Result\ResultInterface;
 
-class BinaryWriter extends AbstractWriter
+final class BinaryWriter implements WriterInterface
 {
-    /**
-     * {@inheritdoc}
-     */
-    public function writeString(QrCodeInterface $qrCode)
+    public function write(QrCodeInterface $qrCode, LogoInterface $logo = null, LabelInterface $label = null, array $options = []): ResultInterface
     {
-        $string = '
-            0001010101
-            0001010101
-            1000101010
-            0001010101
-            0101010101
-            0001010101
-            0001010101
-            0001010101
-            0001010101
-            1000101010
-        ';
+        $matrixFactory = new MatrixFactory();
+        $matrix = $matrixFactory->create($qrCode);
 
-        return $string;
-    }
-
-    /**
-     * {@inheritdoc}
-     */
-    public static function getContentType()
-    {
-        return 'text/plain';
-    }
-
-    /**
-     * {@inheritdoc}
-     */
-    public static function getSupportedExtensions()
-    {
-        return ['bin', 'txt'];
+        return new BinaryResult($matrix);
     }
 }

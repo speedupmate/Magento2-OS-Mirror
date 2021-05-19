@@ -19,6 +19,13 @@ namespace Amazon\Payment\Gateway\Http\Client;
 /**
  * Class SettlementClient
  * Amazon Pay capture client
+ *
+ * @deprecated As of February 2021, this Legacy Amazon Pay plugin has been
+ * deprecated, in favor of a newer Amazon Pay version available through GitHub
+ * and Magento Marketplace. Please download the new plugin for automatic
+ * updates and to continue providing your customers with a seamless checkout
+ * experience. Please see https://pay.amazon.com/help/E32AAQBC2FY42HS for details
+ * and installation instructions.
  */
 class SettlementClient extends AbstractClient
 {
@@ -37,8 +44,12 @@ class SettlementClient extends AbstractClient
                 'currency_code' => $data['currency_code'],
                 'capture_reference_id' => $data['amazon_order_reference_id'] . '-C' . time()
             ];
+            if (isset($data['seller_note'])) {
+                $captureData['seller_capture_note'] = $data['seller_note'];
+            }
 
-            $response = $this->adapter->completeCapture($captureData, $data['store_id']);
+            $response = $this->adapter->completeCapture($captureData, $data['store_id'], $data['amazon_order_reference_id']);
+            $response['reauthorized'] = false;
         } else {
             // if invalid - reauthorize and capture
             $captureData = [
@@ -49,6 +60,9 @@ class SettlementClient extends AbstractClient
                 'custom_information' => $data['custom_information'],
                 'platform_id' => $data['platform_id']
             ];
+            if (isset($data['seller_note'])) {
+                $captureData['seller_authorization_note'] = $data['seller_note'];
+            }
             $response = $this->adapter->authorize($data, true);
             $response['reauthorized'] = true;
         }

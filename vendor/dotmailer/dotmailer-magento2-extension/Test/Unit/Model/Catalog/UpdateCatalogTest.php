@@ -31,14 +31,14 @@ class UpdateCatalogTest extends TestCase
      */
     private $catalogMock;
 
-    protected function setUp()
+    protected function setUp(): void
     {
         $this->catalogResourceMock = $this->createMock(Catalog::class);
         $this->catalogFactoryMock = $this->createMock(CatalogFactory::class);
         $this->catalogMock = $this->getMockBuilder(ModelCatalog::class)
-                                    ->setMethods(['loadProductById','getId','getProcessed','setProductId'])
-                                    ->disableOriginalConstructor()
-                                    ->getMock();
+            ->setMethods(['loadProductById','getId','getProcessed','setProductId'])
+            ->disableOriginalConstructor()
+            ->getMock();
 
         $this->updateCatalog = new Update(
             $this->catalogResourceMock,

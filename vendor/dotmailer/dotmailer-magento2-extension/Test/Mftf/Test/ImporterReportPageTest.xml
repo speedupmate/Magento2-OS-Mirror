@@ -28,11 +28,11 @@
         <seeElement selector="{{AdminDotdigitalReportColumnsSection.columnHeader('Import Mode')}}" stepKey="seeImportMode"/>
         <seeElement selector="{{AdminDotdigitalReportColumnsSection.columnHeader('Import Status')}}" stepKey="seeImportStatus"/>
         <seeElement selector="{{AdminDotdigitalReportColumnsSection.columnHeader('Message')}}" stepKey="seeMessage"/>
-        <seeElement selector="{{AdminDotdigitalReportColumnsSection.columnHeader('Started At')}}" stepKey="seeStartedAt"/>
-        <seeElement selector="{{AdminDotdigitalReportColumnsSection.columnHeader('Finished At')}}" stepKey="seeFinishedAt"/>
+        <seeElement selector="{{AdminDotdigitalReportColumnsSection.columnHeader('Import Started')}}" stepKey="seeStartedAt"/>
+        <seeElement selector="{{AdminDotdigitalReportColumnsSection.columnHeader('Import Finished')}}" stepKey="seeFinishedAt"/>
         <seeElement selector="{{AdminDotdigitalReportColumnsSection.columnHeader('Website')}}" stepKey="seeWebsite"/>
-        <seeElement selector="{{AdminDotdigitalReportColumnsSection.columnHeader('Created Date')}}" stepKey="seeCreatedDate"/>
-        <seeElement selector="{{AdminDotdigitalReportColumnsSection.columnHeader('Updated Date')}}" stepKey="seeUpdatedDate"/>
+        <seeElement selector="{{AdminDotdigitalReportColumnsSection.columnHeader('Created At')}}" stepKey="seeCreatedDate"/>
+        <seeElement selector="{{AdminDotdigitalReportColumnsSection.columnHeader('Updated At')}}" stepKey="seeUpdatedDate"/>
 
         <!-- Sorting -->
         <click selector="{{AdminDotdigitalReportColumnsSection.columnHeader('Import Type')}}" stepKey="clickImportIdHeaderToSortAsc"/>

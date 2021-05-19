@@ -1,4 +1,4 @@
-<?php
+<?php declare(strict_types=1);
 /**
  * @copyright  Vertex. All rights reserved.  https://www.vertexinc.com/
  * @author     Mediotype                     https://www.mediotype.com/
@@ -10,6 +10,7 @@ use Magento\Framework\Exception\AlreadyExistsException;
 use Magento\Framework\Exception\CouldNotDeleteException;
 use Magento\Framework\Exception\CouldNotSaveException;
 use Magento\Framework\Exception\NoSuchEntityException;
+use PHPUnit\Framework\MockObject\MockObject;
 use Vertex\Tax\Model\Data\OrderInvoiceStatus as Model;
 use Vertex\Tax\Model\Data\OrderInvoiceStatusFactory as Factory;
 use Vertex\Tax\Model\Repository\OrderInvoiceStatusRepository as Repository;
@@ -24,19 +25,19 @@ class OrderInvoiceStatusRepositoryTest extends TestCase
     /** @var Repository */
     private $repository;
 
-    /** @var \PHPUnit_Framework_MockObject_MockObject|ResourceModel */
+    /** @var MockObject|ResourceModel */
     private $resourceModelMock;
 
-    /** @var \PHPUnit_Framework_MockObject_MockObject|Factory */
+    /** @var MockObject|Factory */
     private $factoryMock;
 
-    /** @var \PHPUnit_Framework_MockObject_MockObject|Model */
+    /** @var MockObject|Model */
     private $modelMock;
 
     /**
      * @inheritdoc
      */
-    protected function setUp()
+    protected function setUp(): void
     {
         parent::setUp();
 

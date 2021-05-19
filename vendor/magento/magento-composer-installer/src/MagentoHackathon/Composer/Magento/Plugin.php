@@ -101,13 +101,13 @@ class Plugin implements PluginInterface, EventSubscriberInterface
     {
         return array(
             PluginEvents::COMMAND => array(
-                array('onCommandEvent', 0),
+                array('onCommandEvent', 1),
             ),
             ScriptEvents::POST_INSTALL_CMD => array(
-                array('onNewCodeEvent', 0),
+                array('onNewCodeEvent', 1),
             ),
             ScriptEvents::POST_UPDATE_CMD => array(
-                array('onNewCodeEvent', 0),
+                array('onNewCodeEvent', 1),
             ),
             PackageEvents::POST_PACKAGE_UNINSTALL => array(
                 array('onPackageUnistall', 0),

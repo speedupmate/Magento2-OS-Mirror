@@ -41,7 +41,7 @@ class SessionTest extends TestCase
         static::assertEquals($quoteMock, $this->model->getKlarnaQuote());
     }
 
-    protected function setUp()
+    protected function setUp(): void
     {
         $this->mockCheckoutSession = $this->createMock(\Magento\Checkout\Model\Session::class);
         $this->mockApi = $this->createMock(\Klarna\Kp\Api\CreditApiInterface::class);

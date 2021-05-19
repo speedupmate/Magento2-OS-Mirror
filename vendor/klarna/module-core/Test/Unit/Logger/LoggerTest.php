@@ -53,7 +53,7 @@ class LoggerTest extends TestCase
         static::assertFalse($this->model->addRecord(200, $data, []));
     }
 
-    protected function setUp()
+    protected function setUp(): void
     {
         $objectManager = new \Magento\Framework\TestFramework\Unit\Helper\ObjectManager($this);
 

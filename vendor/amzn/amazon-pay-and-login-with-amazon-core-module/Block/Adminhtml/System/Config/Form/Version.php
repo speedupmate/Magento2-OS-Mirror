@@ -18,6 +18,14 @@ namespace Amazon\Core\Block\Adminhtml\System\Config\Form;
 use Magento\Backend\Block\Template\Context;
 use Amazon\Core\Helper\Data as CoreHelper;
 
+/**
+ * @deprecated As of February 2021, this Legacy Amazon Pay plugin has been
+ * deprecated, in favor of a newer Amazon Pay version available through GitHub
+ * and Magento Marketplace. Please download the new plugin for automatic
+ * updates and to continue providing your customers with a seamless checkout
+ * experience. Please see https://pay.amazon.com/help/E32AAQBC2FY42HS for details
+ * and installation instructions.
+ */
 class Version extends \Magento\Config\Block\System\Config\Form\Field
 {
     /**
@@ -56,6 +64,6 @@ class Version extends \Magento\Config\Block\System\Config\Form\Field
         $output = '<div style="background-color:#eee;padding:1em;border:1px solid #ddd;">';
         $output .= __('Module version') . ': ' . $version;
         $output .= "</div>";
-        return $output;
+        return '<div id="row_' . $element->getHtmlId() . '">' . $output . '</div>';
     }
 }

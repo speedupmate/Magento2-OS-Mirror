@@ -101,9 +101,7 @@ class QuoteWithPaymentAndInvalidAddress
      */
     public function create($fakeReservedOrderId, $storeId = Store::DISTRO_STORE_ID)
     {
-
         $customer = $this->customerBuilder->createExampleCustomer();
-
         $product = $this->productBuilder->createExampleProduct();
 
         // create address

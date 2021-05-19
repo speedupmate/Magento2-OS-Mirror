@@ -1,4 +1,4 @@
-<?php
+<?php declare(strict_types=1);
 /*
  * This file is part of PHPUnit.
  *
@@ -10,31 +10,25 @@
 namespace PHPUnit\Runner\Filter;
 
 use PHPUnit\Framework\TestSuite;
-use RecursiveFilterIterator;
-use RecursiveIterator;
 
-abstract class GroupFilterIterator extends RecursiveFilterIterator
+/**
+ * @internal This class is not covered by the backward compatibility promise for PHPUnit
+ */
+abstract class GroupFilterIterator extends \RecursiveFilterIterator
 {
     /**
-     * @var array
+     * @var string[]
      */
     protected $groupTests = [];
 
-    /**
-     * @param RecursiveIterator $iterator
-     * @param array             $groups
-     * @param TestSuite         $suite
-     */
-    public function __construct(RecursiveIterator $iterator, array $groups, TestSuite $suite)
+    public function __construct(\RecursiveIterator $iterator, array $groups, TestSuite $suite)
     {
         parent::__construct($iterator);
 
         foreach ($suite->getGroupDetails() as $group => $tests) {
-            if (\in_array($group, $groups)) {
+            if (\in_array((string) $group, $groups, true)) {
                 $testHashes = \array_map(
-                    function ($test) {
-                        return \spl_object_hash($test);
-                    },
+                    'spl_object_hash',
                     $tests
                 );
 
@@ -43,10 +37,7 @@ abstract class GroupFilterIterator extends RecursiveFilterIterator
         }
     }
 
-    /**
-     * @return bool
-     */
-    public function accept()
+    public function accept(): bool
     {
         $test = $this->getInnerIterator()->current();
 
@@ -57,5 +48,5 @@ abstract class GroupFilterIterator extends RecursiveFilterIterator
         return $this->doAccept(\spl_object_hash($test));
     }
 
-    abstract protected function doAccept($hash);
+    abstract protected function doAccept(string $hash);
 }

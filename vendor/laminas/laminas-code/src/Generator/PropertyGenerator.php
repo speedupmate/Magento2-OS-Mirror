@@ -45,7 +45,11 @@ class PropertyGenerator extends AbstractMemberGenerator
 
         $allDefaultProperties = $reflectionProperty->getDeclaringClass()->getDefaultProperties();
 
-        $property->setDefaultValue($allDefaultProperties[$reflectionProperty->getName()]);
+        $defaultValue = $allDefaultProperties[$reflectionProperty->getName()];
+        $property->setDefaultValue($defaultValue);
+        if ($defaultValue === null) {
+            $property->omitDefaultValue = true;
+        }
 
         if ($reflectionProperty->getDocComment() != '') {
             $property->setDocBlock(DocBlockGenerator::fromReflection($reflectionProperty->getDocBlock()));
@@ -156,7 +160,6 @@ class PropertyGenerator extends AbstractMemberGenerator
     public function setConst($const)
     {
         if ($const) {
-            $this->removeFlag(self::FLAG_PUBLIC | self::FLAG_PRIVATE | self::FLAG_PROTECTED);
             $this->setFlags(self::FLAG_CONSTANT);
         } else {
             $this->removeFlag(self::FLAG_CONSTANT);
@@ -226,7 +229,7 @@ class PropertyGenerator extends AbstractMemberGenerator
                     $this->name
                 ));
             }
-            $output .= $this->indentation . 'const ' . $name . ' = '
+            $output .= $this->indentation . $this->getVisibility() . ' const ' . $name . ' = '
                 . ($defaultValue !== null ? $defaultValue->generate() : 'null;');
 
             return $output;

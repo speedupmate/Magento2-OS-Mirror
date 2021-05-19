@@ -1,4 +1,4 @@
-<?php
+<?php declare(strict_types=1);
 /**
  * @copyright  Vertex. All rights reserved.  https://www.vertexinc.com/
  * @author     Mediotype                     https://www.mediotype.com/
@@ -13,9 +13,6 @@ use Magento\Tax\Model\Sales\Quote\ItemDetails;
 use Vertex\Tax\Model\Calculation\VertexCalculator\ItemCalculator;
 use Vertex\Tax\Test\Unit\TestCase;
 
-/**
- *
- */
 class ItemCalculatorTest extends TestCase
 {
     private function getCalculator()

@@ -1,58 +1,28 @@
 <?php
 
-/*
- * (c) Jeroen van den Enden <info@endroid.nl>
- *
- * This source file is subject to the MIT license that is bundled
- * with this source code in the file LICENSE.
- */
+declare(strict_types=1);
 
 namespace Endroid\QrCode\Writer;
 
+use Endroid\QrCode\Label\LabelInterface;
+use Endroid\QrCode\Logo\LogoInterface;
 use Endroid\QrCode\QrCodeInterface;
-use ReflectionClass;
-use Exception;
+use Endroid\QrCode\Writer\Result\DebugResult;
+use Endroid\QrCode\Writer\Result\ResultInterface;
 
-class DebugWriter extends AbstractWriter
+final class DebugWriter implements WriterInterface, ValidatingWriterInterface
 {
-    /**
-     * {@inheritdoc}
-     */
-    public function writeString(QrCodeInterface $qrCode)
+    public function write(QrCodeInterface $qrCode, LogoInterface $logo = null, LabelInterface $label = null, array $options = []): ResultInterface
     {
-        $data = [];
-
-        $reflectionClass = new ReflectionClass($qrCode);
-        foreach ($reflectionClass->getMethods() as $method) {
-            $methodName = $method->getShortName();
-            if (0 === strpos($methodName, 'get') && 0 == $method->getNumberOfParameters()) {
-                $value = $qrCode->{$methodName}();
-                if (is_array($value) && !is_object(current($value))) {
-                    $value = '['.implode(', ', $value).']';
-                } elseif (is_bool($value)) {
-                    $value = $value ? 'true' : 'false';
-                } elseif (is_string($value)) {
-                    $value = '"'.$value.'"';
-                } elseif (is_null($value)) {
-                    $value = 'null';
-                }
-                try {
-                    $data[] = $methodName.': '.$value;
-                } catch (Exception $exception) {
-                }
-            }
-        }
-
-        $string = implode(" \n", $data);
-
-        return $string;
+        return new DebugResult($qrCode, $logo, $label, $options);
     }
 
-    /**
-     * {@inheritdoc}
-     */
-    public static function getContentType()
+    public function validateResult(ResultInterface $result, string $expectedData): void
     {
-        return 'text/plain';
+        if (!$result instanceof DebugResult) {
+            throw new \Exception('Unable to write logo: instance of DebugResult expected');
+        }
+
+        $result->setValidateResult(true);
     }
 }

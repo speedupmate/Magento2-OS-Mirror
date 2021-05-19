@@ -31,7 +31,7 @@ class Bootstrap extends Command
                 new InputArgument('path', InputArgument::OPTIONAL, 'custom installation dir', null),
                 new InputOption(
                     'namespace',
-                    'ns',
+                    's',
                     InputOption::VALUE_OPTIONAL,
                     'Namespace to add for actor classes and helpers'
                 ),
@@ -53,5 +53,6 @@ class Bootstrap extends Command
             $bootstrap->initDir($input->getArgument('path'));
         }
         $bootstrap->setup();
+        return 0;
     }
 }

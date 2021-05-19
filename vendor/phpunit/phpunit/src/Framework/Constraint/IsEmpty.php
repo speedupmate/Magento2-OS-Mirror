@@ -1,4 +1,4 @@
-<?php
+<?php declare(strict_types=1);
 /*
  * This file is part of PHPUnit.
  *
@@ -9,38 +9,36 @@
  */
 namespace PHPUnit\Framework\Constraint;
 
-use Countable;
-
 /**
  * Constraint that checks whether a variable is empty().
  */
-class IsEmpty extends Constraint
+final class IsEmpty extends Constraint
 {
+    /**
+     * Returns a string representation of the constraint.
+     */
+    public function toString(): string
+    {
+        return 'is empty';
+    }
+
     /**
      * Evaluates the constraint for parameter $other. Returns true if the
      * constraint is met, false otherwise.
      *
-     * @param mixed $other Value or object to evaluate.
-     *
-     * @return bool
+     * @param mixed $other value or object to evaluate
      */
-    protected function matches($other)
+    protected function matches($other): bool
     {
-        if ($other instanceof Countable) {
+        if ($other instanceof \EmptyIterator) {
+            return true;
+        }
+
+        if ($other instanceof \Countable) {
             return \count($other) === 0;
         }
 
         return empty($other);
-    }
-
-    /**
-     * Returns a string representation of the constraint.
-     *
-     * @return string
-     */
-    public function toString()
-    {
-        return 'is empty';
     }
 
     /**
@@ -49,17 +47,15 @@ class IsEmpty extends Constraint
      * The beginning of failure messages is "Failed asserting that" in most
      * cases. This method should return the second part of that sentence.
      *
-     * @param mixed $other Evaluated value or object.
-     *
-     * @return string
+     * @param mixed $other evaluated value or object
      */
-    protected function failureDescription($other)
+    protected function failureDescription($other): string
     {
         $type = \gettype($other);
 
         return \sprintf(
             '%s %s %s',
-            $type[0] == 'a' || $type[0] == 'o' ? 'an' : 'a',
+            \strpos($type, 'a') === 0 || \strpos($type, 'o') === 0 ? 'an' : 'a',
             $type,
             $this->toString()
         );

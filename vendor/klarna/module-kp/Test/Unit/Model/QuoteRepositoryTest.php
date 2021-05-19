@@ -67,13 +67,12 @@ class QuoteRepositoryTest extends \PHPUnit\Framework\TestCase
     /**
      * @covers ::getById()
      * @covers ::loadQuote()
-     * @expectedException \Magento\Framework\Exception\NoSuchEntityException
-     * @expectedExceptionMessage No such entity with payments_quote_id = 14
      */
     public function testGetByIdWithException()
     {
+        $this->expectException('\Magento\Framework\Exception\NoSuchEntityException');
+        $this->expectExceptionMessage('No such entity with payments_quote_id = 14');
         $cartId = 14;
-
         $this->quoteFactoryMock->expects($this->once())->method('create')->willReturn($this->quoteMock);
         $this->quoteMock->expects($this->once())
             ->method('load')
@@ -158,13 +157,12 @@ class QuoteRepositoryTest extends \PHPUnit\Framework\TestCase
 
     /**
      * @covers ::loadQuote()
-     * @expectedException \Magento\Framework\Exception\NoSuchEntityException
-     * @expectedExceptionMessage No such entity with payments_quote_id = 14
      */
     public function testLoadQuoteWithException()
     {
+        $this->expectException('\Magento\Framework\Exception\NoSuchEntityException');
+        $this->expectExceptionMessage('No such entity with payments_quote_id = 14');
         $quoteId = 14;
-
         $this->quoteFactoryMock->expects(static::once())
             ->method('create')
             ->willReturn($this->quoteMock);
@@ -184,12 +182,12 @@ class QuoteRepositoryTest extends \PHPUnit\Framework\TestCase
 
     /**
      * @covers ::getActiveByQuote()
-     * @expectedException \Magento\Framework\Exception\NoSuchEntityException
-     * @expectedExceptionMessage No such entity with quote_id =
-     * @dataProvider             activeQuoteWithExceptionProvider
+     * @dataProvider activeQuoteWithExceptionProvider
      */
     public function testGetActiveByQuoteWithException($mageQuoteMock)
     {
+        $this->expectException('\Magento\Framework\Exception\NoSuchEntityException');
+        $this->expectExceptionMessage('No such entity with quote_id =');
         $this->model->getActiveByQuote($mageQuoteMock);
     }
 
@@ -244,12 +242,13 @@ class QuoteRepositoryTest extends \PHPUnit\Framework\TestCase
 
     /**
      * @covers ::save()
-     * @expectedException \Magento\Framework\Exception\CouldNotSaveException
-     * @expectedExceptionMessage No such entity with payments_quote_id =
      */
     public function testSaveWithException()
     {
-        $exceptionMessage = 'No such entity with payments_quote_id = ';
+        $exceptionMessage = "No such entity with payments_quote_id = ''";
+        $this->expectException('\Magento\Framework\Exception\CouldNotSaveException');
+        $this->expectExceptionMessage($exceptionMessage);
+
         $this->quoteResourceMock->expects(static::once())
             ->method('save')
             ->with($this->quoteMock)
@@ -305,7 +304,7 @@ class QuoteRepositoryTest extends \PHPUnit\Framework\TestCase
     /**
      * Set up
      */
-    protected function setUp()
+    protected function setUp(): void
     {
         $objectManager = new \Magento\Framework\TestFramework\Unit\Helper\ObjectManager($this);
 
@@ -322,10 +321,8 @@ class QuoteRepositoryTest extends \PHPUnit\Framework\TestCase
                 'getIsActive',
                 'getId',
                 '__wakeup',
-                'setSharedStoreIds',
                 'save',
                 'delete',
-                'getCustomerId',
                 'getStoreId',
                 'getData'
             ]

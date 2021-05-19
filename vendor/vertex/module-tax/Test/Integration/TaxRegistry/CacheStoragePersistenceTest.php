@@ -26,7 +26,7 @@ class CacheStoragePersistenceTest extends TestCase
     /**
      * Perform test setup.
      */
-    protected function setUp()
+    protected function setUp(): void
     {
         parent::setUp();
 
@@ -36,19 +36,27 @@ class CacheStoragePersistenceTest extends TestCase
 
     /**
      * Test that cache storage can unset its data.
+     * @magentoAppIsolation enabled
      */
     public function testSuccessfulCacheUnset()
     {
+        $cacheKey = 'key_to_unset';
+
         $this->cacheState->setEnabled(CacheType::TYPE_IDENTIFIER, true);
         $this->assertTrue($this->cacheState->isEnabled(CacheType::TYPE_IDENTIFIER));
 
-        $this->assertTrue($this->cacheStorage->set('key_to_unset', 'value_to_unset'));
-        $this->assertTrue($this->cacheStorage->unsetData('key_to_unset'));
-        $this->assertNull($this->cacheStorage->get('key_to_unset'));
+        $this->assertNull($this->cacheStorage->get($cacheKey), 'Test is not isolated properly');
+
+        $this->assertTrue($this->cacheStorage->set($cacheKey, 'value_to_unset'));
+        $this->assertSame('value_to_unset', $this->cacheStorage->get($cacheKey));
+
+        $this->assertTrue($this->cacheStorage->unsetData($cacheKey));
+        $this->assertNull($this->cacheStorage->get($cacheKey));
     }
 
     /**
      * Test that cache storage succeeds when in fallback mode.
+     * @magentoAppIsolation enabled
      */
     public function testGenericPersistenceUnderCacheDisablement()
     {
@@ -65,6 +73,7 @@ class CacheStoragePersistenceTest extends TestCase
 
     /**
      * Test that cache storage succeeds when enabled.
+     * @magentoAppIsolation enabled
      */
     public function testPersistenceUnderCacheEnablement()
     {

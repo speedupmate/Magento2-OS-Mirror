@@ -27,7 +27,7 @@ use Magento\Quote\Api\CartItemRepositoryInterface;
 class QuoteItemGetterProcessor implements InvoiceFlexFieldProcessorInterface, TaxCalculationFlexFieldProcessorInterface
 {
     const PREFIX = 'quote_line_item';
-    const BLACK_LIST = [
+    const BLOCK_LIST = [
         'getExtensionAttributes',
         'getShortDescription',
         'getParentCode',
@@ -93,7 +93,7 @@ class QuoteItemGetterProcessor implements InvoiceFlexFieldProcessorInterface, Ta
             static::PREFIX,
             'Quote Item',
             static::class,
-            array_merge(static::DATE_FIELDS, static::BLACK_LIST)
+            array_merge(static::DATE_FIELDS, static::BLOCK_LIST)
         );
 
         // Date fields can't be auto-generated (as Magento's interfaces don't have a date type)
@@ -115,8 +115,12 @@ class QuoteItemGetterProcessor implements InvoiceFlexFieldProcessorInterface, Ta
     /**
      * @inheritdoc
      */
-    public function getValueFromQuote(QuoteDetailsItemInterface $item, $attributeCode, $fieldType = null, $fieldId = null)
-    {
+    public function getValueFromQuote(
+        QuoteDetailsItemInterface $item,
+        $attributeCode,
+        $fieldType = null,
+        $fieldId = null
+    ) {
         $extAttributes = $item->getExtensionAttributes();
         if (!$extAttributes || !$extAttributes->getQuoteItemId() || !$extAttributes->getQuoteId()) {
             return null;
@@ -169,8 +173,12 @@ class QuoteItemGetterProcessor implements InvoiceFlexFieldProcessorInterface, Ta
     /**
      * {@inheritdoc}
      */
-    public function getValueFromCreditmemo(CreditmemoItemInterface $item, $attributeCode, $fieldType = null, $fieldId = null)
-    {
+    public function getValueFromCreditmemo(
+        CreditmemoItemInterface $item,
+        $attributeCode,
+        $fieldType = null,
+        $fieldId = null
+    ) {
         try {
             $orderItem = $this->orderItemRepository->get($item->getOrderItemId());
             $order = $this->orderRepository->get($orderItem->getOrderId());

@@ -1,21 +1,22 @@
-<?php
+<?php declare(strict_types=1);
 
 namespace Vertex\Tax\Test\Unit\Model\Plugin;
 
 use Magento\Config\Model\Config\Structure\Element\Group;
+use PHPUnit\Framework\MockObject\MockObject;
 use Vertex\Tax\Model\ModuleManager;
 use Vertex\Tax\Model\Plugin\GroupPlugin;
 use Vertex\Tax\Test\Unit\TestCase;
 
 class GroupPluginTest extends TestCase
 {
-    /** @var \PHPUnit_Framework_MockObject_MockObject|GroupPlugin */
+    /** @var MockObject|GroupPlugin */
     private $plugin;
 
-    /** @var \PHPUnit_Framework_MockObject_MockObject|ModuleManager */
+    /** @var MockObject|ModuleManager */
     private $moduleManager;
 
-    protected function setUp()
+    protected function setUp(): void
     {
         parent::setUp();
         $this->moduleManager = $this->createPartialMock(ModuleManager::class, ['isEnabled']);
@@ -24,7 +25,7 @@ class GroupPluginTest extends TestCase
 
     public function testAroundSetData()
     {
-        /** @var \PHPUnit_Framework_MockObject_MockObject|Group $subject */
+        /** @var MockObject|Group $subject */
         $subject = $this->createMock(Group::class);
         $data = [
             'path' => 'tax',

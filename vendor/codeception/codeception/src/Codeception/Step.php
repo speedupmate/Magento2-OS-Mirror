@@ -5,9 +5,12 @@ use Codeception\Lib\ModuleContainer;
 use Codeception\Step\Argument\FormattedOutput;
 use Codeception\Step\Meta as MetaStep;
 use Codeception\Util\Locator;
+use PHPUnit\Framework\MockObject\MockObject;
 
 abstract class Step
 {
+    const DEFAULT_MAX_LENGTH = 200;
+
     const STACK_POSITION = 3;
     /**
      * @var    string
@@ -33,6 +36,7 @@ abstract class Step
     protected $metaStep = null;
 
     protected $failed = false;
+    protected $isTry = false;
 
     public function __construct($action, array $arguments = [])
     {
@@ -92,7 +96,7 @@ abstract class Step
         return $this->arguments;
     }
 
-    public function getArgumentsAsString($maxLength = 200)
+    public function getArgumentsAsString($maxLength = self::DEFAULT_MAX_LENGTH)
     {
         $arguments = $this->arguments;
 
@@ -173,7 +177,7 @@ abstract class Step
     {
         if ($argument instanceof \Closure) {
             return 'Closure';
-        } elseif ((isset($argument->__mocked))) {
+        } elseif ($argument instanceof MockObject && isset($argument->__mocked)) {
             return $this->formatClassName($argument->__mocked);
         }
 
@@ -222,7 +226,7 @@ abstract class Step
             return sprintf('%s %s', ucfirst($this->prefix), $this->humanize($this->getAction()));
         }
 
-        return sprintf('%s %s <span style="color: %s">%s</span>', ucfirst($this->prefix), htmlspecialchars($this->humanize($this->getAction())), $highlightColor, htmlspecialchars($this->getHumanizedArguments()));
+        return sprintf('%s %s <span style="color: %s">%s</span>', ucfirst($this->prefix), htmlspecialchars($this->humanize($this->getAction())), $highlightColor, htmlspecialchars($this->getHumanizedArguments(0)));
     }
 
     public function getHumanizedActionWithoutArguments()
@@ -230,7 +234,7 @@ abstract class Step
         return $this->humanize($this->getAction());
     }
 
-    public function getHumanizedArguments($maxLength = 200)
+    public function getHumanizedArguments($maxLength = self::DEFAULT_MAX_LENGTH)
     {
         return $this->getArgumentsAsString($maxLength);
     }
@@ -263,6 +267,9 @@ abstract class Step
         try {
             $res = call_user_func_array([$activeModule, $this->action], $this->arguments);
         } catch (\Exception $e) {
+            if ($this->isTry) {
+                throw $e;
+            }
             $this->failed = true;
             if ($this->getMetaStep()) {
                 $this->getMetaStep()->setFailed(true);
@@ -307,6 +314,11 @@ abstract class Step
 
             // pageobjects or other classes should not be included with "I"
             if (!in_array('Codeception\Actor', class_parents($step['class']))) {
+                if (isset($step['object'])) {
+                    $this->metaStep->setPrefix(get_class($step['object']) . ':');
+                    return;
+                }
+
                 $this->metaStep->setPrefix($step['class'] . ':');
             }
             return;

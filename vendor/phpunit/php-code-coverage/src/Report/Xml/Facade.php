@@ -1,16 +1,16 @@
-<?php
+<?php declare(strict_types=1);
 /*
- * This file is part of the php-code-coverage package.
+ * This file is part of phpunit/php-code-coverage.
  *
  * (c) Sebastian Bergmann <sebastian@phpunit.de>
  *
  * For the full copyright and license information, please view the LICENSE
  * file that was distributed with this source code.
  */
-
 namespace SebastianBergmann\CodeCoverage\Report\Xml;
 
 use SebastianBergmann\CodeCoverage\CodeCoverage;
+use SebastianBergmann\CodeCoverage\Directory as DirectoryUtil;
 use SebastianBergmann\CodeCoverage\Node\AbstractNode;
 use SebastianBergmann\CodeCoverage\Node\Directory as DirectoryNode;
 use SebastianBergmann\CodeCoverage\Node\File as FileNode;
@@ -18,7 +18,7 @@ use SebastianBergmann\CodeCoverage\RuntimeException;
 use SebastianBergmann\CodeCoverage\Version;
 use SebastianBergmann\Environment\Runtime;
 
-class Facade
+final class Facade
 {
     /**
      * @var string
@@ -35,24 +35,18 @@ class Facade
      */
     private $phpUnitVersion;
 
-    /**
-     * @param string $version
-     */
-    public function __construct($version)
+    public function __construct(string $version)
     {
         $this->phpUnitVersion = $version;
     }
 
     /**
-     * @param CodeCoverage $coverage
-     * @param string       $target
-     *
      * @throws RuntimeException
      */
-    public function process(CodeCoverage $coverage, $target)
+    public function process(CodeCoverage $coverage, string $target): void
     {
-        if (\substr($target, -1, 1) != DIRECTORY_SEPARATOR) {
-            $target .= DIRECTORY_SEPARATOR;
+        if (\substr($target, -1, 1) !== \DIRECTORY_SEPARATOR) {
+            $target .= \DIRECTORY_SEPARATOR;
         }
 
         $this->target = $target;
@@ -71,18 +65,18 @@ class Facade
         $this->saveDocument($this->project->asDom(), 'index');
     }
 
-    private function setBuildInformation()
+    private function setBuildInformation(): void
     {
         $buildNode = $this->project->getBuildInformation();
         $buildNode->setRuntimeInformation(new Runtime());
-        $buildNode->setBuildTime(\DateTime::createFromFormat('U', $_SERVER['REQUEST_TIME']));
+        $buildNode->setBuildTime(new \DateTimeImmutable);
         $buildNode->setGeneratorVersions($this->phpUnitVersion, Version::id());
     }
 
     /**
-     * @param string $directory
+     * @throws RuntimeException
      */
-    protected function initTargetDirectory($directory)
+    private function initTargetDirectory(string $directory): void
     {
         if (\file_exists($directory)) {
             if (!\is_dir($directory)) {
@@ -96,33 +90,36 @@ class Facade
                     "'$directory' exists but is not writable."
                 );
             }
-        } elseif (!@\mkdir($directory, 0777, true)) {
-            throw new RuntimeException(
-                "'$directory' could not be created."
-            );
         }
+
+        DirectoryUtil::create($directory);
     }
 
-    private function processDirectory(DirectoryNode $directory, Node $context)
+    private function processDirectory(DirectoryNode $directory, Node $context): void
     {
-        $dirname = $directory->getName();
-        if ($this->project->getProjectSourceDirectory() === $dirname) {
-            $dirname = '/';
-        }
-        $dirObject = $context->addDirectory($dirname);
+        $directoryName = $directory->getName();
 
-        $this->setTotals($directory, $dirObject->getTotals());
+        if ($this->project->getProjectSourceDirectory() === $directoryName) {
+            $directoryName = '/';
+        }
+
+        $directoryObject = $context->addDirectory($directoryName);
+
+        $this->setTotals($directory, $directoryObject->getTotals());
 
         foreach ($directory->getDirectories() as $node) {
-            $this->processDirectory($node, $dirObject);
+            $this->processDirectory($node, $directoryObject);
         }
 
         foreach ($directory->getFiles() as $node) {
-            $this->processFile($node, $dirObject);
+            $this->processFile($node, $directoryObject);
         }
     }
 
-    private function processFile(FileNode $file, Directory $context)
+    /**
+     * @throws RuntimeException
+     */
+    private function processFile(FileNode $file, Directory $context): void
     {
         $fileObject = $context->addFile(
             $file->getName(),
@@ -135,6 +132,7 @@ class Facade
             $file->getPath(),
             \strlen($this->project->getProjectSourceDirectory())
         );
+
         $fileReport = new Report($path);
 
         $this->setTotals($file, $fileReport->getTotals());
@@ -152,7 +150,7 @@ class Facade
                 continue;
             }
 
-            $coverage = $fileReport->getLineCoverage($line);
+            $coverage = $fileReport->getLineCoverage((string) $line);
 
             foreach ($tests as $test) {
                 $coverage->addTest($test);
@@ -168,7 +166,7 @@ class Facade
         $this->saveDocument($fileReport->asDom(), $file->getId());
     }
 
-    private function processUnit($unit, Report $report)
+    private function processUnit(array $unit, Report $report): void
     {
         if (isset($unit['className'])) {
             $unitObject = $report->getClassObject($unit['className']);
@@ -182,7 +180,7 @@ class Facade
             $unit['executedLines']
         );
 
-        $unitObject->setCrap($unit['crap']);
+        $unitObject->setCrap((float) $unit['crap']);
 
         $unitObject->setPackage(
             $unit['package']['fullPackage'],
@@ -196,32 +194,32 @@ class Facade
         foreach ($unit['methods'] as $method) {
             $methodObject = $unitObject->addMethod($method['methodName']);
             $methodObject->setSignature($method['signature']);
-            $methodObject->setLines($method['startLine'], $method['endLine']);
+            $methodObject->setLines((string) $method['startLine'], (string) $method['endLine']);
             $methodObject->setCrap($method['crap']);
             $methodObject->setTotals(
-                $method['executableLines'],
-                $method['executedLines'],
-                $method['coverage']
+                (string) $method['executableLines'],
+                (string) $method['executedLines'],
+                (string) $method['coverage']
             );
         }
     }
 
-    private function processFunction($function, Report $report)
+    private function processFunction(array $function, Report $report): void
     {
         $functionObject = $report->getFunctionObject($function['functionName']);
 
         $functionObject->setSignature($function['signature']);
-        $functionObject->setLines($function['startLine']);
+        $functionObject->setLines((string) $function['startLine']);
         $functionObject->setCrap($function['crap']);
-        $functionObject->setTotals($function['executableLines'], $function['executedLines'], $function['coverage']);
+        $functionObject->setTotals((string) $function['executableLines'], (string) $function['executedLines'], (string) $function['coverage']);
     }
 
-    private function processTests(array $tests)
+    private function processTests(array $tests): void
     {
         $testsObject = $this->project->getTests();
 
         foreach ($tests as $test => $result) {
-            if ($test == 'UNCOVERED_FILES_FROM_WHITELIST') {
+            if ($test === 'UNCOVERED_FILES_FROM_WHITELIST') {
                 continue;
             }
 
@@ -229,7 +227,7 @@ class Facade
         }
     }
 
-    private function setTotals(AbstractNode $node, Totals $totals)
+    private function setTotals(AbstractNode $node, Totals $totals): void
     {
         $loc = $node->getLinesOfCode();
 
@@ -262,15 +260,15 @@ class Facade
         );
     }
 
-    /**
-     * @return string
-     */
-    protected function getTargetDirectory()
+    private function getTargetDirectory(): string
     {
         return $this->target;
     }
 
-    protected function saveDocument(\DOMDocument $document, $name)
+    /**
+     * @throws RuntimeException
+     */
+    private function saveDocument(\DOMDocument $document, string $name): void
     {
         $filename = \sprintf('%s/%s.xml', $this->getTargetDirectory(), $name);
 
@@ -278,6 +276,7 @@ class Facade
         $document->preserveWhiteSpace = false;
         $this->initTargetDirectory(\dirname($filename));
 
-        $document->save($filename);
+        /* @see https://bugs.php.net/bug.php?id=79191 */
+        \file_put_contents($filename, $document->saveXML());
     }
 }

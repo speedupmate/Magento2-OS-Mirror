@@ -1,4 +1,4 @@
-<?php
+<?php declare(strict_types=1);
 /**
  * @copyright  Vertex. All rights reserved.  https://www.vertexinc.com/
  * @author     Mediotype                     https://www.mediotype.com/
@@ -34,7 +34,7 @@ class DeliveryTermTest extends TestCase
     public function testReturnArray()
     {
         $object = $this->createObject();
-        $this->assertInternalType('array', $object->toOptionArray());
+        $this->assertIsArray($object->toOptionArray());
     }
 
     /**

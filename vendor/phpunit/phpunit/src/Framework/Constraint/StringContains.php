@@ -1,4 +1,4 @@
-<?php
+<?php declare(strict_types=1);
 /*
  * This file is part of PHPUnit.
  *
@@ -18,60 +18,31 @@ namespace PHPUnit\Framework\Constraint;
  *
  * The sub-string is passed in the constructor.
  */
-class StringContains extends Constraint
+final class StringContains extends Constraint
 {
     /**
      * @var string
      */
-    protected $string;
+    private $string;
 
     /**
      * @var bool
      */
-    protected $ignoreCase;
+    private $ignoreCase;
 
-    /**
-     * @param string $string
-     * @param bool   $ignoreCase
-     */
-    public function __construct($string, $ignoreCase = false)
+    public function __construct(string $string, bool $ignoreCase = false)
     {
-        parent::__construct();
-
         $this->string     = $string;
         $this->ignoreCase = $ignoreCase;
     }
 
     /**
-     * Evaluates the constraint for parameter $other. Returns true if the
-     * constraint is met, false otherwise.
-     *
-     * @param mixed $other Value or object to evaluate.
-     *
-     * @return bool
-     */
-    protected function matches($other)
-    {
-        if ('' === $this->string) {
-            return true;
-        }
-
-        if ($this->ignoreCase) {
-            return \mb_stripos($other, $this->string) !== false;
-        }
-
-        return \mb_strpos($other, $this->string) !== false;
-    }
-
-    /**
      * Returns a string representation of the constraint.
-     *
-     * @return string
      */
-    public function toString()
+    public function toString(): string
     {
         if ($this->ignoreCase) {
-            $string = \mb_strtolower($this->string);
+            $string = \mb_strtolower($this->string, 'UTF-8');
         } else {
             $string = $this->string;
         }
@@ -80,5 +51,36 @@ class StringContains extends Constraint
             'contains "%s"',
             $string
         );
+    }
+
+    /**
+     * Evaluates the constraint for parameter $other. Returns true if the
+     * constraint is met, false otherwise.
+     *
+     * @param mixed $other value or object to evaluate
+     */
+    protected function matches($other): bool
+    {
+        if ('' === $this->string) {
+            return true;
+        }
+
+        if ($this->ignoreCase) {
+            /*
+             * We must use the multi byte safe version so we can accurately compare non latin upper characters with
+             * their lowercase equivalents.
+             */
+            return \mb_stripos($other, $this->string, 0, 'UTF-8') !== false;
+        }
+
+        /*
+         * Use the non multi byte safe functions to see if the string is contained in $other.
+         *
+         * This function is very fast and we don't care about the character position in the string.
+         *
+         * Additionally, we want this method to be binary safe so we can check if some binary data is in other binary
+         * data.
+         */
+        return \strpos($other, $this->string) !== false;
     }
 }

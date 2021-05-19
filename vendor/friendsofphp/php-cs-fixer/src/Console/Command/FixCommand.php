@@ -41,7 +41,7 @@ use Symfony\Component\Stopwatch\Stopwatch;
  */
 final class FixCommand extends Command
 {
-    const COMMAND_NAME = 'fix';
+    protected static $defaultName = 'fix';
 
     /**
      * @var EventDispatcherInterface
@@ -95,7 +95,6 @@ final class FixCommand extends Command
     protected function configure()
     {
         $this
-            ->setName(self::COMMAND_NAME)
             ->setDefinition(
                 [
                     new InputArgument('path', InputArgument::IS_ARRAY, 'The path.'),
@@ -170,6 +169,9 @@ final class FixCommand extends Command
 
             $configFile = $resolver->getConfigFile();
             $stdErr->writeln(sprintf('Loaded config <comment>%s</comment>%s.', $resolver->getConfig()->getName(), null === $configFile ? '' : ' from "'.$configFile.'"'));
+            if (OutputInterface::VERBOSITY_VERBOSE <= $output->getVerbosity()) {
+                $stdErr->writeln(sprintf('Runtime: <info>PHP %s</info>', PHP_VERSION));
+            }
 
             if ($resolver->getUsingCache()) {
                 $cacheFile = $resolver->getCacheFile();
@@ -264,7 +266,8 @@ final class FixCommand extends Command
             $resolver->isDryRun(),
             \count($changed) > 0,
             \count($invalidErrors) > 0,
-            \count($exceptionErrors) > 0
+            \count($exceptionErrors) > 0,
+            \count($lintErrors) > 0
         );
     }
 }

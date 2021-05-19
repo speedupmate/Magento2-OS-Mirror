@@ -68,10 +68,11 @@ final class ArraySyntaxFixer extends AbstractFixer implements ConfigurationDefin
 
     /**
      * {@inheritdoc}
+     *
+     * Must run before BinaryOperatorSpacesFixer, TernaryOperatorSpacesFixer.
      */
     public function getPriority()
     {
-        // should be run before the BinaryOperatorSpacesFixer and TernaryOperatorSpacesFixer.
         return 1;
     }
 
@@ -110,8 +111,7 @@ final class ArraySyntaxFixer extends AbstractFixer implements ConfigurationDefin
     }
 
     /**
-     * @param Tokens $tokens
-     * @param int    $index
+     * @param int $index
      */
     private function fixToLongArraySyntax(Tokens $tokens, $index)
     {
@@ -124,8 +124,7 @@ final class ArraySyntaxFixer extends AbstractFixer implements ConfigurationDefin
     }
 
     /**
-     * @param Tokens $tokens
-     * @param int    $index
+     * @param int $index
      */
     private function fixToShortArraySyntax(Tokens $tokens, $index)
     {

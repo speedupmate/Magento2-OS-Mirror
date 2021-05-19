@@ -1,4 +1,4 @@
-<?php
+<?php declare(strict_types=1);
 /**
  * @copyright  Vertex. All rights reserved.  https://www.vertexinc.com/
  * @author     Mediotype                     https://www.mediotype.com/
@@ -6,11 +6,11 @@
 
 namespace Vertex\Tax\Test\Unit\Model\Config;
 
+use Magento\Config\Block\System\Config\Form\Field\FieldArray\AbstractFieldArray;
+use Magento\Framework\Math\Random;
 use PHPUnit\Framework\MockObject\MockObject;
 use Vertex\Tax\Model\Config\DeliveryTerm;
 use Vertex\Tax\Test\Unit\TestCase;
-use Magento\Framework\Math\Random;
-use Magento\Config\Block\System\Config\Form\Field\FieldArray\AbstractFieldArray;
 
 /**
  * Test Class @see DeliveryTerm
@@ -26,7 +26,7 @@ class DeliveryTermTest extends TestCase
     /**
      * @inheritdoc
      */
-    protected function setUp() // @codingStandardsIgnoreLine MEQP2.PHP.ProtectedClassMember.FoundProtected
+    protected function setUp(): void // @codingStandardsIgnoreLine MEQP2.PHP.ProtectedClassMember.FoundProtected
     {
         parent::setUp();
         $this->randomMathMock = $this->createMock(Random::class);

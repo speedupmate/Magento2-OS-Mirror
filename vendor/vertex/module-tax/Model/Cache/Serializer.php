@@ -67,8 +67,10 @@ class Serializer
      */
     private function validate($input, $depth = 0)
     {
+        // phpcs:ignore Magento2.Functions.DiscouragedFunction.Discouraged
         if (!in_array(gettype($input), $this->supportedTypes)) {
             throw new \InvalidArgumentException(
+                // phpcs:ignore Magento2.Functions.DiscouragedFunction.Discouraged
                 sprintf('Cannot serialize unsupported type "%s"', gettype($input))
             );
         } elseif (is_object($input) && !($input instanceof \stdClass)) {

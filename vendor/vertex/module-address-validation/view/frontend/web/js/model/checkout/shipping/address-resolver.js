@@ -19,10 +19,15 @@ define([
         updateFields: function (element, value) {
             var addressData = $.extend({}, this.checkoutProvider.get('shippingAddress'));
 
-            if (element.key !== undefined) {
-                addressData[element.name][element.key] = value;
-                // Checkout Provider is not working here for some reason
-                $('.form-shipping-address input[name="' + element.name + '[' + element.key + ']"]').val(value);
+            if (element.name === 'street') {
+                // Just updating the addressData element doesn't seem to work on street inputs
+                const streetInputs = $('.form-shipping-address input[name^="street["]');
+                streetInputs.val('');
+                for(let index = 0, length = Object.keys(addressData[element.name]).length;index < length;++index) {
+                    addressData[element.name][index] = typeof value[index] !== 'undefined' ? value[index] : '';
+                    $(streetInputs[index])
+                        .val(addressData[element.name][index]);
+                }
             } else {
                 addressData[element.name] = value;
             }

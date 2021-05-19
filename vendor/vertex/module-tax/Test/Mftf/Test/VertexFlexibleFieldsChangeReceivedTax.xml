@@ -13,6 +13,10 @@
             <group value="Vertex"/>
             <group value="VertexFlexField"/>
 
+            <skip>
+                <issueId value="magento/magento2-functional-testing-framework#652"/>
+            </skip>
+
             <stories value="As a merchant, I should be able to send extra information to the Vertex Tax Engine to ensure accuracy of my taxes"/>
             <description value="Validate that the jurisdictions of an order have changed due to a flexible field being sent to the Vertex Tax Engine"/>
             <title value="Validate Taxes in Minicart, Registered Customer, Flexible Field Product with Flexible Field Set"/>
@@ -129,6 +133,10 @@
             <features value="VertexFlexField"/>
             <group value="Vertex"/>
             <group value="VertexFlexField"/>
+
+            <skip>
+                <issueId value="magento/magento2-functional-testing-framework#652"/>
+            </skip>
 
             <stories value="As a merchant, I should be able to send extra information to the Vertex Tax Engine to ensure accuracy of my taxes"/>
             <description value="Validate that the jurisdictions of an order have changed due to a flexible field being sent to the Vertex Tax Engine"/>

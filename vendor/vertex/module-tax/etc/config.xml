@@ -19,6 +19,9 @@
                 <allowed_countries>US,CA</allowed_countries>
                 <summarize_tax>product_and_shipping</summarize_tax>
             </vertex_settings>
+            <vertex_seller_info>
+                <shipping_origin_source>1</shipping_origin_source>
+            </vertex_seller_info>
             <classes>
                 <default_customer_code><![CDATA[General]]></default_customer_code>
                 <creditmemo_adjustment_negative_code><![CDATA[adjustment-negative]]></creditmemo_adjustment_negative_code>
@@ -40,6 +43,11 @@
                 <entry_lifetime>7</entry_lifetime>
                 <rotation_frequency>W</rotation_frequency>
             </vertex_logging>
+            <vertex_wsdl_cache>
+                <enable_wsdl_cache>0</enable_wsdl_cache>
+                <wsdl_cache_runtime>00,00,00</wsdl_cache_runtime>
+                <wsdl_cache_frequency>D</wsdl_cache_frequency>
+            </vertex_wsdl_cache>
         </tax>
     </default>
 </config>

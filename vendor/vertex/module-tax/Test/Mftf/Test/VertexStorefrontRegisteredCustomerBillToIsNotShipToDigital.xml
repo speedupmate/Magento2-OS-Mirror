@@ -289,6 +289,7 @@
             <actionGroup ref="VertexTaxDefaultConfig" stepKey="setupDefaultVertexTestConfiguration"/>
             <actionGroup ref="ClearCacheActionGroup" stepKey="clearCache"/>
 
+            <!-- Virtual only, no Shipping Address attached - so John Winston -->
             <createData entity="Vertex_Customer_JohnWinston" stepKey="createCustomer"/>
             <actionGroup ref="LoginToStorefrontActionGroup" stepKey="customerLogin">
                 <argument name="Customer" value="$$createCustomer$$"/>

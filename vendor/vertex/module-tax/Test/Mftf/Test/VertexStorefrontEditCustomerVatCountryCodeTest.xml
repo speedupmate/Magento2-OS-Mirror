@@ -1,0 +1,61 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!--
+ /**
+  * Copyright © Magento, Inc. All rights reserved.
+  * See COPYING.txt for license details.
+  */
+-->
+
+<tests xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+       xsi:noNamespaceSchemaLocation="urn:magento:mftf:Test/etc/testSchema.xsd">
+    <test name="VertexStorefrontEditCustomerVatCountryCodeTest">
+        <annotations>
+            <group value="Vertex"/>
+            <group value="VRTX-774"/>
+            <features value="Vertex Tax"/>
+            <testCaseId value="VRTX-774"/>
+
+            <stories value="As a customer, I want to specify a single VAT Registration Number for my account that is used when one of my addresses does not have one"/>
+            <title value="Ensure Customer can edit VAT number and Country"/>
+            <description value="Validate that the VAT and customer Country is edited and displayed on customer account information"/>
+            <severity value="MAJOR"/>
+        </annotations>
+        <before>
+            <actionGroup ref="LoginAsAdmin" stepKey="loginAsAdmin"/>
+            <actionGroup ref="VertexTaxConfigInvoiceCreated" stepKey="setupTaxConfigWhenInvoiceCreated"/>
+            <actionGroup ref="VertexTaxDefaultConfig" stepKey="setupDefaultVertexTestConfiguration"/>
+            <actionGroup ref="ClearCacheActionGroup" stepKey="clearCache"/>
+            <actionGroup ref="VertexAdminSetTaxvatShowOnStorefrontActionGroup" stepKey="showTaxvatStorefront" />
+            <actionGroup ref="logout" stepKey="logoutOfAdmin"/>
+            <createData entity="Vertex_Customer_CateDeMedici" stepKey="createCustomer"/>
+        </before>
+        <after>
+            <deleteData createDataKey="createCustomer" stepKey="deleteCustomer"/>
+            <createData entity="DefaultTaxConfig" stepKey="defaultConf"/>
+        </after>
+
+        <actionGroup ref="LoginToStorefrontActionGroup" stepKey="loginToStorefront">
+            <argument name="Customer" value="$createCustomer$"/>
+        </actionGroup>
+
+        <actionGroup ref="VertexStoreFrontSetCustomerVatIdActionGroup" stepKey="setCustomerVatIdAndCountry">
+            <argument name="vatId" value="{{Vertex_Customer_TaxRegistration_VRTXMFTF01.taxvat}}" />
+            <argument name="countryId" value="{{Vertex_Customer_TaxRegistration_VRTXMFTF01_Country_Id.vertex_customer_country}}" />
+        </actionGroup>
+
+        <actionGroup ref="VertexStoreFrontAssertCustomerVatIdAndCountryActionGroup" stepKey="assertCustomerVatIdAndCountry">
+            <argument name="vatId" value="{{Vertex_Customer_TaxRegistration_VRTXMFTF01.taxvat}}" />
+            <argument name="countryId" value="{{Vertex_Customer_TaxRegistration_VRTXMFTF01_Country_Id.vertex_customer_country}}" />
+        </actionGroup>
+
+        <actionGroup ref="VertexStoreFrontSetCustomerVatIdActionGroup" stepKey="updateCustomerVatIdAndCountry">
+            <argument name="vatId" value="{{Vertex_Customer_TaxRegistration_VRTXMFTF02.taxvat}}" />
+            <argument name="countryId" value="{{Vertex_Customer_TaxRegistration_VRTXMFTF02_Country_Id.vertex_customer_country}}" />
+        </actionGroup>
+
+        <actionGroup ref="VertexStoreFrontAssertCustomerVatIdAndCountryActionGroup" stepKey="assertUpdatedCustomerVatIdAndCountry">
+            <argument name="vatId" value="{{Vertex_Customer_TaxRegistration_VRTXMFTF02.taxvat}}" />
+            <argument name="countryId" value="{{Vertex_Customer_TaxRegistration_VRTXMFTF02_Country_Id.vertex_customer_country}}" />
+        </actionGroup>
+    </test>
+</tests>

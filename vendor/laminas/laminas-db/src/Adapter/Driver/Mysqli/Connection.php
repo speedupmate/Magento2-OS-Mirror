@@ -113,13 +113,13 @@ class Connection extends AbstractConnection
         $socket   = (isset($p['socket'])) ? $p['socket'] : null;
 
         $useSSL = (isset($p['use_ssl'])) ? $p['use_ssl'] : 0;
-        $clientKey = (isset($p['client_key'])) ? $p['client_key'] : null;
-        $clientCert = (isset($p['client_cert'])) ? $p['client_cert'] : null;
-        $caCert = (isset($p['ca_cert'])) ? $p['ca_cert'] : null;
-        $caPath = (isset($p['ca_path'])) ? $p['ca_path'] : null;
-        $cipher = (isset($p['cipher'])) ? $p['cipher'] : null;
+        $clientKey = (isset($p['client_key'])) ? $p['client_key'] : '';
+        $clientCert = (isset($p['client_cert'])) ? $p['client_cert'] : '';
+        $caCert = (isset($p['ca_cert'])) ? $p['ca_cert'] : '';
+        $caPath = (isset($p['ca_path'])) ? $p['ca_path'] : '';
+        $cipher = (isset($p['cipher'])) ? $p['cipher'] : '';
 
-        $this->resource = new \mysqli();
+        $this->resource = $this->createResource();
         $this->resource->init();
 
         if (! empty($p['driver_options'])) {
@@ -138,18 +138,23 @@ class Connection extends AbstractConnection
         $flags = null;
 
         if ($useSSL && ! $socket) {
+            // Even though mysqli docs are not quite clear on this, MYSQLI_CLIENT_SSL
+            // needs to be set to make sure SSL is used. ssl_set can also cause it to
+            // be implicitly set, but only when any of the parameters is non-empty.
+            $flags = MYSQLI_CLIENT_SSL;
             $this->resource->ssl_set($clientKey, $clientCert, $caCert, $caPath, $cipher);
             //MYSQLI_CLIENT_SSL_DONT_VERIFY_SERVER_CERT is not valid option, needs to be set as flag
             if (isset($p['driver_options'])
                 && isset($p['driver_options'][MYSQLI_CLIENT_SSL_DONT_VERIFY_SERVER_CERT])
             ) {
-                $flags = MYSQLI_CLIENT_SSL_DONT_VERIFY_SERVER_CERT;
+                $flags |= MYSQLI_CLIENT_SSL_DONT_VERIFY_SERVER_CERT;
             }
         }
 
-
         try {
-            $this->resource->real_connect($hostname, $username, $password, $database, $port, $socket, $flags);
+            $flags === null
+                ? $this->resource->real_connect($hostname, $username, $password, $database, $port, $socket)
+                : $this->resource->real_connect($hostname, $username, $password, $database, $port, $socket, $flags);
         } catch (GenericException $e) {
             throw new Exception\RuntimeException(
                 'Connection error',
@@ -280,5 +285,15 @@ class Connection extends AbstractConnection
     public function getLastGeneratedValue($name = null)
     {
         return $this->resource->insert_id;
+    }
+
+    /**
+     * Create a new mysqli resource
+     *
+     * @return \mysqli
+     */
+    protected function createResource()
+    {
+        return new \mysqli();
     }
 }

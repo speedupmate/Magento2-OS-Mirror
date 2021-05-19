@@ -17,6 +17,14 @@ namespace Amazon\Core\Domain;
 
 use Amazon\Core\Api\Data\AmazonAddressInterface;
 
+/**
+ * @deprecated As of February 2021, this Legacy Amazon Pay plugin has been
+ * deprecated, in favor of a newer Amazon Pay version available through GitHub
+ * and Magento Marketplace. Please download the new plugin for automatic
+ * updates and to continue providing your customers with a seamless checkout
+ * experience. Please see https://pay.amazon.com/help/E32AAQBC2FY42HS for details
+ * and installation instructions.
+ */
 class AmazonAddressDecoratorDe implements AmazonAddressInterface
 {
     /**
@@ -79,11 +87,15 @@ class AmazonAddressDecoratorDe implements AmazonAddressInterface
                 $firstTwoLines = $line1 . ' ' . $line2;
                 if (!$this->isPOBox($line1, $firstTwoLines)) {
                     $company = $firstTwoLines;
+                    $this->amazonAddress->setCompany($company);
+                    $this->amazonAddress->shiftLines(2);
                 }
                 break;
             case !empty($line2):
                 if (!$this->isPOBox($line1, $line1)) {
                     $company = $line1;
+                    $this->amazonAddress->setCompany($company);
+                    $this->amazonAddress->shiftLines();
                 }
                 break;
         }
@@ -179,5 +191,21 @@ class AmazonAddressDecoratorDe implements AmazonAddressInterface
     public function getLine($lineNumber)
     {
         return $this->amazonAddress->getLine($lineNumber);
+    }
+
+    /**
+     * {@inheritdoc}
+     */
+    public function shiftLines($times)
+    {
+        return $this->amazonAddress->shiftLines($times);
+    }
+
+    /**
+     * {@inheritdoc}
+     */
+    public function setCompany($company)
+    {
+        return $this->amazonAddress->setCompany($company);
     }
 }

@@ -33,6 +33,11 @@ class ServiceLocator implements ServiceProviderInterface
     private $externalId;
     private $container;
 
+    /**
+     * {@inheritdoc}
+     *
+     * @return mixed
+     */
     public function get($id)
     {
         if (!$this->externalId) {
@@ -57,7 +62,7 @@ class ServiceLocator implements ServiceProviderInterface
         }
     }
 
-    public function __invoke($id)
+    public function __invoke(string $id)
     {
         return isset($this->factories[$id]) ? $this->get($id) : null;
     }
@@ -67,7 +72,7 @@ class ServiceLocator implements ServiceProviderInterface
      *
      * @return static
      */
-    public function withContext(string $externalId, Container $container)
+    public function withContext(string $externalId, Container $container): self
     {
         $locator = clone $this;
         $locator->externalId = $externalId;
