@@ -21,4 +21,8 @@
         <data key="class_name">GvtK</data>
         <data key="class_type">CUSTOMER</data>
     </entity>
+    <entity name="VertexCustomerClass_Government" type="taxClass">
+        <data key="class_name">Government</data>
+        <data key="class_type">CUSTOMER</data>
+    </entity>
 </entities>

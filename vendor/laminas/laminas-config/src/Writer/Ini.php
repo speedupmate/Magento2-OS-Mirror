@@ -10,6 +10,14 @@ namespace Laminas\Config\Writer;
 
 use Laminas\Config\Exception;
 
+use function array_merge;
+use function implode;
+use function is_array;
+use function is_bool;
+use function is_float;
+use function is_int;
+use function strpos;
+
 class Ini extends AbstractWriter
 {
     /**
@@ -55,8 +63,8 @@ class Ini extends AbstractWriter
      * If set to true, the INI file is rendered without sections completely
      * into the global namespace of the INI file.
      *
-     * @param  bool $withoutSections
-     * @return Ini
+     * @param bool $withoutSections
+     * @return self
      */
     public function setRenderWithoutSectionsFlags($withoutSections)
     {
@@ -90,7 +98,7 @@ class Ini extends AbstractWriter
             $config = $this->sortRootElements($config);
 
             foreach ($config as $sectionName => $data) {
-                if (!is_array($data)) {
+                if (! is_array($data)) {
                     $iniString .= $sectionName
                                .  ' = '
                                .  $this->prepareValue($data)
@@ -144,13 +152,17 @@ class Ini extends AbstractWriter
     {
         if (is_int($value) || is_float($value)) {
             return $value;
-        } elseif (is_bool($value)) {
-            return ($value ? 'true' : 'false');
-        } elseif (false === strpos($value, '"')) {
-            return '"' . $value .  '"';
-        } else {
-            throw new Exception\RuntimeException('Value can not contain double quotes');
         }
+
+        if (is_bool($value)) {
+            return ($value ? 'true' : 'false');
+        }
+
+        if (false === strpos($value, '"')) {
+            return '"' . $value .  '"';
+        }
+
+        throw new Exception\RuntimeException('Value can not contain double quotes');
     }
 
     /**

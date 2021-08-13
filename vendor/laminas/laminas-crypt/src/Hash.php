@@ -8,6 +8,12 @@
 
 namespace Laminas\Crypt;
 
+use function hash;
+use function hash_algos;
+use function in_array;
+use function mb_strlen;
+use function strtolower;
+
 class Hash
 {
     const OUTPUT_STRING = false;
@@ -29,7 +35,7 @@ class Hash
      */
     public static function compute($hash, $data, $output = self::OUTPUT_STRING)
     {
-        if (!$hash || ($hash !== static::$lastAlgorithmSupported && !static::isSupported($hash))) {
+        if (! $hash || ($hash !== static::$lastAlgorithmSupported && ! static::isSupported($hash))) {
             throw new Exception\InvalidArgumentException(
                 'Hash algorithm provided is not supported on this PHP installation'
             );
@@ -47,7 +53,7 @@ class Hash
      */
     public static function getOutputSize($hash, $output = self::OUTPUT_STRING)
     {
-        return strlen(static::compute($hash, 'data', $output));
+        return mb_strlen(static::compute($hash, 'data', $output), '8bit');
     }
 
     /**

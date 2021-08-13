@@ -10,4 +10,7 @@
     <entity name="Vertex_CustomerGroup_BlanKetException" type="customerGroup">
         <data key="code" unique="suffix">BlanKet Exception</data>
     </entity>
+    <entity name="Vertex_CustomerGroup_Government" type="customerGroup">
+        <data key="code" unique="suffix">Government</data>
+    </entity>
 </entities>

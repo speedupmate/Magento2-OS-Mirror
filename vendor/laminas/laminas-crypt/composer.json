@@ -1,6 +1,6 @@
 {
     "name": "laminas/laminas-crypt",
-    "description": " ",
+    "description": "Strong cryptography tools and password hashing",
     "license": "BSD-3-Clause",
     "keywords": [
         "laminas",
@@ -18,25 +18,20 @@
     "config": {
         "sort-packages": true
     },
-    "extra": {
-        "branch-alias": {
-            "dev-master": "2.6-dev",
-            "dev-develop": "2.7-dev"
-        }
-    },
     "require": {
-        "php": "^5.5 || ^7.0",
-        "container-interop/container-interop": "~1.0",
-        "laminas/laminas-math": "^2.6",
-        "laminas/laminas-stdlib": "^2.7 || ^3.0",
+        "php": "^7.3 || ~8.0.0",
+        "ext-mbstring": "*",
+        "container-interop/container-interop": "^1.2",
+        "laminas/laminas-math": "^3.0",
+        "laminas/laminas-stdlib": "^2.7.7 || ^3.1",
         "laminas/laminas-zendframework-bridge": "^1.0"
     },
     "require-dev": {
-        "fabpot/php-cs-fixer": "1.7.*",
-        "phpunit/phpunit": "~4.0"
+        "laminas/laminas-coding-standard": "~1.0.0",
+        "phpunit/phpunit": "^9.3"
     },
     "suggest": {
-        "ext-mcrypt": "Required for most features of Laminas\\Crypt"
+        "ext-openssl": "Required for most features of Laminas\\Crypt"
     },
     "autoload": {
         "psr-4": {
@@ -44,11 +39,24 @@
         }
     },
     "autoload-dev": {
+        "files": [
+            "test/_autoload.php"
+        ],
         "psr-4": {
             "LaminasTest\\Crypt\\": "test/"
         }
     },
+    "scripts": {
+        "check": [
+            "@cs-check",
+            "@test"
+        ],
+        "cs-check": "phpcs",
+        "cs-fix": "phpcbf",
+        "test": "phpunit --colors=always",
+        "test-coverage": "phpunit --colors=always --coverage-clover clover.xml"
+    },
     "replace": {
-        "zendframework/zend-crypt": "self.version"
+        "zendframework/zend-crypt": "^3.3.1"
     }
 }

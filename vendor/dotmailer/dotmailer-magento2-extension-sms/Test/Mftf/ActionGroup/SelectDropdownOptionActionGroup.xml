@@ -1,0 +1,13 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<actionGroups xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+              xsi:noNamespaceSchemaLocation="urn:magento:mftf:Test/etc/actionGroupSchema.xsd">
+    <actionGroup name="SelectDropdownOption">
+        <arguments>
+            <argument name="selectedOption" defaultValue="shared_pool_number" type="string"/>
+        </arguments>
+        <amOnPage url="{{AdminTransactionalSmsPage.url}}" stepKey="navigateToTransactionalSmsPage"/>
+        <selectOption selector="{{AdminTransactionalSmsSection.selectFromName}}" userInput="{{selectedOption}}" stepKey="selectFromName"/>
+        <waitForAjaxLoad stepKey="waitForReload1"/>
+    </actionGroup>
+</actionGroups>

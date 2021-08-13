@@ -8,6 +8,12 @@
 
 namespace Laminas\Crypt;
 
+use function function_exists;
+use function hash_equals;
+use function mb_strlen;
+use function min;
+use function ord;
+
 /**
  * Tools for cryptography
  */
@@ -35,8 +41,8 @@ class Utils
             return hash_equals($expected, $actual);
         }
 
-        $lenExpected  = strlen($expected);
-        $lenActual    = strlen($actual);
+        $lenExpected  = mb_strlen($expected, '8bit');
+        $lenActual    = mb_strlen($actual, '8bit');
         $len          = min($lenExpected, $lenActual);
 
         $result = 0;

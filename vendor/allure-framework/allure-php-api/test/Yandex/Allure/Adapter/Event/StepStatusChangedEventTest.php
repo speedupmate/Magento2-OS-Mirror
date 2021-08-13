@@ -2,21 +2,16 @@
 
 namespace Yandex\Allure\Adapter\Event;
 
+use PHPUnit\Framework\TestCase;
 use Yandex\Allure\Adapter\Model\Step;
 
-abstract class StepStatusChangedEventTest extends \PHPUnit_Framework_TestCase
+abstract class StepStatusChangedEventTest extends TestCase
 {
-    /**
-     * @return string
-     */
-    abstract protected function getTestedStatus();
+    abstract protected function getTestedStatus(): string;
 
-    /**
-     * @return StepEvent
-     */
-    abstract protected function getStepEvent();
+    abstract protected function getStepEvent(): StepEvent;
 
-    public function testEvent()
+    public function testEvent(): void
     {
         $step = new Step();
         $event = $this->getStepEvent();

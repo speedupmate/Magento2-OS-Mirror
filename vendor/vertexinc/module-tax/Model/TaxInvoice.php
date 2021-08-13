@@ -9,6 +9,7 @@ namespace Vertex\Tax\Model;
 use Magento\Framework\Exception\CouldNotSaveException;
 use Magento\Framework\Message\ManagerInterface;
 use Magento\Framework\Phrase;
+use Magento\Framework\Pricing\PriceCurrencyInterface;
 use Magento\Sales\Api\OrderStatusHistoryRepositoryInterface;
 use Magento\Sales\Model\Order;
 use Magento\Store\Model\ScopeInterface;
@@ -36,22 +37,28 @@ class TaxInvoice
     /** @var OrderStatusHistoryRepositoryInterface */
     private $orderStatusRepository;
 
+    /** * @var PriceCurrencyInterface */
+    private $priceCurrency;
+
     /**
      * @param ExceptionLogger $logger
      * @param ManagerInterface $messageManager
      * @param OrderStatusHistoryRepositoryInterface $orderStatusRepository
      * @param InvoiceInterface $invoice
+     * @param PriceCurrencyInterface $priceCurrency
      */
     public function __construct(
         ExceptionLogger $logger,
         ManagerInterface $messageManager,
         OrderStatusHistoryRepositoryInterface $orderStatusRepository,
-        InvoiceInterface $invoice
+        InvoiceInterface $invoice,
+        PriceCurrencyInterface $priceCurrency
     ) {
         $this->logger = $logger;
         $this->messageManager = $messageManager;
         $this->orderStatusRepository = $orderStatusRepository;
         $this->invoice = $invoice;
+        $this->priceCurrency = $priceCurrency;
     }
 
     /**
@@ -71,11 +78,18 @@ class TaxInvoice
             return null;
         }
 
-        $totalTax = $response->getTotalTax();
-
-        $comment = $order->addStatusHistoryComment(
-            'Vertex Invoice sent successfully. Amount: $' . number_format($totalTax, 2)
+        $totalTax = $this->priceCurrency->format(
+            $response->getTotalTax(),
+            true,
+            PriceCurrencyInterface::DEFAULT_PRECISION,
+            null,
+            $response->getCurrencyCode()
         );
+
+        $comment = $order->addCommentToStatusHistory(
+            'Vertex Invoice sent successfully. Amount: ' . $totalTax
+        );
+
         try {
             $this->orderStatusRepository->save($comment);
         } catch (\Exception $originalException) {
@@ -101,11 +115,18 @@ class TaxInvoice
             return null;
         }
 
-        $totalTax = $response->getTotalTax();
-
-        $comment = $order->addStatusHistoryComment(
-            'Vertex Invoice refunded successfully. Amount: $' . number_format($totalTax, 2)
+        $totalTax = $this->priceCurrency->format(
+            $response->getTotalTax(),
+            true,
+            PriceCurrencyInterface::DEFAULT_PRECISION,
+            null,
+            $response->getCurrencyCode()
         );
+
+        $comment = $order->addCommentToStatusHistory(
+            'Vertex Invoice refunded successfully. Amount: ' . $totalTax
+        );
+
         try {
             $this->orderStatusRepository->save($comment);
         } catch (\Exception $originalException) {

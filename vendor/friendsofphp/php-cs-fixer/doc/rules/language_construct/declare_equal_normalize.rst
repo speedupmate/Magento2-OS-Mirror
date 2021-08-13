@@ -29,7 +29,6 @@ Example #1
 
    --- Original
    +++ New
-   @@ -1,2 +1,2 @@
     <?php
    -declare(ticks =  1);
    +declare(ticks=1);
@@ -43,7 +42,6 @@ With configuration: ``['space' => 'single']``.
 
    --- Original
    +++ New
-   @@ -1,2 +1,2 @@
     <?php
    -declare(ticks=1);
    +declare(ticks = 1);
@@ -52,6 +50,9 @@ Rule sets
 ---------
 
 The rule is part of the following rule sets:
+
+@PSR12
+  Using the `@PSR12 <./../../ruleSets/PSR12.rst>`_ rule set will enable the ``declare_equal_normalize`` rule with the default config.
 
 @PhpCsFixer
   Using the `@PhpCsFixer <./../../ruleSets/PhpCsFixer.rst>`_ rule set will enable the ``declare_equal_normalize`` rule with the default config.

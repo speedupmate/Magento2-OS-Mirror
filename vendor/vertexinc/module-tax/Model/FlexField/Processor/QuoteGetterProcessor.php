@@ -23,7 +23,7 @@ use Vertex\Tax\Model\FlexField\Extractor\ValueExtractor;
  */
 class QuoteGetterProcessor implements InvoiceFlexFieldProcessorInterface, TaxCalculationFlexFieldProcessorInterface
 {
-    const BLACK_LIST = [
+    const BLOCK_LIST = [
         'getItems',
         'getCustomer',
         'getBillingAddress',
@@ -85,7 +85,7 @@ class QuoteGetterProcessor implements InvoiceFlexFieldProcessorInterface, TaxCal
                 static::PREFIX,
                 'Quote',
                 static::class,
-                array_merge(static::DATE_FIELDS, static::BLACK_LIST)
+                array_merge(static::DATE_FIELDS, static::BLOCK_LIST)
             ),
             $this->attributeExtractor->extractDateFields(
                 static::PREFIX,
@@ -99,8 +99,12 @@ class QuoteGetterProcessor implements InvoiceFlexFieldProcessorInterface, TaxCal
     /**
      * @inheritdoc
      */
-    public function getValueFromCreditmemo(CreditmemoItemInterface $item, $attributeCode, $fieldType = null, $fieldId = null)
-    {
+    public function getValueFromCreditmemo(
+        CreditmemoItemInterface $item,
+        $attributeCode,
+        $fieldType = null,
+        $fieldId = null
+    ) {
         return $this->getValueFromOrder(
             $this->orderItemRepository->get($item->getOrderItemId()),
             $attributeCode
@@ -132,8 +136,12 @@ class QuoteGetterProcessor implements InvoiceFlexFieldProcessorInterface, TaxCal
     /**
      * @inheritdoc
      */
-    public function getValueFromQuote(QuoteDetailsItemInterface $item, $attributeCode, $fieldType = null, $fieldId = null)
-    {
+    public function getValueFromQuote(
+        QuoteDetailsItemInterface $item,
+        $attributeCode,
+        $fieldType = null,
+        $fieldId = null
+    ) {
         if (!$item->getExtensionAttributes()) {
             return null;
         }

@@ -12,6 +12,27 @@ use Laminas\Crypt\Utils;
 use Laminas\Math\Rand;
 use Traversable;
 
+use function addcslashes;
+use function base64_encode;
+use function chr;
+use function crypt;
+use function explode;
+use function implode;
+use function in_array;
+use function is_array;
+use function mb_strlen;
+use function mb_substr;
+use function md5;
+use function min;
+use function pack;
+use function preg_match;
+use function sha1;
+use function sprintf;
+use function strpos;
+use function strrev;
+use function strtolower;
+use function strtr;
+
 /**
  * Apache password authentication
  *
@@ -58,7 +79,7 @@ class Apache implements PasswordInterface
         if (empty($options)) {
             return;
         }
-        if (!is_array($options) && !$options instanceof Traversable) {
+        if (! is_array($options) && ! $options instanceof Traversable) {
             throw new Exception\InvalidArgumentException(
                 'The options parameter must be an array or a Traversable'
             );
@@ -108,7 +129,7 @@ class Apache implements PasswordInterface
                         'You must specify UserName and AuthName (realm) to generate the digest'
                     );
                 }
-                $hash = md5($this->userName . ':' . $this->authName . ':' .$password);
+                $hash = md5($this->userName . ':' . $this->authName . ':' . $password);
                 break;
         }
 
@@ -124,12 +145,12 @@ class Apache implements PasswordInterface
      */
     public function verify($password, $hash)
     {
-        if (substr($hash, 0, 5) === '{SHA}') {
+        if (mb_substr($hash, 0, 5, '8bit') === '{SHA}') {
             $hash2 = '{SHA}' . base64_encode(sha1($password, true));
             return Utils::compareStrings($hash, $hash2);
         }
 
-        if (substr($hash, 0, 6) === '$apr1$') {
+        if (mb_substr($hash, 0, 6, '8bit') === '$apr1$') {
             $token = explode('$', $hash);
             if (empty($token[2])) {
                 throw new Exception\InvalidArgumentException(
@@ -142,13 +163,13 @@ class Apache implements PasswordInterface
 
         $bcryptPattern = '/\$2[ay]?\$[0-9]{2}\$[' . addcslashes(static::BASE64, '+/') . '\.]{53}/';
 
-        if (strlen($hash) > 13 && ! preg_match($bcryptPattern, $hash)) { // digest
+        if (mb_strlen($hash, '8bit') > 13 && ! preg_match($bcryptPattern, $hash)) { // digest
             if (empty($this->userName) || empty($this->authName)) {
                 throw new Exception\RuntimeException(
                     'You must specify UserName and AuthName (realm) to verify the digest'
                 );
             }
-            $hash2 = md5($this->userName . ':' . $this->authName . ':' .$password);
+            $hash2 = md5($this->userName . ':' . $this->authName . ':' . $password);
             return Utils::compareStrings($hash, $hash2);
         }
 
@@ -160,12 +181,12 @@ class Apache implements PasswordInterface
      *
      * @param  string $format
      * @throws Exception\InvalidArgumentException
-     * @return Apache
+     * @return Apache Provides a fluent interface
      */
     public function setFormat($format)
     {
         $format = strtolower($format);
-        if (!in_array($format, $this->supportedFormat)) {
+        if (! in_array($format, $this->supportedFormat)) {
             throw new Exception\InvalidArgumentException(sprintf(
                 'The format %s specified is not valid. The supported formats are: %s',
                 $format,
@@ -191,7 +212,7 @@ class Apache implements PasswordInterface
      * Set the AuthName (for digest authentication)
      *
      * @param  string $name
-     * @return Apache
+     * @return Apache Provides a fluent interface
      */
     public function setAuthName($name)
     {
@@ -214,7 +235,7 @@ class Apache implements PasswordInterface
      * Set the username
      *
      * @param  string $name
-     * @return Apache
+     * @return Apache Provides a fluent interface
      */
     public function setUserName($name)
     {
@@ -241,7 +262,7 @@ class Apache implements PasswordInterface
      */
     protected function toAlphabet64($value)
     {
-        return strtr(strrev(substr(base64_encode($value), 2)), self::BASE64, self::ALPHA64);
+        return strtr(strrev(mb_substr(base64_encode($value), 2, null, '8bit')), self::BASE64, self::ALPHA64);
     }
 
     /**
@@ -256,7 +277,7 @@ class Apache implements PasswordInterface
         if (null === $salt) {
             $salt = Rand::getString(8, self::ALPHA64);
         } else {
-            if (strlen($salt) !== 8) {
+            if (mb_strlen($salt, '8bit') !== 8) {
                 throw new Exception\InvalidArgumentException(
                     'The salt value for APR1 algorithm must be 8 characters long'
                 );
@@ -269,11 +290,11 @@ class Apache implements PasswordInterface
                 }
             }
         }
-        $len  = strlen($password);
+        $len  = mb_strlen($password, '8bit');
         $text = $password . '$apr1$' . $salt;
         $bin  = pack("H32", md5($password . $salt . $password));
         for ($i = $len; $i > 0; $i -= 16) {
-            $text .= substr($bin, 0, min(16, $i));
+            $text .= mb_substr($bin, 0, min(16, $i), '8bit');
         }
         for ($i = $len; $i > 0; $i >>= 1) {
             $text .= ($i & 1) ? chr(0) : $password[0];

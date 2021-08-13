@@ -20,8 +20,8 @@ class Config
     const MODULE_NAME = 'Yotpo_Yotpo';
 
     //= General Settings
-    const XML_PATH_YOTPO_ALL = 'yotpo';
-    const XML_PATH_YOTPO_ENABLED = 'yotpo/settings/active';
+    const XML_PATH_YOTPO_ALL = "yotpo";
+    const XML_PATH_YOTPO_ENABLED = "yotpo/settings/active";
     const XML_PATH_YOTPO_APP_KEY = 'yotpo/settings/app_key';
     const XML_PATH_YOTPO_SECRET = 'yotpo/settings/secret';
     const XML_PATH_YOTPO_WIDGET_ENABLED = 'yotpo/settings/widget_enabled';
@@ -29,14 +29,15 @@ class Config
     const XML_PATH_YOTPO_BOTTOMLINE_ENABLED = 'yotpo/settings/bottomline_enabled';
     const XML_PATH_YOTPO_BOTTOMLINE_QNA_ENABLED = 'yotpo/settings/qna_enabled';
     const XML_PATH_YOTPO_MDR_ENABLED = 'yotpo/settings/mdr_enabled';
-    const XML_PATH_YOTPO_DEBUG_MODE_ENABLED = 'yotpo/settings/debug_mode_active';
-    const XML_PATH_YOTPO_ORDERS_SYNC_FROM_DATE = 'yotpo/sync_settings/orders_sync_start_date';
+    const XML_PATH_YOTPO_DEBUG_MODE_ENABLED = "yotpo/settings/debug_mode_active";
+    const XML_PATH_YOTPO_ORDERS_SYNC_FROM_DATE = "yotpo/sync_settings/orders_sync_start_date";
     const XML_PATH_YOTPO_CUSTOM_ORDER_STATUS = 'yotpo/settings/custom_order_status';
-    const XML_PATH_YOTPO_ORDERS_SYNC_LIMIT = 'yotpo/sync_settings/orders_sync_limit';
+    const XML_PATH_YOTPO_ORDERS_SYNC_LIMIT = "yotpo/sync_settings/orders_sync_limit";
     //= Not visible on system.xml
-    const XML_PATH_YOTPO_API_URL = 'yotpo/env/yotpo_api_url';
-    const XML_PATH_YOTPO_WIDGET_URL = 'yotpo/env/yotpo_widget_url';
-    const XML_PATH_YOTPO_MODULE_INFO_INSTALLATION_DATE = 'yotpo/module_info/yotpo_installation_date';
+    const XML_PATH_YOTPO_API_URL = "yotpo/env/yotpo_api_url";
+    const XML_PATH_YOTPO_WIDGET_URL = "yotpo/env/yotpo_widget_url";
+    const XML_PATH_YOTPO_MODULE_INFO_INSTALLATION_DATE = "yotpo/module_info/yotpo_installation_date";
+    const XML_PATH_YOTPO_TOKEN = "yotpo/settings/token";
 
     private $allStoreIds = [0 => null, 1 => null];
 
@@ -138,10 +139,10 @@ class Config
     }
 
     /**
-     * @method getWebsiteIdByStoreId
-     * @param int $storeId
-     * @return int
-     */
+    * @method getWebsiteIdByStoreId
+    * @param int $storeId
+    * @return int
+    */
     public function getWebsiteIdByStoreId($storeId)
     {
         return $this->storeManager->getStore($storeId)->getWebsiteId();
@@ -155,9 +156,7 @@ class Config
         if (!$scope && $this->isSingleStoreMode()) {
             return $this->scopeConfig->getValue($configPath);
         }
-        $scopeId = ($scopeId === null) ? $this->getCurrentStoreId() : $scopeId;
-
-        return $this->scopeConfig->getValue($configPath, $scope ?: ScopeInterface::SCOPE_STORE, $scopeId);
+        return $this->scopeConfig->getValue($configPath, $scope ?: ScopeInterface::SCOPE_STORE, is_null($scopeId) ? $this->storeManager->getStore()->getId() : $scopeId);
     }
 
     /**
@@ -324,8 +323,9 @@ class Config
      */
     public function setStoreCredentialsAndIsEnabled($appKey, $secret, $isEnabled, $storeId = null, $scopes = ScopeInterface::SCOPE_STORES)
     {
-        $storeId = ($storeId === null) ? $this->getCurrentStoreId() : $storeId;
-        
+        if (is_null($storeId)) {
+            $storeId = $this->storeManager->getStore()->getId();
+        }
         $this->resourceConfig->saveConfig(self::XML_PATH_YOTPO_APP_KEY, $appKey, $scopes, $storeId);
         $this->resourceConfig->saveConfig(self::XML_PATH_YOTPO_SECRET, ($secret ? $this->encryptor->encrypt($secret) : null), $scopes, $storeId);
         $this->resourceConfig->saveConfig(self::XML_PATH_YOTPO_ENABLED, $isEnabled, $scopes, $storeId);
@@ -353,8 +353,8 @@ class Config
     public function getYotpoApiUrl($path = "")
     {
         $yotpoApiUrl = $this->getConfig(self::XML_PATH_YOTPO_API_URL);
-        if(preg_match("/yotpo\.com\/$|yotpo\.xyz\/$/", $yotpoApiUrl)) {
-        return $yotpoApiUrl . $path;
+        if (preg_match("/yotpo\.com\/$|yotpo\.xyz\/$/", $yotpoApiUrl)) {
+            return $yotpoApiUrl . $path;
         } else {
             return "https://api.yotpo.com/" . $path;
         }

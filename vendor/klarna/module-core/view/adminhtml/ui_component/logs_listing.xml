@@ -1,0 +1,149 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!--
+/**
+ * This file is part of the Klarna Core module
+ *
+ * (c) Klarna Bank AB (publ)
+ *
+ * For the full copyright and license information, please view the NOTICE
+ * and LICENSE files that were distributed with this source code.
+ */
+-->
+<listing xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+         xsi:noNamespaceSchemaLocation="urn:magento:module:Magento_Ui:etc/ui_configuration.xsd">
+    <argument name="data" xsi:type="array">
+        <item name="js_config" xsi:type="array">
+            <item name="provider" xsi:type="string">
+                logs_listing.log_listing_data_source
+            </item>
+        </item>
+    </argument>
+
+    <!-- Settings block -->
+    <settings>
+        <spinner>logs_columns</spinner>
+        <deps>
+            <dep>logs_listing.log_listing_data_source</dep>
+        </deps>
+    </settings>
+
+    <!-- DataSource block -->
+    <dataSource name="log_listing_data_source" component="Magento_Ui/js/grid/provider">
+        <settings>
+            <storageConfig>
+                <param name="indexField" xsi:type="string">log_id</param>
+            </storageConfig>
+            <updateUrl path="mui/index/render"/>
+        </settings>
+        <aclResource>Klarna_Core::system_logging</aclResource>
+        <dataProvider class="LogsGridDataProvider" name="log_listing_data_source">
+            <settings>
+                <requestFieldName>log_id</requestFieldName>
+                <primaryFieldName>log_id</primaryFieldName>
+            </settings>
+        </dataProvider>
+    </dataSource>
+
+    <!-- Toolbar block -->
+    <listingToolbar name="listing_top">
+        <settings>
+            <sticky>true</sticky>
+        </settings>
+        <bookmark name="bookmarks"/>
+        <columnsControls name="columns_controls"/>
+        <exportButton name="export_button"/>
+        <filterSearch name="fulltext"/>
+        <paging name="listing_paging"/>
+        <filters name="listing_filters"/>
+    </listingToolbar>
+
+    <!-- Grid columns -->
+    <columns name="logs_columns">
+        <settings>
+            <childDefaults>
+                <param name="fieldAction" xsi:type="array">
+                    <item name="provider" xsi:type="string">logs_listing.logs_listing.logs_columns.actions</item>
+                    <item name="target" xsi:type="string">applyAction</item>
+                    <item name="params" xsi:type="array">
+                        <item name="0" xsi:type="string">view</item>
+                        <item name="1" xsi:type="string">${ $.$data.rowIndex }</item>
+                    </item>
+                </param>
+            </childDefaults>
+        </settings>
+        <selectionsColumn name="ids">
+            <settings>
+                <indexField>log_id</indexField>
+            </settings>
+        </selectionsColumn>
+        <column name="log_id" sortOrder="10">
+            <settings>
+                <filter>textRange</filter>
+                <label translate="true">Log ID</label>
+                <sorting>desc</sorting>
+            </settings>
+        </column>
+        <column name="status" class="Klarna\Core\Ui\Component\Listing\Columns\Status" sortOrder="20">
+            <settings>
+                <filter>text</filter>
+                <label translate="true">Status</label>
+                <bodyTmpl>ui/grid/cells/html</bodyTmpl>
+                <editor>
+                    <editorType>text</editorType>
+                </editor>
+            </settings>
+        </column>
+        <column name="action" sortOrder="30">
+            <settings>
+                <filter>text</filter>
+                <label translate="true">Action</label>
+            </settings>
+        </column>
+        <column name="klarna_id" sortOrder="40">
+            <settings>
+                <filter>text</filter>
+                <label translate="true">Klarna ID</label>
+            </settings>
+        </column>
+        <column name="increment_id" sortOrder="50">
+            <settings>
+                <filter>text</filter>
+                <label translate="true">Increment ID</label>
+            </settings>
+        </column>
+        <column name="url" sortOrder="60">
+            <settings>
+                <filter>text</filter>
+                <label translate="true">Url</label>
+            </settings>
+        </column>
+        <column name="method" sortOrder="70">
+            <settings>
+                <filter>text</filter>
+                <label translate="true">Method</label>
+            </settings>
+        </column>
+        <column name="service" sortOrder="80">
+            <settings>
+                <filter>text</filter>
+                <label translate="true">Service</label>
+            </settings>
+        </column>
+        <column name="created_at"
+                class="Magento\Ui\Component\Listing\Columns\Date"
+                component="Magento_Ui/js/grid/columns/date"
+                sortOrder="90">
+            <settings>
+                <filter>dateRange</filter>
+                <dataType>date</dataType>
+                <label translate="true">Created at</label>
+            </settings>
+        </column>
+        <actionsColumn name="actions" class="Klarna\Core\Ui\Component\Listing\Columns\BlockActions">
+            <settings>
+                <indexField>log_id</indexField>
+            </settings>
+        </actionsColumn>
+    </columns>
+
+</listing>

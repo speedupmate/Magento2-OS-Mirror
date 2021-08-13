@@ -1,4 +1,18 @@
 
+7.3.2 / 2021-06-04
+==================
+
+  * MAGE-3179 Replace market specific custom helper
+  * MAGE-2827 Fix cart price rule discount (no coupon) for kp payment methods
+
+7.3.0 / 2021-05-12
+==================
+
+  * MAGE-2297 Added MFTF DE market suite
+  * MAGE-1985 Using the new logger logic
+  * MAGE-3061 Update MFTF credentials path
+  * MAGE-2904 Fix issue with company value in the account with virtual products
+
 7.1.1 / 2020-11-24
 ==================
 

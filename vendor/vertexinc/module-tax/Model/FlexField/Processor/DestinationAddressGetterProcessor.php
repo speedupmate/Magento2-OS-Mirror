@@ -34,7 +34,7 @@ class DestinationAddressGetterProcessor implements
     TaxCalculationFlexFieldProcessorInterface
 {
     /** @var string[] */
-    const BLACK_LIST = [
+    const BLOCK_LIST = [
         'getExtensionAttributes',
         'getCustomAttribute',
         'getCustomAttributes',
@@ -97,11 +97,11 @@ class DestinationAddressGetterProcessor implements
         $optionGroup = 'Destination Address';
 
         return $this->eavAttributeExtractor->extract(
-                'customer_address',
-                static::PREFIX,
-                $optionGroup,
-                static::class
-            );
+            'customer_address',
+            static::PREFIX,
+            $optionGroup,
+            static::class
+        );
     }
 
     /**

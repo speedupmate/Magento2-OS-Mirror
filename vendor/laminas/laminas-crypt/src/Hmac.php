@@ -8,6 +8,13 @@
 
 namespace Laminas\Crypt;
 
+use function functin_exists;
+use function hash_algos;
+use function hash_hmac;
+use function in_array;
+use function mb_strlen;
+use function strtolower;
+
 /**
  * PHP implementation of the RFC 2104 Hash based Message Authentication Code
  */
@@ -41,7 +48,7 @@ class Hmac
             throw new Exception\InvalidArgumentException('Provided key is null or empty');
         }
 
-        if (!$hash || ($hash !== static::$lastAlgorithmSupported && !static::isSupported($hash))) {
+        if (! $hash || ($hash !== static::$lastAlgorithmSupported && ! static::isSupported($hash))) {
             throw new Exception\InvalidArgumentException(
                 "Hash algorithm is not supported on this PHP installation; provided '{$hash}'"
             );
@@ -59,7 +66,7 @@ class Hmac
      */
     public static function getOutputSize($hash, $output = self::OUTPUT_STRING)
     {
-        return strlen(static::compute('key', $hash, 'data', $output));
+        return mb_strlen(static::compute('key', $hash, 'data', $output), '8bit');
     }
 
     /**
@@ -69,7 +76,7 @@ class Hmac
      */
     public static function getSupportedAlgorithms()
     {
-        return hash_algos();
+        return function_exists('hash_hmac_algos') ? hash_hmac_algos() : hash_algos();
     }
 
     /**
@@ -84,7 +91,8 @@ class Hmac
             return true;
         }
 
-        if (in_array(strtolower($algorithm), hash_algos(), true)) {
+        $algos = static::getSupportedAlgorithms();
+        if (in_array(strtolower($algorithm), $algos, true)) {
             static::$lastAlgorithmSupported = $algorithm;
             return true;
         }

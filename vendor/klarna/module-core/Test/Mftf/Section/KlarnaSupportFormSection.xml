@@ -1,0 +1,23 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!--
+ /**
+  * This file is part of the Klarna Core module
+  *
+  * (c) Klarna Bank AB (publ)
+  *
+  * For the full copyright and license information, please view the NOTICE
+  * and LICENSE files that were distributed with this source code.
+  */
+-->
+<sections xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+          xsi:noNamespaceSchemaLocation="urn:magento:mftf:Page/etc/SectionObject.xsd">
+    <section name="KlarnaSupportFormSection">
+        <element name="productsDropdown" type="multiselect" selector="div[data-index='custom_options_list']" timeout="30"/>
+        <element name="contactName" type="input" selector="input[name=contact_name]"/>
+        <element name="shopUrl" type="input" selector="input[name=shop_url]"/>
+        <element name="apiKey" type="input" selector="input[name=api_key]"/>
+        <element name="issue" type="textarea" selector="textarea[name=issue]"/>
+        <element name="replicationSteps" type="textarea" selector="textarea[name=replication_steps]"/>
+        <element name="send" type="button" selector="button[data-ui-id='send-button']" timeout="30"/>
+    </section>
+</sections>

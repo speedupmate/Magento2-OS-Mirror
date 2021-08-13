@@ -1,4 +1,24 @@
 
+6.2.2 / 2021-06-04
+==================
+
+  * MAGE-3175 Add references to the log and support form page
+  * MAGE-3194 Added pattern for not sending out emails on the support form
+
+6.2.1 / 2021-05-26
+==================
+
+  * MAGE-3183 Added notice to support form
+  * MAGE-3021 Klarna logs listing is searchable
+
+6.2.0 / 2021-05-12
+==================
+
+  * MAGE-1985 Add admin interface to display API request logs stored in the database
+  * MAGE-2903 Added and finalized Logs++ implementation
+  * MAGE-2959 Fix Klarna not configurable when PayPal modules are removed.
+  * MAGE-2961 Add support form
+
 6.0.3 / 2020-11-24
 ==================
 

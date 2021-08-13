@@ -22,14 +22,10 @@
             <description value="A registered customer should be able to place an order with a bundled product"/>
             <severity value="CRITICAL"/>
             <testCaseId value="KP_BP_2"/>
-            <group value="Klarna_KP_Country_US"/>
             <group value="Klarna_KP_Order_Registered"/>
-            <group value="Klarna_KP_Order_Pay_Later"/>
+            <group value="Klarna_KP"/>
         </annotations>
         <before>
-            <!-- Create customer -->
-            <createData entity="Klarna_US_Customer_B2C" stepKey="createCustomer"/>
-
             <createData entity="SimpleSubCategory" stepKey="createSubCategory"/>
 
             <!--Create  simple products-->
@@ -67,13 +63,12 @@
             <deleteData createDataKey="createSimpleProduct2" stepKey="deleteProduct2"/>
             <deleteData createDataKey="createBundleProduct" stepKey="deleteBundleProduct"/>
             <deleteData createDataKey="createSubCategory" stepKey="deleteCategory"/>
-            <deleteData createDataKey="createCustomer" stepKey="deleteCustomer"/>
             <actionGroup ref="AdminLogoutActionGroup" stepKey="signOutFromAdmin"/>
         </after>
 
         <!--Log in to store front as customer-->
         <actionGroup ref="LoginToStorefrontActionGroup" stepKey="customerLogin">
-            <argument name="Customer" value="$$createCustomer$$" />
+            <argument name="Customer" value="$$marketDefaultCustomerInstance$$" />
         </actionGroup>
 
         <!--Go to product page-->
@@ -96,13 +91,9 @@
         <waitForElement selector="{{CheckoutShippingMethodsSection.next}}" time="30" stepKey="waitForShippingMethodSelect"/>
         <click selector="{{CheckoutShippingMethodsSection.next}}" stepKey="clickNextOnShippingMethodLoad"/>
 
-        <!--Grab order total amount-->
-        <waitForElementVisible selector="{{CheckoutPaymentSection.orderSummaryTotal}}" stepKey="waitForOrderTotal"/>
-        <grabTextFrom selector="{{CheckoutPaymentSection.orderSummaryTotal}}" stepKey="grabTotalAmount"/>
-
         <!--Place order-->
-        <actionGroup ref="PlaceOrderWithKlarnaPaymentsMethod" stepKey="placeOrderWithKlarnaPayLaterMethod">
-            <argument name="paymentMethod" value="KlarnaPaymentsPayLater"/>
+        <actionGroup ref="PlaceOrderWithKlarnaPaymentsMethod" stepKey="placeOrderWithKlarnaMethod">
+            <argument name="customer" value="$$marketDefaultCustomerInstance$$"/>
         </actionGroup>
 
         <!--Grab order number-->
@@ -113,9 +104,6 @@
         <actionGroup ref="AdminLoginActionGroup" stepKey="loginAsAdmin"/>
         <actionGroup ref="OpenOrderByIdActionGroup" stepKey="goToOrderPage">
             <argument name="orderId" value="{$grabOrderNumber}"/>
-        </actionGroup>
-        <actionGroup ref="ValidateAdminKlarnaOrderSummaryGrandTotal" stepKey="validateGrandTotal">
-            <argument name="grandTotalAmount" value="{$grabTotalAmount}"/>
         </actionGroup>
     </test>
 </tests>

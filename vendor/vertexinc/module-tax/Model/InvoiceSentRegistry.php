@@ -89,7 +89,7 @@ class InvoiceSentRegistry
         $invoiceSent->setIsSent(true);
         try {
             $this->repository->save($invoiceSent);
-        } catch (AlreadyExistsException $exception) {
+        } catch (AlreadyExistsException $exception) { // phpcs:ignore Magento2.CodeAnalysis.EmptyBlock.DetectedCatch
             // Too many cooks - or requests, as the case may be.  Perfectly acceptable
         } catch (\Exception $exception) {
             $this->logger->critical($exception);

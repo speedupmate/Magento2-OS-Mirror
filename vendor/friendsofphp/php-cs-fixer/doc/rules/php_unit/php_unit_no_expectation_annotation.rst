@@ -43,7 +43,7 @@ Example #1
 
    --- Original
    +++ New
-   @@ -2,12 +2,11 @@
+    <?php
     final class MyTest extends \PHPUnit_Framework_TestCase
     {
         /**
@@ -68,7 +68,7 @@ With configuration: ``['target' => '3.2']``.
 
    --- Original
    +++ New
-   @@ -2,11 +2,11 @@
+    <?php
     final class MyTest extends \PHPUnit_Framework_TestCase
     {
         /**
@@ -81,6 +81,16 @@ With configuration: ``['target' => '3.2']``.
    +
             bbb();
         }
+
+        /**
+         * @expectedException FooException
+         * @expectedExceptionMessageRegExp /foo.*$/
+         */
+        function testCcc()
+        {
+            ccc();
+        }
+    }
 
 Rule sets
 ---------
@@ -144,5 +154,10 @@ The rule is part of the following rule sets:
 
 @PHPUnit75Migration:risky
   Using the `@PHPUnit75Migration:risky <./../../ruleSets/PHPUnit75MigrationRisky.rst>`_ rule set will enable the ``php_unit_no_expectation_annotation`` rule with the config below:
+
+  ``['target' => '4.3']``
+
+@PHPUnit84Migration:risky
+  Using the `@PHPUnit84Migration:risky <./../../ruleSets/PHPUnit84MigrationRisky.rst>`_ rule set will enable the ``php_unit_no_expectation_annotation`` rule with the config below:
 
   ``['target' => '4.3']``

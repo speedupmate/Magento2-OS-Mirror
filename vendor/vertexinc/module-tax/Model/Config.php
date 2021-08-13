@@ -1,7 +1,7 @@
 <?php
 /**
- * @copyright  Vertex. All rights reserved.  https://www.vertexinc.com/
- * @author     Mediotype                     https://www.mediotype.com/
+ * @author    Blue Acorn iCi <code@blueacornici.com>
+ * @copyright 2021 Vertex, Inc. All Rights Reserved.
  */
 
 namespace Vertex\Tax\Model;
@@ -24,9 +24,7 @@ class Config
     const CONFIG_XML_PATH_FLEXFIELDS_CODE = 'tax/vertex_flexfields/code';
     const CONFIG_XML_PATH_FLEXFIELDS_DATE = 'tax/vertex_flexfields/date';
     const CONFIG_XML_PATH_FLEXFIELDS_NUMERIC = 'tax/vertex_flexfields/numeric';
-    const CONFIG_XML_PATH_LOGGING_ENABLED = 'tax/vertex_logging/enable_logging';
     const CONFIG_XML_PATH_PRINTED_CARD_PRICE = 'sales/gift_options/printed_card_price';
-    const CONFIG_XML_PATH_ROTATION_ACTION = 'tax/vertex_logging/rotation_action';
     const CONFIG_XML_PATH_SHIPPING_TAX_CLASS = 'tax/classes/shipping_tax_class';
     const CONFIG_XML_PATH_TAX_APPLY_ON = 'tax/calculation/apply_tax_on';
     const CONFIG_XML_PATH_TAX_DISPLAY_IN_CATALOG = 'tax/display/type';
@@ -38,19 +36,18 @@ class Config
     const CONFIG_XML_PATH_VERTEX_COUNTRY = 'tax/vertex_seller_info/country_id';
     const CONFIG_XML_PATH_VERTEX_DELIVERY_TERM_DEFAULT = 'tax/vertex_delivery_terms/default_term';
     const CONFIG_XML_PATH_VERTEX_DELIVERY_TERM_OVERRIDE = 'tax/vertex_delivery_terms/override';
-    const CONFIG_XML_PATH_VERTEX_ENABLE_LOG_ROTATION = 'tax/vertex_logging/enable_rotation';
+    const CONFIG_XML_PATH_VERTEX_ENABLE_WSDL_CACHE = 'tax/vertex_wsdl_cache/enable_wsdl_cache';
     const CONFIG_XML_PATH_VERTEX_INVOICE_DATE = 'tax/vertex_settings/invoice_tax_date';
     const CONFIG_XML_PATH_VERTEX_INVOICE_ORDER = 'tax/vertex_settings/invoice_order';
     const CONFIG_XML_PATH_VERTEX_INVOICE_ORDER_STATUS = 'tax/vertex_settings/invoice_order_status';
     const CONFIG_XML_PATH_VERTEX_LOCATION_CODE = 'tax/vertex_seller_info/location_code';
-    const CONFIG_XML_PATH_VERTEX_LOG_ROTATION_FREQUENCY = 'tax/vertex_logging/rotation_frequency';
-    const CONFIG_XML_PATH_VERTEX_LOG_ROTATION_RUNTIME = 'tax/vertex_logging/rotation_runtime';
+    const CONFIG_XML_PATH_VERTEX_WSDL_CACHE_RUNTIME = 'tax/vertex_wsdl_cache/rotation_runtime';
     const CONFIG_XML_PATH_VERTEX_POSTAL_CODE = 'tax/vertex_seller_info/postalCode';
     const CONFIG_XML_PATH_VERTEX_REGION = 'tax/vertex_seller_info/region_id';
     const CONFIG_XML_PATH_VERTEX_SHIPPING_ORIGIN_SOURCE = 'tax/vertex_seller_info/shipping_origin_source';
     const CONFIG_XML_PATH_VERTEX_STREET1 = 'tax/vertex_seller_info/streetAddress1';
     const CONFIG_XML_PATH_VERTEX_STREET2 = 'tax/vertex_seller_info/streetAddress2';
-    const CRON_STRING_PATH = 'crontab/default/jobs/vertex_log_rotation/schedule/cron_expr';
+    const CRON_WSDL_STRING_PATH = 'crontab/vertex/jobs/vertex_wsdl_cache/schedule/cron_expr';
     const MAX_CHAR_PRODUCT_CODE_ALLOWED = 40;
     const VALUE_APPLY_ON_CUSTOM = 0;
     const VALUE_APPLY_ON_ORIGINAL_ONLY = 1;
@@ -68,7 +65,6 @@ class Config
     const VERTEX_GIFTWRAP_ITEM_CODE_PREFIX = 'tax/classes/giftwrap_item_code';
     const VERTEX_GIFTWRAP_ORDER_CLASS = 'tax/classes/giftwrap_order_class';
     const VERTEX_GIFTWRAP_ORDER_CODE = 'tax/classes/giftwrap_order_code';
-    const VERTEX_LOG_LIFETIME_DAYS = 'tax/vertex_logging/entry_lifetime';
     const VERTEX_PRINTED_GIFTCARD_CLASS = 'tax/classes/printed_giftcard_class';
     const VERTEX_PRINTED_GIFTCARD_CODE = 'tax/classes/printed_giftcard_code';
     const VERTEX_SUMMARIZE_TAX = 'tax/vertex_settings/summarize_tax';
@@ -125,9 +121,12 @@ class Config
     public function getCompanyCity($store = null, $scope = ScopeInterface::SCOPE_STORE)
     {
         if ($this->isShippingOriginSourceEnabled($store, $scope)) {
-            return $this->getConfigValue(Shipment::XML_PATH_STORE_CITY, $store, $scope);
+            $city = $this->getConfigValue(Shipment::XML_PATH_STORE_CITY, $store, $scope);
+        } else {
+            $city = $this->getConfigValue(self::CONFIG_XML_PATH_VERTEX_CITY, $store, $scope);
         }
-        return $this->getConfigValue(self::CONFIG_XML_PATH_VERTEX_CITY, $store, $scope);
+
+        return $city ?? null;
     }
 
     /**
@@ -147,7 +146,7 @@ class Config
      *
      * @param string|null $store
      * @param string $scope
-     * @return bool|float|null
+     * @return float|null
      */
     public function getCompanyCountry($store = null, $scope = ScopeInterface::SCOPE_STORE)
     {
@@ -157,7 +156,7 @@ class Config
             $country = $this->getConfigValue(self::CONFIG_XML_PATH_VERTEX_COUNTRY, $store, $scope);
         }
 
-        return $country ?? false;
+        return $country ?? null;
     }
 
     /**
@@ -170,9 +169,12 @@ class Config
     public function getCompanyPostalCode($store = null, $scope = ScopeInterface::SCOPE_STORE)
     {
         if ($this->isShippingOriginSourceEnabled($store, $scope)) {
-            return $this->getConfigValue(Shipment::XML_PATH_STORE_ZIP, $store, $scope);
+            $postalCode = $this->getConfigValue(Shipment::XML_PATH_STORE_ZIP, $store, $scope);
+        } else {
+            $postalCode = $this->getConfigValue(self::CONFIG_XML_PATH_VERTEX_POSTAL_CODE, $store, $scope);
         }
-        return $this->getConfigValue(self::CONFIG_XML_PATH_VERTEX_POSTAL_CODE, $store, $scope);
+
+        return $postalCode ?? null;
     }
 
     /**
@@ -180,7 +182,7 @@ class Config
      *
      * @param string|null $store
      * @param string $scope
-     * @return bool|float|null
+     * @return float|null
      */
     public function getCompanyRegionId($store = null, $scope = ScopeInterface::SCOPE_STORE)
     {
@@ -190,7 +192,7 @@ class Config
             $region = $this->getConfigValue(self::CONFIG_XML_PATH_VERTEX_REGION, $store, $scope);
         }
 
-        return $region ?? false;
+        return $region ?? null;
     }
 
     /**
@@ -203,9 +205,12 @@ class Config
     public function getCompanyStreet1($store = null, $scope = ScopeInterface::SCOPE_STORE)
     {
         if ($this->isShippingOriginSourceEnabled($store, $scope)) {
-            return $this->getConfigValue(Shipment::XML_PATH_STORE_ADDRESS1, $store, $scope);
+            $street = $this->getConfigValue(Shipment::XML_PATH_STORE_ADDRESS1, $store, $scope);
+        } else {
+            $street = $this->getConfigValue(self::CONFIG_XML_PATH_VERTEX_STREET1, $store, $scope);
         }
-        return $this->getConfigValue(self::CONFIG_XML_PATH_VERTEX_STREET1, $store, $scope);
+
+        return $street ?? null;
     }
 
     /**
@@ -218,9 +223,12 @@ class Config
     public function getCompanyStreet2($store = null, $scope = ScopeInterface::SCOPE_STORE)
     {
         if ($this->isShippingOriginSourceEnabled($store, $scope)) {
-            return $this->getConfigValue(Shipment::XML_PATH_STORE_ADDRESS2, $store, $scope);
+            $street = $this->getConfigValue(Shipment::XML_PATH_STORE_ADDRESS2, $store, $scope);
+        } else {
+            $street = $this->getConfigValue(self::CONFIG_XML_PATH_VERTEX_STREET2, $store, $scope);
         }
-        return $this->getConfigValue(self::CONFIG_XML_PATH_VERTEX_STREET2, $store, $scope);
+
+        return $street ?? null;
     }
 
     /**
@@ -285,33 +293,13 @@ class Config
     }
 
     /**
-     * Retrieve the lifetime of logs, in days, before they are rotated
-     *
-     * @return string
-     */
-    public function getCronLogLifetime()
-    {
-        return $this->getConfigValue(self::VERTEX_LOG_LIFETIME_DAYS);
-    }
-
-    /**
-     * Retrieve the frequency at which the cron should run
-     *
-     * @return string
-     */
-    public function getCronRotationFrequency()
-    {
-        return $this->getConfigValue(self::CONFIG_XML_PATH_VERTEX_LOG_ROTATION_FREQUENCY);
-    }
-
-    /**
      * Retrieve the time of day logs should be rotated
      *
      * @return string
      */
-    public function getCronRotationTime()
+    public function getCronWsdlCacheTime()
     {
-        return $this->getConfigValue(self::CONFIG_XML_PATH_VERTEX_LOG_ROTATION_RUNTIME);
+        return $this->getConfigValue(self::CONFIG_XML_PATH_VERTEX_WSDL_CACHE_RUNTIME);
     }
 
     /**
@@ -497,16 +485,6 @@ class Config
     }
 
     /**
-     * Retrieve the type of action to take to logs when rotating
-     *
-     * @return string|null
-     */
-    public function getRotationAction()
-    {
-        return $this->getConfigValue(self::CONFIG_XML_PATH_ROTATION_ACTION);
-    }
-
-    /**
      * Get the Tax Class ID to be used for Shipping
      *
      * @param string|null $store
@@ -621,21 +599,9 @@ class Config
      *
      * @return bool
      */
-    public function isLogRotationEnabled()
+    public function isWsdlCacheEnabled()
     {
-        return $this->scopeConfig->isSetFlag(self::CONFIG_XML_PATH_VERTEX_ENABLE_LOG_ROTATION);
-    }
-
-    /**
-     * Determine if Vertex Logging has been enabled
-     *
-     * @param string|null $scopeCode
-     * @param string $scope
-     * @return bool
-     */
-    public function isLoggingEnabled($scopeCode = null, $scope = ScopeInterface::SCOPE_STORE)
-    {
-        return $this->scopeConfig->isSetFlag(self::CONFIG_XML_PATH_LOGGING_ENABLED, $scope, $scopeCode);
+        return $this->scopeConfig->isSetFlag(self::CONFIG_XML_PATH_VERTEX_ENABLE_WSDL_CACHE);
     }
 
     /**

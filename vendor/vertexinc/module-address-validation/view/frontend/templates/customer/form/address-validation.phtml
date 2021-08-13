@@ -6,14 +6,14 @@
 
 /**
  * @var $block Magento\Framework\View\Element\Template
+ * @var $secureRenderer Magento\Framework\View\Helper\SecureHtmlRenderer
  * @var $viewModel Vertex\AddressValidation\ViewModel\CustomerAddressValidation
  */
 $viewModel = $block->getData('viewModel');
+$js = 'window.vertexAddressValidationConfig = '.$viewModel->getSerializedConfig();
 ?>
 
-<script>
-    window.vertexAddressValidationConfig = <?= /* @noEscape */ $viewModel->getSerializedConfig() ?>;
-</script>
+<?= /* @noEscape */ $secureRenderer->renderTag('script', [], $js, false) ?>
 
 <div data-bind="scope: 'addressValidationMessage'">
     <!-- ko template:getTemplate() --><!-- /ko -->

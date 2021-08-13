@@ -3,17 +3,19 @@
 namespace Yandex\Allure\Adapter\Support;
 
 use Exception;
+use PHPUnit\Framework\TestCase;
 use Yandex\Allure\Adapter\Allure;
+use Yandex\Allure\Adapter\AllureException;
 use Yandex\Allure\Adapter\Event\StepFailedEvent;
 use Yandex\Allure\Adapter\Event\StepFinishedEvent;
 use Yandex\Allure\Adapter\Event\StepStartedEvent;
 
-class StepSupportTest extends \PHPUnit_Framework_TestCase
+class StepSupportTest extends TestCase
 {
     use StepSupport;
 
-    const STEP_NAME = 'step-name';
-    const STEP_TITLE = 'step-title';
+    private const STEP_NAME = 'step-name';
+    private const STEP_TITLE = 'step-title';
 
     /**
      * @var \Yandex\Allure\Adapter\Support\MockedLifecycle
@@ -23,9 +25,10 @@ class StepSupportTest extends \PHPUnit_Framework_TestCase
     public function __construct()
     {
         $this->mockedLifecycle = new MockedLifecycle();
+        parent::__construct();
     }
 
-    protected function setUp()
+    protected function setUp(): void
     {
         parent::setUp();
         $this->mockedLifecycle = new MockedLifecycle();
@@ -33,7 +36,7 @@ class StepSupportTest extends \PHPUnit_Framework_TestCase
         Allure::setLifecycle($this->getMockedLifecycle());
     }
 
-    public function testExecuteStepCorrectly()
+    public function testExecuteStepCorrectly(): void
     {
         $logicWithNoException = function () {
             //We do nothing, hence no error
@@ -45,14 +48,12 @@ class StepSupportTest extends \PHPUnit_Framework_TestCase
         $this->assertTrue($events[1] instanceof StepFinishedEvent);
     }
 
-    /**
-     * @expectedException Exception
-     */
     public function testExecuteFailingStep()
     {
         $logicWithException = function () {
             throw new Exception();
         };
+        $this->expectException(Exception::class);
         $this->executeStep(self::STEP_NAME, $logicWithException, self::STEP_TITLE);
         $events = $this->getMockedLifecycle()->getEvents();
         $this->assertEquals(3, sizeof($events));
@@ -61,24 +62,19 @@ class StepSupportTest extends \PHPUnit_Framework_TestCase
         $this->assertTrue($events[2] instanceof StepFinishedEvent);
     }
 
-    /**
-     * @expectedException \Yandex\Allure\Adapter\AllureException
-     */
     public function testExecuteStepWithMissingData()
     {
+        $this->expectException(AllureException::class);
         $this->executeStep(null, null, null);
     }
 
-    protected function tearDown()
+    protected function tearDown(): void
     {
         parent::tearDown();
         Allure::setDefaultLifecycle();
     }
 
-    /**
-     * @return MockedLifecycle
-     */
-    private function getMockedLifecycle()
+    private function getMockedLifecycle(): MockedLifecycle
     {
         return $this->mockedLifecycle;
     }

@@ -47,7 +47,6 @@ Example #1
 
    --- Original
    +++ New
-   @@ -1,8 +1,8 @@
     <?php
    -final class MyTest extends \PHPUnit_Framework_TestCase
    +final class MyTest extends \PHPUnit\Framework\TestCase
@@ -68,11 +67,15 @@ With configuration: ``['target' => '4.8']``.
 
    --- Original
    +++ New
-   @@ -1,3 +1,3 @@
     <?php
    -final class MyTest extends \PHPUnit_Framework_TestCase
    +final class MyTest extends \PHPUnit\Framework\TestCase
     {
+        public function testSomething()
+        {
+            PHPUnit_Framework_Assert::assertTrue(true);
+        }
+    }
 
 Rule sets
 ---------
@@ -121,5 +124,10 @@ The rule is part of the following rule sets:
 
 @PHPUnit75Migration:risky
   Using the `@PHPUnit75Migration:risky <./../../ruleSets/PHPUnit75MigrationRisky.rst>`_ rule set will enable the ``php_unit_namespaced`` rule with the config below:
+
+  ``['target' => '6.0']``
+
+@PHPUnit84Migration:risky
+  Using the `@PHPUnit84Migration:risky <./../../ruleSets/PHPUnit84MigrationRisky.rst>`_ rule set will enable the ``php_unit_namespaced`` rule with the config below:
 
   ``['target' => '6.0']``

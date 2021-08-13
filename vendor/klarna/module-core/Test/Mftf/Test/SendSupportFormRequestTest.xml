@@ -1,0 +1,34 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!--
+ /**
+  * This file is part of the Klarna Core module
+  *
+  * (c) Klarna Bank AB (publ)
+  *
+  * For the full copyright and license information, please view the NOTICE
+  * and LICENSE files that were distributed with this source code.
+  */
+-->
+<tests xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+       xsi:noNamespaceSchemaLocation="urn:magento:mftf:Test/etc/testSchema.xsd">
+    <test name="SendSupportFormRequestTest">
+        <annotations>
+            <features value="Klarna Core"/>
+            <stories value="Send a support form request"/>
+            <title value="Send support request"/>
+            <description value="A admin user should be able to perform a support form request"/>
+            <severity value="AVERAGE"/>
+            <testCaseId value="CORE_SUPPORT"/>
+            <group value="Klarna_Core_Support"/>
+        </annotations>
+        <before>
+            <actionGroup ref="AdminLoginActionGroup" stepKey="loginAsAdmin"/>
+            <magentoCLI command="config:set system/smtp/disable 1" stepKey="disableEmailSending"/>
+        </before>
+        <after>
+            <actionGroup ref="AdminLogoutActionGroup" stepKey="logout"/>
+            <magentoCLI command="config:set system/smtp/disable 0" stepKey="enableEmailSending"/>
+        </after>
+        <actionGroup ref="SendAdminKlarnaSupportFormActionGroup" stepKey="gotoSupportForm"/>
+    </test>
+</tests>

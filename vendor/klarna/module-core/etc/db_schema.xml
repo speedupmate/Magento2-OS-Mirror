@@ -34,4 +34,30 @@
             <column name="order_id"/>
         </index>
     </table>
+
+    <table name="klarna_logs" resource="default" engine="innodb" comment="Klarna Logs">
+        <column xsi:type="smallint" name="log_id" unsigned="false" nullable="false" identity="true" comment="Log Id"/>
+        <column xsi:type="varchar" name="status" nullable="false" length="255" comment="Status"/>
+        <column xsi:type="varchar" name="action" length="255" comment="Action"/>
+        <column xsi:type="varchar" name="klarna_id" length="255" comment="Klarna Id"/>
+        <column xsi:type="varchar" name="increment_id" length="255" comment="Increment Id"/>
+        <column xsi:type="varchar" name="url" nullable="false" length="255" comment="Url"/>
+        <column xsi:type="varchar" name="method" nullable="false" length="255" comment="Method"/>
+        <column xsi:type="varchar" name="service" nullable="false" length="255" comment="Service"/>
+        <column xsi:type="text" name="request" comment="Request"/>
+        <column xsi:type="text" name="response" comment="Response"/>
+        <column xsi:type="datetime" name="created_at" on_update="false" nullable="false" default="CURRENT_TIMESTAMP" comment="Created at"/>
+        <constraint xsi:type="primary" referenceId="PRIMARY">
+            <column name="log_id"/>
+        </constraint>
+        <index referenceId="KLARNA_LOGS_ORDER_ID" indexType="btree">
+            <column name="klarna_id"/>
+        </index>
+        <index referenceId="KLARNA_LOGS_ACTION_KLARNA_ID_INCREMENT_ID_URL" indexType="fulltext">
+            <column name="action"/>
+            <column name="klarna_id"/>
+            <column name="increment_id"/>
+            <column name="url"/>
+        </index>
+    </table>
 </schema>

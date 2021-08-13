@@ -12,6 +12,8 @@
         <element name="newShipmentSmsMessage" type="text" selector="#transactional_sms_sms_templates_new_shipment_message" />
         <element name="updateShipmentSmsMessage" type="text" selector="#transactional_sms_sms_templates_shipment_update_message" />
         <element name="newCreditMemoSmsMessage" type="text" selector="#transactional_sms_sms_templates_new_credit_memo_message" />
+        <element name="selectFromName" type="select" selector="#transactional_sms_sms_settings_default_sms_from_name" />
+        <element name="alphanumericFromName" type="text" selector="#transactional_sms_sms_settings_alphanumeric_from_name" />
         <element name="save" type="button" selector="#save" />
     </section>
 </sections>

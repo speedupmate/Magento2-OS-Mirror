@@ -14,7 +14,7 @@
 -->
 <tests xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
        xsi:noNamespaceSchemaLocation="urn:magento:mftf:Test/etc/testSchema.xsd">
-    <test name="PlaceOrderWithNonKlarnaMethodUSTest">
+    <test name="PlaceOrderWithNonKlarnaMethodTest">
         <annotations>
             <features value="Klarna Payments"/>
             <stories value="It's possible to place an order with a non-Klarna payment method"/>
@@ -22,20 +22,18 @@
             <description value="It's possible to place an order with a non-Klarna payment method when Klarna is active"/>
             <severity value="CRITICAL"/>
             <testCaseId value="KP_DO_R_2"/>
-            <group value="Klarna_KP_Country_US"/>
             <group value="Klarna_KP_Order_Registered"/>
+            <group value="Klarna_KP"/>
         </annotations>
         <before>
             <createData entity="SimpleTwo" stepKey="createSimpleProduct"/>
-            <createData entity="Klarna_US_Customer_B2C" stepKey="createCustomer"/>
         </before>
         <after>
             <deleteData createDataKey="createSimpleProduct" stepKey="deleteSimpleProduct"/>
-            <deleteData createDataKey="createCustomer" stepKey="deleteCustomer"/>
         </after>
         <!--Log in to store front as customer-->
         <actionGroup ref="LoginToStorefrontActionGroup" stepKey="customerLogin">
-            <argument name="Customer" value="$$createCustomer$$" />
+            <argument name="Customer" value="$$marketDefaultCustomerInstance$$" />
         </actionGroup>
 
         <!--Go to product page-->

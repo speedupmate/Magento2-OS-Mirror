@@ -4,6 +4,7 @@ namespace Dotdigitalgroup\Sms\Model\Message;
 
 use Dotdigitalgroup\Sms\Api\Data\SmsOrderInterface;
 use Dotdigitalgroup\Sms\Model\Config\ConfigInterface;
+use Dotdigitalgroup\Sms\Model\Config\Source\FromName;
 use Dotdigitalgroup\Sms\Model\Message\Text\Compiler;
 use Magento\Framework\App\Config\ScopeConfigInterface;
 use Magento\Store\Model\ScopeInterface;
@@ -47,7 +48,7 @@ class MessageBuilder
         $batch = [];
 
         foreach ($items as $item) {
-            $batch[] = [
+            $buildMessage = [
                 'to' => [
                     'phoneNumber' => $item->getPhoneNumber()
                 ],
@@ -64,6 +65,14 @@ class MessageBuilder
                 ],
                 'body' => $this->getCompiledMessageText($item)
             ];
+
+            $fromNumber = $this->getFromNumber($item->getStoreId());
+
+            if ($fromNumber) {
+                $buildMessage['channelOptions']['sms']['from'] = $fromNumber;
+            }
+
+            $batch[] = $buildMessage;
         }
 
         return $batch;
@@ -95,5 +104,32 @@ class MessageBuilder
             ScopeInterface::SCOPE_STORES,
             $storeId
         );
+    }
+
+    /**
+     * @param $storeId
+     * @return string|null
+     */
+    private function getFromNumber($storeId)
+    {
+        $fromName = $this->scopeConfig->getValue(
+            ConfigInterface::XML_PATH_TRANSACTIONAL_SMS_DEFAULT_FROM_NAME,
+            ScopeInterface::SCOPE_STORES,
+            $storeId
+        );
+
+        if ($fromName === FromName::SHARED_POOL_NUMBER) {
+            return null;
+        }
+
+        if ($fromName === FromName::ALPHANUMERIC_NUMBER) {
+            return $this->scopeConfig->getValue(
+                ConfigInterface::XML_PATH_TRANSACTIONAL_SMS_ALPHANUMERIC_FROM_NAME,
+                ScopeInterface::SCOPE_STORES,
+                $storeId
+            );
+        }
+
+        return $fromName;
     }
 }

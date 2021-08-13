@@ -15,12 +15,14 @@ use Klarna\Core\Helper\ConfigHelper;
 use Klarna\Core\Helper\KlarnaConfig;
 use Klarna\Core\Helper\VersionInfo;
 use Klarna\Core\Model\Api\Exception as KlarnaApiException;
+use Klarna\Core\Logger\Api\Container;
 use Klarna\Kp\Api\CreditApiInterface;
 use Klarna\Kp\Api\Data\RequestInterface;
 use Klarna\Kp\Api\Data\ResponseInterface;
 use Klarna\Kp\Model\Api\Response;
 use Klarna\Kp\Model\Api\ResponseFactory;
 use Magento\Framework\App\Config\ScopeConfigInterface;
+use Magento\Framework\App\ObjectManager;
 use Magento\Store\Api\Data\StoreInterface;
 use Magento\Store\Model\ScopeInterface;
 use Magento\Store\Model\StoreManagerInterface;
@@ -65,6 +67,10 @@ class Payments implements CreditApiInterface
      * @var KlarnaConfig
      */
     private $klarnaConfig;
+    /**
+     * @var Container
+     */
+    private $loggerContainer;
 
     /**
      * @param ScopeConfigInterface  $config
@@ -75,6 +81,7 @@ class Payments implements CreditApiInterface
      * @param ConfigHelper          $configHelper
      * @param KlarnaConfig          $klarnaConfig
      * @param ServiceInterface      $service
+     * @param Container|null        $loggerContainer
      */
     public function __construct(
         ScopeConfigInterface $config,
@@ -84,7 +91,8 @@ class Payments implements CreditApiInterface
         ResponseFactory $responseFactory,
         ConfigHelper $configHelper,
         KlarnaConfig $klarnaConfig,
-        ServiceInterface $service
+        ServiceInterface $service,
+        Container $loggerContainer = null
     ) {
         $this->log = $log;
         $this->service = $service;
@@ -94,37 +102,27 @@ class Payments implements CreditApiInterface
         $this->versionInfo = $versionInfo;
         $this->configHelper = $configHelper;
         $this->klarnaConfig = $klarnaConfig;
+        $this->loggerContainer = $loggerContainer ?? ObjectManager::getInstance()->get(Container::class);
     }
 
     /**
-     * @param RequestInterface $request
-     * @return ResponseInterface
-     * @throws KlarnaApiException
-     * @throws \Klarna\Core\Exception
-     */
-    public function createSession(RequestInterface $request)
-    {
-        return $this->processRequest('/payments/' . self::API_VERSION . '/sessions', $request);
-    }
-
-    /**
-     * @param string           $url
-     * @param RequestInterface $request
-     * @param string           $method
-     * @param string           $klarnaId
+     * @param string                $url
+     * @param string                $action
+     * @param null|RequestInterface $request
+     * @param string                $method
+     * @param null|string           $klarnaId
      * @return Response
      * @throws \Klarna\Core\Exception
      */
     private function processRequest(
-        $url,
+        string $url,
+        string $action,
         RequestInterface $request = null,
-        $method = ServiceInterface::POST,
-        $klarnaId = null
+        string $method = ServiceInterface::POST,
+        string $klarnaId = null
     ) {
-        $body = '';
-        if ($request) {
-            $body = $request->toArray();
-        }
+        $this->loggerContainer->setAction($action);
+        $body = $this->getBody($request);
         $this->connect();
         $response = $this->service->makeRequest($url, $body, $method, $klarnaId);
         $response['response_code'] = $response['response_status_code'];
@@ -132,7 +130,21 @@ class Payments implements CreditApiInterface
     }
 
     /**
-     * @return string
+     * Getting back the body
+     *
+     * @param RequestInterface|null $request
+     * @return array
+     */
+    private function getBody(RequestInterface  $request = null): array
+    {
+        if ($request) {
+            return $request->toArray();
+        }
+
+        return [];
+    }
+
+    /**
      * @throws \Klarna\Core\Exception
      */
     private function connect()
@@ -160,6 +172,23 @@ class Payments implements CreditApiInterface
     }
 
     /**
+     * @param RequestInterface $request
+     * @return ResponseInterface
+     * @throws KlarnaApiException
+     * @throws \Klarna\Core\Exception
+     */
+    public function createSession(RequestInterface $request)
+    {
+        return $this->processRequest(
+            '/payments/' . self::API_VERSION . '/sessions',
+            ServiceInterface::ACTIONS['create_session'],
+            $request,
+            ServiceInterface::POST,
+            null
+        );
+    }
+
+    /**
      * @param string           $sessionId
      * @param RequestInterface $request
      * @return ResponseInterface
@@ -170,6 +199,7 @@ class Payments implements CreditApiInterface
     {
         $response = $this->processRequest(
             '/payments/' . self::API_VERSION . '/sessions/' . $sessionId,
+            ServiceInterface::ACTIONS['update_session'],
             $request,
             ServiceInterface::POST,
             $sessionId
@@ -191,6 +221,7 @@ class Payments implements CreditApiInterface
     {
         $resp = $this->processRequest(
             '/payments/' . self::API_VERSION . '/sessions/' . $sessionId,
+            ServiceInterface::ACTIONS['read_session'],
             null,
             ServiceInterface::GET,
             $sessionId
@@ -203,15 +234,23 @@ class Payments implements CreditApiInterface
     /**
      * @param string           $authorization_token
      * @param RequestInterface $request
-     * @param null             $klarnaId
+     * @param null|string      $klarnaId
+     * @param null|string      $incrementId
      * @return ResponseInterface
      * @throws KlarnaApiException
      * @throws \Klarna\Core\Exception
      */
-    public function placeOrder($authorization_token, RequestInterface $request, $klarnaId = null)
-    {
+    public function placeOrder(
+        $authorization_token,
+        RequestInterface $request,
+        $klarnaId = null,
+        string $incrementId = null
+    ) {
+        $this->loggerContainer->setIncrementId($incrementId);
+
         return $this->processRequest(
             '/payments/' . self::API_VERSION . '/authorizations/' . $authorization_token . '/order',
+            ServiceInterface::ACTIONS['create_order'],
             $request,
             ServiceInterface::POST,
             $klarnaId
@@ -229,6 +268,7 @@ class Payments implements CreditApiInterface
     {
         return $this->processRequest(
             '/payments/' . self::API_VERSION . '/authorizations/' . $authorization_token,
+            ServiceInterface::ACTIONS['cancel_order'],
             null,
             ServiceInterface::DELETE,
             $klarnaId

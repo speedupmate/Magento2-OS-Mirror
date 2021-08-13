@@ -2,6 +2,7 @@
 
 namespace Dotdigitalgroup\Email\Observer\Customer;
 
+use Dotdigitalgroup\Email\Logger\Logger;
 use Magento\Store\Model\StoreManagerInterface;
 
 /**
@@ -20,6 +21,11 @@ class RemoveWishlist implements \Magento\Framework\Event\ObserverInterface
     private $importerFactory;
 
     /**
+     * @var Logger
+     */
+    private $logger;
+
+    /**
      * @var StoreManagerInterface
      */
     private $storeManager;
@@ -29,15 +35,18 @@ class RemoveWishlist implements \Magento\Framework\Event\ObserverInterface
      *
      * @param \Dotdigitalgroup\Email\Model\ImporterFactory $importerFactory
      * @param \Dotdigitalgroup\Email\Helper\Data $data
+     * @param Logger $logger
      * @param StoreManagerInterface $storeManager
      */
     public function __construct(
         \Dotdigitalgroup\Email\Model\ImporterFactory $importerFactory,
         \Dotdigitalgroup\Email\Helper\Data $data,
+        Logger $logger,
         StoreManagerInterface $storeManager
     ) {
         $this->importerFactory = $importerFactory;
         $this->helper          = $data;
+        $this->logger = $logger;
         $this->storeManager = $storeManager;
     }
 
@@ -47,7 +56,6 @@ class RemoveWishlist implements \Magento\Framework\Event\ObserverInterface
     public function execute(\Magento\Framework\Event\Observer $observer)
     {
         try {
-            /** @var \Magento\Wishlist\Model\Wishlist $wishlist */
             $wishlist = $observer->getEvent()->getDataObject();
             $websiteId = $this->storeManager->getWebsite()->getId();
             $isEnabled = $this->helper->isEnabled($websiteId);
@@ -56,9 +64,7 @@ class RemoveWishlist implements \Magento\Framework\Event\ObserverInterface
                 $websiteId
             );
 
-            //create a queue item to remove single wishlist
             if ($isEnabled && $syncEnabled && $wishlist->getId()) {
-                //register in queue with importer
                 $this->importerFactory->create()->registerQueue(
                     \Dotdigitalgroup\Email\Model\Importer::IMPORT_TYPE_WISHLIST,
                     [$wishlist->getId()],
@@ -67,7 +73,7 @@ class RemoveWishlist implements \Magento\Framework\Event\ObserverInterface
                 );
             }
         } catch (\Exception $e) {
-            $this->helper->debug((string)$e, []);
+            $this->logger->debug((string) $e);
         }
     }
 }

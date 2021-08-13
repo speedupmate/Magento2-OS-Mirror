@@ -30,8 +30,8 @@ class Gmp implements AdapterInterface
         if (null === $base) {
             // scientific notation
             if (preg_match('#^(?:([1-9])\.)?([0-9]+)[eE]\+?([0-9]+)$#', $operand, $m)) {
-                if (!empty($m[1])) {
-                    if ($m[3] < strlen($m[2])) {
+                if (! empty($m[1])) {
+                    if ($m[3] < mb_strlen($m[2], '8bit')) {
                         return false;
                     }
                 } else {
@@ -44,9 +44,20 @@ class Gmp implements AdapterInterface
             }
         }
 
-        set_error_handler(function () { /* Do nothing */}, \E_WARNING);
-        $res = gmp_init($sign . $operand, $base);
+        set_error_handler(function () {
+ /* Do nothing */
+        }, \E_WARNING);
+
+        try {
+            $res = gmp_init($sign . $operand, $base);
+        } catch (\TypeError $e) {
+            $res = false;
+        } catch (\ValueError $e) {
+            $res = false;
+        }
+
         restore_error_handler();
+
         if ($res === false) {
             return false;
         }
@@ -214,7 +225,7 @@ class Gmp implements AdapterInterface
         }
 
         $hex  = gmp_strval($int, 16);
-        if (strlen($hex) & 1) {
+        if (mb_strlen($hex, '8bit') & 1) {
             $hex = '0' . $hex;
         }
 
@@ -295,7 +306,7 @@ class Gmp implements AdapterInterface
         // convert operand to decimal
         if ($fromBase !== 10) {
             $decimal = '0';
-            for ($i = 0, $len = strlen($operand); $i < $len; $i++) {
+            for ($i = 0, $len = mb_strlen($operand, '8bit'); $i < $len; $i++) {
                 $decimal = gmp_mul($decimal, $fromBase);
                 $decimal = gmp_add($decimal, strpos($chars, $operand[$i]));
             }

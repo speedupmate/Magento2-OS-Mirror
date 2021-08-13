@@ -163,11 +163,7 @@ class CreditmemoRepositoryPlugin
             return;
         }
 
-        if ($invoiceTextCodes !== null && array_key_exists(
-                $creditmemoItem->getOrderItemId(),
-                $invoiceTextCodes
-            )) {
-
+        if ($invoiceTextCodes !== null && array_key_exists($creditmemoItem->getOrderItemId(), $invoiceTextCodes)) {
             $creditmemoItemExtension->setInvoiceTextCodes($invoiceTextCodes[$creditmemoItem->getOrderItemId()]);
         }
     }

@@ -18,7 +18,6 @@ Example #1
 
    --- Original
    +++ New
-   @@ -1 +1 @@
    -<?php
    +<?php declare(strict_types=1);
    \ No newline at end of file
@@ -33,6 +32,9 @@ The rule is part of the following rule sets:
 
 @PHP71Migration:risky
   Using the `@PHP71Migration:risky <./../../ruleSets/PHP71MigrationRisky.rst>`_ rule set will enable the ``declare_strict_types`` rule.
+
+@PHP74Migration:risky
+  Using the `@PHP74Migration:risky <./../../ruleSets/PHP74MigrationRisky.rst>`_ rule set will enable the ``declare_strict_types`` rule.
 
 @PHP80Migration:risky
   Using the `@PHP80Migration:risky <./../../ruleSets/PHP80MigrationRisky.rst>`_ rule set will enable the ``declare_strict_types`` rule.

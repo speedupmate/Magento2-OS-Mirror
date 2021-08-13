@@ -10,5 +10,7 @@
         <data key="statusInProgress">In progress</data>
         <data key="statusFailed">Failed</data>
         <data key="statusDelivered">Delivered</data>
+        <data key="sharedPoolNumber">shared_pool_number</data>
+        <data key="alphanumericNumber">alphanumeric_number</data>
     </entity>
 </entities>

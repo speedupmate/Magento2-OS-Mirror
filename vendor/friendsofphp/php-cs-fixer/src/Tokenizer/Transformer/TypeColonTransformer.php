@@ -32,6 +32,7 @@ final class TypeColonTransformer extends AbstractTransformer
     public function getPriority()
     {
         // needs to run after ReturnRefTransformer and UseTransformer
+        // and before TypeAlternationTransformer
         return -10;
     }
 
@@ -82,7 +83,7 @@ final class TypeColonTransformer extends AbstractTransformer
     /**
      * {@inheritdoc}
      */
-    protected function getDeprecatedCustomTokens()
+    public function getCustomTokens()
     {
         return [CT::T_TYPE_COLON];
     }

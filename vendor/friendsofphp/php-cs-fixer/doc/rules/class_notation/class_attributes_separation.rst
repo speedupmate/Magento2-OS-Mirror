@@ -2,7 +2,8 @@
 Rule ``class_attributes_separation``
 ====================================
 
-Class, trait and interface elements must be separated with one blank line.
+Class, trait and interface elements must be separated with one or none blank
+line.
 
 Configuration
 -------------
@@ -10,11 +11,11 @@ Configuration
 ``elements``
 ~~~~~~~~~~~~
 
-List of classy elements; 'const', 'method', 'property'.
+Dictionary of ``const|method|property`` => ``none|one`` values.
 
-Allowed values: a subset of ``['const', 'method', 'property']``
+Allowed types: ``array``
 
-Default value: ``['const', 'method', 'property']``
+Default value: ``['const' => 'one', 'method' => 'one', 'property' => 'one']``
 
 Examples
 --------
@@ -28,7 +29,9 @@ Example #1
 
    --- Original
    +++ New
-   @@ -4,9 +4,8 @@
+    <?php
+    final class Sample
+    {
         protected function foo()
         {
         }
@@ -43,13 +46,12 @@ Example #1
 Example #2
 ~~~~~~~~~~
 
-With configuration: ``['elements' => ['property']]``.
+With configuration: ``['elements' => ['property' => 'one']]``.
 
 .. code-block:: diff
 
    --- Original
    +++ New
-   @@ -1,6 +1,8 @@
     <?php
     class Sample
    -{private $a; // a is awesome
@@ -63,13 +65,13 @@ With configuration: ``['elements' => ['property']]``.
 Example #3
 ~~~~~~~~~~
 
-With configuration: ``['elements' => ['const']]``.
+With configuration: ``['elements' => ['const' => 'one']]``.
 
 .. code-block:: diff
 
    --- Original
    +++ New
-   @@ -2,6 +2,7 @@
+    <?php
     class Sample
     {
         const A = 1;
@@ -86,9 +88,9 @@ The rule is part of the following rule sets:
 @PhpCsFixer
   Using the `@PhpCsFixer <./../../ruleSets/PhpCsFixer.rst>`_ rule set will enable the ``class_attributes_separation`` rule with the config below:
 
-  ``['elements' => ['method']]``
+  ``['elements' => ['method' => 'one']]``
 
 @Symfony
   Using the `@Symfony <./../../ruleSets/Symfony.rst>`_ rule set will enable the ``class_attributes_separation`` rule with the config below:
 
-  ``['elements' => ['method']]``
+  ``['elements' => ['method' => 'one']]``

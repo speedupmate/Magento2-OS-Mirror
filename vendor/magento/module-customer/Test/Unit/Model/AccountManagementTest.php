@@ -7,6 +7,7 @@ declare(strict_types=1);
 
 namespace Magento\Customer\Test\Unit\Model;
 
+use Hoa\Iterator\Mock;
 use Magento\Customer\Api\AddressRepositoryInterface;
 use Magento\Customer\Api\CustomerMetadataInterface;
 use Magento\Customer\Api\CustomerRepositoryInterface;

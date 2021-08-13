@@ -9,28 +9,30 @@
 /*jshint browser:true jquery:true*/
 /*global alert*/
 define([
-  'mage/utils/wrapper',
-  'Klarna_Kp/js/model/config',
-  'Magento_Checkout/js/model/full-screen-loader'
+    'mage/utils/wrapper',
+    'Klarna_Kp/js/model/config',
+    'Magento_Checkout/js/model/full-screen-loader'
 ], function (wrapper, config, loader) {
-  'use strict';
+    'use strict';
 
-  /**
-   * This is needed to prevent the customer from a race condition between 'Place Order' and adding/removing a coupon,
-   * giftcard, rewards points, etc.. as it affects order totals
-   */
-  return function (overriddenFunction) {
-    return wrapper.wrap(overriddenFunction, function (originalAction) {
-      if (!config.enabled) {
-        return originalAction();
-      }
-      if (config.hasErrors()) {
-        return originalAction();
-      }
-      loader.startLoader();
-      return originalAction().then(function () {
-        loader.stopLoader();
-      });
-    });
-  };
+    /**
+     * This is needed to prevent the customer from a race condition between 'Place Order' and adding/removing a coupon,
+     * giftcard, rewards points, etc.. as it affects order totals
+     */
+    return function (overriddenFunction) {
+        return wrapper.wrap(overriddenFunction, function (originalAction) {
+            if (!config.enabled) {
+                return originalAction();
+            }
+
+            if (config.hasErrors()) {
+                return originalAction();
+            }
+            loader.startLoader();
+
+            return originalAction().then(function () {
+                loader.stopLoader();
+            });
+        });
+    };
 });

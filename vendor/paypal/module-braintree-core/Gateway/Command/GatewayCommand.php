@@ -14,6 +14,7 @@ use Magento\Payment\Gateway\Http\TransferFactoryInterface;
 use Magento\Payment\Gateway\Request\BuilderInterface;
 use Magento\Payment\Gateway\Response\HandlerInterface;
 use Magento\Payment\Gateway\Validator\ValidatorInterface;
+use PayPal\Braintree\Model\Recaptcha\ReCaptchaValidation;
 use Psr\Log\LoggerInterface;
 use Magento\Payment\Gateway\Command\CommandException;
 
@@ -49,9 +50,9 @@ class GatewayCommand implements CommandInterface
     private $validator;
 
     /**
-     * @var LoggerInterface
+     * @var ReCaptchaValidation
      */
-    private $logger;
+    private $reCaptchaValidation;
 
     /**
      * @param BuilderInterface $requestBuilder
@@ -60,6 +61,7 @@ class GatewayCommand implements CommandInterface
      * @param LoggerInterface $logger
      * @param HandlerInterface $handler
      * @param ValidatorInterface $validator
+     * @param ReCaptchaValidation $reCaptchaValidation
      */
     public function __construct(
         BuilderInterface $requestBuilder,
@@ -67,7 +69,8 @@ class GatewayCommand implements CommandInterface
         ClientInterface $client,
         LoggerInterface $logger,
         HandlerInterface $handler = null,
-        ValidatorInterface $validator = null
+        ValidatorInterface $validator = null,
+        ReCaptchaValidation $reCaptchaValidation
     ) {
         $this->requestBuilder = $requestBuilder;
         $this->transferFactory = $transferFactory;
@@ -75,6 +78,7 @@ class GatewayCommand implements CommandInterface
         $this->handler = $handler;
         $this->validator = $validator;
         $this->logger = $logger;
+        $this->reCaptchaValidation = $reCaptchaValidation;
     }
 
     /**
@@ -92,6 +96,8 @@ class GatewayCommand implements CommandInterface
         $transferO = $this->transferFactory->create(
             $this->requestBuilder->build($commandSubject)
         );
+
+        $this->reCaptchaValidation->validate($commandSubject);
 
         $response = $this->client->placeRequest($transferO);
         if (null !== $this->validator) {

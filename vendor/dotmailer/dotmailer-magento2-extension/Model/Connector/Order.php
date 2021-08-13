@@ -256,7 +256,7 @@ class Order
             $this->processOrderItems($orderData, $syncCustomOption);
         } catch (\InvalidArgumentException $e) {
             $this->logger->debug(
-                'Could not process order items for order id ' . $orderData->getRealOrderId(),
+                'Error processing items for order ID: ' . $orderData->getId(),
                 [(string) $e]
             );
             $this->products = [];
@@ -394,7 +394,9 @@ class Order
             /**
              * Price
              */
-            if (isset($parentLineItem) && $parentLineItem->getProduct()->getTypeId() === 'configurable') {
+            if (isset($parentLineItem) &&
+                $parentLineItem->getId() === $productItem->getParentItemId() &&
+                $parentLineItem->getProduct()->getTypeId() === 'configurable') {
                 $price = $parentLineItem->getPrice();
             } else {
                 $price = $productItem->getPrice();
@@ -581,8 +583,11 @@ class Order
                 case 'timestamp':
                 case 'datetime':
                 case 'date':
-                    $date = new \DateTime($orderData->$function());
-                    $value = $date->format(\DateTime::ISO8601);
+                    $value = null;
+                    if ($orderData->$function() !== null) {
+                        $date = new \DateTime($orderData->$function());
+                        $value = $date->format(\DateTime::ISO8601);
+                    }
                     break;
 
                 default:

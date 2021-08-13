@@ -11,8 +11,8 @@ problems as possible on a given file or files in a given directory and its subdi
     $ php php-cs-fixer.phar fix /path/to/file
 
 By default ``--path-mode`` is set to ``override``, which means, that if you specify the path to a file or a directory via
-command arguments, then the paths provided to a ``Finder`` in config file will be ignored. You can use ``--path-mode=intersection``
-to merge paths from the config file and from the argument:
+command arguments, then the paths provided to a ``Finder`` in config file will be ignored. You can also use ``--path-mode=intersection``,
+which will use the intersection of the paths from the config file and from the argument:
 
 .. code-block:: console
 
@@ -20,10 +20,12 @@ to merge paths from the config file and from the argument:
 
 The ``--format`` option for the output format. Supported formats are ``txt`` (default one), ``json``, ``xml``, ``checkstyle``, ``junit`` and ``gitlab``.
 
-NOTE: the output for the following formats are generated in accordance with XML schemas
+NOTE: the output for the following formats are generated in accordance with schemas
 
-* ``checkstyle`` follows the common `"checkstyle" xml schema </doc/report-schema/checkstyle.xsd>`_
-* ``junit`` follows the `JUnit xml schema from Jenkins </doc/report-schema/junit-10.xsd>`_
+* ``checkstyle` follows the common `"checkstyle" XML schema </doc/schemas/fix/checkstyle.xsd>`_
+* ``json` follows the `own JSON schema </doc/schemas/fix/schema.json>`_
+* ``junit`` follows the `JUnit XML schema from Jenkins </doc/schemas/fix/junit-10.xsd>`_
+* ``xml`` follows the `own XML schema </doc/schemas/fix/xml.xsd>`_
 
 The ``--quiet`` Do not output any message.
 
@@ -183,6 +185,18 @@ Then, add the following command to your CI:
     $ vendor/bin/php-cs-fixer fix --config=.php_cs.dist -v --dry-run --stop-on-violation --using-cache=no ${EXTRA_ARGS}
 
 Where ``$COMMIT_RANGE`` is your range of commits, e.g. ``$TRAVIS_COMMIT_RANGE`` or ``HEAD~..HEAD``.
+
+Environment options
+-------------------
+
+The ``PHP_CS_FIXER_IGNORE_ENV`` environment variable can be used to ignore any environment requirements.
+This includes requirements like missing PHP extensions, unsupported PHP versions or by using HHVM.
+
+NOTE: Execution may be unstable when used.
+
+.. code-block:: console
+
+    $ PHP_CS_FIXER_IGNORE_ENV=1 php php-cs-fixer.phar fix /path/to/dir
 
 Exit code
 ---------

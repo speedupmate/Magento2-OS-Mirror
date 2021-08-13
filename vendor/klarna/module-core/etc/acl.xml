@@ -1,0 +1,23 @@
+<?xml version="1.0"?>
+<!--
+/**
+ * This file is part of the Klarna Core module
+ *
+ * (c) Klarna Bank AB (publ)
+ *
+ * For the full copyright and license information, please view the NOTICE
+ * and LICENSE files that were distributed with this source code.
+ */
+-->
+<config xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="urn:magento:framework:Acl/etc/acl.xsd">
+    <acl>
+        <resources>
+            <resource id="Magento_Backend::admin">
+                <resource id="Magento_Backend::system">
+                    <resource id="Klarna_Core::system_support_form" title="Klarna support form" translate="title" sortOrder="10"/>
+                    <resource id="Klarna_Core::system_logging" title="Klarna API logging overview" translate="title"  sortOrder="20"/>
+                </resource>
+            </resource>
+        </resources>
+    </acl>
+</config>

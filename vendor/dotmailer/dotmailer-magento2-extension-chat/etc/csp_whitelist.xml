@@ -10,7 +10,6 @@
         <policy id="script-src">
             <values>
                 <value id="dotdigital_cdn_dnky" type="host">cdn.dnky.co</value>
-                <value id="dotdigital_comapi" type="host">api.comapi.com</value>
                 <value id="dotdigital_webchat" type="host">webchat.dotdigital.com</value>
             </values>
         </policy>
@@ -22,7 +21,6 @@
         </policy>
         <policy id="connect-src">
             <values>
-                <value id="dotdigital_comapi" type="host">api.comapi.com</value>
                 <value id="dotdigital_webchat" type="host">webchat.dotdigital.com</value>
             </values>
         </policy>

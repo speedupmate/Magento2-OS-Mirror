@@ -151,9 +151,8 @@ class FlexibleFields extends AbstractModifier
         return $this->arrayManager->replace(
             $headerCommentPath,
             $meta,
-            $comment . '<p>' . __(
-                'Custom Options may only be mapped to Vertex Flexible Fields configured with a source of "Custom Options"'
-            ) . '</p>'
+            $comment . '<p>' . __('Custom Options may only be mapped to Vertex Flexible Fields configured ' .
+                'with a source of "Custom Options"') . '</p>'
         );
     }
 

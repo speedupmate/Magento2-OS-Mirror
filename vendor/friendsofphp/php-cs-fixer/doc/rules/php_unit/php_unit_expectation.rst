@@ -18,7 +18,7 @@ Configuration
 
 Target version of PHPUnit.
 
-Allowed values: ``'5.2'``, ``'5.6'``, ``'newest'``
+Allowed values: ``'5.2'``, ``'5.6'``, ``'8.4'``, ``'newest'``
 
 Default value: ``'newest'``
 
@@ -34,7 +34,8 @@ Example #1
 
    --- Original
    +++ New
-   @@ -3,13 +3,17 @@
+    <?php
+    final class MyTest extends \PHPUnit_Framework_TestCase
     {
         public function testFoo()
         {
@@ -49,7 +50,7 @@ Example #1
         {
    -        $this->setExpectedExceptionRegExp("RuntimeException", "/Msg.*/", 123);
    +        $this->expectException("RuntimeException");
-   +        $this->expectExceptionMessageRegExp("/Msg.*/");
+   +        $this->expectExceptionMessageMatches("/Msg.*/");
    +        $this->expectExceptionCode(123);
             bar();
         }
@@ -58,13 +59,44 @@ Example #1
 Example #2
 ~~~~~~~~~~
 
+With configuration: ``['target' => '8.4']``.
+
+.. code-block:: diff
+
+   --- Original
+   +++ New
+    <?php
+    final class MyTest extends \PHPUnit_Framework_TestCase
+    {
+        public function testFoo()
+        {
+   -        $this->setExpectedException("RuntimeException", null, 123);
+   +        $this->expectException("RuntimeException");
+   +        $this->expectExceptionCode(123);
+            foo();
+        }
+
+        public function testBar()
+        {
+   -        $this->setExpectedExceptionRegExp("RuntimeException", "/Msg.*/", 123);
+   +        $this->expectException("RuntimeException");
+   +        $this->expectExceptionMessageMatches("/Msg.*/");
+   +        $this->expectExceptionCode(123);
+            bar();
+        }
+    }
+
+Example #3
+~~~~~~~~~~
+
 With configuration: ``['target' => '5.6']``.
 
 .. code-block:: diff
 
    --- Original
    +++ New
-   @@ -3,13 +3,16 @@
+    <?php
+    final class MyTest extends \PHPUnit_Framework_TestCase
     {
         public function testFoo()
         {
@@ -84,7 +116,7 @@ With configuration: ``['target' => '5.6']``.
         }
     }
 
-Example #3
+Example #4
 ~~~~~~~~~~
 
 With configuration: ``['target' => '5.2']``.
@@ -93,7 +125,8 @@ With configuration: ``['target' => '5.2']``.
 
    --- Original
    +++ New
-   @@ -3,7 +3,9 @@
+    <?php
+    final class MyTest extends \PHPUnit_Framework_TestCase
     {
         public function testFoo()
         {
@@ -103,6 +136,13 @@ With configuration: ``['target' => '5.2']``.
    +        $this->expectExceptionCode(123);
             foo();
         }
+
+        public function testBar()
+        {
+            $this->setExpectedExceptionRegExp("RuntimeException", "/Msg.*/", 123);
+            bar();
+        }
+    }
 
 Rule sets
 ---------
@@ -143,3 +183,8 @@ The rule is part of the following rule sets:
   Using the `@PHPUnit75Migration:risky <./../../ruleSets/PHPUnit75MigrationRisky.rst>`_ rule set will enable the ``php_unit_expectation`` rule with the config below:
 
   ``['target' => '5.6']``
+
+@PHPUnit84Migration:risky
+  Using the `@PHPUnit84Migration:risky <./../../ruleSets/PHPUnit84MigrationRisky.rst>`_ rule set will enable the ``php_unit_expectation`` rule with the config below:
+
+  ``['target' => '8.4']``

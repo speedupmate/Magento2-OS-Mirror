@@ -20,5 +20,7 @@
 
         <element name="taxAmount" type="text" selector="[data-th='Tax']>span"/>
         <element name="taxSummary" type="text" selector=".totals-tax-summary"/>
+
+        <element name="vertexWarningMessage" type="text" selector="//*[@id='cart-totals']//tr[@class='field vertex-message']//td//div[@class='message warning']"/>
     </section>
 </sections>

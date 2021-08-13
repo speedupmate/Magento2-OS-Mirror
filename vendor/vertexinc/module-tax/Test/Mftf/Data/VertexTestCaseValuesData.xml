@@ -31,6 +31,14 @@
     <data key="tax">2.04</data>
     <data key="taxPercent">6</data>
   </entity>
+  <entity name="Vertex_34USD_PA_With_City_Values">
+    <data key="price">34.00</data>
+    <data key="priceInclTax">36.72</data>
+    <data key="subtotal">34.00</data>
+    <data key="subtotalInclTax">36.72</data>
+    <data key="tax">2.72</data>
+    <data key="taxPercent">8</data>
+  </entity>
   <entity name="Vertex_34USD_PA_To_DE_Values">
     <data key="price">34.00</data>
     <data key="priceInclTax">34.00</data>
@@ -329,6 +337,17 @@
     <data key="shippingTax">0.00</data>
     <data key="shippingInclTax">0.00</data>
   </entity>
+  <entity name="Vertex_100USD_Virtual_and_Downloadable_SantaMonica_Totals">
+    <data key="subtotal">200.00</data>
+    <data key="subtotalInclTax">220.50</data>
+    <data key="total">200.00</data>
+    <data key="totalInclTax">220.50</data>
+    <data key="tax">20.50</data>
+    <data key="productTax">20.50</data>
+    <data key="shipping">0.00</data>
+    <data key="shippingTax">0.00</data>
+    <data key="shippingInclTax">0.00</data>
+  </entity>
   <entity name="Vertex_100USD_Virtual_PA_Only_Totals">
     <data key="subtotal">100.00</data>
     <data key="subtotalInclTax">106.00</data>
@@ -361,6 +380,17 @@
     <data key="shipping">5.00</data>
     <data key="shippingTax">0.30</data>
     <data key="shippingInclTax">5.30</data>
+  </entity>
+  <entity name="Vertex_34USD_PA_With_City_Totals">
+    <data key="subtotal">34.00</data>
+    <data key="subtotalInclTax">36.72</data>
+    <data key="total">39.00</data>
+    <data key="totalInclTax">42.12</data>
+    <data key="tax">3.12</data>
+    <data key="productTax">2.72</data>
+    <data key="shipping">5.00</data>
+    <data key="shippingTax">0.40</data>
+    <data key="shippingInclTax">5.40</data>
   </entity>
   <entity name="Vertex_34USD_PA_To_DE_Totals">
     <data key="subtotal">34.00</data>

@@ -154,20 +154,22 @@ class ConfigurationValidator
      */
     private function validateAddressComplete(Result $result, $scopeType, $scopeCode)
     {
-        if (!$this->config->getCompanyRegionId($scopeCode, $scopeType)) {
+        if ($this->config->getCompanyCountry($scopeCode, $scopeType) === null) {
+            $missing[] = 'Company Country';
+        }
+        $country = $this->config->getCompanyCountry($scopeCode, $scopeType);
+
+        if (($country === null || $country === 'US')
+            && $this->config->getCompanyRegionId($scopeCode, $scopeType) === null) {
             $missing[] = 'Company State';
         }
 
-        if (!$this->config->getCompanyCountry($scopeCode, $scopeType)) {
-            $missing[] = 'Company Country';
-        }
-
-        if (!$this->config->getCompanyStreet1($scopeCode, $scopeType)) {
+        if ($this->config->getCompanyStreet1($scopeCode, $scopeType) === null) {
             $missing[] = 'Company Street';
         }
 
-        if (!$this->config->getCompanyCity($scopeCode, $scopeType) ||
-            !$this->config->getCompanyPostalCode($scopeCode, $scopeType)
+        if ($this->config->getCompanyCity($scopeCode, $scopeType) === null ||
+            $this->config->getCompanyPostalCode($scopeCode, $scopeType) === null
         ) {
             $missing[] = 'one of Company City or Postcode';
         }
@@ -194,6 +196,14 @@ class ConfigurationValidator
      */
     private function validateAddressLookup(Result $result, $scopeType, $scopeCode)
     {
+        $country = $this->config->getCompanyCountry($scopeCode, $scopeType);
+        if ($country !== 'US') {
+            // Skip validation for non-US Addresses
+            // We don't want to use Vertex_AddressValidation's Config model here, b/c we don't want AV as a dependency
+            // Overall goal is to remove all address validation from Tax module
+            return $result;
+        }
+
         $result->setValid(false);
         $street = [
             $this->config->getCompanyStreet1($scopeCode, $scopeType),

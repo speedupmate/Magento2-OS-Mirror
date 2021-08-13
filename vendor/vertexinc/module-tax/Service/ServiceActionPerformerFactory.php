@@ -16,6 +16,7 @@ class ServiceActionPerformerFactory extends Factory
     /**
      * @inheritdoc
      */
+    // phpcs:ignore Generic.CodeAnalysis.UselessOverridingMethod.Found
     public function create(array $parameters)
     {
         return parent::create($parameters);

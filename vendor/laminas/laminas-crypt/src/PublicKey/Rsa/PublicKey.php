@@ -8,6 +8,19 @@
 
 namespace Laminas\Crypt\PublicKey\Rsa;
 
+use function file_get_contents;
+use function is_readable;
+use function is_string;
+use function openssl_error_string;
+use function openssl_pkey_get_details;
+use function openssl_pkey_get_public;
+use function openssl_public_decrypt;
+use function openssl_public_encrypt;
+use function strpos;
+
+use const OPENSSL_PKCS1_OAEP_PADDING;
+use const OPENSSL_PKCS1_PADDING;
+
 /**
  * RSA public key
  */
@@ -30,7 +43,7 @@ class PublicKey extends AbstractKey
      */
     public static function fromFile($pemOrCertificateFile)
     {
-        if (!is_readable($pemOrCertificateFile)) {
+        if (! is_readable($pemOrCertificateFile)) {
             throw new Exception\InvalidArgumentException(
                 "File '{$pemOrCertificateFile}' is not readable"
             );
@@ -106,7 +119,7 @@ class PublicKey extends AbstractKey
      */
     public function decrypt($data, $padding = OPENSSL_PKCS1_PADDING)
     {
-        if (!is_string($data)) {
+        if (! is_string($data)) {
             throw new Exception\InvalidArgumentException('The data to decrypt must be a string');
         }
         if ('' === $data) {
@@ -142,9 +155,9 @@ class PublicKey extends AbstractKey
      */
     public function toString()
     {
-        if (!empty($this->certificateString)) {
+        if (! empty($this->certificateString)) {
             return $this->certificateString;
-        } elseif (!empty($this->pemString)) {
+        } elseif (! empty($this->pemString)) {
             return $this->pemString;
         }
         throw new Exception\RuntimeException('No public key string representation is available');

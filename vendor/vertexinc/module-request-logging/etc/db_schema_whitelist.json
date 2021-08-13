@@ -1,0 +1,30 @@
+{
+    "vertex_taxrequest": {
+        "column": {
+            "request_id": true,
+            "request_type": true,
+            "quote_id": true,
+            "order_id": true,
+            "total_tax": true,
+            "source_path": true,
+            "tax_area_id": true,
+            "sub_total": true,
+            "total": true,
+            "lookup_result": true,
+            "request_date": true,
+            "request_xml": true,
+            "response_xml": true,
+            "response_time": true,
+            "module_name": true,
+            "module_version": true
+        },
+        "index": {
+            "VERTEX_TAXREQUEST_REQUEST_TYPE": true,
+            "VERTEX_TAXREQUEST_ORDER_ID": true
+        },
+        "constraint": {
+            "PRIMARY": true,
+            "VERTEX_TAXREQUEST_REQUEST_ID": true
+        }
+    }
+}

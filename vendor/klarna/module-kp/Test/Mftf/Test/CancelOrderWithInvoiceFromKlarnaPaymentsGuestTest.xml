@@ -14,18 +14,17 @@
 -->
 <tests xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
        xsi:noNamespaceSchemaLocation="urn:magento:mftf:Test/etc/testSchema.xsd">
-    <test name="CancelOrderWithInvoiceFromKlarnaPaymentsGuestTest" extends="PlacePayLaterOrderAsGuestTest">
+    <test name="CancelOrderWithInvoiceFromKlarnaPaymentsGuestTest" extends="PlaceKlarnaPaymentsOrderAsGuestTest">
         <annotations>
             <features value="Klarna Payments"/>
             <stories value="Attempt to cancel an order with an invoice from an order placed by a guest"/>
             <title value="BUNDLE-666 - Try to cancel guest order with invoice"/>
             <description value="A merchant is unable to cancel a Klarna Payments order placed by a guest customer that has already been invoiced"/>
             <severity value="AVERAGE"/>
-            <testCaseId value="KP_US_I_C"/>
-            <group value="Klarna_KP_Country_US"/>
+            <testCaseId value="KP_I_C"/>
             <group value="Klarna_KP_Order_Guest"/>
-            <group value="Klarna_KP_Order_Pay_Later"/>
             <group value="Klarna_KP_Order_Cancel"/>
+            <group value="Klarna_KP"/>
         </annotations>
         <before>
             <actionGroup ref="AdminLoginActionGroup" stepKey="loginAsAdmin"/>

@@ -14,7 +14,6 @@ Example #1
 
    --- Original
    +++ New
-   @@ -1,2 +1,2 @@
     <?php
    -$sample = isset($a) ? $a : $b;
    +$sample = $a ?? $b;
@@ -32,6 +31,9 @@ The rule is part of the following rule sets:
 
 @PHP73Migration
   Using the `@PHP73Migration <./../../ruleSets/PHP73Migration.rst>`_ rule set will enable the ``ternary_to_null_coalescing`` rule.
+
+@PHP74Migration
+  Using the `@PHP74Migration <./../../ruleSets/PHP74Migration.rst>`_ rule set will enable the ``ternary_to_null_coalescing`` rule.
 
 @PHP80Migration
   Using the `@PHP80Migration <./../../ruleSets/PHP80Migration.rst>`_ rule set will enable the ``ternary_to_null_coalescing`` rule.

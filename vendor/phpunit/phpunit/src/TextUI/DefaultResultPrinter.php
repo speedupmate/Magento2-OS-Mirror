@@ -22,6 +22,7 @@ use PHPUnit\Runner\PhptTestCase;
 use PHPUnit\Util\Color;
 use PHPUnit\Util\Printer;
 use SebastianBergmann\Environment\Console;
+use SebastianBergmann\Timer\ResourceUsageFormatter;
 use SebastianBergmann\Timer\Timer;
 
 /**
@@ -29,19 +30,19 @@ use SebastianBergmann\Timer\Timer;
  */
 class DefaultResultPrinter extends Printer implements ResultPrinter
 {
-    public const EVENT_TEST_START      = 0;
+    public const EVENT_TEST_START = 0;
 
-    public const EVENT_TEST_END        = 1;
+    public const EVENT_TEST_END = 1;
 
     public const EVENT_TESTSUITE_START = 2;
 
-    public const EVENT_TESTSUITE_END   = 3;
+    public const EVENT_TESTSUITE_END = 3;
 
-    public const COLOR_NEVER   = 'never';
+    public const COLOR_NEVER = 'never';
 
-    public const COLOR_AUTO    = 'auto';
+    public const COLOR_AUTO = 'auto';
 
-    public const COLOR_ALWAYS  = 'always';
+    public const COLOR_ALWAYS = 'always';
 
     public const COLOR_DEFAULT = self::COLOR_NEVER;
 
@@ -113,6 +114,11 @@ class DefaultResultPrinter extends Printer implements ResultPrinter
     private $defectListPrinted = false;
 
     /**
+     * @var Timer
+     */
+    private $timer;
+
+    /**
      * Constructor.
      *
      * @param null|resource|string $out
@@ -152,14 +158,15 @@ class DefaultResultPrinter extends Printer implements ResultPrinter
         } else {
             $this->colors = (self::COLOR_ALWAYS === $colors);
         }
+
+        $this->timer = new Timer;
+
+        $this->timer->start();
     }
 
-    /**
-     * @throws \SebastianBergmann\Timer\RuntimeException
-     */
     public function printResult(TestResult $result): void
     {
-        $this->printHeader();
+        $this->printHeader($result);
         $this->printErrors($result);
         $this->printWarnings($result);
         $this->printFailures($result);
@@ -384,12 +391,11 @@ class DefaultResultPrinter extends Printer implements ResultPrinter
         $this->printDefects($result->skipped(), 'skipped test');
     }
 
-    /**
-     * @throws \SebastianBergmann\Timer\RuntimeException
-     */
-    protected function printHeader(): void
+    protected function printHeader(TestResult $result): void
     {
-        $this->write("\n\n" . Timer::resourceUsage() . "\n\n");
+        if (\count($result) > 0) {
+            $this->write(\PHP_EOL . \PHP_EOL . (new ResourceUsageFormatter)->resourceUsage($this->timer->stop()) . \PHP_EOL . \PHP_EOL);
+        }
     }
 
     protected function printFooter(TestResult $result): void

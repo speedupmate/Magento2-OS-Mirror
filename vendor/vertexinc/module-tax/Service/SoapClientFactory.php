@@ -16,6 +16,7 @@ class SoapClientFactory extends Factory
     /**
      * @inheritdoc
      */
+    // phpcs:ignore Generic.CodeAnalysis.UselessOverridingMethod.Found
     public function create($wsdl, array $options = [])
     {
         return parent::create($wsdl, $options);

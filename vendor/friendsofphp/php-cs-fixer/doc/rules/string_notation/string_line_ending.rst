@@ -19,7 +19,6 @@ Example #1
 
    --- Original
    +++ New
-   @@ -1,4 +1,4 @@
    -<?php $a = 'my^M
    +<?php $a = 'my
     multi
@@ -30,7 +29,10 @@ Example #1
 Rule sets
 ---------
 
-The rule is part of the following rule set:
+The rule is part of the following rule sets:
 
 @PhpCsFixer:risky
   Using the `@PhpCsFixer:risky <./../../ruleSets/PhpCsFixerRisky.rst>`_ rule set will enable the ``string_line_ending`` rule.
+
+@Symfony:risky
+  Using the `@Symfony:risky <./../../ruleSets/SymfonyRisky.rst>`_ rule set will enable the ``string_line_ending`` rule.

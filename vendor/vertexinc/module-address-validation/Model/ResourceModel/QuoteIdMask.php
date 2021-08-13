@@ -44,11 +44,11 @@ class QuoteIdMask extends AbstractDb
         $db = $this->getConnection();
 
         $select = $db->select()
-            ->from(static::TABLE_QUOTE_ID_MASK, [])
+            ->from($this->getTable(static::TABLE_QUOTE_ID_MASK), [])
             ->joinLeft(
-                static::TABLE_QUOTE,
-                self::TABLE_QUOTE . '.' . static::QUOTE_ATTR_ENTITY_ID . '=' .
-                self::TABLE_QUOTE_ID_MASK . '.' . static::QUOTE_MASK_ATTR_ENTITY_ID,
+                $this->getTable(static::TABLE_QUOTE),
+                $this->getTable(self::TABLE_QUOTE) . '.' . static::QUOTE_ATTR_ENTITY_ID . '=' .
+                $this->getTable(self::TABLE_QUOTE_ID_MASK) . '.' . static::QUOTE_MASK_ATTR_ENTITY_ID,
                 [static::QUOTE_ATTR_IS_ACTIVE]
             )
             ->where(static::QUOTE_MASK_ATTR_MASKED_ID . '=?', $mask);

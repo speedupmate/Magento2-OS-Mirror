@@ -1,0 +1,15 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<actionGroups xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+              xsi:noNamespaceSchemaLocation="urn:magento:mftf:Test/etc/actionGroupSchema.xsd">
+    <actionGroup name="SetAlphanumericValueFromName">
+        <arguments>
+            <argument name="alphanumericValue" defaultValue="chaz12" type="string"/>
+        </arguments>
+        <amOnPage url="{{AdminTransactionalSmsPage.url}}" stepKey="navigateToTransactionalSmsPage"/>
+        <selectOption selector="{{AdminTransactionalSmsSection.selectFromName}}" userInput="alphanumeric_number" stepKey="selectAlphanumericValue"/>
+        <fillField selector="{{AdminTransactionalSmsSection.alphanumericFromName}}" userInput="{{alphanumericValue}}" stepKey="setNewOrderMessage"/>
+        <click selector="{{AdminTransactionalSmsSection.save}}" stepKey="savePage" />
+        <waitForPageLoad stepKey="waitForPageLoad"/>
+    </actionGroup>
+</actionGroups>

@@ -17,4 +17,24 @@
     <entity name="Klarna_US_Address_B2C" type="address" extends="US_Address_NY">
         <data key="company"></data>
     </entity>
+    <entity name="Klarna_DE_Address_B2C" type="address">
+        <data key="firstname">John</data>
+        <data key="lastname">Doe</data>
+        <data key="company"></data>
+        <array key="street">
+            <item>Zinnowitzer Straße 1</item>
+        </array>
+        <data key="city">Berlin</data>
+        <data key="state">Berlin</data>
+        <data key="country_id">DE</data>
+        <data key="country">Germany</data>
+        <data key="postcode">10115</data>
+        <data key="telephone">030 609893550</data>
+        <data key="default_billing">Yes</data>
+        <data key="default_shipping">Yes</data>
+        <requiredEntity type="region">KpRegionDE</requiredEntity>
+    </entity>
+    <entity name="Klarna_DE_Address_B2B" type="address" extends="Klarna_DE_Address_B2C">
+        <data key="company">My company</data>
+    </entity>
 </entities>

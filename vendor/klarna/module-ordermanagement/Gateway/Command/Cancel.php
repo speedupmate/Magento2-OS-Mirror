@@ -62,9 +62,9 @@ class Cancel extends AbstractCommand
     private function processPayment($order, $klarnaOrder)
     {
         if ($order->hasInvoices()) {
-            return $this->getOmApi($order)->release($klarnaOrder->getReservationId());
+            return $this->getOmApi($order)->release($klarnaOrder->getReservationId(), $order);
         }
 
-        return $this->getOmApi($order)->cancel($klarnaOrder->getReservationId());
+        return $this->getOmApi($order)->cancel($klarnaOrder->getReservationId(), $order);
     }
 }

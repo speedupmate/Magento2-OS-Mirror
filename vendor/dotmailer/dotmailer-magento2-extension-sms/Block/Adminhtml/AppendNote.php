@@ -54,7 +54,7 @@ class AppendNote extends \Magento\Config\Block\System\Config\Form\Field
     {
         if ($element->getTooltip()) {
             $html = '<td class="value with-tooltip">';
-            $html .= '<div class="tooltip"><span class="help"><span></span></span>';
+            $html .= '<div class="tooltip ddg-sms-tooltip"><span class="help"><span></span></span>';
             $html .= '<div class="tooltip-content">' . $element->getTooltip() . '</div></div>';
             $html .= $this->_getElementHtml($element);
         } else {

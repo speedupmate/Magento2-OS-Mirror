@@ -17,18 +17,16 @@
     <test name="PlaceKlarnaPaymentsOrderWithVirtualProductWithPercentageCouponAsRegisteredCustomerTest">
         <annotations>
             <features value="Klarna Payments"/>
-            <stories value="It's possible to place an order with virtual product and a coupon"/>
-            <title value="Placing order with virtual product and coupon"/>
+            <stories value="It's possible to place an order with virtual product and coupon as a registered customer"/>
+            <title value="Placing order with virtual product"/>
             <description value="Successfully placing an order with Klarna Payments with a virtual product and a percentage coupon as registered customer"/>
             <severity value="CRITICAL"/>
             <testCaseId value="KP_V_R_2"/>
-            <group value="Klarna_KP_Country_US"/>
             <group value="Klarna_KP_Order_Registered"/>
-            <group value="Klarna_KP_Order_Pay_Later"/>
+            <group value="Klarna_KP"/>
         </annotations>
         <before>
             <createData entity="Klarna_Virtual_Product" stepKey="createVirtualProduct"/>
-            <createData entity="Klarna_US_Customer_B2C" stepKey="createCustomer"/>
             <actionGroup ref="AdminLoginActionGroup" stepKey="loginAsAdmin"/>
             <actionGroup ref="ConfigurePercentageCoupon" stepKey="percentageCoupon">
                 <argument name="ruleName" value="CatPriceRule"/>
@@ -37,7 +35,6 @@
         </before>
         <after>
             <deleteData createDataKey="createVirtualProduct" stepKey="deleteVirtualProduct"/>
-            <deleteData createDataKey="createCustomer" stepKey="deleteCustomer"/>
             <actionGroup ref="DeleteCartPriceRuleByName" stepKey="deleteCartPriceRule">
                 <argument name="ruleName" value="{{CatPriceRule.name}}"/>
             </actionGroup>
@@ -46,7 +43,7 @@
 
         <!--Log in to store front as customer-->
         <actionGroup ref="LoginToStorefrontActionGroup" stepKey="customerLogin">
-            <argument name="Customer" value="$$createCustomer$$" />
+            <argument name="Customer" value="$$marketDefaultCustomerInstance$$" />
         </actionGroup>
 
         <!--Go to product page-->
@@ -64,13 +61,9 @@
         <actionGroup ref="GoToCheckoutFromMinicartActionGroup" stepKey="goToCheckoutFromMinicart"/>
         <waitForPageLoad stepKey="waitForCheckoutPageLoad"/>
 
-        <!--Grab order total amount-->
-        <waitForElementVisible selector="{{CheckoutPaymentSection.orderSummaryTotal}}" stepKey="waitForOrderTotal"/>
-        <grabTextFrom selector="{{CheckoutPaymentSection.orderSummaryTotal}}" stepKey="grabTotalAmount"/>
-
         <!--Place order-->
-        <actionGroup ref="PlaceOrderWithKlarnaPaymentsMethod" stepKey="placeOrderWithKlarnaPayLaterMethod">
-            <argument name="paymentMethod" value="KlarnaPaymentsPayLater"/>
+        <actionGroup ref="PlaceOrderWithKlarnaPaymentsMethod" stepKey="placeOrderWithKlarnaMethod">
+            <argument name="customer" value="$$marketDefaultCustomerInstance$$"/>
         </actionGroup>
 
         <!--Grab order number-->
@@ -80,9 +73,6 @@
         <!--Verify order summary in admin-->
         <actionGroup ref="OpenOrderByIdActionGroup" stepKey="goToOrderPage">
             <argument name="orderId" value="{$grabOrderNumber}"/>
-        </actionGroup>
-        <actionGroup ref="ValidateAdminKlarnaOrderSummaryGrandTotal" stepKey="validateGrandTotal">
-            <argument name="grandTotalAmount" value="{$grabTotalAmount}"/>
         </actionGroup>
         <actionGroup ref="ValidateAdminKlarnaOrderSummaryWithoutShipping" stepKey="validateNoShipping" />
     </test>

@@ -10,6 +10,11 @@ namespace Laminas\Crypt\Key\Derivation;
 
 use Laminas\Crypt\Hmac;
 
+use function ceil;
+use function hash_hmac;
+use function mb_substr;
+use function pack;
+
 /**
  * PKCS #5 v2.0 standard RFC 2898
  */
@@ -28,7 +33,7 @@ class Pbkdf2
      */
     public static function calc($hash, $password, $salt, $iterations, $length)
     {
-        if (!Hmac::isSupported($hash)) {
+        if (! Hmac::isSupported($hash)) {
             throw new Exception\InvalidArgumentException("The hash algorithm $hash is not supported by " . __CLASS__);
         }
 
@@ -43,6 +48,6 @@ class Pbkdf2
             }
             $result .= $mix;
         }
-        return substr($result, 0, $length);
+        return mb_substr($result, 0, $length, '8bit');
     }
 }

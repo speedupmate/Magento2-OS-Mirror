@@ -35,7 +35,7 @@ Example #1
 
    --- Original
    +++ New
-   @@ -2,10 +2,10 @@
+    <?php
     switch ($foo) {
         case 1:
             foo();
@@ -57,7 +57,7 @@ With configuration: ``['comment_text' => 'some comment']``.
 
    --- Original
    +++ New
-   @@ -2,6 +2,7 @@
+    <?php
     switch ($foo) {
         case 1:
             foo();
@@ -70,6 +70,9 @@ Rule sets
 ---------
 
 The rule is part of the following rule sets:
+
+@PSR12
+  Using the `@PSR12 <./../../ruleSets/PSR12.rst>`_ rule set will enable the ``no_break_comment`` rule with the default config.
 
 @PSR2
   Using the `@PSR2 <./../../ruleSets/PSR2.rst>`_ rule set will enable the ``no_break_comment`` rule with the default config.

@@ -49,6 +49,7 @@ class TaxPlugin
         array_splice($arguments, 0, 2);
 
         /** @var QuoteDetailsItemInterface[] $items */
+        // phpcs:ignore Magento2.Functions.DiscouragedFunction.Discouraged
         $items = call_user_func_array($super, $arguments);
 
         $store = $address->getQuote()->getStore();

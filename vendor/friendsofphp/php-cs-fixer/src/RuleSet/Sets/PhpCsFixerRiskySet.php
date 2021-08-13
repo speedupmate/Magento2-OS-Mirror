@@ -25,7 +25,18 @@ final class PhpCsFixerRiskySet extends AbstractRuleSetDescription
             '@Symfony:risky' => true,
             'comment_to_phpdoc' => true,
             'final_internal_class' => true,
-            'logical_operators' => true,
+            // @TODO: consider switching to `true`, like in @Symfony
+            'native_constant_invocation' => [
+                'fix_built_in' => false,
+                'include' => [
+                    'DIRECTORY_SEPARATOR',
+                    'PHP_INT_SIZE',
+                    'PHP_SAPI',
+                    'PHP_VERSION_ID',
+                ],
+                'scope' => 'namespaced',
+                'strict' => true,
+            ],
             'no_alias_functions' => [
                 'sets' => [
                     '@all',
@@ -33,13 +44,10 @@ final class PhpCsFixerRiskySet extends AbstractRuleSetDescription
             ],
             'no_unreachable_default_argument_value' => true,
             'no_unset_on_property' => true,
-            'php_unit_set_up_tear_down_visibility' => true,
             'php_unit_strict' => true,
-            'php_unit_test_annotation' => true,
             'php_unit_test_case_static_method_calls' => true,
             'strict_comparison' => true,
             'strict_param' => true,
-            'string_line_ending' => true,
         ];
     }
 

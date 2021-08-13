@@ -49,6 +49,7 @@ class CollectionProcessor
             return $collectionProcessor->process($searchCriteria, $collection);
         }
 
+        $this->processLimit($searchCriteria, $collection);
         $this->processFilters($searchCriteria, $collection);
         $this->processSort($searchCriteria, $collection);
 
@@ -87,6 +88,17 @@ class CollectionProcessor
         if ($fields) {
             $collection->addFieldToFilter($fields, $conditions);
         }
+    }
+
+    /**
+     * Perform the SearchCriteria's limit against the collection
+     *
+     * @param SearchCriteriaInterface $searchCriteria
+     * @param AbstractDb $collection
+     */
+    private function processLimit(SearchCriteriaInterface $searchCriteria, AbstractDb $collection)
+    {
+        $collection->setPageSize($searchCriteria->getPageSize());
     }
 
     /**

@@ -1,0 +1,26 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!--
+ /**
+  * This file is part of the Klarna Core module
+  *
+  * (c) Klarna Bank AB (publ)
+  *
+  * For the full copyright and license information, please view the NOTICE
+  * and LICENSE files that were distributed with this source code.
+  */
+-->
+<actionGroups xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+              xsi:noNamespaceSchemaLocation="urn:magento:mftf:Test/etc/actionGroupSchema.xsd">
+    <actionGroup name="SendAdminKlarnaSupportFormActionGroup">
+        <amOnPage url="{{KlarnaSupportFormPage.url}}" stepKey="navigateToSupportFormPage"/>
+        <waitForPageLoad stepKey="waitForSupportPage"/>
+        <searchAndMultiSelectOption selector="{{KlarnaSupportFormSection.productsDropdown}}" parameterArray="[Klarna Payment]" stepKey="searchAndSelectCategory"/>
+        <fillField selector="{{KlarnaSupportFormSection.contactName}}" userInput="_not_sending_mail_" stepKey="fillContactName"/>
+        <fillField selector="{{KlarnaSupportFormSection.shopUrl}}" userInput="https://test.de" stepKey="fillShopUrl"/>
+        <fillField selector="{{KlarnaSupportFormSection.apiKey}}" userInput="123" stepKey="fillApiKey"/>
+        <fillField selector="{{KlarnaSupportFormSection.issue}}" userInput="issue" stepKey="fillIssue"/>
+        <fillField selector="{{KlarnaSupportFormSection.replicationSteps}}" userInput="replicationSteps" stepKey="fillReplicationSteps"/>
+        <click selector="{{KlarnaSupportFormSection.send}}" stepKey="sendSupportRequest"/>
+        <seeElement selector="{{AdminSupportFormMessageSection.successMessage}}" stepKey="assertSendRequestSuccess"/>
+    </actionGroup>
+</actionGroups>

@@ -3,7 +3,7 @@
     "description": "Vertex Tax Links for Magento 2",
     "type": "magento2-module",
     "license": "proprietary",
-    "version": "4.2.0",
+    "version": "4.2.1",
     "require": {
         "php": "^7.1",
         "ext-soap": "*",
@@ -18,21 +18,26 @@
         "magento/module-directory": "^100",
         "magento/module-eav": "^100|^101|^102",
         "magento/module-store": "^100|^101",
-        "magento/module-quote": "^101",
+        "magento/module-quote": "^101.1",
         "magento/module-sales": "^100|^101|^102|^103",
         "magento/module-shipping": "^100",
         "magento/module-tax": "^100",
         "magento/module-checkout": "^100",
         "magento/module-ui": "^100|^101",
-        "vertexinc/sdk": "1.2.7",
-        "ext-intl": "*"
+        "vertexinc/sdk": "^1.2.0",
+        "ext-intl": "*",
+        "vertexinc/module-request-logging-api": "^1"
     },
     "archive": {
         "exclude": [
             "/Vertex for Magento 2 Installation.docx",
             ".gitignore",
             ".gitattributes",
-            "phpcs.xml"
+            "phpcs.xml",
+            "phpcs-old.xml",
+            "phpcs-new.xml",
+            ".git/",
+            ".github/"
         ]
     },
     "suggest": {
@@ -50,11 +55,11 @@
         }
     },
     "require-dev": {
-        "magento/magento-coding-standard": "^5",
         "magento/module-offline-shipping": "^100.2",
         "magento/module-usps": "^100.2",
         "ext-dom": "*",
-        "dealerdirect/phpcodesniffer-composer-installer": "^0.6.2"
+        "dealerdirect/phpcodesniffer-composer-installer": "^0.6.2",
+        "mediotype/code-standard": "^1.0"
     },
     "conflict": {
         "vertex/tax-ee": "*",

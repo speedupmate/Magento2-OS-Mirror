@@ -42,6 +42,15 @@ define(
             },
 
             init: function (token, currency) {
+                if($('.action-braintree-paypal-message').length) {
+                    $('.product-add-form form').on('keyup change paste', 'input, select, textarea', function(){
+                        var currentPrice, currencySymbol;
+                        currentPrice = $(".product-info-main span").find("[data-price-type='finalPrice']").text();
+                        currencySymbol = $('.action-braintree-paypal-message[data-pp-type="product"]').data('currency-symbol');
+                        $('.action-braintree-paypal-message[data-pp-type="product"]').attr('data-pp-amount', currentPrice.replace(currencySymbol,''));
+                    });
+                }
+
                 buttonIds = [];
                 $('.action-braintree-paypal-logo').each(function () {
                     if(!$(this).hasClass( "button-loaded" )) {
@@ -80,6 +89,7 @@ define(
                         } else {
                             paypalCheckoutInstance.loadPayPalSDK({
                                 components: 'buttons,messages,funding-eligibility',
+                                "enable-funding":"paylater",
                                 currency: currency,
                             }, function () {
                                 this.renderpayPalButtons(buttonIds, paypalCheckoutInstance);
@@ -207,6 +217,28 @@ define(
                                 telephone: typeof payload.details.phone !== 'undefined' ? payload.details.phone : '',
                                 region: typeof address.state !== 'undefined' ? address.state.replace(/'/g, "&apos;") : ''
                             };
+
+                            payload.details.email = payload.details.email.replace(/'/g, "&apos;");
+                            payload.details.firstName = payload.details.firstName.replace(/'/g, "&apos;");
+                            payload.details.lastName = payload.details.lastName.replace(/'/g, "&apos;");
+                            if (typeof payload.details.businessName !== 'undefined') {
+                                payload.details.businessName = payload.details.businessName.replace(/'/g, "&apos;");
+                            }
+
+                            // Map the billing address correctly
+                            let isRequiredBillingAddress = data.data('requiredbillingaddress');
+                            if ((isRequiredBillingAddress === 1) && (typeof payload.details.billingAddress !== 'undefined')) {
+                                var billingAddress = payload.details.billingAddress;
+                                payload.details.billingAddress = {
+                                    streetAddress: typeof billingAddress.line2 !== 'undefined' ? billingAddress.line1.replace(/'/g, "&apos;") + " " + billingAddress.line2.replace(/'/g, "&apos;") : billingAddress.line1.replace(/'/g, "&apos;"),
+                                    locality: billingAddress.city.replace(/'/g, "&apos;"),
+                                    postalCode: billingAddress.postalCode,
+                                    countryCodeAlpha2: billingAddress.countryCode,
+                                    telephone: typeof payload.details.phone !== 'undefined' ? payload.details.phone : '',
+                                    region: typeof billingAddress.state !== 'undefined' ? billingAddress.state.replace(/'/g, "&apos;") : ''
+                                };
+                            }
+
                             if(data.data('location') == 'productpage') {
                                 var form = $("#product_addtocart_form");
                                 if (!(form.validation() && form.validation('isValid'))) {
@@ -228,6 +260,7 @@ define(
                     }
                 });
                 if (!button.isEligible()) {
+                    console.log('PayPal button is not elligible')
                     data.parent().remove();
                     return;
                 }

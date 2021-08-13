@@ -3,45 +3,10 @@
     "description": "Klarna Order Management Magento 2 Extension",
     "type": "magento2-module",
     "license": "Apache-2.0",
-    "version": "6.1.1",
-    "support": {
-        "email": "magento@klarna.com"
-    },
-    "authors": [
-        {
-            "name": "Joe Constant",
-            "email": "joe.constant@klarna.com",
-            "role": "Developer"
-        },
-        {
-            "name": "Dario Kassler",
-            "email": "dario.kassler@klarna.com",
-            "role": "Developer"
-        },
-        {
-            "name": "Kenny Gilles",
-            "email": "kenny.gilles@klarna.com",
-            "role": "Developer"
-        },
-        {
-            "name": "Markus Simon",
-            "email": "markus.simon2@klarna.com",
-            "role": "Developer"
-        },
-        {
-            "name": "Fei Chen",
-            "email": "fei.chen@klarna.com",
-            "role": "Developer"
-        },
-        {
-            "name": "Jason Grim",
-            "email": "jason.grim@klarna.com",
-            "role": "Developer"
-        }
-    ],
+    "version": "6.2.2",
     "require": {
         "php": "~7.3.0||~7.4.0",
-        "klarna/module-core": "^6.0",
+        "klarna/module-core": "6.2.2",
         "magento/framework": "^102|^103",
         "magento/module-payment": "^100.3",
         "magento/module-quote": "^101.1",
@@ -49,9 +14,47 @@
         "magento/module-store": "^101.0"
     },
     "autoload": {
+        "files": [
+            "registration.php"
+        ],
         "psr-4": {
             "Klarna\\Ordermanagement\\": "."
+        }
+    },
+    "authors": [
+        {
+            "email": "joe.constant@klarna.com",
+            "name": "Joe Constant",
+            "role": "Developer"
         },
-        "files": [ "registration.php" ]
+        {
+            "email": "dario.kassler@klarna.com",
+            "name": "Dario Kassler",
+            "role": "Developer"
+        },
+        {
+            "email": "kenny.gilles@klarna.com",
+            "name": "Kenny Gilles",
+            "role": "Developer"
+        },
+        {
+            "email": "markus.simon2@klarna.com",
+            "name": "Markus Simon",
+            "role": "Developer"
+        },
+        {
+            "email": "fei.chen@klarna.com",
+            "name": "Fei Chen",
+            "role": "Developer"
+        },
+        {
+            "email": "jason.grim@klarna.com",
+            "name": "Jason Grim",
+            "role": "Developer"
+        }
+    ],
+    "support": {
+        "email": "magento@klarna.com"
     }
 }
+

@@ -8,6 +8,15 @@ placed. Body of braces should be properly indented.
 Configuration
 -------------
 
+``allow_single_line_anonymous_class_with_empty_body``
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+Whether single line anonymous class with empty body notation should be allowed.
+
+Allowed types: ``bool``
+
+Default value: ``false``
+
 ``allow_single_line_closure``
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
@@ -60,7 +69,6 @@ Example #1
 
    --- Original
    +++ New
-   @@ -1,25 +1,27 @@
     <?php
 
    -class Foo {
@@ -110,7 +118,6 @@ With configuration: ``['allow_single_line_closure' => true]``.
 
    --- Original
    +++ New
-   @@ -1,4 +1,5 @@
     <?php
     $positive = function ($item) { return $item >= 0; };
     $negative = function ($item) {
@@ -127,7 +134,6 @@ With configuration: ``['position_after_functions_and_oop_constructs' => 'same']`
 
    --- Original
    +++ New
-   @@ -1,27 +1,25 @@
     <?php
 
    -class Foo
@@ -173,15 +179,20 @@ Rule sets
 
 The rule is part of the following rule sets:
 
+@PSR12
+  Using the `@PSR12 <./../../ruleSets/PSR12.rst>`_ rule set will enable the ``braces`` rule with the config below:
+
+  ``['allow_single_line_anonymous_class_with_empty_body' => true]``
+
 @PSR2
   Using the `@PSR2 <./../../ruleSets/PSR2.rst>`_ rule set will enable the ``braces`` rule with the default config.
 
 @PhpCsFixer
   Using the `@PhpCsFixer <./../../ruleSets/PhpCsFixer.rst>`_ rule set will enable the ``braces`` rule with the config below:
 
-  ``['allow_single_line_closure' => true]``
+  ``['allow_single_line_anonymous_class_with_empty_body' => true, 'allow_single_line_closure' => true]``
 
 @Symfony
   Using the `@Symfony <./../../ruleSets/Symfony.rst>`_ rule set will enable the ``braces`` rule with the config below:
 
-  ``['allow_single_line_closure' => true]``
+  ``['allow_single_line_anonymous_class_with_empty_body' => true, 'allow_single_line_closure' => true]``

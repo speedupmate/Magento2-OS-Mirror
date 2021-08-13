@@ -13,17 +13,31 @@ accordingly the function signature. Requires PHP >= 7.0.
    be fixed. [3] Manual actions are required if inherited signatures are not
    properly documented.
 
+Configuration
+-------------
+
+``scalar_types``
+~~~~~~~~~~~~~~~~
+
+Fix also scalar types; may have unexpected behaviour due to PHP bad type
+coercion system.
+
+Allowed types: ``bool``
+
+Default value: ``true``
+
 Examples
 --------
 
 Example #1
 ~~~~~~~~~~
 
+*Default* configuration.
+
 .. code-block:: diff
 
    --- Original
    +++ New
-   @@ -1,5 +1,5 @@
     <?php
 
     /** @param string $bar */
@@ -34,14 +48,31 @@ Example #1
 Example #2
 ~~~~~~~~~~
 
+*Default* configuration.
+
 .. code-block:: diff
 
    --- Original
    +++ New
-   @@ -1,5 +1,5 @@
     <?php
 
     /** @param string|null $bar */
    -function my_foo($bar)
    +function my_foo(?string $bar)
     {}
+
+Example #3
+~~~~~~~~~~
+
+With configuration: ``['scalar_types' => false]``.
+
+.. code-block:: diff
+
+   --- Original
+   +++ New
+    <?php
+    /** @param Foo $foo */
+   -function foo($foo) {}
+   +function foo(Foo $foo) {}
+    /** @param string $foo */
+    function bar($foo) {}

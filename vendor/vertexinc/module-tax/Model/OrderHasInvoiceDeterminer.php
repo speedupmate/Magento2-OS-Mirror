@@ -59,6 +59,7 @@ class OrderHasInvoiceDeterminer
         try {
             $this->orderInvoiceStatusRepository->getByOrderId($orderId);
             return true;
+            // phpcs:ignore Magento2.CodeAnalysis.EmptyBlock.DetectedCatch
         } catch (NoSuchEntityException $e) {
             // Not a failure condition here
         }

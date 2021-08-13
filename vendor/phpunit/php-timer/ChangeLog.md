@@ -2,6 +2,52 @@
 
 All notable changes are documented in this file using the [Keep a CHANGELOG](http://keepachangelog.com/) principles.
 
+## [5.0.3] - 2020-10-26
+
+### Fixed
+
+* `SebastianBergmann\Timer\Exception` now correctly extends `\Throwable`
+
+## [5.0.2] - 2020-09-28
+
+### Changed
+
+* Changed PHP version constraint in `composer.json` from `^7.3 || ^8.0` to `>=7.3`
+
+## [5.0.1] - 2020-06-26
+
+### Added
+
+* This component is now supported on PHP 8
+
+## [5.0.0] - 2020-06-07
+
+### Changed
+
+* Parameter type for `SebastianBergmann\Timer\Duration::fromMicroseconds()` was changed from `int` to `float` 
+* Parameter type for `SebastianBergmann\Timer\Duration::fromNanoseconds()` was changed from `int` to `float`
+* Return type for `SebastianBergmann\Timer\Duration::asNanoseconds()` was changed from `int` to `float`
+
+### Fixed
+
+* [#31](https://github.com/sebastianbergmann/php-timer/issues/31): Type Error on 32-bit systems (where `hrtime()` returns `float` instead of `int`)
+
+## [4.0.0] - 2020-06-01
+
+### Added
+
+* Introduced `Duration` value object for encapsulating a duration with nanosecond granularity
+* Introduced `ResourceUsageFormatter` object for formatting resource usage with option to explicitly pass a duration (instead of looking at the unreliable `$_SERVER['REQUEST_TIME_FLOAT']` variable)
+
+### Changed
+
+* The methods of `Timer` are no longer static
+* `Timer::stop()` now returns a `Duration` value object
+
+### Removed
+
+* Functionality that is now implemented in `Duration` and `ResourceUsageFormatter` has been removed from `Timer`
+
 ## [3.1.4] - 2020-04-20
 
 ### Changed
@@ -75,13 +121,18 @@ All notable changes are documented in this file using the [Keep a CHANGELOG](htt
 
 * This component is no longer supported on PHP 5.3, PHP 5.4, PHP 5.5, PHP 5.6, and PHP 7.0
 
-[3.1.4]: https://github.com/sebastianbergmann/diff/compare/3.1.3...3.1.4
-[3.1.3]: https://github.com/sebastianbergmann/diff/compare/3.1.2...3.1.3
-[3.1.2]: https://github.com/sebastianbergmann/diff/compare/3.1.1...3.1.2
-[3.1.1]: https://github.com/sebastianbergmann/diff/compare/3.1.0...3.1.1
-[3.1.0]: https://github.com/sebastianbergmann/diff/compare/3.0.0...3.1.0
-[3.0.0]: https://github.com/sebastianbergmann/diff/compare/2.1.2...3.0.0
-[2.1.2]: https://github.com/sebastianbergmann/diff/compare/2.1.1...2.1.2
-[2.1.1]: https://github.com/sebastianbergmann/diff/compare/2.1.0...2.1.1
-[2.1.0]: https://github.com/sebastianbergmann/diff/compare/2.0.0...2.1.0
-[2.0.0]: https://github.com/sebastianbergmann/diff/compare/1.0.9...2.0.0
+[5.0.3]: https://github.com/sebastianbergmann/php-timer/compare/5.0.2...5.0.3
+[5.0.2]: https://github.com/sebastianbergmann/php-timer/compare/5.0.1...5.0.2
+[5.0.1]: https://github.com/sebastianbergmann/php-timer/compare/5.0.0...5.0.1
+[5.0.0]: https://github.com/sebastianbergmann/php-timer/compare/4.0.0...5.0.0
+[4.0.0]: https://github.com/sebastianbergmann/php-timer/compare/3.1.4...4.0.0
+[3.1.4]: https://github.com/sebastianbergmann/php-timer/compare/3.1.3...3.1.4
+[3.1.3]: https://github.com/sebastianbergmann/php-timer/compare/3.1.2...3.1.3
+[3.1.2]: https://github.com/sebastianbergmann/php-timer/compare/3.1.1...3.1.2
+[3.1.1]: https://github.com/sebastianbergmann/php-timer/compare/3.1.0...3.1.1
+[3.1.0]: https://github.com/sebastianbergmann/php-timer/compare/3.0.0...3.1.0
+[3.0.0]: https://github.com/sebastianbergmann/php-timer/compare/2.1.2...3.0.0
+[2.1.2]: https://github.com/sebastianbergmann/php-timer/compare/2.1.1...2.1.2
+[2.1.1]: https://github.com/sebastianbergmann/php-timer/compare/2.1.0...2.1.1
+[2.1.0]: https://github.com/sebastianbergmann/php-timer/compare/2.0.0...2.1.0
+[2.0.0]: https://github.com/sebastianbergmann/php-timer/compare/1.0.9...2.0.0

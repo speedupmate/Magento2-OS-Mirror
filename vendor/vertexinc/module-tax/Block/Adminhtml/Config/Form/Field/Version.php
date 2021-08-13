@@ -17,6 +17,7 @@ use Magento\Framework\Filesystem\DriverPool;
 use Magento\Framework\Filesystem\File\Read;
 use Magento\Framework\Filesystem\File\ReadFactory;
 use Magento\Framework\Serialize\Serializer\Json;
+use Vertex\Tax\Model\ModuleDetail;
 
 /**
  * Displays the connector version
@@ -37,47 +38,28 @@ class Version extends Field
     /** @var Files Files */
     private $files;
 
+    /** @var ModuleDetail */
+    private $moduleDetail;
+
     public function __construct(
         Context $context,
         ReadFactory $readFactory,
         Json $serializer,
         CacheInterface $cache,
         Files $files,
+        ModuleDetail $moduleDetail,
         array $data = []
     ) {
         $this->readFactory = $readFactory;
         $this->serializer = $serializer;
         $this->cache = $cache;
         $this->files = $files;
+        $this->moduleDetail = $moduleDetail;
         parent::__construct($context, $data);
     }
 
-    protected function _getElementHtml(AbstractElement $element) : string
+    protected function _getElementHtml(AbstractElement $element): string
     {
-        return '<p>' . $this->getComposerVersion() . '</p>';
-    }
-
-    private function getComposerInformation() : array
-    {
-        try {
-            $composer = $this->files->getModuleFile('Vertex', 'Tax', 'composer.json');
-
-            /** @var Read $file */
-            $file = $this->readFactory->create($composer, DriverPool::FILE);
-            return (array)$this->serializer->unserialize($file->readAll());
-        } catch (\Exception $e) {
-            return [];
-        }
-    }
-
-    private function getComposerVersion() : string
-    {
-        $version = $this->cache->load(self::CACHE_ID);
-
-        if ($version === false) {
-            $version = $this->getComposerInformation()['version'] ?? __('N/A');
-            $this->cache->save($version, self::CACHE_ID);
-        }
-        return $version;
+        return '<p>' . $this->moduleDetail->getModuleVersion() . '</p>';
     }
 }

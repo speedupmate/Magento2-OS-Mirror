@@ -33,6 +33,10 @@ class ConfigProvider implements ConfigProviderInterface
      */
     public function getConfig(): array
     {
+        if (!$this->config->isActive()) {
+            return [];
+        }
+
         return [
             'payment' => [
                 self::METHOD_CODE => [

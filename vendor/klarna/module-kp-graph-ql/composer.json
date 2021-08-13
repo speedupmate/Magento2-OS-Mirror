@@ -2,30 +2,17 @@
     "name": "klarna/module-kp-graph-ql",
     "description": "Klarna KpGraphQl Magento 2 Extension",
     "type": "magento2-module",
-    "version": "0.9.1",
     "license": "Apache-2.0",
-    "support": {
-        "email": "magento@klarna.com"
-    },
-    "authors": [
-        {
-            "name": "Markus Simon",
-            "email": "markus.simon2@klarna.com",
-            "role": "Developer"
-        },
-        {
-            "name": "Dario Kassler",
-            "email": "dario.kassler@klarna.com",
-            "role": "Developer"
-        }
-    ],
+    "version": "0.9.3",
     "require": {
         "php": "~7.3.0||~7.4.0",
         "magento/framework": "^102|^103",
         "magento/module-payment": "^100.1",
-        "magento/module-quote-graph-ql":"^100",
-        "magento/module-graph-ql":"^100",
-        "klarna/module-kp": "^7.0.2"
+        "magento/module-quote-graph-ql": "^100",
+        "magento/module-store": "^101.0",
+        "magento/module-graph-ql": "^100",
+        "klarna/module-kp": "7.3.2",
+        "klarna/module-core": "6.2.2"
     },
     "autoload": {
         "files": [
@@ -34,5 +21,21 @@
         "psr-4": {
             "Klarna\\KpGraphQl\\": ""
         }
+    },
+    "authors": [
+        {
+            "email": "markus.simon2@klarna.com",
+            "name": "Markus Simon",
+            "role": "Developer"
+        },
+        {
+            "email": "dario.kassler@klarna.com",
+            "name": "Dario Kassler",
+            "role": "Developer"
+        }
+    ],
+    "support": {
+        "email": "magento@klarna.com"
     }
 }
+

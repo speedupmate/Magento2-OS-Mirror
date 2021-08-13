@@ -1,0 +1,25 @@
+<div class="file-uploader-summary">
+    <div class="file-uploader-preview">
+        <a class="preview-link"
+           css="'preview-document'"
+           attr="href: $parent.getFilePreview($file), title: $file.name" target="_blank">
+        </a>
+
+        <div class="actions">
+            <button
+                type="button"
+                class="action-remove"
+                data-role="delete-button"
+                attr="title: $t('Delete image')"
+                click="$parent.removeFile.bind($parent, $file)">
+                <span translate="'Delete image'"/>
+            </button>
+        </div>
+    </div>
+
+    <div class="file-uploader-filename" text="$file.name"/>
+
+    <div class="file-uploader-meta">
+        <text args="$parent.formatSize($file.size)"/>
+    </div>
+</div>

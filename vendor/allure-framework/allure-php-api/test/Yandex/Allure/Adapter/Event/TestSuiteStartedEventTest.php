@@ -2,15 +2,16 @@
 
 namespace Yandex\Allure\Adapter\Event;
 
+use PHPUnit\Framework\TestCase;
 use Yandex\Allure\Adapter\Model\Description;
 use Yandex\Allure\Adapter\Model\DescriptionType;
 use Yandex\Allure\Adapter\Model\Label;
 use Yandex\Allure\Adapter\Model\LabelType;
 use Yandex\Allure\Adapter\Model\TestSuite;
 
-class TestSuiteStartedEventTest extends \PHPUnit_Framework_TestCase
+class TestSuiteStartedEventTest extends TestCase
 {
-    public function testEvent()
+    public function testEvent(): void
     {
         $testSuite = new TestSuite();
         $testSuiteName = 'test-suite-name';

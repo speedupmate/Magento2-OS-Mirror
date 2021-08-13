@@ -103,7 +103,6 @@ final class PhptTestCase implements SelfDescribing, Test
      * @throws Exception
      * @throws \SebastianBergmann\CodeCoverage\CoveredCodeNotExecutedException
      * @throws \SebastianBergmann\CodeCoverage\InvalidArgumentException
-     * @throws \SebastianBergmann\CodeCoverage\MissingCoversAnnotationException
      * @throws \SebastianBergmann\CodeCoverage\RuntimeException
      * @throws \SebastianBergmann\CodeCoverage\UnintentionallyCoveredCodeException
      * @throws \SebastianBergmann\RecursionContext\InvalidArgumentException
@@ -167,10 +166,11 @@ final class PhptTestCase implements SelfDescribing, Test
             $this->renderForCoverage($code);
         }
 
-        Timer::start();
+        $timer = new Timer;
+        $timer->start();
 
         $jobResult    = $this->phpUtil->runJob($code, $this->stringifyIni($settings));
-        $time         = Timer::stop();
+        $time         = $timer->stop()->asSeconds();
         $this->output = $jobResult['stdout'] ?? '';
 
         if ($result->getCollectCodeCoverageInformation() && ($coverage = $this->cleanupForCoverage())) {
@@ -446,7 +446,7 @@ final class PhptTestCase implements SelfDescribing, Test
         foreach ($unsupportedSections as $section) {
             if (isset($sections[$section])) {
                 throw new Exception(
-                    "PHPUnit does not support PHPT $section sections"
+                    "PHPUnit does not support PHPT {$section} sections"
                 );
             }
         }
@@ -596,11 +596,19 @@ final class PhptTestCase implements SelfDescribing, Test
 
     private function cleanupForCoverage(): array
     {
+        $coverage = [];
         $files    = $this->getCoverageFiles();
-        $coverage = @\unserialize(\file_get_contents($files['coverage']));
 
-        if ($coverage === false) {
-            $coverage = [];
+        if (\file_exists($files['coverage'])) {
+            $buffer = @\file_get_contents($files['coverage']);
+
+            if ($buffer !== false) {
+                $coverage = @\unserialize($buffer);
+
+                if ($coverage === false) {
+                    $coverage = [];
+                }
+            }
         }
 
         foreach ($files as $file) {

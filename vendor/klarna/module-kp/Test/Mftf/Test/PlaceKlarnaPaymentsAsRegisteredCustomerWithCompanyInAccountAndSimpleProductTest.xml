@@ -1,0 +1,33 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!--
+ /**
+  * Copyright © Magento, Inc. All rights reserved.
+  * See COPYING.txt for license details.
+  *
+  * This file is part of the Klarna KP module
+  *
+  * (c) Klarna Bank AB (publ)
+  *
+  * For the full copyright and license information, please view the NOTICE
+  * and LICENSE files that were distributed with this source code.
+  */
+-->
+<tests xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+       xsi:noNamespaceSchemaLocation="urn:magento:mftf:Test/etc/testSchema.xsd">
+    <test name="PlaceKlarnaPaymentsAsRegisteredCustomerWithCompanyInAccountAndSimpleProductTest" extends="PlaceKlarnaPaymentsAsRegisteredCustomerTest">
+        <annotations>
+            <features value="Klarna Payments"/>
+            <stories value="Placing an order as registered customer with company value"/>
+            <title value="Placing order"/>
+            <description value="Successfully placing an order with Klarna Payments with a virtual product as registered customer with a company value in the account"/>
+            <severity value="CRITICAL"/>
+            <testCaseId value="KP_PL_R_4"/>
+            <group value="Klarna_KP_Order_Registered"/>
+            <group value="Klarna_KP"/>
+        </annotations>
+
+        <actionGroup ref="LoginToStorefrontActionGroup" stepKey="customerLogin">
+            <argument name="Customer" value="$$marketDefaultCustomerB2bInstance$$" />
+        </actionGroup>
+    </test>
+</tests>

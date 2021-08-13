@@ -8,6 +8,17 @@
 
 namespace Laminas\Crypt\PublicKey\Rsa;
 
+use function file_get_contents;
+use function is_readable;
+use function openssl_error_string;
+use function openssl_pkey_get_details;
+use function openssl_pkey_get_private;
+use function openssl_private_decrypt;
+use function openssl_private_encrypt;
+
+use const OPENSSL_PKCS1_OAEP_PADDING;
+use const OPENSSL_PKCS1_PADDING;
+
 /**
  * RSA private key
  */
@@ -30,7 +41,7 @@ class PrivateKey extends AbstractKey
      */
     public static function fromFile($pemFile, $passPhrase = null)
     {
-        if (!is_readable($pemFile)) {
+        if (! is_readable($pemFile)) {
             throw new Exception\InvalidArgumentException(
                 "PEM file '{$pemFile}' is not readable"
             );
@@ -116,7 +127,7 @@ class PrivateKey extends AbstractKey
      */
     public function decrypt($data, $padding = OPENSSL_PKCS1_OAEP_PADDING)
     {
-        if (!is_string($data)) {
+        if (! is_string($data)) {
             throw new Exception\InvalidArgumentException('The data to decrypt must be a string');
         }
         if ('' === $data) {

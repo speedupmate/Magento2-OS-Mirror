@@ -82,7 +82,7 @@ class VertexStatus extends Field
                 $arguments = $result->getArguments();
 
                 $state = 'minor';
-                $status = call_user_func_array('__', array_merge([$message], $arguments));
+                $status = __($message, $arguments);
             }
         }
         $html = '<span class="grid-severity-' . $state . '"><span>' . $status . '</span></span>';

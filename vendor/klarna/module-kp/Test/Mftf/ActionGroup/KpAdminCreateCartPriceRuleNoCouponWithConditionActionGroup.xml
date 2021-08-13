@@ -1,0 +1,32 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!--
+ /**
+  * Copyright © Magento, Inc. All rights reserved.
+  * See COPYING.txt for license details.
+  *
+  * This file is part of the Klarna KP module
+  *
+  * (c) Klarna Bank AB (publ)
+  *
+  * For the full copyright and license information, please view the NOTICE
+  * and LICENSE files that were distributed with this source code.
+  */
+-->
+<actionGroups xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+              xsi:noNamespaceSchemaLocation="urn:magento:mftf:Test/etc/actionGroupSchema.xsd">
+    <actionGroup name="KpAdminCreateCartPriceRuleNoCouponWithConditionActionGroup" extends="KpAdminCreateCartPriceRuleNoCouponActionGroup">
+        <arguments>
+            <argument name="condition" type="string" defaultValue="Payment Method"/>
+            <argument name="ruleToChange" type="string" defaultValue="..."/>
+            <argument name="ruleParameter" type="string" defaultValue="Klarna Payments"/>
+        </arguments>
+
+        <!-- condition details -->
+        <click selector="{{AdminCartPriceRulesFormSection.conditionsHeader}}" stepKey="openConditionsSection" after="selectCustomerGroup"/>
+        <click selector="{{AdminCartPriceRulesFormSection.addCondition('1')}}" stepKey="addCondition" after="openConditionsSection"/>
+        <selectOption selector="{{AdminCartPriceRulesFormSection.ruleCondition('1')}}" userInput="{{condition}}" stepKey="selectRuleCondition" after="addCondition"/>
+        <waitForElementVisible selector="{{AdminCartPriceRulesFormSection.ruleParameter(ruleToChange)}}" stepKey="waitForRuleElement" after="selectRuleCondition"/>
+        <click selector="{{AdminCartPriceRulesFormSection.ruleParameter(ruleToChange)}}" stepKey="clickToChangeRule" after="waitForRuleElement"/>
+        <selectOption selector="{{AdminCartPriceRulesFormSection.ruleParameterInput('1--1')}}" userInput="{{ruleParameter}}" stepKey="selectRuleParameter" after="clickToChangeRule"/>
+    </actionGroup>
+</actionGroups>

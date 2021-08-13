@@ -22,15 +22,14 @@ final class PHP80MigrationRiskySet extends AbstractRuleSetDescription
     public function getRules()
     {
         return [
-            '@PHP71Migration:risky' => true,
-            'implode_call' => true,
+            '@PHP74Migration:risky' => true,
             'no_alias_functions' => [
                 'sets' => [
                     '@all',
                 ],
             ],
             'no_php4_constructor' => true,
-            'no_unneeded_final_method' => true,
+            'no_unneeded_final_method' => true, // final private method (not constructor) are no longer allowed >= PHP8.0
             'no_unreachable_default_argument_value' => true,
         ];
     }

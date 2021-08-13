@@ -28,7 +28,6 @@ Example #1
 
    --- Original
    +++ New
-   @@ -1,9 +1,9 @@
     <?php
    -while ($x) { while ($y) { break (2); } }
    -clone($a);
@@ -56,7 +55,6 @@ With configuration: ``['statements' => ['break', 'continue']]``.
 
    --- Original
    +++ New
-   @@ -1,9 +1,9 @@
     <?php
    -while ($x) { while ($y) { break (2); } }
    +while ($x) { while ($y) { break 2; } }
@@ -75,7 +73,11 @@ Rule sets
 The rule is part of the following rule sets:
 
 @PhpCsFixer
-  Using the `@PhpCsFixer <./../../ruleSets/PhpCsFixer.rst>`_ rule set will enable the ``no_unneeded_control_parentheses`` rule with the default config.
+  Using the `@PhpCsFixer <./../../ruleSets/PhpCsFixer.rst>`_ rule set will enable the ``no_unneeded_control_parentheses`` rule with the config below:
+
+  ``['statements' => ['break', 'clone', 'continue', 'echo_print', 'return', 'switch_case', 'yield', 'yield_from']]``
 
 @Symfony
-  Using the `@Symfony <./../../ruleSets/Symfony.rst>`_ rule set will enable the ``no_unneeded_control_parentheses`` rule with the default config.
+  Using the `@Symfony <./../../ruleSets/Symfony.rst>`_ rule set will enable the ``no_unneeded_control_parentheses`` rule with the config below:
+
+  ``['statements' => ['break', 'clone', 'continue', 'echo_print', 'return', 'switch_case', 'yield', 'yield_from']]``

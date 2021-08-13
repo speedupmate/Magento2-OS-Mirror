@@ -18,7 +18,6 @@ Example #1
 
    --- Original
    +++ New
-   @@ -1,2 +1,2 @@
     <?php
    - pow($a, 1);
    + $a** 1;
@@ -37,5 +36,14 @@ The rule is part of the following rule sets:
 @PHP71Migration:risky
   Using the `@PHP71Migration:risky <./../../ruleSets/PHP71MigrationRisky.rst>`_ rule set will enable the ``pow_to_exponentiation`` rule.
 
+@PHP74Migration:risky
+  Using the `@PHP74Migration:risky <./../../ruleSets/PHP74MigrationRisky.rst>`_ rule set will enable the ``pow_to_exponentiation`` rule.
+
 @PHP80Migration:risky
   Using the `@PHP80Migration:risky <./../../ruleSets/PHP80MigrationRisky.rst>`_ rule set will enable the ``pow_to_exponentiation`` rule.
+
+@PhpCsFixer:risky
+  Using the `@PhpCsFixer:risky <./../../ruleSets/PhpCsFixerRisky.rst>`_ rule set will enable the ``pow_to_exponentiation`` rule.
+
+@Symfony:risky
+  Using the `@Symfony:risky <./../../ruleSets/SymfonyRisky.rst>`_ rule set will enable the ``pow_to_exponentiation`` rule.

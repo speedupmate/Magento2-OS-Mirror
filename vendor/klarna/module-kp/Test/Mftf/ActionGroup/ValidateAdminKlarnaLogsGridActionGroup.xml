@@ -1,0 +1,42 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!--
+ /**
+  * Copyright © Magento, Inc. All rights reserved.
+  * See COPYING.txt for license details.
+  *
+  * This file is part of the Klarna KP module
+  *
+  * (c) Klarna Bank AB (publ)
+  *
+  * For the full copyright and license information, please view the NOTICE
+  * and LICENSE files that were distributed with this source code.
+  */
+-->
+<actionGroups xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+              xsi:noNamespaceSchemaLocation="urn:magento:mftf:Test/etc/actionGroupSchema.xsd">
+    <actionGroup name="ValidateAdminKlarnaLogsGrid">
+        <annotations>
+            <description>Goes to the Admin Orders page. Filters the grid based on the provided Order ID.</description>
+        </annotations>
+        <arguments>
+            <argument name="orderId" type="string"/>
+        </arguments>
+
+
+        <!-- Login to admin and filter Klarna Logs by order-id -->
+        <amOnPage url="{{KlarnaLogsGridPage.url}}" stepKey="navigateToLogsGridPage"/>
+        <waitForPageLoad stepKey="waitForLogsPage"/>
+        <conditionalClick selector="{{KlarnaLogsGridSection.clearFilters}}" dependentSelector="{{KlarnaLogsGridSection.clearFilters}}" visible="true" stepKey="clearExistingLogsFilters"/>
+        <waitForPageLoad stepKey="waitForClearFilters"/>
+        <click selector="{{KlarnaLogsGridSection.filters}}" stepKey="openLogsGridFilters"/>
+        <waitForPageLoad stepKey="waitForClickFilters"/>
+        <fillField selector="{{KlarnaLogsGridSection.orderIdFilter}}" userInput="{{orderId}}" stepKey="fillOrderIdFilter"/>
+        <click selector="{{KlarnaLogsGridSection.applyFilters}}" stepKey="clickLogsApplyFilters"/>
+        <waitForPageLoad stepKey="waitForApplyFilters"/>
+
+        <!-- Open log view -->
+        <click selector="{{KlarnaLogsGridSection.firstRow}}" stepKey="openLogsViewPage"/>
+        <waitForPageLoad stepKey="waitForLogsViewPageOpened"/>
+        <see selector="{{KlarnaLogsViewSection.status}}" userInput="200" stepKey="seeSuccessStatus"/>
+    </actionGroup>
+</actionGroups>

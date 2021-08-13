@@ -1,0 +1,53 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!--
+ /**
+  * Copyright © Magento, Inc. All rights reserved.
+  * See COPYING.txt for license details.
+  *
+  * This file is part of the Klarna KP module
+  *
+  * (c) Klarna Bank AB (publ)
+  *
+  * For the full copyright and license information, please view the NOTICE
+  * and LICENSE files that were distributed with this source code.
+  */
+-->
+<tests xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+       xsi:noNamespaceSchemaLocation="urn:magento:mftf:Test/etc/testSchema.xsd">
+    <test name="PlaceKlarnaPaymentsOrderWithDifferentTaxForProductAndShippingTest" extends="PlaceKlarnaPaymentsOrderAsGuestTest">
+        <annotations>
+            <features value="Klarna Payments"/>
+            <stories value="Place an order as a guest customer with different tax for product and shipping"/>
+            <title value="Place an order as a guest customer with different tax for product and shipping"/>
+            <description value="A guest customer should be able to place an order with different tax values for product and shipping"/>
+            <severity value="CRITICAL"/>
+            <testCaseId value="KP_DIFFSTX"/>
+            <group value="Klarna_KP_Order_Guest"/>
+            <group value="Klarna_KP_Tax"/>
+            <group value="Klarna_KP"/>
+        </annotations>
+        <before>
+            <actionGroup ref="AdminLoginActionGroup" stepKey="loginAsAdmin"/>
+            <createData entity="shippingTaxClass" stepKey="createShippingTaxClass"/>
+
+            <actionGroup ref="KlarnaCreateTaxRuleActionGroup" stepKey="createShippingTaxRule">
+                <argument name="taxRateCode" value="$$taxRateTwo.code$$"/>
+                <argument name="taxRuleCode" value="Shipping"/>
+            </actionGroup>
+
+            <actionGroup ref="KlarnaSetCustomTaxClassForShippingActionGroup" stepKey="setShippingTaxClass">
+                <argument name="taxClass" value="Shipping"/>
+            </actionGroup>
+        </before>
+        <after>
+            <actionGroup ref="AdminDeleteTaxRule" stepKey="deleteShippingTaxRule">
+                <argument name="taxRuleCode" value="Shipping"/>
+            </actionGroup>
+            <deleteData createDataKey="createShippingTaxClass" stepKey="deleteShippingTaxClass"/>
+
+            <actionGroup ref="ResetTaxClassForShippingActionGroup" stepKey="resetShippingTaxClass"/>
+
+            <actionGroup ref="AdminLogoutActionGroup" stepKey="logout"/>
+        </after>
+    </test>
+</tests>

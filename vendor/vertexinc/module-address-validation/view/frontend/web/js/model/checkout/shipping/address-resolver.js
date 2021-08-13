@@ -22,8 +22,9 @@ define([
             if (element.name === 'street') {
                 // Just updating the addressData element doesn't seem to work on street inputs
                 const streetInputs = $('.form-shipping-address input[name^="street["]');
+                value = typeof value === "string" ? [value] : Object.values(value);
                 streetInputs.val('');
-                for(let index = 0, length = addressData[element.name].length;index < length;++index) {
+                for(let index = 0, length = value.length;index < length;++index) {
                     addressData[element.name][index] = typeof value[index] !== 'undefined' ? value[index] : '';
                     $(streetInputs[index])
                         .val(addressData[element.name][index]);

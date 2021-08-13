@@ -64,7 +64,7 @@ class ParentFinder
     {
         switch ($type) {
             case 'grouped':
-                $parentId = $this->getGroupedFirstParentId($product);
+                $parentId = $this->getFirstGroupedParentId($product);
                 break;
             default:
                 $parentId = $this->getFirstParentId($product);
@@ -80,6 +80,34 @@ class ParentFinder
                     ', Child Product: ' . $product->getId()
                 );
             }
+        }
+
+        return null;
+    }
+
+    /**
+     * Like getParentProduct(), but restricted to configurable parents only.
+     *
+     * @param $product
+     * @param string $type
+     * @return \Magento\Catalog\Api\Data\ProductInterface|null
+     */
+    private function getConfigurableParentProduct($product)
+    {
+        $parentId = $this->getFirstConfigurableParentId($product);
+
+        if (!$parentId) {
+            return null;
+        }
+
+        try {
+            return $this->productRepository->getById($parentId, false, $product->getStoreId());
+        } catch (\Magento\Framework\Exception\NoSuchEntityException $e) {
+            $this->logger->debug(
+                $e->getMessage() .
+                ' Parent Product: ' . $parentId .
+                ', Child Product: ' . $product->getId()
+            );
         }
 
         return null;
@@ -120,28 +148,26 @@ class ParentFinder
     }
 
     /**
-     * @param array $products
+     * @param array $productIds
      * @return array
      */
-    public function getConfigurableParentsFromBunchOfProducts($products)
+    public function getConfigurableParentsFromProductIds($productIds)
     {
         $configurableParents = [];
 
-        foreach ($products as $product) {
-            if (is_array($product) && isset($product['sku'])) {
-                try {
-                    $product = $this->productRepository->get($product['sku']);
-                } catch (\Magento\Framework\Exception\NoSuchEntityException $e) {
-                    $this->logger->debug(
-                        $e->getMessage() .
-                        ' SKU not found: ' . $product['sku']
-                    );
-                    continue;
-                }
+        foreach ($productIds as $productId) {
+            try {
+                $product = $this->productRepository->getById($productId);
+            } catch (\Magento\Framework\Exception\NoSuchEntityException $e) {
+                $this->logger->debug(
+                    $e->getMessage() . ' Product ID: ' . $productId
+                );
+                continue;
             }
+
             if ($product instanceof Product) {
-                $parentProduct = $this->getParentProduct($product);
-                if (isset($parentProduct) && $parentProduct->getTypeId() === 'configurable') {
+                $parentProduct = $this->getConfigurableParentProduct($product);
+                if (isset($parentProduct)) {
                     $configurableParents[] = $parentProduct->getData();
                 }
             }
@@ -178,7 +204,21 @@ class ParentFinder
      * @param $product
      * @return string|null
      */
-    private function getGroupedFirstParentId($product)
+    private function getFirstConfigurableParentId($product)
+    {
+        $configurableProducts = $this->configurableType->getParentIdsByChild($product->getId());
+        if (isset($configurableProducts[0])) {
+            return $configurableProducts[0];
+        }
+
+        return null;
+    }
+
+    /**
+     * @param $product
+     * @return string|null
+     */
+    private function getFirstGroupedParentId($product)
     {
         $groupedProducts = $this->groupedType->getParentIdsByChild($product->getId());
         if (isset($groupedProducts[0])) {

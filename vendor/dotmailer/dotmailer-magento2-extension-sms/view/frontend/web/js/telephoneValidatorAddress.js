@@ -16,7 +16,8 @@ define([
             validate: function (value) {
                 var countryCodeClass = $('.iti__selected-flag .iti__flag').attr('class'),
                     countryCode,
-                    isValid;
+                    isValid,
+                    errorCode;
 
                 countryCodeClass = countryCodeClass.split(' ')[1];
 
@@ -30,9 +31,11 @@ define([
                 isValid = intlTelInputUtils.isValidNumber(value, countryCode);
 
                 if (!isValid) {
-                    $.validator.messages['validate-phone-number'] = errorMap[
-                        intlTelInputUtils.getValidationError(value, countryCode)
-                        ];
+                    errorCode = window.intlTelInputUtils.getValidationError(value, countryCode);
+
+                    $.validator.messages['validate-phone-number'] = typeof errorMap[errorCode] === 'undefined' ?
+                        errorMap[0] :
+                        errorMap[errorCode];
                 }
 
                 return isValid;

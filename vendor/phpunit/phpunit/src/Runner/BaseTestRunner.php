@@ -10,7 +10,6 @@
 namespace PHPUnit\Runner;
 
 use PHPUnit\Framework\Exception;
-use PHPUnit\Framework\Test;
 use PHPUnit\Framework\TestSuite;
 use SebastianBergmann\FileIterator\Facade as FileIteratorFacade;
 
@@ -22,17 +21,17 @@ abstract class BaseTestRunner
     /**
      * @var int
      */
-    public const STATUS_UNKNOWN    = -1;
+    public const STATUS_UNKNOWN = -1;
 
     /**
      * @var int
      */
-    public const STATUS_PASSED     = 0;
+    public const STATUS_PASSED = 0;
 
     /**
      * @var int
      */
-    public const STATUS_SKIPPED    = 1;
+    public const STATUS_SKIPPED = 1;
 
     /**
      * @var int
@@ -42,27 +41,27 @@ abstract class BaseTestRunner
     /**
      * @var int
      */
-    public const STATUS_FAILURE    = 3;
+    public const STATUS_FAILURE = 3;
 
     /**
      * @var int
      */
-    public const STATUS_ERROR      = 4;
+    public const STATUS_ERROR = 4;
 
     /**
      * @var int
      */
-    public const STATUS_RISKY      = 5;
+    public const STATUS_RISKY = 5;
 
     /**
      * @var int
      */
-    public const STATUS_WARNING    = 6;
+    public const STATUS_WARNING = 6;
 
     /**
      * @var string
      */
-    public const SUITE_METHODNAME  = 'suite';
+    public const SUITE_METHODNAME = 'suite';
 
     /**
      * Returns the loader to be used.
@@ -81,7 +80,7 @@ abstract class BaseTestRunner
      *
      * @throws Exception
      */
-    public function getTest(string $suiteClassFile, $suffixes = ''): ?Test
+    public function getTest(string $suiteClassFile, $suffixes = ''): ?TestSuite
     {
         if (\is_dir($suiteClassFile)) {
             /** @var string[] $files */
@@ -107,7 +106,7 @@ abstract class BaseTestRunner
             $testClass = $this->loadSuiteClass(
                 $suiteClassFile
             );
-        } catch (Exception $e) {
+        } catch (\PHPUnit\Exception $e) {
             $this->runFailed($e->getMessage());
 
             return null;

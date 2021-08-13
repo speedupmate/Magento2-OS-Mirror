@@ -30,7 +30,7 @@ class ShippingAddressGetterProcessor implements
     TaxCalculationFlexFieldProcessorInterface
 {
     /** @var string[] */
-    const BLACK_LIST = [
+    const BLOCK_LIST = [
         'getExtensionAttributes',
         'getCustomAttribute',
         'getCustomAttributes',
@@ -134,7 +134,7 @@ class ShippingAddressGetterProcessor implements
                     static::PREFIX,
                     $optionGroup,
                     static::class,
-                    static::BLACK_LIST
+                    static::BLOCK_LIST
                 ),
                 $this->eavAttributeExtractor->extract(
                     'customer_address',

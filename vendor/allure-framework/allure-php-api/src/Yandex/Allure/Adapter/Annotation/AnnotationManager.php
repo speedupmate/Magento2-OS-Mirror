@@ -48,6 +48,10 @@ class AnnotationManager
                     $annotation->type,
                     $annotation->value
                 );
+            } elseif ($annotation instanceof Epics) {
+                foreach ($annotation->getEpicNames() as $epicName) {
+                    $this->labels[] = Model\Label::epic($epicName);
+                }
             } elseif ($annotation instanceof Features) {
                 foreach ($annotation->getFeatureNames() as $featureName) {
                     $this->labels[] = Model\Label::feature($featureName);
@@ -85,10 +89,14 @@ class AnnotationManager
                     );
                 }
             } elseif ($annotation instanceof Label) {
-                $this->labels[] = Model\Label::label($annotation->name, $annotation->value);
+                foreach ($annotation -> values as $value) {
+                    $this->labels[] = Model\Label::label($annotation->name, $value);
+                }
             } elseif ($annotation instanceof Labels) {
                 foreach ($annotation -> labels as $label) {
-                    $this->labels[] = Model\Label::label($label->name, $label->value);
+                    foreach ($label -> values as $value) {
+                        $this->labels[] = Model\Label::label($label->name, $value);
+                    }
                 }
             }
         }

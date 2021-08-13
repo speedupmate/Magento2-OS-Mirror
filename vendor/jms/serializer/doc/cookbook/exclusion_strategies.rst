@@ -224,6 +224,52 @@ This would result in the following json::
         ]
     }
 
+Deserialization Exclusion Strategy with Groups
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+You can use ``@Groups`` to cut off unwanted properties while deserialization.
+
+.. code-block:: php
+
+    use JMS\Serializer\Annotation\Groups;
+
+    class GroupsObject
+    {
+        /**
+         * @Groups({"foo"})
+         */
+        public $foo;
+
+        /**
+         * @Groups({"foo","bar"})
+         */
+        public $foobar;
+
+        /**
+         * @Groups({"bar", "Default"})
+         */
+        public $bar;
+
+        /**
+         * @Type("string")
+         */
+        public $none;
+    }
+
+.. code-block:: php
+
+    $data = [
+        'foo'    => 'foo',
+        'foobar' => 'foobar',
+        'bar'    => 'bar',
+        'none'   => 'none',
+    ];
+    $context = DeserializationContext::create()->setGroups(['foo']);
+    $object = $serializer->fromArray($data, GroupsObject::class, $context);
+    // $object->foo is 'foo'
+    // $object->foobar is 'foobar'
+    // $object->bar is null
+    // $object->none is null
+
 Limiting serialization depth of some properties
 -----------------------------------------------
 You can limit the depth of what will be serialized in a property with the
@@ -272,12 +318,16 @@ Dynamic exclusion strategy
 If the previous exclusion strategies are not enough, is possible to use the ``ExpressionLanguageExclusionStrategy``
 that uses the `symfony expression language`_ to
 allow a more sophisticated exclusion strategies using ``@Exclude(if="expression")`` and ``@Expose(if="expression")`` methods.
+This also works on class level, but is only evaluated during ``serialze`` and does not have any effect during ``deserialze``.
 
 
 .. code-block :: php
 
     <?php
 
+    /**
+     * @Exclude(if="true")
+    */
     class MyObject
     {
         /**
@@ -310,11 +360,11 @@ To enable this feature you have to set the Expression Evaluator when initializin
 
 .. _symfony expression language: https://github.com/symfony/expression-language
 
-By default the serializer exposes three variables (`object`, `context` and `property_metadata` for use in an expression. This enables you to create custom exclusion strategies similar to i.e. the [GroupExclusionStrategy](https://github.com/schmittjoh/serializer/blob/master/src/Exclusion/GroupsExclusionStrategy.php). In the below example, `someMethod` would receive all three variables.
+By default the serializer exposes three variables (`object`, `context` and `property_metadata` for use in an expression. This enables you to create custom exclusion strategies similar to i.e. the `GroupExclusionStrategy`_. In the below example, `someMethod` would receive all three variables.
 
 .. code-block :: php
 
-        <?php
+    <?php
 
     class MyObject
     {
@@ -324,7 +374,35 @@ By default the serializer exposes three variables (`object`, `context` and `prop
         private $name;
 
        /**
-         * @Exclude(if="someMethod(object, context, property_metadata)")
+         * @Expose(if="someMethod(object, context, property_metadata)")
          */
         private $name2;
+    }
+
+.. _GroupExclusionStrategy: https://github.com/schmittjoh/serializer/blob/master/src/Exclusion/GroupsExclusionStrategy.php
+
+Using dynamic excludes on class level is also handy when you need to filter out certain objects in a collection, for example based on user permissions.
+The following example shows how to exclude `Account` objects when serializing the `Person` object, if the `Account` is either expired or the user does not have the permission to view the account by calling `is_granted` with the `Account` object.
+
+.. code-block :: php
+
+    <?php
+
+    class Person
+    {
+        /**
+         * @Type("array<Account>")
+         */
+        public $accounts;
+    }
+
+    /**
+     * @Exclude(if="object.expired || !is_granted('view',object)")
+     */
+    class Account
+    {
+        /**
+         * @Type("boolean")
+         */
+        public $expired;
     }

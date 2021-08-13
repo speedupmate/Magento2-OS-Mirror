@@ -167,6 +167,7 @@ class CustomerPluginTest extends WebapiAbstract
     {
         $customerData = $this->customerRepository->getById($customerId);
         $this->customerRegistry->remove($customerId);
+
         return $customerData;
     }
 

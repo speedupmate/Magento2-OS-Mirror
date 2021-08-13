@@ -11,4 +11,9 @@
             </argument>
         </arguments>
     </type>
+    <type name="Klarna\Core\Model\Support\Email">
+        <arguments>
+            <argument name="driverInterface" xsi:type="object">Magento\Framework\Filesystem\Driver\File</argument>
+        </arguments>
+    </type>
 </config>

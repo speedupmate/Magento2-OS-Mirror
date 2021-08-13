@@ -119,7 +119,7 @@ class CancelOrder implements ObserverInterface
             return;
         }
 
-        $this->cancelOrderWithKlarna($observer->getMethodCode(), $observer->getReason(), $checkout_id, $store);
+        $this->cancelOrderWithKlarna($observer->getMethodCode(), $observer->getReason(), $checkout_id, $korder, $store);
         $this->cancelOrderWithMagento($observer->getOrder(), $observer->getQuote());
     }
 
@@ -144,10 +144,11 @@ class CancelOrder implements ObserverInterface
      * @param string         $methodCode
      * @param string         $reason
      * @param string         $checkoutId
+     * @param OrderInterface $korder
      * @param StoreInterface $store
      * @return void
      */
-    private function cancelOrderWithKlarna($methodCode, $reason, $checkoutId, StoreInterface $store = null)
+    private function cancelOrderWithKlarna($methodCode, $reason, $checkoutId, $korder, StoreInterface $store = null)
     {
         try {
             $this->getOmApi($methodCode, $store);
@@ -157,7 +158,8 @@ class CancelOrder implements ObserverInterface
                 $klarnaId = $checkoutId;
             }
             if ($order->getStatus() !== 'CANCELED') {
-                $this->orderManagement->cancel($klarnaId);
+                $mageOrder = $this->mageOrderRepository->get($korder->getOrderId());
+                $this->orderManagement->cancel($klarnaId, $mageOrder);
                 $this->log->debug('Canceled order with Klarna - ' . $reason);
             }
         } catch (\Exception $e) {

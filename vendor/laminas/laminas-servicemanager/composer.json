@@ -1,10 +1,15 @@
 {
     "name": "laminas/laminas-servicemanager",
-    "description": " ",
+    "description": "Factory-Driven Dependency Injection Container",
     "license": "BSD-3-Clause",
     "keywords": [
         "laminas",
-        "servicemanager"
+        "di",
+        "dic",
+        "dependency-injection",
+        "psr-11",
+        "servicemanager",
+        "service-manager"
     ],
     "homepage": "https://laminas.dev",
     "support": {
@@ -18,27 +23,34 @@
     "config": {
         "sort-packages": true
     },
-    "extra": {
-        "branch-alias": {
-            "dev-master": "2.7-dev",
-            "dev-develop": "3.0-dev"
-        }
-    },
     "require": {
-        "php": "^5.5 || ^7.0",
-        "container-interop/container-interop": "~1.0",
-        "laminas/laminas-zendframework-bridge": "^1.0"
+        "php": "^7.3 || ~8.0.0",
+        "container-interop/container-interop": "^1.2",
+        "laminas/laminas-stdlib": "^3.2.1",
+        "laminas/laminas-zendframework-bridge": "^1.0",
+        "psr/container": "^1.0"
     },
     "require-dev": {
-        "athletic/athletic": "dev-master",
-        "fabpot/php-cs-fixer": "1.7.*",
-        "laminas/laminas-di": "~2.5",
-        "laminas/laminas-mvc": "~2.5",
-        "phpunit/phpunit": "~4.0"
+        "composer/package-versions-deprecated": "^1.0",
+        "laminas/laminas-coding-standard": "~1.0.0",
+        "laminas/laminas-container-config-test": "^0.3",
+        "laminas/laminas-dependency-plugin": "^2.1",
+        "mikey179/vfsstream": "^1.6.8",
+        "ocramius/proxy-manager": "^2.2.3",
+        "phpbench/phpbench": "^1.0.0-alpha3",
+        "phpspec/prophecy-phpunit": "^2.0",
+        "phpunit/phpunit": "^9.4"
+    },
+    "provide": {
+        "container-interop/container-interop-implementation": "^1.2",
+        "psr/container-implementation": "^1.0"
+    },
+    "conflict": {
+        "zendframework/zend-code": "<3.3.1",
+        "laminas/laminas-code": "<3.3.1"
     },
     "suggest": {
-        "laminas/laminas-di": "Laminas\\Di component",
-        "ocramius/proxy-manager": "ProxyManager 0.5.* to handle lazy initialization of services"
+        "ocramius/proxy-manager": "ProxyManager ^2.1.1 to handle lazy initialization of services"
     },
     "autoload": {
         "psr-4": {
@@ -51,7 +63,21 @@
             "LaminasBench\\ServiceManager\\": "benchmarks/"
         }
     },
+    "bin": [
+        "bin/generate-deps-for-config-factory",
+        "bin/generate-factory-for-class"
+    ],
+    "scripts": {
+        "check": [
+            "@cs-check",
+            "@test"
+        ],
+        "cs-check": "phpcs",
+        "cs-fix": "phpcbf",
+        "test": "phpunit --colors=always",
+        "test-coverage": "phpunit --colors=always --coverage-clover clover.xml"
+    },
     "replace": {
-        "zendframework/zend-servicemanager": "self.version"
+        "zendframework/zend-servicemanager": "^3.4.0"
     }
 }

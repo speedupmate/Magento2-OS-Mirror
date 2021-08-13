@@ -1,0 +1,28 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!--
+ /**
+  * Copyright © Magento, Inc. All rights reserved.
+  * See COPYING.txt for license details.
+  */
+-->
+
+<actionGroups xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+              xsi:noNamespaceSchemaLocation="urn:magento:mftf:Test/etc/actionGroupSchema.xsd">
+    <actionGroup name="KpGuestCheckoutFillingShippingSectionActionGroup" extends="GuestCheckoutFillingShippingSectionActionGroup">
+        <annotations>
+            <description>Fills in the provided Customer/Address (Including Region) details on the Storefront Checkout page under the 'Shipping Address' section. Selects the provided Shipping Method. Clicks on Next. Validates that the URL is present and correct.</description>
+        </annotations>
+        <arguments>
+            <argument name="customerVar" type="entity"/>
+        </arguments>
+
+        <remove keyForRemoval="waitForPaymentSectionLoaded"/>
+        <remove keyForRemoval="assertCheckoutPaymentUrl"/>
+
+        <fillField selector="{{CheckoutShippingSection.street}}" userInput="{{customerVar.addresses[0][street][0]}}" stepKey="enterStreet"/>
+        <fillField selector="{{CheckoutShippingSection.city}}" userInput="{{customerVar.addresses[0][city]}}" stepKey="enterCity"/>
+        <selectOption selector="{{CheckoutShippingSection.region}}" userInput="{{customerVar.addresses[0][region][region_id]}}" stepKey="selectRegion"/>
+        <fillField selector="{{CheckoutShippingSection.postcode}}" userInput="{{customerVar.addresses[0][postcode]}}" stepKey="enterPostcode"/>
+        <fillField selector="{{CheckoutShippingSection.telephone}}" userInput="{{customerVar.addresses[0][telephone]}}" stepKey="enterTelephone"/>
+    </actionGroup>
+</actionGroups>

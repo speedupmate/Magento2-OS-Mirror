@@ -14,7 +14,6 @@ Example #1
 
    --- Original
    +++ New
-   @@ -1,5 +1,5 @@
     <?php $b = " $a ^M
    - 123"; $a = <<<TEST^M
    -AAAAA ^M
@@ -28,6 +27,9 @@ Rule sets
 ---------
 
 The rule is part of the following rule sets:
+
+@PSR12
+  Using the `@PSR12 <./../../ruleSets/PSR12.rst>`_ rule set will enable the ``line_ending`` rule.
 
 @PSR2
   Using the `@PSR2 <./../../ruleSets/PSR2.rst>`_ rule set will enable the ``line_ending`` rule.

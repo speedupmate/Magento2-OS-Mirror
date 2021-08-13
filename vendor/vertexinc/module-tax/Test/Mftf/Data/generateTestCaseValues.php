@@ -12,6 +12,9 @@
 /** Tax rate when a product is shipped from PA to PA without any city sales tax applied */
 const TAX_RATE_PA_ONLY = 6;
 
+/** Tax rate when a product is shipped from PA to PA with city sales tax applied */
+const TAX_RATE_PA_WITH_CITY = 8;
+
 /** Sales and Use Tax */
 const TAX_RATE_PA_SALES_AND_USE = 2;
 
@@ -69,6 +72,14 @@ $entities = [
         'subtotalInclTax' => 34 * (TAX_RATE_PA_ONLY / 100 + 1),
         'tax' => 34 * (TAX_RATE_PA_ONLY / 100),
         'taxPercent' => TAX_RATE_PA_ONLY,
+    ],
+    'Vertex_34USD_PA_With_City_Values' => [
+        'price' => 34.00,
+        'priceInclTax' => 34 * (TAX_RATE_PA_WITH_CITY / 100 + 1),
+        'subtotal' => 34.00,
+        'subtotalInclTax' => 34 * (TAX_RATE_PA_WITH_CITY / 100 + 1),
+        'tax' => 34 * (TAX_RATE_PA_WITH_CITY / 100),
+        'taxPercent' => TAX_RATE_PA_WITH_CITY,
     ],
     'Vertex_34USD_PA_To_DE_Values' => [
         'price' => 34.00,
@@ -369,6 +380,15 @@ $totals = [
         'shippingTax' => 0,
         'shippingInclTax' => 0,
     ],
+    'Vertex_100USD_Virtual_and_Downloadable_SantaMonica_Totals' => [
+        'pieces' => [
+            'Vertex_100USD_SantaMonica_Values',
+            'Vertex_100USD_SantaMonica_Values',
+        ],
+        'shipping' => 0,
+        'shippingTax' => 0,
+        'shippingInclTax' => 0,
+    ],
     'Vertex_100USD_Virtual_PA_Only_Totals' => [
         'pieces' => [
             'Vertex_100USD_PA_Only_Values',
@@ -392,6 +412,14 @@ $totals = [
         'shipping' => 5,
         'shippingTax' => 5 * TAX_RATE_PA_ONLY / 100,
         'shippingInclTax' => 5 * (TAX_RATE_PA_ONLY / 100 + 1),
+    ],
+    'Vertex_34USD_PA_With_City_Totals' => [
+        'pieces' => [
+            'Vertex_34USD_PA_With_City_Values',
+        ],
+        'shipping' => 5,
+        'shippingTax' => 5 * TAX_RATE_PA_WITH_CITY / 100,
+        'shippingInclTax' => 5 * (TAX_RATE_PA_WITH_CITY / 100 + 1),
     ],
     'Vertex_34USD_PA_To_DE_Totals' => [
         'pieces' => [

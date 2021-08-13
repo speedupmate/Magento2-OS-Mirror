@@ -21,5 +21,8 @@
         <element name="klarnaPaymentsPaymentSelector" type="text" selector="#payment-selector"/>
         <element name="klarnaPaymentsPaymentSelectorLoader" type="text" selector="div:not(#klarna-logo) > svg"/>
         <element name="klarnaPaymentsPlaceOrderButton" type="button" selector="[data-role='review-save']:not(:disabled)"/>
+        <element name="klarnaPaymentsPayLaterIframe" type="iframe" selector="klarna-pay-later-fullscreen"/>
+        <element name="klarnaPaymentsPayLaterIframeDobField" type="input" selector="#purchase-approval-form-date-of-birth"/>
+        <element name="klarnaPaymentsPayLaterIframeButton" type="button" selector="#purchase-approval-form-continue-button"/>
     </section>
 </sections>

@@ -19,7 +19,6 @@ Example #1
 
    --- Original
    +++ New
-   @@ -1,4 +1,4 @@
     <?php
 
    -if ($a == "foo" and ($b == "bar" or $c == "baz")) {
@@ -29,7 +28,10 @@ Example #1
 Rule sets
 ---------
 
-The rule is part of the following rule set:
+The rule is part of the following rule sets:
 
 @PhpCsFixer:risky
   Using the `@PhpCsFixer:risky <./../../ruleSets/PhpCsFixerRisky.rst>`_ rule set will enable the ``logical_operators`` rule.
+
+@Symfony:risky
+  Using the `@Symfony:risky <./../../ruleSets/SymfonyRisky.rst>`_ rule set will enable the ``logical_operators`` rule.

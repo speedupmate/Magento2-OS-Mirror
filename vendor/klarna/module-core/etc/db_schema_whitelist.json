@@ -18,5 +18,28 @@
         "constraint": {
             "PRIMARY": true
         }
+    },
+    "klarna_logs": {
+        "column": {
+            "log_id": true,
+            "status": true,
+            "action": true,
+            "klarna_id": true,
+            "increment_id": true,
+            "url": true,
+            "method": true,
+            "service": true,
+            "request": true,
+            "response": true,
+            "created_at": true
+        },
+        "index": {
+            "KLARNA_LOGS_ORDER_ID": true,
+            "KLARNA_LOGS_KLARNA_ID": true,
+            "KLARNA_LOGS_ACTION_KLARNA_ID_INCREMENT_ID_URL": true
+        },
+        "constraint": {
+            "PRIMARY": true
+        }
     }
 }

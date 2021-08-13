@@ -27,7 +27,7 @@ use Vertex\Tax\Model\FlexField\Extractor\EavValueExtractor;
 class CustomerGetterProcessor implements InvoiceFlexFieldProcessorInterface, TaxCalculationFlexFieldProcessorInterface
 {
     /** @var string[] */
-    const BLACK_LIST = [
+    const BLOCK_LIST = [
         'getExtensionAttributes',
         'getCustomAttribute',
         'getCustomAttributes',
@@ -58,7 +58,7 @@ class CustomerGetterProcessor implements InvoiceFlexFieldProcessorInterface, Tax
     ];
 
     /** @var string[] */
-    const EAV_ATTRIBUTE_BLACK_LIST = [
+    const EAV_ATTRIBUTE_BLOCK_LIST = [
         'reward_update_notification',
         'reward_warning_notification'
     ];
@@ -126,7 +126,7 @@ class CustomerGetterProcessor implements InvoiceFlexFieldProcessorInterface, Tax
                     static::PREFIX,
                     'Customer',
                     static::class,
-                    array_merge(static::DATE_FIELDS, static::BLACK_LIST)
+                    array_merge(static::DATE_FIELDS, static::BLOCK_LIST)
                 ),
                 $this->attributeExtractor->extractDateFields(
                     static::PREFIX,
@@ -139,7 +139,7 @@ class CustomerGetterProcessor implements InvoiceFlexFieldProcessorInterface, Tax
                     static::PREFIX,
                     'Customer',
                     static::class,
-                    static::EAV_ATTRIBUTE_BLACK_LIST
+                    static::EAV_ATTRIBUTE_BLOCK_LIST
                 )
             ),
             [static::PREFIX . '.getDob' => __('Birthdate')]

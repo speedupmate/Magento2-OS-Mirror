@@ -1,0 +1,47 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<tests xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+       xsi:noNamespaceSchemaLocation="urn:magento:mftf:Test/etc/testSchema.xsd">
+    <test name="TransactionalSmsAlphanumericFromNameValidationTest">
+        <annotations>
+            <features value="Engagement Cloud module"/>
+            <stories value="dotdigital Transactional SMS"/>
+            <title value="Test Transactional SMS alphanumeric from name field"/>
+            <description value="Check function of server-side validation for saved values."/>
+            <severity value="MINOR"/>
+            <group value="FS/mftf-134277-2"/>
+            <group value="dotdigitalSms"/>
+        </annotations>
+
+        <before>
+            <actionGroup ref="AdminLoginActionGroup" stepKey="AdminLoginActionGroup1"/>
+            <actionGroup ref="SetDotmailerAccountData" stepKey="SetDotmailerAccountData"/>
+        </before>
+
+        <after>
+            <actionGroup ref="ResetFromName" stepKey="resetFromName"/>
+            <actionGroup ref="ResetDotmailerAccountData" stepKey="resetAccountData"/>
+            <actionGroup ref="AdminLogoutActionGroup" stepKey="logout"/>
+        </after>
+
+        <amOnPage url="{{AdminTransactionalSmsPage.url}}" stepKey="amOnDotdigitalTransactionalSmsPage"/>
+        <waitForPageLoad stepKey="waitForPageLoad"/>
+
+        <actionGroup ref="SetAlphanumericValueFromName" stepKey="setAlphanumericFromName">
+            <argument name="alphanumericValue" value="chaz12"/>
+        </actionGroup>
+
+        <see userInput="You saved the configuration." stepKey="seeSuccessMessage"/>
+
+        <actionGroup ref="SetAlphanumericValueFromName" stepKey="setAlphanumericFromNameLongChar">
+            <argument name="alphanumericValue" value="chazkangaroo12"/>
+        </actionGroup>
+
+        <see userInput="From name must be at least 3 characters long and cannot be longer than 11 characters long" stepKey="seeErrorMessage1"/>
+
+        <actionGroup ref="SetAlphanumericValueFromName" stepKey="setAlphanumericFromNameOnlyDigits">
+            <argument name="alphanumericValue" value="1234567"/>
+        </actionGroup>
+
+        <see userInput="From name cannot contain only digits" stepKey="seeErrorMessage2"/>
+    </test>
+</tests>

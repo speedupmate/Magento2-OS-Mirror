@@ -1,0 +1,41 @@
+<?xml version="1.0"?>
+<!--
+/**
+ * @author    Blue Acorn iCi <code@blueacornici.com>
+ * @copyright 2021 Vertex, Inc. All Rights Reserved.
+ */
+-->
+<schema xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+        xsi:noNamespaceSchemaLocation="urn:magento:framework:Setup/Declaration/Schema/etc/schema.xsd">
+    <table name="vertex_taxrequest" comment="The tax request table">
+        <column xsi:type="bigint" name="request_id" padding="20" nullable="false" unsigned="false" identity="true" comment="Request Id"/>
+        <column xsi:type="varchar" name="request_type" nullable="false" length="255" comment="Request type"/>
+        <column xsi:type="bigint" name="quote_id" padding="20" nullable="false" comment="Quote Id"/>
+        <column xsi:type="bigint" name="order_id" padding="20" nullable="false" comment="Order Id"/>
+        <column xsi:type="varchar" name="total_tax" nullable="false" length="255" comment="Total Tax Amount"/>
+        <column xsi:type="varchar" name="source_path" nullable="false" length="255" comment="Source path controller_module_action"/>
+        <column xsi:type="varchar" name="tax_area_id" nullable="false" length="255" comment="Tax Jurisdictions Id"/>
+        <column xsi:type="varchar" name="sub_total" nullable="false" length="255" comment="Response Subtotal Amount"/>
+        <column xsi:type="varchar" name="total" nullable="false" length="255" comment="Response Total Amount"/>
+        <column xsi:type="varchar" name="lookup_result" nullable="false" length="255" comment="Tax Area Response Lookup Result"/>
+        <column xsi:type="timestamp" name="request_date" nullable="false" default="CURRENT_TIMESTAMP" comment="Request create date"/>
+        <column xsi:type="text" name="request_xml" nullable="false" comment="Request XML"/>
+        <column xsi:type="text" name="response_xml" nullable="false" comment="Response XML"/>
+        <column xsi:type="int" name="response_time" default="null" nullable="false" unsigned="true" comment="Milliseconds taken for Vertex API call to complete"/>
+        <column xsi:type="varchar" name="module_name" nullable="false" length="255" comment="Request module name"/>
+        <column xsi:type="varchar" name="module_version" nullable="false" length="255" comment="Request module version"/>
+
+        <constraint xsi:type="primary" referenceId="PRIMARY">
+            <column name="request_id"/>
+        </constraint>
+        <constraint xsi:type="unique" referenceId="VERTEX_TAXREQUEST_REQUEST_ID">
+            <column name="request_id"/>
+        </constraint>
+        <index referenceId="VERTEX_TAXREQUEST_REQUEST_TYPE" indexType="btree">
+            <column name="request_type"/>
+        </index>
+        <index referenceId="VERTEX_TAXREQUEST_ORDER_ID" indexType="btree">
+            <column name="order_id"/>
+        </index>
+    </table>
+</schema>

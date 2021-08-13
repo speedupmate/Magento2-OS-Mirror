@@ -1,0 +1,60 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!--
+ /**
+  * Copyright © Magento, Inc. All rights reserved.
+  * See COPYING.txt for license details.
+  *
+  * This file is part of the Klarna KP module
+  *
+  * (c) Klarna Bank AB (publ)
+  *
+  * For the full copyright and license information, please view the NOTICE
+  * and LICENSE files that were distributed with this source code.
+  */
+-->
+<actionGroups xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+              xsi:noNamespaceSchemaLocation="urn:magento:mftf:Test/etc/actionGroupSchema.xsd">
+    <actionGroup name="ConfigureForMarketActionGroup">
+        <arguments>
+            <argument name="country" type="string" defaultValue="US"/>
+            <argument name="region" type="string" defaultValue="12"/>
+            <argument name="tax_price_display" type="string" defaultValue="1"/>
+            <argument name="currency" type="string" defaultValue="USD"/>
+            <argument name="vat" type="string" defaultValue="0"/>
+            <argument name="price_display" type="string" defaultValue="1"/>
+            <argument name="tax_algo" type="string" defaultValue="TOTAL_BASE_CALCULATION"/>
+        </arguments>
+        <magentoCLI command="config:set currency/options/allow USD,{{currency}}" stepKey="setAllowedCurrency"/>
+        <magentoCLI command="config:set currency/options/default {{currency}}" stepKey="setDefaultCurrency"/>
+        <magentoCLI command="config:set currency/options/base {{currency}}" stepKey="setBaseCurrency"/>
+        <magentoCLI command="config:set general/country/default {{country}}" stepKey="setDefaultCountry"/>
+        <magentoCLI command="config:set general/store_information/country_id {{country}}" stepKey="setStoreInfoCountry"/>
+        <magentoCLI command="config:set tax/defaults/country {{country}}" stepKey="setDefaultTaxCountry"/>
+
+        <!-- Calculation Settings -->
+        <magentoCLI command="config:set tax/calculation/algorithm {{tax_algo}}" stepKey="setCalculationAlgorithm"/>
+        <magentoCLI command="config:set tax/calculation/price_includes_tax {{vat}}" stepKey="setCalculationPrice"/>
+        <magentoCLI command="config:set tax/calculation/shipping_includes_tax {{vat}}" stepKey="setCalculationShipping"/>
+        <magentoCLI command="config:set tax/calculation/discount_tax {{vat}}" stepKey="setCalculationDiscount"/>
+
+        <!-- Price Display Settings -->
+        <magentoCLI command="config:set tax/display/shipping {{tax_price_display}}" stepKey="setDisplayShippingTax"/>
+        <magentoCLI command="config:set tax/display/type {{tax_price_display}}" stepKey="setDisplayTypeTax"/>
+
+        <!-- Shopping Cart Display Settings -->
+        <magentoCLI command="config:set tax/cart_display/price {{price_display}}" stepKey="setCartDisplayPrice"/>
+        <magentoCLI command="config:set tax/cart_display/subtotal {{price_display}}" stepKey="setCartDisplaySubtotal"/>
+        <magentoCLI command="config:set tax/cart_display/shipping {{price_display}}" stepKey="setCartDisplayShipping"/>
+        <magentoCLI command="config:set tax/cart_display/grandtotal {{price_display}}" stepKey="setCartDisplayTotal"/>
+
+        <!-- Orders, Invoices, Credit Memos Display Settings  -->
+        <magentoCLI command="config:set tax/sales_display/price {{price_display}}" stepKey="setSalesDisplayPrice"/>
+        <magentoCLI command="config:set tax/sales_display/subtotal {{price_display}}" stepKey="setSalesDisplaySubtotal"/>
+        <magentoCLI command="config:set tax/sales_display/shipping {{price_display}}" stepKey="setSalesDisplayShipping"/>
+        <magentoCLI command="config:set tax/sales_display/grandtotal {{price_display}}" stepKey="setSalesDisplayTotal"/>
+
+        <!-- Shipping origin -->
+        <magentoCLI command="config:set shipping/origin/country_id {{country}}" stepKey="setOriginCountry"/>
+        <magentoCLI command="config:set shipping/origin/region_id '{{region}}'" stepKey="setOriginRegion"/>
+    </actionGroup>
+</actionGroups>

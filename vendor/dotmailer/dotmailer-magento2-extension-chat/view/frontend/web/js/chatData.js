@@ -13,9 +13,9 @@ define([
     function startChat(chatData) {
         var storageKey = chatData().cookieName;
 
-        window.comapiConfig = {
+        window._ddgChatConfig = {
             apiSpace: chatData().apiSpaceId,
-            launchTimeout: 2000
+            urlBase: 'https://webchat.dotdigital.com'
         };
 
         (function (d, s, id) {
@@ -25,9 +25,9 @@ define([
                 return;
             }
             js = d.createElement(s); js.id = id;
-            js.src = '//cdn.dnky.co/widget/bootstrap.js';
+            js.src = '//webchat.dotdigital.com/widget/bootstrap.js';
             cjs.parentNode.insertBefore(js, cjs);
-        }(document, 'script', 'comapi-widget'));
+        }(document, 'script', 'ddg-chat-widget'));
 
         // listen for widget message events
         window.addEventListener('message', function (event) {
@@ -65,15 +65,16 @@ define([
 
         // check we have API space ID, that chat is enabled, and the API space ID was refreshed under 6 hours ago
         if (
-            typeof chatData().apiSpaceId === 'undefined'
+            chatData().apiSpaceId == null
             || chatData().data_id < Math.floor(new Date().getTime() / 1000 - 60 * 60)
         ) {
-            customerData.invalidate([sectionName]);
             customerData.reload([sectionName], true)
                 .done(function () {
                     chatData = customerData.get(sectionName);
 
-                    if (chatData().isEnabled) {
+                    if (chatData().isEnabled && chatData().apiSpaceId == null) {
+                        console.log('dotdigital chat error: API space ID is null. Please check your settings.');
+                    } else {
                         startChat(chatData);
                     }
                 });

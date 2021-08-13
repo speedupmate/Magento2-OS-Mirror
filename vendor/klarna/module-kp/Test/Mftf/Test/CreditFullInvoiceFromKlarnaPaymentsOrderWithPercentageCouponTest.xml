@@ -22,10 +22,9 @@
             <description value="A merchant can fully credit/refund a Klarna Payments order placed by a guest customer with a percentage coupon"/>
             <severity value="CRITICAL"/>
             <testCaseId value="KP_CM_2"/>
-            <group value="Klarna_KP_Country_US"/>
             <group value="Klarna_KP_Order_Guest"/>
-            <group value="Klarna_KP_Order_Pay_Later"/>
             <group value="Klarna_KP_Order_Credit"/>
+            <group value="Klarna_KP"/>
         </annotations>
         <before>
             <actionGroup ref="AdminLoginActionGroup" stepKey="loginAsAdmin"/>
@@ -39,11 +38,6 @@
 
         <!--Fill in and submit credit memo-->
         <actionGroup ref="CreateAndSubmitCreditMemoActionGroup" stepKey="createAndSubmitCreditMemo"/>
-
-        <!--Assert successful credit memo creation-->
-        <actionGroup ref="AssertSuccessfulCreditMemoCreationAndAmountsActionGroup" stepKey="assertSuccessfulCreditMemoCreation">
-            <argument name="expectedGrandTotal" value="$6.11"/>
-            <argument name="expectedRefundTotal" value="$6.11"/>
-        </actionGroup>
+        <see selector="{{AdminIndexManagementSection.successMessage}}" userInput="You created the credit memo." stepKey="assertCreditMemo"/>
     </test>
 </tests>

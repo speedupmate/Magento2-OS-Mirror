@@ -14,12 +14,15 @@ define([
     // Monitor the cart totals so we can update messaging with any price changes
     totalsService.totals.subscribe(function () {
         if (document.querySelector('klarna-placement')) {
-            const grand_total = totalsService.getSegment('grand_total').value;
-            const price = Math.round(grand_total * 100);
+            // eslint-disable-next-line vars-on-top
+            var grandTotal = totalsService.getSegment('grand_total').value,
+            price = Math.round(grandTotal * 100);
 
             document.querySelector('klarna-placement').dataset.purchaseAmount = price;
             window.KlarnaOnsiteService = window.KlarnaOnsiteService || [];
-            window.KlarnaOnsiteService.push({eventName: 'refresh-placements'});
+            window.KlarnaOnsiteService.push({
+                eventName: 'refresh-placements'
+            });
         }
     });
 });

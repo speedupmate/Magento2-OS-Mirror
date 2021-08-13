@@ -22,10 +22,10 @@ class QuoteIsVirtualDeterminer
     {
         $items = $quoteDetails->getItems();
         foreach ($items as $item) {
-            if ($item->getType() === 'shipping') {
-                return true;
+            if (!$item->getExtensionAttributes()->getIsVirtual()) {
+                return false;
             }
         }
-        return false;
+        return true;
     }
 }

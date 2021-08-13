@@ -29,7 +29,6 @@ Example #1
 
    --- Original
    +++ New
-   @@ -1,2 +1,2 @@
     <?php
    -[$sample] = $array;
    +list($sample) = $array;
@@ -43,7 +42,31 @@ With configuration: ``['syntax' => 'short']``.
 
    --- Original
    +++ New
-   @@ -1,2 +1,2 @@
     <?php
    -list($sample) = $array;
    +[$sample] = $array;
+
+Rule sets
+---------
+
+The rule is part of the following rule sets:
+
+@PHP71Migration
+  Using the `@PHP71Migration <./../../ruleSets/PHP71Migration.rst>`_ rule set will enable the ``list_syntax`` rule with the config below:
+
+  ``['syntax' => 'short']``
+
+@PHP73Migration
+  Using the `@PHP73Migration <./../../ruleSets/PHP73Migration.rst>`_ rule set will enable the ``list_syntax`` rule with the config below:
+
+  ``['syntax' => 'short']``
+
+@PHP74Migration
+  Using the `@PHP74Migration <./../../ruleSets/PHP74Migration.rst>`_ rule set will enable the ``list_syntax`` rule with the config below:
+
+  ``['syntax' => 'short']``
+
+@PHP80Migration
+  Using the `@PHP80Migration <./../../ruleSets/PHP80Migration.rst>`_ rule set will enable the ``list_syntax`` rule with the config below:
+
+  ``['syntax' => 'short']``

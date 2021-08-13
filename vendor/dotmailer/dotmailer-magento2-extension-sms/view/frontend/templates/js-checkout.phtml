@@ -11,7 +11,12 @@ $view = $block->getData('config');
         'jquery'
     ], function ($) {
         ddgTelephoneRenderComplete = function(node) {
-            window.intlTelInput($(node)[0], <?= $view->getConfig(); ?>)
+            var telephoneInput = $(node)[0];
+            var iti = window.intlTelInput(telephoneInput, <?= $view->getConfig(); ?>);
+
+            telephoneInput.addEventListener('blur', function() {
+                telephoneInput.value = iti.getNumber();
+            });
         }
     });
 </script>

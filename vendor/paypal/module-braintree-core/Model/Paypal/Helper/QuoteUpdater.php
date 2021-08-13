@@ -226,9 +226,12 @@ class QuoteUpdater extends AbstractHelper
      */
     private function updateAddressData(Address $address, array $addressData)
     {
-        $extendedAddress = $addressData['extendedAddress'] ?? null;
+        $street = $addressData['streetAddress'];
 
-        $address->setStreet([$addressData['streetAddress'], $extendedAddress]);
+        if (isset($addressData['extendedAddress'])) {
+            $street = $street . ' ' . $addressData['extendedAddress'];
+        }
+        $address->setStreet($street);
         $address->setCity($addressData['locality']);
 
         $address->setRegion($addressData['region']);

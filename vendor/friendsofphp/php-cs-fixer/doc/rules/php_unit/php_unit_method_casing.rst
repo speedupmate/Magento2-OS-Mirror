@@ -28,7 +28,6 @@ Example #1
 
    --- Original
    +++ New
-   @@ -1,5 +1,5 @@
     <?php
     class MyTest extends \PhpUnit\FrameWork\TestCase
     {
@@ -45,7 +44,6 @@ With configuration: ``['case' => 'snake_case']``.
 
    --- Original
    +++ New
-   @@ -1,5 +1,5 @@
     <?php
     class MyTest extends \PhpUnit\FrameWork\TestCase
     {
@@ -56,7 +54,10 @@ With configuration: ``['case' => 'snake_case']``.
 Rule sets
 ---------
 
-The rule is part of the following rule set:
+The rule is part of the following rule sets:
 
 @PhpCsFixer
   Using the `@PhpCsFixer <./../../ruleSets/PhpCsFixer.rst>`_ rule set will enable the ``php_unit_method_casing`` rule with the default config.
+
+@Symfony
+  Using the `@Symfony <./../../ruleSets/Symfony.rst>`_ rule set will enable the ``php_unit_method_casing`` rule with the default config.

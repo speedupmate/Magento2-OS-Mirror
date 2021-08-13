@@ -10,6 +10,7 @@ use Magento\Customer\Api\CustomerRepositoryInterface;
 use Magento\Customer\Api\Data\AddressInterface;
 use Magento\Customer\Api\Data\RegionInterface;
 use Magento\Customer\Api\GroupManagementInterface as CustomerGroupManagement;
+use Magento\Customer\Api\GroupRepositoryInterface;
 use Magento\Framework\Stdlib\StringUtils;
 use Magento\Sales\Api\Data\OrderAddressInterface;
 use Magento\Sales\Api\Data\OrderInterface;
@@ -25,6 +26,7 @@ use Vertex\Tax\Model\AddressDeterminer;
 use Vertex\Tax\Model\Api\Utility\MapperFactoryProxy;
 use Vertex\Tax\Model\Config;
 use Vertex\Tax\Model\ExceptionLogger;
+use Vertex\Tax\Model\QuoteIsVirtualDeterminer;
 use Vertex\Tax\Model\Repository\TaxClassNameRepository;
 
 /**
@@ -55,6 +57,9 @@ class CustomerBuilder
 
     /** @var OrderRepositoryInterface */
     private $orderRepository;
+
+    /** @var QuoteIsVirtualDeterminer */
+    private $quoteIsVirtualDeterminer;
 
     /** @var TaxClassNameRepository */
     private $taxClassNameRepository;
@@ -94,7 +99,8 @@ class CustomerBuilder
         StringUtils $stringUtils,
         MapperFactoryProxy $mapperFactory,
         OrderRepositoryInterface $orderRepository,
-        AddressDeterminer $addressDeterminer
+        AddressDeterminer $addressDeterminer,
+        QuoteIsVirtualDeterminer $quoteIsVirtualDeterminer
     ) {
         $this->addressBuilder = $addressBuilder;
         $this->config = $config;
@@ -108,6 +114,7 @@ class CustomerBuilder
         $this->mapperFactory = $mapperFactory;
         $this->orderRepository = $orderRepository;
         $this->addressDeterminer = $addressDeterminer;
+        $this->quoteIsVirtualDeterminer = $quoteIsVirtualDeterminer;
     }
 
     /**
@@ -148,7 +155,10 @@ class CustomerBuilder
         $customerCode = $this->stringUtilities->substr($code, 0, $customerMapper->getCustomerCodeMaxLength());
         $customer->setCode($customerCode);
 
-        $taxClass = $this->getCustomerClassById($customerId);
+        $orderCustomerTaxClass = $this->taxClassNameRepository->getByCustomerGroupId($order->getCustomerGroupId());
+        $taxClass = $orderCustomerTaxClass !== 'None' ?
+            $orderCustomerTaxClass : $this->getCustomerClassById($customerId);
+
         $taxClassName = $this->stringUtilities->substr(
             $taxClass,
             0,
@@ -223,7 +233,7 @@ class CustomerBuilder
             $customer->setAdministrativeDestination($this->buildAddress($billingAddress, $storeCode));
         }
 
-        if ($shippingAddress !== null) {
+        if ($shippingAddress !== null && !$this->quoteIsVirtualDeterminer->isVirtual($quoteDetails)) {
             $customer->setDestination($this->buildAddress($shippingAddress, $storeCode));
         } elseif ($customer->getAdministrativeDestination() !== null) {
             $customer->setDestination($customer->getAdministrativeDestination());

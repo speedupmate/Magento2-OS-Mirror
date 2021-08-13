@@ -14,6 +14,9 @@ namespace Klarna\Onsitemessaging\Block;
 use Magento\Framework\View\Element\Template;
 use Magento\Store\Model\ScopeInterface;
 
+/**
+ * @api
+ */
 class Header extends Template
 {
     /**

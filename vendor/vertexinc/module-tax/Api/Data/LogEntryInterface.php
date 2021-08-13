@@ -10,6 +10,8 @@ namespace Vertex\Tax\Api\Data;
  * Data model representing an entry in the Vertex API Log
  *
  * @api
+ * @deprecated 4.2.1 Replaced by vertexinc/module-request-logging-api
+ * @see \Vertex\RequestLoggingApi\Api\Data\LogEntryInterface
  */
 interface LogEntryInterface
 {

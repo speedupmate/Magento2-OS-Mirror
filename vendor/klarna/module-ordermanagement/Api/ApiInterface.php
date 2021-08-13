@@ -13,6 +13,7 @@ namespace Klarna\Ordermanagement\Api;
 use Magento\Framework\DataObject;
 use Magento\Sales\Api\Data\InvoiceInterface as Invoice;
 use Magento\Sales\Api\Data\CreditmemoInterface as CreditMemo;
+use Magento\Sales\Api\Data\OrderInterface as MageOrderInterface;
 use Magento\Store\Api\Data\StoreInterface;
 
 interface ApiInterface
@@ -42,20 +43,22 @@ interface ApiInterface
     /**
      * Cancel an order
      *
-     * @param string $orderId
+     * @param string                  $orderId
+     * @param MageOrderInterface|null $order
      *
      * @return DataObject
      */
-    public function cancel($orderId);
+    public function cancel($orderId, MageOrderInterface $order = null);
 
     /**
      * Release the authorization for an order
      *
-     * @param string $orderId
+     * @param string                  $orderId
+     * @param MageOrderInterface|null $order
      *
      * @return DataObject
      */
-    public function release($orderId);
+    public function release($orderId, MageOrderInterface $order = null);
 
     /**
      * Acknowledge an order in order management

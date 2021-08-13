@@ -2,6 +2,7 @@
 
 namespace Dotdigitalgroup\Sms\Test\Unit\Plugin\Order\Shipment;
 
+use Dotdigitalgroup\Email\Logger\Logger;
 use Dotdigitalgroup\Sms\Model\Queue\OrderItem\NewShipment;
 use Dotdigitalgroup\Sms\Plugin\Order\Shipment\NewShipmentPlugin;
 use Magento\Framework\App\RequestInterface;
@@ -12,6 +13,11 @@ use PHPUnit\Framework\TestCase;
 
 class NewShipmentPluginTest extends TestCase
 {
+    /**
+     * @var Logger|\PHPUnit\Framework\MockObject\MockObject
+     */
+    private $loggerMock;
+
     /**
      * @var OrderRepositoryInterface|\PHPUnit\Framework\MockObject\MockObject
      */
@@ -44,6 +50,7 @@ class NewShipmentPluginTest extends TestCase
 
     protected function setUp(): void
     {
+        $this->loggerMock = $this->createMock(Logger::class);
         $this->orderRepositoryInterfaceMock = $this->createMock(OrderRepositoryInterface::class);
         $this->newShipmentActionMock = $this->createMock(NewShipmentAction::class);
         $this->newShipmentMock = $this->createMock(NewShipment::class);
@@ -51,6 +58,7 @@ class NewShipmentPluginTest extends TestCase
         $this->orderInterfaceMock = $this->createMock(OrderInterface::class);
 
         $this->plugin = new NewShipmentPlugin(
+            $this->loggerMock,
             $this->orderRepositoryInterfaceMock,
             $this->newShipmentMock
         );

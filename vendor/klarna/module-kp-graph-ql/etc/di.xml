@@ -9,7 +9,8 @@
  * and LICENSE files that were distributed with this source code.
  */
 -->
-<config>
+<config xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+        xsi:noNamespaceSchemaLocation="urn:magento:framework:ObjectManager/etc/config.xsd">
     <type name="Magento\QuoteGraphQl\Model\Cart\Payment\AdditionalDataProviderPool">
         <plugin
             sortOrder="10"

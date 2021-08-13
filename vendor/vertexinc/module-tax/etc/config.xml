@@ -36,13 +36,11 @@
             <vertex_delivery_terms>
                 <default_term>SUP</default_term>
             </vertex_delivery_terms>
-            <vertex_logging>
-                <enable_logging>0</enable_logging>
-                <enable_rotation>0</enable_rotation>
-                <rotation_action>delete</rotation_action>
-                <entry_lifetime>7</entry_lifetime>
-                <rotation_frequency>W</rotation_frequency>
-            </vertex_logging>
+            <vertex_wsdl_cache>
+                <enable_wsdl_cache>0</enable_wsdl_cache>
+                <wsdl_cache_runtime>00,00,00</wsdl_cache_runtime>
+                <wsdl_cache_frequency>D</wsdl_cache_frequency>
+            </vertex_wsdl_cache>
         </tax>
     </default>
 </config>

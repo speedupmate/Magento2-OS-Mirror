@@ -9,8 +9,8 @@
 var config = {
     config: {
         mixins: {
-            "Magento_Catalog/js/price-box": {
-                "Klarna_Onsitemessaging/js/pricebox-widget-mixin": true
+            'Magento_Catalog/js/price-box': {
+                'Klarna_Onsitemessaging/js/pricebox-widget-mixin': true
             }
         }
     }

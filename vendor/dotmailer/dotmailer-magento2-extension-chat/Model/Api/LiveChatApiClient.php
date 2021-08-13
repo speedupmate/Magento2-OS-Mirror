@@ -13,7 +13,7 @@ class LiveChatApiClient
     /**
      * Chat API hostname
      */
-    const CHAT_API_HOST = 'https://api.comapi.com';
+    const CHAT_API_HOST = 'https://webchat.dotdigital.com';
 
     /**
      * Chat config

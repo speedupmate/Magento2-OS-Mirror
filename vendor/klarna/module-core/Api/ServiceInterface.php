@@ -37,16 +37,31 @@ interface ServiceInterface
      */
     const DELETE = 'delete';
 
+    const ACTIONS = [
+        'create_session' => 'Create session',
+        'update_session' => 'Update session',
+        'read_session'   => 'Read session',
+        'create_order'   => 'Create order',
+        'cancel_order'   => 'Cancel order'
+    ];
+
+    const SERVICE = 'Klarna Payments';
+
     /**
      * Make API call
      *
      * @param string $url
      * @param array $body
      * @param string $method HTTP request type
-     * @param null|string $klarnaId
+     * @param string|null $klarnaId
      * @return array Response body from API call
      */
-    public function makeRequest($url, $body = [], $method = self::POST, $klarnaId = null);
+    public function makeRequest(
+        $url,
+        $body = [],
+        $method = self::POST,
+        string $klarnaId = null
+    );
 
     /**
      * Connect to API

@@ -131,39 +131,37 @@ class UpgradeData implements UpgradeDataInterface
             $this->config->reinit();
         }
 
-        if (version_compare($context->getVersion(), '2.5.0', '<')) {
-            // Save config for allow non subscriber for features; AC and order review trigger campaign
-            //For AC
-            $this->helper->saveConfigData(
-                \Dotdigitalgroup\Email\Helper\Config::XML_PATH_REVIEW_ALLOW_NON_SUBSCRIBERS,
-                1,
-                ScopeConfigInterface::SCOPE_TYPE_DEFAULT,
-                0
-            );
-
-            //For order review
-            $this->helper->saveConfigData(
-                \Dotdigitalgroup\Email\Helper\Config::XML_PATH_CONNECTOR_CONTENT_ALLOW_NON_SUBSCRIBERS,
-                1,
-                ScopeConfigInterface::SCOPE_TYPE_DEFAULT,
-                0
-            );
-
-            //Clear config cache
-            $this->config->reinit();
-        }
-
-        if (version_compare($context->getVersion(), '2.5.1', '<')) {
-            // Save config for allow non subscriber contacts to sync
-            $this->helper->saveConfigData(
-                \Dotdigitalgroup\Email\Helper\Config::XML_PATH_CONNECTOR_SYNC_ALLOW_NON_SUBSCRIBERS,
-                1,
-                ScopeConfigInterface::SCOPE_TYPE_DEFAULT,
-                0
-            );
-
-            //Clear config cache
-            $this->config->reinit();
+        if (version_compare($context->getVersion(), '2.0.0', '>=')) {
+            if (version_compare($context->getVersion(), '2.5.0', '<')) {
+                // Save config for allow non subscriber for features; AC and order review trigger campaign
+                //For AC
+                $this->helper->saveConfigData(
+                    \Dotdigitalgroup\Email\Helper\Config::XML_PATH_REVIEW_ALLOW_NON_SUBSCRIBERS,
+                    1,
+                    ScopeConfigInterface::SCOPE_TYPE_DEFAULT,
+                    0
+                );
+                //For order review
+                $this->helper->saveConfigData(
+                    \Dotdigitalgroup\Email\Helper\Config::XML_PATH_CONNECTOR_CONTENT_ALLOW_NON_SUBSCRIBERS,
+                    1,
+                    ScopeConfigInterface::SCOPE_TYPE_DEFAULT,
+                    0
+                );
+                //Clear config cache
+                $this->config->reinit();
+            }
+            if (version_compare($context->getVersion(), '2.5.1', '<')) {
+                // Save config for allow non subscriber contacts to sync
+                $this->helper->saveConfigData(
+                    \Dotdigitalgroup\Email\Helper\Config::XML_PATH_CONNECTOR_SYNC_ALLOW_NON_SUBSCRIBERS,
+                    1,
+                    ScopeConfigInterface::SCOPE_TYPE_DEFAULT,
+                    0
+                );
+                //Clear config cache
+                $this->config->reinit();
+            }
         }
 
         $this->upgradeFourOhOne($setup, $context);
@@ -171,6 +169,8 @@ class UpgradeData implements UpgradeDataInterface
         $this->upgradeFourFourZero($setup, $context);
         $this->upgradeFourFiveTwo($context);
         $this->upgradeFourFiveThree($context);
+        $this->upgradeFourElevenZero($setup, $context);
+
         $installer->endSetup();
     }
 
@@ -426,6 +426,32 @@ class UpgradeData implements UpgradeDataInterface
             $this->dummyRecordsFactory
                 ->create()
                 ->sync();
+        }
+    }
+
+    /**
+     * Translate wishlist modified 1 > imported 0
+     *
+     * @param ModuleDataSetupInterface $setup
+     * @param ModuleContextInterface $context
+     */
+    private function upgradeFourElevenZero(
+        ModuleDataSetupInterface $setup,
+        ModuleContextInterface $context
+    ) {
+        if (version_compare($context->getVersion(), '4.11.0', '<')) {
+            $wishlistTable = $setup->getTable(Schema::EMAIL_WISHLIST_TABLE);
+
+            $setup->getConnection()->update(
+                $wishlistTable,
+                [
+                    'wishlist_imported' => 0,
+                    'wishlist_modified' => new \Zend_Db_Expr('null')
+                ],
+                [
+                    'wishlist_modified' => 1
+                ]
+            );
         }
     }
 }

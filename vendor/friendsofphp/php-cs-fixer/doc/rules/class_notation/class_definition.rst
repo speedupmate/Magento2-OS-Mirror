@@ -53,7 +53,6 @@ Example #1
 
    --- Original
    +++ New
-   @@ -1,13 +1,13 @@
     <?php
 
    -class  Foo  extends  Bar  implements  Baz,  BarBaz
@@ -80,7 +79,6 @@ Example #2
 
    --- Original
    +++ New
-   @@ -1,3 +1,3 @@
     <?php
 
    -$foo = new  class  extends  Bar  implements  Baz,  BarBaz {};
@@ -95,7 +93,6 @@ With configuration: ``['single_line' => true]``.
 
    --- Original
    +++ New
-   @@ -1,6 +1,4 @@
     <?php
 
    -class Foo
@@ -113,7 +110,6 @@ With configuration: ``['single_item_single_line' => true]``.
 
    --- Original
    +++ New
-   @@ -1,6 +1,4 @@
     <?php
 
    -class Foo
@@ -131,7 +127,6 @@ With configuration: ``['multi_line_extends_each_single_line' => true]``.
 
    --- Original
    +++ New
-   @@ -1,5 +1,7 @@
     <?php
 
     interface Bar extends
@@ -145,6 +140,9 @@ Rule sets
 ---------
 
 The rule is part of the following rule sets:
+
+@PSR12
+  Using the `@PSR12 <./../../ruleSets/PSR12.rst>`_ rule set will enable the ``class_definition`` rule with the default config.
 
 @PSR2
   Using the `@PSR2 <./../../ruleSets/PSR2.rst>`_ rule set will enable the ``class_definition`` rule with the default config.

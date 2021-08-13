@@ -1113,23 +1113,6 @@ class Data extends \Magento\Framework\App\Helper\AbstractHelper
     }
 
     /**
-     * Mark contact for reimport.
-     *
-     * @param int $customerId
-     *
-     * @return null
-     */
-    public function setConnectorContactToReImport($customerId)
-    {
-        $contactModel = $this->contactFactory->create();
-        $contactModel->loadByCustomerId($customerId)
-            ->setEmailImported(
-                \Dotdigitalgroup\Email\Model\Contact::EMAIL_CONTACT_NOT_IMPORTED
-            );
-        $this->contactResource->save($contactModel);
-    }
-
-    /**
      * Disable website config when the request is made admin area only!
      *
      * @param string $path
@@ -1506,21 +1489,6 @@ class Data extends \Magento\Framework\App\Helper\AbstractHelper
     }
 
     /**
-     * Product review from config to link the product link.
-     *
-     * @param int $website
-     *
-     * @return boolean|string
-     */
-    public function getReviewReminderAnchor($website)
-    {
-        return $this->getWebsiteConfig(
-            \Dotdigitalgroup\Email\Helper\Config::XML_PATH_AUTOMATION_REVIEW_ANCHOR,
-            $website
-        );
-    }
-
-    /**
      * Get display type for review product.
      *
      * @param int $website
@@ -1601,33 +1569,6 @@ class Data extends \Magento\Framework\App\Helper\AbstractHelper
     }
 
     /**
-     * Get review anchor value.
-     *
-     * @param int $website
-     *
-     * @return string
-     */
-    public function getAnchor($website)
-    {
-        return $this->getReviewWebsiteSettings(\Dotdigitalgroup\Email\Helper\Config::XML_PATH_REVIEW_ANCHOR, $website);
-    }
-
-    /**
-     * Get review display type.
-     *
-     * @param int $website
-     *
-     * @return string
-     */
-    public function getDisplayType($website)
-    {
-        return $this->getReviewWebsiteSettings(
-            \Dotdigitalgroup\Email\Helper\Config::XML_PATH_REVIEW_DISPLAY_TYPE,
-            $website
-        );
-    }
-
-    /**
      * Check if both frontend and backend are secure (HTTPS).
      *
      * @return bool
@@ -1695,11 +1636,10 @@ class Data extends \Magento\Framework\App\Helper\AbstractHelper
             'last_brand_pur' => ''
         ];
 
-        $store = $website->getDefaultStore();
         $mappedData = $this->scopeConfig->getValue(
             'connector_data_mapping/customer_data',
-            ScopeInterface::SCOPE_STORE,
-            $store->getId()
+            ScopeInterface::SCOPE_WEBSITES,
+            $website->getId()
         );
 
         $mappedData = array_intersect_key($mappedData, $subscriberDataFields);

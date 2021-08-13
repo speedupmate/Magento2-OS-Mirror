@@ -12,7 +12,7 @@ Configuration
 
 List of statements which must be preceded by an empty line.
 
-Allowed values: a subset of ``['break', 'case', 'continue', 'declare', 'default', 'die', 'do', 'exit', 'for', 'foreach', 'goto', 'if', 'include', 'include_once', 'require', 'require_once', 'return', 'switch', 'throw', 'try', 'while', 'yield']``
+Allowed values: a subset of ``['break', 'case', 'continue', 'declare', 'default', 'die', 'do', 'exit', 'for', 'foreach', 'goto', 'if', 'include', 'include_once', 'require', 'require_once', 'return', 'switch', 'throw', 'try', 'while', 'yield', 'yield_from']``
 
 Default value: ``['break', 'continue', 'declare', 'return', 'throw', 'try']``
 
@@ -28,7 +28,6 @@ Example #1
 
    --- Original
    +++ New
-   @@ -1,5 +1,6 @@
     <?php
     function A() {
         echo 1;
@@ -45,7 +44,7 @@ With configuration: ``['statements' => ['break']]``.
 
    --- Original
    +++ New
-   @@ -2,7 +2,8 @@
+    <?php
     switch ($foo) {
         case 42:
             $bar->process();
@@ -64,7 +63,7 @@ With configuration: ``['statements' => ['continue']]``.
 
    --- Original
    +++ New
-   @@ -2,6 +2,7 @@
+    <?php
     foreach ($foo as $bar) {
         if ($bar->isTired()) {
             $bar->sleep();
@@ -76,30 +75,12 @@ With configuration: ``['statements' => ['continue']]``.
 Example #4
 ~~~~~~~~~~
 
-With configuration: ``['statements' => ['die']]``.
-
-.. code-block:: diff
-
-   --- Original
-   +++ New
-   @@ -3,5 +3,6 @@
-        die(0);
-    } else {
-        $bar = 9000;
-   +
-        die(1);
-    }
-
-Example #5
-~~~~~~~~~~
-
 With configuration: ``['statements' => ['do']]``.
 
 .. code-block:: diff
 
    --- Original
    +++ New
-   @@ -1,5 +1,6 @@
     <?php
     $i = 0;
    +
@@ -107,7 +88,7 @@ With configuration: ``['statements' => ['do']]``.
         echo $i;
     } while ($i > 0);
 
-Example #6
+Example #5
 ~~~~~~~~~~
 
 With configuration: ``['statements' => ['exit']]``.
@@ -116,7 +97,8 @@ With configuration: ``['statements' => ['exit']]``.
 
    --- Original
    +++ New
-   @@ -3,5 +3,6 @@
+    <?php
+    if ($foo === false) {
         exit(0);
     } else {
         $bar = 9000;
@@ -124,7 +106,7 @@ With configuration: ``['statements' => ['exit']]``.
         exit(1);
     }
 
-Example #7
+Example #6
 ~~~~~~~~~~
 
 With configuration: ``['statements' => ['goto']]``.
@@ -133,7 +115,10 @@ With configuration: ``['statements' => ['goto']]``.
 
    --- Original
    +++ New
-   @@ -5,5 +5,6 @@
+    <?php
+    a:
+
+    if ($foo === false) {
         goto a;
     } else {
         $bar = 9000;
@@ -141,7 +126,7 @@ With configuration: ``['statements' => ['goto']]``.
         goto b;
     }
 
-Example #8
+Example #7
 ~~~~~~~~~~
 
 With configuration: ``['statements' => ['if']]``.
@@ -150,7 +135,6 @@ With configuration: ``['statements' => ['if']]``.
 
    --- Original
    +++ New
-   @@ -1,5 +1,6 @@
     <?php
     $a = 9000;
    +
@@ -158,7 +142,7 @@ With configuration: ``['statements' => ['if']]``.
         $foo = $bar;
     }
 
-Example #9
+Example #8
 ~~~~~~~~~~
 
 With configuration: ``['statements' => ['return']]``.
@@ -167,7 +151,7 @@ With configuration: ``['statements' => ['return']]``.
 
    --- Original
    +++ New
-   @@ -2,5 +2,6 @@
+    <?php
 
     if (true) {
         $foo = $bar;
@@ -175,8 +159,8 @@ With configuration: ``['statements' => ['return']]``.
         return;
     }
 
-Example #10
-~~~~~~~~~~~
+Example #9
+~~~~~~~~~~
 
 With configuration: ``['statements' => ['switch']]``.
 
@@ -184,7 +168,6 @@ With configuration: ``['statements' => ['switch']]``.
 
    --- Original
    +++ New
-   @@ -1,6 +1,7 @@
     <?php
     $a = 9000;
    +
@@ -193,7 +176,7 @@ With configuration: ``['statements' => ['switch']]``.
             break;
     }
 
-Example #11
+Example #10
 ~~~~~~~~~~~
 
 With configuration: ``['statements' => ['throw']]``.
@@ -202,7 +185,6 @@ With configuration: ``['statements' => ['throw']]``.
 
    --- Original
    +++ New
-   @@ -1,5 +1,6 @@
     <?php
     if (null === $a) {
         $foo->bar();
@@ -210,7 +192,7 @@ With configuration: ``['statements' => ['throw']]``.
         throw new \UnexpectedValueException("A cannot be null.");
     }
 
-Example #12
+Example #11
 ~~~~~~~~~~~
 
 With configuration: ``['statements' => ['try']]``.
@@ -219,7 +201,6 @@ With configuration: ``['statements' => ['try']]``.
 
    --- Original
    +++ New
-   @@ -1,7 +1,8 @@
     <?php
     $a = 9000;
    +
@@ -229,7 +210,7 @@ With configuration: ``['statements' => ['try']]``.
         $a = -1;
     }
 
-Example #13
+Example #12
 ~~~~~~~~~~~
 
 With configuration: ``['statements' => ['yield']]``.
@@ -238,7 +219,7 @@ With configuration: ``['statements' => ['yield']]``.
 
    --- Original
    +++ New
-   @@ -2,5 +2,6 @@
+    <?php
 
     if (true) {
         $foo = $bar;
@@ -252,7 +233,9 @@ Rule sets
 The rule is part of the following rule sets:
 
 @PhpCsFixer
-  Using the `@PhpCsFixer <./../../ruleSets/PhpCsFixer.rst>`_ rule set will enable the ``blank_line_before_statement`` rule with the default config.
+  Using the `@PhpCsFixer <./../../ruleSets/PhpCsFixer.rst>`_ rule set will enable the ``blank_line_before_statement`` rule with the config below:
+
+  ``['statements' => ['break', 'case', 'continue', 'declare', 'default', 'exit', 'goto', 'include', 'include_once', 'require', 'require_once', 'return', 'switch', 'throw', 'try']]``
 
 @Symfony
   Using the `@Symfony <./../../ruleSets/Symfony.rst>`_ rule set will enable the ``blank_line_before_statement`` rule with the config below:

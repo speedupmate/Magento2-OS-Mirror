@@ -156,6 +156,7 @@ class CommonTaxCollectorPlugin
         array_splice($arguments, 0, 2);
 
         /** @var QuoteDetailsItemInterface[] $quoteItems */
+        // phpcs:ignore Magento2.Functions.DiscouragedFunction.Discouraged
         $itemDataObject = call_user_func_array($super, $arguments);
 
         $store = $this->getStoreCodeFromShippingAssignment($shippingAssignment);
@@ -198,6 +199,7 @@ class CommonTaxCollectorPlugin
         array_splice($arguments, 0, 2);
 
         /** @var AddressInterface $customerAddress */
+        // phpcs:ignore Magento2.Functions.DiscouragedFunction.Discouraged
         $customerAddress = call_user_func_array($super, $arguments);
 
         $customerAddress->setVatId($address->getVatId());
@@ -232,6 +234,7 @@ class CommonTaxCollectorPlugin
         array_splice($arguments, 0, 2);
 
         /** @var QuoteDetailsItemInterface $taxData */
+        // phpcs:ignore Magento2.Functions.DiscouragedFunction.Discouraged
         $taxData = call_user_func_array($super, $arguments);
 
         if ($this->config->isVertexActive($item->getStoreId())) {
@@ -286,6 +289,7 @@ class CommonTaxCollectorPlugin
         array_splice($arguments, 0, 2);
 
         /** @var QuoteDetailsItemInterface[] $quoteItems */
+        // phpcs:ignore Magento2.Functions.DiscouragedFunction.Discouraged
         $quoteItems = call_user_func_array($super, $arguments);
 
         $store = $item->getStore();

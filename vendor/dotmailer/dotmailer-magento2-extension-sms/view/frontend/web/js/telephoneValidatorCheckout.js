@@ -27,7 +27,8 @@ define([
                 var target = $('#' + additionalParams.uid),
                     countryCodeClass = target.parent().find('.iti__selected-flag .iti__flag').attr('class'),
                     countryCode,
-                    isValid = false;
+                    isValid = false,
+                    errorCode;
 
                 if (countryCodeClass === undefined || countryCodeClass.indexOf(' ') === -1) {
                     this.message = errorMap[1];
@@ -40,9 +41,10 @@ define([
                 isValid = window.intlTelInputUtils.isValidNumber(value, countryCode);
 
                 if (!isValid) {
-                    this.message = errorMap[
-                        window.intlTelInputUtils.getValidationError(value, countryCode)
-                        ];
+                    errorCode = window.intlTelInputUtils.getValidationError(value, countryCode);
+                    this.message = typeof errorMap[errorCode] === 'undefined' ?
+                        errorMap[0] :
+                        errorMap[errorCode];
                 }
 
                 // Ensure that changing the flag always updates the model

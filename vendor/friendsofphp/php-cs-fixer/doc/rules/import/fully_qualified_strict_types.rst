@@ -15,7 +15,9 @@ Example #1
 
    --- Original
    +++ New
-   @@ -4,7 +4,7 @@
+    <?php
+
+    use Foo\Bar;
 
     class SomeClass
     {
@@ -32,7 +34,10 @@ Example #2
 
    --- Original
    +++ New
-   @@ -5,7 +5,7 @@
+    <?php
+
+    use Foo\Bar;
+    use Foo\Bar\Baz;
 
     class SomeClass
     {
@@ -45,7 +50,10 @@ Example #2
 Rule sets
 ---------
 
-The rule is part of the following rule set:
+The rule is part of the following rule sets:
 
 @PhpCsFixer
   Using the `@PhpCsFixer <./../../ruleSets/PhpCsFixer.rst>`_ rule set will enable the ``fully_qualified_strict_types`` rule.
+
+@Symfony
+  Using the `@Symfony <./../../ruleSets/Symfony.rst>`_ rule set will enable the ``fully_qualified_strict_types`` rule.

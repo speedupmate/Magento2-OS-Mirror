@@ -12,6 +12,8 @@ namespace Klarna\Ordermanagement\Model\Api\Rest\Service;
 
 use Klarna\Core\Api\ServiceInterface;
 use Klarna\Core\Helper\VersionInfo;
+use Klarna\Core\Logger\Api\Container;
+use Magento\Framework\App\ObjectManager;
 use Magento\Framework\DataObject;
 
 /**
@@ -21,22 +23,47 @@ class Ordermanagement
 {
     const API_VERSION = 'v1';
 
+    const ACTIONS = [
+        'acknowledge_order'               => 'Acknowledge order',
+        'get_order'                       => 'Get order',
+        'update_order_items'              => 'Update order items',
+        'extend_authorization'            => 'Extend authorization',
+        'update_merchant_references'      => 'Update merchant references',
+        'update_addresses'                => 'Update addresses',
+        'add_shipping_info'               => 'Add shipping info',
+        'cancel_order'                    => 'Cancel order',
+        'capture_order'                   => 'Capture order',
+        'get_capture'                     => 'Get capture',
+        'add_shipping_details_to_capture' => 'Add shipping details to capture',
+        'update_capture_billing_address'  => 'Update capture billing address',
+        'resend_order_invoice'            => 'Resend order invoice',
+        'refund'                          => 'Refund',
+        'release_authorization'           => 'Release authorization',
+    ];
+
     /**
      * @var ServiceInterface
      */
     private $service;
+    /**
+     * @var Container
+     */
+    private $loggerContainer;
 
     /**
      * Initialize class
      *
      * @param ServiceInterface $service
      * @param VersionInfo      $versionInfo
+     * @param Container|null   $loggerContainer
      */
     public function __construct(
         ServiceInterface $service,
-        VersionInfo $versionInfo
+        VersionInfo $versionInfo,
+        Container $loggerContainer = null
     ) {
         $this->service = $service;
+        $this->loggerContainer = $loggerContainer ?? ObjectManager::getInstance()->get(Container::class);
 
         $version = sprintf(
             '%s;Core/%s',
@@ -74,8 +101,14 @@ class Ordermanagement
      */
     public function acknowledgeOrder($orderId)
     {
+        $this->loggerContainer->setAction(self::ACTIONS['acknowledge_order']);
         $url = "/ordermanagement/" . self::API_VERSION . "/orders/{$orderId}/acknowledge";
-        return $this->service->makeRequest($url, '', ServiceInterface::POST, $orderId);
+        return $this->service->makeRequest(
+            $url,
+            [],
+            ServiceInterface::POST,
+            $orderId
+        );
     }
 
     /**
@@ -87,8 +120,14 @@ class Ordermanagement
      */
     public function getOrder($orderId)
     {
+        $this->loggerContainer->setAction(self::ACTIONS['get_order']);
         $url = "/ordermanagement/" . self::API_VERSION . "/orders/{$orderId}";
-        return $this->service->makeRequest($url, '', ServiceInterface::GET, $orderId);
+        return $this->service->makeRequest(
+            $url,
+            [],
+            ServiceInterface::GET,
+            $orderId
+        );
     }
 
     /**
@@ -106,8 +145,14 @@ class Ordermanagement
      */
     public function updateOrderItems($orderId, $data)
     {
+        $this->loggerContainer->setAction(self::ACTIONS['update_order_items']);
         $url = "/ordermanagement/" . self::API_VERSION . "/orders/{$orderId}/authorization";
-        return $this->service->makeRequest($url, $data, ServiceInterface::PATCH, $orderId);
+        return $this->service->makeRequest(
+            $url,
+            $data,
+            ServiceInterface::PATCH,
+            $orderId
+        );
     }
 
     /**
@@ -120,7 +165,14 @@ class Ordermanagement
     public function extendAuthorization($orderId)
     {
         $url = "/ordermanagement/" . self::API_VERSION . "/orders/{$orderId}/extend-authorization-time";
-        return $this->service->makeRequest($url, '', ServiceInterface::POST, $orderId);
+
+        $this->loggerContainer->setAction(self::ACTIONS['extend_authorization']);
+        return $this->service->makeRequest(
+            $url,
+            [],
+            ServiceInterface::POST,
+            $orderId
+        );
     }
 
     /**
@@ -134,8 +186,7 @@ class Ordermanagement
      */
     public function updateMerchantReferences($orderId, $merchantReference1, $merchantReference2 = null)
     {
-        $url = "/ordermanagement/" . self::API_VERSION . "/orders/{$orderId}/merchant-references";
-
+        $url  = "/ordermanagement/" . self::API_VERSION . "/orders/{$orderId}/merchant-references";
         $data = [
             'merchant_reference1' => $merchantReference1
         ];
@@ -143,7 +194,14 @@ class Ordermanagement
         if ($merchantReference2 !== null) {
             $data['merchant_reference2'] = $merchantReference2;
         }
-        return $this->service->makeRequest($url, $data, ServiceInterface::PATCH, $orderId);
+
+        $this->loggerContainer->setAction(self::ACTIONS['update_merchant_references']);
+        return $this->service->makeRequest(
+            $url,
+            $data,
+            ServiceInterface::PATCH,
+            $orderId
+        );
     }
 
     /**
@@ -159,8 +217,14 @@ class Ordermanagement
      */
     public function updateAddresses($orderId, $data)
     {
+        $this->loggerContainer->setAction(self::ACTIONS['update_addresses']);
         $url = "/ordermanagement/" . self::API_VERSION . "/orders/{$orderId}/customer-details";
-        return $this->service->makeRequest($url, $data, ServiceInterface::PATCH, $orderId);
+        return $this->service->makeRequest(
+            $url,
+            $data,
+            ServiceInterface::PATCH,
+            $orderId
+        );
     }
 
     /**
@@ -168,27 +232,40 @@ class Ordermanagement
      *
      * @param string $orderId
      * @param string $captureId
-     * @param array $data
+     * @param array  $data
      * @return array
      */
     public function addShippingInfo($orderId, $captureId, $data)
     {
+        $this->loggerContainer->setAction(self::ACTIONS['add_shipping_info']);
         $url = "/ordermanagement/" . self::API_VERSION . "/orders/{$orderId}/captures/{$captureId}/shipping-info";
-        return $this->service->makeRequest($url, $data, ServiceInterface::POST, $orderId);
+        return $this->service->makeRequest(
+            $url,
+            $data,
+            ServiceInterface::POST,
+            $orderId
+        );
     }
 
     /**
      * Cancel an authorized order. For a cancellation to be successful, there must be no captures on the order.
      * The authorized amount will be released and no further updates to the order will be allowed.
      *
-     * @param $orderId
+     * @param string $orderId
      *
      * @return array
      */
     public function cancelOrder($orderId)
     {
         $url = "/ordermanagement/" . self::API_VERSION . "/orders/{$orderId}/cancel";
-        return $this->service->makeRequest($url, '', ServiceInterface::POST, $orderId);
+
+        $this->loggerContainer->setAction(self::ACTIONS['cancel_order']);
+        return $this->service->makeRequest(
+            $url,
+            [],
+            ServiceInterface::POST,
+            $orderId
+        );
     }
 
     /**
@@ -199,8 +276,8 @@ class Ordermanagement
      * individual capture. The capture amount can optionally be accompanied by a descriptive text and order lines for
      * the captured items.
      *
-     * @param $orderId
-     * @param $data
+     * @param string $orderId
+     * @param array  $data
      *
      * @return array
      * @throws \Klarna\Core\Model\Api\Exception
@@ -208,21 +285,35 @@ class Ordermanagement
     public function captureOrder($orderId, $data)
     {
         $url = "/ordermanagement/" . self::API_VERSION . "/orders/{$orderId}/captures";
-        return $this->service->makeRequest($url, $data, ServiceInterface::POST, $orderId);
+
+        $this->loggerContainer->setAction(self::ACTIONS['capture_order']);
+        return $this->service->makeRequest(
+            $url,
+            $data,
+            ServiceInterface::POST,
+            $orderId
+        );
     }
 
     /**
      * Retrieve a capture
      *
-     * @param $orderId
-     * @param $captureId
+     * @param string $orderId
+     * @param string $captureId
      *
      * @return array
      */
     public function getCapture($orderId, $captureId)
     {
         $url = "/ordermanagement/" . self::API_VERSION . "/orders/{$orderId}/captures/{$captureId}";
-        return $this->service->makeRequest($url, '', ServiceInterface::GET, $orderId);
+
+        $this->loggerContainer->setAction(self::ACTIONS['get_capture']);
+        return $this->service->makeRequest(
+            $url,
+            [],
+            ServiceInterface::GET,
+            $orderId
+        );
     }
 
     /**
@@ -236,9 +327,14 @@ class Ordermanagement
      */
     public function addShippingDetailsToCapture($orderId, $captureId, $data)
     {
-        // @codingStandardsIgnoreLine
+        $this->loggerContainer->setAction(self::ACTIONS['add_shipping_details_to_capture']);
         $url = "/ordermanagement/" . self::API_VERSION . "/orders/{$orderId}/captures/{$captureId}/shipping-info";
-        return $this->service->makeRequest($url, $data, ServiceInterface::POST, $orderId);
+        return $this->service->makeRequest(
+            $url,
+            $data,
+            ServiceInterface::POST,
+            $orderId
+        );
     }
 
     /**
@@ -255,9 +351,14 @@ class Ordermanagement
      */
     public function updateCaptureBillingAddress($orderId, $captureId, $data)
     {
-        // @codingStandardsIgnoreLine
+        $this->loggerContainer->setAction(self::ACTIONS['update_capture_billing_address']);
         $url = "/ordermanagement/" . self::API_VERSION . "/orders/{$orderId}/captures/{$captureId}/customer-details";
-        return $this->service->makeRequest($url, $data, ServiceInterface::PATCH, $orderId);
+        return $this->service->makeRequest(
+            $url,
+            $data,
+            ServiceInterface::PATCH,
+            $orderId
+        );
     }
 
     /**
@@ -270,9 +371,14 @@ class Ordermanagement
      */
     public function resendOrderInvoice($orderId, $captureId)
     {
-        // @codingStandardsIgnoreLine
+        $this->loggerContainer->setAction(self::ACTIONS['resend_order_invoice']);
         $url = "/ordermanagement/" . self::API_VERSION . "/orders/{$orderId}/captures/{$captureId}/trigger-send-out";
-        return $this->service->makeRequest($url, '', ServiceInterface::POST, $orderId);
+        return $this->service->makeRequest(
+            $url,
+            [],
+            ServiceInterface::POST,
+            $orderId
+        );
     }
 
     /**
@@ -288,20 +394,34 @@ class Ordermanagement
     public function refund($orderId, $data)
     {
         $url = "/ordermanagement/" . self::API_VERSION . "/orders/{$orderId}/refunds";
-        return $this->service->makeRequest($url, $data, ServiceInterface::POST, $orderId);
+
+        $this->loggerContainer->setAction(self::ACTIONS['refund']);
+        return $this->service->makeRequest(
+            $url,
+            $data,
+            ServiceInterface::POST,
+            $orderId
+        );
     }
 
     /**
      * Signal that there is no intention to perform further captures.
      *
-     * @param $orderId
+     * @param string $orderId
      *
      * @return array
      */
     public function releaseAuthorization($orderId)
     {
         $url = "/ordermanagement/" . self::API_VERSION . "/orders/{$orderId}/release-remaining-authorization";
-        return $this->service->makeRequest($url, '', ServiceInterface::POST, $orderId);
+
+        $this->loggerContainer->setAction(self::ACTIONS['release_authorization']);
+        return $this->service->makeRequest(
+            $url,
+            [],
+            ServiceInterface::POST,
+            $orderId
+        );
     }
 
     /**

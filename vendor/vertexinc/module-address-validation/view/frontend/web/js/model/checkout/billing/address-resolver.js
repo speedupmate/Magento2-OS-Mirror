@@ -16,13 +16,10 @@ define([
             if (element.name === 'street') {
                 const streetInputs = $('.payment-method input[name^="street["]');
                 streetInputs.val('');
-                if (typeof value === 'string') {
-                    $(streetInputs[0]).val(value);
-                } else {
-                    for (let index = 0, length = value.length;index < length;++index) {
-                        $(streetInputs[index])
-                            .val(value[index]);
-                    }
+                value = typeof value === "string" ? [value] : Object.values(value);
+                for (let index = 0, length = value.length;index < length;++index) {
+                    $(streetInputs[index])
+                        .val(value[index]);
                 }
                 streetInputs.trigger('change').trigger('blur');
             } else {

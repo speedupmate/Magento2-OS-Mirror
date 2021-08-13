@@ -1,0 +1,26 @@
+type Query {
+    emailCaptureNewsletter: IsConfigSettingEnabledOutput @resolver (class: "\\Dotdigitalgroup\\EmailGraphQl\\Model\\Resolver\\EasyEmailCaptureNewsletter") @doc(description:"Returns status of Easy Email Capture for Newsletter.")
+    emailCaptureCheckout: IsConfigSettingEnabledOutput @resolver (class: "\\Dotdigitalgroup\\EmailGraphQl\\Model\\Resolver\\EasyEmailCaptureCheckout") @doc(description:"Returns status of Easy Email Capture for Checkout.")
+    trackingData: TrackingData @resolver (class: "\\Dotdigitalgroup\\EmailGraphQl\\Model\\Resolver\\TrackingData") @doc(description:"Retrieves an array of configuration data for different types of tracking.")
+    orderData(orderId: String!): Order @resolver (class: "\\Dotdigitalgroup\\EmailGraphQl\\Model\\Resolver\\OrderData") @doc(description:"Retrieves information about an order by order id.")
+}
+
+type Mutation {
+    updateQuoteEmail(email: String!, cartId: String!): Boolean @doc(description:"Updates the email address of a quote.") @resolver(class: "Dotdigitalgroup\\EmailGraphQl\\Model\\Resolver\\UpdateQuoteEmail")
+}
+
+type IsConfigSettingEnabledOutput {
+    is_enabled: Boolean @doc(description: "Is config setting enabled")
+}
+
+type TrackingData {
+    page_tracking_enabled: Boolean @doc(description: "Is Page Tracking enabled")
+    roi_tracking_enabled: Boolean @doc(description: "Is ROI Tracking enabled")
+    wbt_profile_id: String @doc(description: "Web Behaviour Tracking profile ID")
+    region_prefix: String @doc(description: "dotdigital region prefix")
+}
+
+type Order @doc(description: "Contains details about the requested order") {
+    items: [String] @doc(description: "An array containing the items purchased in this order")
+    total: String @doc(description: "Contains the calculated total for this order")
+}

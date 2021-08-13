@@ -2,14 +2,15 @@
 
 namespace Yandex\Allure\Adapter\Event;
 
+use PHPUnit\Framework\TestCase;
 use Yandex\Allure\Adapter\Model\Provider;
 use Yandex\Allure\Adapter\Model\Step;
 
-class AddAttachmentEventTest extends \PHPUnit_Framework_TestCase
+class AddAttachmentEventTest extends TestCase
 {
-    const ATTACHMENT_CAPTION = 'test-caption';
+    private const ATTACHMENT_CAPTION = 'test-caption';
 
-    public function testEventWithFile()
+    public function testEventWithFile(): void
     {
         $attachmentCaption = self::ATTACHMENT_CAPTION;
         $attachmentType = 'application/json';
@@ -35,7 +36,7 @@ class AddAttachmentEventTest extends \PHPUnit_Framework_TestCase
         );
     }
 
-    public function testEventWithStringContents()
+    public function testEventWithStringContents(): void
     {
         $attachmentCaption = self::ATTACHMENT_CAPTION;
         $attachmentType = 'text/plain';
@@ -66,7 +67,7 @@ class AddAttachmentEventTest extends \PHPUnit_Framework_TestCase
         $attachmentFileName,
         $attachmentCaption,
         $attachmentType
-    ) {
+    ): void {
         $this->assertTrue(file_exists($attachmentOutputPath));
         $attachments = $step->getAttachments();
         $this->assertEquals(1, sizeof($attachments));
@@ -77,7 +78,7 @@ class AddAttachmentEventTest extends \PHPUnit_Framework_TestCase
         $this->assertEquals($attachmentType, $attachment->getType());
     }
 
-    private function getTestContents()
+    private function getTestContents(): string
     {
         return str_shuffle('test-contents');
     }

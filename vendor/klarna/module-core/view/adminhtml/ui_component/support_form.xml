@@ -1,0 +1,253 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!--
+/**
+ * This file is part of the Klarna Core module
+ *
+ * (c) Klarna Bank AB (publ)
+ *
+ * For the full copyright and license information, please view the NOTICE
+ * and LICENSE files that were distributed with this source code.
+ */
+-->
+<form xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+      xsi:noNamespaceSchemaLocation="urn:magento:module:Magento_Ui:etc/ui_configuration.xsd">
+    <argument name="data" xsi:type="array">
+        <item name="js_config" xsi:type="array">
+            <item name="provider" xsi:type="string">support_form.support_form_data_source</item>
+        </item>
+        <item name="label" xsi:type="string" translate="true">Support Details</item>
+        <item name="template" xsi:type="string">templates/form/collapsible</item>
+    </argument>
+
+    <settings>
+        <namespace>support_form</namespace>
+        <dataScope>data</dataScope>
+        <buttons>
+            <button name="send" class="Klarna\Core\Block\Adminhtml\Support\Button\Send"/>
+        </buttons>
+        <deps>
+            <dep>support_form.support_form_data_source</dep>
+        </deps>
+    </settings>
+
+    <dataSource name="support_form_data_source">
+        <argument name="data" xsi:type="array">
+            <item name="js_config" xsi:type="array">
+                <item name="component" xsi:type="string">Magento_Ui/js/form/provider</item>
+                <item name="submit_url" path="*/*/send" xsi:type="url" />
+            </item>
+        </argument>
+        <dataProvider class="Klarna\Core\Ui\DataProvider\Support" name="support_form_data_source">
+            <settings>
+                <requestFieldName>form</requestFieldName>
+                <primaryFieldName>form</primaryFieldName>
+            </settings>
+        </dataProvider>
+        <aclResource>Klarna_Core::system_support_form</aclResource>
+    </dataSource>
+
+    <fieldset name="support_form_fieldset">
+        <settings>
+            <label translate="true">Support request form</label>
+        </settings>
+        <field name="custom_options_list" formElement="select" component="Magento_Ui/js/form/element/ui-select">
+            <settings>
+                <label translate="true">Klarna Products</label>
+                <dataType>text</dataType>
+                <elementTmpl>ui/grid/filters/elements/ui-select</elementTmpl>
+                <validation>
+                    <rule xsi:type="boolean" active="true" name="required-entry">true</rule>
+                </validation>
+                <required>true</required>
+                <additionalClasses>
+                    <class name="required">true</class>
+                </additionalClasses>
+                <listens>
+                    <link name="${ $.namespace }.${ $.namespace }:responseData">setParsed</link>
+                </listens>
+                <componentType>field</componentType>
+                <dataScope>data</dataScope>
+            </settings>
+            <formElements>
+                <select>
+                    <settings>
+                        <options class="Klarna\Core\Model\System\Config\Source\Products"/>
+                    </settings>
+                </select>
+            </formElements>
+            <argument name="data" xsi:type="array">
+                <item name="config" xsi:type="array">
+                    <item name="filterOptions" xsi:type="boolean">true</item>
+                    <item name="showCheckbox" xsi:type="boolean">true</item>
+                    <item name="disableLabel" xsi:type="boolean">true</item>
+                    <item name="multiple" xsi:type="boolean">true</item>
+                    <item name="levelsVisibility" xsi:type="number">1</item>
+                </item>
+            </argument>
+        </field>
+        <field name="contact_name" formElement="input">
+            <settings>
+                <elementTmpl>ui/form/element/input</elementTmpl>
+                <label translate="true">Contact name</label>
+                <validation>
+                    <rule xsi:type="boolean" active="true" name="required-entry">true</rule>
+                    <rule xsi:type="number" active="true" name="min_text_length">3</rule>
+                </validation>
+            </settings>
+        </field>
+        <field name="contact_email" formElement="input">
+            <settings>
+                <elementTmpl>ui/form/element/email</elementTmpl>
+                <label translate="true">Email</label>
+                <validation>
+                    <rule xsi:type="boolean" active="true" name="required-entry">true</rule>
+                    <rule xsi:type="boolean" active="true" name="validate-email">true</rule>
+                </validation>
+            </settings>
+        </field>
+        <field name="shop_url" formElement="input">
+            <settings>
+                <elementTmpl>ui/form/element/input</elementTmpl>
+                <label translate="true">Shop url</label>
+                <validation>
+                    <rule xsi:type="boolean" active="true" name="required-entry">true</rule>
+                    <rule xsi:type="number" active="true" name="min_text_length">3</rule>
+                </validation>
+            </settings>
+        </field>
+        <field name="api_key" formElement="input">
+            <settings>
+                <elementTmpl>ui/form/element/input</elementTmpl>
+                <label translate="true">Klarna API username</label>
+                <validation>
+                    <rule xsi:type="boolean" active="true" name="required-entry">true</rule>
+                    <rule xsi:type="number" active="true" name="min_text_length">3</rule>
+                </validation>
+                <placeholder translate="true">See Klarna settings at Stores > Configuration > Sales > Payment Methods</placeholder>
+            </settings>
+        </field>
+        <field name="issue" formElement="textarea">
+            <settings>
+                <label translate="true">Describe your issue or question</label>
+                <dataType>text</dataType>
+                <placeholder>Please add specific details of the problem</placeholder>
+                <validation>
+                    <rule xsi:type="boolean" active="true" name="required-entry">true</rule>
+                    <rule xsi:type="number" active="true" name="min_text_length">3</rule>
+                </validation>
+            </settings>
+            <formElements>
+                <textarea>
+                    <settings>
+                        <cols>15</cols>
+                        <rows>5</rows>
+                    </settings>
+                </textarea>
+            </formElements>
+        </field>
+        <field name="replication_steps" formElement="textarea">
+            <settings>
+                <label translate="true">Steps to reproduce</label>
+                <placeholder>
+                    If applicable, describe the steps to reproduce an issue/error.
+                    This can significantly decrease a resolution time.
+                </placeholder>
+                <dataType>text</dataType>
+                <validation>
+                    <rule xsi:type="boolean" active="true" name="required-entry">true</rule>
+                    <rule xsi:type="number" active="true" name="min_text_length">3</rule>
+                </validation>
+            </settings>
+            <formElements>
+                <textarea>
+                    <settings>
+                        <cols>15</cols>
+                        <rows>5</rows>
+                    </settings>
+                </textarea>
+            </formElements>
+        </field>
+        <field name="include_klarna_settings" formElement="select">
+            <settings>
+                <dataType>text</dataType>
+                <label translate="true">Include Klarna settings</label>
+                <dataScope>include_klarna_settings</dataScope>
+                <notice translate="true">
+                    If selected, we will attach Klarna settings to the request. These settings can be very helpful for us
+                    to understand the case better.
+                </notice>
+            </settings>
+            <formElements>
+                <select>
+                    <settings>
+                        <options>
+                            <option name="0" xsi:type="array">
+                                <item name="value" xsi:type="string">1</item>
+                                <item name="label" xsi:type="string">Yes</item>
+                            </option>
+                            <option name="1" xsi:type="array">
+                                <item name="value" xsi:type="string">2</item>
+                                <item name="label" xsi:type="string">No</item>
+                            </option>
+                        </options>
+                    </settings>
+                </select>
+            </formElements>
+        </field>
+        <field name="include_tax_settings" formElement="select">
+            <settings>
+                <dataType>text</dataType>
+                <label translate="true">Include tax settings</label>
+                <dataScope>include_tax_settings</dataScope>
+                <notice translate="true">
+                    If selected, we will attach tax settings to the request. These settings can be very helpful for us
+                    if your problem is related to tax calculations, order amount calculations and order amount mismatch
+                    between Klarna and Magento.
+                </notice>
+            </settings>
+            <formElements>
+                <select>
+                    <settings>
+                        <options>
+                            <option name="0" xsi:type="array">
+                                <item name="value" xsi:type="string">1</item>
+                                <item name="label" xsi:type="string">Yes</item>
+                            </option>
+                            <option name="1" xsi:type="array">
+                                <item name="value" xsi:type="string">2</item>
+                                <item name="label" xsi:type="string">No</item>
+                            </option>
+                        </options>
+                    </settings>
+                </select>
+            </formElements>
+        </field>
+        <field name="attachment" formElement="fileUploader">
+            <settings>
+                <visible>true</visible>
+                <label translate="true">Attachments (.jpg, .jpeg, .png, .txt, .log, .pdf, .zip, .rar)</label>
+                <notice translate="true">
+                    Please make sure you don't exceed the max file size configured for your system.
+                </notice>
+            </settings>
+            <formElements>
+                <fileUploader>
+                    <settings>
+                        <required>false</required>
+                        <previewTmpl>Klarna_Core/image-preview</previewTmpl>
+                        <allowedExtensions>jpg jpeg png txt log pdf zip rar</allowedExtensions>
+                        <uploaderConfig>
+                            <param xsi:type="url" name="url" path="*/*/upload"/>
+                            <param xsi:type="boolean" name="disableImageLoad">true</param>
+                        </uploaderConfig>
+                    </settings>
+                </fileUploader>
+            </formElements>
+            <argument name="data" xsi:type="array">
+                <item name="config" xsi:type="array">
+                    <item name="isMultipleFiles" xsi:type="boolean">true</item>
+                </item>
+            </argument>
+        </field>
+    </fieldset>
+</form>

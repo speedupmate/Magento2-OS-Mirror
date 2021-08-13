@@ -1,0 +1,21 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!--
+/**
+ * @author    Blue Acorn iCi <code@blueacornici.com>
+ * @copyright 2021 Vertex, Inc. All Rights Reserved.
+ */
+-->
+<config xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="urn:magento:module:Magento_Store:etc/config.xsd">
+    <default>
+        <tax>
+            <vertex_logging>
+                <enable_logging>0</enable_logging>
+                <enable_rotation>0</enable_rotation>
+                <rotation_action>delete</rotation_action>
+                <entry_lifetime>7</entry_lifetime>
+                <amount_per_batch>100</amount_per_batch>
+                <rotation_frequency>W</rotation_frequency>
+            </vertex_logging>
+        </tax>
+    </default>
+</config>

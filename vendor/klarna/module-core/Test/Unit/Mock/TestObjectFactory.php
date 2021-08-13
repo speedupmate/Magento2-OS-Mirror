@@ -95,7 +95,8 @@ class TestObjectFactory extends TestCase
      */
     private function isObject($type): bool
     {
-        return $type instanceof \ReflectionNamedType && $type->getName() !== 'array';
+        return $type instanceof \ReflectionNamedType &&
+            !in_array($type->getName(), ['array', 'string']);
     }
 
     /**
@@ -114,6 +115,8 @@ class TestObjectFactory extends TestCase
         if ($paramClass === 'array') {
             $this->dependencyMocks[$param->getName()] = [];
             return;
+        } elseif ($paramClass === 'string') {
+            $this->dependencyMocks[$param->getName()] = '';
         }
     }
 

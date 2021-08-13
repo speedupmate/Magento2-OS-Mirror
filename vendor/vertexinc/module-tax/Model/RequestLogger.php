@@ -1,15 +1,16 @@
 <?php
 /**
- * @copyright  Vertex. All rights reserved.  https://www.vertexinc.com/
- * @author     Mediotype                     https://www.mediotype.com/
+ * @author    Blue Acorn iCi <code@blueacornici.com>
+ * @copyright 2021 Vertex, Inc. All Rights Reserved.
  */
 
 namespace Vertex\Tax\Model;
 
-use Magento\Framework\Stdlib\DateTime\DateTime;
-use Vertex\Tax\Api\Data\LogEntryInterface;
-use Vertex\Tax\Api\Data\LogEntryInterfaceFactory;
-use Vertex\Tax\Api\LogEntryRepositoryInterface;
+use Magento\Framework\Stdlib\DateTime;
+use Magento\Framework\Stdlib\DateTime\TimezoneInterface;
+use Vertex\RequestLoggingApi\Api\Data\LogEntryInterface;
+use Vertex\RequestLoggingApi\Api\Data\LogEntryInterfaceFactory;
+use Vertex\RequestLoggingApi\Model\LogRequestInterface;
 
 /**
  * Performs all the actions necessary for logging a request
@@ -25,25 +26,29 @@ class RequestLogger
     /** @var LogEntryInterfaceFactory */
     private $factory;
 
-    /** @var LogEntryRepositoryInterface */
-    private $repository;
+    /** @var LogRequestInterface */
+    private $logRequest;
 
-    /**
-     * @param LogEntryRepositoryInterface $repository
-     * @param LogEntryInterfaceFactory $logEntryFactory
-     * @param DateTime $dateTime
-     * @param DomDocumentFactory $documentFactory
-     */
+    /** @var ModuleDetail */
+    private $moduleDetail;
+
+    /** @var TimezoneInterface */
+    private $timezone;
+
     public function __construct(
-        LogEntryRepositoryInterface $repository,
         LogEntryInterfaceFactory $logEntryFactory,
+        LogRequestInterface $logRequest,
         DateTime $dateTime,
-        DomDocumentFactory $documentFactory
+        DomDocumentFactory $documentFactory,
+        ModuleDetail $moduleDetail,
+        TimezoneInterface $timezone
     ) {
-        $this->repository = $repository;
         $this->factory = $logEntryFactory;
+        $this->logRequest = $logRequest;
         $this->dateTime = $dateTime;
         $this->documentFactory = $documentFactory;
+        $this->moduleDetail = $moduleDetail;
+        $this->timezone = $timezone;
     }
 
     /**
@@ -54,24 +59,26 @@ class RequestLogger
      * @param string $responseXml
      * @param int|null $responseTime
      * @return void
-     * @throws \Magento\Framework\Exception\CouldNotSaveException
      */
-    public function log($type, $requestXml, $responseXml, $responseTime = null)
+    public function log($type, $requestXml, $responseXml, $logLevel, $responseTime = null)
     {
-        /** @var LogEntryInterface $logEntry */
         $logEntry = $this->factory->create();
-        $timestamp = $this->dateTime->date('Y-m-d H:i:s');
+        $dateTime = $this->timezone->scopeDate(null, time(), true);
+        $timestamp = $this->dateTime->formatDate($dateTime);
         $logEntry->setType($type);
         $logEntry->setDate($timestamp);
-        $logEntry->setResponseTime($responseTime);
 
-        $requestXml = $this->formatXml($requestXml);
-        $responseXml = $this->formatXml($responseXml);
+        if ($responseTime !== null) {
+            $logEntry->setResponseTime($responseTime);
+        }
 
-        $logEntry->setRequestXml($requestXml);
+        $logEntry->setModuleName($this->moduleDetail->getModuleName());
+        $logEntry->setModuleVersion($this->moduleDetail->getModuleVersion());
         $logEntry->setResponseXml($responseXml);
+        $logEntry->setRequestXml($requestXml);
+
         $this->addResponseDataToLogEntry($logEntry, $responseXml);
-        $this->repository->save($logEntry);
+        $this->logRequest->execute($logEntry, $logLevel);
     }
 
     /**
@@ -91,7 +98,8 @@ class RequestLogger
             $totalTaxNodes = $dom->getElementsByTagName('TotalTax');
             $totalTaxNode = null;
             for ($i = 0; $i < $totalTaxNodes->length; ++$i) {
-                if ($totalTaxNodes->item($i)->parentNode->localName === 'QuotationResponse') {
+                if ($totalTaxNodes->item($i)->parentNode->localName === 'QuotationResponse' ||
+                    $totalTaxNodes->item($i)->parentNode->localName === 'InvoiceResponse') {
                     $totalTaxNode = $totalTaxNodes->item($i);
                     break;
                 }
@@ -111,39 +119,12 @@ class RequestLogger
                 $lookupResult = $addressLookupFaultNode->item(0)->nodeValue;
             }
 
-            $logEntry->setTotalTax($totalTax);
-            $logEntry->setTotal($total);
-            $logEntry->setSubTotal($subtotal);
+            $logEntry->setTotalTax((float)$totalTax);
+            $logEntry->setTotal((float)$total);
+            $logEntry->setSubTotal((float)$subtotal);
             $logEntry->setLookupResult($lookupResult);
         }
 
         return $logEntry;
-    }
-
-    /**
-     * Format a string of XML
-     *
-     * @param string $xml
-     * @return string
-     */
-    private function formatXml($xml)
-    {
-        if (empty($xml)) {
-            return '';
-        }
-
-        $dom = $this->documentFactory->create();
-
-        $dom->preserveWhiteSpace = false;
-        $dom->loadXML($xml);
-
-        // Secure TrustedId
-        $trustedId = $dom->getElementsByTagName('TrustedId');
-        if ($trustedId->length) {
-            $trustedId->item(0)->textContent = '*****';
-        }
-
-        $dom->formatOutput = true;
-        return $dom->saveXML();
     }
 }

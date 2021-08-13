@@ -11,8 +11,6 @@
         <annotations>
             <description>See the validation message container after we hit the button update.</description>
         </annotations>
-        <waitForElementNotVisible selector="{{CheckoutShippingSection.addressMessageWarning}}"
-                                  stepKey="AddressValidationMessageContainer"/>
         <waitForAjaxLoad stepKey="waitForApiResponseLoad"/>
     </actionGroup>
 </actionGroups>

@@ -1,0 +1,120 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!--
+ /**
+  * @copyright  Vertex. All rights reserved.  https://www.vertexinc.com/
+  * @author     Mediotype                     https://www.mediotype.com/
+  */
+-->
+<tests xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+       xsi:noNamespaceSchemaLocation="urn:magento:mftf:Test/etc/testSchema.xsd">
+    <test name="VertexAsGuestCustomerFromStorefrontCheckGroupedProductTaxOnShoppingCartPageSummaryTest">
+        <annotations>
+            <features value="Vertex"/>
+            <group value="Vertex"/>
+
+            <stories value="As a store owner, I must have accurate taxes calculated for a guest customer"/>
+            <title value="Validate Taxes on Cart Summary, Guest Customer, Grouped Product with simple and virtual products"/>
+            <description value="Validate that a guest customer with cart containing a grouped product receives taxes when estimating shipping &amp; tax"/>
+
+            <severity value="MAJOR"/>
+        </annotations>
+        <before>
+            <!-- Create Default Category -->
+            <createData entity="_defaultCategory" stepKey="createCategory"/>
+
+             <!-- Create Virtual Product -->
+            <createData entity="ApiVirtualProductWithDescription" stepKey="createVirtualProduct">
+                <field key="price">{{Vertex_Grouped_Second_Values.price}}</field>
+                <requiredEntity createDataKey="createCategory"/>
+            </createData>
+
+            <!-- Create Simple Product -->
+            <createData entity="_defaultProduct" stepKey="createSimpleProduct">
+                <field key="price">{{Vertex_Grouped_Second_Values.price}}</field>
+                <requiredEntity createDataKey="createCategory"/>
+            </createData>
+
+            <!-- Login as admin -->
+            <actionGroup ref="AdminLoginActionGroup" stepKey="loginAsAdmin"/>
+
+            <!-- Create new grouped product -->
+            <actionGroup ref="GoToSpecifiedCreateProductPageActionGroup" stepKey="createGroupedProduct">
+                <argument name="productType" value="grouped"/>
+            </actionGroup>
+
+            <!-- Fill all main fields -->
+            <actionGroup ref="FillGroupedProductFormActionGroup" stepKey="fillProductForm">
+                <argument name="product" value="GroupedProduct"/>
+            </actionGroup>
+
+            <!-- Add virtual product to the Group -->
+            <actionGroup ref="AdminAssignProductToGroupActionGroup" stepKey="addVirtualToGroup">
+                <argument name="product" value="$$createVirtualProduct$$"/>
+            </actionGroup>
+
+            <!-- Add simple product to the Group -->
+            <actionGroup ref="AdminAssignProductToGroupActionGroup" stepKey="addSimpleToGroup">
+                <argument name="product" value="$$createSimpleProduct$$"/>
+            </actionGroup>
+
+            <!-- Save grouped product form -->
+            <actionGroup ref="SaveProductFormActionGroup" stepKey="clickSaveButton"/>
+
+            <!-- Grab the Grouped Product's SKU -->
+            <grabValueFrom selector="{{NewProductPageSection.sku}}" stepKey="productSku"/>
+
+            <!-- Go to the grouped product page on Storefront -->
+            <amOnPage url="{$productSku}.html" stepKey="amOnGroupedProductPage"/>
+            <waitForPageLoad stepKey="waitForCategoryPageLoad"/>
+
+            <!-- Add the grouped product to cart -->
+            <fillField stepKey="fillFirstQty" selector="{{StorefrontGroupSection.childProductQty($$createVirtualProduct.name$$)}}" userInput="1"/>
+            <fillField stepKey="fillSecondQty" selector="{{StorefrontGroupSection.childProductQty($$createSimpleProduct.name$$)}}" userInput="1"/>
+            <click selector="{{StorefrontProductActionSection.addToCart}}" stepKey="addToCart"/>
+            <waitForAjaxLoad stepKey="waitForLoad"/>
+
+            <!-- Go to the cart page -->
+            <actionGroup ref="StorefrontOpenCartFromMinicartActionGroup" stepKey="gotoCart"/>
+
+            <actionGroup ref="FillShippingZipForm" stepKey="fillEstimateShippingInformation">
+                <argument name="address" value="Vertex_Customer_BobSaget_Address"/>
+            </actionGroup>
+
+            <!-- Fill in shipping address -->
+            <checkOption selector="{{CheckoutCartSummarySection.flatRateShippingMethod}}" stepKey="selectFlatRateShipping"/>
+            <waitForPageLoad stepKey="waitForTotals"/>
+        </before>
+        <after>
+            <!-- Delete grouped product -->
+            <actionGroup ref="DeleteProductUsingProductGridActionGroup" stepKey="deleteProduct">
+                <argument name="product" value="GroupedProduct"/>
+            </actionGroup>
+
+            <!-- Delete virtual product -->
+            <deleteData createDataKey="createVirtualProduct" stepKey="deleteVirtualProduct"/>
+
+            <!-- Delete simple product -->
+            <deleteData createDataKey="createSimpleProduct" stepKey="deleteSimpleProduct"/>
+
+            <!-- Log out -->
+            <actionGroup ref="AdminLogoutActionGroup" stepKey="logout"/>
+
+            <!-- Delete category -->
+            <deleteData stepKey="deleteCategory" createDataKey="createCategory"/>
+        </after>
+
+        <!-- Check that there isn't a Vertex Warning message -->
+        <dontSeeElementInDOM selector="{{StorefrontCheckoutCartSummarySection.vertexWarningMessage}}" stepKey="dontSeeWarningMessages"/>
+
+        <!-- Check that calculated taxes are present -->
+        <actionGroup ref="VertexCheckTotalsInCartActionGroup" stepKey="checkTotals">
+            <argument name="subtotalExclTax" value="{{Vertex_34USD_PA_Only_Totals.subtotal}}"/>
+            <argument name="subtotalInclTax" value="{{Vertex_34USD_PA_Only_Totals.subtotalInclTax}}"/>
+            <argument name="shippingExclTax" value="{{Vertex_34USD_PA_Only_Totals.shipping}}" />
+            <argument name="shippingInclTax" value="{{Vertex_34USD_PA_Only_Totals.shippingInclTax}}" />
+            <argument name="tax" value="{{Vertex_34USD_PA_Only_Totals.tax}}"/>
+            <argument name="totalExclTax" value="{{Vertex_34USD_PA_Only_Totals.total}}"/>
+            <argument name="totalInclTax" value="{{Vertex_34USD_PA_Only_Totals.totalInclTax}}"/>
+        </actionGroup>
+    </test>
+</tests>

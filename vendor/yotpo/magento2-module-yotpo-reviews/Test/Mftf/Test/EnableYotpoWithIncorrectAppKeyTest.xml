@@ -20,7 +20,7 @@
         </annotations>
 
         <before>
-            <actionGroup ref="AdminLoginActionGroup" stepKey="AdminLoginActionGroup"/>
+            <actionGroup ref="AdminLoginActionGroup" stepKey="LoginAsAdmin"/>
             <amOnPage url="admin/admin/system_config/edit/section/yotpo/store/1/" stepKey="navigateToYotpoConfigurationOnDefaultStoreView"/>
         </before>
 

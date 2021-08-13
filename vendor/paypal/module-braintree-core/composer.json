@@ -3,7 +3,7 @@
     "description": "Fork from the Magento Braintree 2.2.0 module by Gene Commerce for PayPal.",
     "type": "magento2-module",
     "license": "proprietary",
-    "version": "4.2.3-p1",
+    "version": "4.2.4",
     "require": {
         "braintree/braintree_php": "5.2.0",
         "magento/module-customer": "101.0.*||102.0.*||^103.0.0",

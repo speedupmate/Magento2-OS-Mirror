@@ -5,6 +5,7 @@
   * See COPYING.txt for license details.
   */
 -->
+
 <tests xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
        xsi:noNamespaceSchemaLocation="urn:magento:mftf:Test/etc/testSchema.xsd">
     <test name="BottomlineStarAppearInCategoryPageTest">
@@ -12,14 +13,14 @@
             <features value="Yotpo"/>
             <stories value="Enable show bottomline and verify that bottomline appear on category page" />
             <title value="Test that bottomline stars appear in the category page"/>
-            <description value="Test that bottomline stars appear in the product page"/>
+            <description value="Test that bottomline stars appear in the category page"/>
             <severity value="AVERAGE"/>
             <testCaseId value="MC-249"/>
             <group value="Yotpo"/>
         </annotations>
 
         <before>
-            <actionGroup ref="AdminLoginActionGroup" stepKey="AdminLoginActionGroup"/>
+            <actionGroup ref="AdminLoginActionGroup" stepKey="LoginAsAdmin"/>
             <amOnPage url="admin/admin/system_config/edit/section/yotpo/store/1/" stepKey="navigateToYotpoConfigurationOnDefaultStoreView" />
             <createData entity="ApiCategory" stepKey="createCategory"/>
             <createData entity="SimpleProduct" stepKey="createSimpleProduct">

@@ -112,11 +112,6 @@ class Config implements ConfigInterface
             return false;
         }
 
-        // Only allowed on US
-        if (!$this->isUS()) {
-            return false;
-        }
-
         return (bool) $this->getValue(self::KEY_ACTIVE);
     }
 
@@ -133,12 +128,11 @@ class Config implements ConfigInterface
         $paypalPayLaterMessageActive = $this->getConfigValue("payment/braintree_paypal/message_" . $type . "_enable");
 
         // If PayPal or PayPal Pay Later is disabled in the admin
-        if (!$paypalActive || !$paypalPayLaterActive || !$paypalPayLaterMessageActive || $this->IsPayPalVaultActive()) {
+        if (!$paypalActive || !$paypalPayLaterMessageActive || $this->IsPayPalVaultActive()) {
             return false;
         }
 
-        // Only allowed on US
-        if (!$this->isUS()) {
+        if (!in_array($this->getMerchantCountry(), ['GB','FR','US','DE', 'AU'])) {
             return false;
         }
 
@@ -146,7 +140,7 @@ class Config implements ConfigInterface
     }
 
     /**
-     * Get Paypal pay later message configuration status
+     * Get Paypal pay later button configuration status
      * @param string $type
      *
      * @return bool
@@ -159,11 +153,6 @@ class Config implements ConfigInterface
 
         // If PayPal or PayPal Pay Later is disabled in the admin
         if (!$paypalActive || !$paypalPayLaterActive || !$paypalPayLaterButtonActive) {
-            return false;
-        }
-
-        // Only allowed on US
-        if (!$this->isUS()) {
             return false;
         }
 

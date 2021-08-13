@@ -12,7 +12,7 @@
 <klarna xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
         xsi:noNamespaceSchemaLocation="urn:magento:module:Klarna_Core:etc/klarna.xsd">
     <api_type id="payments">
-        <class>\Klarna\Kp\Model\Api\Kasper</class>
+        <class>\Klarna\Kp\Model\Api\Builder\Kasper</class>
         <ordermanagement>\Klarna\Ordermanagement\Model\Api\Ordermanagement</ordermanagement>
         <options>
             <option id="payment_review">1</option>

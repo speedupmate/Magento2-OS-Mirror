@@ -68,16 +68,11 @@ class ChatStatusChanged implements \Magento\Framework\Event\ObserverInterface
     public function execute(Observer $observer)
     {
         $website = $this->helper->getWebsiteForSelectedScopeInAdmin();
-
         $groups = $this->context->getRequest()->getPost('groups');
-
         $enabled = $this->getEnabled($groups);
 
         if (!$enabled) {
             $this->config->deleteChatApiCredentials();
-            return;
-        } elseif ($this->config->getApiSpaceId() !== null) {
-            // if an API space ID is already set for this scope/website, we don't need to do anything more
             return;
         }
 

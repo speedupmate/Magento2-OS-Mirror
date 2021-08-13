@@ -12,15 +12,14 @@
   * and LICENSE files that were distributed with this source code.
   */
 -->
-<!--
- /**
-  * The goal of this suite is to run the tests on multiple markets (DE, US, ...)
-  */
--->
 <suites xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
         xsi:noNamespaceSchemaLocation="urn:magento:mftf:Suite/etc/suiteSchema.xsd">
     <suite name="KlarnaPaymentsUS_Commerce">
         <before>
+            <createData entity="Klarna_US_Customer_B2C" stepKey="marketDefaultCustomerInstance"/>
+            <createData entity="Klarna_US_Customer_B2B" stepKey="marketDefaultCustomerB2bInstance"/>
+            <createData entity="taxRate_US_NY_8_1" stepKey="taxRateTwo"/>
+
             <actionGroup ref="AdminLoginActionGroup" stepKey="loginAsAdmin"/>
             <actionGroup ref="ConfigureKlarna" stepKey="kpConfigureCredentials">
                 <argument name="api_version" value="kp_na"/>
@@ -30,12 +29,16 @@
             <actionGroup ref="AdminLogoutActionGroup" stepKey="signOutFromAdmin"/>
         </before>
         <after>
+            <deleteData createDataKey="marketDefaultCustomerInstance" stepKey="deleteCustomer"/>
+            <deleteData createDataKey="marketDefaultCustomerB2bInstance" stepKey="deleteCustomerB2b"/>
+            <deleteData stepKey="deleteTaxRateTwo" createDataKey="taxRateTwo"/>
+
             <actionGroup ref="AdminLoginActionGroup" stepKey="loginAsAdmin"/>
             <actionGroup ref="DisableKlarnaPayment" stepKey="disableKlarnaPayment"/>
             <actionGroup ref="AdminLogoutActionGroup" stepKey="signOutFromAdmin"/>
         </after>
         <include>
-            <group name="Klarna_KP_Country_US"/>
+            <group name="Klarna_KP"/>
         </include>
     </suite>
 </suites>

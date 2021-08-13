@@ -64,6 +64,11 @@ class ConfigProvider implements ConfigProviderInterface
      */
     public function getConfig(): array
     {
+        $locale = $this->resolver->getLocale();
+        if (in_array($locale, ['nb_NO', 'nn_NO'])) {
+            $locale = 'no_NO';
+        }
+
         return [
             'payment' => [
                 self::PAYPAL_CODE => [
@@ -71,7 +76,7 @@ class ConfigProvider implements ConfigProviderInterface
                     'title' => $this->config->getTitle(),
                     'isAllowShippingAddressOverride' => $this->config->isAllowToEditShippingAddress(),
                     'merchantName' => $this->config->getMerchantName(),
-                    'locale' => $this->resolver->getLocale(),
+                    'locale' => $locale,
                     'paymentAcceptanceMarkSrc' =>
                         'https://www.paypalobjects.com/webstatic/en_US/i/buttons/pp-acceptance-medium.png',
                     'vaultCode' => self::PAYPAL_VAULT_CODE,
@@ -88,7 +93,7 @@ class ConfigProvider implements ConfigProviderInterface
                     'title' => __('PayPal Credit'),
                     'isAllowShippingAddressOverride' => $this->config->isAllowToEditShippingAddress(),
                     'merchantName' => $this->config->getMerchantName(),
-                    'locale' => $this->resolver->getLocale(),
+                    'locale' => $locale,
                     'paymentAcceptanceMarkSrc' =>
                         'https://www.paypalobjects.com/webstatic/en_US/i/buttons/ppc-acceptance-medium.png',
                     'paymentIcon' => $this->config->getPayPalIcon(),
@@ -104,7 +109,7 @@ class ConfigProvider implements ConfigProviderInterface
                     'title' => __('PayPal PayLater'),
                     'isAllowShippingAddressOverride' => $this->config->isAllowToEditShippingAddress(),
                     'merchantName' => $this->config->getMerchantName(),
-                    'locale' => $this->resolver->getLocale(),
+                    'locale' => $locale,
                     'paymentAcceptanceMarkSrc' =>
                         'https://www.paypalobjects.com/webstatic/en_US/i/buttons/ppc-acceptance-medium.png',
                     'paymentIcon' => $this->config->getPayPalIcon(),

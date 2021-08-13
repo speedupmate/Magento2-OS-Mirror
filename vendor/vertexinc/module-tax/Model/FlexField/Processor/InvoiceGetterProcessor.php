@@ -20,7 +20,7 @@ use Vertex\Tax\Model\FlexField\Extractor\ValueExtractor;
  */
 class InvoiceGetterProcessor implements InvoiceFlexFieldProcessorInterface
 {
-    const BLACK_LIST = [
+    const BLOCK_LIST = [
         'getExtensionAttributes',
         'getItems',
         'getComments'
@@ -66,7 +66,7 @@ class InvoiceGetterProcessor implements InvoiceFlexFieldProcessorInterface
                 static::PREFIX,
                 'Invoice',
                 static::class,
-                array_merge(static::DATE_FIELDS, static::BLACK_LIST)
+                array_merge(static::DATE_FIELDS, static::BLOCK_LIST)
             ),
             $this->attributeExtractor->extractDateFields(
                 static::PREFIX,

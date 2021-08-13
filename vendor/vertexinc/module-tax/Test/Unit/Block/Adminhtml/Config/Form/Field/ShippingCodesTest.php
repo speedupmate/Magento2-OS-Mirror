@@ -87,14 +87,12 @@ class ShippingCodesTest extends TestCase
 
     public function testGetElementHtml()
     {
-        $this->markTestSkipped('Test fails due to changes to Core implementation');
         $expected = '<table cellspacing="0" class="data-grid"><thead><tr><th class="data-grid-th">Shipping Method</th>'
             . '<th class="data-grid-th">Product Code</th></tr></thead><tbody><tr>'
             . '<th class="data-grid-th"   colspan="2">usps</th></tr><tr class="" >'
-            . '<td class="label"  style="padding:1rem;" >Priority Mail: </td>'
-            . '<td class="value" style="padding:1rem;" > usps_usps_1</td></tr>'
-            . '<tr><td class="label"  style="padding:1rem;">Priority Mail: </td>'
-            . '<td class="value" style="padding:1rem;" > usps_usps_1</td></tr></tbody></table>';
+            . '<td class="label">Priority Mail: </td>'
+            . '<td class="value"> usps_usps_1</td></tr>'
+            . '</tbody></table>';
 
         $this->configMock->expects($this->once())
             ->method('getActiveCarriers')
@@ -114,17 +112,17 @@ class ShippingCodesTest extends TestCase
                 ]
             );
 
-        $result = $this->blockMock->getElementHtml();
+        $result = $this->blockMock->_getElementHtml($this->abstractElementMock);
 
         $this->assertEquals($expected, $result);
     }
 
     public function testRender()
     {
-        $this->markTestSkipped('Test fails due to changes to Core implementation');
-        $expected = '<tr id="row_"><td><table cellspacing="0" class="data-grid">'
-            . '<thead><tr><th class="data-grid-th">Shipping Method</th><th class="data-grid-th">Product Code</th></tr>'
-            . '</thead><tbody></tbody></table></td></tr>';
+        $expected = '<tr id="row_"><td class="label"><label for=""><span></span></label></td>'
+            . '<td class="value"><table cellspacing="0" class="data-grid"><thead><tr>'
+            . '<th class="data-grid-th">Shipping Method</th><th class="data-grid-th">Product Code</th>'
+            . '</tr></thead><tbody></tbody></table></td><td class=""></td></tr>';
 
         $this->configMock->expects($this->once())
             ->method('getActiveCarriers')

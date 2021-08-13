@@ -29,7 +29,6 @@ Example #1
 
    --- Original
    +++ New
-   @@ -1,4 +1,4 @@
     <?php
    -$a = FALSE;
    -$b = True;
@@ -47,7 +46,6 @@ With configuration: ``['case' => 'upper']``.
 
    --- Original
    +++ New
-   @@ -1,4 +1,4 @@
     <?php
     $a = FALSE;
    -$b = True;
@@ -59,6 +57,9 @@ Rule sets
 ---------
 
 The rule is part of the following rule sets:
+
+@PSR12
+  Using the `@PSR12 <./../../ruleSets/PSR12.rst>`_ rule set will enable the ``constant_case`` rule with the default config.
 
 @PSR2
   Using the `@PSR2 <./../../ruleSets/PSR2.rst>`_ rule set will enable the ``constant_case`` rule with the default config.

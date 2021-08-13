@@ -16,7 +16,9 @@ use Vertex\Tax\Model\FlexField\FlexFieldProcessableAttributeFactory;
 /**
  * @inheritDoc
  */
-class ProductPriceGetterProcessor implements InvoiceFlexFieldProcessorInterface, TaxCalculationFlexFieldProcessorInterface
+class ProductPriceGetterProcessor implements
+    InvoiceFlexFieldProcessorInterface,
+    TaxCalculationFlexFieldProcessorInterface
 {
     const ATTRIBUTE_CODE = 'order_product_price.price';
 

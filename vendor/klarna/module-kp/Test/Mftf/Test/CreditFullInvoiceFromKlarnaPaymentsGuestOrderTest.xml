@@ -14,7 +14,7 @@
 -->
 <tests xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
        xsi:noNamespaceSchemaLocation="urn:magento:mftf:Test/etc/testSchema.xsd">
-    <test name="CreditFullInvoiceFromKlarnaPaymentsGuestOrderTest" extends="PlacePayLaterOrderAsGuestTest">
+    <test name="CreditFullInvoiceFromKlarnaPaymentsGuestOrderTest" extends="PlaceKlarnaPaymentsOrderAsGuestTest">
         <annotations>
             <features value="Klarna Payments"/>
             <stories value="Fully credit/refund an invoice from an order placed by a guest"/>
@@ -22,10 +22,9 @@
             <description value="A merchant can fully credit/refund a Klarna Payments order placed by a guest customer"/>
             <severity value="CRITICAL"/>
             <testCaseId value="KP_CM_1"/>
-            <group value="Klarna_KP_Country_US"/>
             <group value="Klarna_KP_Order_Guest"/>
-            <group value="Klarna_KP_Order_Pay_Later"/>
             <group value="Klarna_KP_Order_Credit"/>
+            <group value="Klarna_KP"/>
         </annotations>
         <before>
             <actionGroup ref="AdminLoginActionGroup" stepKey="loginAsAdmin"/>
@@ -40,11 +39,6 @@
 
         <!--Fill in and submit credit memo-->
         <actionGroup ref="CreateAndSubmitCreditMemoActionGroup" stepKey="createAndSubmitCreditMemo"/>
-
-        <!--Assert successful credit memo creation-->
-        <actionGroup ref="AssertSuccessfulCreditMemoCreationAndAmountsActionGroup" stepKey="assertSuccessfulCreditMemoCreation">
-            <argument name="expectedGrandTotal" value="$128.45"/>
-            <argument name="expectedRefundTotal" value="$128.45"/>
-        </actionGroup>
+        <see selector="{{AdminIndexManagementSection.successMessage}}" userInput="You created the credit memo." stepKey="assertCreditMemo"/>
     </test>
 </tests>

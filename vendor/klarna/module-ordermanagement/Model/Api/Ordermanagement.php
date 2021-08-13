@@ -14,14 +14,17 @@ use Klarna\Core\Helper\ConfigHelper;
 use Klarna\Core\Helper\DataConverter;
 use Klarna\Core\Helper\KlarnaConfig;
 use Klarna\Core\Model\Api\BuilderFactory;
+use Klarna\Core\Logger\Api\Container;
 use Klarna\Ordermanagement\Api\ApiInterface;
 use Klarna\Ordermanagement\Model\Api\Rest\Service\Ordermanagement as OrdermanagementApi;
+use Magento\Framework\App\ObjectManager;
 use Magento\Framework\DataObject;
 use Magento\Framework\DataObjectFactory;
 use Magento\Framework\Event\ManagerInterface;
 use Magento\Framework\Exception\LocalizedException;
 use Magento\Sales\Api\Data\InvoiceInterface;
 use Magento\Sales\Api\Data\CreditmemoInterface;
+use Magento\Sales\Api\Data\OrderInterface as MageOrderInterface;
 
 /**
  * @SuppressWarnings(PHPMD.CouplingBetweenObjects)
@@ -94,6 +97,10 @@ class Ordermanagement implements ApiInterface
      * @var DataObjectFactory
      */
     private $dataObjectFactory;
+    /**
+     * @var Container
+     */
+    private $loggerContainer;
 
     /**
      * @param OrdermanagementApi $orderManagement
@@ -104,6 +111,7 @@ class Ordermanagement implements ApiInterface
      * @param ManagerInterface   $eventManager
      * @param DataObjectFactory  $dataObjectFactory
      * @param string             $builderType
+     * @param Container|null     $loggerContainer
      */
     public function __construct(
         OrdermanagementApi $orderManagement,
@@ -113,7 +121,8 @@ class Ordermanagement implements ApiInterface
         BuilderFactory $builderFactory,
         ManagerInterface $eventManager,
         DataObjectFactory $dataObjectFactory,
-        $builderType = ''
+        $builderType = '',
+        Container $loggerContainer = null
     ) {
         $this->orderManagement = $orderManagement;
         $this->helper = $helper;
@@ -123,6 +132,7 @@ class Ordermanagement implements ApiInterface
         $this->klarnaConfig = $klarnaConfig;
         $this->dataConverter = $dataConverter;
         $this->dataObjectFactory = $dataObjectFactory;
+        $this->loggerContainer = $loggerContainer ?? ObjectManager::getInstance()->get(Container::class);
     }
 
     /**
@@ -196,18 +206,19 @@ class Ordermanagement implements ApiInterface
     public function capture(string $orderId, float $amount, InvoiceInterface $invoice)
     {
         $data = [
-            'captured_amount' => $this->dataConverter->toApiFloat($amount)
+            'captured_amount' => $this->dataConverter->toApiFloat($amount),
+            'increment_id'    => $invoice->getOrder()->getIncrementId()
         ];
 
         $invoiceId = $this->getInvoiceId($invoice);
         if ($invoiceId !== null) {
             $data['reference'] = $invoiceId;
-
         }
 
         $data = $this->prepareOrderLines($data, $invoice);
         $data = $this->checkShippingDelay($data);
 
+        $this->loggerContainer->setIncrementId($data['increment_id'] ?? null);
         $response = $this->orderManagement->captureOrder($orderId, $data);
         $response = $this->dataObjectFactory->create(['data' => $response]);
 
@@ -382,7 +393,8 @@ class Ordermanagement implements ApiInterface
     public function refund(string $orderId, float $amount, CreditmemoInterface $creditMemo)
     {
         $data = [
-            'refunded_amount' => $this->dataConverter->toApiFloat($amount)
+            'refunded_amount' => $this->dataConverter->toApiFloat($amount),
+            'increment_id'    => $creditMemo->getOrder()->getIncrementId()
         ];
 
         $refundId = $this->getRefundId($creditMemo);
@@ -396,6 +408,7 @@ class Ordermanagement implements ApiInterface
 
         $data = $this->prepareOrderLines($data, $creditMemo);
 
+        $this->loggerContainer->setIncrementId($data['increment_id'] ?? null);
         $response = $this->orderManagement->refund($orderId, $data);
         $response = $this->dataObjectFactory->create(['data' => $response]);
 
@@ -423,12 +436,15 @@ class Ordermanagement implements ApiInterface
     /**
      * Cancel an order
      *
-     * @param string $orderId
+     * @param string                  $orderId
+     * @param MageOrderInterface|null $order
      *
      * @return DataObject
      */
-    public function cancel($orderId)
+    public function cancel($orderId, MageOrderInterface $order = null)
     {
+        $this->loggerContainer->setIncrementId($order->getIncrementId());
+
         $response = $this->orderManagement->cancelOrder($orderId);
         $response = $this->dataObjectFactory->create(['data' => $response]);
         return $response;
@@ -437,12 +453,15 @@ class Ordermanagement implements ApiInterface
     /**
      * Release the authorization on an order
      *
-     * @param string $orderId
+     * @param string             $orderId
+     * @param MageOrderInterface $order
      *
      * @return DataObject
      */
-    public function release($orderId)
+    public function release($orderId, MageOrderInterface $order = null)
     {
+        $this->loggerContainer->setIncrementId($order->getIncrementId());
+
         $response = $this->orderManagement->releaseAuthorization($orderId);
         $response = $this->dataObjectFactory->create(['data' => $response]);
         return $response;

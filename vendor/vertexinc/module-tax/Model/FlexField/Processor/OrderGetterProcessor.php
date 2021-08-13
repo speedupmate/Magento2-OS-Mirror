@@ -31,7 +31,7 @@ class OrderGetterProcessor implements
     const DATE_FIELDS = [];
 
     /** @var string[] */
-    const WHITE_LIST = [
+    const ALLOW_LIST = [
         'getCouponCode'
     ];
 
@@ -53,8 +53,8 @@ class OrderGetterProcessor implements
     /** @var CartRepositoryInterface */
     private $cartRepository;
 
-    /** @var string[] List of non-date black listed methods */
-    private $blackListMethods;
+    /** @var string[] List of non-date block listed methods */
+    private $blockListMethods;
 
     /**
      * @param AttributeExtractor $attributeExtractor
@@ -82,19 +82,19 @@ class OrderGetterProcessor implements
      *
      * @return string[]
      */
-    private function getBlackListMethods()
+    private function getBlockListMethods()
     {
-        if (empty($this->blackListMethods)) {
-            $whitelist = static::WHITE_LIST;
+        if (empty($this->blockListMethods)) {
+            $allowlist = static::ALLOW_LIST;
 
-            $this->blackListMethods = array_filter(
+            $this->blockListMethods = array_filter(
                 get_class_methods(OrderInterface::class),
-                static function ($methodName) use ($whitelist) {
-                    return !in_array($methodName, $whitelist, true) && strpos($methodName, 'get') === 0;
+                static function ($methodName) use ($allowlist) {
+                    return !in_array($methodName, $allowlist, true) && strpos($methodName, 'get') === 0;
                 }
             );
         }
-        return $this->blackListMethods;
+        return $this->blockListMethods;
     }
 
     /**
@@ -104,7 +104,7 @@ class OrderGetterProcessor implements
      */
     public function getAttributes()
     {
-        $blacklistMethods = $this->getBlackListMethods();
+        $blocklistMethods = $this->getBlockListMethods();
 
         return array_merge(
             $this->attributeExtractor->extract(
@@ -112,7 +112,7 @@ class OrderGetterProcessor implements
                 static::PREFIX,
                 'Order',
                 static::class,
-                array_merge(static::DATE_FIELDS, $blacklistMethods)
+                array_merge(static::DATE_FIELDS, $blocklistMethods)
             ),
             $this->attributeExtractor->extractDateFields(
                 static::PREFIX,
@@ -160,8 +160,12 @@ class OrderGetterProcessor implements
     /**
      * @inheritDoc
      */
-    public function getValueFromQuote(QuoteDetailsItemInterface $item, $attributeCode, $fieldType = null, $fieldId = null)
-    {
+    public function getValueFromQuote(
+        QuoteDetailsItemInterface $item,
+        $attributeCode,
+        $fieldType = null,
+        $fieldId = null
+    ) {
         $quoteId = $item->getExtensionAttributes() && $item->getExtensionAttributes()->getQuoteId()
             ? $item->getExtensionAttributes()->getQuoteId()
             : null;

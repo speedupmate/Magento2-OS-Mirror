@@ -13,6 +13,12 @@ use Laminas\ServiceManager\AbstractFactoryInterface;
 use Laminas\ServiceManager\ServiceLocatorInterface;
 use Traversable;
 
+use function array_unshift;
+use function is_array;
+use function is_string;
+use function iterator_to_array;
+use function preg_match;
+
 /**
  * Class AbstractConfigFactory
  */
@@ -62,7 +68,7 @@ class AbstractConfigFactory implements AbstractFactoryInterface
             return true;
         }
 
-        if (! $container->has('Config')) {
+        if (! $container->has('config')) {
             return false;
         }
 
@@ -71,7 +77,7 @@ class AbstractConfigFactory implements AbstractFactoryInterface
             return false;
         }
 
-        $config = $container->get('Config');
+        $config = $container->get('config');
         return isset($config[$key]);
     }
 
@@ -108,7 +114,7 @@ class AbstractConfigFactory implements AbstractFactoryInterface
             return $this->configs[$key];
         }
 
-        $config = $container->get('Config');
+        $config = $container->get('config');
         $this->configs[$requestedName] = $this->configs[$key] = $config[$key];
         return $config[$key];
     }
@@ -120,7 +126,7 @@ class AbstractConfigFactory implements AbstractFactoryInterface
      */
     public function addPattern($pattern)
     {
-        if (!is_string($pattern)) {
+        if (! is_string($pattern)) {
             throw new Exception\InvalidArgumentException('pattern must be string');
         }
 
@@ -141,7 +147,7 @@ class AbstractConfigFactory implements AbstractFactoryInterface
             $patterns = iterator_to_array($patterns);
         }
 
-        if (!is_array($patterns)) {
+        if (! is_array($patterns)) {
             throw new Exception\InvalidArgumentException("patterns must be array or Traversable");
         }
 
@@ -163,7 +169,7 @@ class AbstractConfigFactory implements AbstractFactoryInterface
             $patterns = iterator_to_array($patterns);
         }
 
-        if (!is_array($patterns)) {
+        if (! is_array($patterns)) {
             throw new \InvalidArgumentException("patterns must be array or Traversable");
         }
 
@@ -193,6 +199,6 @@ class AbstractConfigFactory implements AbstractFactoryInterface
                 return $matches[1];
             }
         }
-        return;
+        return null;
     }
 }

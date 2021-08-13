@@ -1,0 +1,53 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!--
+ /**
+  * Copyright © Magento, Inc. All rights reserved.
+  * See COPYING.txt for license details.
+  *
+  * This file is part of the Klarna KP module
+  *
+  * (c) Klarna Bank AB (publ)
+  *
+  * For the full copyright and license information, please view the NOTICE
+  * and LICENSE files that were distributed with this source code.
+  */
+-->
+<tests xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+       xsi:noNamespaceSchemaLocation="urn:magento:mftf:Test/etc/testSchema.xsd">
+    <test name="PlaceKlarnaPaymentsOrderWithPaymentMethodDiscountTest" extends="PlaceKlarnaPaymentsOrderAsGuestTest">
+        <annotations>
+            <features value="Klarna Payments"/>
+            <stories value="Place an order as a guest customer with payment method discount"/>
+            <title value="Place an order as a guest customer with payment method discount"/>
+            <description value="A guest customer should be able to place an order with Klarna Payments and get discount on discounted payment method"/>
+            <severity value="CRITICAL"/>
+            <testCaseId value="KP_DPM"/>
+            <group value="Klarna_KP_Order_Guest"/>
+            <group value="Klarna_KP"/>
+        </annotations>
+        <before>
+            <actionGroup ref="AdminLoginActionGroup" stepKey="loginAsAdmin"/>
+            <actionGroup ref="KpAdminCreateCartPriceRuleNoCouponWithConditionActionGroup" stepKey="createCartPriceRule">
+                <argument name="ruleName" value="TestSalesRule"/>
+            </actionGroup>
+        </before>
+        <after>
+            <actionGroup ref="DeleteCartPriceRuleByName" stepKey="deleteCartPriceRule">
+                <argument name="ruleName" value="{{TestSalesRule.name}}"/>
+            </actionGroup>
+            <actionGroup ref="AdminLogoutActionGroup" stepKey="logout"/>
+        </after>
+
+        <!--Grab order number-->
+        <waitForElementVisible selector="{{CheckoutSuccessMainSection.orderNumber}}" stepKey="waitForOrderNumber"/>
+        <grabTextFrom selector="{{CheckoutSuccessMainSection.orderNumber}}" stepKey="grabOrderNumber"/>
+
+        <!--Verify order summary in admin-->
+        <actionGroup ref="OpenOrderByIdActionGroup" stepKey="goToOrderPage">
+            <argument name="orderId" value="{$grabOrderNumber}"/>
+        </actionGroup>
+        <actionGroup ref="ValidateAdminKlarnaOrderSummaryWithDiscountActionGroup" stepKey="validateDiscount">
+            <argument name="discountAmount" value="61.73"/>
+        </actionGroup>
+    </test>
+</tests>

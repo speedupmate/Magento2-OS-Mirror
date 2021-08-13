@@ -131,8 +131,8 @@ class OrderItemProcessor implements OrderProcessorInterface
                 $extendedPrice = $item->getBaseRowTotal() - $item->getBaseDiscountAmount();
             }
 
-            $product = $products[$item->getProductId()];
-            $taxClassAttribute = $product->getCustomAttribute('tax_class_id');
+            $product = $products[$item->getProductId()] ?? null;
+            $taxClassAttribute = $product ? $product->getCustomAttribute('tax_class_id') : null;
             $taxClassId = $taxClassAttribute ? $taxClassAttribute->getValue() : 0;
             $taxClasses[$item->getItemId()] = $taxClassId;
 

@@ -181,8 +181,8 @@ final class Runner
                 // for custom fixers we don't know is it safe to run `->fix()` without checking `->supports()` and `->isCandidate()`,
                 // thus we need to check it and conditionally skip fixing
                 if (
-                    !$fixer instanceof AbstractFixer &&
-                    (!$fixer->supports($file) || !$fixer->isCandidate($tokens))
+                    !$fixer instanceof AbstractFixer
+                    && (!$fixer->supports($file) || !$fixer->isCandidate($tokens))
                 ) {
                     continue;
                 }
@@ -281,7 +281,7 @@ final class Runner
                         sprintf('Failed to write file "%s", "%s".', $fileName, $error ? $error['message'] : 'no reason available'),
                         0,
                         null,
-                        $file
+                        $fileName
                     );
                 }
             }

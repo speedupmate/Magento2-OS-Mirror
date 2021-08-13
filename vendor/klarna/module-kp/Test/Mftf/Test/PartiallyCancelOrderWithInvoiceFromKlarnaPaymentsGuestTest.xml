@@ -21,11 +21,10 @@
             <title value="BUNDLE-665 - Partially cancel guest order with invoice"/>
             <description value="A merchant can cancel a partially invoiced Klarna Payments order with two of the same product"/>
             <severity value="AVERAGE"/>
-            <testCaseId value="KP_US_PI_C"/>
-            <group value="Klarna_KP_Country_US"/>
+            <testCaseId value="KP_PI_C"/>
             <group value="Klarna_KP_Order_Guest"/>
-            <group value="Klarna_KP_Order_Pay_Later"/>
             <group value="Klarna_KP_Order_Cancel"/>
+            <group value="Klarna_KP"/>
         </annotations>
         <!--Create invoice-->
         <actionGroup ref="StartCreateInvoiceFromOrderPageActionGroup" stepKey="startCreateInvoice"/>

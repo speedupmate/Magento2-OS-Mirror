@@ -14,7 +14,6 @@ Example #1
 
    --- Original
    +++ New
-   @@ -1,7 +1,7 @@
     <?php
         switch($a) {
    -        case 1   :
@@ -29,6 +28,9 @@ Rule sets
 ---------
 
 The rule is part of the following rule sets:
+
+@PSR12
+  Using the `@PSR12 <./../../ruleSets/PSR12.rst>`_ rule set will enable the ``switch_case_space`` rule.
 
 @PSR2
   Using the `@PSR2 <./../../ruleSets/PSR2.rst>`_ rule set will enable the ``switch_case_space`` rule.

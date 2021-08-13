@@ -1,5 +1,5 @@
 <?php
-// @codingStandardsIgnoreFile
+
 require_once './vendor/autoload.php';
 /**
  * @SuppressWarnings(PHPMD.ShortMethodName)

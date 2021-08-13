@@ -236,11 +236,10 @@
                             <field id="shipping_origin_source">0</field>
                         </depends>
                     </field>
-                    <field id="region_id" translate="label comment" type="select" sortOrder="70" showInDefault="1" showInWebsite="1" showInStore="1">
-                        <label>State</label>
+                    <field id="region_id" translate="label comment" type="text" sortOrder="70" showInDefault="1" showInWebsite="1" showInStore="1">
+                        <label>Region/State</label>
                         <validate>validate-length maximum-length-60</validate>
                         <comment><![CDATA[The proper name or the postal abbreviation of the state, province, or territory used to determine Tax Jurisdiction(s)]]></comment>
-                        <source_model>Magento\Directory\Model\Config\Source\Allregion</source_model>
                         <config_path>tax/vertex_seller_info/region_id</config_path>
                         <depends>
                             <field id="shipping_origin_source">0</field>
@@ -256,66 +255,38 @@
                         </depends>
                     </field>
                 </group>
-                <group id="logging" translate="label" sortOrder="70" showInDefault="1" showInWebsite="1" showInStore="0">
-                    <label>Logging</label>
+                <group id="cache_wsdl" translate="label" sortOrder="70" showInDefault="1" showInWebsite="1" showInStore="0">
+                    <label>Performance</label>
                     <depends>
                         <field id="tax/vertex/connection/enable_vertex">1</field>
                     </depends>
-                    <field id="enable_logging" translate="label comment" type="select" sortOrder="10" showInDefault="1"
+                    <field id="enable_wsdl_cache" translate="label comment" type="select" sortOrder="10" showInDefault="1"
                            showInWebsite="1" showInStore="0" canRestore="1">
-                        <label>Vertex Request Logging</label>
+                        <label>WSDL Cache Warming</label>
                         <source_model>Magento\Config\Model\Config\Source\Enabledisable</source_model>
-                        <comment><![CDATA[When enabled, all API requests are tracked.]]></comment>
-                        <config_path>tax/vertex_logging/enable_logging</config_path>
+                        <comment><![CDATA[When enabled, the Vertex connector will automatically perform calculation requests during the configured time slot to improve performance of subsequent calls.]]></comment>
+                        <config_path>tax/vertex_wsdl_cache/enable_wsdl_cache</config_path>
                     </field>
-                    <field id="enable_rotation" translate="label comment" type="select" sortOrder="20" showInDefault="1"
-                           showInWebsite="0" showInStore="0" canRestore="1">
-                        <label>Log Rotation</label>
-                        <source_model>Magento\Config\Model\Config\Source\Enabledisable</source_model>
-                        <comment><![CDATA[Perform an action on logs over a certain age at a regular interval]]></comment>
-                        <config_path>tax/vertex_logging/enable_rotation</config_path>
-                    </field>
-                    <field id="rotation_action" translate="label comment" type="select" sortOrder="30" showInDefault="1"
+                    <field id="wsdl_cache_frequency" translate="label comment" type="select" sortOrder="50" showInDefault="1"
                            showInWebsite="0" showInStore="0">
-                        <label>Rotation Action</label>
-                        <validate>required-entry</validate>
-                        <source_model>Vertex\Tax\Model\Config\Source\RotationAction</source_model>
-                        <comment><![CDATA[When exported, entries are stored at <strong>var/vertexlog_Y-m-d.csv</strong>]]></comment>
-                        <config_path>tax/vertex_logging/rotation_action</config_path>
-                        <depends>
-                            <field id="enable_rotation">1</field>
-                        </depends>
-                    </field>
-                    <field id="entry_lifetime" translate="label comment" type="text" sortOrder="40" showInDefault="1"
-                           showInWebsite="0" showInStore="0">
-                        <label>Log Entry Lifetime (days)</label>
-                        <validate>required-entry</validate>
-                        <config_path>tax/vertex_logging/entry_lifetime</config_path>
-                        <comment><![CDATA[How long a log should exist before it is eligible to be rotated. A value of 0 will mark all logs as eligible]]></comment>
-                        <depends>
-                            <field id="enable_rotation">1</field>
-                        </depends>
-                    </field>
-                    <field id="rotation_frequency" translate="label comment" type="select" sortOrder="50" showInDefault="1"
-                           showInWebsite="0" showInStore="0">
-                        <label>Rotation Frequency</label>
+                        <label>Request Frequency</label>
                         <validate>required-entry</validate>
                         <source_model>Magento\Cron\Model\Config\Source\Frequency</source_model>
-                        <backend_model>Vertex\Tax\Model\Config\Backend\LogFrequency</backend_model>
-                        <comment><![CDATA[How often the Rotation Action should be applied to the logs]]></comment>
-                        <config_path>tax/vertex_logging/rotation_frequency</config_path>
+                        <backend_model>Vertex\Tax\Model\Config\Backend\WsdlCacheFrequency</backend_model>
+                        <comment><![CDATA[How often the WSDL Cache should be warmed up. This should be set appropriately based on your PHP's soap.wsdl_cache_ttl configured value.]]></comment>
+                        <config_path>tax/vertex_wsdl_cache/wsdl_cache_frequency</config_path>
                         <depends>
-                            <field id="enable_rotation">1</field>
+                            <field id="enable_wsdl_cache">1</field>
                         </depends>
                     </field>
-                    <field id="rotation_runtime" translate="label" type="time" sortOrder="60" showInDefault="1"
+                    <field id="wsdl_cache_runtime" translate="label" type="time" sortOrder="60" showInDefault="1"
                            showInWebsite="0" showInStore="0">
-                        <label>Rotation Time</label>
-                        <backend_model>Vertex\Tax\Model\Config\Backend\LogFrequency</backend_model>
-                        <comment><![CDATA[The time of day the Rotation Action should occur. (hour, minute, second)]]></comment>
-                        <config_path>tax/vertex_logging/rotation_runtime</config_path>
+                        <label>Request Time</label>
+                        <backend_model>Vertex\Tax\Model\Config\Backend\WsdlCacheFrequency</backend_model>
+                        <comment><![CDATA[The time of day the to warm the WSDL cache.]]></comment>
+                        <config_path>tax/vertex_wsdl_cache/wsdl_cache_runtime</config_path>
                         <depends>
-                            <field id="enable_rotation">1</field>
+                            <field id="enable_wsdl_cache">1</field>
                         </depends>
                     </field>
                 </group>

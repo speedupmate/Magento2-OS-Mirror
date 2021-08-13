@@ -10,6 +10,10 @@ namespace Laminas\Config\Writer;
 
 use Laminas\Config\Exception;
 
+use function call_user_func;
+use function function_exists;
+use function is_callable;
+
 class Yaml extends AbstractWriter
 {
     /**
@@ -48,13 +52,13 @@ class Yaml extends AbstractWriter
     /**
      * Set callback for decoding YAML
      *
-     * @param  callable $yamlEncoder the decoder to set
-     * @return Yaml
+     * @param callable $yamlEncoder the decoder to set
+     * @return self
      * @throws Exception\InvalidArgumentException
      */
     public function setYamlEncoder($yamlEncoder)
     {
-        if (!is_callable($yamlEncoder)) {
+        if (! is_callable($yamlEncoder)) {
             throw new Exception\InvalidArgumentException('Invalid parameter to setYamlEncoder() - must be callable');
         }
         $this->yamlEncoder = $yamlEncoder;

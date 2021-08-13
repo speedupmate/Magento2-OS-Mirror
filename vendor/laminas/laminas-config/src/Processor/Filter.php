@@ -31,7 +31,7 @@ class Filter implements ProcessorInterface
 
     /**
      * @param  LaminasFilter $filter
-     * @return Filter
+     * @return self
      */
     public function setFilter(LaminasFilter $filter)
     {

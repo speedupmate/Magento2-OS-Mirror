@@ -1,0 +1,42 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<tests xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+       xsi:noNamespaceSchemaLocation="urn:magento:mftf:Test/etc/testSchema.xsd">
+    <test name="TransactionalSmsDependentFieldsTest">
+        <annotations>
+            <features value="Engagement Cloud module"/>
+            <stories value="dotdigital Transactional SMS"/>
+            <title value="Test Transactional SMS sender from name select"/>
+            <description value="Check that alphanumeric field appears only if it's selected in dropdown"/>
+            <severity value="MINOR"/>
+            <group value="FS/mftf-134277"/>
+            <group value="dotdigitalSms"/>
+        </annotations>
+
+        <before>
+            <actionGroup ref="AdminLoginActionGroup" stepKey="AdminLoginActionGroup1"/>
+            <actionGroup ref="SetDotmailerAccountData" stepKey="SetDotmailerAccountData"/>
+        </before>
+
+        <after>
+            <actionGroup ref="ResetDotmailerAccountData" stepKey="resetAccountData"/>
+            <actionGroup ref="AdminLogoutActionGroup" stepKey="logout"/>
+        </after>
+
+        <amOnPage url="{{AdminTransactionalSmsPage.url}}" stepKey="amOnDotdigitalTransactionalSmsPage"/>
+        <waitForPageLoad stepKey="waitForPageLoad"/>
+
+        <actionGroup ref="SelectDropdownOption" stepKey="SelectSharedPoolNumber">
+            <argument name="selectedOption" value="{{SmsMessages.sharedPoolNumber}}"/>
+        </actionGroup>
+
+        <dontSeeElement selector="{{AdminTransactionalSmsSection.alphanumericFromName}}" stepKey="dontSeeAlphanumericFromField"/>
+
+        <actionGroup ref="SelectDropdownOption" stepKey="SelectAlphanumericNumber">
+            <argument name="selectedOption" value="{{SmsMessages.alphanumericNumber}}"/>
+        </actionGroup>
+
+        <seeElement selector="{{AdminTransactionalSmsSection.alphanumericFromName}}" stepKey="seeAlphanumericFromField"/>
+    </test>
+</tests>
+
+

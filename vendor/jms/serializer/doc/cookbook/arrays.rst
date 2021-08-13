@@ -1,4 +1,4 @@
-Serailizing arrays and hashes
+Serializing arrays and hashes
 =============================
 
 Introduction
@@ -39,9 +39,9 @@ In case of a JSON serialization:
     $serializer->serialize([], SerializationContext::create()->setInitialType('array<integer,integer>')); //  {}
     $serializer->serialize([1, 2], SerializationContext::create()->setInitialType('array<integer,integer>')); //  {"0" : 1, "1" : 2}
     $serializer->serialize(['a', 'b'], SerializationContext::create()->setInitialType('array<integer,integer>')); //  {"0" : "a", "1" : "b"}
-    $serializer->serialize(['c' => 'd'], SerializationContext::create()->setInitialType('array<string,string>')); //  {"d" : "d"}
+    $serializer->serialize(['c' => 'd'], SerializationContext::create()->setInitialType('array<string,string>')); //  {"c" : "d"}
 
 
 .. note ::
 
-    This applies only for the JSON and YAML serialization.
+    This applies only for the JSON serialization.

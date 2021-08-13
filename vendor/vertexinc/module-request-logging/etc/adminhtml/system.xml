@@ -1,0 +1,90 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!--
+/**
+ * @author    Blue Acorn iCi <code@blueacornici.com>
+ * @copyright 2021 Vertex, Inc. All Rights Reserved.
+ */
+-->
+<config xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="urn:magento:module:Magento_Config:etc/system_file.xsd">
+    <system>
+        <section id="tax" translate="label">
+            <group id="vertex" translate="label" sortOrder="1" showInDefault="1" showInWebsite="1" showInStore="1" extends="">
+                <label>Vertex Settings</label>
+                <attribute type="expanded">1</attribute>
+                <group id="logging" translate="label" sortOrder="70" showInDefault="1" showInWebsite="1" showInStore="0">
+                    <label>Logging</label>
+                    <depends>
+                        <field id="tax/vertex/connection/enable_vertex">1</field>
+                    </depends>
+                    <field id="enable_logging" translate="label comment" type="select" sortOrder="10" showInDefault="1"
+                           showInWebsite="1" showInStore="0" canRestore="1">
+                        <label>Vertex Request Logging Level</label>
+                        <source_model>Vertex\RequestLogging\Model\Config\Source\LogLevel</source_model>
+                        <comment><![CDATA[Log Level when tracking API requests.]]></comment>
+                        <config_path>tax/vertex_logging/enable_logging</config_path>
+                    </field>
+                    <field id="enable_rotation" translate="label comment" type="select" sortOrder="20" showInDefault="1"
+                           showInWebsite="0" showInStore="0" canRestore="1">
+                        <label>Log Rotation</label>
+                        <source_model>Magento\Config\Model\Config\Source\Enabledisable</source_model>
+                        <comment><![CDATA[Perform an action on logs over a certain age at a regular interval]]></comment>
+                        <config_path>tax/vertex_logging/enable_rotation</config_path>
+                    </field>
+                    <field id="rotation_action" translate="label comment" type="select" sortOrder="30" showInDefault="1"
+                           showInWebsite="0" showInStore="0">
+                        <label>Rotation Action</label>
+                        <validate>required-entry</validate>
+                        <source_model>Vertex\RequestLogging\Model\Config\Source\RotationAction</source_model>
+                        <comment><![CDATA[When exported, entries are stored at <strong>var/vertexlog_Y-m-d.csv</strong>]]></comment>
+                        <config_path>tax/vertex_logging/rotation_action</config_path>
+                        <depends>
+                            <field id="enable_rotation">1</field>
+                        </depends>
+                    </field>
+                    <field id="entry_lifetime" translate="label comment" type="text" sortOrder="40" showInDefault="1"
+                           showInWebsite="0" showInStore="0">
+                        <label>Log Entry Lifetime (days)</label>
+                        <validate>required-entry</validate>
+                        <config_path>tax/vertex_logging/entry_lifetime</config_path>
+                        <comment><![CDATA[How long a log should exist before it is eligible to be rotated. A value of 0 will mark all logs as eligible]]></comment>
+                        <depends>
+                            <field id="enable_rotation">1</field>
+                        </depends>
+                    </field>
+                    <field id="amount_per_batch" translate="label comment" type="text" sortOrder="45" showInDefault="1"
+                           showInWebsite="0" showInStore="0">
+                        <label>Amount of Logs per batch</label>
+                        <validate>required-entry</validate>
+                        <config_path>tax/vertex_logging/amount_per_batch</config_path>
+                        <comment><![CDATA[Amount of logs per batch to be processed at once]]></comment>
+                        <depends>
+                            <field id="enable_rotation">1</field>
+                        </depends>
+                    </field>
+                    <field id="rotation_frequency" translate="label comment" type="select" sortOrder="50" showInDefault="1"
+                           showInWebsite="0" showInStore="0">
+                        <label>Rotation Frequency</label>
+                        <validate>required-entry</validate>
+                        <source_model>Magento\Cron\Model\Config\Source\Frequency</source_model>
+                        <backend_model>Vertex\RequestLogging\Model\Config\Backend\LogFrequency</backend_model>
+                        <comment><![CDATA[How often the Rotation Action should be applied to the logs]]></comment>
+                        <config_path>tax/vertex_logging/rotation_frequency</config_path>
+                        <depends>
+                            <field id="enable_rotation">1</field>
+                        </depends>
+                    </field>
+                    <field id="rotation_runtime" translate="label" type="time" sortOrder="60" showInDefault="1"
+                           showInWebsite="0" showInStore="0">
+                        <label>Rotation Time</label>
+                        <backend_model>Vertex\RequestLogging\Model\Config\Backend\LogFrequency</backend_model>
+                        <comment><![CDATA[The time of day the Rotation Action should occur. (hour, minute, second)]]></comment>
+                        <config_path>tax/vertex_logging/rotation_runtime</config_path>
+                        <depends>
+                            <field id="enable_rotation">1</field>
+                        </depends>
+                    </field>
+                </group>
+            </group>
+        </section>
+    </system>
+</config>

@@ -1,6 +1,6 @@
 {
     "name": "laminas/laminas-math",
-    "description": " ",
+    "description": "Create cryptographically secure pseudo-random numbers, and manage big integers",
     "license": "BSD-3-Clause",
     "keywords": [
         "laminas",
@@ -20,23 +20,22 @@
     },
     "extra": {
         "branch-alias": {
-            "dev-master": "2.7-dev",
-            "dev-develop": "2.8-dev"
+            "dev-master": "3.2.x-dev",
+            "dev-develop": "3.3.x-dev"
         }
     },
     "require": {
-        "php": "^5.5 || ^7.0",
+        "php": "^7.3 || ~8.0.0",
+        "ext-mbstring": "*",
         "laminas/laminas-zendframework-bridge": "^1.0"
     },
     "require-dev": {
-        "fabpot/php-cs-fixer": "1.7.*",
-        "ircmaxell/random-lib": "~1.1",
-        "phpunit/phpunit": "~4.0"
+        "laminas/laminas-coding-standard": "~1.0.0",
+        "phpunit/phpunit": "^9.3"
     },
     "suggest": {
         "ext-bcmath": "If using the bcmath functionality",
-        "ext-gmp": "If using the gmp functionality",
-        "ircmaxell/random-lib": "Fallback random byte generator for Laminas\\Math\\Rand if Mcrypt extensions is unavailable"
+        "ext-gmp": "If using the gmp functionality"
     },
     "autoload": {
         "psr-4": {
@@ -46,9 +45,22 @@
     "autoload-dev": {
         "psr-4": {
             "LaminasTest\\Math\\": "test/"
-        }
+        },
+        "files": [
+            "test/TestAsset/random_bytes.php"
+        ]
+    },
+    "scripts": {
+        "check": [
+            "@cs-check",
+            "@test"
+        ],
+        "cs-check": "phpcs",
+        "cs-fix": "phpcbf",
+        "test": "phpunit --colors=always",
+        "test-coverage": "phpunit --colors=always --coverage-clover clover.xml"
     },
     "replace": {
-        "zendframework/zend-math": "self.version"
+        "zendframework/zend-math": "^3.2.0"
     }
 }

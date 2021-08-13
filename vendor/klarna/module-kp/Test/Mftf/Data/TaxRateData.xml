@@ -15,9 +15,15 @@
 <entities xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
           xsi:noNamespaceSchemaLocation="urn:magento:mftf:DataGenerator/etc/dataProfileSchema.xsd">
     <entity name="DE_Rate_1" type="taxRate">
-        <data key="code">DE-*-Rate 1</data>
+        <data key="code" unique="prefix">DE-*-Rate 1</data>
         <data key="tax_country_id">DE</data>
         <data key="tax_postcode">*</data>
         <data key="rate">19</data>
+    </entity>
+    <entity name="DE_Rate_2" type="taxRate">
+        <data key="code">DE-*-Rate 2</data>
+        <data key="tax_country_id">DE</data>
+        <data key="tax_postcode">*</data>
+        <data key="rate">7</data>
     </entity>
 </entities>

@@ -33,9 +33,9 @@ class Translator implements ProcessorInterface
      * Translator uses the supplied Laminas\I18n\Translator\Translator to find
      * and translate language strings in config.
      *
-     * @param  LaminasTranslator $translator
-     * @param  string $textDomain
-     * @param  string|null $locale
+     * @param LaminasTranslator $translator
+     * @param string $textDomain
+     * @param string|null $locale
      */
     public function __construct(LaminasTranslator $translator, $textDomain = 'default', $locale = null)
     {
@@ -45,8 +45,8 @@ class Translator implements ProcessorInterface
     }
 
     /**
-     * @param  LaminasTranslator $translator
-     * @return Translator
+     * @param LaminasTranslator $translator
+     * @return self
      */
     public function setTranslator(LaminasTranslator $translator)
     {
@@ -63,8 +63,8 @@ class Translator implements ProcessorInterface
     }
 
     /**
-     * @param  string|null $locale
-     * @return Translator
+     * @param string|null $locale
+     * @return self
      */
     public function setLocale($locale)
     {
@@ -81,8 +81,8 @@ class Translator implements ProcessorInterface
     }
 
     /**
-     * @param  string $textDomain
-     * @return Translator
+     * @param string $textDomain
+     * @return self
      */
     public function setTextDomain($textDomain)
     {

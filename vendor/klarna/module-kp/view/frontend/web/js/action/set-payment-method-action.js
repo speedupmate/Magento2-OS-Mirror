@@ -5,8 +5,9 @@ define(
     ],
     function ($, config) {
         'use strict';
-        return function (messageContainer) {
-          $.mage.redirect(config.redirect_url);
+
+        return function () {
+            $.mage.redirect(config.redirectUrl);
         };
     }
 );

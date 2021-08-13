@@ -7,10 +7,15 @@
  * For the full copyright and license information, please view the LICENSE
  * file that was distributed with this source code.
  */
-
 namespace SebastianBergmann\PHPCPD;
 
-final class CodeCloneMap implements \Countable, \IteratorAggregate
+use function count;
+use function max;
+use function sprintf;
+use Countable;
+use IteratorAggregate;
+
+final class CodeCloneMap implements Countable, IteratorAggregate
 {
     /**
      * @var CodeClone[]
@@ -30,7 +35,7 @@ final class CodeCloneMap implements \Countable, \IteratorAggregate
     /**
      * @var int
      */
-    private $numLines = 0;
+    private $numberOfLines = 0;
 
     /**
      * @var int
@@ -42,9 +47,9 @@ final class CodeCloneMap implements \Countable, \IteratorAggregate
      */
     private $filesWithClones = [];
 
-    public function addClone(CodeClone $clone): void
+    public function add(CodeClone $clone): void
     {
-        $id = $clone->getId();
+        $id = $clone->id();
 
         if (!isset($this->clonesById[$id])) {
             $this->clones[]        = $clone;
@@ -52,62 +57,62 @@ final class CodeCloneMap implements \Countable, \IteratorAggregate
         } else {
             $existClone = $this->clonesById[$id];
 
-            foreach ($clone->getFiles() as $file) {
-                $existClone->addFile($file);
+            foreach ($clone->files() as $file) {
+                $existClone->add($file);
             }
         }
 
-        $this->numberOfDuplicatedLines += $clone->getSize() * (\count($clone->getFiles()) - 1);
+        $this->numberOfDuplicatedLines += $clone->numberOfLines() * (count($clone->files()) - 1);
 
-        foreach ($clone->getFiles() as $file) {
-            if (!isset($this->filesWithClones[$file->getName()])) {
-                $this->filesWithClones[$file->getName()] = true;
+        foreach ($clone->files() as $file) {
+            if (!isset($this->filesWithClones[$file->name()])) {
+                $this->filesWithClones[$file->name()] = true;
             }
         }
 
-        $this->largestCloneSize = \max($this->largestCloneSize, $clone->getSize());
+        $this->largestCloneSize = max($this->largestCloneSize, $clone->numberOfLines());
     }
 
     /**
      * @return CodeClone[]
      */
-    public function getClones(): array
+    public function clones(): array
     {
         return $this->clones;
     }
 
-    public function getPercentage(): string
+    public function percentage(): string
     {
-        if ($this->numLines > 0) {
-            $percent = ($this->numberOfDuplicatedLines / $this->numLines) * 100;
+        if ($this->numberOfLines > 0) {
+            $percent = ($this->numberOfDuplicatedLines / $this->numberOfLines) * 100;
         } else {
             $percent = 100;
         }
 
-        return \sprintf('%01.2F%%', $percent);
+        return sprintf('%01.2F%%', $percent);
     }
 
-    public function getNumLines(): int
+    public function numberOfLines(): int
     {
-        return $this->numLines;
+        return $this->numberOfLines;
     }
 
-    public function setNumLines(int $numLines): void
+    public function addToNumberOfLines(int $numberOfLines): void
     {
-        $this->numLines = $numLines;
+        $this->numberOfLines += $numberOfLines;
     }
 
     public function count(): int
     {
-        return \count($this->clones);
+        return count($this->clones);
     }
 
-    public function getNumberOfFilesWithClones(): int
+    public function numberOfFilesWithClones(): int
     {
-        return \count($this->filesWithClones);
+        return count($this->filesWithClones);
     }
 
-    public function getNumberOfDuplicatedLines(): int
+    public function numberOfDuplicatedLines(): int
     {
         return $this->numberOfDuplicatedLines;
     }
@@ -122,12 +127,12 @@ final class CodeCloneMap implements \Countable, \IteratorAggregate
         return empty($this->clones);
     }
 
-    public function getAverageSize(): float
+    public function averageSize(): float
     {
-        return $this->getNumberOfDuplicatedLines() / $this->count();
+        return $this->numberOfDuplicatedLines() / $this->count();
     }
 
-    public function getLargestSize(): int
+    public function largestSize(): int
     {
         return $this->largestCloneSize;
     }

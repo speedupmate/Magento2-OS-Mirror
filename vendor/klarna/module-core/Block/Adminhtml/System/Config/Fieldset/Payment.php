@@ -34,8 +34,9 @@ class Payment extends Fieldset
      * @param Session            $authSession
      * @param Js                 $jsHelper
      * @param Config             $config
-     * @param array              $data
      * @param SecureHtmlRenderer $secureRenderer
+     * @param array              $data
+     * @codeCoverageIgnore
      */
     public function __construct(
         Context $context,
@@ -78,9 +79,7 @@ class Payment extends Fieldset
         $html = '<div class="config-heading" >';
         $htmlId = $element->getHtmlId();
         $html .= '<div class="button-container"><button type="button"' .
-            ' disabled="disabled"' .
             ' class="button action-configure' .
-            ' disabled' .
             '" id="' . $htmlId . '-head" >' .
             '<span class="state-closed">' . __(
                 'Configure'

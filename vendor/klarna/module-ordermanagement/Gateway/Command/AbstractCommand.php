@@ -36,11 +36,6 @@ abstract class AbstractCommand extends DataObject implements CommandInterface
     private $om;
 
     /**
-     * @var array
-     */
-    public $omCache = [];
-
-    /**
      * @var MageQuoteRepository
      */
     public $mageQuoteRepository;
@@ -64,6 +59,17 @@ abstract class AbstractCommand extends DataObject implements CommandInterface
      * @var MessageManager
      */
     public $messageManager;
+
+    /**
+     * @var int
+     */
+    private $omConnectionStoreId;
+
+    /**
+     * @var array
+     * @deprecated
+     */
+    public $omCache = [];
 
     /**
      * @param KlarnaOrderRepository $klarnaOrderRepository
@@ -125,14 +131,12 @@ abstract class AbstractCommand extends DataObject implements CommandInterface
     public function getOmApi(OrderInterface $order)
     {
         $store = $order->getStore();
-        if (isset($this->omCache[$store->getId()])) {
-            $this->om = $this->omCache[$store->getId()];
-            return $this->om;
+        if ($this->omConnectionStoreId !== $store->getId()) {
+            $this->omConnectionStoreId = $store->getId();
+            $omClass = $this->helper->getOrderMangagementClass($store);
+            $this->om = $this->omFactory->create($omClass);
+            $this->om->resetForStore($store, $order->getPayment()->getMethod());
         }
-        $omClass = $this->helper->getOrderMangagementClass($store);
-        $this->om = $this->omFactory->create($omClass);
-        $this->om->resetForStore($store, $order->getPayment()->getMethod());
-        $this->omCache[$store->getId()] = $this->om;
 
         return $this->om;
     }

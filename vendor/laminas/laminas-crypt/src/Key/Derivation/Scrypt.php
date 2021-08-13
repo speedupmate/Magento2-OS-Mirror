@@ -8,6 +8,16 @@
 
 namespace Laminas\Crypt\Key\Derivation;
 
+use function extension_loaded;
+use function hex2bin;
+use function mb_substr;
+use function pack;
+use function scrypt;
+use function unpack;
+
+use const PHP_INT_MAX;
+use const PHP_INT_SIZE;
+
 /**
  * Scrypt key derivation function
  *
@@ -50,7 +60,7 @@ abstract class Scrypt
 
         $s = '';
         for ($i = 0; $i < $p; $i++) {
-            $s .= self::scryptROMix(substr($b, $i * 128 * $r, 128 * $r), $n, $r);
+            $s .= self::scryptROMix(mb_substr($b, $i * 128 * $r, 128 * $r, '8bit'), $n, $r);
         }
 
         return Pbkdf2::calc('sha256', $password, $s, 1, $length);
@@ -75,7 +85,7 @@ abstract class Scrypt
         }
         for ($i = 0; $i < $n; $i++) {
             $j = self::integerify($x) % $n;
-            $t = $x ^  $v[$j];
+            $t = $x ^ $v[$j];
             $x = self::scryptBlockMix($t, $r);
         }
         return $x;
@@ -91,16 +101,16 @@ abstract class Scrypt
      */
     protected static function scryptBlockMix($b, $r)
     {
-        $x    = substr($b, -64);
+        $x    = mb_substr($b, -64, null, '8bit');
         $even = '';
         $odd  = '';
         $len  = 2 * $r;
 
         for ($i = 0; $i < $len; $i++) {
             if (PHP_INT_SIZE === 4) {
-                $x = self::salsa208Core32($x ^ substr($b, 64 * $i, 64));
+                $x = self::salsa208Core32($x ^ mb_substr($b, 64 * $i, 64, '8bit'));
             } else {
-                $x = self::salsa208Core64($x ^ substr($b, 64 * $i, 64));
+                $x = self::salsa208Core64($x ^ mb_substr($b, 64 * $i, 64, '8bit'));
             }
             if ($i % 2 == 0) {
                 $even .= $x;
@@ -123,7 +133,7 @@ abstract class Scrypt
     {
         $b32 = [];
         for ($i = 0; $i < 16; $i++) {
-            list(, $b32[$i]) = unpack("V", substr($b, $i * 4, 4));
+            list(, $b32[$i]) = unpack("V", mb_substr($b, $i * 4, 4, '8bit'));
         }
 
         $x = $b32;
@@ -216,7 +226,7 @@ abstract class Scrypt
     {
         $b32 = [];
         for ($i = 0; $i < 16; $i++) {
-            list(, $b32[$i]) = unpack("V", substr($b, $i * 4, 4));
+            list(, $b32[$i]) = unpack("V", mb_substr($b, $i * 4, 4, '8bit'));
         }
 
         $x = $b32;
@@ -314,7 +324,7 @@ abstract class Scrypt
         if (PHP_INT_SIZE === 8) {
             $v = 'V';
         }
-        list(, $n) = unpack($v, substr($b, -64));
+        list(, $n) = unpack($v, mb_substr($b, -64, null, '8bit'));
         return $n;
     }
 }

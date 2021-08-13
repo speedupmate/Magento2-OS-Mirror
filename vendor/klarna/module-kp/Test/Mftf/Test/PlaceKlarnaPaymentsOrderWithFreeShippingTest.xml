@@ -22,9 +22,8 @@
             <description value="A guest customer should be able to place an order with Klarna Payments and free shipping"/>
             <severity value="CRITICAL"/>
             <testCaseId value="KP_SHIP_1"/>
-            <group value="Klarna_KP_Country_US"/>
             <group value="Klarna_KP_Order_Guest"/>
-            <group value="Klarna_KP_Order_Pay_Later"/>
+            <group value="Klarna_KP"/>
         </annotations>
         <before>
             <createData entity="SimpleTwo" stepKey="createSimpleProduct"/>
@@ -50,19 +49,14 @@
         <waitForPageLoad stepKey="waitForCheckoutPageLoad"/>
 
         <!--Enter shipping information and continue to payments-->
-        <actionGroup ref="GuestCheckoutFillingShippingSectionActionGroup" stepKey="guestCheckoutFillingShipping">
-            <argument name="customerVar" value="Klarna_US_Customer_B2C"/>
-            <argument name="customerAddressVar" value="Klarna_US_Address_B2C"/>
+        <actionGroup ref="KpGuestCheckoutFillingShippingSectionActionGroup" stepKey="guestCheckoutFillingShipping">
+            <argument name="customerVar" value="$$marketDefaultCustomerInstance$$"/>
             <argument name="shippingMethod" value="Free Shipping"/>
         </actionGroup>
 
-        <!--Grab order total amount-->
-        <waitForElementVisible selector="{{CheckoutPaymentSection.orderSummaryTotal}}" stepKey="waitForOrderTotal"/>
-        <grabTextFrom selector="{{CheckoutPaymentSection.orderSummaryTotal}}" stepKey="grabTotalAmount"/>
-
         <!--Place order-->
-        <actionGroup ref="PlaceOrderWithKlarnaPaymentsMethod" stepKey="placeOrderWithKlarnaPayLaterMethod">
-            <argument name="paymentMethod" value="KlarnaPaymentsPayLater"/>
+        <actionGroup ref="PlaceOrderWithKlarnaPaymentsMethod" stepKey="placeOrderWithKlarnaMethod">
+            <argument name="customer" value="$$marketDefaultCustomerInstance$$"/>
         </actionGroup>
 
         <!--Grab order number-->
@@ -73,9 +67,6 @@
         <actionGroup ref="AdminLoginActionGroup" stepKey="loginAsAdmin"/>
         <actionGroup ref="OpenOrderByIdActionGroup" stepKey="goToOrderPage">
             <argument name="orderId" value="{$grabOrderNumber}"/>
-        </actionGroup>
-        <actionGroup ref="ValidateAdminKlarnaOrderSummaryGrandTotal" stepKey="validateGrandTotal">
-            <argument name="grandTotalAmount" value="{$grabTotalAmount}"/>
         </actionGroup>
         <actionGroup ref="ValidateAdminKlarnaOrderSummaryWithShipping" stepKey="validateShipping">
             <argument name="shippingAmount" value="0.00"/>

@@ -21,7 +21,6 @@ class Cleanser
         'password',
         'shared_secret',
         'secret',
-        'secret:Klarna\XMLRPC\Klarna:private',
         '_secret:Klarna_Checkout_BasicConnector:private',
         'date_of_birth',
         '_secret',

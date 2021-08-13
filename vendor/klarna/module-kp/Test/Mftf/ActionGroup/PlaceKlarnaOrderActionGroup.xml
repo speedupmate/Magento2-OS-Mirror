@@ -16,7 +16,8 @@
               xsi:noNamespaceSchemaLocation="urn:magento:mftf:Test/etc/actionGroupSchema.xsd">
     <actionGroup name="PlaceOrderWithKlarnaPaymentsMethod">
         <arguments>
-            <argument name="paymentMethod" type="entity"/>
+            <argument name="customer" type="entity"/>
+            <argument name="paymentMethod" type="entity" defaultValue="KlarnaPaymentsPayLater"/>
         </arguments>
         <!--Select Klarna Payments method-->
         <waitForLoadingMaskToDisappear stepKey="waitForLoadingMask"/>
@@ -35,6 +36,16 @@
         <!--Place order-->
         <waitForElement selector="{{CheckoutPaymentSection.klarnaPaymentsPlaceOrderButton}}" stepKey="waitForPlaceOrderButton"/>
         <click selector="{{CheckoutPaymentSection.klarnaPaymentsPlaceOrderButton}}" stepKey="clickPlaceOrderButton"/>
+
+        <helper class="\Klarna\Kp\Test\Mftf\Helper\CustomActions" method="fillOverlayFieldMarketDependent" stepKey="fillOverlayFieldMarketDependent">
+            <argument name="market">{{customer.addresses[0][country_id]}}</argument>
+            <argument name="targetMarket">DE</argument>
+            <argument name="iframeSelector">{{CheckoutPaymentSection.klarnaPaymentsPayLaterIframe}}</argument>
+            <argument name="fieldSelector">{{CheckoutPaymentSection.klarnaPaymentsPayLaterIframeDobField}}</argument>
+            <argument name="fieldValue">11.11.1987</argument>
+        </helper>
+        <conditionalClick selector="{{CheckoutPaymentSection.klarnaPaymentsPayLaterIframeButton}}" dependentSelector="{{CheckoutPaymentSection.klarnaPaymentsPayLaterIframeButton}}" visible="true" stepKey="clickContinueButton"/>
+        <switchToIFrame stepKey="goBackToTopLevelFrame2"/>
 
         <!--Confirm redirection to success page-->
         <waitForElementVisible selector="{{CheckoutSuccessMainSection.successTitle}}" time="30" stepKey="waitForSuccessPageTitle"/>

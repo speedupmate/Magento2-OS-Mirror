@@ -7,9 +7,9 @@
 namespace Vertex\Tax\Model\Api;
 
 use Magento\Framework\Exception\CouldNotSaveException;
+use Vertex\RequestLogging\Model\RetrieveLogLevel;
 use Vertex\Services\SoapCallResponseInterface;
 use Vertex\Tax\Model\Api\Utility\SoapClientRegistry;
-use Vertex\Tax\Model\Config;
 use Vertex\Tax\Model\ExceptionLogger;
 use Vertex\Tax\Model\RequestLogger;
 
@@ -18,9 +18,6 @@ use Vertex\Tax\Model\RequestLogger;
  */
 class Logger
 {
-    /** @var Config */
-    private $config;
-
     /** @var ExceptionLogger */
     private $logger;
 
@@ -34,18 +31,15 @@ class Logger
      * @param ExceptionLogger $logger
      * @param RequestLogger $requestLogger
      * @param SoapClientRegistry $soapClientRegistry
-     * @param Config $config
      */
     public function __construct(
         ExceptionLogger $logger,
         RequestLogger $requestLogger,
-        SoapClientRegistry $soapClientRegistry,
-        Config $config
+        SoapClientRegistry $soapClientRegistry
     ) {
         $this->logger = $logger;
         $this->requestLogger = $requestLogger;
         $this->soapClientRegistry = $soapClientRegistry;
-        $this->config = $config;
     }
 
     /**
@@ -60,14 +54,17 @@ class Logger
     public function wrapCall(callable $callable, $type, $scopeCode = null)
     {
         $result = null;
+        $logLevel = RetrieveLogLevel::LEVEL_TRACE;
+
         try {
             $result = $callable();
             return $result;
         } catch (\Exception $exception) {
+            $logLevel = RetrieveLogLevel::LEVEL_ERROR;
             $this->logException($exception);
             throw $exception;
         } finally {
-            $this->logRequest($type, $result, $scopeCode);
+            $this->logRequest($type, $result, $logLevel, $scopeCode);
         }
     }
 
@@ -90,12 +87,8 @@ class Logger
      * @param string|null $scopeCode Store ID
      * @return void
      */
-    private function logRequest($requestType, $result, $scopeCode = null)
+    private function logRequest($requestType, $result, $logLevel, $scopeCode = null)
     {
-        if (!$this->config->isLoggingEnabled($scopeCode)) {
-            return;
-        }
-
         $responseTime = $result instanceof SoapCallResponseInterface ? $result->getHttpCallTime() : null;
 
         $soapClient = $this->soapClientRegistry->getLastClient();
@@ -104,6 +97,7 @@ class Logger
                 $requestType,
                 $soapClient ? $soapClient->__getLastRequest() : null,
                 $soapClient ? $soapClient->__getLastResponse() : null,
+                $logLevel,
                 $responseTime
             );
         } catch (CouldNotSaveException $originalException) {

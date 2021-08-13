@@ -7,7 +7,6 @@
  * For the full copyright and license information, please view the LICENSE
  * file that was distributed with this source code.
  */
-
 namespace SebastianBergmann\PHPCPD;
 
 final class CodeCloneFile
@@ -34,17 +33,17 @@ final class CodeCloneFile
         $this->id        = $this->name . ':' . $this->startLine;
     }
 
-    public function getId(): string
+    public function id(): string
     {
         return $this->id;
     }
 
-    public function getName(): string
+    public function name(): string
     {
         return $this->name;
     }
 
-    public function getStartLine(): int
+    public function startLine(): int
     {
         return $this->startLine;
     }

@@ -318,10 +318,10 @@ public function testItDoesSomething() {}}'.$this->whitespacesConfig->getLineEndi
                 // One we split it up, we run the function again, so we deal with other things in a proper way
             }
 
-            if (!$needsAnnotation &&
-                false !== strpos($lines[$i]->getContent(), ' @test') &&
-                false === strpos($lines[$i]->getContent(), '@testWith') &&
-                false === strpos($lines[$i]->getContent(), '@testdox')
+            if (!$needsAnnotation
+                && false !== strpos($lines[$i]->getContent(), ' @test')
+                && false === strpos($lines[$i]->getContent(), '@testWith')
+                && false === strpos($lines[$i]->getContent(), '@testdox')
             ) {
                 // We remove @test from the doc block
                 $lines[$i] = new Line(str_replace(' @test', '', $lines[$i]->getContent()));
@@ -359,14 +359,14 @@ public function testItDoesSomething() {}}'.$this->whitespacesConfig->getLineEndi
     }
 
     /**
-     * @param Line []$line
+     * @param Line[] $lines
      *
      * @return string
      */
-    private function getSingleLineDocBlockEntry($line)
+    private function getSingleLineDocBlockEntry(array $lines)
     {
-        $line = $line[0];
-        $line = str_replace('*/', '', $line);
+        $line = $lines[0];
+        $line = str_replace('*/', '', $line->getContent());
         $line = trim($line);
         $line = str_split($line);
         $i = \count($line);

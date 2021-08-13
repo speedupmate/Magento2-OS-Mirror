@@ -2,6 +2,7 @@
 
 namespace Yandex\Allure\Adapter\Annotation;
 
+use PHPUnit\Framework\TestCase;
 use Yandex\Allure\Adapter\Event\TestCaseStartedEvent;
 use Yandex\Allure\Adapter\Event\TestSuiteStartedEvent;
 use Yandex\Allure\Adapter\Model\DescriptionType;
@@ -10,9 +11,9 @@ use Yandex\Allure\Adapter\Model\SeverityLevel;
 use Yandex\Allure\Adapter\Model\Label;
 use Yandex\Allure\Adapter\Model\LabelType;
 
-class AnnotationManagerTest extends \PHPUnit_Framework_TestCase
+class AnnotationManagerTest extends TestCase
 {
-    public function testUpdateTestSuiteStartedEvent()
+    public function testUpdateTestSuiteStartedEvent(): void
     {
         $instance = new Fixtures\ExampleTestSuite();
         $testSuiteAnnotations = AnnotationProvider::getClassAnnotations($instance);
@@ -23,7 +24,17 @@ class AnnotationManagerTest extends \PHPUnit_Framework_TestCase
         $this->assertEquals('test-suite-title', $event->getTitle());
         $this->assertEquals('test-suite-description', $event->getDescription()->getValue());
         $this->assertEquals(DescriptionType::MARKDOWN, $event->getDescription()->getType());
-        $this->assertEquals(6, sizeof($event->getLabels()));
+        $this->assertEquals(8, sizeof($event->getLabels()));
+
+        //Check features presence
+        $epics = $this->getLabelsByType($event->getLabels(), LabelType::EPIC);
+        $this->assertEquals(2, sizeof($epics));
+        $index = 1;
+        foreach ($epics as $epic) {
+            $this->assertInstanceOf('Yandex\Allure\Adapter\Model\Label', $epic);
+            $this->assertEquals("test-suite-epic$index", $epic->getValue());
+            $index++;
+        }
 
         //Check features presence
         $features = $this->getLabelsByType($event->getLabels(), LabelType::FEATURE);
@@ -57,7 +68,7 @@ class AnnotationManagerTest extends \PHPUnit_Framework_TestCase
 
     }
 
-    public function testUpdateTestCaseStartedEvent()
+    public function testUpdateTestCaseStartedEvent(): void
     {
         $instance = new Fixtures\ExampleTestSuite();
         $testCaseAnnotations = AnnotationProvider::getMethodAnnotations($instance, 'exampleTestCase');
@@ -69,7 +80,7 @@ class AnnotationManagerTest extends \PHPUnit_Framework_TestCase
         $this->assertEquals('test-case-title', $event->getTitle());
         $this->assertEquals('test-case-description', $event->getDescription()->getValue());
         $this->assertEquals(DescriptionType::HTML, $event->getDescription()->getType());
-        $this->assertEquals(10, sizeof($event->getLabels()));
+        $this->assertEquals(13, sizeof($event->getLabels()));
 
         //Check id presence
         $ids = $this->getLabelsByType($event->getLabels(), LabelType::ID);
@@ -77,6 +88,16 @@ class AnnotationManagerTest extends \PHPUnit_Framework_TestCase
         $id = array_pop($ids);
         $this->assertInstanceOf('Yandex\Allure\Adapter\Model\Label', $id);
         $this->assertSame("123", $id->getValue());
+
+        //Check epic presence
+        $epics = $this->getLabelsByType($event->getLabels(), LabelType::EPIC);
+        $this->assertEquals(2, sizeof($epics));
+        $index = 1;
+        foreach ($epics as $epic) {
+            $this->assertInstanceOf('Yandex\Allure\Adapter\Model\Label', $epic);
+            $this->assertEquals("test-case-epic$index", $epic->getValue());
+            $index++;
+        }
 
         //Check feature presence
         $features = $this->getLabelsByType($event->getLabels(), LabelType::FEATURE);
@@ -97,7 +118,7 @@ class AnnotationManagerTest extends \PHPUnit_Framework_TestCase
             $this->assertEquals("test-case-story$index", $story->getValue());
             $index++;
         }
-        
+
         //Check issues presence
         $issues = $this->getLabelsByType($event->getLabels(), LabelType::ISSUE);
         $this->assertEquals(2, sizeof($issues));
@@ -110,7 +131,7 @@ class AnnotationManagerTest extends \PHPUnit_Framework_TestCase
 
         //Check custom labels presence
         $customs = $this->getLabelsByType($event->getLabels(), "custom-name");
-        $this->assertEquals(2, sizeof($customs));
+        $this->assertEquals(3, sizeof($customs));
         $index = 1;
         foreach ($customs as $custom) {
             $this->assertInstanceOf('Yandex\Allure\Adapter\Model\Label', $custom);
@@ -136,14 +157,9 @@ class AnnotationManagerTest extends \PHPUnit_Framework_TestCase
         $this->assertSame(ParameterKind::ARGUMENT, $parameter->getKind());
     }
 
-    /**
-     * @param array $labels
-     * @param string $labelType
-     * @return array
-     */
-    private function getLabelsByType(array $labels, $labelType)
+    private function getLabelsByType(array $labels, string $labelType): array
     {
-        $filteredArray =  array_filter(
+        $filteredArray = array_filter(
             $labels,
             function ($element) use ($labelType) {
                 return ($element instanceof Label) && ($element->getName() === $labelType);

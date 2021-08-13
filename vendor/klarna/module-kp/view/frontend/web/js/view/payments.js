@@ -7,23 +7,24 @@
  * and LICENSE files that were distributed with this source code.
  */
 define(
-  [
-    'underscore',
-    'uiComponent',
-    'Magento_Checkout/js/model/payment/renderer-list',
-    'Klarna_Kp/js/model/config'
-  ],
-  function (_,
-            Component,
-            rendererList,
-            config) {
-    'use strict';
-    if (config.available_methods && _.isArray(config.available_methods)) {
-      config.available_methods.forEach(function (value) {
-        rendererList.push(value);
-      });
+    [
+        'underscore',
+        'uiComponent',
+        'Magento_Checkout/js/model/payment/renderer-list',
+        'Klarna_Kp/js/model/config'
+    ],
+    function (_,
+              Component,
+              rendererList,
+              config) {
+        'use strict';
+
+        if (config.availableMethods && _.isArray(config.availableMethods)) {
+            config.availableMethods.forEach(function (value) {
+                rendererList.push(value);
+            });
+        }
+        // Add view logic here if needed
+        return Component.extend({});
     }
-    // Add view logic here if needed
-    return Component.extend({});
-  }
 );

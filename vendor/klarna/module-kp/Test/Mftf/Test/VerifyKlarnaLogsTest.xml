@@ -1,0 +1,45 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!--
+ /**
+  * Copyright © Magento, Inc. All rights reserved.
+  * See COPYING.txt for license details.
+  *
+  * This file is part of the Klarna KP module
+  *
+  * (c) Klarna Bank AB (publ)
+  *
+  * For the full copyright and license information, please view the NOTICE
+  * and LICENSE files that were distributed with this source code.
+  */
+-->
+<tests xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+       xsi:noNamespaceSchemaLocation="urn:magento:mftf:Test/etc/testSchema.xsd">
+    <test name="VerifyKlarnaLogsTest" extends="PlaceKlarnaPaymentsOrderAsGuestTest">
+        <annotations>
+            <features value="Klarna Payments"/>
+            <stories value="Place an order as a guest customer and verify request logging appears in the admin"/>
+            <title value="BUNDLE-2860 Verify Klarna Logs"/>
+            <description value="A admin user should be able to see request logs when a guest customer places an order with Klarna Payments"/>
+            <severity value="AVERAGE"/>
+            <testCaseId value="KP_?"/>
+            <group value="Klarna_KP_Logs"/>
+            <group value="Klarna_KP_Order_Guest"/>
+            <group value="Klarna_KP"/>
+        </annotations>
+        <before>
+            <actionGroup ref="AdminLoginActionGroup" stepKey="loginAsAdmin"/>
+        </before>
+        <after>
+            <actionGroup ref="AdminLogoutActionGroup" stepKey="logout"/>
+        </after>
+
+        <!--Grab order number-->
+        <waitForElementVisible selector="{{CheckoutSuccessMainSection.orderNumber}}" stepKey="waitForOrderNumber"/>
+        <grabTextFrom selector="{{CheckoutSuccessMainSection.orderNumber}}" stepKey="grabOrderNumber"/>
+
+        <!--Verify Klarna Logs in admin-->
+        <actionGroup ref="ValidateAdminKlarnaLogsGrid" stepKey="validateKlarnaLogs">
+            <argument name="orderId" value="{$grabOrderNumber}"/>
+        </actionGroup>
+    </test>
+</tests>

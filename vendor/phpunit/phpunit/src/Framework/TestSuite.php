@@ -550,7 +550,6 @@ class TestSuite implements \IteratorAggregate, SelfDescribing, Test
      * @throws \PHPUnit\Framework\CodeCoverageException
      * @throws \SebastianBergmann\CodeCoverage\CoveredCodeNotExecutedException
      * @throws \SebastianBergmann\CodeCoverage\InvalidArgumentException
-     * @throws \SebastianBergmann\CodeCoverage\MissingCoversAnnotationException
      * @throws \SebastianBergmann\CodeCoverage\RuntimeException
      * @throws \SebastianBergmann\CodeCoverage\UnintentionallyCoveredCodeException
      * @throws \SebastianBergmann\RecursionContext\InvalidArgumentException
@@ -648,7 +647,7 @@ class TestSuite implements \IteratorAggregate, SelfDescribing, Test
                 }
             }
         } catch (\Throwable $t) {
-            $message = "Exception in {$this->name}::$afterClassMethod" . \PHP_EOL . $t->getMessage();
+            $message = "Exception in {$this->name}::{$afterClassMethod}" . \PHP_EOL . $t->getMessage();
             $error   = new SyntheticError($message, 0, $t->getFile(), $t->getLine(), $t->getTrace());
 
             $placeholderTest = clone $test;

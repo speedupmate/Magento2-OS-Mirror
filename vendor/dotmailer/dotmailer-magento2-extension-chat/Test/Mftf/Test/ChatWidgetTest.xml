@@ -3,15 +3,13 @@
        xsi:noNamespaceSchemaLocation="urn:magento:mftf:Test/etc/testSchema.xsd">
     <test name="ChatWidgetTest">
         <annotations>
-            <skip>
-                <issueId value="BUNDLE-2884"/>
-            </skip>
             <features value="Engagement Cloud module"/>
             <stories value="Chat widget is displayed on front end"/>
             <title value="Display chat widget"/>
             <description value="The chat widget bubble will be displayed on the front end of the website if valid API credentials have been entered, and chat has been enabled."/>
             <severity value="CRITICAL"/>
             <group value="dotdigitalChat"/>
+            <testCaseId value="BUNDLE-2303"/>
         </annotations>
 
         <before>

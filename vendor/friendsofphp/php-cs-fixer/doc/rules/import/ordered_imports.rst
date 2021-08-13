@@ -42,7 +42,6 @@ Example #1
 
    --- Original
    +++ New
-   @@ -1,2 +1,2 @@
     <?php
    -use Z; use A;
    +use A; use Z;
@@ -56,7 +55,6 @@ With configuration: ``['sort_algorithm' => 'length']``.
 
    --- Original
    +++ New
-   @@ -1,5 +1,5 @@
     <?php
    +use Bar;
    +use Acme;
@@ -75,7 +73,6 @@ Example #3
 
    --- Original
    +++ New
-   @@ -1,4 +1,4 @@
     <?php
    +use AAA;
    +use const AAB;
@@ -92,7 +89,6 @@ With configuration: ``['sort_algorithm' => 'length', 'imports_order' => ['const'
 
    --- Original
    +++ New
-   @@ -1,10 +1,10 @@
     <?php
    +use const BBB;
     use const AAAA;
@@ -116,7 +112,6 @@ With configuration: ``['sort_algorithm' => 'alpha', 'imports_order' => ['const',
 
    --- Original
    +++ New
-   @@ -1,10 +1,10 @@
     <?php
    +use const AAAA;
     use const BBB;
@@ -140,7 +135,7 @@ With configuration: ``['sort_algorithm' => 'none', 'imports_order' => ['const', 
 
    --- Original
    +++ New
-   @@ -2,9 +2,9 @@
+    <?php
     use const BBB;
     use const AAAA;
 
@@ -158,6 +153,11 @@ Rule sets
 ---------
 
 The rule is part of the following rule sets:
+
+@PSR12
+  Using the `@PSR12 <./../../ruleSets/PSR12.rst>`_ rule set will enable the ``ordered_imports`` rule with the config below:
+
+  ``['imports_order' => ['class', 'function', 'const'], 'sort_algorithm' => 'none']``
 
 @PhpCsFixer
   Using the `@PhpCsFixer <./../../ruleSets/PhpCsFixer.rst>`_ rule set will enable the ``ordered_imports`` rule with the default config.

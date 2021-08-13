@@ -61,7 +61,6 @@ Example #1
 
    --- Original
    +++ New
-   @@ -1,3 +1,3 @@
     <?php
    -function sample($a=10,$b=20,$c=30) {}
    -sample(1,  2);
@@ -77,7 +76,6 @@ With configuration: ``['keep_multiple_spaces_after_comma' => false]``.
 
    --- Original
    +++ New
-   @@ -1,3 +1,3 @@
     <?php
    -function sample($a=10,$b=20,$c=30) {}
    -sample(1,  2);
@@ -93,7 +91,6 @@ With configuration: ``['keep_multiple_spaces_after_comma' => true]``.
 
    --- Original
    +++ New
-   @@ -1,3 +1,3 @@
     <?php
    -function sample($a=10,$b=20,$c=30) {}
    +function sample($a=10, $b=20, $c=30) {}
@@ -108,7 +105,6 @@ With configuration: ``['on_multiline' => 'ensure_fully_multiline']``.
 
    --- Original
    +++ New
-   @@ -1,5 +1,10 @@
     <?php
    -function sample($a=10,
    -    $b=20,$c=30) {}
@@ -133,7 +129,6 @@ With configuration: ``['on_multiline' => 'ensure_single_line']``.
 
    --- Original
    +++ New
-   @@ -1,10 +1,3 @@
     <?php
    -function sample(
    -    $a=10,
@@ -156,7 +151,6 @@ With configuration: ``['on_multiline' => 'ensure_fully_multiline', 'keep_multipl
 
    --- Original
    +++ New
-   @@ -1,7 +1,12 @@
     <?php
    -function sample($a=10,
    -    $b=20,$c=30) {}
@@ -183,7 +177,6 @@ With configuration: ``['on_multiline' => 'ensure_fully_multiline', 'keep_multipl
 
    --- Original
    +++ New
-   @@ -1,7 +1,12 @@
     <?php
    -function sample($a=10,
    -    $b=20,$c=30) {}
@@ -212,7 +205,7 @@ With configuration: ``['after_heredoc' => true]``.
 
    --- Original
    +++ New
-   @@ -2,7 +2,6 @@
+    <?php
     sample(
         <<<EOD
             foo
@@ -226,6 +219,26 @@ Rule sets
 ---------
 
 The rule is part of the following rule sets:
+
+@PHP73Migration
+  Using the `@PHP73Migration <./../../ruleSets/PHP73Migration.rst>`_ rule set will enable the ``method_argument_space`` rule with the config below:
+
+  ``['after_heredoc' => true]``
+
+@PHP74Migration
+  Using the `@PHP74Migration <./../../ruleSets/PHP74Migration.rst>`_ rule set will enable the ``method_argument_space`` rule with the config below:
+
+  ``['after_heredoc' => true]``
+
+@PHP80Migration
+  Using the `@PHP80Migration <./../../ruleSets/PHP80Migration.rst>`_ rule set will enable the ``method_argument_space`` rule with the config below:
+
+  ``['after_heredoc' => true]``
+
+@PSR12
+  Using the `@PSR12 <./../../ruleSets/PSR12.rst>`_ rule set will enable the ``method_argument_space`` rule with the config below:
+
+  ``['on_multiline' => 'ensure_fully_multiline']``
 
 @PSR2
   Using the `@PSR2 <./../../ruleSets/PSR2.rst>`_ rule set will enable the ``method_argument_space`` rule with the config below:

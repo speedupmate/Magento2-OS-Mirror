@@ -17,6 +17,9 @@ use Magento\Framework\View\Element\Template;
 use Magento\Framework\View\Element\Template\Context;
 use Magento\Store\Model\ScopeInterface;
 
+/**
+ * @api
+ */
 class Product extends Template
 {
     /**

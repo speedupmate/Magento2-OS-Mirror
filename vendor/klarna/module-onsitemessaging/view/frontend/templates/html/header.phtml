@@ -14,7 +14,7 @@ if ($block->isOsmEnabled()):
 ?>
 <script
     async
-    src="<?= $escaper->escapeUrl($this->getJsUrl()) ?>"
+    src="<?= $escaper->escapeUrl($block->getJsUrl()) ?>"
     data-client-id="<?= $escaper->escapeHtml($block->getDataId()) ?>"
 ></script>
 <?php endif ?>

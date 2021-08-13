@@ -230,7 +230,7 @@ class Calculator
                     ->setRowTotal($this->optionalRound($rowTotal, $round))
                     ->setRowTotalInclTax($this->optionalRound($rowTotalInclTax, $round))
                     ->setRowTax($this->optionalRound($rowTax, $round));
-                // Aggregation to $taxDetails takes place on the child level
+            // Aggregation to $taxDetails takes place on the child level
             } else {
                 $resultItem = $resultItems[$item->getCode()];
                 $processedItem = $resultItem

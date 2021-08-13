@@ -14,8 +14,11 @@ use GuzzleHttp\Client;
 use GuzzleHttp\Exception\BadResponseException;
 use Klarna\Core\Api\ServiceInterface;
 use Klarna\Core\Model\Api\Exception as KlarnaApiException;
+use Klarna\Core\Logger\Api\Container;
 use Psr\Http\Message\ResponseInterface;
 use Psr\Log\LoggerInterface;
+use Magento\Framework\App\ObjectManager;
+use Klarna\Core\Logger\Api\Logger;
 
 class Service implements ServiceInterface
 {
@@ -47,13 +50,29 @@ class Service implements ServiceInterface
      * @var Client
      */
     private $client;
+    /**
+     * @var Logger
+     */
+    private $apiLogger;
+    /**
+     * @var Container
+     */
+    private $loggerContainer;
 
     /**
      * @param LoggerInterface $log
+     * @param Logger|null     $apiLogger
+     * @param Container|null  $loggerContainer
+     * @codeCoverageIgnore
      */
-    public function __construct(LoggerInterface $log)
-    {
-        $this->log = $log;
+    public function __construct(
+        LoggerInterface $log,
+        Logger $apiLogger = null,
+        Container $loggerContainer = null
+    ) {
+        $this->log             = $log;
+        $this->apiLogger       = $apiLogger ?? ObjectManager::getInstance()->get(Logger::class);
+        $this->loggerContainer = $loggerContainer ?? ObjectManager::getInstance()->get(Container::class);
 
         // Client cannot be injected in constructor because Magento Object Manager in 2.1 has problems with it
         $this->client = new Client();
@@ -86,8 +105,12 @@ class Service implements ServiceInterface
     /**
      * @inheritdoc
      */
-    public function makeRequest($url, $body = [], $method = ServiceInterface::POST, $klarnaId = null)
-    {
+    public function makeRequest(
+        $url,
+        $body = [],
+        $method = ServiceInterface::POST,
+        string $klarnaId = null
+    ) {
         $response = [
             'is_successful' => false
         ];
@@ -97,25 +120,30 @@ class Service implements ServiceInterface
                 'json'    => $body
             ];
             $data = $this->getAuth($data);
+            unset($data['increment_id']);
+
+            $this->loggerContainer->setKlarnaId($klarnaId);
+            $this->loggerContainer->setUrl($url);
+            $this->loggerContainer->setRequest($body);
+            $this->loggerContainer->setMethod($method);
+            $this->loggerContainer->setService(ServiceInterface::SERVICE);
 
             /** @var ResponseInterface $response */
             $response = $this->client->$method($this->uri . $url, $data);
             $response = $this->processResponse($response);
-
             $response['is_successful'] = true;
+
+            $klarnaId = $klarnaId ?? $response['session_id'];
+            $this->loggerContainer->setKlarnaId($klarnaId);
         } catch (BadResponseException $e) {
-            $this->log->error('Bad Response: ' . $e->getMessage());
-            $this->log->error((string)$e->getRequest()->getBody());
             $response['response_status_code'] = $e->getCode();
             $response['response_status_message'] = $e->getMessage();
             $response = $this->processResponse($response);
             if ($e->hasResponse()) {
                 $errorResponse = $e->getResponse();
-                $this->log->error($errorResponse->getStatusCode() . ' ' . $errorResponse->getReasonPhrase());
                 try {
                     $body = $this->processResponse($errorResponse);
                 } catch (\Exception $e) {
-                    $this->log->error('Exception: ' . $e->getMessage());
                     $response['exception_code'] = $e->getCode();
                 }
                 $response = array_merge($response, $body);
@@ -125,10 +153,10 @@ class Service implements ServiceInterface
             $this->log->error('Exception: ' . $e->getMessage());
             $response['exception_code'] = $e->getCode();
         }
-        if (!$klarnaId) {
-            $klarnaId = $this->getKlarnaIdFromResponse($response);
-        }
-        $this->logRequestResponse($body, $response, $klarnaId, $url);
+
+        $this->loggerContainer->setResponse($response);
+        $this->apiLogger->logContainer($this->loggerContainer);
+
         return $response;
     }
 
@@ -178,28 +206,6 @@ class Service implements ServiceInterface
     }
 
     /**
-     * @param $request
-     * @param $response
-     * @param $klarnaId
-     * @param $url
-     */
-    private function logRequestResponse($request, $response, $klarnaId, $url)
-    {
-        $req = [
-            'headers' => $this->headers,
-            'body'    => $request
-        ];
-
-        $context = [
-            'klarna_id' => $klarnaId,
-            'action'    => $url
-        ];
-
-        $this->log->debug(['REQUEST' => $req], $context);
-        $this->log->debug(['RESPONSE' => $response], $context);
-    }
-
-    /**
      * @inheritdoc
      */
     public function connect($username, $password, $connectUrl = null)
@@ -210,19 +216,5 @@ class Service implements ServiceInterface
             $this->uri = $connectUrl;
         }
         return true;
-    }
-
-    /**
-     * @param array $response
-     * @return string
-     */
-    private function getKlarnaIdFromResponse($response)
-    {
-        foreach (['session_id', 'order_id'] as $idField) {
-            if (isset($response[$idField])) {
-                return $response[$idField];
-            }
-        }
-        return null;
     }
 }

@@ -6,4 +6,7 @@
             <argument name="resourceModel" xsi:type="string">Dotdigitalgroup\Sms\Model\ResourceModel\SmsOrder</argument>
         </arguments>
     </virtualType>
+    <type name="Dotdigitalgroup\Email\Model\Connector\Module">
+        <plugin name="module_plugin_sms" type="Dotdigitalgroup\Sms\Plugin\ModulePlugin" sortOrder="4"/>
+    </type>
 </config>

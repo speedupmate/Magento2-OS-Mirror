@@ -28,7 +28,7 @@ Example #1
 
    --- Original
    +++ New
-   @@ -2,13 +2,13 @@
+    <?php
 
     class Foo
     {
@@ -54,7 +54,6 @@ With configuration: ``['closure_function_spacing' => 'none']``.
 
    --- Original
    +++ New
-   @@ -1,2 +1,2 @@
     <?php
    -$f = function () {};
    +$f = function() {};
@@ -68,7 +67,6 @@ With configuration: ``['closure_function_spacing' => 'none']``.
 
    --- Original
    +++ New
-   @@ -1,2 +1,2 @@
     <?php
    -$f = fn () => null;
    +$f = fn() => null;
@@ -77,6 +75,9 @@ Rule sets
 ---------
 
 The rule is part of the following rule sets:
+
+@PSR12
+  Using the `@PSR12 <./../../ruleSets/PSR12.rst>`_ rule set will enable the ``function_declaration`` rule with the default config.
 
 @PSR2
   Using the `@PSR2 <./../../ruleSets/PSR2.rst>`_ rule set will enable the ``function_declaration`` rule with the default config.

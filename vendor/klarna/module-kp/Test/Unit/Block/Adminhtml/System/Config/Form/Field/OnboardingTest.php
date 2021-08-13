@@ -57,7 +57,7 @@ class OnboardingTest extends TestCase
      */
     public function testRenderWithUrl(): void
     {
-        $expected = __('Click on this %1 to visit the Klarna Merchant Onboarding Page and request credentials.');
+        $expected = 'Click on this %1 to visit the Klarna Merchant Onboarding Page and request credentials.';
 
         $this->dependencyMocks['onboarding']->method('getUrl')->willReturn('http://bla.de');
 

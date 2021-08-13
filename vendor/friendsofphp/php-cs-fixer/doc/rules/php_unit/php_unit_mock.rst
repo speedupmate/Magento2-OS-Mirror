@@ -34,7 +34,8 @@ Example #1
 
    --- Original
    +++ New
-   @@ -3,9 +3,9 @@
+    <?php
+    final class MyTest extends \PHPUnit_Framework_TestCase
     {
         public function testFoo()
         {
@@ -57,7 +58,8 @@ With configuration: ``['target' => '5.4']``.
 
    --- Original
    +++ New
-   @@ -3,7 +3,7 @@
+    <?php
+    final class MyTest extends \PHPUnit_Framework_TestCase
     {
         public function testFoo()
         {
@@ -99,5 +101,10 @@ The rule is part of the following rule sets:
 
 @PHPUnit75Migration:risky
   Using the `@PHPUnit75Migration:risky <./../../ruleSets/PHPUnit75MigrationRisky.rst>`_ rule set will enable the ``php_unit_mock`` rule with the config below:
+
+  ``['target' => '5.5']``
+
+@PHPUnit84Migration:risky
+  Using the `@PHPUnit84Migration:risky <./../../ruleSets/PHPUnit84MigrationRisky.rst>`_ rule set will enable the ``php_unit_mock`` rule with the config below:
 
   ``['target' => '5.5']``

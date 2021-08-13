@@ -10,6 +10,8 @@ namespace Vertex\Tax\Api;
  * Service Contract for retrieving, saving, and removing Vertex log entries
  *
  * @api
+ * @deprecated 4.2.1 Replaced by vertexinc/module-request-logging-api
+ * @see \Vertex\RequestLoggingApi\Api\LogEntryRepositoryInterface
  */
 interface LogEntryRepositoryInterface
 {

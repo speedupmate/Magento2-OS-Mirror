@@ -21,6 +21,8 @@ class ConfigProvider implements ConfigProviderInterface
 
     const ALLOWED_MERCHANT_COUNTRIES = ['US'];
 
+    const METHOD_KEY_ACTIVE = 'payment/braintree_venmo/active';
+
     /**
      * @var BraintreeAdapter $adapter
      */
@@ -71,6 +73,10 @@ class ConfigProvider implements ConfigProviderInterface
      */
     public function getConfig(): array
     {
+        if (!$this->isActive()) {
+            return [];
+        }
+
         return [
             'payment' => [
                 self::METHOD_CODE => [
@@ -80,6 +86,19 @@ class ConfigProvider implements ConfigProviderInterface
                 ]
             ]
         ];
+    }
+
+    /**
+     * Get Payment configuration status
+     *
+     * @return bool
+     */
+    public function isActive(): bool
+    {
+        return (bool) $this->scopeConfig->getValue(
+            self::METHOD_KEY_ACTIVE,
+            ScopeInterface::SCOPE_STORE
+        );
     }
 
     /**

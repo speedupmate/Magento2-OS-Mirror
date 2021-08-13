@@ -11,6 +11,6 @@
         <element name="deleteBtn" type="button" selector="//div[@class='action-menu-items']//*[text()='Delete']" timeout="30"/>
         <element name="modalAcceptButton" type="button" selector="button.action-accept" timeout="30"/>
 
-        <element name="textInGridRow" type="select" selector="//td//div[contains(text(), '{{text}}')]" parameterized="true"/>
+        <element name="textInGridRow" type="text" selector="//td//div[contains(text(), '{{text}}')]" parameterized="true"/>
     </section>
 </sections>

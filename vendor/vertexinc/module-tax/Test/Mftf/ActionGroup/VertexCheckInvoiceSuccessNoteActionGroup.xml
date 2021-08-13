@@ -10,8 +10,12 @@
     <actionGroup name="VertexCheckInvoiceSuccessNoteActionGroup">
         <arguments>
             <argument type="string" name="amount"/>
+            <argument type="string" name="currency" defaultValue="USD" />
+            <argument type="string" name="locale" defaultValue="en_US"/>
         </arguments>
 
-        <see stepKey="seeNote" selector="{{AdminOrderNotesSection.noteContaining('Vertex Invoice sent successfully.')}}" userInput="${{amount}}"/>
+        <formatCurrency stepKey="formatMoney" currency="{{currency}}" locale="{{locale}}" userInput="{{amount}}"/>
+
+        <see stepKey="seeNote" selector="{{AdminOrderNotesSection.noteContaining('Vertex Invoice sent successfully.')}}" userInput="$formatMoney"/>
     </actionGroup>
 </actionGroups>

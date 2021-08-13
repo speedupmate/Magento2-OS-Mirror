@@ -137,8 +137,8 @@ class ShippingCodes extends Field
                     }
 
                     $html .= '<tr class="" >';
-                    $html .= '<td class="label"  style="padding:1rem;" >' . $this->escapeHtml($method) . ': </td>';
-                    $html .= '<td class="value" style="padding:1rem;" > ' . $this->escapeHtml($code) . '</td>';
+                    $html .= '<td class="label">' . $this->escapeHtml($method) . ': </td>';
+                    $html .= '<td class="value"> ' . $this->escapeHtml($code) . '</td>';
                     $html .= '</tr>';
                 }
             }

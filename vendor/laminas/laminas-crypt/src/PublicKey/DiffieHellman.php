@@ -11,6 +11,17 @@ namespace Laminas\Crypt\PublicKey;
 use Laminas\Crypt\Exception;
 use Laminas\Math;
 
+use function function_exists;
+use function mb_strlen;
+use function openssl_dh_compute_key;
+use function openssl_error_string;
+use function openssl_pkey_get_details;
+use function openssl_pkey_new;
+use function preg_match;
+
+use const OPENSSL_KEYTYPE_DH;
+use const PHP_VERSION_ID;
+
 /**
  * PHP implementation of the Diffie-Hellman public key encryption algorithm.
  * Allows two unassociated parties to establish a joint shared secret key
@@ -97,14 +108,14 @@ class DiffieHellman
      */
     public function __construct($prime, $generator, $privateKey = null, $privateKeyFormat = self::FORMAT_NUMBER)
     {
+        // set up BigInteger adapter
+        $this->math = Math\BigInteger\BigInteger::factory();
+
         $this->setPrime($prime);
         $this->setGenerator($generator);
         if ($privateKey !== null) {
             $this->setPrivateKey($privateKey, $privateKeyFormat);
         }
-
-        // set up BigInteger adapter
-        $this->math = Math\BigInteger\BigInteger::factory();
     }
 
     /**
@@ -122,7 +133,7 @@ class DiffieHellman
      * Generate own public key. If a private number has not already been set,
      * one will be generated at this stage.
      *
-     * @return DiffieHellman
+     * @return DiffieHellman Provides a fluent interface
      * @throws \Laminas\Crypt\Exception\RuntimeException
      */
     public function generateKeys()
@@ -132,7 +143,9 @@ class DiffieHellman
                 'p' => $this->convert($this->getPrime(), self::FORMAT_NUMBER, self::FORMAT_BINARY),
                 'g' => $this->convert($this->getGenerator(), self::FORMAT_NUMBER, self::FORMAT_BINARY)
             ];
-            if ($this->hasPrivateKey()) {
+            // the priv_key parameter is allowed only for PHP < 7.1
+            // @see https://bugs.php.net/bug.php?id=73478
+            if ($this->hasPrivateKey() && PHP_VERSION_ID < 70100) {
                 $details['priv_key'] = $this->convert(
                     $this->privateKey,
                     self::FORMAT_NUMBER,
@@ -173,13 +186,13 @@ class DiffieHellman
      *
      * @param string $number
      * @param string $format
-     * @return DiffieHellman
+     * @return DiffieHellman Provides a fluent interface
      * @throws \Laminas\Crypt\Exception\InvalidArgumentException
      */
     public function setPublicKey($number, $format = self::FORMAT_NUMBER)
     {
         $number = $this->convert($number, $format, self::FORMAT_NUMBER);
-        if (!preg_match('/^\d+$/', $number)) {
+        if (! preg_match('/^\d+$/', $number)) {
             throw new Exception\InvalidArgumentException('Invalid parameter; not a positive natural number');
         }
         $this->publicKey = (string) $number;
@@ -239,7 +252,7 @@ class DiffieHellman
             $this->secretKey = $this->convert($secretKey, self::FORMAT_BINARY, self::FORMAT_NUMBER);
         } else {
             $publicKey = $this->convert($publicKey, $publicKeyFormat, self::FORMAT_NUMBER);
-            if (!preg_match('/^\d+$/', $publicKey)) {
+            if (! preg_match('/^\d+$/', $publicKey)) {
                 throw new Exception\InvalidArgumentException(
                     'Invalid parameter; not a positive natural number'
                 );
@@ -259,7 +272,7 @@ class DiffieHellman
      */
     public function getSharedSecretKey($format = self::FORMAT_NUMBER)
     {
-        if (!isset($this->secretKey)) {
+        if (! isset($this->secretKey)) {
             throw new Exception\InvalidArgumentException(
                 'A secret key has not yet been computed; call computeSecretKey() first'
             );
@@ -272,12 +285,12 @@ class DiffieHellman
      * Setter for the value of the prime number
      *
      * @param string $number
-     * @return DiffieHellman
+     * @return DiffieHellman Provides a fluent interface
      * @throws \Laminas\Crypt\Exception\InvalidArgumentException
      */
     public function setPrime($number)
     {
-        if (!preg_match('/^\d+$/', $number) || $number < 11) {
+        if (! preg_match('/^\d+$/', $number) || $number < 11) {
             throw new Exception\InvalidArgumentException(
                 'Invalid parameter; not a positive natural number or too small: ' .
                 'should be a large natural number prime'
@@ -297,7 +310,7 @@ class DiffieHellman
      */
     public function getPrime($format = self::FORMAT_NUMBER)
     {
-        if (!isset($this->prime)) {
+        if (! isset($this->prime)) {
             throw new Exception\InvalidArgumentException('No prime number has been set');
         }
 
@@ -308,12 +321,12 @@ class DiffieHellman
      * Setter for the value of the generator number
      *
      * @param string $number
-     * @return DiffieHellman
+     * @return DiffieHellman Provides a fluent interface
      * @throws \Laminas\Crypt\Exception\InvalidArgumentException
      */
     public function setGenerator($number)
     {
-        if (!preg_match('/^\d+$/', $number) || $number < 2) {
+        if (! preg_match('/^\d+$/', $number) || $number < 2) {
             throw new Exception\InvalidArgumentException(
                 'Invalid parameter; not a positive natural number greater than 1'
             );
@@ -332,7 +345,7 @@ class DiffieHellman
      */
     public function getGenerator($format = self::FORMAT_NUMBER)
     {
-        if (!isset($this->generator)) {
+        if (! isset($this->generator)) {
             throw new Exception\InvalidArgumentException('No generator number has been set');
         }
 
@@ -344,13 +357,13 @@ class DiffieHellman
      *
      * @param string $number
      * @param string $format
-     * @return DiffieHellman
+     * @return DiffieHellman Provides a fluent interface
      * @throws \Laminas\Crypt\Exception\InvalidArgumentException
      */
     public function setPrivateKey($number, $format = self::FORMAT_NUMBER)
     {
         $number = $this->convert($number, $format, self::FORMAT_NUMBER);
-        if (!preg_match('/^\d+$/', $number)) {
+        if (! preg_match('/^\d+$/', $number)) {
             throw new Exception\InvalidArgumentException('Invalid parameter; not a positive natural number');
         }
         $this->privateKey = (string) $number;
@@ -366,7 +379,7 @@ class DiffieHellman
      */
     public function getPrivateKey($format = self::FORMAT_NUMBER)
     {
-        if (!$this->hasPrivateKey()) {
+        if (! $this->hasPrivateKey()) {
             $this->setPrivateKey($this->generatePrivateKey(), self::FORMAT_BINARY);
         }
 
@@ -432,6 +445,6 @@ class DiffieHellman
      */
     protected function generatePrivateKey()
     {
-        return Math\Rand::getBytes(strlen($this->getPrime()), true);
+        return Math\Rand::getBytes(mb_strlen($this->getPrime(), '8bit'));
     }
 }

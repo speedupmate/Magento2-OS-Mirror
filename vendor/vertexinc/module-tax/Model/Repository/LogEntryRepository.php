@@ -7,147 +7,112 @@
 namespace Vertex\Tax\Model\Repository;
 
 use Magento\Framework\Api\SearchCriteriaInterface;
-use Magento\Framework\Exception\CouldNotDeleteException;
-use Magento\Framework\Exception\CouldNotSaveException;
+use Vertex\RequestLoggingApi\Api\Data\LogEntryInterface as ApiLogEntryInterface;
+use Vertex\RequestLoggingApi\Api\Data\LogEntryInterfaceFactory;
+use Vertex\RequestLoggingApi\Api\LogEntryRepositoryInterface as ApiRepository;
 use Vertex\Tax\Api\Data\LogEntryInterface;
 use Vertex\Tax\Api\Data\LogEntrySearchResultsInterface;
 use Vertex\Tax\Api\Data\LogEntrySearchResultsInterfaceFactory;
 use Vertex\Tax\Api\LogEntryRepositoryInterface;
-use Vertex\Tax\Model\CollectionProcessor;
 use Vertex\Tax\Model\Data\LogEntry;
 use Vertex\Tax\Model\Data\LogEntryFactory;
-use Vertex\Tax\Model\ResourceModel\LogEntry as ResourceModel;
-use Vertex\Tax\Model\ResourceModel\LogEntry\Collection;
-use Vertex\Tax\Model\ResourceModel\LogEntry\CollectionFactory;
 
 /**
  * Repository of Log Entries
  */
 class LogEntryRepository implements LogEntryRepositoryInterface
 {
-    /** @var ResourceModel */
-    private $resourceModel;
+    /** @var LogEntryInterfaceFactory */
+    private $apiInterfaceFactory;
 
     /** @var LogEntryFactory */
     private $logEntryFactory;
 
-    /** @var CollectionFactory */
-    private $collectionFactory;
+    /** @var ApiRepository */
+    private $proxiedRepository;
 
     /** @var LogEntrySearchResultsInterfaceFactory */
     private $searchResultsFactory;
 
-    /** @var CollectionProcessor */
-    private $collectionProcessor;
-
-    /**
-     * @param ResourceModel $resourceModel
-     * @param LogEntryFactory $logEntryFactory
-     * @param CollectionFactory $collectionFactory
-     * @param LogEntrySearchResultsInterfaceFactory $searchResultsFactory
-     * @param CollectionProcessor $collectionProcessor
-     */
     public function __construct(
-        ResourceModel $resourceModel,
-        LogEntryFactory $logEntryFactory,
-        CollectionFactory $collectionFactory,
+        LogEntryInterfaceFactory $apiInterfaceFactory,
         LogEntrySearchResultsInterfaceFactory $searchResultsFactory,
-        CollectionProcessor $collectionProcessor
+        ApiRepository $proxiedRepository,
+        LogEntryFactory $logEntryFactory
     ) {
-        $this->resourceModel = $resourceModel;
-        $this->logEntryFactory = $logEntryFactory;
-        $this->collectionFactory = $collectionFactory;
+        $this->apiInterfaceFactory = $apiInterfaceFactory;
         $this->searchResultsFactory = $searchResultsFactory;
-        $this->collectionProcessor = $collectionProcessor;
+        $this->proxiedRepository = $proxiedRepository;
+        $this->logEntryFactory = $logEntryFactory;
     }
 
-    /**
-     * @inheritdoc
-     */
-    public function save(LogEntryInterface $logEntry)
-    {
-        $model = $this->mapDataIntoModel($logEntry);
-        try {
-            $this->resourceModel->save($model);
-        } catch (\Exception $originalException) {
-            throw new CouldNotSaveException(__('Could not save Log Entry'), $originalException);
-        }
-
-        return $this;
-    }
-
-    /**
-     * @inheritdoc
-     */
-    public function getList(SearchCriteriaInterface $searchCriteria)
-    {
-        /** @var LogEntrySearchResultsInterface $searchResults */
-        $searchResults = $this->searchResultsFactory->create();
-
-        /** @var Collection $collection */
-        $collection = $this->collectionFactory->create();
-        $this->collectionProcessor->process($searchCriteria, $collection);
-
-        $searchResults->setTotalCount($collection->getSize());
-
-        $logEntries = [];
-        /** @var LogEntry $logEntryModel */
-        foreach ($collection as $logEntryModel) {
-            $logEntries[] = $logEntryModel;
-        }
-        $searchResults->setItems($logEntries);
-        return $searchResults;
-    }
-
-    /**
-     * @inheritdoc
-     */
     public function delete(LogEntryInterface $logEntry)
     {
         return $this->deleteById($logEntry->getId());
     }
 
-    /**
-     * @inheritdoc
-     */
-    public function deleteById($logEntryId)
-    {
-        /** @var LogEntry $model */
-        $model = $this->logEntryFactory->create();
-        $model->setId($logEntryId);
-        try {
-            $this->resourceModel->delete($model);
-        } catch (\Exception $e) {
-            throw new CouldNotDeleteException(__('Could not delete log entry'), $e);
-        }
-
-        return true;
-    }
-
-    /**
-     * @inheritdoc
-     */
     public function deleteByCriteria(SearchCriteriaInterface $searchCriteria)
     {
-        /** @var Collection $collection */
-        $collection = $this->collectionFactory->create();
-        $this->collectionProcessor->process($searchCriteria, $collection);
-        try {
-            $this->resourceModel->deleteByCollection($collection);
-        } catch (\Exception $e) {
-            throw new CouldNotDeleteException(__('Could not delete log entries'), $e);
-        }
+        return $this->proxiedRepository->deleteByCriteria($searchCriteria);
+    }
 
-        return true;
+    public function deleteById($logEntryId)
+    {
+        return $this->proxiedRepository->deleteById((int)$logEntryId);
+    }
+
+    public function getList(SearchCriteriaInterface $searchCriteria)
+    {
+        /** @var LogEntrySearchResultsInterface $searchResults */
+        $searchResults = $this->searchResultsFactory->create();
+
+        $proxiedResult = $this->proxiedRepository->getList($searchCriteria);
+
+        $searchResults->setTotalCount($proxiedResult->getTotalCount());
+
+        $logEntries = [];
+        foreach ($proxiedResult->getItems() as $logEntry) {
+            $logEntries[] = $this->convertToDeprecatedInterface($logEntry);
+        }
+        $searchResults->setItems($logEntries);
+        return $searchResults;
+    }
+
+    public function save(LogEntryInterface $logEntry)
+    {
+        $model = $this->convertToApiInterface($logEntry);
+        $this->proxiedRepository->save($model);
+        return $this;
     }
 
     /**
      * Convert a LogEntryInterface into a LogEntry model
      *
      * @param LogEntryInterface $logEntry
-     * @return LogEntry
+     * @return ApiLogEntryInterface
      */
-    private function mapDataIntoModel(LogEntryInterface $logEntry)
+    private function convertToApiInterface(LogEntryInterface $logEntry): ApiLogEntryInterface
+    {
+        /** @var ApiLogEntryInterface $model */
+        $model = $this->apiInterfaceFactory->create();
+        if ($logEntry->getId() !== null) {
+            $model->setId((int)$logEntry->getId());
+        }
+        $model->setType($logEntry->getType());
+        $model->setOrderId((int)$logEntry->getOrderId());
+        $model->setTotalTax((float)$logEntry->getTotalTax());
+        $model->setTaxAreaId((int)$logEntry->getTaxAreaId());
+        $model->setSubTotal((float)$logEntry->getSubTotal());
+        $model->setTotal((float)$logEntry->getTotal());
+        $model->setLookupResult($logEntry->getLookupResult());
+        $model->setDate($logEntry->getDate());
+        $model->setRequestXml($logEntry->getRequestXml());
+        $model->setResponseXml($logEntry->getResponseTime());
+        $model->setResponseTime((int)$logEntry->getResponseTime());
+        return $model;
+    }
+
+    private function convertToDeprecatedInterface(ApiLogEntryInterface $logEntry): LogEntry
     {
         /** @var LogEntry $model */
         $model = $this->logEntryFactory->create();

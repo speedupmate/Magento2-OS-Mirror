@@ -50,6 +50,16 @@ Allowed values: ``'all'``, ``'namespaced'``
 
 Default value: ``'all'``
 
+``strict``
+~~~~~~~~~~
+
+Whether leading ``\`` of constant invocation not meant to have it should be
+removed.
+
+Allowed types: ``bool``
+
+Default value: ``false``
+
 Examples
 --------
 
@@ -62,7 +72,6 @@ Example #1
 
    --- Original
    +++ New
-   @@ -1 +1 @@
    -<?php var_dump(PHP_VERSION, M_PI, MY_CUSTOM_PI);
    +<?php var_dump(\PHP_VERSION, \M_PI, MY_CUSTOM_PI);
 
@@ -75,7 +84,6 @@ With configuration: ``['scope' => 'namespaced']``.
 
    --- Original
    +++ New
-   @@ -1,7 +1,7 @@
     <?php
     namespace space1 {
    -    echo PHP_VERSION;
@@ -94,7 +102,6 @@ With configuration: ``['include' => ['MY_CUSTOM_PI']]``.
 
    --- Original
    +++ New
-   @@ -1 +1 @@
    -<?php var_dump(PHP_VERSION, M_PI, MY_CUSTOM_PI);
    +<?php var_dump(\PHP_VERSION, \M_PI, \MY_CUSTOM_PI);
 
@@ -107,7 +114,6 @@ With configuration: ``['fix_built_in' => false, 'include' => ['MY_CUSTOM_PI']]``
 
    --- Original
    +++ New
-   @@ -1 +1 @@
    -<?php var_dump(PHP_VERSION, M_PI, MY_CUSTOM_PI);
    +<?php var_dump(PHP_VERSION, M_PI, \MY_CUSTOM_PI);
 
@@ -120,7 +126,6 @@ With configuration: ``['exclude' => ['M_PI']]``.
 
    --- Original
    +++ New
-   @@ -1 +1 @@
    -<?php var_dump(PHP_VERSION, M_PI, MY_CUSTOM_PI);
    +<?php var_dump(\PHP_VERSION, M_PI, MY_CUSTOM_PI);
 
@@ -132,9 +137,7 @@ The rule is part of the following rule sets:
 @PhpCsFixer:risky
   Using the `@PhpCsFixer:risky <./../../ruleSets/PhpCsFixerRisky.rst>`_ rule set will enable the ``native_constant_invocation`` rule with the config below:
 
-  ``['fix_built_in' => false, 'include' => ['DIRECTORY_SEPARATOR', 'PHP_SAPI', 'PHP_VERSION_ID'], 'scope' => 'namespaced']``
+  ``['fix_built_in' => false, 'include' => ['DIRECTORY_SEPARATOR', 'PHP_INT_SIZE', 'PHP_SAPI', 'PHP_VERSION_ID'], 'scope' => 'namespaced', 'strict' => true]``
 
 @Symfony:risky
-  Using the `@Symfony:risky <./../../ruleSets/SymfonyRisky.rst>`_ rule set will enable the ``native_constant_invocation`` rule with the config below:
-
-  ``['fix_built_in' => false, 'include' => ['DIRECTORY_SEPARATOR', 'PHP_SAPI', 'PHP_VERSION_ID'], 'scope' => 'namespaced']``
+  Using the `@Symfony:risky <./../../ruleSets/SymfonyRisky.rst>`_ rule set will enable the ``native_constant_invocation`` rule with the default config.

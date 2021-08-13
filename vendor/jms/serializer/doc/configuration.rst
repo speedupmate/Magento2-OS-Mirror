@@ -8,6 +8,12 @@ Configuration
     using another framework, there also might be a module, or other special integration. Please check packagist, or
     whatever registry usually holds such information for your framework.
 
+
+If you are using the standalone library and you want to use annotations, the annotation registry must be initialized::
+
+    Doctrine\Common\Annotations\AnnotationRegistry::registerLoader('class_exists');
+
+
 Constructing a Serializer
 -------------------------
 
@@ -45,7 +51,7 @@ If you have created custom handlers, you can add them to the serializer easily::
         JMS\Serializer\SerializerBuilder::create()
             ->addDefaultHandlers()
             ->configureHandlers(function(JMS\Serializer\Handler\HandlerRegistry $registry) {
-                $registry->registerHandler('serialization', 'MyObject', 'json',
+                $registry->registerHandler(JMS\Serializer\GraphNavigatorInterface::DIRECTION_SERIALIZATION, 'MyObject', 'json',
                     function($visitor, MyObject $obj, array $type) {
                         return $obj->getName();
                     }
@@ -69,10 +75,10 @@ are located::
 
 The serializer would expect the metadata files to be named like the fully qualified class names where all ``\`` are
 replaced with ``.``. So, if you class would be named ``Vendor\Package\Foo``, the metadata file would need to be located
-at ``$someDir/Vendor.Package.Foo.(xml|yml)``. For more information, see the :doc:`reference <reference>`.
+at ``$someDir/Vendor.Package.Foo.(xml|yml)``. If not found, ``$someDir/Vendor.Package.(xml|yml)`` will be tried, then ``$someDir/Vendor.Package.(xml|yml)`` and so on. For more information, see the :doc:`reference <reference>`.
 
 Setting a default SerializationContext factory
---------------------------------------------
+----------------------------------------------
 To avoid to pass an instance of SerializationContext
 every time you call method ``serialize()`` (or ``toArray()``),
 you can set a ``SerializationContextFactory`` to the Serializer.

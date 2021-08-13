@@ -16,6 +16,7 @@ use PhpCsFixer\AbstractFixer;
 use PhpCsFixer\FixerDefinition\CodeSample;
 use PhpCsFixer\FixerDefinition\FixerDefinition;
 use PhpCsFixer\Tokenizer\Analyzer\Analysis\CaseAnalysis;
+use PhpCsFixer\Tokenizer\Analyzer\GotoLabelAnalyzer;
 use PhpCsFixer\Tokenizer\Analyzer\SwitchAnalyzer;
 use PhpCsFixer\Tokenizer\Token;
 use PhpCsFixer\Tokenizer\Tokens;
@@ -39,7 +40,7 @@ final class TernaryOperatorSpacesFixer extends AbstractFixer
     /**
      * {@inheritdoc}
      *
-     * Must run after ArraySyntaxFixer, ListSyntaxFixer.
+     * Must run after ArraySyntaxFixer, ListSyntaxFixer, TernaryToElvisOperatorFixer.
      */
     public function getPriority()
     {
@@ -59,6 +60,7 @@ final class TernaryOperatorSpacesFixer extends AbstractFixer
      */
     protected function applyFix(\SplFileInfo $file, Tokens $tokens)
     {
+        $gotoLabelAnalyzer = new GotoLabelAnalyzer();
         $ternaryOperatorIndices = [];
         $excludedIndices = [];
 
@@ -81,7 +83,7 @@ final class TernaryOperatorSpacesFixer extends AbstractFixer
                 continue;
             }
 
-            if ($this->belongsToGoToLabel($tokens, $index)) {
+            if ($gotoLabelAnalyzer->belongsToGoToLabel($tokens, $index)) {
                 continue;
             }
 
@@ -146,28 +148,6 @@ final class TernaryOperatorSpacesFixer extends AbstractFixer
         $alternativeControlStructureIndex = $tokens->getPrevMeaningfulToken($openParenthesisIndex);
 
         return $tokens[$alternativeControlStructureIndex]->isGivenKind([T_DECLARE, T_ELSEIF, T_FOR, T_FOREACH, T_IF, T_SWITCH, T_WHILE]);
-    }
-
-    /**
-     * @param int $index
-     *
-     * @return bool
-     */
-    private function belongsToGoToLabel(Tokens $tokens, $index)
-    {
-        if (!$tokens[$index]->equals(':')) {
-            return false;
-        }
-
-        $prevMeaningfulTokenIndex = $tokens->getPrevMeaningfulToken($index);
-
-        if (!$tokens[$prevMeaningfulTokenIndex]->isGivenKind(T_STRING)) {
-            return false;
-        }
-
-        $prevMeaningfulTokenIndex = $tokens->getPrevMeaningfulToken($prevMeaningfulTokenIndex);
-
-        return $tokens[$prevMeaningfulTokenIndex]->equalsAny([';', '{', '}', [T_OPEN_TAG]]);
     }
 
     /**

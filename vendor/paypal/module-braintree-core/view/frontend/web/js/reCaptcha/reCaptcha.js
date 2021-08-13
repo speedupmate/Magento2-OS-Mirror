@@ -41,9 +41,8 @@ define(
                         me.$parentForm.trigger('captcha:endExecute');
                     }
                 });
-
                 // Create a virtual token field
-                this.tokenField = $('<input type="text" name="token" style="display: none" />')[0];
+                this.tokenField = $('<input type="text" id="token-grecaptcha-braintree" name="token-grecaptcha-braintree" style="display: none" />')[0];
                 this.$parentForm = parentForm;
                 parentForm.append(this.tokenField);
             }

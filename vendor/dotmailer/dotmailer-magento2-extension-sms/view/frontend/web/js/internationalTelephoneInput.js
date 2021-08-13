@@ -5,7 +5,11 @@ define([
     'use strict';
 
     return function (config, node) {
-        // initialise plugin
-        window.intlTelInput($(node)[0], config);
+        var telephoneInput = $(node)[0];
+        var iti = window.intlTelInput($(node)[0], config);
+
+        telephoneInput.addEventListener('blur', function() {
+            telephoneInput.value = iti.getNumber();
+        });
     };
 });

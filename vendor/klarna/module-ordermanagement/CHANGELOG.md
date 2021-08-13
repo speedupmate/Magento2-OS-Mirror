@@ -1,4 +1,15 @@
 
+6.2.2 / 2021-06-04
+==================
+
+  * MAGE-3196 Fixed status does not change on the admin portal after the order is rejected
+
+6.2.0 / 2021-05-12
+==================
+
+  * MAGE-2621 Fixed batch processing of orders
+  * MAGE-2903 Added and finalized Logs++ implementation
+
 6.0.2 / 2020-07-06
 ==================
 

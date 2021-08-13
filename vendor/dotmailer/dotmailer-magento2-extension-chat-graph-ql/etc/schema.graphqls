@@ -1,0 +1,13 @@
+type Query {
+    chatData: ChatData @resolver (class: "\\Dotdigitalgroup\\ChatGraphQl\\Model\\Resolver\\ChatData") @doc(description:"Retrieves an array of configuration data for the chat widget.")
+}
+
+type Mutation {
+    updateChatProfile(profileId: String!, email: String, firstname: String, lastname: String): Boolean @doc(description:"Sends chat profile data to Engagement Cloud.") @resolver(class: "Dotdigitalgroup\\ChatGraphQl\\Model\\Resolver\\UpdateChatProfile")
+}
+
+type ChatData {
+    is_enabled: Boolean @doc(description: "Is chat enabled")
+    api_space_id: String @doc(description: "API space id")
+    cookie_name: String @doc(description: "Cookie name")
+}

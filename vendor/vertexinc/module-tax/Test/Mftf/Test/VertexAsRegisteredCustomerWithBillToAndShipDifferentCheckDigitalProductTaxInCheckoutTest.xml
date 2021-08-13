@@ -21,12 +21,12 @@
         <before>
             <createData entity="_defaultCategory" stepKey="createCategory"/>
             <createData entity="VirtualProduct" stepKey="createVirtualProduct">
-                <field key="price">{{Vertex_100USD_PA_Only_Values.price}}</field>
+                <field key="price">{{Vertex_100USD_SantaMonica_Values.price}}</field>
                 <requiredEntity createDataKey="createCategory"/>
             </createData>
 
             <actionGroup ref="VertexCreateDownloadableProductActionGroup" stepKey="createDownloadableProduct">
-                <argument name="price" value="{{Vertex_100USD_PA_Only_Values.price}}" />
+                <argument name="price" value="{{Vertex_100USD_SantaMonica_Values.price}}" />
             </actionGroup>
             <createData entity="Vertex_Customer_WinstonJohn" stepKey="createCustomer"/>
         </before>
@@ -50,14 +50,14 @@
         <actionGroup ref="GoToCheckoutFromMinicartActionGroup" stepKey="gotoCheckout"/>
 
         <actionGroup ref="VertexCheckDigitalTotalsInCheckoutActionGroup" stepKey="checkTotals">
-            <argument name="subtotalExclTax" value="{{Vertex_100USD_Virtual_and_Downloadable_PA_Only_Totals.subtotal}}"/>
-            <argument name="subtotalInclTax" value="{{Vertex_100USD_Virtual_and_Downloadable_PA_Only_Totals.subtotalInclTax}}"/>
-            <argument name="tax" value="{{Vertex_100USD_Virtual_and_Downloadable_PA_Only_Totals.tax}}"/>
-            <argument name="totalExclTax" value="{{Vertex_100USD_Virtual_and_Downloadable_PA_Only_Totals.total}}"/>
-            <argument name="totalInclTax" value="{{Vertex_100USD_Virtual_and_Downloadable_PA_Only_Totals.totalInclTax}}"/>
+            <argument name="subtotalExclTax" value="{{Vertex_100USD_Virtual_and_Downloadable_SantaMonica_Totals.subtotal}}"/>
+            <argument name="subtotalInclTax" value="{{Vertex_100USD_Virtual_and_Downloadable_SantaMonica_Totals.subtotalInclTax}}"/>
+            <argument name="tax" value="{{Vertex_100USD_Virtual_and_Downloadable_SantaMonica_Totals.tax}}"/>
+            <argument name="totalExclTax" value="{{Vertex_100USD_Virtual_and_Downloadable_SantaMonica_Totals.total}}"/>
+            <argument name="totalInclTax" value="{{Vertex_100USD_Virtual_and_Downloadable_SantaMonica_Totals.totalInclTax}}"/>
         </actionGroup>
         <actionGroup ref="VertexCheckDigitalProductTaxTotalInCheckoutActionGroup" stepKey="checkTaxSummary">
-            <argument name="product" value="{{Vertex_100USD_Virtual_and_Downloadable_PA_Only_Totals.productTax}}"/>
+            <argument name="product" value="{{Vertex_100USD_Virtual_and_Downloadable_SantaMonica_Totals.productTax}}"/>
         </actionGroup>
         <actionGroup ref="StorefrontCustomerLogoutActionGroup" stepKey="customerLogout"/>
     </test>

@@ -14,7 +14,7 @@
 -->
 <tests xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
        xsi:noNamespaceSchemaLocation="urn:magento:mftf:Test/etc/testSchema.xsd">
-    <test name="PlacePayLaterOrderClearsCartUSTest">
+    <test name="PlaceOrderClearsCartTest">
         <annotations>
             <features value="Klarna Payments"/>
             <stories value="Placing an order removes all items from the cart"/>
@@ -22,21 +22,18 @@
             <description value="Successfully placing an order with Klarna Payments should remove all items from the cart"/>
             <severity value="CRITICAL"/>
             <testCaseId value="KP_PL_R_3"/>
-            <group value="Klarna_KP_Country_US"/>
             <group value="Klarna_KP_Order_Registered"/>
-            <group value="Klarna_KP_Order_Pay_Later"/>
+            <group value="Klarna_KP"/>
         </annotations>
         <before>
             <createData entity="SimpleTwo" stepKey="createSimpleProduct"/>
-            <createData entity="Klarna_US_Customer_B2C" stepKey="createCustomer"/>
         </before>
         <after>
             <deleteData createDataKey="createSimpleProduct" stepKey="deleteSimpleProduct"/>
-            <deleteData createDataKey="createCustomer" stepKey="deleteCustomer"/>
         </after>
         <!--Log in to store front as customer-->
         <actionGroup ref="LoginToStorefrontActionGroup" stepKey="customerLogin">
-            <argument name="Customer" value="$$createCustomer$$" />
+            <argument name="Customer" value="$$marketDefaultCustomerInstance$$" />
         </actionGroup>
 
         <!--Go to product page-->
@@ -59,8 +56,8 @@
         <click selector="{{CheckoutShippingMethodsSection.next}}" stepKey="clickNextOnShippingMethodLoad"/>
 
         <!--Place order-->
-        <actionGroup ref="PlaceOrderWithKlarnaPaymentsMethod" stepKey="placeOrderWithKlarnaPayLaterMethod">
-            <argument name="paymentMethod" value="KlarnaPaymentsPayLater"/>
+        <actionGroup ref="PlaceOrderWithKlarnaPaymentsMethod" stepKey="placeOrderWithKlarnaMethod">
+            <argument name="customer" value="$$marketDefaultCustomerInstance$$"/>
         </actionGroup>
 
         <!--Try to go to checkout again-->

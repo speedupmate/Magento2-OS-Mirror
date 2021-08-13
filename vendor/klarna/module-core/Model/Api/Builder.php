@@ -525,7 +525,7 @@ abstract class Builder extends DataObject implements BuilderInterface
         $b2bEnabled = $this->configHelper->isPaymentConfigFlag('enable_b2b', $store);
         $isBillingAddress = $address->getAddressType() === Address::TYPE_BILLING;
 
-        return !$b2bEnabled && $isBillingAddress;
+        return !$b2bEnabled && ($isBillingAddress || !$quote->getIsVirtual());
     }
 
     /**

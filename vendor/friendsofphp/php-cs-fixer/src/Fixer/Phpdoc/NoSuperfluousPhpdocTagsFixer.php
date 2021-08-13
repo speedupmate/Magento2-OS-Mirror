@@ -93,7 +93,7 @@ class Foo {
      * {@inheritdoc}
      *
      * Must run before NoEmptyPhpdocFixer, PhpdocAlignFixer, VoidReturnFixer.
-     * Must run after CommentToPhpdocFixer, FullyQualifiedStrictTypesFixer, PhpdocAddMissingParamAnnotationFixer, PhpdocIndentFixer, PhpdocReturnSelfReferenceFixer, PhpdocScalarFixer, PhpdocToCommentFixer, PhpdocToParamTypeFixer, PhpdocToReturnTypeFixer, PhpdocTypesFixer.
+     * Must run after AlignMultilineCommentFixer, CommentToPhpdocFixer, FullyQualifiedStrictTypesFixer, PhpdocAddMissingParamAnnotationFixer, PhpdocIndentFixer, PhpdocReturnSelfReferenceFixer, PhpdocScalarFixer, PhpdocToCommentFixer, PhpdocToParamTypeFixer, PhpdocToReturnTypeFixer, PhpdocTypesFixer.
      */
     public function getPriority()
     {
@@ -232,11 +232,11 @@ class Foo {
         );
 
         foreach ($docBlock->getAnnotationsOfType('param') as $annotation) {
-            if (0 === Preg::match('/@param(?:\s+[^\$]\S+)?\s+(\$\S+)/', $annotation->getContent(), $matches)) {
+            $argumentName = $annotation->getVariableName();
+
+            if (null === $argumentName) {
                 continue;
             }
-
-            $argumentName = $matches[1];
 
             if (!isset($argumentsInfo[$argumentName]) && $this->configuration['allow_unused_params']) {
                 continue;
@@ -372,7 +372,7 @@ class Foo {
         }
 
         $type = '';
-        while ($tokens[$index]->isGivenKind([T_NS_SEPARATOR, T_STRING, CT::T_ARRAY_TYPEHINT, T_CALLABLE])) {
+        while ($tokens[$index]->isGivenKind([T_NS_SEPARATOR, T_STATIC, T_STRING, CT::T_ARRAY_TYPEHINT, T_CALLABLE])) {
             $type .= $tokens[$index]->getContent();
 
             $index = $tokens->getNextMeaningfulToken($index);

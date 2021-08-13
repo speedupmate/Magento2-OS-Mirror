@@ -1,0 +1,65 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!--
+ /**
+  * Copyright © Magento, Inc. All rights reserved.
+  * See COPYING.txt for license details.
+  *
+  * This file is part of the Klarna KP module
+  *
+  * (c) Klarna Bank AB (publ)
+  *
+  * For the full copyright and license information, please view the NOTICE
+  * and LICENSE files that were distributed with this source code.
+  */
+-->
+<suites xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+        xsi:noNamespaceSchemaLocation="urn:magento:mftf:Suite/etc/suiteSchema.xsd">
+    <suite name="KlarnaPaymentsDE_Commerce">
+        <before>
+            <createData entity="Klarna_DE_Customer_B2C" stepKey="marketDefaultCustomerInstance"/>
+            <createData entity="Klarna_DE_Customer_B2B" stepKey="marketDefaultCustomerB2bInstance"/>
+            <createData entity="DE_Rate_1" stepKey="createdTaxRate"/>
+            <createData entity="DE_Rate_2" stepKey="taxRateTwo"/>
+
+            <actionGroup ref="AdminLoginActionGroup" stepKey="loginAsAdmin"/>
+            <actionGroup ref="AdminCreateTaxRuleActionGroup" stepKey="createTaxRule">
+                <argument name="taxRule" value="SimpleTaxRule"/>
+                <argument name="taxRate" value="$$createdTaxRate$$"/>
+            </actionGroup>
+
+            <actionGroup ref="ConfigureForMarketActionGroup" stepKey="configureForMarket">
+                <argument name="country" value="DE"/>
+                <argument name="currency" value="EUR"/>
+                <argument name="vat" value="1"/>
+                <argument name="price_display" value="1"/>
+                <argument name="tax_price_display" value="2"/>
+                <argument name="region" value="82"/>
+            </actionGroup>
+
+            <actionGroup ref="ConfigureKlarna" stepKey="kpConfigureCredentials">
+                <argument name="api_version" value="kp_eu"/>
+                <argument name="merchant_id" value="{{_CREDS.klarna/klarna_eu_merchant_id}}"/>
+                <argument name="shared_secret" value="{{_CREDS.klarna/klarna_eu_shared_secret}}"/>
+            </actionGroup>
+            <actionGroup ref="AdminLogoutActionGroup" stepKey="signOutFromAdmin"/>
+        </before>
+        <after>
+            <deleteData createDataKey="marketDefaultCustomerInstance" stepKey="deleteCustomer"/>
+            <deleteData createDataKey="marketDefaultCustomerB2bInstance" stepKey="deleteCustomerB2b"/>
+
+            <actionGroup ref="AdminLoginActionGroup" stepKey="loginAsAdmin"/>
+            <actionGroup ref="AdminDeleteTaxRule" stepKey="deleteTaxRule">
+                <argument name="taxRuleCode" value="{{SimpleTaxRule.code}}"/>
+            </actionGroup>
+            <deleteData stepKey="deleteTaxRate" createDataKey="createdTaxRate"/>
+            <deleteData stepKey="deleteTaxRateTwo" createDataKey="taxRateTwo"/>
+            <actionGroup ref="ConfigureForMarketActionGroup" stepKey="ConfigureForMarket"/>
+
+            <actionGroup ref="DisableKlarnaPayment" stepKey="disableKlarnaPayment"/>
+            <actionGroup ref="AdminLogoutActionGroup" stepKey="signOutFromAdmin"/>
+        </after>
+        <include>
+            <group name="Klarna_KP"/>
+        </include>
+    </suite>
+</suites>

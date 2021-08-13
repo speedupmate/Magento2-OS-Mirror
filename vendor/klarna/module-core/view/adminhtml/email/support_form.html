@@ -1,0 +1,22 @@
+<!--@subject New request from {{trans "%merchant_name" merchant_name=$contact_name}}, {{trans "%api_key" api_key=$api_key}} @-->
+
+This email was created automatically using Magento Support form.
+
+<b><h2>General information:</h2></b>
+<b>Contact name:</b> {{var contact_name}}<br/>
+<b>Email:</b> {{var contact_email}}<br/>
+<b>Shop url:</b> {{var shop_url}}<br/>
+<b>Magento version:</b> {{var shop_version}}<br/>
+<b>PHP Version:</b> {{var php_version}}<br/>
+<br/>
+<b>Impacted products:</b><br/>
+{{var products|nl2br}}<br/>
+<br/>
+<b>Module versions:</b><br/>
+{{var module_versions|nl2br}}
+
+<b><h2>Description:</h2></b>
+{{var issue|nl2br}}
+
+<b><h2>Steps to reproduce:</h2></b>
+{{var replication_steps|nl2br}}

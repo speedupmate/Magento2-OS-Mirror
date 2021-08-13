@@ -123,6 +123,7 @@ class ConfigBuilder
      */
     private function ensureWsdlQuery(string $url): string
     {
+        // phpcs:ignore Magento2.Functions.DiscouragedFunction.Discouraged
         $urlParts = parse_url($url);
         $query = $urlParts['query'] ?? null;
         $wsdlFound = false;

@@ -2,14 +2,15 @@
 
 namespace Yandex\Allure\Adapter\Model;
 
+use PHPUnit\Framework\TestCase;
 use Yandex\Allure\Adapter\AllureException;
 use Yandex\Allure\Adapter\Model\Fixtures\TestConstants;
 
-class ConstantCheckerTest extends \PHPUnit_Framework_TestCase
+class ConstantCheckerTest extends TestCase
 {
-    const CLASS_NAME = 'Yandex\Allure\Adapter\Model\Fixtures\TestConstants';
+    private const CLASS_NAME = 'Yandex\Allure\Adapter\Model\Fixtures\TestConstants';
 
-    public function testConstantIsPresent()
+    public function testConstantIsPresent(): void
     {
         $this->assertEquals(
             TestConstants::TEST_CONSTANT,
@@ -17,11 +18,9 @@ class ConstantCheckerTest extends \PHPUnit_Framework_TestCase
         );
     }
 
-    /**
-     * @expectedException \Yandex\Allure\Adapter\AllureException
-     */
-    public function testConstantIsMissing()
+    public function testConstantIsMissing(): void
     {
+        $this->expectException(AllureException::class);
         ConstantChecker::validate(self::CLASS_NAME, 'missing-value');
     }
 }

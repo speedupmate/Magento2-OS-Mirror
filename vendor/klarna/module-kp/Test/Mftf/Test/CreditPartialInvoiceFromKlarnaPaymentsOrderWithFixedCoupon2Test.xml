@@ -22,10 +22,9 @@
             <description value="A merchant can partially credit/refund a Klarna Payments order with two of the same product and a fixed coupon"/>
             <severity value="CRITICAL"/>
             <testCaseId value="KP_CM_8"/>
-            <group value="Klarna_KP_Country_US"/>
             <group value="Klarna_KP_Order_Guest"/>
-            <group value="Klarna_KP_Order_Pay_Later"/>
             <group value="Klarna_KP_Order_Credit"/>
+            <group value="Klarna_KP"/>
         </annotations>
         <before>
             <actionGroup ref="AdminCreateCartPriceRuleWithCouponCodeActionGroup" stepKey="createCartPriceRule">
@@ -55,11 +54,6 @@
 
         <!--Fill in and submit credit memo - It credits a quantity of 1 by default-->
         <actionGroup ref="CreateAndSubmitCreditMemoActionGroup" stepKey="createAndSubmitCreditMemo"/>
-
-        <!--Assert successful credit memo creation-->
-        <actionGroup ref="AssertSuccessfulCreditMemoCreationAndAmountsActionGroup" stepKey="assertSuccessfulCreditMemoCreation">
-            <argument name="expectedGrandTotal" value="$11.46"/>
-            <argument name="expectedRefundTotal" value="$5.73"/>
-        </actionGroup>
+        <see selector="{{AdminIndexManagementSection.successMessage}}" userInput="You created the credit memo." stepKey="assertCreditMemo"/>
     </test>
 </tests>

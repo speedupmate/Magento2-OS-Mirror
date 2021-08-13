@@ -129,7 +129,13 @@ class Authorize implements CommandInterface
         /** @var RequestInterface $data */
         $data = $this->builder->setObject($quote)->generateRequest(Builder::GENERATE_TYPE_PLACE)->getRequest();
         $authorizationToken = $klarnaQuote->getAuthorizationToken();
-        $result = $this->getKpApi()->placeOrder($authorizationToken, $data, $klarnaQuote->getSessionId());
+
+        $result = $this->getKpApi()->placeOrder(
+            $authorizationToken,
+            $data,
+            $klarnaQuote->getSessionId(),
+            $order->getIncrementId()
+        );
         $this->checkoutSession->setRedirectUrl($result->getRedirectUrl());
 
         if (!$result->isSuccessfull()) {

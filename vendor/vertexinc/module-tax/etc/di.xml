@@ -408,4 +408,16 @@
             </argument>
         </arguments>
     </type>
+    <type name="Magento\Framework\Console\CommandListInterface">
+        <arguments>
+            <argument name="commands" xsi:type="array">
+                <item name="vertex_wsdl_cache" xsi:type="object">Vertex\Tax\Console\Command\ExecuteWsdlCache</item>
+            </argument>
+        </arguments>
+    </type>
+    <type name="Vertex\Tax\Console\Command\ExecuteWsdlCache">
+        <arguments>
+            <argument name="wsdlCache" xsi:type="object">Vertex\Tax\Model\WsdlCache\Proxy</argument>
+        </arguments>
+    </type>
 </config>

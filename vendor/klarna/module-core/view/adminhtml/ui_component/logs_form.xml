@@ -1,0 +1,125 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!--
+/**
+ * This file is part of the Klarna Core module
+ *
+ * (c) Klarna Bank AB (publ)
+ *
+ * For the full copyright and license information, please view the NOTICE
+ * and LICENSE files that were distributed with this source code.
+ */
+-->
+<form xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+      xsi:noNamespaceSchemaLocation="urn:magento:module:Magento_Ui:etc/ui_configuration.xsd">
+    <argument name="data" xsi:type="array">
+        <item name="js_config" xsi:type="array">
+            <item name="provider" xsi:type="string">logs_form.logs_form_data_source</item>
+        </item>
+        <item name="label" xsi:type="string" translate="true">Log Details</item>
+        <item name="template" xsi:type="string">templates/form/collapsible</item>
+    </argument>
+
+    <!-- Settings block -->
+    <settings>
+        <namespace>logs_form</namespace>
+        <dataScope>data</dataScope>
+        <deps>
+            <dep>logs_form.logs_form_data_source</dep>
+        </deps>
+        <buttons>
+            <button name="back" class="Klarna\Core\Block\Adminhtml\View\BackButton"/>
+        </buttons>
+    </settings>
+
+    <!-- DataSource block -->
+    <dataSource name="logs_form_data_source">
+        <argument name="data" xsi:type="array">
+            <item name="js_config" xsi:type="array">
+                <item name="component" xsi:type="string">Magento_Ui/js/form/provider</item>
+            </item>
+        </argument>
+        <dataProvider class="Klarna\Core\Ui\DataProvider\Logs" name="logs_form_data_source">
+            <settings>
+                <requestFieldName>log_id</requestFieldName>
+                <primaryFieldName>log_id</primaryFieldName>
+            </settings>
+        </dataProvider>
+    </dataSource>
+
+    <!-- Fields block -->
+    <fieldset name="log">
+        <settings>
+            <label translate="true">Log Details</label>
+            <collapsible>false</collapsible>
+        </settings>
+        <field name="log_id" formElement="input">
+            <settings>
+                <dataType>text</dataType>
+                <visible>false</visible>
+            </settings>
+            <argument name="data" xsi:type="array">
+                <item name="config" xsi:type="array">
+                    <item name="source" xsi:type="string">log</item>
+                </item>
+            </argument>
+        </field>
+        <field name="status" formElement="input">
+            <settings>
+                <elementTmpl>ui/form/element/text</elementTmpl>
+                <label translate="true">Status</label>
+            </settings>
+        </field>
+        <field name="action" formElement="input">
+            <settings>
+                <elementTmpl>ui/form/element/text</elementTmpl>
+                <label translate="true">Action</label>
+            </settings>
+        </field>
+        <field name="klarna_id" formElement="input">
+            <settings>
+                <elementTmpl>ui/form/element/text</elementTmpl>
+                <label translate="true">Klarna ID</label>
+                <notice translate="true">
+                    Based on the context it can be the Klarna session or Klarna order ID.
+                </notice>
+            </settings>
+        </field>
+        <field name="url" formElement="input">
+            <settings>
+                <elementTmpl>ui/form/element/text</elementTmpl>
+                <label translate="true">Url</label>
+            </settings>
+        </field>
+        <field name="method" formElement="input">
+            <settings>
+                <elementTmpl>ui/form/element/text</elementTmpl>
+                <label translate="true">Method</label>
+            </settings>
+        </field>
+        <field name="service" formElement="input">
+            <settings>
+                <elementTmpl>ui/form/element/text</elementTmpl>
+                <label translate="true">Service</label>
+            </settings>
+        </field>
+        <field name="created_at" formElement="input">
+            <settings>
+                <elementTmpl>ui/form/element/text</elementTmpl>
+                <label translate="true">Created at</label>
+            </settings>
+        </field>
+        <field name="request" formElement="input" component="Klarna_Core/js/form/element/pre">
+            <settings>
+                <elementTmpl>Klarna_Core/form/element/pre</elementTmpl>
+                <label translate="true">Request</label>
+            </settings>
+        </field>
+        <field name="response" formElement="input" component="Klarna_Core/js/form/element/pre">
+            <settings>
+                <elementTmpl>Klarna_Core/form/element/pre</elementTmpl>
+                <label translate="true">Response</label>
+            </settings>
+        </field>
+    </fieldset>
+
+</form>

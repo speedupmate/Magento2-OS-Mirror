@@ -15,7 +15,8 @@ Example #1
 
    --- Original
    +++ New
-   @@ -3,16 +3,16 @@
+    <?php
+    class Foo extends Bar
     {
         public function baz1()
         {
@@ -43,7 +44,6 @@ Example #2
 
    --- Original
    +++ New
-   @@ -1,8 +1,8 @@
     <?php
     class Foo extends Bar
     {
@@ -58,6 +58,9 @@ Rule sets
 ---------
 
 The rule is part of the following rule sets:
+
+@PSR12
+  Using the `@PSR12 <./../../ruleSets/PSR12.rst>`_ rule set will enable the ``lowercase_static_reference`` rule.
 
 @PhpCsFixer
   Using the `@PhpCsFixer <./../../ruleSets/PhpCsFixer.rst>`_ rule set will enable the ``lowercase_static_reference`` rule.

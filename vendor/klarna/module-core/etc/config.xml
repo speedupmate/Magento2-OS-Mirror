@@ -18,6 +18,8 @@
                 <api_version>na</api_version>
                 <test_mode>1</test_mode>
                 <debug>1</debug>
+                <request_logging>1</request_logging>
+                <delete_request_logs_after>90</delete_request_logs_after>
             </api>
         </klarna>
     </default>

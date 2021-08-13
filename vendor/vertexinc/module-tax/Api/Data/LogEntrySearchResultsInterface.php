@@ -12,6 +12,8 @@ use Magento\Framework\Api\SearchResultsInterface;
  * Data model representing a result from a search against the Vertex API Log
  *
  * @api
+ * @deprecated 4.2.1 Replaced by vertexinc/module-request-logging-api
+ * @see \Vertex\RequestLoggingApi\Api\Data\LogEntrySearchResultsInterface
  */
 interface LogEntrySearchResultsInterface extends SearchResultsInterface
 {

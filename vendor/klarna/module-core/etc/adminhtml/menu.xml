@@ -1,0 +1,31 @@
+<?xml version="1.0"?>
+<config xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="urn:magento:module:Magento_Backend:etc/menu.xsd">
+    <menu>
+        <add id="Klarna_Core::tools"
+             title="Klarna"
+             translate="title"
+             module="Klarna_Core"
+             sortOrder="110" parent="Magento_Backend::system"
+             dependsOnModule="Klarna_Core"
+             resource="Klarna_Core::tools"
+        />
+        <add id="Klarna_Core::logs"
+             title="Logging"
+             translate="title"
+             module="Klarna_Core"
+             sortOrder="10"
+             parent="Klarna_Core::tools"
+             action="klarna/index/logs"
+             resource="Klarna_Core::logs"
+        />
+        <add id="Klarna_Core::support"
+             title="Support"
+             translate="title"
+             module="Klarna_Core"
+             sortOrder="20"
+             parent="Klarna_Core::tools"
+             action="klarna/index/support/form/new"
+             resource="Klarna_Core::support"
+        />
+    </menu>
+</config>

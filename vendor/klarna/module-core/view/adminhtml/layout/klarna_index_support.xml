@@ -1,0 +1,22 @@
+<?xml version="1.0"?>
+<!--
+/**
+ * This file is part of the Klarna Core module
+ *
+ * (c) Klarna Bank AB (publ)
+ *
+ * For the full copyright and license information, please view the NOTICE
+ * and LICENSE files that were distributed with this source code.
+ */
+-->
+<page xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" layout="admin-2columns-left"
+      xsi:noNamespaceSchemaLocation="urn:magento:framework:View/Layout/etc/page_configuration.xsd">
+    <head>
+        <title>Klarna Support</title>
+    </head>
+    <body>
+        <referenceBlock name="content">
+            <uiComponent name="support_form"/>
+        </referenceBlock>
+    </body>
+</page>

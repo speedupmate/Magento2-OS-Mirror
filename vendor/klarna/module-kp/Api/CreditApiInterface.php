@@ -38,10 +38,16 @@ interface CreditApiInterface
     /**
      * @param string           $authorizationToken
      * @param RequestInterface $request
-     * @param null             $klarnaId
+     * @param null|string      $klarnaId
+     * @param null|string      $incrementId
      * @return ResponseInterface
      */
-    public function placeOrder($authorizationToken, RequestInterface $request, $klarnaId = null);
+    public function placeOrder(
+        $authorizationToken,
+        RequestInterface $request,
+        $klarnaId = null,
+        string $incrementId = null
+    );
 
     /**
      * @param string $authorizationToken

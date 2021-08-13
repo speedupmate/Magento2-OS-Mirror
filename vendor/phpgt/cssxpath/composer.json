@@ -1,0 +1,36 @@
+{
+	"name": "phpgt/cssxpath",
+	"description": "Convert CSS selectors to XPath queries.",
+	"type": "library",
+
+	"require": {
+		"php": ">=7.2"
+	},
+
+	"require-dev": {
+		"phpunit/phpunit": "^8.0",
+		"phpgt/dom": "*"
+	},
+
+	"license": "MIT",
+
+	"autoload": {
+		"psr-4": {
+			"Gt\\CssXPath\\": "./src"
+		}
+	},
+	"autoload-dev": {
+		"psr-4": {
+			"Gt\\CssXPath\\Test\\": "./test/unit"
+		}
+	},
+	
+	"authors": [
+		{
+			"name": "Greg Bowler",
+			"homepage": "https://www.g105b.com",
+			"email": "greg.bowler@g105b.com",
+			"role": "Developer"
+		}
+	]
+}

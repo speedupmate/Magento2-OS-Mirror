@@ -55,16 +55,6 @@ final class FixerFactory
         $this->nameValidator = new FixerNameValidator();
     }
 
-    /**
-     * Create instance.
-     *
-     * @return FixerFactory
-     */
-    public static function create()
-    {
-        return new self();
-    }
-
     public function setWhitespacesConfig(WhitespacesFixerConfig $config)
     {
         foreach ($this->fixers as $fixer) {
@@ -220,6 +210,7 @@ final class FixerFactory
     {
         static $conflictMap = [
             'no_blank_lines_before_namespace' => ['single_blank_line_before_namespace'],
+            'single_import_per_statement' => ['group_import'],
         ];
 
         $fixerName = $fixer->getName();

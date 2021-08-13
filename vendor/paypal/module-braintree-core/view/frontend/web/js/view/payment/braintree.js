@@ -45,14 +45,12 @@ define(
             }
         );
 
-        if (config[braintreeAchDirectDebit].isActive) {
-            rendererList.push(
-                {
-                    type: braintreeAchDirectDebit,
-                    component: 'PayPal_Braintree/js/view/payment/method-renderer/ach'
-                }
-            );
-        }
+        rendererList.push(
+            {
+                type: braintreeAchDirectDebit,
+                component: 'PayPal_Braintree/js/view/payment/method-renderer/ach'
+            }
+        );
 
         rendererList.push(
             {

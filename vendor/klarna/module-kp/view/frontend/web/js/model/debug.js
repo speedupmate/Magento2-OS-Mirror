@@ -7,34 +7,23 @@
  * and LICENSE files that were distributed with this source code.
  */
 define(
-  [
-    'Klarna_Kp/js/model/config'
-  ],
-  function (config) {
-    'use strict';
-    return {
-      log: function (message) {
-        if (config.debug) {
-          console.trace();
-          console.log(message);
-        }
-      },
-      group: function (groupid) {
-        if (config.debug) {
-          console.group(groupid);
-        }
-      },
-      groupEnd: function () {
-        if (config.debug) {
-          console.groupEnd();
-        }
-      },
-      table: function (tabularData, properties) {
-        if (config.debug) {
-          console.trace();
-          console.table(tabularData, properties);
-        }
-      }
-    };
-  }
+    [
+        'Klarna_Kp/js/model/config'
+    ],
+    function (config) {
+        'use strict';
+
+        return {
+            /**
+             * Logging the message
+             * @param {String} message
+             */
+            log: function (message) {
+                if (config.debug) {
+                    console.trace();
+                    console.log(message);
+                }
+            }
+        };
+    }
 );

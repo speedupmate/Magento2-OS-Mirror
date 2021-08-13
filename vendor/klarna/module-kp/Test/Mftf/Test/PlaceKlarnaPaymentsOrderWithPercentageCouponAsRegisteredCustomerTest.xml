@@ -22,12 +22,11 @@
             <description value="It should be possible to successfully place an order with Klarna Payments as registered customer with a percentage coupon"/>
             <severity value="CRITICAL"/>
             <testCaseId value="KP_C_R_3"/>
-            <group value="Klarna_KP_Country_US"/>
             <group value="Klarna_KP_Order_Registered"/>
+            <group value="Klarna_KP"/>
         </annotations>
         <before>
             <createData entity="SimpleTwo" stepKey="createSimpleProduct"/>
-            <createData entity="Klarna_US_Customer_B2C" stepKey="createCustomer"/>
             <actionGroup ref="AdminLoginActionGroup" stepKey="loginAsAdmin"/>
             <actionGroup ref="ConfigurePercentageCoupon" stepKey="configurePercentageCoupon">
                 <argument name="ruleName" value="CatPriceRule"/>
@@ -36,7 +35,6 @@
         </before>
         <after>
             <deleteData createDataKey="createSimpleProduct" stepKey="deleteSimpleProduct"/>
-            <deleteData createDataKey="createCustomer" stepKey="deleteCustomer"/>
             <actionGroup ref="DeleteCartPriceRuleByName" stepKey="deleteCartPriceRule">
                 <argument name="ruleName" value="{{CatPriceRule.name}}"/>
             </actionGroup>
@@ -44,7 +42,7 @@
         </after>
         <!--Log in to store front as customer-->
         <actionGroup ref="LoginToStorefrontActionGroup" stepKey="customerLogin">
-            <argument name="Customer" value="$$createCustomer$$" />
+            <argument name="Customer" value="$$marketDefaultCustomerInstance$$" />
         </actionGroup>
 
         <!--Go to product page-->
@@ -68,13 +66,9 @@
         <waitForElement selector="{{CheckoutShippingMethodsSection.next}}" time="30" stepKey="waitForShippingMethodSelect"/>
         <click selector="{{CheckoutShippingMethodsSection.next}}" stepKey="clickNextOnShippingMethodLoad"/>
 
-        <!--Grab order total amount-->
-        <waitForElementVisible selector="{{CheckoutPaymentSection.orderSummaryTotal}}" stepKey="waitForOrderTotal"/>
-        <grabTextFrom selector="{{CheckoutPaymentSection.orderSummaryTotal}}" stepKey="grabTotalAmount"/>
-
         <!--Place order-->
-        <actionGroup ref="PlaceOrderWithKlarnaPaymentsMethod" stepKey="placeOrderWithKlarnaPayLaterMethod">
-            <argument name="paymentMethod" value="KlarnaPaymentsPayLater"/>
+        <actionGroup ref="PlaceOrderWithKlarnaPaymentsMethod" stepKey="placeOrderWithKlarnaMethod">
+            <argument name="customer" value="$$marketDefaultCustomerInstance$$"/>
         </actionGroup>
 
         <!--Grab order number-->
@@ -84,9 +78,6 @@
         <!--Verify order summary in admin-->
         <actionGroup ref="OpenOrderByIdActionGroup" stepKey="goToOrderPage">
             <argument name="orderId" value="{$grabOrderNumber}"/>
-        </actionGroup>
-        <actionGroup ref="ValidateAdminKlarnaOrderSummaryGrandTotal" stepKey="validateGrandTotal">
-            <argument name="grandTotalAmount" value="{$grabTotalAmount}"/>
         </actionGroup>
     </test>
 </tests>

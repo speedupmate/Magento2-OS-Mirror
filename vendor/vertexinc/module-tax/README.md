@@ -158,7 +158,7 @@ The path of the Test/Mftf folder within Vertex must be specified in the MFTF env
 
 For example: (where `/var/www/example.org` is the root of a Magento 2 installation)
 
-> `/var/www/example.org/vendor/vertex/module-tax/Test/Mftf`
+> `/var/www/example.org/vendor/vertexinc/module-tax/Test/Mftf`
 
 Once configuration is complete, the tests may be run as specified in [Step 7 of the MFTF Getting Started notes](https://devdocs.magento.com/mftf/docs/getting-started.html#step-7-run-a-simple-test).
 

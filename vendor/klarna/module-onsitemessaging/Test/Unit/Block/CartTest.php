@@ -62,18 +62,6 @@ class CartTest extends TestCase
     }
 
     /**
-     * @covers ::getPlacementId
-     */
-    public function testGetPlacementId(): void
-    {
-        $this->dependencyMocks['_scopeConfig']
-            ->method('getValue')
-            ->willReturn('SOME-ID');
-
-        $this->assertEquals('SOME-ID', $this->model->getPlacementId());
-    }
-
-    /**
      * @covers ::getTheme
      */
     public function testGetTheme(): void
@@ -86,14 +74,26 @@ class CartTest extends TestCase
     }
 
     /**
+     * @covers ::getPlacementId
+     */
+    public function testGetPlacementId(): void
+    {
+        $this->dependencyMocks['_scopeConfig']
+            ->method('getValue')
+            ->willReturn('SOME-ID');
+
+        $this->assertEquals('SOME-ID', $this->model->getPlacementId());
+    }
+
+    /**
      * @covers ::getPurchaseAmount
      */
     public function testGetPurchaseAmount(): void
     {
         $quoteMock = $this->getMockBuilder(\Magento\Quote\Model\Quote::class)
-                          ->setMethods(['getGrandTotal'])
-                          ->disableOriginalConstructor()
-                          ->getMock();
+            ->setMethods(['getGrandTotal'])
+            ->disableOriginalConstructor()
+            ->getMock();
         $this->dependencyMocks['session']
             ->method('getQuote')
             ->willReturn($quoteMock);
@@ -128,8 +128,8 @@ class CartTest extends TestCase
             ['getValue', 'isSetFlag']
         );
         $context       = $mockFactory->create(Context::class, ['getScopeConfig', 'getStoreManager']);
-        $context->method('getScopeConfig')->willReturn($scopeConfig);
         $context->method('getStoreManager')->willReturn($storeManager);
+        $context->method('getScopeConfig')->willReturn($scopeConfig);
         $this->model                           = $objectFactory->create(
             Cart::class,
             [
@@ -140,8 +140,8 @@ class CartTest extends TestCase
             ]
         );
         $this->dependencyMocks                  = $objectFactory->getDependencyMocks();
-        $this->dependencyMocks['_scopeConfig']  = $scopeConfig;
         $this->dependencyMocks['_storeManager'] = $storeManager;
+        $this->dependencyMocks['_scopeConfig']  = $scopeConfig;
         $this->dependencyMocks['_storeManager']->method('getStore')->willReturn('base');
     }
 }

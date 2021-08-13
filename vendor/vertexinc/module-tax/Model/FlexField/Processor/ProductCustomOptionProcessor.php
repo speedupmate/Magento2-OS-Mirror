@@ -34,7 +34,9 @@ use Vertex\Tax\Model\Repository\CustomOptionFlexibleFieldRepository;
 /**
  * Flexible Field Processor to retrieve the values of Product Custom Options
  */
-class ProductCustomOptionProcessor implements InvoiceFlexFieldProcessorInterface, TaxCalculationFlexFieldProcessorInterface
+class ProductCustomOptionProcessor implements
+    InvoiceFlexFieldProcessorInterface,
+    TaxCalculationFlexFieldProcessorInterface
 {
     /** @var FlexFieldProcessableAttributeFactory */
     private $attributeFactory;

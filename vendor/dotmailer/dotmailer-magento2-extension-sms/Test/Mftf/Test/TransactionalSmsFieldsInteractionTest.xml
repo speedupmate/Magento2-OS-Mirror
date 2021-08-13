@@ -9,7 +9,7 @@
             <description value="Check that SMS character counting and unicode detectio work as expected."/>
             <severity value="MINOR"/>
             <group value="FS/mftf-130088"/>
-            <group value="dotmailer"/>
+            <group value="dotdigitalSms"/>
         </annotations>
 
         <before>
