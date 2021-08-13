@@ -41,6 +41,7 @@ class EnvVarProcessor implements EnvVarProcessorInterface
         return [
             'base64' => 'string',
             'bool' => 'bool',
+            'not' => 'bool',
             'const' => 'bool|int|float|string|array',
             'csv' => 'array',
             'file' => 'string',
@@ -191,8 +192,10 @@ class EnvVarProcessor implements EnvVarProcessorInterface
             return (string) $env;
         }
 
-        if ('bool' === $prefix) {
-            return (bool) (filter_var($env, \FILTER_VALIDATE_BOOLEAN) ?: filter_var($env, \FILTER_VALIDATE_INT) ?: filter_var($env, \FILTER_VALIDATE_FLOAT));
+        if (in_array($prefix, ['bool', 'not'], true)) {
+            $env = (bool) (filter_var($env, \FILTER_VALIDATE_BOOLEAN) ?: filter_var($env, \FILTER_VALIDATE_INT) ?: filter_var($env, \FILTER_VALIDATE_FLOAT));
+
+            return 'not' === $prefix ? !$env : $env;
         }
 
         if ('int' === $prefix) {
@@ -255,8 +258,10 @@ class EnvVarProcessor implements EnvVarProcessorInterface
                 'fragment' => null,
             ];
 
-            // remove the '/' separator
-            $parsedEnv['path'] = '/' === $parsedEnv['path'] ? null : substr($parsedEnv['path'], 1);
+            if (null !== $parsedEnv['path']) {
+                // remove the '/' separator
+                $parsedEnv['path'] = '/' === $parsedEnv['path'] ? null : substr($parsedEnv['path'], 1);
+            }
 
             return $parsedEnv;
         }

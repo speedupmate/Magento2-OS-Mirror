@@ -17,7 +17,7 @@ use Composer\IO\IOInterface;
 use Composer\Repository\InstalledRepositoryInterface;
 use Composer\Package\PackageInterface;
 use Composer\Util\Filesystem;
-use Composer\Installer\InstallationManager;
+use Composer\Util\Platform;
 use React\Promise\PromiseInterface;
 
 /**
@@ -75,6 +75,7 @@ class PluginInstaller extends LibraryInstaller
 
         return $promise->then(function () use ($self, $pluginManager, $package, $repo) {
             try {
+                Platform::workaroundFilesystemIssues();
                 $pluginManager->registerPackage($package, true);
             } catch (\Exception $e) {
                 $self->rollbackInstall($e, $repo, $package);
@@ -97,6 +98,7 @@ class PluginInstaller extends LibraryInstaller
 
         return $promise->then(function () use ($self, $pluginManager, $initial, $target, $repo) {
             try {
+                Platform::workaroundFilesystemIssues();
                 $pluginManager->deactivatePackage($initial, true);
                 $pluginManager->registerPackage($target, true);
             } catch (\Exception $e) {

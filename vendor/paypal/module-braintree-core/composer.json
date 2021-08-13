@@ -1,9 +1,9 @@
 {
     "name": "paypal/module-braintree-core",
     "description": "Fork from the Magento Braintree 2.2.0 module by Gene Commerce for PayPal.",
-    "version": "4.2.2",
     "type": "magento2-module",
     "license": "proprietary",
+    "version": "4.2.3-p1",
     "require": {
         "braintree/braintree_php": "5.2.0",
         "magento/module-customer": "101.0.*||102.0.*||^103.0.0",
@@ -23,10 +23,6 @@
         "ext-simplexml": "*",
         "league/iso3166": "^2.1"
     },
-    "conflict": {
-        "magento/module-braintree": "*",
-        "gene/module-braintree": "*"
-    },
     "autoload": {
         "files": [
             "registration.php"
@@ -34,5 +30,10 @@
         "psr-4": {
             "PayPal\\Braintree\\": ""
         }
+    },
+    "conflict": {
+        "magento/module-braintree": "*",
+        "gene/module-braintree": "*"
     }
 }
+

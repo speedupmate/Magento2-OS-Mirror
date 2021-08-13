@@ -17,13 +17,11 @@ use Composer\EventDispatcher\EventSubscriberInterface;
 use Composer\IO\IOInterface;
 use Composer\Package\CompletePackage;
 use Composer\Package\Package;
-use Composer\Package\RootPackage;
 use Composer\Package\Version\VersionParser;
 use Composer\Repository\RepositoryInterface;
 use Composer\Repository\InstalledRepository;
 use Composer\Repository\RootPackageRepository;
 use Composer\Package\PackageInterface;
-use Composer\Package\RootPackageInterface;
 use Composer\Package\Link;
 use Composer\Semver\Constraint\Constraint;
 use Composer\Plugin\Capability\Capability;
@@ -224,12 +222,13 @@ class PluginManager
             }
 
             if ($oldInstallerPlugin) {
+                $this->io->writeError('<warning>Loading "'.$package->getName() . '" '.($isGlobalPlugin ? '(installed globally) ' : '').'which is a legacy composer-installer built for Composer 1.x, it is likely to cause issues as you are running Composer 2.x.</warning>');
                 $installer = new $class($this->io, $this->composer);
                 $this->composer->getInstallationManager()->addInstaller($installer);
                 $this->registeredPlugins[$package->getName()] = $installer;
             } elseif (class_exists($class)) {
                 $plugin = new $class();
-                $this->addPlugin($plugin, $isGlobalPlugin);
+                $this->addPlugin($plugin, $isGlobalPlugin, $package);
                 $this->registeredPlugins[$package->getName()] = $plugin;
             } elseif ($failOnMissingClasses) {
                 throw new \UnexpectedValueException('Plugin '.$package->getName().' could not be initialized, class not found: '.$class);
@@ -319,11 +318,19 @@ class PluginManager
      * programmatically and want to register a plugin class directly this is a valid way
      * to do it.
      *
-     * @param PluginInterface $plugin plugin instance
+     * @param PluginInterface   $plugin        plugin instance
+     * @param ?PackageInterface $sourcePackage Package from which the plugin comes from
      */
-    public function addPlugin(PluginInterface $plugin, $isGlobalPlugin = false)
+    public function addPlugin(PluginInterface $plugin, $isGlobalPlugin = false, PackageInterface $sourcePackage = null)
     {
-        $this->io->writeError('Loading plugin '.get_class($plugin).($isGlobalPlugin ? ' (installed globally)' : ''), true, IOInterface::DEBUG);
+        $details = array();
+        if ($sourcePackage) {
+            $details[] = 'from '.$sourcePackage->getName();
+        }
+        if ($isGlobalPlugin) {
+            $details[] = 'installed globally';
+        }
+        $this->io->writeError('Loading plugin '.get_class($plugin).($details ? ' ('.implode(', ', $details).')' : ''), true, IOInterface::DEBUG);
         $this->plugins[] = $plugin;
         $plugin->activate($this->composer, $this->io);
 
@@ -464,15 +471,20 @@ class PluginManager
         ) {
             throw new \UnexpectedValueException('Plugin '.get_class($plugin).' provided invalid capability class name(s), got '.var_export($capabilities[$capability], 1));
         }
+
+        return null;
     }
 
     /**
-     * @param  PluginInterface $plugin
-     * @param  string          $capabilityClassName The fully qualified name of the API interface which the plugin may provide
-     *                                              an implementation of.
-     * @param  array           $ctorArgs            Arguments passed to Capability's constructor.
-     *                                              Keeping it an array will allow future values to be passed w\o changing the signature.
+     * @template CapabilityClass of Capability
+     * @param  PluginInterface               $plugin
+     * @param  class-string<CapabilityClass> $capabilityClassName The fully qualified name of the API interface which the plugin may provide
+     *                                                            an implementation of.
+     * @param  array                         $ctorArgs            Arguments passed to Capability's constructor.
+     *                                                            Keeping it an array will allow future values to be passed w\o changing the signature.
      * @return null|Capability
+     * @phpstan-param class-string<CapabilityClass> $capabilityClassName
+     * @phpstan-return null|CapabilityClass
      */
     public function getPluginCapability(PluginInterface $plugin, $capabilityClassName, array $ctorArgs = array())
     {
@@ -493,14 +505,17 @@ class PluginManager
 
             return $capabilityObj;
         }
+
+        return null;
     }
 
     /**
-     * @param  string       $capabilityClassName The fully qualified name of the API interface which the plugin may provide
-     *                                           an implementation of.
-     * @param  array        $ctorArgs            Arguments passed to Capability's constructor.
-     *                                           Keeping it an array will allow future values to be passed w\o changing the signature.
-     * @return Capability[]
+     * @template CapabilityClass of Capability
+     * @param  class-string<CapabilityClass> $capabilityClassName The fully qualified name of the API interface which the plugin may provide
+     *                                                            an implementation of.
+     * @param  array                         $ctorArgs            Arguments passed to Capability's constructor.
+     *                                                            Keeping it an array will allow future values to be passed w\o changing the signature.
+     * @return CapabilityClass[]
      */
     public function getPluginCapabilities($capabilityClassName, array $ctorArgs = array())
     {

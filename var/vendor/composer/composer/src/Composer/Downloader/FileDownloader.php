@@ -27,6 +27,7 @@ use Composer\Plugin\PostFileDownloadEvent;
 use Composer\Plugin\PreFileDownloadEvent;
 use Composer\EventDispatcher\EventDispatcher;
 use Composer\Util\Filesystem;
+use Composer\Util\Silencer;
 use Composer\Util\HttpDownloader;
 use Composer\Util\Url as UrlUtil;
 use Composer\Util\ProcessExecutor;
@@ -83,6 +84,7 @@ class FileDownloader implements DownloaderInterface, ChangeReportInterface
         $this->filesystem = $filesystem ?: new Filesystem($this->process);
 
         if ($this->cache && $this->cache->gcIsNecessary()) {
+            $this->io->writeError('Running cache garbage collection', true, IOInterface::VERY_VERBOSE);
             $this->cache->gc($config->get('cache-files-ttl'), $config->get('cache-files-maxsize'));
         }
     }
@@ -111,8 +113,10 @@ class FileDownloader implements DownloaderInterface, ChangeReportInterface
         };
 
         $retries = 3;
-        $urls = $package->getDistUrls();
-        foreach ($urls as $index => $url) {
+        $distUrls = $package->getDistUrls();
+        /** @var array<array{base: string, processed: string, cacheKey: string}> $urls */
+        $urls = array();
+        foreach ($distUrls as $index => $url) {
             $processedUrl = $this->processUrl($package, $url);
             $urls[$index] = array(
                 'base' => $url,
@@ -139,6 +143,7 @@ class FileDownloader implements DownloaderInterface, ChangeReportInterface
         $accept = null;
         $reject = null;
         $download = function () use ($io, $output, $httpDownloader, $cache, $cacheKeyGenerator, $eventDispatcher, $package, $fileName, &$urls, &$accept, &$reject) {
+            /** @var array{base: string, processed: string, cacheKey: string} $url */
             $url = reset($urls);
             $index = key($urls);
 
@@ -191,7 +196,7 @@ class FileDownloader implements DownloaderInterface, ChangeReportInterface
                 }
 
                 if ($eventDispatcher) {
-                    $postFileDownloadEvent = new PostFileDownloadEvent(PluginEvents::POST_FILE_DOWNLOAD, $fileName, $checksum, $url['processed'], $package);
+                    $postFileDownloadEvent = new PostFileDownloadEvent(PluginEvents::POST_FILE_DOWNLOAD, $fileName, $checksum, $url['processed'], 'package', $package);
                     $eventDispatcher->dispatch($postFileDownloadEvent->getName(), $postFileDownloadEvent);
                 }
 
@@ -221,6 +226,10 @@ class FileDownloader implements DownloaderInterface, ChangeReportInterface
             $self->clearLastCacheWrite($package);
 
             if ($e instanceof IrrecoverableDownloadException) {
+                throw $e;
+            }
+
+            if ($e instanceof MaxFileSizeExceededException) {
                 throw $e;
             }
 
@@ -270,6 +279,7 @@ class FileDownloader implements DownloaderInterface, ChangeReportInterface
      */
     public function prepare($type, PackageInterface $package, $path, PackageInterface $prevPackage = null)
     {
+        return \React\Promise\resolve();
     }
 
     /**
@@ -296,9 +306,11 @@ class FileDownloader implements DownloaderInterface, ChangeReportInterface
 
         foreach ($dirsToCleanUp as $dir) {
             if (is_dir($dir) && $this->filesystem->isDirEmpty($dir) && realpath($dir) !== getcwd()) {
-                $this->filesystem->removeDirectory($dir);
+                $this->filesystem->removeDirectoryPhp($dir);
             }
         }
+
+        return \React\Promise\resolve();
     }
 
     /**
@@ -313,6 +325,18 @@ class FileDownloader implements DownloaderInterface, ChangeReportInterface
         $this->filesystem->emptyDirectory($path);
         $this->filesystem->ensureDirectoryExists($path);
         $this->filesystem->rename($this->getFileName($package, $path), $path . '/' . pathinfo(parse_url($package->getDistUrl(), PHP_URL_PATH), PATHINFO_BASENAME));
+
+        if ($package->getBinaries()) {
+            // Single files can not have a mode set like files in archives
+            // so we make sure if the file is a binary that it is executable
+            foreach ($package->getBinaries() as $bin) {
+                if (file_exists($path . '/' . $bin) && !is_executable($path . '/' . $bin)) {
+                    Silencer::call('chmod', $path . '/' . $bin, 0777 & ~umask());
+                }
+            }
+        }
+
+        return \React\Promise\resolve();
     }
 
     /**
@@ -355,18 +379,17 @@ class FileDownloader implements DownloaderInterface, ChangeReportInterface
      */
     public function update(PackageInterface $initial, PackageInterface $target, $path)
     {
-        $this->io->writeError("  - " . UpdateOperation::format($initial, $target) . ": ", false);
+        $this->io->writeError("  - " . UpdateOperation::format($initial, $target) . $this->getInstallOperationAppendix($target, $path));
 
         $promise = $this->remove($initial, $path, false);
-        if ($promise === null || !$promise instanceof PromiseInterface) {
+        if (!$promise instanceof PromiseInterface) {
             $promise = \React\Promise\resolve();
         }
         $self = $this;
         $io = $this->io;
 
-        return $promise->then(function () use ($self, $target, $path, $io) {
+        return $promise->then(function () use ($self, $target, $path) {
             $promise = $self->install($target, $path, false);
-            $io->writeError('');
 
             return $promise;
         });
@@ -380,9 +403,13 @@ class FileDownloader implements DownloaderInterface, ChangeReportInterface
         if ($output) {
             $this->io->writeError("  - " . UninstallOperation::format($package));
         }
-        if (!$this->filesystem->removeDirectory($path)) {
-            throw new \RuntimeException('Could not completely delete '.$path.', aborting.');
-        }
+        $promise = $this->filesystem->removeDirectoryAsync($path);
+
+        return $promise->then(function ($result) use ($path) {
+            if (!$result) {
+                throw new \RuntimeException('Could not completely delete '.$path.', aborting.');
+            }
+        });
     }
 
     /**
@@ -395,6 +422,18 @@ class FileDownloader implements DownloaderInterface, ChangeReportInterface
     protected function getFileName(PackageInterface $package, $path)
     {
         return rtrim($this->config->get('vendor-dir').'/composer/tmp-'.md5($package.spl_object_hash($package)).'.'.pathinfo(parse_url($package->getDistUrl(), PHP_URL_PATH), PATHINFO_EXTENSION), '.');
+    }
+
+    /**
+     * Gets appendix message to add to the "- Upgrading x" string being output on update
+     *
+     * @param  PackageInterface $package package instance
+     * @param  string           $path    download path
+     * @return string
+     */
+    protected function getInstallOperationAppendix(PackageInterface $package, $path)
+    {
+        return '';
     }
 
     /**

@@ -27,6 +27,12 @@ class LoaderLoadException extends \Exception
      */
     public function __construct(string $resource, string $sourceResource = null, ?int $code = 0, \Throwable $previous = null, string $type = null)
     {
+        if (null === $code) {
+            trigger_deprecation('symfony/config', '5.3', 'Passing null as $code to "%s()" is deprecated, pass 0 instead.', __METHOD__);
+
+            $code = 0;
+        }
+
         $message = '';
         if ($previous) {
             // Include the previous exception, to help the user see what might be the underlying cause
@@ -64,7 +70,7 @@ class LoaderLoadException extends \Exception
         } elseif (null !== $type) {
             // maybe there is no loader for this specific type
             if ('annotation' === $type) {
-                $message .= ' Make sure annotations are installed and enabled.';
+                $message .= ' Make sure to use PHP 8+ or that annotations are installed and enabled.';
             } else {
                 $message .= sprintf(' Make sure there is a loader supporting the "%s" type.', $type);
             }

@@ -8,7 +8,10 @@
     "barcode"
   ],
   "homepage": "https://github.com/khanamiryan/php-qrcode-detector-decoder/",
-  "license": "MIT",
+  "license": [
+    "MIT",
+    "Apache-2.0"
+  ],
   "authors": [
     {
       "name": "Ashot Khanamiryan",
@@ -21,7 +24,7 @@
     "php": ">=5.6"
   },
   "require-dev": {
-    "phpunit/phpunit": "^9.0"
+    "phpunit/phpunit": "^5.7 | ^7.5 | ^8.0 | ^9.0"
   },
   "autoload": {
     "psr-4": {

@@ -13,6 +13,7 @@
         <before>
             <createData entity="EUAmazonPaymentConfig" stepKey="SampleAmazonPaymentConfigData" before="flushCache"/>
             <createData entity="EUAmazonInvalidMultiCurrencyConfig" stepKey="SampleAmazonCurrencyConfig" before="flushCache"/>
+
             <!-- enable multicurrency -->
             <magentoCLI command="config:set payment/amazon_payment/multicurrency 1" stepKey="setMulticurrency" before="flushCache"/>
         </before>

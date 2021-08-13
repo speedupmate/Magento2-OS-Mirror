@@ -11,8 +11,8 @@
     <test name="BottomlineStarAppearInSubCategoryPageTest">
         <annotations>
             <features value="Yotpo"/>
-            <stories value="Enable show bottomline and verify that bottomline appear on product page" />
-            <title value="Test that bottomline stars appear in the product page"/>
+            <stories value="Enable show bottomline and verify that bottomline appear on sub category page" />
+            <title value="Test that bottomline stars appear in the sub category page"/>
             <description value="Test that bottomline stars appear in the product page"/>
             <severity value="AVERAGE"/>
             <testCaseId value="MC-250"/>

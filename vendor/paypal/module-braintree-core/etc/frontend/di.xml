@@ -115,7 +115,7 @@
     <type name="Magento\Checkout\Model\CompositeConfigProvider">
         <arguments>
             <argument name="configProviders" xsi:type="array">
-                <item name="recaptcha_config_provider" xsi:type="object">PayPal\Braintree\Model\CheckoutConfigProvider</item>
+                <item name="braintree_recaptcha_config_provider" xsi:type="object">PayPal\Braintree\Model\CheckoutConfigProvider</item>
             </argument>
         </arguments>
     </type>
