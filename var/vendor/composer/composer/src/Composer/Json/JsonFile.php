@@ -94,7 +94,7 @@ class JsonFile
                     $realpathInfo = '';
                     $realpath = realpath($this->path);
                     if (false !== $realpath && $realpath !== $this->path) {
-                         $realpathInfo = ' (' . $realpath . ')';
+                        $realpathInfo = ' (' . $realpath . ')';
                     }
                     $this->io->writeError('Reading ' . $this->path . $realpathInfo);
                 }
@@ -196,9 +196,9 @@ class JsonFile
 
         $schemaData = (object) array('$ref' => $schemaFile);
 
-        if ($schema === self::LAX_SCHEMA) {
-            $schemaData->additionalProperties = true;
-            $schemaData->required = array();
+        if ($schema !== self::LAX_SCHEMA) {
+            $schemaData->additionalProperties = false;
+            $schemaData->required = array('name', 'description');
         }
 
         $validator = new Validator();

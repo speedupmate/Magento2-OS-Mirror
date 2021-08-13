@@ -31,9 +31,10 @@ abstract class FileLoader extends Loader
 
     private $currentDir;
 
-    public function __construct(FileLocatorInterface $locator)
+    public function __construct(FileLocatorInterface $locator, string $env = null)
     {
         $this->locator = $locator;
+        parent::__construct($env);
     }
 
     /**
@@ -75,8 +76,8 @@ abstract class FileLoader extends Loader
             $excluded = [];
             foreach ((array) $exclude as $pattern) {
                 foreach ($this->glob($pattern, true, $_, false, true) as $path => $info) {
-                    // normalize Windows slashes
-                    $excluded[str_replace('\\', '/', $path)] = true;
+                    // normalize Windows slashes and remove trailing slashes
+                    $excluded[rtrim(str_replace('\\', '/', $path), '/')] = true;
                 }
             }
 

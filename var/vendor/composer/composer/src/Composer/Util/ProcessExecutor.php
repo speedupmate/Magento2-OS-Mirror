@@ -17,6 +17,7 @@ use Symfony\Component\Process\Process;
 use Symfony\Component\Process\ProcessUtils;
 use Symfony\Component\Process\Exception\RuntimeException;
 use React\Promise\Promise;
+use React\Promise\PromiseInterface;
 
 /**
  * @author Robert Schönthal <seroscho@googlemail.com>
@@ -37,7 +38,7 @@ class ProcessExecutor
     protected $io;
 
     /**
-     * @psalm-var array<int, array<string, mixed>>
+     * @phpstan-var array<int, array<string, mixed>>
      */
     private $jobs = array();
     private $runningJobs = 0;
@@ -88,7 +89,8 @@ class ProcessExecutor
     {
         if ($this->io && $this->io->isDebug()) {
             $safeCommand = preg_replace_callback('{://(?P<user>[^:/\s]+):(?P<password>[^@\s/]+)@}i', function ($m) {
-                if (preg_match('{^[a-f0-9]{12,}$}', $m['user'])) {
+                // if the username looks like a long (12char+) hex string, or a modern github token (e.g. ghp_xxx) we obfuscate that
+                if (preg_match('{^([a-f0-9]{12,}|gh[a-z]_[a-zA-Z0-9_]+)$}', $m['user'])) {
                     return '://***:***@';
                 }
 
@@ -140,9 +142,9 @@ class ProcessExecutor
     /**
      * starts a process on the commandline in async mode
      *
-     * @param  string  $command the command to execute
-     * @param  string  $cwd     the working directory
-     * @return Promise
+     * @param  string           $command the command to execute
+     * @param  string           $cwd     the working directory
+     * @return PromiseInterface
      */
     public function executeAsync($command, $cwd = null)
     {
@@ -249,16 +251,36 @@ class ProcessExecutor
             throw new \RuntimeException('The given CWD for the process does not exist: '.$cwd);
         }
 
-        // TODO in v3, commands should be passed in as arrays of cmd + args
-        if (method_exists('Symfony\Component\Process\Process', 'fromShellCommandline')) {
-            $process = Process::fromShellCommandline($command, $cwd, null, null, static::getTimeout());
-        } else {
-            $process = new Process($command, $cwd, null, null, static::getTimeout());
+        try {
+            // TODO in v3, commands should be passed in as arrays of cmd + args
+            if (method_exists('Symfony\Component\Process\Process', 'fromShellCommandline')) {
+                $process = Process::fromShellCommandline($command, $cwd, null, null, static::getTimeout());
+            } else {
+                $process = new Process($command, $cwd, null, null, static::getTimeout());
+            }
+        } catch (\Exception $e) {
+            call_user_func($job['reject'], $e);
+
+            return;
+        } catch (\Throwable $e) {
+            call_user_func($job['reject'], $e);
+
+            return;
         }
 
         $job['process'] = $process;
 
-        $process->start();
+        try {
+            $process->start();
+        } catch (\Exception $e) {
+            call_user_func($job['reject'], $e);
+
+            return;
+        } catch (\Throwable $e) {
+            call_user_func($job['reject'], $e);
+
+            return;
+        }
     }
 
     public function wait($index = null)
@@ -365,11 +387,17 @@ class ProcessExecutor
         }
     }
 
+    /**
+     * @return int the timeout in seconds
+     */
     public static function getTimeout()
     {
         return static::$timeout;
     }
 
+    /**
+     * @param int $timeout the timeout in seconds
+     */
     public static function setTimeout($timeout)
     {
         static::$timeout = $timeout;

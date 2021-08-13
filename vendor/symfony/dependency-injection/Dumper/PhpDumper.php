@@ -1871,6 +1871,8 @@ EOF;
 
                 return $code;
             }
+        } elseif ($value instanceof \UnitEnum) {
+            return sprintf('\%s::%s', \get_class($value), $value->name);
         } elseif ($value instanceof AbstractArgument) {
             throw new RuntimeException($value->getTextWithContext());
         } elseif (\is_object($value) || \is_resource($value)) {
@@ -2224,7 +2226,9 @@ EOF;
                 $classes[] = trim($tag['class'], '\\');
             }
 
-            $classes[] = trim($definition->getClass(), '\\');
+            if ($class = $definition->getClass()) {
+                $classes[] = trim($class, '\\');
+            }
             $factory = $definition->getFactory();
 
             if (!\is_array($factory)) {
@@ -2241,6 +2245,6 @@ EOF;
             $definition = $factory[0];
         }
 
-        return array_filter($classes);
+        return $classes;
     }
 }

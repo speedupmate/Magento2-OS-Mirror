@@ -18,7 +18,6 @@ use Magento\Framework\File\Uploader;
 use Magento\Framework\File\UploaderFactory;
 use Magento\Framework\Filesystem;
 use Magento\Framework\Filesystem\Directory\WriteInterface;
-use Magento\Framework\Filesystem\Io\File as FileIo;
 use Magento\Framework\Url\EncoderInterface;
 use Magento\MediaStorage\Model\File\Validator\NotProtectedExtension;
 use PHPUnit\Framework\MockObject\MockObject;
@@ -65,14 +64,6 @@ class FileTest extends AbstractFormTestCase
      */
     private $fileProcessorFactoryMock;
 
-    /**
-     * @var FileIo|MockObject
-     */
-    private $fileIoMock;
-
-    /**
-     * @inheritDoc
-     */
     protected function setUp(): void
     {
         parent::setUp();
@@ -99,7 +90,6 @@ class FileTest extends AbstractFormTestCase
         $this->fileProcessorFactoryMock->expects($this->any())
             ->method('create')
             ->willReturn($this->fileProcessorMock);
-        $this->fileIoMock = $this->createMock(FileIo::class);
     }
 
     /**
@@ -137,6 +127,8 @@ class FileTest extends AbstractFormTestCase
             'isAjax' => false,
             'entityTypeCode' => self::ENTITY_TYPE,
         ]);
+
+        $model->setRequestScope('');
 
         $this->assertEquals($expected, $model->extractValue($this->requestMock));
         if (!empty($attributeCode)) {
@@ -307,9 +299,8 @@ class FileTest extends AbstractFormTestCase
             $parameters['valid']
         );
 
-        $this->fileIoMock->expects($this->any())
-            ->method('getPathInfo')
-            ->with($value['name'])
+        $this->fileProcessorMock->expects($this->any())
+            ->method('getStat')
             ->willReturn([
                 'extension' => $value['extension'],
                 'basename' => $value['basename']

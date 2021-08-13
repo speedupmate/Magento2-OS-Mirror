@@ -16,6 +16,7 @@ use Symfony\Component\DependencyInjection\Argument\AbstractArgument;
 use Symfony\Component\DependencyInjection\Argument\ArgumentInterface;
 use Symfony\Component\DependencyInjection\Argument\BoundArgument;
 use Symfony\Component\DependencyInjection\Argument\IteratorArgument;
+use Symfony\Component\DependencyInjection\Argument\ServiceClosureArgument;
 use Symfony\Component\DependencyInjection\Argument\ServiceLocatorArgument;
 use Symfony\Component\DependencyInjection\Argument\TaggedIteratorArgument;
 use Symfony\Component\DependencyInjection\ChildDefinition;
@@ -129,6 +130,26 @@ class YamlFileLoader extends FileLoader
             return;
         }
 
+        $this->loadContent($content, $path);
+
+        // per-env configuration
+        if ($this->env && isset($content['when@'.$this->env])) {
+            if (!\is_array($content['when@'.$this->env])) {
+                throw new InvalidArgumentException(sprintf('The "when@%s" key should contain an array in "%s". Check your YAML syntax.', $this->env, $path));
+            }
+
+            $env = $this->env;
+            $this->env = null;
+            try {
+                $this->loadContent($content['when@'.$env], $path);
+            } finally {
+                $this->env = $env;
+            }
+        }
+    }
+
+    private function loadContent($content, $path)
+    {
         // imports
         $this->parseImports($content, $path);
 
@@ -389,6 +410,9 @@ class YamlFileLoader extends FileLoader
             ];
         }
 
+        $definition = isset($service[0]) && $service[0] instanceof Definition ? array_shift($service) : null;
+        $return = null === $definition ? $return : true;
+
         $this->checkDefinition($id, $service, $file);
 
         if (isset($service['alias'])) {
@@ -423,7 +447,9 @@ class YamlFileLoader extends FileLoader
             return $return ? $alias : $this->container->setAlias($id, $alias);
         }
 
-        if ($this->isLoadingInstanceof) {
+        if (null !== $definition) {
+            // no-op
+        } elseif ($this->isLoadingInstanceof) {
             $definition = new ChildDefinition('');
         } elseif (isset($service['parent'])) {
             if ('' !== $service['parent'] && '@' === $service['parent'][0]) {
@@ -627,7 +653,8 @@ class YamlFileLoader extends FileLoader
 
         if (isset($defaults['bind']) || isset($service['bind'])) {
             // deep clone, to avoid multiple process of the same instance in the passes
-            $bindings = isset($defaults['bind']) ? unserialize(serialize($defaults['bind'])) : [];
+            $bindings = $definition->getBindings();
+            $bindings += isset($defaults['bind']) ? unserialize(serialize($defaults['bind'])) : [];
 
             if (isset($service['bind'])) {
                 if (!\is_array($service['bind'])) {
@@ -764,7 +791,7 @@ class YamlFileLoader extends FileLoader
         }
 
         foreach ($content as $namespace => $data) {
-            if (\in_array($namespace, ['imports', 'parameters', 'services'])) {
+            if (\in_array($namespace, ['imports', 'parameters', 'services']) || 0 === strpos($namespace, 'when@')) {
                 continue;
             }
 
@@ -796,6 +823,15 @@ class YamlFileLoader extends FileLoader
                 } catch (InvalidArgumentException $e) {
                     throw new InvalidArgumentException(sprintf('"!iterator" tag only accepts arrays of "@service" references in "%s".', $file));
                 }
+            }
+            if ('service_closure' === $value->getTag()) {
+                $argument = $this->resolveServices($argument, $file, $isParameter);
+
+                if (!$argument instanceof Reference) {
+                    throw new InvalidArgumentException(sprintf('"!service_closure" tag only accepts service references in "%s".', $file));
+                }
+
+                return new ServiceClosureArgument($argument);
             }
             if ('service_locator' === $value->getTag()) {
                 if (!\is_array($argument)) {
@@ -901,7 +937,7 @@ class YamlFileLoader extends FileLoader
     private function loadFromExtensions(array $content)
     {
         foreach ($content as $namespace => $values) {
-            if (\in_array($namespace, ['imports', 'parameters', 'services'])) {
+            if (\in_array($namespace, ['imports', 'parameters', 'services']) || 0 === strpos($namespace, 'when@')) {
                 continue;
             }
 

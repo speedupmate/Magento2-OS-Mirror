@@ -33,7 +33,7 @@ use Composer\Semver\Constraint\ConstraintInterface;
 use Composer\Semver\Constraint\Constraint;
 use Composer\Semver\Constraint\MatchAllConstraint;
 use Composer\Util\Http\Response;
-use Composer\Util\MetadataMinifier;
+use Composer\MetadataMinifier\MetadataMinifier;
 use Composer\Util\Url;
 
 /**
@@ -508,7 +508,7 @@ class ComposerRepository extends ArrayRepository implements ConfigurableReposito
         return array();
     }
 
-    private function configurePackageTransportOptions(PackageInterface $package)
+    protected function configurePackageTransportOptions(PackageInterface $package)
     {
         foreach ($package->getDistUrls() as $url) {
             if (strpos($url, $this->baseUrl) === 0) {
@@ -1053,9 +1053,9 @@ class ComposerRepository extends ArrayRepository implements ConfigurableReposito
                 }
             }
 
-            $packages = $this->loader->loadPackages($packages, 'Composer\Package\CompletePackage');
+            $packageInstances = $this->loader->loadPackages($packages, 'Composer\Package\CompletePackage');
 
-            foreach ($packages as $package) {
+            foreach ($packageInstances as $package) {
                 if (isset($this->sourceMirrors[$package->getSourceType()])) {
                     $package->setSourceMirrors($this->sourceMirrors[$package->getSourceType()]);
                 }
@@ -1063,7 +1063,7 @@ class ComposerRepository extends ArrayRepository implements ConfigurableReposito
                 $this->configurePackageTransportOptions($package);
             }
 
-            return $packages;
+            return $packageInstances;
         } catch (\Exception $e) {
             throw new \RuntimeException('Could not load packages '.(isset($packages[0]['name']) ? $packages[0]['name'] : json_encode($packages)).' in '.$this->getRepoName().($source ? ' from '.$source : '').': ['.get_class($e).'] '.$e->getMessage(), 0, $e);
         }

@@ -53,6 +53,9 @@ class BinaryInstaller
         if (!$binaries) {
             return;
         }
+
+        Platform::workaroundFilesystemIssues();
+
         foreach ($binaries as $bin) {
             $binPath = $installPath.'/'.$bin;
             if (!file_exists($binPath)) {
@@ -82,7 +85,7 @@ class BinaryInstaller
             }
 
             if ($this->binCompat === "auto") {
-                if (Platform::isWindows()) {
+                if (Platform::isWindows() || Platform::isWindowsSubsystemForLinux()) {
                     $this->installFullBinaries($binPath, $link, $bin, $package);
                 } else {
                     $this->installSymlinkBinaries($binPath, $link);
@@ -192,14 +195,19 @@ class BinaryInstaller
         $binFile = basename($binPath);
 
         $binContents = file_get_contents($bin);
+        // For php files, we generate a PHP proxy instead of a shell one,
+        // which allows calling the proxy with a custom php process
         if (preg_match('{^(?:#!(?:/usr)?/bin/env php|#!(?:/usr)?/bin/php|<?php)\r?\n}', $binContents, $match)) {
-            $proxyCode = trim($match[0]);
-            // carry over the existing shebang if present, otherwise add our own
-            if ($proxyCode === "<?php") {
-                $proxyCode = "#!/usr/bin/env php";
-            }
-            $binPathExported = var_export($binPath, true);
-            return $proxyCode . "\n" . <<<PROXY
+            // verify the file is not a phar file, because those do not support php-proxying
+            if (false === ($pos = strpos($binContents, '__HALT_COMPILER')) || false === strpos(substr($binContents, 0, $pos), 'Phar::mapPhar')) {
+                $proxyCode = trim($match[0]);
+                // carry over the existing shebang if present, otherwise add our own
+                if ($proxyCode === "<?php") {
+                    $proxyCode = "#!/usr/bin/env php";
+                }
+                $binPathExported = var_export($binPath, true);
+
+                return $proxyCode . "\n" . <<<PROXY
 <?php
 
 /**
@@ -225,6 +233,7 @@ if (\$replaced) {
 include \$binPath;
 
 PROXY;
+            }
         }
 
         $proxyCode = <<<PROXY

@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace Endroid\QrCode\Tests;
 
+use Endroid\QrCode\Bacon\MatrixFactory;
 use Endroid\QrCode\Builder\Builder;
 use Endroid\QrCode\Color\Color;
 use Endroid\QrCode\Encoding\Encoding;
@@ -54,8 +55,7 @@ final class QrCodeTest extends TestCase
 
         // Create generic label
         $label = Label::create('Label')
-            ->setTextColor(new Color(255, 0, 0))
-            ->setBackgroundColor(new Color(0, 0, 0));
+            ->setTextColor(new Color(255, 0, 0));
 
         $result = $writer->write($qrCode, $logo, $label);
 
@@ -136,7 +136,7 @@ final class QrCodeTest extends TestCase
         $qrCode = QrCode::create('QR Code');
 
         $logo = Logo::create('/my/invalid/path.png');
-        $this->expectExceptionMessage('Could not determine mime type');
+        $this->expectExceptionMessage('Invalid data at path "/my/invalid/path.png"');
         $writer->write($qrCode, $logo);
     }
 
@@ -173,5 +173,52 @@ final class QrCodeTest extends TestCase
         }
 
         unlink($path);
+    }
+
+    /**
+     * @testdox Line breaks are not supported
+     */
+    public function testLabelLineBreaks(): void
+    {
+        $qrCode = QrCode::create('QR Code');
+        $label = Label::create("this\none has\nline breaks in it");
+
+        $writer = new PngWriter();
+        $this->expectExceptionMessage('Label does not support line breaks');
+        $writer->write($qrCode, null, $label);
+    }
+
+    /**
+     * @testdox Block size should be at least 1
+     */
+    public function testBlockSizeTooSmall(): void
+    {
+        $aLotOfData = str_repeat('alot', 100);
+        $qrCode = QrCode::create($aLotOfData)
+            ->setSize(10);
+
+        $matrixFactory = new MatrixFactory();
+        $this->expectExceptionMessage('Too much data: increase image dimensions or lower error correction level');
+        $matrixFactory->create($qrCode);
+    }
+
+    /**
+     * @testdox PNG Writer does not accept SVG logo, while SVG writer does
+     */
+    public function testSvgLogo(): void
+    {
+        $qrCode = QrCode::create('QR Code');
+        $logo = Logo::create(__DIR__.'/assets/symfony.svg')
+            ->setResizeToWidth(100)
+            ->setResizeToHeight(50)
+        ;
+
+        $svgWriter = new SvgWriter();
+        $result = $svgWriter->write($qrCode, $logo);
+        $this->assertInstanceOf(SvgResult::class, $result);
+
+        $pngWriter = new PngWriter();
+        $this->expectExceptionMessage('PNG Writer does not support SVG logo');
+        $pngWriter->write($qrCode, $logo);
     }
 }

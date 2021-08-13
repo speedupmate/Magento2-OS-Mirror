@@ -8,6 +8,10 @@
 [![Monthly Downloads](http://img.shields.io/packagist/dm/endroid/qr-code.svg)](https://packagist.org/packages/endroid/qr-code)
 [![License](http://img.shields.io/packagist/l/endroid/qr-code.svg)](https://packagist.org/packages/endroid/qr-code)
 
+If you like my work you can show appreciation by sponsoring via [Github Sponsors](https://github.com/sponsors/endroid) or send
+me some ADA at `DdzFFzCqrhszSwiFWMBQomfv6mkDM59kWFbeX991yJWWtMKnWrp38CuRN5Un5yDjyQLVx7eSyqaMZ62XEgunwGsTFRmh6K2nf6BxMmYw`.
+Also if you need any help implementing this library just let me know and  I'll be glad to help.
+
 This library helps you generate QR codes in a jiffy. Makes use of [bacon/bacon-qr-code](https://github.com/Bacon/BaconQrCode)
 to generate the matrix and [khanamiryan/qrcode-detector-decoder](https://github.com/khanamiryan/php-qrcode-detector-decoder)
 for validating generated QR codes. Further extended with Twig extensions, generation routes, a factory and a
@@ -80,8 +84,7 @@ $logo = Logo::create(__DIR__.'/assets/symfony.png')
 
 // Create generic label
 $label = Label::create('Label')
-    ->setTextColor(new Color(255, 0, 0))
-    ->setBackgroundColor(new Color(0, 0, 0));
+    ->setTextColor(new Color(255, 0, 0));
 
 $result = $writer->write($qrCode, $logo, $label);
 ```
@@ -133,7 +136,7 @@ readability. However some other rounding variants are available.
 * `shrink`: the size of the QR code and the final image are
   shrunk when rounding differences occur.
 * `none`: No rounding. This mode can be used when blocks don't need to be rounded
-  to pixes (for instance SVG).
+  to pixels (for instance SVG).
 
 ## Readability
 
