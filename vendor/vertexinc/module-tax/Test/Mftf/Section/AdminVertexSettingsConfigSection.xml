@@ -1,0 +1,32 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!--
+ /**
+  * @copyright  Vertex. All rights reserved.  https://www.vertexinc.com/
+  * @author     Mediotype                     https://www.mediotype.com/
+  */
+-->
+<sections xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+          xsi:noNamespaceSchemaLocation="urn:magento:mftf:Page/etc/SectionObject.xsd">
+    <section name="AdminVertexSettingsConfigSection">
+        <element name="vertexHeader" type="block" selector="#tax_vertex-head"/>
+        <element name="vertexSettingsHeader" type="block" selector="#tax_vertex_connection-head"/>
+        <element name="vertexIntegrationSettingsHeader" type="block" selector="#tax_vertex_integration-head"/>
+        <element name="enableVertex" type="select" selector="#tax_vertex_connection_enable_vertex"/>
+        <element name="enableVertexCalculation" type="select" selector="#tax_vertex_integration_use_for_calculation"/>
+        <element name="calculationWsdlUrl" type="input" selector="#tax_vertex_connection_api_url"/>
+        <element name="addressValidationWsdlUrl" type="input" selector="#tax_vertex_connection_address_api_url"/>
+        <element name="trustedId" type="input" selector="#tax_vertex_connection_trusted_id"/>
+        <element name="trustedIdError" type="text" selector="#tax_vertex_connection_trusted_id-error"/>
+        <element name="invoiceOrder" type="select" selector="#tax_vertex_integration_invoice_order"/>
+        <element name="invoiceOrderStatus" type="select" selector="#tax_vertex_integration_invoice_order_status"/>
+
+        <element name="useDefaultCalculationWsdlUrl" type="checkbox" selector="#tax_vertex_connection_api_url_inherit"/>
+        <element name="useDefaultAddressValidationWsdlUrl" type="checkbox" selector="#tax_vertex_connection_address_api_url_inherit"/>
+    </section>
+    <section name="vertexApiStatus">
+        <element name="severityNotice" type="text" selector="//*[@id='row_tax_vertex_connection_vertex_status']//*[@class='grid-severity-notice']"/>
+        <element name="severityMajor" type="text" selector="//*[@id='row_tax_vertex_connection_vertex_status']//*[@class='grid-severity-major']"/>
+        <element name="severityMinor" type="text" selector="//*[@id='row_tax_vertex_connection_vertex_status']//*[@class='grid-severity-minor']"/>
+        <element name="severityCritical" type="text" selector="//*[@id='row_tax_vertex_connection_vertex_status']//*[@class='grid-severity-critical']"/>
+    </section>
+</sections>

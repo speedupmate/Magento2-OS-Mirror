@@ -1,0 +1,65 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!--
+ /**
+  * Copyright © Magento, Inc. All rights reserved.
+  * See COPYING.txt for license details.
+  *
+  * This file is part of the Klarna KP module
+  *
+  * (c) Klarna Bank AB (publ)
+  *
+  * For the full copyright and license information, please view the NOTICE
+  * and LICENSE files that were distributed with this source code.
+  */
+-->
+<tests xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+       xsi:noNamespaceSchemaLocation="urn:magento:mftf:Test/etc/testSchema.xsd">
+    <test name="CreditPartialInvoiceFromKlarnaPaymentsOrderWithFixedCoupon2Test" extends="PlaceKlarnaPaymentsOrderWithTwoOfSameProductTest">
+        <annotations>
+            <features value="Klarna Payments"/>
+            <stories value="Partially credit/refund an invoice from an order with two of the same product + a fixed coupon"/>
+            <title value="Partially credit invoice with two of the same product and fixed coupon"/>
+            <description value="A merchant can partially credit/refund a Klarna Payments order with two of the same product and a fixed coupon"/>
+            <severity value="CRITICAL"/>
+            <testCaseId value="KP_CM_8"/>
+            <group value="Klarna_KP_Country_US"/>
+            <group value="Klarna_KP_Order_Guest"/>
+            <group value="Klarna_KP_Order_Pay_Later"/>
+            <group value="Klarna_KP_Order_Credit"/>
+        </annotations>
+        <before>
+            <actionGroup ref="AdminCreateCartPriceRuleWithCouponCode" stepKey="createCartPriceRule">
+                <argument name="ruleName" value="CatPriceRule"/>
+            </actionGroup>
+        </before>
+        <after>
+            <actionGroup ref="DeleteCartPriceRuleByName" stepKey="deleteCartPriceRule" before="logout">
+                <argument name="ruleName" value="{{CatPriceRule.name}}"/>
+            </actionGroup>
+        </after>
+        <!--Remove step for adding product to cart-->
+        <remove keyForRemoval="addToCartFromStorefrontProductPage"/>
+
+        <!--Add product to shopping cart then go to cart and apply coupon-->
+        <actionGroup ref="ApplyCartRuleOnStorefrontWithProductQuantityActionGroup" stepKey="addToCartAndApplyCartRule" before="goToCheckoutFromMinicart">
+            <argument name="product" value="$$createSimpleProduct$$"/>
+            <argument name="productQty" value="2"/>
+            <argument name="couponCode" value="{{_defaultCoupon.code}}"/>
+        </actionGroup>
+
+        <!--Parent test places order...-->
+
+        <!--Create and go to invoice-->
+        <actionGroup ref="AdminCreateInvoiceActionGroup" stepKey="createInvoice"/>
+        <actionGroup ref="GoToFirstInvoiceInOrderInvoiceTabActionGroup" stepKey="goToInvoice"/>
+
+        <!--Fill in and submit credit memo - It credits a quantity of 1 by default-->
+        <actionGroup ref="CreateAndSubmitCreditMemoActionGroup" stepKey="createAndSubmitCreditMemo"/>
+
+        <!--Assert successful credit memo creation-->
+        <actionGroup ref="AssertSuccessfulCreditMemoCreationAndAmountsActionGroup" stepKey="assertSuccessfulCreditMemoCreation">
+            <argument name="expectedGrandTotal" value="$11.46"/>
+            <argument name="expectedRefundTotal" value="$5.73"/>
+        </actionGroup>
+    </test>
+</tests>

@@ -1,0 +1,67 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!--
+ /**
+  * @copyright  Vertex. All rights reserved.  https://www.vertexinc.com/
+  * @author     Mediotype                     https://www.mediotype.com/
+  */
+-->
+<tests xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+       xsi:noNamespaceSchemaLocation="urn:magento:mftf:Test/etc/testSchema.xsd">
+    <test name="AdminVertexSetProductCommodityCodeTest">
+        <annotations>
+            <group value="Vertex"/>
+            <features value="Vertex"/>
+            <group value="VRTX-775"/>
+            <testCaseId value="VRTX-775"/>
+
+            <stories value="As a merchant, I should be able to specify commodity codes for my products"/>
+            <title value="Commodity code and type can be set to a product"/>
+            <description value="Validate if commodity code and type are correctly set on product"/>
+
+            <severity value="MAJOR"/>
+        </annotations>
+        <before>
+            <actionGroup ref="LoginAsAdmin" stepKey="loginAsAdmin"/>
+            <actionGroup ref="VertexTaxConfigInvoiceCreated" stepKey="setupTaxConfigWhenInvoiceCreated"/>
+            <actionGroup ref="VertexTaxDefaultConfig" stepKey="setupDefaultVertexTestConfiguration"/>
+            <actionGroup ref="ClearCacheActionGroup" stepKey="clearCache"/>
+            <createData entity="_defaultCategory" stepKey="createCategory"/>
+            <createData entity="VertexProductTaxClass_Clothing" stepKey="createTaxClass" />
+            <createData entity="VertexSimpleProduct" stepKey="createSimpleProduct">
+                <requiredEntity createDataKey="createCategory"/>
+                <requiredEntity createDataKey="createTaxClass"/>
+            </createData>
+        </before>
+        <after>
+            <createData entity="DefaultTaxConfig" stepKey="defaultConf"/>
+            <deleteData createDataKey="createSimpleProduct" stepKey="deleteSimpleProduct"/>
+            <deleteData createDataKey="createTaxClass" stepKey="deleteTaxClass"/>
+            <deleteData createDataKey="createCategory" stepKey="deleteCategory"/>
+
+            <actionGroup ref="logout" stepKey="logoutOfAdmin"/>
+        </after>
+
+        <amOnPage url="{{AdminProductIndexPage.url}}" stepKey="navigateToProductIndex"/>
+
+        <actionGroup ref="FilterProductGridBySkuActionGroup" stepKey="filterProductGrid">
+            <argument name="product" value="$$createSimpleProduct$$"/>
+        </actionGroup>
+
+        <actionGroup ref="OpenEditProductOnBackendActionGroup" stepKey="openProductEditPage">
+            <argument name="product" value="$$createSimpleProduct$$"/>
+        </actionGroup>
+
+        <click selector="{{AdminProductFormSection.commodityCodeFieldSectionHeader}}" stepKey="openCommodityCodeSection"/>
+
+        <fillField selector="{{AdminProductFormSection.commodityCodeField}}" userInput="{{Clothing_CommodityCode.code}}" stepKey="setCommodityCode"/>
+        <selectOption selector="{{AdminProductFormSection.commodityTypeField}}" userInput="{{Clothing_CommodityCode.type}}" stepKey="setCommodityType"/>
+
+        <click selector="{{AdminProductFormActionSection.saveButton}}" stepKey="saveProduct"/>
+        <seeElement selector="{{AdminProductMessagesSection.successMessage}}" stepKey="assertSaveMessageSuccess"/>
+
+        <click selector="{{AdminProductFormSection.commodityCodeFieldSectionHeader}}" stepKey="openCheckCommodityCodeSection"/>
+
+        <seeInField userInput="{{Clothing_CommodityCode.code}}" selector="{{AdminProductFormSection.commodityCodeField}}" stepKey="assertCommodityCode"/>
+        <seeInField userInput="{{Clothing_CommodityCode.type}}" selector="{{AdminProductFormSection.commodityTypeField}}" stepKey="assertCommodityType"/>
+    </test>
+</tests>

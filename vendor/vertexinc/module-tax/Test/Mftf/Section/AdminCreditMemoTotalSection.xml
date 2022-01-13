@@ -1,0 +1,14 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!--
+ /**
+  * @copyright  Vertex. All rights reserved.  https://www.vertexinc.com/
+  * @author     Mediotype                     https://www.mediotype.com/
+  */
+-->
+<sections xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+          xsi:noNamespaceSchemaLocation="urn:magento:mftf:Page/etc/SectionObject.xsd">
+    <section name="AdminCreditMemoTotalSection">
+        <element name="total" type="text" selector="//table[contains(@class,'order-subtotal-table')]/tbody/tr[.//*[contains(text(), '{{total}}')]]/td//span[contains(@class, 'price')]" parameterized="true"/>
+        <element name="taxSummary" type="block" selector=".order-subtotal-table .summary-total" />
+    </section>
+</sections>

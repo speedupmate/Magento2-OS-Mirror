@@ -1,0 +1,22 @@
+{
+    "klarna_payments_quote": {
+        "column": {
+            "payments_quote_id": true,
+            "session_id": true,
+            "client_token": true,
+            "authorization_token": true,
+            "is_active": true,
+            "quote_id": true,
+            "payment_methods": true,
+            "payment_method_info": true
+        },
+        "index": {
+            "KLARNA_PAYMENTS_QUOTE_QUOTE_ID": true,
+            "KLARNA_PAYMENTS_QUOTE_SESSION_ID": true
+        },
+        "constraint": {
+            "PRIMARY": true,
+            "KLARNA_PAYMENTS_QUOTE_QUOTE_ID_QUOTE_ENTITY_ID": true
+        }
+    }
+}

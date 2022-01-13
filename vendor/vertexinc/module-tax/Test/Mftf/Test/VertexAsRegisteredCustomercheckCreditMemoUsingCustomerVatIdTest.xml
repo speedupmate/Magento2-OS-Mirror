@@ -1,0 +1,103 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!--
+ /**
+  * Copyright © Magento, Inc. All rights reserved.
+  * See COPYING.txt for license details.
+  */
+-->
+
+<tests xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+       xsi:noNamespaceSchemaLocation="urn:magento:mftf:Test/etc/testSchema.xsd">
+    <test name="VertexAsRegisteredCustomerCheckCreditMemoUsingCustomerVatIdTest">
+        <annotations>
+            <group value="Vertex"/>
+            <group value="VRTX-774"/>
+            <features value="Vertex Tax"/>
+            <testCaseId value="VRTX-774"/>
+
+            <stories value="As a customer, I want to specify a single VAT Registration Number for my account that is used when one of my addresses does not have one"/>
+            <title value="Ensure that the correct VAT number is passed to Vertex during a CreditMemo"/>
+            <description value="Validate VAT ID and TAX are used when calculating Credit Memo"/>
+            <severity value="MAJOR"/>
+        </annotations>
+        <before>
+            <actionGroup ref="LoginAsAdmin" stepKey="loginAsAdmin"/>
+            <actionGroup ref="VertexTaxConfigInvoiceCreated" stepKey="setupTaxConfigWhenInvoiceCreated"/>
+            <actionGroup ref="VertexTaxDefaultConfig" stepKey="setupDefaultVertexTestConfiguration"/>
+            <actionGroup ref="ClearCacheActionGroup" stepKey="clearCache"/>
+
+            <createData entity="SimpleProduct2" stepKey="createSimpleProduct">
+                <field key="price">{{Vertex_100USD_TaxRegistration_VRTXMFTF01_Values.price}}</field>
+            </createData>
+
+            <createData entity="Vertex_Customer_CateDeMedici" stepKey="createCustomer"/>
+            <actionGroup ref="VertexAdminSetTaxvatShowOnStorefrontActionGroup" stepKey="showTaxvatStorefront" />
+
+            <actionGroup ref="LoginToStorefrontActionGroup" stepKey="customerLogin">
+                <argument name="Customer" value="$$createCustomer$$"/>
+            </actionGroup>
+
+            <actionGroup ref="VertexStoreFrontSetCustomerVatIdActionGroup" stepKey="setCustomerVatId">
+                <argument name="vatId" value="{{Vertex_Customer_TaxRegistration_VRTXMFTF01.taxvat}}" />
+                <argument name="countryId" value="{{Vertex_Customer_TaxRegistration_VRTXMFTF01_Country_Id.vertex_customer_country}}" />
+            </actionGroup>
+
+            <actionGroup ref="AddSimpleProductToCartActionGroup" stepKey="addSimpleProductToCart">
+                <argument name="product" value="$$createSimpleProduct$$" />
+            </actionGroup>
+
+            <actionGroup ref="GoToCheckoutFromMinicartActionGroup" stepKey="gotoCheckout"/>
+
+            <actionGroup ref="CheckoutSelectFlatRateShippingMethodActionGroup" stepKey="selectShippingMethod"/>
+
+            <waitForElement selector="{{CheckoutShippingSection.next}}" stepKey="waitForNextButton"/>
+            <click selector="{{CheckoutShippingSection.next}}" stepKey="clickNext"/>
+
+            <waitForElement selector="{{CheckoutPaymentSection.paymentSectionTitle}}" stepKey="waitForPaymentSectionLoaded"/>
+            <seeInCurrentUrl url="{{CheckoutPage.url}}/#payment" stepKey="assertCheckoutPaymentUrl"/>
+
+            <actionGroup ref="VertexCheckTotalsInCheckout" stepKey="checkTotals">
+                <argument name="subtotalExclTax" value="{{Vertex_100USD_TaxRegistration_VRTXMFTF01_Totals.subtotal}}"/>
+                <argument name="subtotalInclTax" value="{{Vertex_100USD_TaxRegistration_VRTXMFTF01_Totals.subtotalInclTax}}"/>
+                <argument name="shippingExclTax" value="{{Vertex_100USD_TaxRegistration_VRTXMFTF01_Totals.shipping}}"/>
+                <argument name="shippingInclTax" value="{{Vertex_100USD_TaxRegistration_VRTXMFTF01_Totals.shippingInclTax}}"/>
+                <argument name="tax" value="{{Vertex_100USD_TaxRegistration_VRTXMFTF01_Totals.tax}}"/>
+                <argument name="totalExclTax" value="{{Vertex_100USD_TaxRegistration_VRTXMFTF01_Totals.total}}"/>
+                <argument name="totalInclTax" value="{{Vertex_100USD_TaxRegistration_VRTXMFTF01_Totals.totalInclTax}}"/>
+            </actionGroup>
+            <actionGroup ref="VertexCheckProductAndShippingTaxTotalsInCheckout" stepKey="checkTaxSummary">
+                <argument name="product" value="{{Vertex_100USD_TaxRegistration_VRTXMFTF01_Totals.productTax}}" />
+                <argument name="shipping" value="{{Vertex_100USD_TaxRegistration_VRTXMFTF01_Totals.shippingTax}}" />
+            </actionGroup>
+
+            <actionGroup ref="ClickPlaceOrderActionGroup" stepKey="placeOrder"/>
+
+            <grabTextFrom selector="{{CheckoutSuccessMainSection.orderNumber22}}" stepKey="orderNumber"/>
+
+            <amOnPage url="{{AdminOrdersPage.url}}" stepKey="goToAdminOrder"/>
+            <actionGroup ref="AdminOrdersGridClearFiltersActionGroup" stepKey="clearFilters"/>
+            <actionGroup ref="OpenOrderByIdActionGroup" stepKey="openOrder">
+                <argument name="orderId" value="$orderNumber"/>
+            </actionGroup>
+
+            <actionGroup ref="GoToInvoiceIntoOrderActionGroup" stepKey="createInvoice"/>
+            <actionGroup ref="SubmitInvoiceActionGroup" stepKey="submitInvoice"/>
+            <actionGroup ref="VertexCheckInvoiceSuccessMessage" stepKey="checkInvoiceSuccessMessage"/>
+
+            <actionGroup ref="AdminStartToCreateCreditMemoFromOrderPageActionGroup" stepKey="createCreditMemo"/>
+            <actionGroup ref="SubmitCreditMemoActionGroup" stepKey="submitCreditMemo"/>
+        </before>
+        <after>
+            <actionGroup ref="StorefrontCustomerLogoutActionGroup" stepKey="customerLogout"/>
+            <actionGroup ref="logout" stepKey="logoutOfAdmin"/>
+            <deleteData createDataKey="createSimpleProduct" stepKey="deleteSimpleProduct"/>
+            <deleteData createDataKey="createCustomer" stepKey="deleteCustomer"/>
+        </after>
+
+        <actionGroup ref="VertexCheckCreditMemoSuccessMessage" stepKey="checkSuccessMessage"/>
+
+        <actionGroup ref="VertexCheckCreditMemoSuccessNote" stepKey="checkSuccessNote">
+            <argument name="amount" value="-{{Vertex_100USD_TaxRegistration_VRTXMFTF01_Totals.tax}}"/>
+        </actionGroup>
+    </test>
+</tests>

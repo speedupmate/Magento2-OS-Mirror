@@ -1,0 +1,424 @@
+<?xml version="1.0"?>
+<!--
+/**
+ * @copyright  Vertex. All rights reserved.  https://www.vertexinc.com/
+ * @author     Mediotype                     https://www.mediotype.com/
+ */
+-->
+<config xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+        xsi:noNamespaceSchemaLocation="urn:magento:framework:ObjectManager/etc/config.xsd">
+    <!-- API Preferences -->
+    <preference for="Vertex\Tax\Api\Data\LogEntryInterface" type="Vertex\Tax\Model\Data\LogEntry"/>
+    <preference for="Vertex\Tax\Api\Data\LogEntrySearchResultsInterface" type="Vertex\Tax\Model\Repository\LogEntrySearchResult"/>
+    <preference for="Vertex\Tax\Api\LogEntryRepositoryInterface" type="Vertex\Tax\Model\Repository\LogEntryRepository"/>
+    <preference for="Vertex\Tax\Model\TaxRegistry\StorageInterface" type="Vertex\Tax\Model\TaxRegistry\CacheStorage"/>
+    <preference for="Vertex\Tax\Api\Data\CommodityCodeInterface" type="Vertex\Tax\Model\Data\CommodityCode" />
+    <preference for="Vertex\Tax\Model\ProductLoadIdResolverInterface" type="Vertex\Tax\Model\TypicalProductLoadIdResolver"/>
+
+    <type name="Vertex\Tax\Model\TaxRegistry\CacheStorage">
+        <arguments>
+            <argument name="cache" xsi:type="object">Vertex\Tax\Model\Cache\Type</argument>
+        </arguments>
+    </type>
+
+    <!-- These are extended and set as preferences to ensure they are passed to the SDK in production compiled mode -->
+    <preference for="Vertex\Utility\SoapClientFactory" type="Vertex\Tax\Service\SoapClientFactory"/>
+    <preference for="Vertex\Utility\ServiceActionPerformerFactory" type="Vertex\Tax\Service\ServiceActionPerformerFactory"/>
+
+    <preference for="Vertex\Tax\Api\ClientInterface" type="Vertex\Tax\Model\ApiClient"/>
+    <preference for="Vertex\Tax\Api\InvoiceInterface" type="Vertex\Tax\Service\InvoiceProxy"/>
+    <preference for="Vertex\Tax\Api\QuoteInterface" type="Vertex\Tax\Service\QuoteProxy"/>
+    <preference for="Vertex\Tax\Api\TaxAreaLookupInterface" type="Vertex\Tax\Service\TaxAreaLookupProxy"/>
+
+    <!-- Service Builders -->
+    <type name="Vertex\Tax\Model\Api\Service\InvoiceBuilder" shared="false"/>
+    <type name="Vertex\Tax\Model\Api\Service\QuoteBuilder" shared="false"/>
+    <type name="Vertex\Tax\Model\Api\Service\TaxAreaLookupBuilder" shared="false"/>
+
+    <!-- Builders for SDK Interfaces -->
+    <type name="Vertex\Tax\Model\Api\Data\AddressBuilder" shared="false"/>
+    <type name="Vertex\Tax\Model\Api\Data\SellerBuilder" shared="false"/>
+    <type name="Vertex\Tax\Model\Api\Data\InvoiceRequestBuilder\InvoiceProcessor">
+        <arguments>
+            <argument name="processorPool" xsi:type="object">Vertex\Tax\Model\Api\Data\InvoiceRequestBuilder\InvoiceProcessorPool</argument>
+        </arguments>
+    </type>
+    <type name="Vertex\Tax\Model\Api\Data\InvoiceRequestBuilder\InvoiceProcessorPool">
+        <arguments>
+            <argument name="processors" xsi:type="array">
+                <item name="invoice-item" xsi:type="object">Vertex\Tax\Model\Api\Data\InvoiceRequestBuilder\InvoiceItemProcessor</item>
+                <item name="shipping" xsi:type="object">Vertex\Tax\Model\Api\Data\InvoiceRequestBuilder\InvoiceShippingProcessor</item>
+                <item name="giftwrap" xsi:type="object">Vertex\Tax\Model\Api\Data\InvoiceRequestBuilder\InvoiceGiftwrapProcessor</item>
+                <item name="fpt-item" xsi:type="object">Vertex\Tax\Model\Api\Data\InvoiceRequestBuilder\InvoiceItemFixedPriceProcessor</item>
+                <item name="deliveryTerm" xsi:type="object">Vertex\Tax\Model\Api\Data\InvoiceRequestBuilder\InvoiceDeliveryTermProcessor</item>
+            </argument>
+        </arguments>
+    </type>
+    <type name="Vertex\Tax\Model\Api\Data\InvoiceRequestBuilder\OrderProcessor">
+        <arguments>
+            <argument name="processorPool" xsi:type="object">Vertex\Tax\Model\Api\Data\InvoiceRequestBuilder\OrderProcessorPool</argument>
+        </arguments>
+    </type>
+    <type name="Vertex\Tax\Model\Api\Data\InvoiceRequestBuilder\OrderProcessorPool">
+        <arguments>
+            <argument name="processors" xsi:type="array">
+                <item name="order-item" xsi:type="object">Vertex\Tax\Model\Api\Data\InvoiceRequestBuilder\OrderItemProcessor</item>
+                <item name="shipping" xsi:type="object">Vertex\Tax\Model\Api\Data\InvoiceRequestBuilder\OrderShippingProcessor</item>
+                <item name="giftwrap" xsi:type="object">Vertex\Tax\Model\Api\Data\InvoiceRequestBuilder\OrderGiftwrapProcessor</item>
+                <item name="deliveryTerm" xsi:type="object">Vertex\Tax\Model\Api\Data\InvoiceRequestBuilder\OrderDeliveryTermProcessor</item>
+            </argument>
+        </arguments>
+    </type>
+    <type name="Vertex\Tax\Model\Api\Data\InvoiceRequestBuilder\CreditmemoProcessor">
+        <arguments>
+            <argument name="processorPool" xsi:type="object">Vertex\Tax\Model\Api\Data\InvoiceRequestBuilder\CreditmemoProcessorPool</argument>
+        </arguments>
+    </type>
+    <type name="Vertex\Tax\Model\Api\Data\InvoiceRequestBuilder\CreditmemoProcessorPool">
+        <arguments>
+            <argument name="processors" xsi:type="array">
+                <item name="creditmemo-item" xsi:type="object">Vertex\Tax\Model\Api\Data\InvoiceRequestBuilder\CreditmemoItemProcessor</item>
+                <item name="shipping" xsi:type="object">Vertex\Tax\Model\Api\Data\InvoiceRequestBuilder\CreditmemoShippingProcessor</item>
+                <item name="giftwrap" xsi:type="object">Vertex\Tax\Model\Api\Data\InvoiceRequestBuilder\CreditmemoGiftwrapProcessor</item>
+                <item name="adjustments" xsi:type="object">Vertex\Tax\Model\Api\Data\InvoiceRequestBuilder\CreditmemoAdjustmentProcessor</item>
+                <item name="fpt-item" xsi:type="object">Vertex\Tax\Model\Api\Data\InvoiceRequestBuilder\CreditmemoItemFixedPriceProcessor</item>
+                <item name="deliveryTerm" xsi:type="object">Vertex\Tax\Model\Api\Data\InvoiceRequestBuilder\CreditMemoDeliveryTermProcessor</item>
+            </argument>
+        </arguments>
+    </type>
+
+    <type name="Vertex\Tax\Block\Adminhtml\Config\Form\Field\FieldSource\OptionProvider">
+        <arguments>
+            <argument name="authSession" xsi:type="object">Magento\Backend\Model\Auth\Session\Proxy</argument>
+        </arguments>
+    </type>
+
+    <!-- Workaround for issue discovered in Magento 2.1.8 where preference doesn't exist for CustomerExtensionInterface -->
+    <preference for="Magento\Customer\Api\Data\CustomerExtensionInterface" type="Magento\Customer\Api\Data\CustomerExtension"/>
+
+    <!-- Plugins -->
+    <type name="Vertex\Utility\SoapClientFactory">
+        <plugin name="registerLastCreatedClient" type="Vertex\Tax\Model\Plugin\SoapClientFactoryPlugin"/>
+    </type>
+    <type name="Vertex\Utility\ServiceActionPerformerFactory">
+        <plugin name="useObjectManager" type="Vertex\Tax\Model\Plugin\ServiceActionPerformerFactoryPlugin"/>
+    </type>
+    <type name="Magento\Customer\Api\CustomerRepositoryInterface">
+        <plugin name="extensionAttributeVertexCustomerCode" type="Vertex\Tax\Model\Plugin\CustomerRepositoryPlugin"/>
+        <plugin name="extensionAttributeVertexCustomerCountry" type="Vertex\Tax\Model\Plugin\CustomerCountryAttributePlugin"/>
+    </type>
+    <type name="Magento\Sales\Api\OrderAddressRepositoryInterface">
+        <plugin name="extensionAttributeVertexVatCountryCode" type="Vertex\Tax\Model\Plugin\VatCountryCodeAttributePlugin"/>
+    </type>
+    <type name="Magento\Tax\Api\TaxCalculationInterface">
+        <plugin name="vertexTaxCalculation" type="Vertex\Tax\Model\Plugin\TaxCalculationPlugin" sortOrder="1"/>
+    </type>
+    <type name="Magento\Tax\Model\Sales\Total\Quote\CommonTaxCollector">
+        <plugin name="vertexItemLevelMap" type="Vertex\Tax\Model\Plugin\CommonTaxCollectorPlugin" sortOrder="1"/>
+    </type>
+    <type name="Magento\Tax\Model\Sales\Total\Quote\Tax">
+        <plugin name="vertexOrderLevelMap" type="Vertex\Tax\Model\Plugin\TaxPlugin" sortOrder="1"/>
+    </type>
+    <type name="Magento\Quote\Model\Cart\TotalsConverter">
+        <plugin name="vertex_calculation_message" type="Vertex\Tax\Model\Plugin\TotalsCalculationMessagePlugin"/>
+    </type>
+
+    <type name="Magento\Catalog\Api\ProductCustomOptionRepositoryInterface">
+        <plugin name="vertex_custom_option_flex_field_db_handler" type="Vertex\Tax\Model\Plugin\CustomOptionFlexFieldExtensionAttributeHandler"/>
+    </type>
+    <type name="Magento\Catalog\Controller\Adminhtml\Product\Initialization\Helper">
+        <plugin name="vertex_custom_option_flex_field_after_save_initialization" type="Vertex\Tax\Model\Plugin\CustomOptionFlexFieldExtensionAttributeInitializer"/>
+    </type>
+
+    <type name="Magento\Catalog\Api\ProductRepositoryInterface">
+        <plugin name="vertex_commodity_code_product_repository" type="Vertex\Tax\Model\Plugin\CommodityCodeExtensionAttributeProductRepositoryPlugin"/>
+    </type>
+
+    <type name="Magento\Catalog\Model\ResourceModel\Product">
+        <plugin name="vertex_commodity_code_product_resource_model" type="Vertex\Tax\Model\Plugin\CommodityCodeExtensionAttributeProductResourceModelPlugin"/>
+    </type>
+
+    <type name="Magento\Sales\Api\OrderItemRepositoryInterface">
+        <plugin name="vertex_commodity_code_order_item_repository" type="Vertex\Tax\Model\Plugin\CommodityCodeExtensionAttributeOrderItemRepository"/>
+    </type>
+
+    <!-- Create virtual Resource modules for Vertex Tax credit memo -->
+    <virtualType name="Vertex\Tax\Virtual\ResourceModel\Creditmemo\VertexTaxCode" type="Vertex\Tax\Model\ResourceModel\VertexTaxCode">
+        <arguments>
+            <argument name="table" xsi:type="string">vertex_sales_creditmemo_item_vertex_tax_code</argument>
+        </arguments>
+    </virtualType>
+    <virtualType name="Vertex\Tax\Virtual\ResourceModel\Creditmemo\TaxCode" type="Vertex\Tax\Model\ResourceModel\TaxCode">
+        <arguments>
+            <argument name="table" xsi:type="string">vertex_sales_creditmemo_item_tax_code</argument>
+        </arguments>
+    </virtualType>
+    <virtualType name="Vertex\Tax\Virtual\ResourceModel\Creditmemo\InvoiceTextCode" type="Vertex\Tax\Model\ResourceModel\InvoiceTextCode">
+        <arguments>
+            <argument name="table" xsi:type="string">vertex_sales_creditmemo_item_invoice_text_code</argument>
+        </arguments>
+    </virtualType>
+
+    <!-- Create virtual VertexTaxAttributeManager that works with virtual Vertex Tax Creditmemo resourc modules -->
+    <virtualType name="Vertex\Tax\Virtual\AttributeManager\CreditmemoAttributeManager" type="Vertex\Tax\Model\VertexTaxAttributeManager">
+        <arguments>
+            <argument name="invoiceTextCodeResource" xsi:type="object">Vertex\Tax\Virtual\ResourceModel\Creditmemo\InvoiceTextCode</argument>
+            <argument name="taxCodeResource" xsi:type="object">Vertex\Tax\Virtual\ResourceModel\Creditmemo\TaxCode</argument>
+            <argument name="vertexTaxCodeResource" xsi:type="object">Vertex\Tax\Virtual\ResourceModel\Creditmemo\VertexTaxCode</argument>
+        </arguments>
+    </virtualType>
+    <type name="Vertex\Tax\Model\Plugin\CreditmemoRepositoryPlugin">
+        <arguments>
+            <argument name="attributeManager" xsi:type="object">Vertex\Tax\Virtual\AttributeManager\CreditmemoAttributeManager</argument>
+        </arguments>
+    </type>
+    <type name="Vertex\Tax\Observer\CreditMemoObserver">
+        <arguments>
+            <argument name="attributeManager" xsi:type="object">Vertex\Tax\Virtual\AttributeManager\CreditmemoAttributeManager</argument>
+        </arguments>
+    </type>
+
+    <type name="Magento\Sales\Api\OrderRepositoryInterface">
+        <plugin name="get_vertex_order_item_attributes" type="Vertex\Tax\Model\Plugin\OrderRepositoryPlugin"/>
+        <plugin name="vertex_commodity_code_order_item_order_save" type="Vertex\Tax\Model\Plugin\AddCommodityCodeToOrderItemPlugin"/>
+        <plugin name="addVertexCustomerCountryToOrderAddress" type="Vertex\Tax\Model\Plugin\AddCustomerCountryToOrderAddressPlugin"/>
+    </type>
+    <!-- This plugin adds vertex tax atttributes as extension attribute for CreditmemoItem -->
+    <type name="Magento\Sales\Api\CreditmemoRepositoryInterface">
+        <plugin name="get_vertex_creditmemo_item_attributes" type="Vertex\Tax\Model\Plugin\CreditmemoRepositoryPlugin"/>
+    </type>
+    <!-- This plugin adds vertex tax attributes as extension attribute for InvoiceItem -->
+    <type name="Magento\Sales\Api\InvoiceRepositoryInterface">
+        <plugin name="get_vertex_invoice_item_attributes" type="Vertex\Tax\Model\Plugin\InvoiceRepositoryPlugin"/>
+    </type>
+
+    <!-- This plugin is used in conjunction with the two _save_after events to ensure _after_commit operations are performed on guest checkout -->
+    <type name="Magento\Checkout\Api\GuestPaymentInformationManagementInterface">
+        <plugin name="guest_payment_no_commit_after_event_workaround" type="Vertex\Tax\Model\Plugin\GuestPaymentInformationManagementPlugin"/>
+    </type>
+
+    <!-- Vertex SDK -->
+    <preference for="Vertex\Data\AddressInterface" type="Vertex\Data\Address"/>
+    <preference for="Vertex\Data\ConfigurationInterface" type="Vertex\Data\Configuration"/>
+    <preference for="Vertex\Data\CustomerInterface" type="Vertex\Data\Customer"/>
+    <preference for="Vertex\Data\JurisdictionInterface" type="Vertex\Data\Jurisdiction"/>
+    <preference for="Vertex\Data\LineItemInterface" type="Vertex\Data\LineItem"/>
+    <preference for="Vertex\Data\LoginInterface" type="Vertex\Data\Login"/>
+    <preference for="Vertex\Data\SellerInterface" type="Vertex\Data\Seller"/>
+    <preference for="Vertex\Data\TaxInterface" type="Vertex\Data\Tax"/>
+    <preference for="Vertex\Data\TaxAreaLookupResultInterface" type="Vertex\Data\TaxAreaLookupResult"/>
+    <preference for="Vertex\Services\Invoice\RequestInterface" type="Vertex\Services\Invoice\Request"/>
+    <preference for="Vertex\Services\Invoice\ResponseInterface" type="Vertex\Services\Invoice\Response"/>
+    <preference for="Vertex\Services\Quote\RequestInterface" type="Vertex\Services\Quote\Request"/>
+    <preference for="Vertex\Services\Quote\ResponseInterface" type="Vertex\Services\Quote\Response"/>
+    <preference for="Vertex\Services\TaxAreaLookup\RequestInterface" type="Vertex\Services\TaxAreaLookup\Request"/>
+    <preference for="Vertex\Services\TaxAreaLookup\ResponseInterface" type="Vertex\Services\TaxAreaLookup\Response"/>
+    <preference for="Vertex\Data\FlexibleCodeFieldInterface" type="Vertex\Data\FlexibleCodeField"/>
+    <preference for="Vertex\Data\FlexibleNumericFieldInterface" type="Vertex\Data\FlexibleNumericField"/>
+    <preference for="Vertex\Data\FlexibleDateFieldInterface" type="Vertex\Data\FlexibleDateField"/>
+    <preference for="Vertex\Tax\Model\FlexField\Processor\TaxCalculationFlexFieldProcessorInterface" type="Vertex\Tax\Model\FlexField\Processor\TaxCalculationFlexFieldProcessor"/>
+    <preference for="Vertex\Tax\Model\FlexField\Processor\InvoiceFlexFieldProcessorInterface" type="Vertex\Tax\Model\FlexField\Processor\InvoiceFlexFieldProcessor"/>
+
+    <!-- This wiring exists so the ObjectManager is utilized instead of defaulting to "null" and letting the SDK constructors handle it -->
+    <preference for="Vertex\Utility\SoapFaultConverterInterface"
+                type="Vertex\Utility\FaultConverter\PooledSoapFaultConverter"/>
+    <type name="Vertex\Utility\FaultConverter\PooledSoapFaultConverter">
+        <arguments>
+            <argument name="converters" xsi:type="array">
+                <item name="authenticationFailure" xsi:type="object">Vertex\Utility\FaultConverter\AuthenticationFailureConverter</item>
+                <item name="connectionFailure" xsi:type="object">Vertex\Utility\FaultConverter\ConnectionFailure</item>
+            </argument>
+        </arguments>
+    </type>
+
+    <!-- Wiring for Services -->
+    <type name="Vertex\Services\TaxAreaLookup">
+        <arguments>
+            <argument name="mapperFactory" xsi:type="object">Vertex\Mapper\MapperFactory</argument>
+            <argument name="versionDeterminer" xsi:type="object">Vertex\Utility\VersionDeterminer</argument>
+            <argument name="actionPerformerFactory" xsi:type="object">Vertex\Utility\ServiceActionPerformerFactory</argument>
+        </arguments>
+    </type>
+    <type name="Vertex\Services\Quote">
+        <arguments>
+            <argument name="mapperFactory" xsi:type="object">Vertex\Mapper\MapperFactory</argument>
+            <argument name="versionDeterminer" xsi:type="object">Vertex\Utility\VersionDeterminer</argument>
+            <argument name="actionPerformerFactory" xsi:type="object">Vertex\Utility\ServiceActionPerformerFactory</argument>
+        </arguments>
+    </type>
+    <type name="Vertex\Services\Invoice">
+        <arguments>
+            <argument name="mapperFactory" xsi:type="object">Vertex\Mapper\MapperFactory</argument>
+            <argument name="versionDeterminer" xsi:type="object">Vertex\Utility\VersionDeterminer</argument>
+            <argument name="actionPerformerFactory" xsi:type="object">Vertex\Utility\ServiceActionPerformerFactory</argument>
+        </arguments>
+    </type>
+
+    <!-- Wiring for Mappers -->
+    <type name="Vertex\Mapper\Api60\AddressMapper">
+        <arguments>
+            <argument name="utilities" xsi:type="object">Vertex\Mapper\MapperUtilities</argument>
+        </arguments>
+    </type>
+    <type name="Vertex\Mapper\Api60\Authenticator">
+        <arguments>
+            <argument name="loginMapper" xsi:type="object">Vertex\Mapper\Api60\LoginMapper</argument>
+        </arguments>
+    </type>
+    <type name="Vertex\Mapper\Api60\CustomerMapper">
+        <arguments>
+            <argument name="utilities" xsi:type="object">Vertex\Mapper\MapperUtilities</argument>
+            <argument name="addressMapper" xsi:type="object">Vertex\Mapper\Api60\AddressMapper</argument>
+        </arguments>
+    </type>
+    <type name="Vertex\Mapper\Api60\InvoiceRequestMapper">
+        <arguments>
+            <argument name="utilities" xsi:type="object">Vertex\Mapper\MapperUtilities</argument>
+            <argument name="customerMapper" xsi:type="object">Vertex\Mapper\Api60\CustomerMapper</argument>
+            <argument name="lineItemMapper" xsi:type="object">Vertex\Mapper\Api60\LineItemMapper</argument>
+            <argument name="sellerMapper" xsi:type="object">Vertex\Mapper\Api60\SellerMapper</argument>
+        </arguments>
+    </type>
+    <type name="Vertex\Mapper\Api60\InvoiceResponseMapper">
+        <arguments>
+            <argument name="utilities" xsi:type="object">Vertex\Mapper\MapperUtilities</argument>
+            <argument name="customerMapper" xsi:type="object">Vertex\Mapper\Api60\CustomerMapper</argument>
+            <argument name="sellerMapper" xsi:type="object">Vertex\Mapper\Api60\SellerMapper</argument>
+            <argument name="lineItemMapper" xsi:type="object">Vertex\Mapper\Api60\LineItemMapper</argument>
+        </arguments>
+    </type>
+    <type name="Vertex\Mapper\Api60\JurisdictionMapper">
+        <arguments>
+            <argument name="utilities" xsi:type="object">Vertex\Mapper\MapperUtilities</argument>
+        </arguments>
+    </type>
+    <type name="Vertex\Mapper\Api60\LineItemMapper">
+        <arguments>
+            <argument name="utilities" xsi:type="object">Vertex\Mapper\MapperUtilities</argument>
+            <argument name="customerMapper" xsi:type="object">Vertex\Mapper\Api60\CustomerMapper</argument>
+            <argument name="sellerMapper" xsi:type="object">Vertex\Mapper\Api60\SellerMapper</argument>
+            <argument name="taxMapper" xsi:type="object">Vertex\Mapper\Api60\TaxMapper</argument>
+        </arguments>
+    </type>
+    <type name="Vertex\Mapper\Api60\LoginMapper">
+        <arguments>
+            <argument name="utilities" xsi:type="object">Vertex\Mapper\MapperUtilities</argument>
+        </arguments>
+    </type>
+    <type name="Vertex\Mapper\Api60\QuoteRequestMapper">
+        <arguments>
+            <argument name="utilities" xsi:type="object">Vertex\Mapper\MapperUtilities</argument>
+            <argument name="customerMapper" xsi:type="object">Vertex\Mapper\Api60\CustomerMapper</argument>
+            <argument name="lineItemMapper" xsi:type="object">Vertex\Mapper\Api60\LineItemMapper</argument>
+            <argument name="sellerMapper" xsi:type="object">Vertex\Mapper\Api60\SellerMapper</argument>
+        </arguments>
+    </type>
+    <type name="Vertex\Mapper\Api60\QuoteResponseMapper">
+        <arguments>
+            <argument name="utilities" xsi:type="object">Vertex\Mapper\MapperUtilities</argument>
+            <argument name="customerMapper" xsi:type="object">Vertex\Mapper\Api60\CustomerMapper</argument>
+            <argument name="lineItemMapper" xsi:type="object">Vertex\Mapper\Api60\LineItemMapper</argument>
+            <argument name="sellerMapper" xsi:type="object">Vertex\Mapper\Api60\SellerMapper</argument>
+        </arguments>
+    </type>
+    <type name="Vertex\Mapper\Api60\SellerMapper">
+        <arguments>
+            <argument name="utilities" xsi:type="object">Vertex\Mapper\MapperUtilities</argument>
+            <argument name="addressMapper" xsi:type="object">Vertex\Mapper\Api60\AddressMapper</argument>
+        </arguments>
+    </type>
+    <type name="Vertex\Mapper\Api60\TaxAreaLookupRequestMapper">
+        <arguments>
+            <argument name="utilities" xsi:type="object">Vertex\Mapper\MapperUtilities</argument>
+            <argument name="addressMapper" xsi:type="object">Vertex\Mapper\Api60\AddressMapper</argument>
+        </arguments>
+    </type>
+    <type name="Vertex\Mapper\Api60\TaxAreaLookupResponseMapper">
+        <arguments>
+            <argument name="resultMapper" xsi:type="object">Vertex\Mapper\Api60\TaxAreaLookupResultMapper</argument>
+        </arguments>
+    </type>
+    <type name="Vertex\Mapper\Api60\TaxAreaLookupResultMapper">
+        <arguments>
+            <argument name="utilities" xsi:type="object">Vertex\Mapper\MapperUtilities</argument>
+            <argument name="addressMapper" xsi:type="object">Vertex\Mapper\Api60\AddressMapper</argument>
+            <argument name="jurisdictionMapper" xsi:type="object">Vertex\Mapper\Api60\JurisdictionMapper</argument>
+        </arguments>
+    </type>
+    <type name="Vertex\Mapper\Api60\TaxMapper">
+        <arguments>
+            <argument name="utilities" xsi:type="object">Vertex\Mapper\MapperUtilities</argument>
+            <argument name="jurisdictionMapper" xsi:type="object">Vertex\Mapper\Api60\JurisdictionMapper</argument>
+        </arguments>
+    </type>
+
+    <type name="Vertex\Tax\Model\FlexField\Processor\FlexFieldAttributeProcessor">
+        <arguments>
+            <argument name="processors" xsi:type="array">
+                <item name="store" xsi:type="array">
+                    <item name="sort-order" xsi:type="number">1</item>
+                    <item name="processor" xsi:type="object">Vertex\Tax\Model\FlexField\Processor\StoreGetterProcessor</item>
+                </item>
+                <item name="order" xsi:type="array">
+                    <item name="sort-order" xsi:type="number">2</item>
+                    <item name="processor" xsi:type="object">Vertex\Tax\Model\FlexField\Processor\OrderGetterProcessor</item>
+                </item>
+                <item name="product" xsi:type="array">
+                    <item name="sort-order" xsi:type="number">3</item>
+                    <item name="processor" xsi:type="object">Vertex\Tax\Model\FlexField\Processor\ProductGetterProcessor</item>
+                </item>
+                <item name="product_price" xsi:type="array">
+                    <item name="sort-order" xsi:type="number">4</item>
+                    <item name="processor" xsi:type="object">Vertex\Tax\Model\FlexField\Processor\ProductPriceGetterProcessor</item>
+                </item>
+                <item name="customer" xsi:type="array">
+                    <item name="sort-order" xsi:type="number">5</item>
+                    <item name="processor" xsi:type="object">Vertex\Tax\Model\FlexField\Processor\CustomerGetterProcessor</item>
+                </item>
+                <item name="billing_address" xsi:type="array">
+                    <item name="sort-order" xsi:type="number">6</item>
+                    <item name="processor" xsi:type="object">Vertex\Tax\Model\FlexField\Processor\BillingAddressGetterProcessor</item>
+                </item>
+                <item name="shipping_address" xsi:type="array">
+                    <item name="sort-order" xsi:type="number">7</item>
+                    <item name="processor" xsi:type="object">Vertex\Tax\Model\FlexField\Processor\ShippingAddressGetterProcessor</item>
+                </item>
+                <item name="destination_address" xsi:type="array">
+                    <item name="sort-order" xsi:type="number">8</item>
+                    <item name="processor" xsi:type="object">Vertex\Tax\Model\FlexField\Processor\DestinationAddressGetterProcessor</item>
+                </item>
+                <item name="order_currency" xsi:type="array">
+                    <item name="sort-order" xsi:type="number">9</item>
+                    <item name="processor" xsi:type="object">Vertex\Tax\Model\FlexField\Processor\OrderCurrencyGetterProcessor</item>
+                </item>
+                <item name="customer_email" xsi:type="array">
+                    <item name="sort-order" xsi:type="number">10</item>
+                    <item name="processor" xsi:type="object">Vertex\Tax\Model\FlexField\Processor\CustomerEmailProcessor</item>
+                </item>
+                <item name="custom_options" xsi:type="array">
+                    <item name="sort-order" xsi:type="number">11</item>
+                    <item name="processor" xsi:type="object">Vertex\Tax\Model\FlexField\Processor\ProductCustomOptionProcessor</item>
+                </item>
+            </argument>
+        </arguments>
+    </type>
+    <type name="Magento\Framework\Setup\Declaration\Schema\Operations\CreateTable">
+        <arguments>
+            <argument name="triggers" xsi:type="array">
+                <item name="migrateVertexInvoiceSent" xsi:type="object">Vertex\Tax\Setup\Schema\Triggers\MigrateVertexInvoiceSent</item>
+            </argument>
+        </arguments>
+    </type>
+    <type name="Magento\Framework\Console\CommandListInterface">
+        <arguments>
+            <argument name="commands" xsi:type="array">
+                <item name="vertex_wsdl_cache" xsi:type="object">Vertex\Tax\Console\Command\ExecuteWsdlCache</item>
+            </argument>
+        </arguments>
+    </type>
+    <type name="Vertex\Tax\Console\Command\ExecuteWsdlCache">
+        <arguments>
+            <argument name="wsdlCache" xsi:type="object">Vertex\Tax\Model\WsdlCache\Proxy</argument>
+        </arguments>
+    </type>
+</config>

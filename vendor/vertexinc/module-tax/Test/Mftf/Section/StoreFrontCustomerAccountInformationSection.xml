@@ -1,0 +1,16 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!--
+ /**
+  * @copyright  Vertex. All rights reserved.  https://www.vertexinc.com/
+  * @author     Mediotype                     https://www.mediotype.com/
+  */
+-->
+<sections xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+          xsi:noNamespaceSchemaLocation="urn:magento:mftf:Page/etc/SectionObject.xsd">
+    <section name="StorefrontCustomerAccountInformationSection">
+        <element name="vertexVatRegistrationCountry" type="select" selector="select[name='extension_attributes[vertex_customer_country]']"/>
+        <element name="taxVat" type="input" selector="input[name='taxvat']"/>
+        <element name="fieldErrorMessage" type="text" selector="//div[@class='mage-error']"/>
+        <element name="editShippingAddress" type="text" selector=".box-shipping-address .action.edit"/>
+    </section>
+</sections>

@@ -1,0 +1,205 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!--
+ /**
+  * @copyright  Vertex. All rights reserved.  https://www.vertexinc.com/
+  * @author     Mediotype                     https://www.mediotype.com/
+  */
+-->
+<entities xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+          xsi:noNamespaceSchemaLocation="urn:magento:mftf:DataGenerator/etc/dataProfileSchema.xsd">
+    <entity name="VertexTaxCartPriceDisplay" type="VertexTaxCartPriceDisplay">
+        <data key="value">3</data>
+    </entity>
+    <entity name="VertexTaxCartSubtotalDisplay" type="VertexTaxCartSubtotalDisplay">
+        <data key="value">3</data>
+    </entity>
+    <entity name="VertexTaxCartShippingDisplay" type="VertexTaxCartShippingDisplay">
+        <data key="value">3</data>
+    </entity>
+    <entity name="VertexTaxCartGrandtotalDisplay" type="VertexTaxCartGrandtotalDisplay">
+        <data key="value">3</data>
+    </entity>
+    <entity name="VertexTaxCartFullSummary" type="VertexTaxCartFullSummary">
+        <data key="value">1</data>
+    </entity>
+    <entity name="VertexTaxCartZeroSubtotal" type="VertexTaxCartZeroSubtotal">
+        <data key="value">1</data>
+    </entity>
+    <entity name="VertexTaxSalesPriceDisplay" type="VertexTaxSalesPriceDisplay">
+        <data key="value">3</data>
+    </entity>
+    <entity name="VertexTaxSalesSubtotalDisplay" type="VertexTaxSalesSubtotalDisplay">
+        <data key="value">3</data>
+    </entity>
+    <entity name="VertexTaxSalesShippingDisplay" type="VertexTaxSalesShippingDisplay">
+        <data key="value">3</data>
+    </entity>
+    <entity name="VertexTaxSalesGrandtotalDisplay" type="VertexTaxSalesGrandtotalDisplay">
+        <data key="value">3</data>
+    </entity>
+    <entity name="VertexTaxSalesFullSummary" type="VertexTaxSalesFullSummary">
+        <data key="value">1</data>
+    </entity>
+    <entity name="VertexTaxSalesZeroSubtotal" type="VertexTaxSalesZeroSubtotal">
+        <data key="value">1</data>
+    </entity>
+    <entity name="VertexTaxEnabled" type="VertexTaxEnabled">
+        <data key="value">1</data>
+    </entity>
+    <entity name="VertexTaxDisabled" type="VertexTaxEnabled">
+        <data key="value">0</data>
+    </entity>
+    <entity name="VertexTaxUseForCalculation" type="VertexTaxUseForCalculation">
+        <data key="value">1</data>
+    </entity>
+    <entity name="VertexTaxUseForCalculationDisabled" type="VertexTaxUseForCalculation">
+        <data key="value">0</data>
+    </entity>
+    <entity name="VertexCalculationWsdlUrl" type="VertexCalculationWsdlUrl">
+        <data key="value">https://mgcsconnect.vertexsmb.com/vertex-ws/services/CalculateTax70</data>
+    </entity>
+    <entity name="VertexAddressValidationWsdlUrl" type="VertexAddressValidationWsdlUrl">
+        <data key="value">https://mgcsconnect.vertexsmb.com/vertex-ws/services/LookupTaxAreas70</data>
+    </entity>
+    <entity name="VertexTrustedId" type="VertexTrustedId">
+        <data key="value">{{_CREDS.vertex/vertex_config_trusted_id}}</data>
+    </entity>
+    <entity name="VertexSellerCompanyCode" type="VertexSellerCompanyCode">
+        <data key="value">{{_CREDS.vertex/vertex_seller_company_code}}</data>
+    </entity>
+    <entity name="VertexSellerLocationCode" type="VertexSellerLocationCode">
+        <data key="value">Test-Automation</data>
+    </entity>
+    <entity name="VertexSellerUseShippingOrigin" type="VertexSellerUseShippingOrigin">
+        <data key="value">0</data>
+    </entity>
+    <entity name="VertexSellerStreetAddress1" type="VertexSellerStreetAddress1">
+        <data key="value">2301 Renaissance Blvd</data>
+    </entity>
+    <entity name="VertexSellerCity" type="VertexSellerCity">
+        <data key="value">King of Prussia</data>
+    </entity>
+    <entity name="VertexSellerCountryId" type="VertexSellerCountryId">
+        <data key="value">US</data>
+    </entity>
+    <entity name="VertexSellerRegionId" type="VertexSellerRegionId">
+        <data key="value">51</data>
+    </entity>
+    <entity name="VertexSellerPostcode" type="VertexSellerPostcode">
+        <data key="value">19406</data>
+    </entity>
+    <entity name="VertexILSellerStreetAddress1" type="VertexSellerStreetAddress1">
+        <data key="value">101 W 5th St</data>
+    </entity>
+    <entity name="VertexILSellerCity" type="VertexSellerCity">
+        <data key="value">Metropolis</data>
+    </entity>
+    <entity name="VertexILSellerRegionId" type="VertexSellerRegionId">
+        <data key="value">23</data>
+    </entity>
+    <entity name="VertexILSellerPostcode" type="VertexSellerPostcode">
+        <data key="value">62960</data>
+    </entity>
+    <entity name="VertexDefaultCustomerCode" type="VertexDefaultCustomerCode">
+        <data key="value">General</data>
+    </entity>
+    <entity name="VertexTaxAlgorithm" type="VertexTaxAlgorithm">
+        <data key="value">TOTAL_BASE_CALCULATION</data>
+    </entity>
+
+    <entity name="VertexTaxConfigAll" type="vertex_config">
+        <requiredEntity type="VertexTaxEnabled">VertexTaxEnabled</requiredEntity>
+        <requiredEntity type="VertexTaxUseForCalculation">VertexTaxUseForCalculation</requiredEntity>
+        <requiredEntity type="VertexCalculationWsdlUrl">VertexCalculationWsdlUrl</requiredEntity>
+        <requiredEntity type="VertexAddressValidationWsdlUrl">VertexAddressValidationWsdlUrl</requiredEntity>
+        <requiredEntity type="VertexTrustedId">VertexTrustedId</requiredEntity>
+        <requiredEntity type="VertexTaxSummaryType">VertexTaxSummaryByProductAndShipping</requiredEntity>
+
+        <requiredEntity type="VertexSellerCompanyCode">VertexSellerCompanyCode</requiredEntity>
+        <requiredEntity type="VertexSellerLocationCode">VertexSellerLocationCode</requiredEntity>
+        <requiredEntity type="VertexSellerUseShippingOrigin">VertexSellerUseShippingOrigin</requiredEntity>
+        <requiredEntity type="VertexSellerStreetAddress1">VertexSellerStreetAddress1</requiredEntity>
+        <requiredEntity type="VertexSellerCity">VertexSellerCity</requiredEntity>
+        <requiredEntity type="VertexSellerCountryId">VertexSellerCountryId</requiredEntity>
+        <requiredEntity type="VertexSellerRegionId">VertexSellerRegionId</requiredEntity>
+        <requiredEntity type="VertexSellerPostcode">VertexSellerPostcode</requiredEntity>
+
+        <requiredEntity type="VertexTaxCartPriceDisplay">VertexTaxCartPriceDisplay</requiredEntity>
+        <requiredEntity type="VertexTaxCartSubtotalDisplay">VertexTaxCartSubtotalDisplay</requiredEntity>
+        <requiredEntity type="VertexTaxCartShippingDisplay">VertexTaxCartShippingDisplay</requiredEntity>
+        <requiredEntity type="VertexTaxCartGrandtotalDisplay">VertexTaxCartGrandtotalDisplay</requiredEntity>
+        <requiredEntity type="VertexTaxCartFullSummary">VertexTaxCartFullSummary</requiredEntity>
+        <requiredEntity type="VertexTaxCartZeroSubtotal">VertexTaxCartZeroSubtotal</requiredEntity>
+
+        <requiredEntity type="VertexTaxSalesPriceDisplay">VertexTaxSalesPriceDisplay</requiredEntity>
+        <requiredEntity type="VertexTaxSalesSubtotalDisplay">VertexTaxSalesSubtotalDisplay</requiredEntity>
+        <requiredEntity type="VertexTaxSalesShippingDisplay">VertexTaxSalesShippingDisplay</requiredEntity>
+        <requiredEntity type="VertexTaxSalesGrandtotalDisplay">VertexTaxSalesGrandtotalDisplay</requiredEntity>
+        <requiredEntity type="VertexTaxSalesFullSummary">VertexTaxSalesFullSummary</requiredEntity>
+        <requiredEntity type="VertexTaxSalesZeroSubtotal">VertexTaxSalesZeroSubtotal</requiredEntity>
+    </entity>
+    <entity name="VertexGlobalDeliveryTermSUPConfigValue" type="VertexGlobalDeliveryTerm">
+        <data key="value">SUP</data>
+    </entity>
+    <entity name="VertexGlobalDeliveryTermSUP" type="vertex_config">
+        <requiredEntity type="VertexGlobalDeliveryTerm">VertexGlobalDeliveryTermSUPConfigValue</requiredEntity>
+    </entity>
+    <entity name="VertexTaxAllowedCountriesUsCaIrItNoSpConfigValue" type="VertexAllowedCountries">
+        <data key="value">US,CA,IR,IT,NO,ES</data>
+    </entity>
+    <entity name="VertexInvoiceWhenInvoiceCreated" type="VertexInvoiceOrderDuring">
+        <data key="value">invoice_created</data>
+    </entity>
+    <entity name="VertexInvoiceOrderDuringOrderStatusChangedValue" type="VertexInvoiceOrderDuring">
+        <data key="value">order_status</data>
+    </entity>
+
+    <entity name="VertexInvoiceOrderDuringOrderStatusChangedPendingValue" type="VertexInvoiceOrderWithStatus">
+        <data key="value">pending</data>
+    </entity>
+    <entity name="VertexInvoiceOrderDuringOrderStatusChangedProcessingValue" type="VertexInvoiceOrderWithStatus">
+        <data key="value">processing</data>
+    </entity>
+    <entity name="VertexInvoiceOrderDuringOrderStatusChangedCompleteValue" type="VertexInvoiceOrderWithStatus">
+        <data key="value">complete</data>
+    </entity>
+    <entity name="VertexTaxConfigInvoiceWhenInvoiceCreated" type="vertex_config">
+        <requiredEntity type="VertexInvoiceOrderDuring">VertexInvoiceWhenInvoiceCreated</requiredEntity>
+        <requiredEntity type="VertexInvoiceOrderWithStatus">VertexInvoiceOrderDuringOrderStatusChangedPendingValue</requiredEntity>
+    </entity>
+    <entity name="VertexTaxConfigStatusChangeOrderStatusPending" type="vertex_config">
+        <requiredEntity type="VertexInvoiceOrderDuring">VertexInvoiceOrderDuringOrderStatusChangedValue</requiredEntity>
+        <requiredEntity type="VertexInvoiceOrderWithStatus">VertexInvoiceOrderDuringOrderStatusChangedPendingValue</requiredEntity>
+    </entity>
+    <entity name="VertexTaxConfigStatusChangeOrderStatusProcessing" type="vertex_config">
+        <requiredEntity type="VertexInvoiceOrderDuring">VertexInvoiceOrderDuringOrderStatusChangedValue</requiredEntity>
+        <requiredEntity type="VertexInvoiceOrderWithStatus">VertexInvoiceOrderDuringOrderStatusChangedProcessingValue</requiredEntity>
+    </entity>
+    <entity name="VertexTaxConfigStatusChangeOrderStatusComplete" type="vertex_config">
+        <requiredEntity type="VertexInvoiceOrderDuring">VertexInvoiceOrderDuringOrderStatusChangedValue</requiredEntity>
+        <requiredEntity type="VertexInvoiceOrderWithStatus">VertexInvoiceOrderDuringOrderStatusChangedCompleteValue</requiredEntity>
+    </entity>
+
+    <entity name="VertexTaxAllowedCountriesUsCaIrItNoSp" type="vertex_config">
+        <requiredEntity type="VertexAllowedCountries">VertexTaxAllowedCountriesUsCaIrItNoSpConfigValue</requiredEntity>
+    </entity>
+    <entity name="VertexTaxSummaryByProductAndShippingConfigValue" type="VertexTaxSummaryType">
+        <data key="value">product_and_shipping</data>
+    </entity>
+    <entity name="VertexTaxSummaryByJurisdictionConfigValue" type="VertexTaxSummaryType">
+        <data key="value">jurisdiction</data>
+    </entity>
+    <entity name="VertexTaxSummaryByJurisdiction" type="vertex_config">
+        <requiredEntity type="VertexTaxSummaryType">VertexTaxSummaryByJurisdictionConfigValue</requiredEntity>
+    </entity>
+    <entity name="VertexTaxSummaryByProductAndShipping" type="vertex_config">
+        <requiredEntity type="VertexTaxSummaryType">VertexTaxSummaryByProductAndShippingConfigValue</requiredEntity>
+    </entity>
+    <entity name="VertexTaxConfigILSeller" type="vertex_config">
+        <requiredEntity type="VertexSellerStreetAddress1">VertexILSellerStreetAddress1</requiredEntity>
+        <requiredEntity type="VertexSellerCity">VertexILSellerCity</requiredEntity>
+        <requiredEntity type="VertexSellerCountryId">VertexSellerCountryId</requiredEntity>
+        <requiredEntity type="VertexSellerRegionId">VertexILSellerRegionId</requiredEntity>
+        <requiredEntity type="VertexSellerPostcode">VertexILSellerPostcode</requiredEntity>
+    </entity>
+</entities>

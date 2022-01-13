@@ -1,0 +1,23 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!--
+ /**
+  * @copyright  Vertex. All rights reserved.  https://www.vertexinc.com/
+  * @author     Mediotype                     https://www.mediotype.com/
+  */
+-->
+<sections xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+          xsi:noNamespaceSchemaLocation="urn:magento:mftf:Page/etc/SectionObject.xsd">
+    <section name="AdminOrderTotalSection">
+        <element name="totalByName" type="text" parameterized="true" selector="//div[contains(@class, 'order-totals')]//td[contains(normalize-space(.),'{{total}}')]/following-sibling::td//span[contains(@class, 'price')]" />
+        <element name="totalLabelByName" type="text" parameterized="true" selector="//div[contains(@class, 'order-totals')]//td[contains(normalize-space(.),'{{total}}')]" />
+        <element name="taxSummary" type="block" selector="table.order-subtotal-table .summary-total" />
+    </section>
+    <section name="AdminOrderTotalFooterSection">
+        <element name="totalPaid" type="text" selector="//div[contains(@class, 'order-totals')]//tfoot//span[@class='price'][ancestor::tr//*[contains(text(),'Total Paid')]]" />
+        <element name="totalRefunded" type="text" selector="//div[contains(@class, 'order-totals')]//tfoot//span[@class='price'][ancestor::tr//*[contains(text(),'Total Refunded')]]"/>
+        <element name="totalDue" type="text" selector="//div[contains(@class, 'order-totals')]//tfoot//span[@class='price'][ancestor::tr//*[contains(text(),'Total Due')]]"/>
+    </section>
+    <section name="AdminNewOrderTotalSection">
+        <element name="totalByName" type="text" parameterized="true" selector="//fieldset[@id='order-totals']//td[contains(normalize-space(.),'{{total}}')]/following-sibling::td//span[contains(@class, 'price')]" />
+    </section>
+</sections>

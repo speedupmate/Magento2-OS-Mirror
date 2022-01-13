@@ -1,0 +1,220 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!--
+ /**
+  * @copyright  Vertex. All rights reserved.  https://www.vertexinc.com/
+  * @author     Mediotype                     https://www.mediotype.com/
+  */
+-->
+<tests xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+       xsi:noNamespaceSchemaLocation="urn:magento:mftf:Test/etc/testSchema.xsd">
+
+    <test name="VertexAsRegisteredWithShipAddressValidationTaxBasedOnShippingSuggestAndUpdateAddress">
+        <annotations>
+            <features value="Vertex"/>
+            <group value="VertexAddressValidation"/>
+            <testCaseId value="VRTX-664"/>
+
+            <stories value="As a store owner, I must be able to validate the registered shipping address in checkout when new address"/>
+            <title value="Validate address when not same as shipping in checkout for registered customer with the tax calculation based on shipping address. We only show the message if the address is not valid and we find a valid result"/>
+            <description value="Validate the registered customer address and suggest changes. The calculation settings for the taxes are done based on shipping address. When the user updates the shipping address in checkout we suggest different values. If the address is valid we just go with the normal checkout flow"/>
+            <severity value="CRITICAL"/>
+        </annotations>
+        <before>
+
+            <createData entity="_defaultCategory" stepKey="createCategory"/>
+            <createData entity="_defaultProduct" stepKey="createProduct">
+                <field key="price">{{Vertex_34USD_PA_Only_Values.price}}</field>
+                <requiredEntity createDataKey="createCategory"/>
+            </createData>
+
+            <actionGroup ref="LoginAsAdmin" stepKey="loginAsAdmin"/>
+            <actionGroup ref="VertexAddressValidationDefaultConfig"
+                         stepKey="setupDefaultVertexAddressValidationTestConfiguration"/>
+            <actionGroup ref="VertexTaxConfigOrderStatusProcessing" stepKey="setupTaxConfigOrderStatusProcessing"/>
+            <actionGroup ref="ClearCacheActionGroup" stepKey="clearCache"/>
+            <actionGroup ref="logout" stepKey="logoutOfAdminStep"/>
+
+            <createData entity="Vertex_Customer_BobSaget" stepKey="createCustomer"/>
+            <actionGroup ref="LoginToStorefrontActionGroup" stepKey="customerLogin">
+                <argument name="Customer" value="$$createCustomer$$"/>
+            </actionGroup>
+
+            <actionGroup ref="AddSimpleProductToCart" stepKey="addProductToCart">
+                <argument name="product" value="$$createProduct$$"/>
+            </actionGroup>
+
+            <actionGroup ref="GoToCheckoutFromMinicartActionGroup" stepKey="gotoCheckout"/>
+
+            <click selector="{{CheckoutShippingSection.newAddressButton}}" stepKey="clickToOpenModal"/>
+
+            <actionGroup ref="FillNewShippingAddressModalActionGroupNoCompany" stepKey="changeAddress">
+                <argument name="address" value="Vertex_Customer_BirminghamAlabama_Address"/>
+            </actionGroup>
+
+            <click selector="{{CheckoutShippingSection.saveAddress}}" stepKey="saveNewAddress"/>
+
+            <waitForLoadingMaskToDisappear stepKey="waitForLoadingMask"/>
+
+            <waitForElement selector="{{CheckoutShippingMethodsSection.checkShippingMethodByName('Flat Rate')}}" stepKey="waitForShippingMethod"/>
+            <click selector="{{CheckoutShippingMethodsSection.checkShippingMethodByName('Flat Rate')}}" stepKey="selectShippingMethod"/>
+        </before>
+        <after>
+            <deleteData stepKey="deleteProduct" createDataKey="createProduct"/>
+            <deleteData stepKey="deleteCategory" createDataKey="createCategory"/>
+            <deleteData stepKey="deleteCustomer" createDataKey="createCustomer"/>
+            <actionGroup ref="logout" stepKey="logoutOfAdmin"/>
+            <actionGroup ref="StorefrontCustomerLogoutActionGroup" stepKey="customerLogout"/>
+        </after>
+
+        <actionGroup ref="VertexUpdateRegisteredAddress" stepKey="updateRegisteredAddress"/>
+
+        <actionGroup ref="VertexUpdatedRegisteredShippingAddress" stepKey="seeTheAddressUpdateOnSelectedMethod">
+            <argument name="postCode" value="{{Vertex_Customer_BirminghamAlabama_Address.valid_postcode}}"/>
+            <argument name="city" value="{{Vertex_Customer_BirminghamAlabama_Address.valid_city}}"/>
+        </actionGroup>
+
+        <checkOption selector="{{StorefrontCheckoutPaymentMethodSection.billingAddressSameAsShipping}}"
+                     stepKey="checkBillingAddressSameAsShippingCheckCheckBox"/>
+
+        <actionGroup ref="VertexAddressValidationUpdatedToValidMessageText" stepKey="addressWasUpdatedLocalStorage">
+            <argument name="postCode" value="{{Vertex_Customer_BirminghamAlabama_Address.valid_postcode}}"/>
+        </actionGroup>
+
+        <actionGroup ref="ClickPlaceOrderActionGroup" stepKey="placeOrder"/>
+        <waitForPageLoad stepKey="waitSuccess"/>
+    </test>
+
+        <test name="VertexAsRegisteredWithShipAddressValidationTaxBasedOnShippingApiErrorOrInvalid">
+            <annotations>
+                <features value="Vertex"/>
+                <group value="VertexAddressValidation"/>
+                <testCaseId value="VRTX-664"/>
+
+                <stories value="As a store owner, I must be able to validate the registered new shipping address in checkout"/>
+                <title value="Validate address when not same as shipping in checkout for registered customer with the tax calculation based on shipping address. The address will trigger a api error on this case."/>
+                <description value="Validate the registered customer address and suggest changes we we find a valid address. The calculation settings for the taxes are done based on shipping address. When the user updates the shipping address in checkout we cannot find a valid one and the API will return a error."/>
+
+                <severity value="CRITICAL"/>
+            </annotations>
+            <before>
+                <createData entity="_defaultCategory" stepKey="createCategory"/>
+                <createData entity="_defaultProduct" stepKey="createProduct">
+                    <field key="price">{{Vertex_34USD_PA_Only_Values.price}}</field>
+                    <requiredEntity createDataKey="createCategory"/>
+                </createData>
+
+                <actionGroup ref="LoginAsAdmin" stepKey="loginAsAdmin"/>
+                <actionGroup ref="VertexAddressValidationDefaultConfig"
+                             stepKey="setupDefaultVertexAddressValidationTestConfiguration"/>
+                <actionGroup ref="VertexTaxConfigOrderStatusProcessing" stepKey="setupTaxConfigOrderStatusProcessing"/>
+                <actionGroup ref="ClearCacheActionGroup" stepKey="clearCache"/>
+                <actionGroup ref="logout" stepKey="logoutOfAdminStep"/>
+
+                <createData entity="Vertex_Customer_BobSaget" stepKey="createCustomer"/>
+                <actionGroup ref="LoginToStorefrontActionGroup" stepKey="customerLogin">
+                    <argument name="Customer" value="$$createCustomer$$"/>
+                </actionGroup>
+
+                <actionGroup ref="AddSimpleProductToCart" stepKey="addProductToCart">
+                    <argument name="product" value="$$createProduct$$"/>
+                </actionGroup>
+
+                <actionGroup ref="GoToCheckoutFromMinicartActionGroup" stepKey="gotoCheckout"/>
+
+                <click selector="{{CheckoutShippingSection.newAddressButton}}" stepKey="clickToOpenModal"/>
+
+                <actionGroup ref="FillNewShippingAddressModalActionGroupNoCompany" stepKey="changeAddress">
+                    <argument name="address" value="Vertex_Customer_ChesterPennsylvania_Address"/>
+                </actionGroup>
+
+                <click selector="{{CheckoutShippingSection.saveAddress}}" stepKey="saveNewAddress"/>
+            </before>
+            <after>
+                <deleteData stepKey="deleteProduct" createDataKey="createProduct"/>
+                <deleteData stepKey="deleteCategory" createDataKey="createCategory"/>
+                <deleteData stepKey="deleteCustomer" createDataKey="createCustomer"/>
+                <actionGroup ref="logout" stepKey="logoutOfAdmin"/>
+            </after>
+
+            <waitForLoadingMaskToDisappear stepKey="waitForLoadingMask"/>
+            <waitForElement selector="{{CheckoutShippingMethodsSection.checkShippingMethodByName('Flat Rate')}}" stepKey="waitForShippingMethod"/>
+            <click selector="{{CheckoutShippingMethodsSection.checkShippingMethodByName('Flat Rate')}}" stepKey="selectShippingMethod"/>
+
+            <waitForElement selector="{{CheckoutShippingSection.next}}" time="30" stepKey="waitForNextButton"/>
+            <click selector="{{CheckoutShippingSection.next}}" stepKey="clickNext"/>
+
+            <actionGroup ref="VertexAddressValidationDefaultErrorOrInvalidSystemMessage"
+                         stepKey="seeInvalidMessageAndProceed"/>
+
+            <actionGroup ref="ClickPlaceOrderActionGroup" stepKey="placeOrder"/>
+            <waitForPageLoad stepKey="waitSuccess"/>
+        </test>
+
+        <test name="VertexAsRegisteredWithShipAddressValidationTaxBasedOnShippingAddressValid">
+            <annotations>
+                <features value="Vertex"/>
+                <group value="VertexAddressValidation"/>
+                <testCaseId value="VRTX-664"/>
+
+                <stories value="As a store owner, I must be able to validate the registered user new shipping address in checkout"/>
+                <title value="Validate address when not same as shipping in checkout for registered customer with the tax calculation based on shipping address. We have a valid address and we will show the valid message"/>
+                <description value="Validate the registered customer address and suggest changes. The calculation settings for the taxes are done based on shipping address. When the user updates the shipping address in checkout we display a message that tells the user the address is valid."/>
+                <severity value="CRITICAL"/>
+            </annotations>
+            <before>
+
+                <createData entity="_defaultCategory" stepKey="createCategory"/>
+                <createData entity="_defaultProduct" stepKey="createProduct">
+                    <field key="price">{{Vertex_34USD_PA_Only_Values.price}}</field>
+                    <requiredEntity createDataKey="createCategory"/>
+                </createData>
+
+                <actionGroup ref="LoginAsAdmin" stepKey="loginAsAdmin"/>
+                <actionGroup ref="VertexAddressValidationDefaultConfig"
+                             stepKey="setupDefaultVertexAddressValidationTestConfiguration"/>
+                <actionGroup ref="VertexTaxConfigOrderStatusProcessing" stepKey="setupTaxConfigOrderStatusProcessing"/>
+                <actionGroup ref="ClearCacheActionGroup" stepKey="clearCache"/>
+                <actionGroup ref="logout" stepKey="logoutOfAdminStep"/>
+
+                <createData entity="Vertex_Customer_BobSaget" stepKey="createCustomer"/>
+                <actionGroup ref="LoginToStorefrontActionGroup" stepKey="customerLogin">
+                    <argument name="Customer" value="$$createCustomer$$"/>
+                </actionGroup>
+
+                <actionGroup ref="AddSimpleProductToCart" stepKey="addProductToCart">
+                    <argument name="product" value="$$createProduct$$"/>
+                </actionGroup>
+
+                <actionGroup ref="GoToCheckoutFromMinicartActionGroup" stepKey="gotoCheckout"/>
+
+                <click selector="{{CheckoutShippingSection.newAddressButton}}" stepKey="clickToOpenModal"/>
+
+                <actionGroup ref="FillNewShippingAddressModalActionGroupNoCompany" stepKey="changeAddress">
+                    <argument name="address" value="Vertex_Customer_PhiladelphiaPennsylvania_Address"/>
+                </actionGroup>
+
+                <click selector="{{CheckoutShippingSection.saveAddress}}" stepKey="saveNewAddress"/>
+
+                <waitForLoadingMaskToDisappear stepKey="waitForLoadingMask"/>
+
+                <waitForElement selector="{{CheckoutShippingMethodsSection.checkShippingMethodByName('Flat Rate')}}" stepKey="waitForShippingMethod"/>
+                <click selector="{{CheckoutShippingMethodsSection.checkShippingMethodByName('Flat Rate')}}" stepKey="selectShippingMethod"/>
+
+                <waitForElement selector="{{CheckoutShippingSection.next}}" time="30" stepKey="waitForNextButton"/>
+            </before>
+            <after>
+                <deleteData stepKey="deleteProduct" createDataKey="createProduct"/>
+                <deleteData stepKey="deleteCategory" createDataKey="createCategory"/>
+                <deleteData stepKey="deleteCustomer" createDataKey="createCustomer"/>
+                <actionGroup ref="logout" stepKey="logoutOfAdmin"/>
+            </after>
+
+            <click selector="{{CheckoutShippingSection.next}}" stepKey="clickNext"/>
+
+            <actionGroup ref="VertexAddressValidationValidSystemMessage" stepKey="seeValidMessage"/>
+
+            <actionGroup ref="ClickPlaceOrderActionGroup" stepKey="placeOrder"/>
+            <waitForPageLoad stepKey="waitSuccess"/>
+        </test>
+
+</tests>

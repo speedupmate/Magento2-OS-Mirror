@@ -1,0 +1,82 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!--
+ /**
+  * Copyright © Magento, Inc. All rights reserved.
+  * See COPYING.txt for license details.
+  *
+  * This file is part of the Klarna KP module
+  *
+  * (c) Klarna Bank AB (publ)
+  *
+  * For the full copyright and license information, please view the NOTICE
+  * and LICENSE files that were distributed with this source code.
+  */
+-->
+<tests xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+       xsi:noNamespaceSchemaLocation="urn:magento:mftf:Test/etc/testSchema.xsd">
+    <test name="PlaceKlarnaPaymentsOrderWithFixedCouponAsGuestTest">
+        <annotations>
+            <features value="Klarna Payments"/>
+            <stories value="It's possible to place a Klarna order with coupon as a guest"/>
+            <title value="Placing Klarna order with a fixed coupon as guest"/>
+            <description value="It should be possible to successfully place an order with Klarna Payments with a fixed coupon as a guest"/>
+            <severity value="CRITICAL"/>
+            <testCaseId value="KP_C_G_1"/>
+            <group value="Klarna_KP_Country_US"/>
+            <group value="Klarna_KP_Order_Guest"/>
+        </annotations>
+        <before>
+            <createData entity="SimpleTwo" stepKey="createSimpleProduct"/>
+            <actionGroup ref="LoginAsAdmin" stepKey="loginAsAdmin"/>
+            <actionGroup ref="AdminCreateCartPriceRuleWithCouponCode" stepKey="createCartPriceRule">
+                <argument name="ruleName" value="CatPriceRule"/>
+            </actionGroup>
+        </before>
+        <after>
+            <deleteData createDataKey="createSimpleProduct" stepKey="deleteSimpleProduct"/>
+            <actionGroup ref="DeleteCartPriceRuleByName" stepKey="deleteCartPriceRule">
+                <argument name="ruleName" value="{{CatPriceRule.name}}"/>
+            </actionGroup>
+            <actionGroup ref="logout" stepKey="logout"/>
+        </after>
+        <!--Go to product page-->
+        <actionGroup ref="GoToCreatedProductPageAndWaitForAddToCart" stepKey="goToCreatedProductPageAndWaitForAddToCart">
+            <argument name="url" value="$$createSimpleProduct.custom_attributes[url_key]$$.html"/>
+        </actionGroup>
+
+        <!--Add product to shopping cart then go to cart and apply coupon-->
+        <actionGroup ref="ApplyCartRuleOnStorefrontActionGroup" stepKey="addToCartAndApplyCartRule">
+            <argument name="product" value="$$createSimpleProduct$$"/>
+            <argument name="couponCode" value="{{_defaultCoupon.code}}"/>
+        </actionGroup>
+
+        <!--Go to checkout-->
+        <waitForPageLoad stepKey="waitForCartPageLoad"/>
+        <actionGroup ref="GoToCheckoutFromMinicartActionGroup" stepKey="goToCheckoutFromMinicart"/>
+
+        <!--Enter shipping information and continue to payments-->
+        <actionGroup ref="GuestCheckoutFillingShippingSectionActionGroup" stepKey="guestCheckoutFillingShipping">
+            <argument name="customerVar" value="Klarna_US_Customer_B2C"/>
+            <argument name="customerAddressVar" value="Klarna_US_Address_B2C"/>
+        </actionGroup>
+
+        <!--Grab order total amount-->
+        <waitForElementVisible selector="{{CheckoutPaymentSection.orderSummaryTotal}}" stepKey="waitForOrderTotal"/>
+        <grabTextFrom selector="{{CheckoutPaymentSection.orderSummaryTotal}}" stepKey="grabTotalAmount"/>
+
+        <!--Place order-->
+        <actionGroup ref="PlaceOrderWithKlarnaPaymentsMethod" stepKey="placeOrderWithKlarnaPayLaterMethod">
+            <argument name="paymentMethod" value="KlarnaPaymentsPayLater"/>
+        </actionGroup>
+
+        <!--Grab order number-->
+        <waitForElementVisible selector="{{CheckoutSuccessMainSection.orderNumber}}" stepKey="waitForOrderNumber"/>
+        <grabTextFrom selector="{{CheckoutSuccessMainSection.orderNumber}}" stepKey="grabOrderNumber"/>
+
+        <!--Verify order summary in admin-->
+        <actionGroup ref="ValidateAdminKlarnaOrderSummaryGrandTotal" stepKey="validateOrderSummary">
+            <argument name="orderNumber" value="{$grabOrderNumber}"/>
+            <argument name="grandTotalAmount" value="{$grabTotalAmount}"/>
+        </actionGroup>
+    </test>
+</tests>

@@ -1,0 +1,21 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!--
+ /**
+  * Copyright © Magento, Inc. All rights reserved.
+  * See COPYING.txt for license details.
+  */
+-->
+
+<actionGroups xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+              xsi:noNamespaceSchemaLocation="urn:magento:mftf:Test/etc/actionGroupSchema.xsd">
+    <actionGroup name="ApplyCartRuleOnStorefrontWithProductQuantityActionGroup" extends="ApplyCartRuleOnStorefrontActionGroup">
+        <annotations>
+            <description>Changes product quantity and clicks on Add to Cart on a Storefront Product page. Validates that the Success Message is present and correct. Goes to the Storefront Shopping Cart page. Applies the provided Coupon Code to the Shopping Cart.</description>
+        </annotations>
+        <arguments>
+            <argument name="productQty" type="string"/>
+        </arguments>
+
+        <fillField selector="{{StorefrontProductActionSection.quantity}}" userInput="{{productQty}}" stepKey="fillProductQuantity" before="addToCart"/>
+    </actionGroup>
+</actionGroups>

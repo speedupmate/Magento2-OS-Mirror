@@ -1,0 +1,14 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!--
+ /**
+  * @copyright  Vertex. All rights reserved.  https://www.vertexinc.com/
+  * @author     Mediotype                     https://www.mediotype.com/
+  */
+-->
+<actionGroups xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+              xsi:noNamespaceSchemaLocation="urn:magento:mftf:Test/etc/actionGroupSchema.xsd">
+    <actionGroup name="VertexAdminSetTaxvatShowOnStorefrontActionGroup">
+        <!-- We do this through the CLI as it is the most reliable way across Open Source and Commerce editions -->
+        <magentoCLI stepKey="configureTaxVatShowOnStorefront" command="config:set" arguments="customer/address/taxvat_show 1" />
+    </actionGroup>
+</actionGroups>

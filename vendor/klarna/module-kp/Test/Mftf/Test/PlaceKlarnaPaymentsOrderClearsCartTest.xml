@@ -1,0 +1,72 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!--
+ /**
+  * Copyright © Magento, Inc. All rights reserved.
+  * See COPYING.txt for license details.
+  *
+  * This file is part of the Klarna KP module
+  *
+  * (c) Klarna Bank AB (publ)
+  *
+  * For the full copyright and license information, please view the NOTICE
+  * and LICENSE files that were distributed with this source code.
+  */
+-->
+<tests xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+       xsi:noNamespaceSchemaLocation="urn:magento:mftf:Test/etc/testSchema.xsd">
+    <test name="PlacePayLaterOrderClearsCartUSTest">
+        <annotations>
+            <features value="Klarna Payments"/>
+            <stories value="Placing an order removes all items from the cart"/>
+            <title value="Placing order clears cart items"/>
+            <description value="Successfully placing an order with Klarna Payments should remove all items from the cart"/>
+            <severity value="CRITICAL"/>
+            <testCaseId value="KP_PL_R_3"/>
+            <group value="Klarna_KP_Country_US"/>
+            <group value="Klarna_KP_Order_Registered"/>
+            <group value="Klarna_KP_Order_Pay_Later"/>
+        </annotations>
+        <before>
+            <createData entity="SimpleTwo" stepKey="createSimpleProduct"/>
+            <createData entity="Klarna_US_Customer_B2C" stepKey="createCustomer"/>
+        </before>
+        <after>
+            <deleteData createDataKey="createSimpleProduct" stepKey="deleteSimpleProduct"/>
+            <deleteData createDataKey="createCustomer" stepKey="deleteCustomer"/>
+        </after>
+        <!--Log in to store front as customer-->
+        <actionGroup ref="LoginToStorefrontActionGroup" stepKey="customerLogin">
+            <argument name="Customer" value="$$createCustomer$$" />
+        </actionGroup>
+
+        <!--Go to product page-->
+        <actionGroup ref="GoToCreatedProductPageAndWaitForAddToCart" stepKey="goToCreatedProductPageAndWaitForAddToCart">
+            <argument name="url" value="$$createSimpleProduct.custom_attributes[url_key]$$.html"/>
+        </actionGroup>
+
+        <!--Add product to shopping cart-->
+        <actionGroup ref="addToCartFromStorefrontProductPage" stepKey="addToCartFromStorefrontProductPage">
+            <argument name="productName" value="$$createSimpleProduct.name$$"/>
+        </actionGroup>
+
+        <!--Go to checkout-->
+        <actionGroup ref="GoToCheckoutFromMinicartActionGroup" stepKey="goToCheckoutFromMinicart"/>
+
+        <!--Select shipping method and continue to payments-->
+        <click selector="{{CheckoutShippingMethodsSection.firstShippingMethod}}" stepKey="selectFirstShippingMethod"/>
+        <waitForElement selector="{{CheckoutShippingMethodsSection.next}}" time="30" stepKey="waitForShippingMethodSelect"/>
+        <click selector="{{CheckoutShippingMethodsSection.next}}" stepKey="clickNextOnShippingMethodLoad"/>
+
+        <!--Place order-->
+        <actionGroup ref="PlaceOrderWithKlarnaPaymentsMethod" stepKey="placeOrderWithKlarnaPayLaterMethod">
+            <argument name="paymentMethod" value="KlarnaPaymentsPayLater"/>
+        </actionGroup>
+
+        <!--Try to go to checkout again-->
+        <amOnPage url="{{CheckoutPage.url}}" stepKey="tryToGoToCheckoutAgain"/>
+
+        <!--Verify that the cart has been cleared and that another order can't be made-->
+        <seeInCurrentUrl url="{{CheckoutCartPage.url}}" stepKey="assertRedirectToCartPage"/>
+        <waitForElementVisible selector="{{CheckoutCartSection.cartEmptyBlock}}" stepKey="assertThatCartIsEmpty"/>
+    </test>
+</tests>

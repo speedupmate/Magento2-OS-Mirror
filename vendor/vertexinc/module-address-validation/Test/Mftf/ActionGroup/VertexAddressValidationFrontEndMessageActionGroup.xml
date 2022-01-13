@@ -1,0 +1,124 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!--
+ /**
+  * @copyright  Vertex. All rights reserved.  https://www.vertexinc.com/
+  * @author     Mediotype                     https://www.mediotype.com/
+  */
+-->
+<actionGroups xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+              xsi:noNamespaceSchemaLocation="urn:magento:mftf:Test/etc/actionGroupSchema.xsd">
+    <actionGroup name="VertexAddressValidationDefaultMessage">
+        <annotations>
+            <description>See the validation message container after we hit the button update.</description>
+        </annotations>
+        <waitForElementNotVisible selector="{{CheckoutShippingSection.addressMessageWarning}}"
+                                  stepKey="AddressValidationMessageContainer"/>
+        <waitForAjaxLoad stepKey="waitForApiResponseLoad"/>
+    </actionGroup>
+
+    <actionGroup name="VertexAddressValidationDefaultErrorOrInvalidMessageRegistered">
+        <conditionalClick selector="{{CheckoutPaymentSection.update}}"
+                          dependentSelector="{{CheckoutShippingSection.addressMessageWarning}}"
+                          visible="false"
+                          stepKey="clickOnUpdateButtonBeforeValidation"/>
+
+        <waitForAjaxLoad stepKey="waitForApiResponseLoad"/>
+        <waitForLoadingMaskToDisappear stepKey="waitForLoadingMask"/>
+        <see stepKey="warningMessage"
+             selector="{{CheckoutShippingSection.addressMessageWarning}}"
+             userInput="The address could not be validated. Please ensure it is correct before continuing."/>
+
+        <conditionalClick selector="{{CheckoutPaymentSection.update}}"
+                          dependentSelector="{{CheckoutShippingSection.addressMessageWarning}}"
+                          visible="true"
+                          stepKey="clickOnUpdateButtonAfterValidation"/>
+    </actionGroup>
+
+    <actionGroup name="VertexAddressValidationValidMessage">
+        <conditionalClick selector="{{CheckoutPaymentSection.update}}"
+                          dependentSelector="{{CheckoutShippingSection.addressMessageWasValid}}"
+                          visible="false"
+                          stepKey="clickOnUpdateButtonBeforeValidation"/>
+
+        <waitForAjaxLoad stepKey="waitForApiResponseLoad"/>
+        <waitForLoadingMaskToDisappear stepKey="waitForLoadingMask"/>
+        <see stepKey="successMessage"
+             selector="{{CheckoutShippingSection.addressMessageWasValid}}"
+             userInput="The address is valid"/>
+
+        <conditionalClick selector="{{CheckoutPaymentSection.update}}"
+                          dependentSelector="{{CheckoutShippingSection.addressMessageWasValid}}"
+                          visible="true"
+                          stepKey="clickOnUpdateButtonAfterValidation"/>
+    </actionGroup>
+
+    <actionGroup name="VertexAddressValidationUpdatedToValidMessage">
+        <annotations>
+            <description>See the update to valid message after we hit the button update to valid.</description>
+        </annotations>
+        <arguments>
+            <argument type="string" name="postCode"/>
+        </arguments>
+        <see stepKey="postCode" selector="{{CheckoutShippingSection.addressInvalidFieldsContainer}}"
+             userInput="{{postCode}}"/>
+
+        <conditionalClick selector="{{CheckoutShippingSection.updateLinkToValidAddress}}"
+                          dependentSelector="{{CheckoutShippingSection.addressMessageWarning}}"
+                          visible="true"
+                          stepKey="updateButtonToValidAddress"/>
+
+        <conditionalClick selector="{{CheckoutPaymentSection.update}}"
+                          dependentSelector="{{CheckoutShippingSection.addressMessageWasValid}}"
+                          visible="true"
+                          stepKey="clickOnUpdateButtonAfterValidation"/>
+    </actionGroup>
+
+    <actionGroup name="VertexAddressValidationUpdatedToValidMessageText">
+        <annotations>
+            <description>See the valid details on the payment method after update.</description>
+        </annotations>
+        <arguments>
+            <argument type="string" name="postCode"/>
+        </arguments>
+        <see stepKey="postCode" selector="{{CheckoutBillingSection.updatedAddressDetails}}" userInput="{{postCode}}"/>
+    </actionGroup>
+
+    <actionGroup name="VertexContinueToBillingStep">
+        <click selector="{{CheckoutShippingSection.firstShippingMethod}}" stepKey="selectFirstShippingMethod"/>
+        <waitForElement selector="{{CheckoutShippingSection.next}}" time="30" stepKey="waitForNextButton"/>
+        <click selector="{{CheckoutShippingSection.next}}" stepKey="clickNext"/>
+        <waitForElement selector="{{CheckoutPaymentSection.paymentSectionTitle}}" time="30"
+                        stepKey="waitForPaymentSectionLoaded"/>
+        <seeInCurrentUrl url="{{CheckoutPage.url}}/#payment" stepKey="assertCheckoutPaymentUrl"/>
+
+        <uncheckOption selector="{{CheckoutPaymentSection.billingAddressNotSameCheckbox}}"
+                       stepKey="selectPaymentSolution"/>
+        <waitForElementVisible selector="{{CheckoutShippingSection.addressDropdown}}"
+                               stepKey="waitForAddressDropDownToBeVisible"/>
+        <selectOption selector="{{CheckoutShippingSection.addressDropdown}}" userInput="New Address"
+                      stepKey="addAddress"/>
+        <waitForElementVisible selector="{{CheckoutPaymentSection.billingNewAddressForm}}"
+                               stepKey="waitForTheAddressNewForm"/>
+    </actionGroup>
+
+    <actionGroup name="GuestCheckoutWithOneAddressFieldWithoutCompany"
+                 extends="LoggedInCheckoutFillNewBillingAddressActionGroup">
+        <annotations>
+            <description>EXTENDS: LoggedInCheckoutFillNewBillingAddressActionGroup. Removes 'fillCompany'</description>
+        </annotations>
+        <remove keyForRemoval="fillCompany"/>
+    </actionGroup>
+
+    <actionGroup name="LoggedInCheckoutWithOneAddressFieldWithoutStreetAndMore"
+                 extends="LoggedInCheckoutFillNewBillingAddressActionGroup">
+        <annotations>
+            <description>EXTENDS: LoggedInCheckoutFillNewBillingAddressActionGroup. Removes 'fillStreetAddress2',
+                'fillFirstName', 'fillLastName' and 'fillCompany'
+            </description>
+        </annotations>
+        <remove keyForRemoval="fillStreetAddress2"/>
+        <remove keyForRemoval="fillFirstName"/>
+        <remove keyForRemoval="fillLastName"/>
+        <remove keyForRemoval="fillCompany"/>
+    </actionGroup>
+</actionGroups>

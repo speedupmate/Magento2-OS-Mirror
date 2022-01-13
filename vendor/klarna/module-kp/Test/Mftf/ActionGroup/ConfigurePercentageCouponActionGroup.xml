@@ -1,0 +1,29 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!--
+ /**
+  * Copyright © Magento, Inc. All rights reserved.
+  * See COPYING.txt for license details.
+  *
+  * This file is part of the Klarna KP module
+  *
+  * (c) Klarna Bank AB (publ)
+  *
+  * For the full copyright and license information, please view the NOTICE
+  * and LICENSE files that were distributed with this source code.
+  */
+-->
+<actionGroups xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+              xsi:noNamespaceSchemaLocation="urn:magento:mftf:Test/etc/actionGroupSchema.xsd">
+    <actionGroup name="ConfigurePercentageCoupon" extends="AdminCreateCartPriceRuleActionGroup">
+        <arguments>
+            <argument name="couponCode"/>
+        </arguments>
+
+        <selectOption selector="{{AdminCartPriceRulesFormSection.coupon}}" userInput="Specific Coupon" stepKey="selectCouponType" after="fillRuleName"/>
+        <waitForElementVisible selector="{{AdminCartPriceRulesFormSection.couponCode}}" stepKey="waitForElementVisible" after="selectCouponType"/>
+        <fillField selector="{{AdminCartPriceRulesFormSection.couponCode}}" userInput="{{couponCode}}" stepKey="fillCouponCode" after="waitForElementVisible"/>
+
+        <!-- Setup the coupon value -->
+        <selectOption selector="{{AdminCartPriceRulesFormSection.apply}}" userInput="Percent of product price discount" stepKey="selectActionType"/>
+    </actionGroup>
+</actionGroups>

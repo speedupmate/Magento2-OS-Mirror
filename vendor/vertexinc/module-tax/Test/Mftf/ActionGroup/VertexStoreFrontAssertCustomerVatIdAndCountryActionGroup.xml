@@ -1,0 +1,20 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!--
+ /**
+  * @copyright  Vertex. All rights reserved.  https://www.vertexinc.com/
+  * @author     Mediotype                     https://www.mediotype.com/
+  */
+-->
+<actionGroups xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+              xsi:noNamespaceSchemaLocation="urn:magento:mftf:Test/etc/actionGroupSchema.xsd">
+    <actionGroup name="VertexStoreFrontAssertCustomerVatIdAndCountryActionGroup">
+        <arguments>
+            <argument name="vatId" type="string" defaultValue="9999"/>
+            <argument name="countryId" type="string" defaultValue="IT"/>
+        </arguments>
+
+        <amOnPage url="{{StorefrontCustomerEditPage.url}}" stepKey="goToAccountInformationPageCheckValues"/>
+        <seeInField selector="{{StorefrontCustomerAccountInformationSection.taxVat}}" userInput="{{vatId}}" stepKey="seeCustomerTaxvatInForm"/>
+        <seeInField selector="{{StorefrontCustomerAccountInformationSection.vertexVatRegistrationCountry}}" userInput="{{countryId}}" stepKey="seeCustomerCountryInForm"/>
+    </actionGroup>
+</actionGroups>

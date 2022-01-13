@@ -1,0 +1,29 @@
+<!--
+/**
+ * @copyright  Vertex. All rights reserved.  https://www.vertexinc.com/
+ * @author     Mediotype                     https://www.mediotype.com/
+ */
+-->
+
+<!-- ko if: hasMessage -->
+<div class="field vertex-message address-message" data-bind="hasFocus: true">
+    <div role="alert" data-bind="attr: {class: message.class}">
+        <div data-bind="html: renderedTemplate"/>
+        <!-- ko if: message.differences.length -->
+        <!-- ko if: hasChild('validator') -->
+        <!-- ko with: requestChild('validator') -->
+        <div class="message action">
+            <button class="update-address"
+                    data-bind="
+                            attr: {'title': $t('Update address')},
+                            click: updateVertexAddress.bind($data)
+                        ">
+                <span translate="'Update address'"></span>
+            </button>
+        </div>
+        <!-- /ko -->
+        <!-- /ko -->
+        <!-- /ko -->
+    </div>
+</div>
+<!-- /ko -->

@@ -1,0 +1,19 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!--
+/**
+ * @copyright  Vertex. All rights reserved.  https://www.vertexinc.com/
+ * @author     Mediotype                     https://www.mediotype.com/
+ */
+-->
+<routes xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+        xsi:noNamespaceSchemaLocation="urn:magento:module:Magento_Webapi:etc/webapi.xsd">
+    <!-- @deprecated -->
+    <!-- @see Vertex_AddressValidationApi/etc/webapi.xml -->
+    <route url="/V1/vertex-address-validation/vertex-address" method="POST">
+        <service class="Vertex\AddressValidation\Api\AddressManagementInterface"
+                 method="getValidAddress"/>
+        <resources>
+            <resource ref="anonymous" />
+        </resources>
+    </route>
+</routes>

@@ -1,0 +1,92 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!--
+ /**
+
+  * @copyright  Vertex. All rights reserved.  https://www.vertexinc.com/
+  * @author     Mediotype                     https://www.mediotype.com/
+  */
+-->
+<tests xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+       xsi:noNamespaceSchemaLocation="urn:magento:mftf:Test/etc/testSchema.xsd">
+    <test name="VertexStorefrontEnsureUpdatingBillingAddressDoesNotAffectShippingAddress">
+        <annotations>
+            <features value="Vertex AddressCleansing"/>
+            <group value="VertexAddressValidation"/>
+            <testCaseId value="VRTX-772"/>
+            <testCaseId value="BUNDLE-2584"/>
+
+            <stories value="As a store owner, I must be able to validate the guest billing address in checkout"/>
+            <title value="Ensure that updating the billing address does not modify the shipping address"/>
+            <description value="Validate that when updating the billing address, the shipping address remains the same."/>
+
+            <severity value="CRITICAL"/>
+        </annotations>
+        <before>
+            <actionGroup ref="LoginAsAdmin" stepKey="loginAsAdmin"/>
+            <actionGroup ref="VertexAddressValidationDefaultConfig"
+                         stepKey="setupDefaultVertexAddressValidationTestConfiguration"/>
+            <actionGroup ref="ClearCacheActionGroup" stepKey="clearCache"/>
+            <createData entity="_defaultCategory" stepKey="createCategory"/>
+            <createData entity="_defaultProduct" stepKey="createProduct">
+                <field key="price">{{Vertex_34USD_PA_Only_Values.price}}</field>
+                <requiredEntity createDataKey="createCategory"/>
+            </createData>
+            <magentoCron stepKey="runCronIndex" groups="index"/>
+
+            <actionGroup ref="AddSimpleProductToCartActionGroup" stepKey="addProductToCart">
+                <argument name="product" value="$$createProduct$$"/>
+            </actionGroup>
+            <actionGroup ref="GoToCheckoutFromMinicartActionGroup" stepKey="gotoCheckout"/>
+
+            <actionGroup ref="GuestCheckoutFillShippingNoWaitForPaymentActionGroup" stepKey="fillShippingInformation">
+                <argument name="customerVar" value="Vertex_Customer_BobSaget"/>
+                <argument name="customerAddressVar" value="Vertex_Customer_BirminghamAlabama_Address"/>
+            </actionGroup>
+
+            <actionGroup ref="VertexAddressValidationUpdatedToValidSystemMessageActionGroup" stepKey="messageWasUpdatedShipping">
+                <argument name="postCode" value="{{Vertex_Customer_BirminghamAlabama_Address.valid_postcode}}"/>
+            </actionGroup>
+
+            <conditionalClick selector="{{StorefrontCheckoutPaymentMethodSection.billingAddressSameAsShipping}}"
+                              dependentSelector="{{CheckoutShippingSection.editAddressButton}}"
+                              visible="true"
+                              stepKey="checkBillingAddressSameAsShippingIfAddressEdit"/>
+
+            <uncheckOption selector="{{StorefrontCheckoutPaymentMethodSection.billingAddressSameAsShipping}}"
+                           stepKey="uncheckBillingAddressSameAsShippingCheckCheckBox"/>
+
+            <actionGroup ref="StorefrontCheckoutFillNewBillingAddressActionGroup" stepKey="changeAddress">
+                <argument name="customerVar" value="Vertex_Customer_BobSaget"/>
+                <argument name="customerAddressVar" value="Vertex_Customer_PhiladelphiaPennsylvania_Address_Incorrect"/>
+            </actionGroup>
+
+            <click selector="{{CheckoutPaymentSection.update}}" stepKey="clickOnUpdateButton"/>
+
+            <actionGroup ref="VertexAddressValidationDefaultMessageActionGroup"
+                         stepKey="seeValidationMessage"/>
+
+            <actionGroup ref="VertexAddressValidationUpdatedToValidMessageActionGroup" stepKey="messageWasUpdatedBilling">
+                <argument name="postCode" value="{{Vertex_Customer_PhiladelphiaPennsylvania_Address.postcode}}"/>
+            </actionGroup>
+
+            <actionGroup ref="VertexAddressValidationUpdatedToValidMessageTextFromShippingAddressActionGroup" stepKey="addressWasUpdatedLocalStorage">
+                <argument name="postCode" value="{{Vertex_Customer_PhiladelphiaPennsylvania_Address.postcode}}"/>
+            </actionGroup>
+        </before>
+        <after>
+            <deleteData stepKey="deleteProduct" createDataKey="createProduct"/>
+            <deleteData stepKey="deleteCategory" createDataKey="createCategory"/>
+        </after>
+
+        <!-- There's no loading mask and I've tried waiting on ajax and it doesn't work so.. here we are -->
+        <wait time="2" stepKey="waitForPossibleShippingAddressUpdate"/>
+
+        <actionGroup ref="CheckShipToInformationInCheckoutActionGroup" stepKey="ensureShippingAddressRemainsTheSame">
+            <argument name="customerVar" value="Vertex_Customer_BobSaget"/>
+            <argument name="customerAddressVar" value="Vertex_Customer_BirminghamAlabama_Address_Correct"/>
+        </actionGroup>
+
+        <actionGroup ref="ClickPlaceOrderActionGroup" stepKey="placeOrder"/>
+        <waitForPageLoad stepKey="waitSuccess"/>
+    </test>
+</tests>

@@ -1,0 +1,74 @@
+{
+    "name": "klarna/module-core",
+    "description": "Klarna Core Magento 2 Extension",
+    "type": "magento2-module",
+    "license": "Apache-2.0",
+    "version": "5.4.1",
+    "require": {
+        "php": "~7.1.3||~7.2.0||~7.3.0||~7.4.0",
+        "guzzlehttp/guzzle": "^6.3.3",
+        "magento/framework": "^102.0",
+        "magento/module-bundle": "^100.3",
+        "magento/module-catalog": "^103.0",
+        "magento/module-config": "^101.1",
+        "magento/module-customer": "^102.0",
+        "magento/module-directory": "^100.3",
+        "magento/module-payment": "^100.3",
+        "magento/module-quote": "^101.1",
+        "magento/module-sales": "^102.0",
+        "magento/module-store": "^101.0",
+        "magento/module-tax": "^100.3",
+        "magento/module-backend": "*",
+        "ramsey/uuid": "^3.7",
+        "psr/log": "^1.0"
+    },
+    "autoload": {
+        "files": [
+            "registration.php"
+        ],
+        "psr-4": {
+            "Klarna\\Core\\": "."
+        }
+    },
+    "authors": [
+        {
+            "email": "joe.constant@klarna.com",
+            "name": "Joe Constant",
+            "role": "Developer"
+        },
+        {
+            "email": "dario.kassler@klarna.com",
+            "name": "Dario Kassler",
+            "role": "Developer"
+        },
+        {
+            "email": "kenny.gilles@klarna.com",
+            "name": "Kenny Gilles",
+            "role": "Developer"
+        },
+        {
+            "email": "markus.simon2@klarna.com",
+            "name": "Markus Simon",
+            "role": "Developer"
+        },
+        {
+            "email": "fei.chen@klarna.com",
+            "name": "Fei Chen",
+            "role": "Developer"
+        },
+        {
+            "email": "jason.grim@klarna.com",
+            "name": "Jason Grim",
+            "role": "Developer"
+        }
+    ],
+    "support": {
+        "email": "magento@klarna.com"
+    },
+    "autoload-dev": {
+        "psr-4": {
+            "Klarna\\Core\\": "Test/Unit/"
+        }
+    }
+}
+

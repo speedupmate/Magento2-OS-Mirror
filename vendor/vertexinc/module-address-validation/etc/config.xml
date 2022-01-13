@@ -1,0 +1,21 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!--
+/**
+ * @copyright  Vertex. All rights reserved.  https://www.vertexinc.com/
+ * @author     Mediotype                     https://www.mediotype.com/
+ */
+-->
+<config xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="urn:magento:module:Magento_Store:etc/config.xsd">
+    <default>
+        <vertex_address_validation>
+            <vertex_settings>
+                <enable><![CDATA[0]]></enable>
+                <address_api_url><![CDATA[https://mgconnect.vertexsmb.com/vertex-ws/services/LookupTaxAreas70]]></address_api_url>
+                <always_message><![CDATA[0]]></always_message>
+            </vertex_settings>
+            <integration>
+                <use_legacy_api><![CDATA[0]]></use_legacy_api>
+            </integration>
+        </vertex_address_validation>
+    </default>
+</config>

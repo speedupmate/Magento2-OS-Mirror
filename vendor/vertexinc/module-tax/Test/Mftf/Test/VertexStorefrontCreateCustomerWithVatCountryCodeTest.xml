@@ -1,0 +1,60 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!--
+ /**
+  * @copyright  Vertex. All rights reserved.  https://www.vertexinc.com/
+  * @author     Mediotype                     https://www.mediotype.com/
+  */
+-->
+<tests xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+       xsi:noNamespaceSchemaLocation="urn:magento:mftf:Test/etc/testSchema.xsd">
+    <test name="VertexStorefrontCreateCustomerWithVatCountryCodeTest">
+        <annotations>
+            <group value="Vertex"/>
+            <group value="VRTX-774"/>
+            <features value="Vertex Tax"/>
+            <testCaseId value="VRTX-774"/>
+
+            <stories value="As a customer, I want to specify a single VAT Registration Number for my account that is used when one of my addresses does not have one"/>
+            <title value="Ensure that a registration country is provided with a VAT registration ID"/>
+            <description value="Validate that the VAT and customer Country is saved and displayed on customer account information"/>
+            <severity value="MAJOR"/>
+        </annotations>
+
+        <before>
+            <actionGroup ref="LoginAsAdmin" stepKey="loginAsAdmin"/>
+            <actionGroup ref="VertexTaxConfigInvoiceCreated" stepKey="setupTaxConfigWhenInvoiceCreated"/>
+            <actionGroup ref="VertexTaxDefaultConfig" stepKey="setupDefaultVertexTestConfiguration"/>
+            <actionGroup ref="ClearCacheActionGroup" stepKey="clearCache"/>
+            <actionGroup ref="VertexAdminSetTaxvatShowOnStorefrontActionGroup" stepKey="showTaxvatStorefront" />
+            <actionGroup ref="logout" stepKey="logoutOfAdmin"/>
+        </before>
+        <after>
+            <createData entity="DefaultTaxConfig" stepKey="defaultConf"/>
+        </after>
+
+        <actionGroup ref="StorefrontOpenCustomerAccountCreatePageActionGroup" stepKey="openCreateAccountPage"/>
+        <actionGroup ref="StorefrontFillCustomerAccountCreationFormActionGroup" stepKey="fillCreateAccountForm">
+            <argument name="customer" value="Vertex_Customer_CateDeMedici"/>
+        </actionGroup>
+
+        <fillField selector="{{StorefrontCustomerAccountInformationSection.taxVat}}" userInput="{{Vertex_Customer_TaxRegistration_VRTXMFTF01.taxvat}}" stepKey="TypeTaxvat"/>
+
+        <actionGroup ref="StorefrontClickCreateAnAccountCustomerAccountCreationFormActionGroup" stepKey="submitCreateAccountFormWithNoCountry"/>
+        <see selector="{{StorefrontCustomerAccountInformationSection.fieldErrorMessage}}" userInput="Please select a Country." stepKey="waitForCountryRequiredMessage"/>
+
+        <selectOption selector="{{StorefrontCustomerAccountInformationSection.vertexVatRegistrationCountry}}" userInput="{{Vertex_Customer_TaxRegistration_VRTXMFTF01_Country_Id.vertex_customer_country}}" stepKey="selectCustomerCountry"/>
+
+        <actionGroup ref="StorefrontClickCreateAnAccountCustomerAccountCreationFormActionGroup" stepKey="submitCreateAccountForm"/>
+        <actionGroup ref="AssertMessageCustomerCreateAccountActionGroup" stepKey="seeSuccessMessageStorefront">
+            <argument name="messageType" value="success"/>
+            <argument name="message" value="Thank you for registering with Main Website Store."/>
+        </actionGroup>
+
+        <amOnPage url="{{StorefrontCustomerEditPage.url}}" stepKey="goToAccountInformationPage"/>
+
+        <waitForPageLoad stepKey="waitForAccountInformationPageLoad"/>
+
+        <seeInField selector="{{StorefrontCustomerAccountInformationSection.taxVat}}" userInput="{{Vertex_Customer_TaxRegistration_VRTXMFTF01.taxvat}}" stepKey="seeCustomerTaxvatInForm"/>
+        <seeInField selector="{{StorefrontCustomerAccountInformationSection.vertexVatRegistrationCountry}}" userInput="{{Vertex_Customer_TaxRegistration_VRTXMFTF01_Country_Id.vertex_customer_country}}" stepKey="seeCustomerCountryInForm"/>
+    </test>
+</tests>

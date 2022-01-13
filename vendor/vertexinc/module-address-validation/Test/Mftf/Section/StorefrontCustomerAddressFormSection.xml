@@ -1,0 +1,18 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!--
+ /**
+  * @copyright  Vertex. All rights reserved.  https://www.vertexinc.com/
+  * @author     Mediotype                     https://www.mediotype.com/
+  */
+-->
+<sections xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+          xsi:noNamespaceSchemaLocation="urn:magento:mftf:Page/etc/SectionObject.xsd">
+    <section name="StorefrontCustomerAddressFormSection">
+        <element name="messageContainer" type="text" selector=".field.vertex-message.address-message"/>
+        <element name="messageText" type="text" selector=".field.vertex-message.address-message .vertex__address-suggest_message"/>
+        <element name="messageDifference" type="text" selector=".field.vertex-message.address-message .vertex__address-suggestion"/>
+        <element name="saveAddress" type="button" selector="button[data-action=save-address]" timeout="30"/>
+        <element name="saveAddressAsIs" type="button" selector="button[data-action=save-as-is-address]" timeout="30"/>
+        <element name="updateAddress" type="button" selector="button.update-address" timeout="30"/>
+    </section>
+</sections>

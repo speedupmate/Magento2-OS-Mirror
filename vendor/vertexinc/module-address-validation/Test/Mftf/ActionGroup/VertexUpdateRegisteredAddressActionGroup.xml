@@ -1,0 +1,27 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!--
+ /**
+  * @copyright  Vertex. All rights reserved.  https://www.vertexinc.com/
+  * @author     Mediotype                     https://www.mediotype.com/
+  */
+-->
+<actionGroups xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+              xsi:noNamespaceSchemaLocation="urn:magento:mftf:Test/etc/actionGroupSchema.xsd">
+    <actionGroup name="VertexUpdateRegisteredAddressActionGroup">
+        <waitForElement selector="{{CheckoutShippingSection.next}}" time="30" stepKey="waitForNextButton"/>
+        <click selector="{{CheckoutShippingSection.next}}" stepKey="clickNext"/>
+
+        <see stepKey="warningMessage"
+             selector="{{CheckoutShippingSection.addressMessageWarning}}"
+             userInput="We found potential improvements for this address:"/>
+
+        <conditionalClick selector="{{CheckoutShippingSection.updateLinkToValidAddress}}"
+                          dependentSelector="{{CheckoutShippingSection.addressMessageWarning}}"
+                          visible="true"
+                          stepKey="updateButtonToValidAddress"/>
+
+        <see stepKey="updateMessage"
+             selector="{{CheckoutShippingSection.addressMessageWasValid}}"
+             userInput="The address was updated"/>
+    </actionGroup>
+</actionGroups>

@@ -1,0 +1,35 @@
+<?xml version="1.0"?>
+<!--
+/**
+ * @copyright  Vertex. All rights reserved.  https://www.vertexinc.com/
+ * @author     Mediotype                     https://www.mediotype.com/
+ */
+-->
+<config xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+        xsi:noNamespaceSchemaLocation="urn:magento:framework:ObjectManager/etc/config.xsd">
+    <!-- Vertex_AddressValidationApi implementations -->
+    <preference for="Vertex\AddressValidationApi\Api\CleanseAddressInterface"
+                type="Vertex\AddressValidation\Model\Api\AddressCleanser"/>
+    <preference for="Vertex\AddressValidationApi\Api\GuestCleanseAddressInterface"
+                type="Vertex\AddressValidation\Model\Api\GuestAddressCleanser"/>
+
+    <!-- Legacy API -->
+    <preference for="Vertex\AddressValidation\Api\AddressManagementInterface"
+                type="Vertex\AddressValidation\Model\Api\AddressManagement"/>
+
+    <!-- Countries that we are allowed to validate -->
+    <type name="Vertex\AddressValidation\Model\Config">
+        <arguments>
+            <argument name="countryValidation" xsi:type="array">
+                <item name="0" xsi:type="string">US</item>
+            </argument>
+        </arguments>
+    </type>
+
+    <!-- Connections for Resource Models -->
+    <type name="Vertex\AddressValidation\Model\ResourceModel\QuoteIdMask">
+        <arguments>
+            <argument name="connectionName" xsi:type="string">checkout</argument>
+        </arguments>
+    </type>
+</config>

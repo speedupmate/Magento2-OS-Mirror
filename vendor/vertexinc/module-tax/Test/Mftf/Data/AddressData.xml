@@ -1,0 +1,267 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!--
+ /**
+  * @copyright  Vertex. All rights reserved.  https://www.vertexinc.com/
+  * @author     Mediotype                     https://www.mediotype.com/
+  */
+-->
+<entities xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+          xsi:noNamespaceSchemaLocation="urn:magento:mftf:DataGenerator/etc/dataProfileSchema.xsd">
+    <entity name="Vertex_Customer_BobSaget_Address" type="address">
+        <array key="street">
+            <item>525 N Allen St</item>
+        </array>
+        <data key="firstname">Bob</data>
+        <data key="lastname">Saget</data>
+        <data key="city">State College</data>
+        <data key="country">US</data>
+        <data key="country_id">US</data>
+        <requiredEntity type="region">RegionPA</requiredEntity>
+        <data key="state">Pennsylvania</data>
+        <data key="postcode">16803-3503</data>
+        <data key="telephone">111-111-1111</data>
+        <data key="default_billing">true</data>
+        <data key="default_shipping">true</data>
+    </entity>
+
+    <entity name="Vertex_Customer_JacindaArdern_Address" type="address">
+        <array key="street">
+            <item>400 Sharpless Street</item>
+        </array>
+        <data key="firstname">Jacinda</data>
+        <data key="lastname">Ardern</data>
+        <data key="city">West Chester</data>
+        <data key="country">US</data>
+        <data key="country_id">US</data>
+        <requiredEntity type="region">RegionPA</requiredEntity>
+        <data key="state">Pennsylvania</data>
+        <data key="postcode">19382</data>
+        <data key="telephone">111-111-1111</data>
+        <data key="default_billing">true</data>
+        <data key="default_shipping">true</data>
+    </entity>
+
+    <entity name="Vertex_Customer_JohnWinston_BillingAddress" type="address">
+        <array key="street">
+            <item>2 West Gay St</item>
+        </array>
+        <data key="firstname">John</data>
+        <data key="lastname">Winston</data>
+        <data key="city">West Chester</data>
+        <data key="country">US</data>
+        <data key="country_id">US</data>
+        <requiredEntity type="region">RegionPA</requiredEntity>
+        <data key="state">Pennsylvania</data>
+        <data key="postcode">19380</data>
+        <data key="telephone">111-111-1111</data>
+        <data key="default_billing">true</data>
+    </entity>
+    <entity name="Vertex_Customer_JohnWinston_ShippingAddress" type="address">
+        <array key="street">
+            <item>1447 Lincoln Blvd</item>
+        </array>
+        <data key="firstname">John</data>
+        <data key="lastname">Winston</data>
+        <data key="city">Santa Monica</data>
+        <data key="country">US</data>
+        <data key="country_id">US</data>
+        <requiredEntity type="region">RegionCA</requiredEntity>
+        <data key="state">California</data>
+        <data key="postcode">90401</data>
+        <data key="telephone">111-111-1111</data>
+        <data key="default_shipping">true</data>
+    </entity>
+
+    <entity name="Vertex_Customer_JohnWilliams_ShippingAddress" type="address">
+        <array key="street">
+            <item>2 West Gay St</item>
+        </array>
+        <data key="firstname">John</data>
+        <data key="lastname">Winston</data>
+        <data key="city">West Chester</data>
+        <data key="country">US</data>
+        <data key="country_id">US</data>
+        <requiredEntity type="region">RegionPA</requiredEntity>
+        <data key="state">Pennsylvania</data>
+        <data key="postcode">19380</data>
+        <data key="telephone">111-111-1111</data>
+        <data key="default_shipping">true</data>
+    </entity>
+    <entity name="Vertex_Customer_JohnWilliams_BillingAddress" type="address">
+        <array key="street">
+            <item>1447 Lincoln Blvd</item>
+        </array>
+        <data key="firstname">John</data>
+        <data key="lastname">Winston</data>
+        <data key="city">Santa Monica</data>
+        <data key="country">US</data>
+        <data key="country_id">US</data>
+        <requiredEntity type="region">RegionCA</requiredEntity>
+        <data key="state">California</data>
+        <data key="postcode">90401</data>
+        <data key="telephone">111-111-1111</data>
+        <data key="default_billing">true</data>
+    </entity>
+
+    <entity name="Vertex_Customer_JeffGoldblum_BillingAddress" type="address">
+        <data key="firstname">Jeff</data>
+        <data key="lastname">Goldblum</data>
+        <array key="street">
+            <item>562 N. Allen St</item>
+        </array>
+        <data key="city">State College</data>
+        <requiredEntity type="region">RegionPA</requiredEntity>
+        <data key="state">Pennsylvania</data>
+        <data key="postcode">16803-3503</data>
+        <data key="country">US</data>
+        <data key="country_id">US</data>
+        <data key="telephone">111-111-1111</data>
+        <data key="default_billing">true</data>
+    </entity>
+    <entity name="Vertex_Customer_JeffGoldblum_ShippingAddress" type="address">
+        <data key="firstname">Jeff</data>
+        <data key="lastname">Goldblum</data>
+        <array key="street">
+            <item>3 Beaver Valley Road</item>
+        </array>
+        <data key="city">Wilmington</data>
+        <requiredEntity type="region">RegionDE</requiredEntity>
+        <data key="state">Delaware</data>
+        <data key="postcode">19803</data>
+        <data key="country">US</data>
+        <data key="country_id">US</data>
+        <data key="telephone">111-111-1111</data>
+        <data key="default_shipping">true</data>
+    </entity>
+
+    <entity name="Vertex_Customer_SteveBuscemi_BillingAddress" type="address">
+        <data key="firstname">Steve</data>
+        <data key="lastname">Buscemi</data>
+        <array key="street">
+            <item>99 Park Ave</item>
+        </array>
+        <data key="city">Media</data>
+        <requiredEntity type="region">RegionPA</requiredEntity>
+        <data key="state">Pennsylvania</data>
+        <data key="postcode">19063</data>
+        <data key="country">US</data>
+        <data key="country_id">US</data>
+        <data key="telephone">111-111-1111</data>
+        <data key="default_billing">true</data>
+    </entity>
+    <entity name="Vertex_Customer_SteveBuscemi_ShippingAddress" type="address">
+        <data key="firstname">Steve</data>
+        <data key="lastname">Buscemi</data>
+        <array key="street">
+            <item>341 Malden Ave</item>
+        </array>
+        <data key="city">La Grange Park</data>
+        <requiredEntity type="region">RegionIL</requiredEntity>
+        <data key="state">Illinois</data>
+        <data key="postcode">60526</data>
+        <data key="country">US</data>
+        <data key="country_id">US</data>
+        <data key="telephone">111-111-1111</data>
+        <data key="default_shipping">true</data>
+    </entity>
+
+    <entity name="Vertex_Customer_CatrinaAragon_Address" type="address">
+        <data key="firstname">Christina</data>
+        <data key="lastname">Aragon</data>
+        <array key="street">
+            <item>San Vincente Màrtir, 999</item>
+        </array>
+        <data key="city">Valencia</data>
+        <data key="state">Valencia</data>
+        <requiredEntity type="region">RegionValencia</requiredEntity>
+        <data key="postcode">46002</data>
+        <data key="country">ES</data>
+        <data key="country_id">ES</data>
+        <data key="telephone">111-111-1111</data>
+        <data key="default_shipping">true</data>
+        <data key="default_billing">true</data>
+    </entity>
+
+    <entity name="Vertex_Customer_CateDeMedici_Address" type="address">
+        <data key="firstname">Cate</data>
+        <data key="lastname">DeMedici</data>
+        <array key="street">
+            <item>Via Nazionale, 178</item>
+        </array>
+        <data key="city">Roma</data>
+        <data key="state">RM</data>
+        <data key="postcode">00187</data>
+        <data key="country">IT</data>
+        <data key="country_id">IT</data>
+        <data key="telephone">111-111-1111</data>
+        <data key="default_shipping">true</data>
+        <data key="default_billing">true</data>
+    </entity>
+
+    <entity name="Vertex_Customer_JohnLucCarre_Address" type="address">
+        <data key="firstname">John-Luc</data>
+        <data key="lastname">Carre</data>
+        <array key="street">
+            <item>465 McGill St</item>
+        </array>
+        <data key="city">Montreal</data>
+        <data key="state">Quebec</data>
+        <requiredEntity type="region">RegionQC</requiredEntity>
+        <data key="postcode">H2Y 4B4</data>
+        <data key="country">CA</data>
+        <data key="country_id">CA</data>
+        <data key="telephone">111-111-1111</data>
+        <data key="default_shipping">true</data>
+        <data key="default_billing">true</data>
+    </entity>
+
+    <entity name="Vertex_Customer_GhostStark_Address" type="address">
+        <data key="firstname">Ghost</data>
+        <data key="lastname">Stark</data>
+        <array key="street">
+            <item>2301 Renaissance Blvd</item>
+        </array>
+        <data key="city">King of Prussia</data>
+        <requiredEntity type="region">RegionPA</requiredEntity>
+        <data key="postcode">19406</data>
+        <data key="country">US</data>
+        <data key="country_id">US</data>
+        <data key="telephone">666-666-6666</data>
+        <data key="default_shipping">true</data>
+        <data key="default_billing">true</data>
+    </entity>
+
+    <entity name="Vertex_Customer_BuckeyeIllinois_Address" type="address">
+        <data key="firstname">Buckeye</data>
+        <data key="lastname">Illinois</data>
+        <array key="street">
+            <item>901 E 5th St</item>
+        </array>
+        <data key="city">Metropolis</data>
+        <requiredEntity type="region">RegionIL</requiredEntity>
+        <data key="postcode">62960</data>
+        <data key="country">US</data>
+        <data key="country_id">US</data>
+        <data key="telephone">111-111-1111</data>
+        <data key="default_shipping">true</data>
+        <data key="default_billing">true</data>
+    </entity>
+
+    <entity name="Vertex_Customer_AlanRobinson_Address" type="address">
+        <data key="firstname">Alan</data>
+        <data key="lastname">Robinson</data>
+        <data key="company">Vertex</data>
+        <array key="street">
+            <item>100 Universal City Plz</item>
+        </array>
+        <data key="city">Universal City</data>
+        <requiredEntity type="region">RegionCA</requiredEntity>
+        <data key="state">California</data>
+        <data key="postcode">91608-1002</data>
+        <data key="country">US</data>
+        <data key="country_id">US</data>
+        <data key="telephone">666-111-8888</data>
+        <data key="default_shipping">true</data>
+        <data key="default_billing">true</data>
+    </entity>
+</entities>

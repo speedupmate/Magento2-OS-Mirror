@@ -1,0 +1,38 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!--
+ /**
+  * Copyright © Magento, Inc. All rights reserved.
+  * See COPYING.txt for license details.
+  *
+  * This file is part of the Klarna KP module
+  *
+  * (c) Klarna Bank AB (publ)
+  *
+  * For the full copyright and license information, please view the NOTICE
+  * and LICENSE files that were distributed with this source code.
+  */
+-->
+<actionGroups xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+              xsi:noNamespaceSchemaLocation="urn:magento:mftf:Test/etc/actionGroupSchema.xsd">
+    <actionGroup name="DisableKlarnaPayment">
+        <!-- GoTo Configure Klarna fields -->
+        <amOnPage url="{{AdminConfigKlarnaPaymentsPage.url}}" stepKey="navigateToKlarnaPaymentsConfigurationPage"/>
+        <waitForPageLoad stepKey="waitForPageLoad1"/>
+        <click stepKey="clickOnConfigureButtonForKlarnaPayment"
+               selector="{{AdminConfigPaymentSection.ConfigureKlarnaButton}}"/>
+
+        <!-- Fill Klarna Payment Setting Tab -->
+        <scrollTo stepKey="scrollToKlarnaApi"
+                  selector="{{AdminConfigPaymentSection.KlarnaApiHeader}}"/>
+        <conditionalClick selector="{{AdminConfigPaymentSection.KlarnaKpSection}}"
+                          dependentSelector="{{AdminConfigPaymentSection.KlarnaKpEnabled}}"
+                          visible="false"
+                          stepKey="clickKlarnaKPSection"/>
+        <selectOption stepKey="disableKlarnaPaymentsSolution"
+                      selector="{{AdminConfigPaymentSection.KlarnaKpEnabled}}"
+                      userInput="No"/>
+
+        <!-- Save Configuration -->
+        <click stepKey="saveConfig" selector="{{AdminMainActionsSection.save}}"/>
+    </actionGroup>
+</actionGroups>

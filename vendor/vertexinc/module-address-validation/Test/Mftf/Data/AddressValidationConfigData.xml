@@ -1,0 +1,51 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!--
+ /**
+  * @copyright  Vertex. All rights reserved.  https://www.vertexinc.com/
+  * @author     Mediotype                     https://www.mediotype.com/
+  */
+-->
+<entities xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+          xsi:noNamespaceSchemaLocation="urn:magento:mftf:DataGenerator/etc/dataProfileSchema.xsd">
+    <entity name="VertexAddressValidationEnabled" type="VertexAddressValidationEnabled">
+        <data key="value">1</data>
+    </entity>
+    <entity name="VertexAddressValidationDisabled" type="VertexAddressValidationEnabled">
+        <data key="value">0</data>
+    </entity>
+    <entity name="VertexAddressValidationMessage" type="VertexAddressValidationMessage">
+        <data key="value">1</data>
+    </entity>
+    <entity name="VertexAddressValidationMessageDisabled" type="VertexAddressValidationMessage">
+        <data key="value">0</data>
+    </entity>
+    <entity name="VertexAddressValidationWsdlApiUrl" type="VertexAddressValidationWsdlApiUrl">
+        <data key="value">https://mgcsconnect.vertexsmb.com/vertex-ws/services/LookupTaxAreas70</data>
+    </entity>
+
+    <entity name="VertexAddressValidationConfigAll" type="vertex_address_validation_config">
+        <requiredEntity type="VertexAddressValidationEnabled">VertexAddressValidationEnabled</requiredEntity>
+        <requiredEntity type="VertexAddressValidationMessage">VertexAddressValidationMessage</requiredEntity>
+        <requiredEntity type="VertexAddressValidationWsdlApiUrl">VertexAddressValidationWsdlApiUrl</requiredEntity>
+    </entity>
+
+    <entity name="VertexAddressValidationConfigDisabled" type="vertex_address_validation_config">
+        <requiredEntity type="VertexAddressValidationEnabled">VertexAddressValidationDisabled</requiredEntity>
+        <requiredEntity type="VertexAddressValidationMessage">VertexAddressValidationMessage</requiredEntity>
+        <requiredEntity type="VertexAddressValidationWsdlApiUrl">VertexAddressValidationWsdlApiUrl</requiredEntity>
+    </entity>
+
+    <entity name="VertexAddressValidationMessageDisabled" type="vertex_address_validation_config">
+        <requiredEntity type="VertexAddressValidationMessage">VertexAddressValidationMessageDisabled</requiredEntity>
+    </entity>
+
+    <entity name="VertexTaxEnableTemporary" type="vertex_config">
+        <requiredEntity type="VertexTaxEnabled">VertexTaxEnabled</requiredEntity>
+    </entity>
+    <entity name="VertexTaxDisableTemporary" type="vertex_config">
+        <requiredEntity type="VertexTaxEnabled">VertexTaxDisabledValue</requiredEntity>
+    </entity>
+    <entity name="VertexTaxDisabledValue" type="VertexTaxEnabled">
+        <data key="value">0</data>
+    </entity>
+</entities>

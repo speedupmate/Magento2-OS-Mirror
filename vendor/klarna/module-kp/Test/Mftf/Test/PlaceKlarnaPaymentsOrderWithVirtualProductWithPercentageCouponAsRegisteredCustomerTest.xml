@@ -1,0 +1,86 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!--
+ /**
+  * Copyright © Magento, Inc. All rights reserved.
+  * See COPYING.txt for license details.
+  *
+  * This file is part of the Klarna KP module
+  *
+  * (c) Klarna Bank AB (publ)
+  *
+  * For the full copyright and license information, please view the NOTICE
+  * and LICENSE files that were distributed with this source code.
+  */
+-->
+<tests xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+       xsi:noNamespaceSchemaLocation="urn:magento:mftf:Test/etc/testSchema.xsd">
+    <test name="PlaceKlarnaPaymentsOrderWithVirtualProductWithPercentageCouponAsRegisteredCustomerTest">
+        <annotations>
+            <features value="Klarna Payments"/>
+            <stories value="It's possible to place an order with virtual product"/>
+            <title value="Placing order with virtual product"/>
+            <description value="Successfully placing an order with Klarna Payments with a virtual product and a percentage coupon as registered customer"/>
+            <severity value="CRITICAL"/>
+            <testCaseId value="KP_V_R_2"/>
+            <group value="Klarna_KP_Country_US"/>
+            <group value="Klarna_KP_Order_Registered"/>
+            <group value="Klarna_KP_Order_Pay_Later"/>
+        </annotations>
+        <before>
+            <createData entity="Klarna_Virtual_Product" stepKey="createVirtualProduct"/>
+            <createData entity="Klarna_US_Customer_B2C" stepKey="createCustomer"/>
+            <actionGroup ref="LoginAsAdmin" stepKey="loginAsAdmin"/>
+            <actionGroup ref="ConfigurePercentageCoupon" stepKey="percentageCoupon">
+                <argument name="ruleName" value="CatPriceRule"/>
+                <argument name="couponCode" value="CatPriceRule.coupon_code"/>
+            </actionGroup>
+        </before>
+        <after>
+            <deleteData createDataKey="createVirtualProduct" stepKey="deleteVirtualProduct"/>
+            <deleteData createDataKey="createCustomer" stepKey="deleteCustomer"/>
+            <actionGroup ref="DeleteCartPriceRuleByName" stepKey="deleteCartPriceRule">
+                <argument name="ruleName" value="{{CatPriceRule.name}}"/>
+            </actionGroup>
+            <actionGroup ref="logout" stepKey="logout"/>
+        </after>
+
+        <!--Log in to store front as customer-->
+        <actionGroup ref="LoginToStorefrontActionGroup" stepKey="customerLogin">
+            <argument name="Customer" value="$$createCustomer$$" />
+        </actionGroup>
+
+        <!--Go to product page-->
+        <actionGroup ref="GoToCreatedProductPageAndWaitForAddToCart" stepKey="goToCreatedProductPageAndWaitForAddToCart">
+            <argument name="url" value="$$createVirtualProduct.custom_attributes[url_key]$$.html"/>
+        </actionGroup>
+
+        <!--Add product to shopping cart-->
+        <actionGroup ref="ApplyCartRuleOnStorefrontActionGroup" stepKey="addToCartAndApplyCartRule">
+            <argument name="product" value="$$createVirtualProduct$$"/>
+            <argument name="couponCode" value="{{CatPriceRule.coupon_code}}"/>
+        </actionGroup>
+
+        <!--Go to checkout-->
+        <actionGroup ref="GoToCheckoutFromMinicartActionGroup" stepKey="goToCheckoutFromMinicart"/>
+        <waitForPageLoad stepKey="waitForCheckoutPageLoad"/>
+
+        <!--Grab order total amount-->
+        <waitForElementVisible selector="{{CheckoutPaymentSection.orderSummaryTotal}}" stepKey="waitForOrderTotal"/>
+        <grabTextFrom selector="{{CheckoutPaymentSection.orderSummaryTotal}}" stepKey="grabTotalAmount"/>
+
+        <!--Place order-->
+        <actionGroup ref="PlaceOrderWithKlarnaPaymentsMethod" stepKey="placeOrderWithKlarnaPayLaterMethod">
+            <argument name="paymentMethod" value="KlarnaPaymentsPayLater"/>
+        </actionGroup>
+
+        <!--Grab order number-->
+        <waitForElementVisible selector="{{CheckoutSuccessMainSection.orderNumber22}}" stepKey="waitForOrderNumber"/>
+        <grabTextFrom selector="{{CheckoutSuccessMainSection.orderNumber22}}" stepKey="grabOrderNumber"/>
+
+        <!--Verify order summary in admin-->
+        <actionGroup ref="ValidateAdminKlarnaOrderSummaryWithoutShipping" stepKey="validateOrderSummary">
+            <argument name="orderNumber" value="{$grabOrderNumber}"/>
+            <argument name="grandTotalAmount" value="{$grabTotalAmount}"/>
+        </actionGroup>
+    </test>
+</tests>
