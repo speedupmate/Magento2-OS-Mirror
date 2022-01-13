@@ -41,6 +41,7 @@ return array(
     'Codeception\\Module\\WebDriver' => $vendorDir . '/codeception/module-webdriver/src/Codeception/Module/WebDriver.php',
     'Codeception\\Util\\Shared\\Asserts' => $vendorDir . '/codeception/lib-asserts/src/Codeception/Util/Shared/Asserts.php',
     'Codeception\\Util\\Shared\\InheritedAsserts' => $vendorDir . '/codeception/lib-asserts/src/Codeception/Util/Shared/InheritedAsserts.php',
+    'Composer\\InstalledVersions' => $vendorDir . '/composer/InstalledVersions.php',
     'CredisException' => $vendorDir . '/colinmollenhour/credis/Client.php',
     'Credis_Client' => $vendorDir . '/colinmollenhour/credis/Client.php',
     'Credis_Cluster' => $vendorDir . '/colinmollenhour/credis/Cluster.php',
