@@ -1,12 +1,13 @@
 <?php
 /**
- * @copyright  Vertex. All rights reserved.  https://www.vertexinc.com/
- * @author     Mediotype                     https://www.mediotype.com/
+ * @author    Blue Acorn iCi <code@blueacornici.com>
+ * @copyright 2021 Vertex, Inc. All Rights Reserved.
  */
 
 namespace Vertex\Tax\Model;
 
 use Magento\Sales\Model\Order;
+use Magento\Store\Model\ScopeInterface;
 
 /**
  * Class for preventing tax calculation on unsupported countries
@@ -38,7 +39,7 @@ class CountryGuard
             $address = $order->getShippingAddress();
         }
 
-        return $address && $this->isCountryIdServiceableByVertex($address->getCountryId());
+        return $address && $this->isCountryIdServiceableByVertex($address->getCountryId(), $order->getStoreId());
     }
 
     /**
@@ -47,8 +48,11 @@ class CountryGuard
      * @param string $countryId
      * @return bool
      */
-    public function isCountryIdServiceableByVertex($countryId)
-    {
-        return in_array($countryId, $this->config->getAllowedCountries(), false);
+    public function isCountryIdServiceableByVertex(
+        $countryId,
+        $scopeCode = null,
+        $scopeType = ScopeInterface::SCOPE_STORE
+    ) {
+        return in_array($countryId, $this->config->getAllowedCountries($scopeCode, $scopeType), false);
     }
 }

@@ -32,6 +32,29 @@ class CustomActions extends Helper
     }
 
     /**
+     * Waits for a given selector if the element is visible (market specific)
+     *
+     * @param string $market
+     * @param string $targetMarket
+     * @param string $defaultFieldSelector
+     * @param string $fieldSelector
+     * @throws \Exception
+     */
+    public function waitForElementVisibleMarketDependent(
+        string $market,
+        string $targetMarket,
+        string $defaultFieldSelector,
+        string $fieldSelector
+    ): void {
+        $paymentSelector = $defaultFieldSelector;
+        if ($market === $targetMarket) {
+            $paymentSelector = $fieldSelector;
+        }
+        $webDriver = $this->getWebDriver();
+        $webDriver->waitForElementVisible($paymentSelector);
+    }
+
+    /**
      * Getting back the magento web driver
      *
      * @return MagentoWebDriver

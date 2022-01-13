@@ -1,16 +1,14 @@
 <?php
 /**
- * @copyright  Vertex. All rights reserved.  https://www.vertexinc.com/
- * @author     Mediotype                     https://www.mediotype.com/
+ * @author    Blue Acorn iCi <code@blueacornici.com>
+ * @copyright 2021 Vertex, Inc. All Rights Reserved.
  */
 
 namespace Vertex\Tax\Model\Api\Data;
 
-use Magento\Directory\Api\CountryInformationAcquirerInterface;
-use Magento\Directory\Api\Data\CountryInformationInterface;
-use Magento\Directory\Api\Data\CountryInformationInterfaceFactory;
-use Magento\Framework\Exception\NoSuchEntityException;
+use Magento\Directory\Model\Country as CountryModel;
 use Magento\Framework\Stdlib\StringUtils;
+use Magento\Store\Model\ScopeInterface;
 use Vertex\Data\AddressInterface;
 use Vertex\Data\AddressInterfaceFactory;
 use Vertex\Exception\ConfigurationException;
@@ -31,11 +29,8 @@ class AddressBuilder
     /** @var string */
     private $countryCode;
 
-    /** @var CountryInformationAcquirerInterface */
-    private $countryInformationAcquirer;
-
-    /** @var CountryInformationInterfaceFactory */
-    private $countryInformationFactory;
+    /** @var CountryModel */
+    private $countryModel;
 
     /** @var string */
     private $postalCode;
@@ -61,24 +56,24 @@ class AddressBuilder
     /** @var string */
     private $scopeCode;
 
+    /** @var string */
+    private $scopeType = ScopeInterface::SCOPE_STORE;
+
     /**
-     * @param CountryInformationAcquirerInterface $countryInformationAcquirer
-     * @param CountryInformationInterfaceFactory $countryInformationFactory
+     * @param CountryModel $countryModel
      * @param ZipCodeFixer $zipCodeFixer
      * @param AddressInterfaceFactory $addressFactory
      * @param StringUtils $stringUtils
      * @param MapperFactoryProxy $mapperFactory
      */
     public function __construct(
-        CountryInformationAcquirerInterface $countryInformationAcquirer,
-        CountryInformationInterfaceFactory $countryInformationFactory,
+        CountryModel $countryModel,
         ZipCodeFixer $zipCodeFixer,
         AddressInterfaceFactory $addressFactory,
         StringUtils $stringUtils,
         MapperFactoryProxy $mapperFactory
     ) {
-        $this->countryInformationAcquirer = $countryInformationAcquirer;
-        $this->countryInformationFactory = $countryInformationFactory;
+        $this->countryModel = $countryModel;
         $this->zipCodeFixer = $zipCodeFixer;
         $this->addressFactory = $addressFactory;
         $this->stringUtilities = $stringUtils;
@@ -95,8 +90,8 @@ class AddressBuilder
     {
         $country = $this->getCountryInformation($this->countryCode);
         $companyState = $this->region ?: $this->getRegionCodeByCountryAndId($country, $this->regionId);
-        $countryName = $country->getThreeLetterAbbreviation();
-        $addressMapper = $this->mapperFactory->getForClass(AddressInterface::class, $this->scopeCode);
+        $countryName = $country->getData('iso3_code');
+        $addressMapper = $this->mapperFactory->getForClass(AddressInterface::class, $this->scopeCode, $this->scopeType);
 
         /** @var AddressInterface $address */
         $address = $this->addressFactory->create();
@@ -207,6 +202,18 @@ class AddressBuilder
     }
 
     /**
+     * Set the Scope Type
+     *
+     * @param string|null $scopeType
+     * @return AddressBuilder
+     */
+    public function setScopeType($scopeType)
+    {
+        $this->scopeType = $scopeType;
+        return $this;
+    }
+
+    /**
      * Set the Street Address
      *
      * @param string|string[] $rawStreet
@@ -234,28 +241,24 @@ class AddressBuilder
      * Retrieve a country's information given its ID
      *
      * @param string $countryId Two letter country code
-     * @return CountryInformationInterface
+     * @return CountryModel
      */
     private function getCountryInformation($countryId)
     {
-        try {
-            return $this->countryInformationAcquirer->getCountryInfo($countryId);
-        } catch (NoSuchEntityException $error) {
-            return $this->countryInformationFactory->create();
-        }
+        return $this->countryModel->loadByCode($countryId);
     }
 
     /**
      * Retrieve a region's code given its ID
      *
-     * @param CountryInformationInterface $country
+     * @param CountryModel $country
      * @param int $regionId
      *
      * @return string|null
      */
-    private function getRegionCodeByCountryAndId(CountryInformationInterface $country, $regionId)
+    private function getRegionCodeByCountryAndId(CountryModel $country, $regionId)
     {
-        $regions = $country->getAvailableRegions();
+        $regions = $country->getRegions();
 
         if ($regions === null) {
             return null;

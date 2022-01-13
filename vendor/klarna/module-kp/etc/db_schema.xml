@@ -28,8 +28,18 @@
         <constraint xsi:type="primary" referenceId="PRIMARY">
             <column name="payments_quote_id"/>
         </constraint>
+        <constraint xsi:type="foreign" referenceId="QUOTE_ID_KLARNA_PAYMENTS_QUOTE_QUOTE_ID_QUOTE_ENTITY_ID"
+            table="klarna_payments_quote"
+            column="quote_id"
+            referenceTable="quote"
+            referenceColumn="entity_id"
+            onDelete="CASCADE"
+        />
         <index referenceId="KLARNA_PAYMENTS_QUOTE_QUOTE_ID" indexType="btree">
             <column name="quote_id"/>
+        </index>
+        <index referenceId="KLARNA_PAYMENTS_QUOTE_SESSION_ID" indexType="btree">
+            <column name="session_id"/>
         </index>
     </table>
 </schema>

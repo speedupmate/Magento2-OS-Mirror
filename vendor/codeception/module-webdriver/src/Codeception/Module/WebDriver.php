@@ -50,19 +50,66 @@ use Facebook\WebDriver\WebDriverSelect;
 
 /**
  * Run tests in real browsers using the W3C [WebDriver protocol](https://www.w3.org/TR/webdriver/).
+ * There are multiple ways of running browser tests using WebDriver:
  *
- * ## Local Testing in Chrome and/or Firefox
+ * ## Selenium (Recommended)
  *
- * To run tests in a real browser you need:
- * * The browser itself: Chrome/Chromium and/or Firefox
- * * The appropriate driver:
- *     * [ChromeDriver](https://sites.google.com/a/chromium.org/chromedriver/getting-started) for Chrome/Chromium
- *     * [GeckoDriver](https://github.com/mozilla/geckodriver) for Firefox
- *   If you want to use both Chrome and Firefox, consider setting up a dedicated [Codeception environment](https://codeception.com/docs/07-AdvancedUsage#Environments) for each.
- * * Optional: Selenium Standalone Server (see below) 
+ * * Java is required
+ * * NodeJS is required
+ * 
+ * The fastest way to get started is to [Install and launch Selenium using selenium-standalone NodeJS package](https://www.npmjs.com/package/selenium-standalone).
+ * 
+ * Launch selenium standalone in separate console window:
+ * 
+ * ```
+ * selenium-standalone start
+ * ```
  *
+ * Update configuration in `acceptance.suite.yml`:
+ *
+ * ```yaml
+ * modules:
+ *    enabled:
+ *       - WebDriver:
+ *          url: 'http://localhost/'
+ *          browser: chrome # 'chrome' or 'firefox'
+ * ```
+ * 
+ * ## Headless Chrome Browser
+ * 
+ * To enable headless mode (launch tests without showing a window) for Chrome browser using Selenium use this config in `acceptance.suite.yml`:
+ * 
+ * ```yaml
+ * modules:
+ *    enabled:
+ *       - WebDriver:
+ *          url: 'http://localhost/'
+ *          browser: chrome
+ *            capabilities:
+ *              chromeOptions:
+ *                args: ["--headless", "--disable-gpu"]
+ * ```
+ * 
+ * ## Headless Selenium in Docker
+ *
+ * Docker can ship Selenium Server with all its dependencies and browsers inside a single container.
+ * Running tests inside Docker is as easy as pulling [official selenium image](https://github.com/SeleniumHQ/docker-selenium) and starting a container with Chrome:
+ *
+ * ```
+ * docker run --net=host selenium/standalone-chrome
+ * ```
+ *
+ * By using `--net=host` allow Selenium to access local websites.
+ *
+ * ## Local Chrome and/or Firefox
+ *
+ * Tests can be executed directly throgh ChromeDriver or GeckoDriver (for Firefox). Consider using this option if you don't plan to use Selenium.
+ * 
  * ### ChromeDriver
- *
+ * 
+ * * Download and install [ChromeDriver](https://sites.google.com/chromium.org/driver/downloads?authuser=0)
+ * * Launch ChromeDriver in a separate console window: `chromedriver --url-base=/wd/hub`.
+ * 
  * Configuration in `acceptance.suite.yml`:
  *
  * ```yaml
@@ -81,11 +128,12 @@ use Facebook\WebDriver\WebDriverSelect;
  * ```
  * See here for additional [Chrome options](https://sites.google.com/a/chromium.org/chromedriver/capabilities)
  *
- * Before running the tests, you need to start ChromeDriver in a separate console window: `chromedriver --url-base=/wd/hub`.
- * Or you can enable the [RunProcess extension](https://codeception.com/extensions#RunProcess) to start/stop ChromeDriver automatically.
  *
  * ### GeckoDriver
  * 
+ * * [GeckoDriver])(https://github.com/mozilla/geckodriver/releases) must be installed 
+ * * Start GeckoDriver in a separate console window: `geckodriver`.
+ *  
  * Configuration in `acceptance.suite.yml`:
  *
  * ```yaml
@@ -103,41 +151,7 @@ use Facebook\WebDriver\WebDriverSelect;
  *                      intl.accept_languages: "de-AT" # Set HTTP-Header `Accept-Language: de-AT` for requests
  * ```
  * See here for [Firefox capabilities](https://developer.mozilla.org/en-US/docs/Web/WebDriver/Capabilities#List_of_capabilities)
- *
- * Before running the tests, you need to start GeckoDriver in a separate console window: `geckodriver`.
- * Or you can enable the [RunProcess extension](https://codeception.com/extensions#RunProcess) to start/stop GeckoDriver automatically.
- *
- * ### Selenium
- *
- * On top of ChromeDriver/GeckoDriver you may also use Selenium Standalone Server for more options.
- *
- * 1. Install [Java](https://www.java.com/)
- * 2. Download [Selenium Standalone Server](http://docs.seleniumhq.org/download/)
- * 3. Configuration in `acceptance.suite.yml`:
- *
- * ```yaml
- * modules:
- *    enabled:
- *       - WebDriver:
- *          url: 'http://localhost/'
- *          browser: chrome # 'chrome' or 'firefox'
- * ```
- * For additional `capabilities`, see above. Selenium 3.8 renamed the `chromeOptions` capability to `goog:chromeOptions`.
- *
- * Before running the tests, you need to start GeckoDriver in a separate console window: `java -jar "/path/to/selenium-server-standalone-xxx.jar"`
- * To locate the ChromeDriver binary use `-Dwebdriver.chrome.driver=./chromedriver`, for GeckoDriver use `-Dwebdriver.gecko.driver=./geckodriver`.
- *
- * ### Headless Selenium in Docker
- *
- * Docker can ship Selenium Server with all its dependencies and browsers inside a single container.
- * Running tests inside Docker is as easy as pulling [official selenium image](https://github.com/SeleniumHQ/docker-selenium) and starting a container with Chrome:
- *
- * ```
- * docker run --net=host selenium/standalone-chrome
- * ```
- *
- * By using `--net=host` we allow selenium to access local websites.
- *
+ * 
  * ## Cloud Testing
  *
  * Cloud Testing services can run your WebDriver tests in the cloud.
@@ -183,6 +197,32 @@ use Facebook\WebDriver\WebDriverSelect;
  *                  os_version: 10
  *                  browserstack.local: true # for local testing
  * ```
+ *
+ * ### LambdaTest
+ *
+ * 1. Create an account at [LambdaTest](https://www.lambdatest.com/) to get your username and access key
+ * 2. In the module configuration use the format `username`:`access key`@hub.lambdatest.com' for `host`
+ * 3. Configure `os` and `os_version` under `capabilities` to define the operating System
+ * 4. If your site is available only locally or via VPN you should use a tunnel app. In this case add capabilities.setCapability("tunnel",true);.
+ *
+ * ```yaml
+ *    modules:
+ *  enabled:
+ *    - WebDriver:
+ *       url: http://mysite.com
+ *       host: '<username>:<access key>@hub.lambdatest.com'
+ *       build: <your build name>
+ *       name: <your test name>
+ *       port: 80
+ *       browser: chrome
+ *       capabilities:
+ *           os: Windows
+ *           os_version: 10
+ *           browser_version: 86
+ *           resolution: 1366x768
+ *           tunnel: true # for local testing
+ * ```
+ *
  * ### TestingBot
  *
  * 1. Create an account at [TestingBot](https://testingbot.com/) to get your key and secret
@@ -223,6 +263,8 @@ use Facebook\WebDriver\WebDriverSelect;
  * * `ssl_proxy_port` - sets ssl(https) proxy server port
  * * `debug_log_entries` - how many selenium entries to print with `debugWebDriverLogs` or on fail (0 by default).
  * * `log_js_errors` - Set to true to include possible JavaScript to HTML report, or set to false (default) to deactivate.
+ * * `webdriver_proxy` - sets http proxy to tunnel requests to the remote Selenium WebDriver through
+ * * `webdriver_proxy_port` - sets http proxy server port to tunnel requests to the remote Selenium WebDriver through
  *
  * Example (`acceptance.suite.yml`)
  *
@@ -336,25 +378,27 @@ class WebDriver extends CodeceptionModule implements
 {
     protected $requiredFields = ['browser', 'url'];
     protected $config = [
-        'protocol'           => 'http',
-        'host'               => '127.0.0.1',
-        'port'               => '4444',
-        'path'               => '/wd/hub',
-        'start'              => true,
-        'restart'            => false,
-        'wait'               => 0,
-        'clear_cookies'      => true,
-        'window_size'        => false,
-        'capabilities'       => [],
-        'connection_timeout' => null,
-        'request_timeout'    => null,
-        'pageload_timeout'   => null,
-        'http_proxy'         => null,
-        'http_proxy_port'    => null,
-        'ssl_proxy'          => null,
-        'ssl_proxy_port'     => null,
-        'debug_log_entries'  => 0,
-        'log_js_errors'      => false
+        'protocol'             => 'http',
+        'host'                 => '127.0.0.1',
+        'port'                 => '4444',
+        'path'                 => '/wd/hub',
+        'start'                => true,
+        'restart'              => false,
+        'wait'                 => 0,
+        'clear_cookies'        => true,
+        'window_size'          => false,
+        'capabilities'         => [],
+        'connection_timeout'   => null,
+        'request_timeout'      => null,
+        'pageload_timeout'     => null,
+        'http_proxy'           => null,
+        'http_proxy_port'      => null,
+        'ssl_proxy'            => null,
+        'ssl_proxy_port'       => null,
+        'debug_log_entries'    => 0,
+        'log_js_errors'        => false,
+        'webdriver_proxy'      => null,
+        'webdriver_proxy_port' => null,
     ];
 
     protected $wdHost;
@@ -364,10 +408,8 @@ class WebDriver extends CodeceptionModule implements
     protected $test;
     protected $sessions = [];
     protected $sessionSnapshots = [];
-    protected $httpProxy;
-    protected $httpProxyPort;
-    protected $sslProxy;
-    protected $sslProxyPort;
+    protected $webdriverProxy;
+    protected $webdriverProxyPort;
 
     /**
      * @var RemoteWebDriver
@@ -406,6 +448,8 @@ class WebDriver extends CodeceptionModule implements
         }
         $this->connectionTimeoutInMs = $this->config['connection_timeout'] * 1000;
         $this->requestTimeoutInMs = $this->config['request_timeout'] * 1000;
+        $this->webdriverProxy = $this->config['webdriver_proxy'];
+        $this->webdriverProxyPort = $this->config['webdriver_proxy_port'];
         $this->loadFirefoxProfile();
     }
 
@@ -1556,8 +1600,8 @@ class WebDriver extends CodeceptionModule implements
                 $this->capabilities,
                 $this->connectionTimeoutInMs,
                 $this->requestTimeoutInMs,
-                $this->httpProxy,
-                $this->httpProxyPort
+                $this->webdriverProxy,
+                $this->webdriverProxyPort
             );
             if (!is_null($this->config['pageload_timeout'])) {
                 $this->webDriver->manage()->timeouts()->pageLoadTimeout($this->config['pageload_timeout']);
@@ -1780,6 +1824,37 @@ class WebDriver extends CodeceptionModule implements
     {
         $el = $this->findField($field);
         $el->clear();
+    }
+
+    /**
+     * Type in characters on active element.
+     * With a second parameter you can specify delay between key presses. 
+     * 
+     * ```php
+     * <?php
+     * // activate input element
+     * $I->click('#input');
+     * 
+     * // type text in active element
+     * $I->type('Hello world');
+     * 
+     * // type text with a 1sec delay between chars
+     * $I->type('Hello World', 1);
+     * ```
+     * 
+     * This might be useful when you an input reacts to typing and you need to slow it down to emulate human behavior.
+     * For instance, this is how Credit Card fields can be filled in.
+     * 
+     * @param $text
+     * @param $delay [sec]
+     */
+    public function type($text, $delay = 0) {
+        $keys = str_split($text);
+        foreach ($keys as $key) {
+            sleep($delay);
+            $this->webDriver->getKeyboard()->pressKey($key);
+        }
+        sleep($delay);
     }
 
     public function attachFile($field, $filename)
@@ -3354,6 +3429,20 @@ class WebDriver extends CodeceptionModule implements
         $this->executeJS("window.open('about:blank','_blank');");
         $this->switchToNextTab();
     }
+
+    /**
+     * Checks current number of opened tabs
+     *
+     * ```php
+     * <?php
+     * $I->seeNumberOfTabs(2);
+     * ```
+     * @param $number number of tabs
+     */
+    public function seeNumberOfTabs($number)
+    {
+        $this->assertEquals(count($this->webDriver->getWindowHandles()), $number);
+    }    
 
     /**
      * Closes current browser tab and switches to previous active tab.

@@ -13,10 +13,12 @@ require([
 ], function () {
     'use strict';
 
+    /* eslint-disable no-undef */
     AdminOrder.prototype.loadAreaResponseHandler = AdminOrder.prototype.loadAreaResponseHandler.wrap(
         function (parentFunction, response) {
             parentFunction(response);
-            if (response['message'] === '') {
+
+            if (response.message === '') {
                 this.hideArea('message');
             } else {
                 this.showArea('message');

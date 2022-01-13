@@ -1,7 +1,7 @@
 <?php
 /**
- * @copyright  Vertex. All rights reserved.  https://www.vertexinc.com/
- * @author     Mediotype                     https://www.mediotype.com/
+ * @author    Blue Acorn iCi <code@blueacornici.com>
+ * @copyright 2021 Vertex, Inc. All Rights Reserved.
  */
 
 namespace Vertex\Tax\Model;
@@ -78,12 +78,12 @@ class VertexUsageDeterminer
             return false;
         }
 
-        if ($shippingCountry && !$this->countryGuard->isCountryIdServiceableByVertex($shippingCountry)) {
+        if ($shippingCountry && !$this->countryGuard->isCountryIdServiceableByVertex($shippingCountry, $storeCode)) {
             return false;
         }
 
         if (!$shippingCountry && $billingCountry
-            && !$this->countryGuard->isCountryIdServiceableByVertex($billingCountry)) {
+            && !$this->countryGuard->isCountryIdServiceableByVertex($billingCountry, $storeCode)) {
             return false;
         }
 

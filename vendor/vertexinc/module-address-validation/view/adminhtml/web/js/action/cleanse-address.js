@@ -9,13 +9,15 @@ define(['jquery'], function ($) {
     /**
      * @typedef CleanseAddressActionConfig
      * @api
-     * @property {?string} apiUrl - The URL to use for cleansing an address
+     * @property {?String} apiUrl - The URL to use for cleansing an address
      */
 
     /**
      * @type {CleanseAddressActionConfig}
      */
-    const config = {apiUrl: null};
+    const config = {
+        apiUrl: null
+    };
 
     /**
      * @api
@@ -24,7 +26,7 @@ define(['jquery'], function ($) {
         /**
          * Globally configure the URL to query for address cleansing results
          *
-         * @param {string} apiUrl
+         * @param {String} apiUrl
          */
         setApiUrl: function (apiUrl) {
             if (typeof apiUrl !== 'string') {
@@ -52,6 +54,7 @@ define(['jquery'], function ($) {
                 .done(function (cleanAddress) {
                     result.resolve(cleanAddress);
                 });
+
             return result;
         }
     }

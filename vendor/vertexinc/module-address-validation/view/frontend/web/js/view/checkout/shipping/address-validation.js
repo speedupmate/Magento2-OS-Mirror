@@ -78,14 +78,19 @@ define([
             const formData = checkoutData.getShippingAddressFromData(),
                 checkoutProvider = registry.get('checkoutProvider');
 
+            // jscs:disable requireCamelCaseOrUpperCaseIdentifiers
+            // jscs:disable requireMultipleVarDecl
             if (checkoutProvider && checkoutProvider.dictionaries && checkoutProvider.dictionaries.region_id) {
                 const region = registry.get('checkoutProvider').dictionaries.region_id.find(function (obj) {
                     return obj.value === formData.region_id;
                 });
+
                 if (region && region.label) {
                     formData.region = region.label;
                 }
             }
+            // jscs:enable requireCamelCaseOrUpperCaseIdentifiers
+            // jscs:enable requireMultipleVarDecl
 
             return formData;
         },
@@ -94,13 +99,14 @@ define([
          * Triggers a request to the address validation builder and adds the response
          */
         addressValidation: function () {
-            var deferred = $.Deferred();
+            const deferred = $.Deferred();
             this.isAddressValid = false;
             fullScreenLoader.startLoader();
 
             addressValidationRequest(convertQuoteAddress(this.getFormData()))
                 .done(function (response) {
                     this.isAddressValid = true;
+
                     if (this.handleAddressDifferenceResponse(response) === true) {
                         deferred.resolve();
                     }
@@ -121,6 +127,7 @@ define([
         handleAddressDifferenceResponse: function (response) {
             if (response === null || !Object.keys(response).length) {
                 this.message.setWarningMessage(validationMessages.noAddressFound);
+
                 return;
             }
 

@@ -4,6 +4,7 @@ namespace Vertex\Tax\Test\Unit\Model\Plugin;
 
 use Magento\Config\Model\Config\Structure\Element\Group;
 use PHPUnit\Framework\MockObject\MockObject;
+use Vertex\Tax\Model\Config;
 use Vertex\Tax\Model\ModuleManager;
 use Vertex\Tax\Model\Plugin\GroupPlugin;
 use Vertex\Tax\Test\Unit\TestCase;
@@ -23,7 +24,7 @@ class GroupPluginTest extends TestCase
         $this->plugin = $this->getObject(GroupPlugin::class, ['moduleManager' => $this->moduleManager]);
     }
 
-    public function testAroundSetData()
+    public function testBeforeSetData()
     {
         /** @var MockObject|Group $subject */
         $subject = $this->createMock(Group::class);
@@ -74,16 +75,17 @@ class GroupPluginTest extends TestCase
             ]
         ];
 
-        $scope = 'default';
-
-        $proceed = function () use ($scope) {
-            return $scope;
-        };
-
         $this->moduleManager->method('isEnabled')
             ->with($this->logicalOr('Magento_GiftWrapping', 'Magento_Reward'))
             ->willReturn(false);
 
-        $this->plugin->aroundSetData($subject, $proceed, $data, $scope);
+        $result = $this->plugin->beforeSetData($subject, $data, 'default');
+
+        $this->assertArrayHasKey('children', $result[0]);
+        foreach ($result[0]['children'] as $key => $child) {
+            $this->assertEquals(0, $child['showInDefault'], "{$key} set to show in default");
+            $this->assertEquals(0, $child['showInWebsite'], "{$key} set to show in website");
+            $this->assertEquals(0, $child['showInStore'], "{$key} set to show in store");
+        }
     }
 }

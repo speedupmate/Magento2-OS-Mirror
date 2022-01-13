@@ -23,4 +23,18 @@
             name="klarnaKpGraphQlAvailablePaymentMethods"
             type="Klarna\KpGraphQl\Plugin\Model\Resolver\AvailablePaymentMethodsPlugin"/>
     </type>
+    <type name="Klarna\Core\Model\Api\Rest\Service">
+        <plugin
+            sortOrder="10"
+            name="klarnaKpGraphQlService"
+            type="Klarna\KpGraphQl\Plugin\Model\Api\Rest\ServicePlugin"
+        />
+    </type>
+    <type name="Klarna\Core\Helper\VersionInfo">
+        <plugin
+            sortOrder="10"
+            name="klarnaKpGraphQlVersionInfo"
+            type="Klarna\KpGraphQl\Plugin\Helper\VersionInfoPlugin"
+        />
+    </type>
 </config>

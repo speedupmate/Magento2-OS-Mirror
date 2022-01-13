@@ -3,7 +3,7 @@
     "description": "Fork from the Magento Braintree 2.2.0 module by Gene Commerce for PayPal.",
     "type": "magento2-module",
     "license": "proprietary",
-    "version": "4.2.4",
+    "version": "4.2.5",
     "require": {
         "braintree/braintree_php": "5.2.0",
         "magento/module-customer": "101.0.*||102.0.*||^103.0.0",
@@ -19,6 +19,8 @@
         "magento/module-paypal": "100.2.*||100.3.*||^101.0.0",
         "magento/module-theme": "100.2.*||101.0.*||^101.1.0",
         "magento/module-ui": "101.0.*||101.1.*||^101.2.0",
+        "magento/module-re-captcha-ui": "1.1.*",
+        "magento/module-re-captcha-validation-api": "1.1.*",
         "ext-json": "*",
         "ext-simplexml": "*",
         "league/iso3166": "^2.1"

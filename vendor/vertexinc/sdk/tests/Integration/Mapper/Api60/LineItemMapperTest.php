@@ -97,4 +97,39 @@ class LineItemMapperTest extends TestCase
         $this->assertCount(1, $map->Customer->TaxRegistration);
         $this->assertNotTrue(isset($map->Customer->TaxRegistration[0]->impositionType));
     }
+
+    /**
+     * Test {@see LineItemMapper::addProductToMap()}
+     *
+     * @return void
+     * @throws ValidationException
+     */
+    public function testAddProductToMapWithProductCodeAndProductClass()
+    {
+        $object = new LineItem();
+        $object->setProductCode('TOB-123-2');
+        $object->setProductClass('FPT');
+
+        $map = $this->mapper->map($object);
+        $this->assertNotNull($map->Product->productClass);
+        $this->assertEquals('FPT', $map->Product->productClass);
+        $this->assertNotNull($map->Product->_);
+        $this->assertEquals('TOB-123-2', $map->Product->_);
+    }
+
+    /**
+     * Test {@see LineItemMapper::addProductToMap()}
+     *
+     * @return void
+     * @throws ValidationException
+     */
+    public function testAddProductToMapWithoutProductCodeWithProductClass()
+    {
+        $object = new LineItem();
+        $object->setProductClass('FPT');
+
+        $map = $this->mapper->map($object);
+        $this->assertNotNull($map->Product->productClass);
+        $this->assertEquals('FPT', $map->Product->productClass);
+    }
 }

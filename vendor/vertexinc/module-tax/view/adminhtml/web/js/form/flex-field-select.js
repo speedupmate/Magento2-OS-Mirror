@@ -24,7 +24,7 @@ define([
          * Set Caption
          */
         setCaption: function () {
-            var length, label;
+            let length, label;
 
             if (!_.isArray(this.value()) && this.value()) {
                 length = 1;

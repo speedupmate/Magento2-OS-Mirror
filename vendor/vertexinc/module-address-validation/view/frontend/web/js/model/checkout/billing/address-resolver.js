@@ -12,14 +12,20 @@ define([
     'use strict';
 
     addressResolver = $.extend({}, addressResolver, {
+        /**
+         * Update the <input /> elements for the Billing Address
+         *
+         * @param {UpdateFieldElement} element
+         * @param {String|String[]} value
+         */
         updateFields: function (element, value) {
             if (element.name === 'street') {
                 const streetInputs = $('.payment-method input[name^="street["]');
                 streetInputs.val('');
-                value = typeof value === "string" ? [value] : Object.values(value);
-                for (let index = 0, length = value.length;index < length;++index) {
-                    $(streetInputs[index])
-                        .val(value[index]);
+                value = typeof value === 'string' ? [value] : Object.values(value);
+
+                for (let index = 0, length = value.length; index < length; ++index) {
+                    $('.payment-method input[name="street[' + index + ']"]').val(value[index]);
                 }
                 streetInputs.trigger('change').trigger('blur');
             } else {
@@ -30,5 +36,6 @@ define([
             }
         }
     });
+
     return addressResolver;
 });

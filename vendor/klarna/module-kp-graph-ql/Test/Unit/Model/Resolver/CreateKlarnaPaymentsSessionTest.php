@@ -14,6 +14,7 @@ use Klarna\Core\Test\Unit\Mock\MockFactory;
 use Klarna\Core\Test\Unit\Mock\TestObjectFactory;
 use Klarna\Kp\Model\Api\Response;
 use Klarna\KpGraphQl\Model\Resolver\CreateKlarnaPaymentsSession;
+use Magento\Framework\App\RequestInterface;
 use Magento\Framework\GraphQl\Config\Element\Field;
 use Magento\Framework\GraphQl\Exception\GraphQlInputException;
 use Magento\Framework\GraphQl\Schema\Type\ResolveInfo;
@@ -299,7 +300,17 @@ class CreateKlarnaPaymentsSessionTest extends TestCase
         $mockFactory   = new MockFactory();
         $objectFactory = new TestObjectFactory($mockFactory);
 
-        $this->resolver        = $objectFactory->create(CreateKlarnaPaymentsSession::class);
+        $requestMock = $this->getMockBuilder(RequestInterface::class)
+            ->disableOriginalConstructor()
+            ->setMethodsExcept([])
+            ->addMethods(['setParam'])
+            ->getMock();
+
+        $this->resolver        = $objectFactory->create(
+            CreateKlarnaPaymentsSession::class,
+            [],
+            [RequestInterface::class => $requestMock]
+        );
         $this->fieldMock       = $mockFactory->create(Field::class);
         $this->resolveInfoMock = $mockFactory->create(ResolveInfo::class);
         $this->contextMock     = $mockFactory->create(ContextInterface::class);
@@ -308,7 +319,14 @@ class CreateKlarnaPaymentsSessionTest extends TestCase
 
         $contextExtensionMock = $mockFactory->create(
             ContextExtensionInterface::class,
-            ['getStore', 'setStore', 'getIsCustomer', 'setIsCustomer']
+            [
+                'getStore',
+                'setStore',
+                'getIsCustomer',
+                'setIsCustomer',
+                'getCustomerGroupId',
+                'setCustomerGroupId'
+            ]
         );
         $storeInterfaceMock   = $mockFactory->create(StoreInterface::class);
 
@@ -326,5 +344,10 @@ class CreateKlarnaPaymentsSessionTest extends TestCase
             ->expects($this->once())
             ->method('getId')
             ->willReturn(1);
+
+        $this->dependencyMocks['request']
+            ->expects($this->once())
+            ->method('setParam')
+            ->with('GraphQlCreateSession', true);
     }
 }

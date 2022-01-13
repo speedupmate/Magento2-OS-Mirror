@@ -13,7 +13,7 @@
             <argument name="connectionName" xsi:type="string">sales</argument>
         </arguments>
     </type>
-	
+
     <virtualType name="OmsTableNameArrayIterator" type="Magento\Framework\ForeignKey\Migration\TableNameArrayIterator">
         <arguments>
             <argument name="tableNames" xsi:type="array">
@@ -596,6 +596,7 @@
     <virtualType name="BraintreeTransactionsReporting" type="Magento\Framework\View\Element\UiComponent\DataProvider\Reporting">
         <arguments>
             <argument name="collectionFactory" xsi:type="object">BraintreeTransactionsCollectionFactoryForReporting</argument>
+            <argument name="filterPool" xsi:type="object">PayPal\Braintree\Ui\Component\Report\DataProvider\FilterPool</argument>
         </arguments>
     </virtualType>
     <virtualType name="BraintreeTransactionsDataProvider" type="Magento\Framework\View\Element\UiComponent\DataProvider\DataProvider">
@@ -683,7 +684,7 @@
             </argument>
         </arguments>
     </virtualType>
-    <virtualType name="BraintreeApplePaySaleCommand" type="Magento\Payment\Gateway\Command\GatewayCommand">
+    <virtualType name="BraintreeApplePaySaleCommand" type="PayPal\Braintree\Gateway\Command\GatewayCommand">
         <arguments>
             <argument name="transferFactory" xsi:type="object">PayPal\Braintree\Gateway\Http\TransferFactory</argument>
             <argument name="client" xsi:type="object">PayPal\Braintree\Gateway\Http\Client\TransactionSale</argument>
@@ -790,7 +791,7 @@
             </argument>
         </arguments>
     </virtualType>
-    <virtualType name="BraintreeGooglePaySaleCommand" type="Magento\Payment\Gateway\Command\GatewayCommand">
+    <virtualType name="BraintreeGooglePaySaleCommand" type="PayPal\Braintree\Gateway\Command\GatewayCommand">
         <arguments>
             <argument name="transferFactory" xsi:type="object">PayPal\Braintree\Gateway\Http\TransferFactory</argument>
             <argument name="client" xsi:type="object">PayPal\Braintree\Gateway\Http\Client\TransactionSale</argument>
@@ -884,6 +885,11 @@
         </arguments>
     </virtualType>
     <!-- commandPool -->
+    <type name="PayPal\Braintree\Gateway\Response\Venmo\VaultDetailsHandler">
+        <arguments>
+            <argument name="paymentTokenFactory" xsi:type="object">Magento\Vault\Model\AccountPaymentTokenFactory</argument>
+        </arguments>
+    </type>
     <virtualType name="BraintreeVenmoCommandPool" type="Magento\Payment\Gateway\Command\CommandPool">
         <arguments>
             <argument name="commands" xsi:type="array">
@@ -891,7 +897,6 @@
                 <item name="sale" xsi:type="string">BraintreeVenmoSaleCommand</item>
                 <item name="capture" xsi:type="string">BraintreeVenmoCaptureStrategyCommand</item>
                 <item name="settlement" xsi:type="string">BraintreeCaptureCommand</item>
-                <item name="vault_capture" xsi:type="string">BraintreeVaultCaptureCommand</item>
                 <item name="void" xsi:type="string">BraintreeVoidCommand</item>
                 <item name="refund" xsi:type="string">BraintreeRefundCommand</item>
                 <item name="cancel" xsi:type="string">BraintreeVoidCommand</item>
@@ -938,7 +943,6 @@
             <argument name="handlers" xsi:type="array">
                 <item name="payment_details" xsi:type="string">PayPal\Braintree\Model\Venmo\PaymentDetailsHandler</item>
                 <item name="txn_id" xsi:type="string">PayPal\Braintree\Gateway\Response\TransactionIdHandler</item>
-                <item name="vault_details" xsi:type="string">PayPal\Braintree\Gateway\Response\Venmo\VaultDetailsHandler</item>
             </argument>
         </arguments>
     </virtualType>
@@ -1175,6 +1179,7 @@
     <preference for="PayPal\Braintree\Api\CreditPriceRepositoryInterface" type="PayPal\Braintree\Model\ResourceModel\CreditPriceRepository" />
 
     <preference for="Magento\Payment\Gateway\Data\Order\OrderAdapter" type="PayPal\Braintree\Gateway\Data\Order\OrderAdapter"/>
+    <preference for="PayPal\Braintree\Gateway\Data\AddressAdapterInterface" type="PayPal\Braintree\Gateway\Data\Order\AddressAdapter"/>
 
     <type name="Magento\Framework\View\Asset\Minification">
         <plugin name="braintreeExcludeFromMinification" type="PayPal\Braintree\Plugin\ExcludeFromMinification"/>

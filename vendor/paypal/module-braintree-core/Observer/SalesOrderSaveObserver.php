@@ -41,8 +41,8 @@ class SalesOrderSaveObserver implements ObserverInterface
             return;
         }
 
-        $paymentMethod = $order->getPayment()->getMethod();
-        if (0 === strpos($paymentMethod, 'braintree')) {
+        $payment = $order->getPayment();
+        if ($payment !== null && 0 === strpos($payment->getMethod(), 'braintree')) {
             $additionalInformation = $order->getPayment()->getAdditionalInformation();
             if (!empty($additionalInformation[PaymentDetailsHandler::TRANSACTION_SOURCE])) {
                 /** @var TransactionDetailDataInterface $transactionDetail */

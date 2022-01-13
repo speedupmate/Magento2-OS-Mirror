@@ -176,8 +176,14 @@
     <type name="Magento\Payment\Helper\Data">
         <plugin sortOrder="10" name="klarnaKpPaymentData" type="Klarna\Kp\Plugin\Payment\Helper\DataPlugin"/>
     </type>
+    <type name="Magento\AdvancedSalesRule\Model\Rule\Condition\FilterTextGenerator\Address\PaymentMethod">
+        <plugin sortOrder="10" name="klarnaKpPaymentMethod" type="Klarna\Kp\Plugin\Model\PaymentMethodPlugin"/>
+    </type>
     <type name="Magento\SalesRule\Model\Rule\Condition\Address">
         <plugin sortOrder="10" name="klarnaKpAddressCondition" type="Klarna\Kp\Plugin\Model\AddressConditionPlugin"/>
+    </type>
+    <type name="Magento\SalesRule\Model\Quote\Discount">
+        <plugin sortOrder="10" name="klarnaKpDiscount" type="Klarna\Kp\Plugin\Model\Quote\DiscountPlugin"/>
     </type>
 
     <type name="Klarna\Kp\Model\PaymentMethodList">
@@ -195,6 +201,13 @@
     </type>
     <type name="Klarna\Core\Helper\KlarnaConfig">
         <plugin sortOrder="100" name="klarnaKpKlarnaConfig" type="Klarna\Kp\Plugin\Helper\KlarnaConfigPlugin"/>
+    </type>
+    <type name="Klarna\Core\Helper\VersionInfo">
+        <plugin
+            sortOrder="10"
+            name="klarnaKpVersionInfo"
+            type="Klarna\Kp\Plugin\Helper\VersionInfoPlugin"
+        />
     </type>
     <preference for="Klarna\Kp\Api\SessionInitiatorInterface" type="Klarna\Kp\Model\SessionInitiator"/>
     <preference for="Klarna\Kp\Api\PaymentMethodListInterface" type="Klarna\Kp\Model\PaymentMethodList"/>

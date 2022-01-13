@@ -27,7 +27,7 @@ define([
          * @param {Object} button
          */
         initialize: function (form, button) {
-            var self = this,
+            const self = this,
                 fieldsToValidate = _.clone(addressResolver.addressFieldsForValidation);
 
             this.form = form || {};
@@ -54,11 +54,12 @@ define([
          * Rename form button value
          *
          * @param {String} value
+         * @param {Element} button
          */
         renameSubmitButton: function (value, button) {
-            var button = button || this.button;
-            var buttonValue = $(button.html()).html(value);
-            button.html(buttonValue).attr('title', value);
+            const useButton = button || this.button,
+                buttonValue = $(useButton.html()).html(value);
+            useButton.html(buttonValue).attr('title', value);
         },
 
         /**
@@ -67,6 +68,7 @@ define([
         showSaveAsIsButton: function () {
             if (!_.isEmpty(this.saveAsIsButton)) {
                 this.saveAsIsButton.show();
+
                 return;
             }
 
@@ -123,27 +125,35 @@ define([
                 postalCode = this.form.find('input[name="postcode"]').val(),
                 country = this.form.find('select[name="country_id"]').val();
 
-            address.street_address = streetAddress;
+            address.street_address = streetAddress; // jscs:ignore requireCamelCaseOrUpperCaseIdentifiers
+
             if (city.length > 0) {
                 address.city = city;
             }
+
             if (mainDivisionValue.length > 0) {
-                address.main_division = mainDivision;
+                address.main_division = mainDivision; // jscs:ignore requireCamelCaseOrUpperCaseIdentifiers
             }
+
             if (postalCode.length > 0) {
-                address.postal_code = postalCode;
+                address.postal_code = postalCode; // jscs:ignore requireCamelCaseOrUpperCaseIdentifiers
             }
             address.country = country;
 
             return address;
         },
 
+        /**
+         * Update the address
+         */
         updateAddress: function (differences) {
-            for (let index = 0, length = differences.length;index < length;++index) {
+            for (let index = 0, length = differences.length; index < length; ++index) {
                 let difference = differences[index];
+
                 switch (difference.type) {
                     case 'street':
                         this.form.find('input[name="street[]"]').val('');
+
                         for (
                             let streetIndex = 0, streetLength = difference.rawValue.length;
                             streetIndex < streetLength;
@@ -155,24 +165,28 @@ define([
                                 .trigger('blur');
                         }
                         break;
+
                     case 'city':
                         this.form.find('input[name="city"]')
                             .val(difference.rawValue)
                             .trigger('change')
                             .trigger('blur');
                         break;
+
                     case 'region':
                         this.form.find('select[name="region_id"]')
                             .val(difference.rawValue)
                             .trigger('change')
                             .trigger('blur');
                         break;
+
                     case 'postcode':
                         this.form.find('input[name="postcode"]')
                             .val(difference.rawValue)
                             .trigger('change')
                             .trigger('blur');
                         break;
+
                     case 'country':
                         this.form.find('select[name="country_id"]')
                             .val(difference.rawValue)

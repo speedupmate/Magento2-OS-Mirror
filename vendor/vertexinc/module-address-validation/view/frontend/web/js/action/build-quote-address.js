@@ -13,6 +13,7 @@ define([], function () {
      * @returns {Object} quoteAddress
      */
     return function (address) {
+        // jscs:disable requireCamelCaseOrUpperCaseIdentifiers
         return {
             street: address.street_address,
             city: address.city,
@@ -20,6 +21,7 @@ define([], function () {
             region_id: address.region_id,
             postcode: address.postal_code,
             country_id: address.country_code
-        }
-    }
-})
+        };
+        // jscs:enable requireCamelCaseOrUpperCaseIdentifiers
+    };
+});

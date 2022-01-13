@@ -3,7 +3,7 @@ define([
     'uiComponent',
     'Vertex_AddressValidation/js/model/address-difference-template-renderer',
     'Vertex_AddressValidation/js/validation-messages'
-], function (ko, Component, differenceRenderer, validationMessages) {
+], function (ko, Component, DifferenceRenderer, validationMessages) {
     'use strict';
 
     return Component.extend({
@@ -22,9 +22,13 @@ define([
 
         templateRenderer: null,
 
+        /**
+         * Initialize
+         */
         initialize: function () {
             this._super();
-            this.templateRenderer = new differenceRenderer(this.cleanseAddressTemplate);
+            this.templateRenderer = new DifferenceRenderer(this.cleanseAddressTemplate);
+
             return this;
         },
 
@@ -36,7 +40,7 @@ define([
         initObservable: function () {
             this.address = ko.observable();
 
-            this.hasMessage = ko.pureComputed(function() {
+            this.hasMessage = ko.pureComputed(function () {
                 return this._objectHasEntries(this.message);
             }.bind(this));
 
@@ -49,7 +53,7 @@ define([
                     address: this.address()
                 };
 
-                for (let index = 0,length = this.message.differences.length;index < length;++index) {
+                for (let index = 0,length = this.message.differences.length; index < length; ++index) {
                     if (this.message.differences[index].type === 'street') {
                         templateVariables.warning = validationMessages.streetAddressUpdateWarning;
                         break;
@@ -61,7 +65,6 @@ define([
 
             return this._super();
         },
-
 
         /**
          * Sets a success message
@@ -130,18 +133,19 @@ define([
          * importing a shim.
          *
          * @param {Object} object
-         * @returns {boolean}
+         * @returns {Boolean}
          * @private
          */
-        _objectHasEntries: function(object) {
+        _objectHasEntries: function (object) {
             if (typeof Object.entries !== 'undefined') {
                 return Object.entries(object).length !== 0;
             }
+
             for (let key in object) {
                 if (object.hasOwnProperty(key)) {
                     return true;
                 }
             }
-        },
+        }
     });
 });

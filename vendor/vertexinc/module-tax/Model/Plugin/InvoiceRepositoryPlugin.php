@@ -1,7 +1,7 @@
 <?php
 /**
- * @copyright  Vertex. All rights reserved.  https://www.vertexinc.com/
- * @author     Mediotype                     https://www.mediotype.com/
+ * @author    Blue Acorn iCi <code@blueacornici.com>
+ * @copyright 2021 Vertex, Inc. All Rights Reserved.
  */
 
 namespace Vertex\Tax\Model\Plugin;
@@ -14,6 +14,8 @@ use Vertex\Tax\Model\VertexTaxAttributeManager;
 
 /**
  * Plugin that adds Vertex Tax extension attributes when the Invoice Repository is called
+ *
+ * @see InvoiceRepositoryInterface
  */
 class InvoiceRepositoryPlugin
 {
@@ -37,6 +39,7 @@ class InvoiceRepositoryPlugin
      * @param InvoiceRepositoryInterface $subject
      * @param InvoiceInterface $invoice
      * @return InvoiceInterface
+     * @see InvoiceRepositoryInterface::get()
      */
     public function afterGet(InvoiceRepositoryInterface $subject, InvoiceInterface $invoice)
     {

@@ -5,6 +5,7 @@
  */
 namespace PayPal\Braintree\Gateway\Config\PayPal;
 
+use Magento\Store\Model\ScopeInterface;
 use PayPal\Braintree\Model\Config\Source\Color;
 use PayPal\Braintree\Model\Config\Source\Shape;
 use PayPal\Braintree\Model\Config\Source\Size;
@@ -55,6 +56,11 @@ class Config extends \Magento\Payment\Gateway\Config\Config
     private $shapeConfigSource;
 
     /**
+     * @var Shape
+     */
+    private $scopeConfigResolver;
+
+    /**
      * Config constructor.
      * @param ScopeConfigInterface $scopeConfig
      * @param CcConfig $ccConfig
@@ -74,6 +80,7 @@ class Config extends \Magento\Payment\Gateway\Config\Config
         $pathPattern = self::DEFAULT_PATH_PATTERN
     ) {
         parent::__construct($scopeConfig, $methodCode, $pathPattern);
+        $this->scopeConfigResolver = $scopeConfig;
         $this->ccConfig = $ccConfig;
         $this->sizeConfigSource = $sizeConfigSource;
         $this->colorConfigSource = $colorConfigSource;
@@ -116,6 +123,20 @@ class Config extends \Magento\Payment\Gateway\Config\Config
     public function getMerchantName()
     {
         return $this->getValue(self::KEY_MERCHANT_NAME_OVERRIDE);
+    }
+
+    /**
+     * Get Merchant country
+     *
+     * @param int $storeId
+     * @return mixed|null
+     */
+    public function getMerchantCountry()
+    {
+        return $this->scopeConfigResolver->getValue(
+            'paypal/general/merchant_country',
+            ScopeInterface::SCOPE_STORE
+        );
     }
 
     /**

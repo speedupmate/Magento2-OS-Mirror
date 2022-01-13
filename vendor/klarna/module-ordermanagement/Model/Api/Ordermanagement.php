@@ -403,7 +403,12 @@ class Ordermanagement implements ApiInterface
         }
 
         if ($creditMemo->getCustomerNote() !== null) {
-            $data['description'] = $creditMemo->getCustomerNote();
+            $note = $creditMemo->getCustomerNote();
+            if (strlen($note) > 255) {
+                $note = substr($note, 0, 252);
+                $note .= '...';
+            }
+            $data['description'] = $note;
         }
 
         $data = $this->prepareOrderLines($data, $creditMemo);

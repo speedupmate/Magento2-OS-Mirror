@@ -8,18 +8,19 @@ define(['mage/translate'], function ($t) {
 
     /**
      * @typedef VertexAddressReadableDifference
-     * @property {string} type - Type of difference (used for code)
-     * @property {string} name - Human readable name of the item that has changed
-     * @property {(string|string[])} value - Human readable value of the item that has changed
-     * @property {(string|string[])} rawValue - Script usable value of the item that has changed
+     * @property {String} type - Type of difference (used for code)
+     * @property {String} name - Human readable name of the item that has changed
+     * @property {(String|String[])} value - Human readable value of the item that has changed
+     * @property {(String|String[])} rawValue - Script usable value of the item that has changed
      */
 
     /**
      * @param {UncleanAddress} uncleanAddress
      * @param {CleanAddress} cleanAddress
-     * @returns {boolean}
+     * @returns {Boolean}
      */
     function streetAddressesAreDifferent(uncleanAddress, cleanAddress) {
+        // jscs:disable requireCamelCaseOrUpperCaseIdentifiers
         uncleanAddress.street_address.filter(function (val) {
             // Filter out empty strings
             return val.length > 0;
@@ -28,11 +29,14 @@ define(['mage/translate'], function ($t) {
         if (uncleanAddress.street_address.length !== cleanAddress.street_address.length) {
             return true;
         }
-        for(let index = 0,length = uncleanAddress.street_address.length;index < length;++index) {
+
+        for (let index = 0, length = uncleanAddress.street_address.length; index < length; ++index) {
             if (uncleanAddress.street_address[index] !== cleanAddress.street_address[index]) {
                 return true;
             }
         }
+        // jscs:enable requireCamelCaseOrUpperCaseIdentifiers
+
         return false;
     }
 
@@ -43,21 +47,39 @@ define(['mage/translate'], function ($t) {
      */
     return function (uncleanAddress, cleanAddress) {
         const listedDifferences = [];
+
+        // jscs:disable requireCamelCaseOrUpperCaseIdentifiers
         if (streetAddressesAreDifferent(uncleanAddress, cleanAddress)) {
-            listedDifferences.push({type: 'street', name: $t('Street Address'), value: cleanAddress.street_address, rawValue: cleanAddress.street_address});
+            listedDifferences.push({
+                type: 'street', name: $t('Street Address'), value: cleanAddress.street_address, rawValue: cleanAddress.street_address
+            });
         }
+
         if (uncleanAddress.city !== cleanAddress.city) {
-            listedDifferences.push({type: 'city', name: $t('City'), value: cleanAddress.city, rawValue: cleanAddress.city});
+            listedDifferences.push({
+                type: 'city', name: $t('City'), value: cleanAddress.city, rawValue: cleanAddress.city
+            });
         }
+
         if (uncleanAddress.main_division !== cleanAddress.region_name) {
-            listedDifferences.push({type: 'region', name: $t('State/Province'), value: cleanAddress.region_name, rawValue: cleanAddress.region_id});
+            listedDifferences.push({
+                type: 'region', name: $t('State/Province'), value: cleanAddress.region_name, rawValue: cleanAddress.region_id
+            });
         }
+
         if (uncleanAddress.postal_code !== cleanAddress.postal_code) {
-            listedDifferences.push({type: 'postcode', name: $t('Zip/Postal Code'), value: cleanAddress.postal_code, rawValue: cleanAddress.postal_code});
+            listedDifferences.push({
+                type: 'postcode', name: $t('Zip/Postal Code'), value: cleanAddress.postal_code, rawValue: cleanAddress.postal_code
+            });
         }
+
         if (uncleanAddress.country !== cleanAddress.country_code) {
-            listedDifferences.push({type: 'country', name: $t('Country'), value: cleanAddress.country_name, rawValue: cleanAddress.country_code});
+            listedDifferences.push({
+                type: 'country', name: $t('Country'), value: cleanAddress.country_name, rawValue: cleanAddress.country_code
+            });
         }
+        // jscs:enable requireCamelCaseOrUpperCaseIdentifiers
+
         return listedDifferences;
     };
 });

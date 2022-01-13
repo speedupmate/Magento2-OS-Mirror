@@ -1,7 +1,7 @@
 <?php
 /**
- * @copyright  Vertex. All rights reserved.  https://www.vertexinc.com/
- * @author     Mediotype                     https://www.mediotype.com/
+ * @author    Blue Acorn iCi <code@blueacornici.com>
+ * @copyright 2021 Vertex, Inc. All Rights Reserved.
  */
 
 namespace Vertex\Tax\Model\Api\Data;
@@ -70,7 +70,7 @@ class SellerBuilder
     {
         /** @var SellerInterface $seller */
         $seller = $this->sellerFactory->create();
-        $sellerMapper = $this->mapperFactory->getForClass(SellerInterface::class, $this->scopeCode);
+        $sellerMapper = $this->mapperFactory->getForClass(SellerInterface::class, $this->scopeCode, $this->scopeType);
 
         $street = [
             $this->config->getCompanyStreet1($this->scopeCode, $this->scopeType),
@@ -79,6 +79,7 @@ class SellerBuilder
 
         $address = $this->addressBuilder
             ->setScopeCode($this->scopeCode)
+            ->setScopeType($this->scopeType)
             ->setStreet($street)
             ->setCity($this->config->getCompanyCity($this->scopeCode, $this->scopeType))
             ->setRegionId($this->config->getCompanyRegionId($this->scopeCode, $this->scopeType))

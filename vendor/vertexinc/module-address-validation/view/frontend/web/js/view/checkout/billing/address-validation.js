@@ -26,14 +26,19 @@ define([
             const formData = checkoutData.getBillingAddressFromData(),
                 checkoutProvider = registry.get('checkoutProvider');
 
+            // jscs:disable requireCamelCaseOrUpperCaseIdentifiers
+            // jscs:disable requireMultipleVarDecl
             if (checkoutProvider && checkoutProvider.dictionaries && checkoutProvider.dictionaries.region_id) {
                 const region = registry.get('checkoutProvider').dictionaries.region_id.find(function (obj) {
                     return obj.value === formData.region_id;
                 });
+
                 if (region && region.label) {
                     formData.region = region.label;
                 }
             }
+            // jscs:enable requireCamelCaseOrUpperCaseIdentifiers
+            // jscs:enable requireMultipleVarDecl
 
             return formData;
         }

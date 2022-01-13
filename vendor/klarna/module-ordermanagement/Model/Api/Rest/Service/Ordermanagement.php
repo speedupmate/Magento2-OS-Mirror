@@ -65,12 +65,10 @@ class Ordermanagement
         $this->service = $service;
         $this->loggerContainer = $loggerContainer ?? ObjectManager::getInstance()->get(Container::class);
 
-        $version = sprintf(
-            '%s;Core/%s',
+        $version = $versionInfo->getModuleVersionString(
             $versionInfo->getVersion('Klarna_Ordermanagement'),
-            $versionInfo->getVersion('Klarna_Core')
+            'Klarna_Ordermanagement'
         );
-
         $mageMode = $versionInfo->getMageMode();
         $mageVersion = $versionInfo->getMageEdition() . ' ' . $versionInfo->getMageVersion();
         $mageInfo = "Magento {$mageVersion} {$mageMode} mode";

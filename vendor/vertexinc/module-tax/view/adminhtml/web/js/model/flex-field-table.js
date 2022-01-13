@@ -27,10 +27,7 @@ define([
         },
         retrieveFields: [],
 
-        /**
-         * Initializes the table
-         * @returns {FlexFieldTable} Chainable.
-         */
+        /** @inheritdoc */
         initialize: function () {
             this._super();
 
@@ -44,7 +41,8 @@ define([
          * Initialize the select components and link them to the form values
          */
         initializeFields: function () {
-            var i, name, fieldId, fieldSource, toLayOut = [];
+            let i, name, fieldId, fieldSource;
+            const toLayOut = [];
 
             for (i in this.values) {
                 if (this.values.hasOwnProperty(i)) {
@@ -112,20 +110,20 @@ define([
          * @returns {String}
          */
         getFieldLabelFromSource: function (source) {
-            var i, j, selected;
+            let i, j, selected;
 
             for (i in this.selectOptions) {
-                if (this.selectOptions[i].optgroup === undefined) {
-                    continue;
-                }
-                for (j in this.selectOptions[i].optgroup) {
-                    selected = this.selectOptions[i].optgroup[j];
+                if (this.selectOptions[i].optgroup !== undefined) {
+                    for (j in this.selectOptions[i].optgroup) {
+                        selected = this.selectOptions[i].optgroup[j];
 
-                    if (selected.value === source) {
-                        return captionFormatter.getFormattedValue(selected);
+                        if (selected.value === source) {
+                            return captionFormatter.getFormattedValue(selected);
+                        }
                     }
                 }
             }
+
             return this.defaultPlaceholder;
         },
 

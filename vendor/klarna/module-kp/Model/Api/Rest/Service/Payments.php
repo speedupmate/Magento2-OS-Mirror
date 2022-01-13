@@ -149,11 +149,9 @@ class Payments implements CreditApiInterface
      */
     private function connect()
     {
-        $version = sprintf(
-            '%s;Core/%s;OM/%s',
+        $version = $this->versionInfo->getModuleVersionString(
             $this->versionInfo->getVersion('Klarna_Kp'),
-            $this->versionInfo->getVersion('Klarna_Core'),
-            $this->versionInfo->getVersion('Klarna_Ordermanagement')
+            'Klarna_Kp'
         );
         $mageMode = $this->versionInfo->getMageMode();
         $mageVersion = $this->versionInfo->getMageEdition() . '/' . $this->versionInfo->getMageVersion();

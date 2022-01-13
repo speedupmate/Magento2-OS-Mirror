@@ -1,7 +1,7 @@
 <?php
 /**
- * @copyright  Vertex. All rights reserved.  https://www.vertexinc.com/
- * @author     Mediotype                     https://www.mediotype.com/
+ * @author    Blue Acorn iCi <code@blueacornici.com>
+ * @copyright 2021 Vertex, Inc. All Rights Reserved.
  */
 
 declare(strict_types=1);
@@ -11,12 +11,17 @@ namespace Vertex\AddressValidation\Plugin\Adminhtml;
 use Magento\Framework\Data\Form;
 use Magento\Framework\View\LayoutInterface;
 use Magento\Sales\Block\Adminhtml\Order\Create\Form\AbstractForm;
+use Magento\Sales\Block\Adminhtml\Order\Create\Form\Address;
 use Vertex\AddressValidation\Block\Adminhtml\CleanseAddressButton;
 
+/**
+ * @see Address
+ */
 class AddBlockToOrderCreateForm
 {
-    private const ELEMENT_NAME = 'address_validation_type';
     private const DEFAULT_FORM_ID = 'edit_form';
+
+    private const ELEMENT_NAME = 'address_validation_type';
 
     /** @var LayoutInterface */
     private $layout;
@@ -26,6 +31,9 @@ class AddBlockToOrderCreateForm
         $this->layout = $layout;
     }
 
+    /**
+     * @see Address::getForm()
+     */
     public function afterGetForm(AbstractForm $subject, Form $result): Form
     {
         $validationElement = $result->getElement(static::ELEMENT_NAME);

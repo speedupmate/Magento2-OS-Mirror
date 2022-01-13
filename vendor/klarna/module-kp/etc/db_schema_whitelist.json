@@ -11,10 +11,12 @@
             "payment_method_info": true
         },
         "index": {
-            "KLARNA_PAYMENTS_QUOTE_QUOTE_ID": true
+            "KLARNA_PAYMENTS_QUOTE_QUOTE_ID": true,
+            "KLARNA_PAYMENTS_QUOTE_SESSION_ID": true
         },
         "constraint": {
-            "PRIMARY": true
+            "PRIMARY": true,
+            "KLARNA_PAYMENTS_QUOTE_QUOTE_ID_QUOTE_ENTITY_ID": true
         }
     }
 }

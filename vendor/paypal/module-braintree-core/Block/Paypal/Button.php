@@ -23,7 +23,6 @@ use PayPal\Braintree\Gateway\Config\PayPalPayLater\Config as PayPalPayLaterConfi
 class Button extends Template implements ShortcutInterface
 {
     const ALIAS_ELEMENT_INDEX = 'alias';
-
     const BUTTON_ELEMENT_INDEX = 'button_id';
 
     /**
@@ -285,5 +284,21 @@ class Button extends Template implements ShortcutInterface
     public function getExtraClassname(): string
     {
         return $this->getIsCart() ? 'cart' : 'minicart';
+    }
+
+    /**
+     * @return bool
+     */
+    public function isRequiredBillingAddress(): bool
+    {
+        return (bool) $this->config->isRequiredBillingAddress();
+    }
+
+    /**
+     * @return string|null
+     */
+    public function getMerchantCountry()
+    {
+        return $this->payPalPayLaterConfig->getMerchantCountry();
     }
 }

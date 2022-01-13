@@ -1,8 +1,10 @@
 <?php
 /**
- * @copyright  Vertex. All rights reserved.  https://www.vertexinc.com/
- * @author     Mediotype                     https://www.mediotype.com/
+ * @author    Blue Acorn iCi <code@blueacornici.com>
+ * @copyright 2021 Vertex, Inc. All Rights Reserved.
  */
+
+declare(strict_types=1);
 
 namespace Vertex\Tax\Model\Plugin;
 
@@ -13,15 +15,14 @@ use Vertex\Utility\SoapClientFactory;
 
 /**
  * Replaces a Vertex SDK Factory with Magento 2 dependency injection
+ *
+ * @see ServiceActionPerformerFactory
  */
 class ServiceActionPerformerFactoryPlugin
 {
     /** @var ObjectManagerInterface */
     private $objectManager;
 
-    /**
-     * @param ObjectManagerInterface $objectManager
-     */
     public function __construct(ObjectManagerInterface $objectManager)
     {
         $this->objectManager = $objectManager;
@@ -30,19 +31,15 @@ class ServiceActionPerformerFactoryPlugin
     /**
      * Change Vertex SDK's Factory to utilize ObjectManager
      *
-     * @todo Convert to afterCreate once we only support Magento 2.2+
+     * We don't prevent the call to the original so we preserve it's checks and exceptions
      *
-     * @param ServiceActionPerformerFactory $factory
-     * @param callable $proceed
-     * @param array $parameters
-     * @return ServiceActionPerformer
+     * @see ServiceActionPerformerFactory::create()
      */
-    public function aroundCreate(ServiceActionPerformerFactory $factory, callable $proceed, array $parameters)
-    {
-        // Call the original to trigger its checks & exceptions
-        $performer = $proceed($parameters);
-        unset($performer);
-
+    public function afterCreate(
+        ServiceActionPerformerFactory $subject,
+        ServiceActionPerformer $performer,
+        array $parameters
+    ): ServiceActionPerformer {
         if (!isset($parameters['soapClientFactory'])) {
             // This is necessary to ensure that the plugins for the SoapClientFactory are utilized
             $parameters['soapClientFactory'] = $this->objectManager->get(SoapClientFactory::class);

@@ -1,8 +1,8 @@
 <?xml version="1.0"?>
 <!--
 /**
- * @copyright  Vertex. All rights reserved.  https://www.vertexinc.com/
- * @author     Mediotype                     https://www.mediotype.com/
+ * @author    Blue Acorn iCi <code@blueacornici.com>
+ * @copyright 2021 Vertex, Inc. All Rights Reserved.
  */
 -->
 <config xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
@@ -91,9 +91,6 @@
             <argument name="authSession" xsi:type="object">Magento\Backend\Model\Auth\Session\Proxy</argument>
         </arguments>
     </type>
-
-    <!-- Workaround for issue discovered in Magento 2.1.8 where preference doesn't exist for CustomerExtensionInterface -->
-    <preference for="Magento\Customer\Api\Data\CustomerExtensionInterface" type="Magento\Customer\Api\Data\CustomerExtension"/>
 
     <!-- Plugins -->
     <type name="Vertex\Utility\SoapClientFactory">

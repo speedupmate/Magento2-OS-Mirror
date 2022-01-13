@@ -34,16 +34,18 @@
         <argument name="data" xsi:type="array">
             <item name="js_config" xsi:type="array">
                 <item name="component" xsi:type="string">Magento_Ui/js/form/provider</item>
-                <item name="submit_url" path="*/*/send" xsi:type="url" />
             </item>
         </argument>
+        <settings>
+            <submitUrl path="*/*/send"/>
+        </settings>
+        <aclResource>Klarna_Core::system_support_form</aclResource>
         <dataProvider class="Klarna\Core\Ui\DataProvider\Support" name="support_form_data_source">
             <settings>
                 <requestFieldName>form</requestFieldName>
                 <primaryFieldName>form</primaryFieldName>
             </settings>
         </dataProvider>
-        <aclResource>Klarna_Core::system_support_form</aclResource>
     </dataSource>
 
     <fieldset name="support_form_fieldset">
@@ -51,6 +53,15 @@
             <label translate="true">Support request form</label>
         </settings>
         <field name="custom_options_list" formElement="select" component="Magento_Ui/js/form/element/ui-select">
+            <argument name="data" xsi:type="array">
+                <item name="config" xsi:type="array">
+                    <item name="filterOptions" xsi:type="boolean">true</item>
+                    <item name="showCheckbox" xsi:type="boolean">true</item>
+                    <item name="disableLabel" xsi:type="boolean">true</item>
+                    <item name="multiple" xsi:type="boolean">true</item>
+                    <item name="levelsVisibility" xsi:type="number">1</item>
+                </item>
+            </argument>
             <settings>
                 <label translate="true">Klarna Products</label>
                 <dataType>text</dataType>
@@ -75,15 +86,6 @@
                     </settings>
                 </select>
             </formElements>
-            <argument name="data" xsi:type="array">
-                <item name="config" xsi:type="array">
-                    <item name="filterOptions" xsi:type="boolean">true</item>
-                    <item name="showCheckbox" xsi:type="boolean">true</item>
-                    <item name="disableLabel" xsi:type="boolean">true</item>
-                    <item name="multiple" xsi:type="boolean">true</item>
-                    <item name="levelsVisibility" xsi:type="number">1</item>
-                </item>
-            </argument>
         </field>
         <field name="contact_name" formElement="input">
             <settings>
@@ -223,6 +225,11 @@
             </formElements>
         </field>
         <field name="attachment" formElement="fileUploader">
+            <argument name="data" xsi:type="array">
+                <item name="config" xsi:type="array">
+                    <item name="isMultipleFiles" xsi:type="boolean">true</item>
+                </item>
+            </argument>
             <settings>
                 <visible>true</visible>
                 <label translate="true">Attachments (.jpg, .jpeg, .png, .txt, .log, .pdf, .zip, .rar)</label>
@@ -243,11 +250,6 @@
                     </settings>
                 </fileUploader>
             </formElements>
-            <argument name="data" xsi:type="array">
-                <item name="config" xsi:type="array">
-                    <item name="isMultipleFiles" xsi:type="boolean">true</item>
-                </item>
-            </argument>
         </field>
     </fieldset>
 </form>

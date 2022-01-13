@@ -74,8 +74,12 @@ class RequestLogger
 
         $logEntry->setModuleName($this->moduleDetail->getModuleName());
         $logEntry->setModuleVersion($this->moduleDetail->getModuleVersion());
-        $logEntry->setResponseXml($responseXml);
-        $logEntry->setRequestXml($requestXml);
+        if ($responseXml !== null) {
+            $logEntry->setResponseXml($responseXml);
+        }
+        if ($requestXml !== null) {
+            $logEntry->setRequestXml($requestXml);
+        }
 
         $this->addResponseDataToLogEntry($logEntry, $responseXml);
         $this->logRequest->execute($logEntry, $logLevel);
@@ -90,9 +94,8 @@ class RequestLogger
      */
     private function addResponseDataToLogEntry(LogEntryInterface $logEntry, $responseXml)
     {
-        $dom = $this->documentFactory->create();
-
         if (!empty($responseXml)) {
+            $dom = $this->documentFactory->create();
             $dom->loadXML($responseXml);
 
             $totalTaxNodes = $dom->getElementsByTagName('TotalTax');

@@ -7,17 +7,20 @@ define(function () {
     'use strict';
 
     return {
+        /**
+         * Load an entry from the registry
+         */
         load: function (name, req, onload, config) {
             req(['uiRegistry'], function (registry) {
                 let count = 0;
-                let timer = setInterval(function() {
-                    if(typeof(registry.get(name)) !== 'undefined') {
+                const timer = setInterval(function () {
+                    if (typeof (registry.get(name)) !== 'undefined') {
                         onload(registry.get(name));
                         clearInterval(timer);
                     }
                     count++;
 
-                    if(count >= 10) {
+                    if (count >= 10) {
                         clearInterval(timer);
                         onload.error(new Error(name + 'never loaded into the registry'));
                     }

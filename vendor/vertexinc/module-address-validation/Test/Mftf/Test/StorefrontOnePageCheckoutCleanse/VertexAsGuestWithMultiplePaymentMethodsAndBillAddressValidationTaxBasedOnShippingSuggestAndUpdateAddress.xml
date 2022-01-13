@@ -1,0 +1,92 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!--
+ /**
+  * @author     Blue Acorn iCi                <code@blueacornici.com>
+  * @copyright  Vertex. All rights reserved.  https://www.vertexinc.com/
+  */
+-->
+<tests xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+       xsi:noNamespaceSchemaLocation="urn:magento:mftf:Test/etc/testSchema.xsd">
+    <test name="VertexAsGuestWithMultiplePaymentMethodsAndBillAddressValidationTaxBasedOnShippingSuggestAndUpdateAddress">
+        <annotations>
+            <features value="Vertex"/>
+            <group value="VertexAddressValidation"/>
+            <testCaseId value="VRTX-944"/>
+
+            <stories value="As a store owner, I must be able to validate the guest billing address in checkout with multiple payment methods configured"/>
+            <title value="Validate address when not same as shipping in checkout for quest customer with multiple payment methods configured"/>
+            <description value="Validate the guest customer address and suggest changes when the store have multiple payment methods configured. When the user updates the billing address in checkout we suggest different values. If the address is valid we just go with the normal checkout flow"/>
+
+            <severity value="CRITICAL"/>
+        </annotations>
+        <before>
+            <createData entity="_defaultCategory" stepKey="createCategory"/>
+            <createData entity="_defaultProduct" stepKey="createProduct">
+                <field key="price">{{Vertex_34USD_PA_Only_Values.price}}</field>
+                <requiredEntity createDataKey="createCategory"/>
+            </createData>
+
+            <!-- Enable Purchase Order -->
+            <magentoCLI command="config:set {{PurchaseOrderEnableConfigData.path}} {{PurchaseOrderEnableConfigData.value}}" stepKey="enablePurchaseOrderPaymentMethod"/>
+
+            <actionGroup ref="AddSimpleProductToCartActionGroup" stepKey="addProductToCart">
+                <argument name="product" value="$$createProduct$$"/>
+            </actionGroup>
+
+            <actionGroup ref="GoToCheckoutFromMinicartActionGroup" stepKey="gotoCheckout"/>
+
+            <actionGroup ref="GuestCheckoutFillShippingNoWaitForPaymentActionGroup" stepKey="fillShippingInformation">
+                <argument name="customerVar" value="Vertex_Customer_BobSaget"/>
+                <argument name="customerAddressVar" value="Vertex_Customer_BirminghamAlabama_Address"/>
+            </actionGroup>
+
+            <actionGroup ref="VertexAddressValidationUpdatedToValidSystemMessageActionGroup" stepKey="messageWasUpdated">
+                <argument name="postCode" value="{{Vertex_Customer_BirminghamAlabama_Address.valid_postcode}}"/>
+            </actionGroup>
+
+            <!--Select payment method-->
+            <actionGroup ref="CheckoutSelectCheckMoneyOrderPaymentActionGroup" stepKey="selectPaymentMethod"/>
+
+            <uncheckOption selector="{{StorefrontCheckoutPaymentMethodSection.billingAddressSameAsShipping}}"
+                           stepKey="uncheckBillingAddressSameAsShippingCheckCheckBox"/>
+
+            <click selector="{{CheckoutShippingSection.editAddressButton}}" stepKey="clickOnEditBillingAddressButton"/>
+
+            <!-- Fill in an incomplete billing address -->
+            <actionGroup ref="StorefrontCheckoutFillNewBillingAddressActionGroup" stepKey="changeAddress">
+                <argument name="customerVar" value="Vertex_Customer_BobSaget"/>
+                <argument name="customerAddressVar" value="Vertex_Customer_BirminghamAlabama_Address"/>
+            </actionGroup>
+            <fillField selector="{{CheckoutPaymentSection.guestStreet}}" userInput="2473 hackworth" stepKey="enterStreet"/>
+
+            <click selector="{{CheckoutPaymentSection.update}}" stepKey="clickOnUpdateButton"/>
+            <waitForPageLoad stepKey="waitForProcessing"/>
+            <click selector="{{CheckoutShippingSection.updateLinkToValidAddress}}" stepKey="clickOnUpdateAddressButton"/>
+
+            <actionGroup ref="VertexAddressValidationDefaultMessageActionGroup"
+                         stepKey="seeValidationMessage"/>
+
+            <click selector="{{CheckoutPaymentSection.update}}" stepKey="clickOnUpdateBillingAddressButton"/>
+        </before>
+        <after>
+            <deleteData stepKey="deleteProduct" createDataKey="createProduct"/>
+            <deleteData stepKey="deleteCategory" createDataKey="createCategory"/>
+
+            <!-- Disable Purchase Order -->
+            <magentoCLI command="config:set {{PurchaseOrderEnableConfigData.path}} {{PurchaseOrderDisabledConfigData.value}}" stepKey="disablePurchaseOrderPaymentMethod"/>
+        </after>
+
+        <grabValueFrom selector="{{CheckoutPaymentSection.guestStreet}}" stepKey="billingStreetAddress"/>
+        <assertNotEmpty stepKey="assertBillingStreetAddressIsNotEmpty">
+            <actualResult type="const">$billingStreetAddress</actualResult>
+        </assertNotEmpty>
+
+        <assertEquals stepKey="assertBillingStreetAddress">
+            <expectedResult type="string">{{Vertex_Customer_BirminghamAlabama_Address.street1}}</expectedResult>
+            <actualResult type="variable">$billingStreetAddress</actualResult>
+        </assertEquals>
+
+        <actionGroup ref="ClickPlaceOrderActionGroup" stepKey="placeOrder"/>
+        <waitForPageLoad stepKey="waitSuccess"/>
+    </test>
+</tests>

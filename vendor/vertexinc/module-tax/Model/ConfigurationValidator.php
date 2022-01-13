@@ -1,7 +1,7 @@
 <?php
 /**
- * @copyright  Vertex. All rights reserved.  https://www.vertexinc.com/
- * @author     Mediotype                     https://www.mediotype.com/
+ * @author    Blue Acorn iCi <code@blueacornici.com>
+ * @copyright 2021 Vertex, Inc. All Rights Reserved.
  */
 
 namespace Vertex\Tax\Model;
@@ -212,6 +212,7 @@ class ConfigurationValidator
         try {
             $address = $this->addressBuilder
                 ->setScopeCode($scopeCode)
+                ->setScopeType($scopeType)
                 ->setStreet($street)
                 ->setCity($this->config->getCompanyCity($scopeCode, $scopeType))
                 ->setRegionId($this->config->getCompanyRegionId($scopeCode, $scopeType))

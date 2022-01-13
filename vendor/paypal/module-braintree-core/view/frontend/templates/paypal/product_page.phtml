@@ -26,7 +26,12 @@ try {
             'jquery'
         ], function (button, $) {
             $(function () {
-                button.init('<?= $block->getClientToken() ?>', '<?= $block->escapeHtmlAttr($block->getCurrency()) ?>');
+                button.init(
+                    '<?= $block->getClientToken() ?>',
+                    '<?= $block->escapeHtmlAttr($block->getCurrency()) ?>',
+                    '<?= $block->escapeHtmlAttr($block->getEnvironment()) ?>',
+                    '<?= $block->escapeHtmlAttr($block->getMerchantCountry()) ?>'
+                );
             })
         })
     </script>
@@ -45,6 +50,7 @@ try {
              data-size="<?= $block->getButtonSize() ?>"
              data-color="<?= $block->getButtonColor() ?>"
              data-location="<?= $block->getLocation() ?>"
+             data-requiredbillingaddress="<?= $block->isRequiredBillingAddress() ?>"
              class="action-braintree-paypal-logo"></div>
     </div>
 
@@ -63,6 +69,7 @@ try {
                  data-size="<?= $block->getButtonSize() ?>"
                  data-color="darkblue"
                  data-location="<?= $block->getLocation() ?>"
+                 data-requiredbillingaddress="<?= $block->isRequiredBillingAddress() ?>"
                  class="action-braintree-paypal-logo"></div>
         </div>
     <?php endif; ?>
@@ -82,6 +89,7 @@ try {
                      data-size="<?= $block->getButtonSize() ?>"
                      data-color="white"
                      data-location="<?= $block->getLocation() ?>"
+                     data-requiredbillingaddress="<?= $block->isRequiredBillingAddress() ?>"
                      class="action-braintree-paypal-logo"></div>
             </div>
         <?php endif; ?>

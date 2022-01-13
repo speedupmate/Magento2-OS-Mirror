@@ -1,13 +1,14 @@
 <?php
 /**
- * @copyright  Vertex. All rights reserved.  https://www.vertexinc.com/
- * @author     Mediotype                     https://www.mediotype.com/
+ * @author    Blue Acorn iCi <code@blueacornici.com>
+ * @copyright 2021 Vertex, Inc. All Rights Reserved.
  */
+
+declare(strict_types=1);
 
 namespace Vertex\Tax\Model\Plugin;
 
-use Magento\Quote\Model\Quote;
-use Magento\Tax\Api\Data\QuoteDetailsItemExtensionInterface;
+use Magento\Quote\Model\Quote\Address;
 use Magento\Tax\Api\Data\QuoteDetailsItemInterface;
 use Magento\Tax\Api\Data\QuoteDetailsItemInterfaceFactory;
 use Magento\Tax\Api\Data\TaxClassKeyInterface;
@@ -16,6 +17,8 @@ use Vertex\Tax\Model\Config;
 
 /**
  * Plugins to the Tax Total
+ *
+ * @see Tax
  */
 class TaxPlugin
 {
@@ -31,27 +34,18 @@ class TaxPlugin
      * Add Vertex product codes and custom tax classes to extra taxables
      *
      * @param Tax $subject
-     * @param callable $super
+     * @param QuoteDetailsItemInterface[] $items
      * @param QuoteDetailsItemInterfaceFactory $itemDataObjectFactory
-     * @param Quote\Address $address
-     * @param bool $useBaseCurrency
+     * @param Address $address
      * @return QuoteDetailsItemInterface[]
+     * @see Tax::mapQuoteExtraTaxables()
      */
-    public function aroundMapQuoteExtraTaxables(
+    public function afterMapQuoteExtraTaxables(
         Tax $subject,
-        callable $super,
-        $itemDataObjectFactory,
-        Quote\Address $address,
-        $useBaseCurrency
-    ) {
-        // Allows forward compatibility with argument additions
-        $arguments = func_get_args();
-        array_splice($arguments, 0, 2);
-
-        /** @var QuoteDetailsItemInterface[] $items */
-        // phpcs:ignore Magento2.Functions.DiscouragedFunction.Discouraged
-        $items = call_user_func_array($super, $arguments);
-
+        array $items,
+        QuoteDetailsItemInterfaceFactory $itemDataObjectFactory,
+        Address $address
+    ): array {
         $store = $address->getQuote()->getStore();
         $storeId = $store->getStoreId();
 

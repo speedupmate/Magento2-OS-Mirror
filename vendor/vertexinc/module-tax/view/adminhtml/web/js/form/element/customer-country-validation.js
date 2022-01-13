@@ -19,20 +19,20 @@ define([
                 'taxvat': '${ $.provider }:data.customer.taxvat'
             },
             listens: {
-                '${ $.provider }:data.customer.taxvat': '_taxVatUpdated',
+                '${ $.provider }:data.customer.taxvat': '_taxVatUpdated'
             }
         },
 
+        /** @inheritdoc */
         initialize: function () {
             this._super();
 
             this.required(!!this.taxvat().length);
+
+            return this;
         },
 
-        setLinks: function () {
-            return this._super();
-        },
-
+        /** @inheritdoc */
         initObservable: function () {
             this._super();
             this.taxvat = ko.observable('');
@@ -40,6 +40,11 @@ define([
             return this;
         },
 
+        /**
+         * Initialize Config
+         *
+         * @param {Object} config
+         */
         initConfig: function (config) {
             /**
              * Validates if a customer VAT number is set, then selecting a Country is required.
@@ -47,17 +52,24 @@ define([
             validator.addRule(
                 'vertex-customer-country',
                 function (value) {
-                    let dependField = 'input[name="customer['+ config.dependField +']"]';
+                    const dependField = 'input[name="customer[' + config.dependField + ']"]';
 
                     return dependFieldChecker.validateValues(dependField, value);
                 },
-                $.mage.__("Please select a Country.")
+                $.mage.__('Please select a Country.')
             );
 
             this._super();
+
             return this;
         },
 
+        /**
+         * Handles case when the Tax VAT ID field is updated
+         *
+         * @param {String} newValue
+         * @private
+         */
         _taxVatUpdated: function (newValue) {
             this.required(!!newValue.length);
         }

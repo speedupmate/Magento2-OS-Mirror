@@ -1,4 +1,19 @@
 
+6.2.5 / 2021-08-10
+==================
+
+  * MAGE-3314 Retrieve versions without hard dependency
+
+6.2.4 / 2021-07-30
+==================
+
+  * MAGE-3255 Fixed big size of the description field by limiting it in the refund request 
+
+6.2.3 / 2021-06-10
+==================
+
+  * MAGE-3228 Bump version because of updated dependencies
+
 6.2.2 / 2021-06-04
 ==================
 

@@ -33,7 +33,6 @@ define(
         'use strict';
         let buttonIds = [];
 
-
         return {
             events: {
                 onClick: null,
@@ -41,9 +40,13 @@ define(
                 onError: null
             },
 
-            init: function (token, currency) {
-                if($('.action-braintree-paypal-message').length) {
-                    $('.product-add-form form').on('keyup change paste', 'input, select, textarea', function(){
+            /**
+             * @param token
+             * @param currency
+             */
+            init: function (token, currency, env, local) {
+                if ($('.action-braintree-paypal-message').length) {
+                    $('.product-add-form form').on('keyup change paste', 'input, select, textarea', function () {
                         var currentPrice, currencySymbol;
                         currentPrice = $(".product-info-main span").find("[data-price-type='finalPrice']").text();
                         currencySymbol = $('.action-braintree-paypal-message[data-pp-type="product"]').data('currency-symbol');
@@ -53,18 +56,23 @@ define(
 
                 buttonIds = [];
                 $('.action-braintree-paypal-logo').each(function () {
-                    if(!$(this).hasClass( "button-loaded" )) {
+                    if (!$(this).hasClass("button-loaded")) {
                         $(this).addClass('button-loaded');
                         buttonIds.push($(this).attr('id'));
                     }
                 });
 
-                if(buttonIds.length > 0){
-                    this.loadSDK(token, currency);
+                if (buttonIds.length > 0) {
+                    this.loadSDK(token, currency, env, local);
                 }
             },
 
-            loadSDK: function (token, currency) {
+            /**
+             * Load Braintree PayPal SDK
+             * @param token
+             * @param currency
+             */
+            loadSDK: function (token, currency, env, local) {
                 braintree.create({
                     authorization: token
                 }, function (clientErr, clientInstance) {
@@ -84,31 +92,42 @@ define(
                         client: clientInstance
                     }, function (err, paypalCheckoutInstance) {
                         if (typeof paypal !== 'undefined' ) {
-                            this.renderpayPalButtons(buttonIds, paypalCheckoutInstance);
-                            this.renderpayPalMessages();
+                            this.renderPayPalButtons(buttonIds, paypalCheckoutInstance);
+                            this.renderPayPalMessages();
                         } else {
-                            paypalCheckoutInstance.loadPayPalSDK({
+                            var configSDK = {
                                 components: 'buttons,messages,funding-eligibility',
-                                "enable-funding":"paylater",
-                                currency: currency,
-                            }, function () {
-                                this.renderpayPalButtons(buttonIds, paypalCheckoutInstance);
-                                this.renderpayPalMessages();
+                                "enable-funding": "paylater",
+                                currency: currency
+                            };
+                            if (env == 'sandbox' && local != '') {
+                                configSDK["buyer-country"] = local;
+                            }
+                            paypalCheckoutInstance.loadPayPalSDK(configSDK, function () {
+                                this.renderPayPalButtons(buttonIds, paypalCheckoutInstance);
+                                this.renderPayPalMessages();
                             }.bind(this));
                         }
-
-
                     }.bind(this));
                 }.bind(this));
             },
-            renderpayPalButtons: function(ids, paypalCheckoutInstance) {
-                _.each(ids,function(id) {
-                    this.payPalButton(id, paypalCheckoutInstance);
 
+            /**
+             * Render PayPal buttons
+             *
+             * @param ids
+             * @param paypalCheckoutInstance
+             */
+            renderPayPalButtons: function (ids, paypalCheckoutInstance) {
+                _.each(ids, function (id) {
+                    this.payPalButton(id, paypalCheckoutInstance);
                 }.bind(this));
             },
 
-            renderpayPalMessages: function() {
+            /**
+             * Render PayPal messages
+             */
+            renderPayPalMessages: function () {
                 $('.action-braintree-paypal-message').each(function () {
                     paypal.Messages({
                         amount: $(this).data('pp-amount'),
@@ -122,8 +141,11 @@ define(
                 });
             },
 
-            payPalButton: function(id, paypalCheckoutInstance) {
-
+            /**
+             * @param id
+             * @param paypalCheckoutInstance
+             */
+            payPalButton: function (id, paypalCheckoutInstance) {
                 let data = $('#' + id);
                 let style = {
                     color: data.data('color'),
@@ -141,17 +163,16 @@ define(
                     fundingSource: data.data('funding'),
                     style: style,
                     createOrder: function () {
-                        return paypalCheckoutInstance.createPayment(
-                            {
-                                amount: data.data('amount'),
-                                locale: data.data('locale'),
-                                currency: data.data('currency'),
-                                flow: 'checkout',
-                                enableShippingAddress: true,
-                                displayName: data.data('displayname')
-                            });
+                        return paypalCheckoutInstance.createPayment({
+                            amount: data.data('amount'),
+                            locale: data.data('locale'),
+                            currency: data.data('currency'),
+                            flow: 'checkout',
+                            enableShippingAddress: true,
+                            displayName: data.data('displayname')
+                        });
                     },
-                    validate: function(actions) {
+                    validate: function (actions) {
                         var cart = customerData.get('cart'),
                             customer = customerData.get('customer'),
                             declinePayment = false,
@@ -166,54 +187,49 @@ define(
 
                     onCancel: function (data) {
                         jQuery("#maincontent").trigger('processStop');
-
-                        /*if (typeof events.onCancel === 'function') {
-                            events.onCancel();
-                        }*/
                     },
 
                     onError: function (err) {
                         console.error('paypalCheckout button render error', err);
                         jQuery("#maincontent").trigger('processStop');
-
-
-                        /*if (typeof events.onError === 'function') {
-                            events.onError(err);
-                        }*/
                     },
 
-                    onClick: function(data) {
-
+                    onClick: function (data) {
                         var cart = customerData.get('cart'),
                             customer = customerData.get('customer'),
                             declinePayment = false,
                             isGuestCheckoutAllowed;
+
                         isGuestCheckoutAllowed = cart().isGuestCheckoutAllowed;
                         declinePayment = !customer().firstname && !isGuestCheckoutAllowed && (typeof isGuestCheckoutAllowed !== 'undefined');
                         if (declinePayment) {
                             alert($t('To check out, please sign in with your email address.'));
                         }
-
-                        /*if (typeof events.onClick === 'function') {
-                            events.onClick(data);
-                        }*/
                     },
 
-                    onApprove: function (data1)  {
+                    onApprove: function (data1) {
                         return paypalCheckoutInstance.tokenizePayment(data1, function (err, payload) {
                             jQuery("#maincontent").trigger('processStart');
 
                             // Map the shipping address correctly
                             var address = payload.details.shippingAddress;
-                            var recipientName = address.recipientName.split(" ");
+                            var recipientFirstName, recipientLastName;
+                            if (typeof address.recipientName !== 'undefined') {
+                                var recipientName = address.recipientName.split(" ");
+                                recipientFirstName = recipientName[0].replace(/'/g, "&apos;");
+                                recipientLastName = recipientName[1].replace(/'/g, "&apos;");
+                            } else {
+                                recipientFirstName = payload.details.firstName.replace(/'/g, "&apos;");
+                                recipientLastName = payload.details.lastName.replace(/'/g, "&apos;");
+                            }
                             payload.details.shippingAddress = {
                                 streetAddress: typeof address.line2 !== 'undefined' ? address.line1.replace(/'/g, "&apos;") + " " + address.line2.replace(/'/g, "&apos;") : address.line1.replace(/'/g, "&apos;"),
                                 locality: address.city.replace(/'/g, "&apos;"),
                                 postalCode: address.postalCode,
                                 countryCodeAlpha2: address.countryCode,
                                 email: payload.details.email.replace(/'/g, "&apos;"),
-                                firstname: recipientName[0].replace(/'/g, "&apos;"),
-                                lastname: recipientName[1].replace(/'/g, "&apos;"),
+                                recipientFirstName: recipientFirstName,
+                                recipientLastName: recipientLastName,
                                 telephone: typeof payload.details.phone !== 'undefined' ? payload.details.phone : '',
                                 region: typeof address.state !== 'undefined' ? address.state.replace(/'/g, "&apos;") : ''
                             };
@@ -239,7 +255,7 @@ define(
                                 };
                             }
 
-                            if(data.data('location') == 'productpage') {
+                            if (data.data('location') == 'productpage') {
                                 var form = $("#product_addtocart_form");
                                 if (!(form.validation() && form.validation('isValid'))) {
                                     return false;
@@ -264,7 +280,9 @@ define(
                     data.parent().remove();
                     return;
                 }
-                button.render('#' + data.attr('id'));
+                if ($('#' + data.attr('id')).length) {
+                    button.render('#' + data.attr('id'));
+                }
             },
         }
     }

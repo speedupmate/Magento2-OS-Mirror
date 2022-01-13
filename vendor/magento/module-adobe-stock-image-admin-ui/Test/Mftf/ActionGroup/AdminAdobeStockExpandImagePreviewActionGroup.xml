@@ -12,13 +12,9 @@
         <annotations>
             <description>Expands first image in grid.</description>
         </annotations>
-        <conditionalClick stepKey="closeImagePreview"
-                          selector="{{AdminAdobeStockImagePreviewSection.close}}"
-                          dependentSelector="{{AdminAdobeStockImagePreviewSection.close}}"
-                          visible="true"
-        />
-        <waitForLoadingMaskToDisappear stepKey="waitForImagePreviewToClose"/>
+        <conditionalClick selector="{{AdminAdobeStockImagePreviewSection.close}}" dependentSelector="{{AdminAdobeStockImagePreviewSection.close}}" visible="true" stepKey="closeImagePreview"/>
+        <waitForPageLoad stepKey="waitForImagePreviewToClose"/>
         <click selector="{{AdminAdobeStockSection.modal}} {{AdminAdobeStockSection.firstImageInGrid}}" stepKey="clickOnThumbnail"/>
-        <waitForLoadingMaskToDisappear stepKey="waitForImagePreviewToExpand"/>
+        <waitForPageLoad stepKey="waitForImagePreviewToExpand"/>
     </actionGroup>
 </actionGroups>

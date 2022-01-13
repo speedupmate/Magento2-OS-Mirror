@@ -1,7 +1,7 @@
 <?php
 /**
- * @copyright  Vertex. All rights reserved.  https://www.vertexinc.com/
- * @author     Mediotype                     https://www.mediotype.com/
+ * @author    Blue Acorn iCi <code@blueacornici.com>
+ * @copyright 2021 Vertex, Inc. All Rights Reserved.
  */
 
 declare(strict_types=1);
@@ -58,6 +58,85 @@ class CustomOptionFlexFieldExtensionAttributeHandler
     }
 
     /**
+     * Delete flexible field mapping objects for a given Custom Option
+     *
+     * @param ProductCustomOptionRepositoryInterface $repository
+     * @param bool $result
+     * @param ProductCustomOptionInterface $option
+     * @see ProductCustomOptionRepositoryInterface::delete() Intercepted method
+     */
+    public function afterDelete(
+        ProductCustomOptionRepositoryInterface $repository,
+        $result,
+        ProductCustomOptionInterface $option
+    ): bool {
+        $this->repository->deleteByOptionId($option->getOptionId());
+        return (bool)$result;
+    }
+
+    /**
+     * Duplicate flexible field mapping objects on custom options for a given Product
+     *
+     * @param ProductCustomOptionRepositoryInterface $repository
+     * @param mixed $result
+     * @param ProductInterface $originalProduct
+     * @param ProductInterface $duplicateProduct
+     * @return mixed
+     * @see ProductCustomOptionRepositoryInterface::duplicate() Intercepted method
+     */
+    public function afterDuplicate(
+        ProductCustomOptionRepositoryInterface $repository,
+        $result,
+        ProductInterface $originalProduct,
+        ProductInterface $duplicateProduct
+    ) {
+        $options = $originalProduct->getOptions();
+        $option = is_array($options) && count($options) ? end($options) : null;
+
+        if ($option === null // No options to duplicate
+            || !$this->config->isVertexActive($this->getWebsiteId($option), ScopeInterface::SCOPE_WEBSITE)
+        ) {
+            return $result;
+        }
+
+        // We create some sort of unique hash map to tie the old options to the new ones, since that duplication
+        // happens too low level for us to work with
+
+        /** @var ProductCustomOptionInterface[] $originalOptionMap */
+        $originalOptionMap = array_reduce(
+            $repository->getProductOptions($originalProduct),
+            function (array $carry, ProductCustomOptionInterface $option) {
+                $carry[$this->getOptionHash($option)] = $option;
+                return $carry;
+            },
+            []
+        );
+
+        /** @var ProductCustomOptionInterface[] $duplicateOptionMap */
+        $duplicateOptionMap = array_reduce(
+            $repository->getProductOptions($duplicateProduct),
+            function (array $carry, ProductCustomOptionInterface $option) {
+                $carry[$this->getOptionHash($option)] = $option;
+                return $carry;
+            },
+            []
+        );
+
+        // With our hashes created, we simply grab the old and new IDs and put the database layer to work
+
+        foreach ($originalOptionMap as $hash => $option) {
+            if (!isset($duplicateOptionMap[$hash])) {
+                continue;
+            }
+
+            $duplicateOption = $duplicateOptionMap[$hash];
+            $this->resourceModel->duplicate($option->getOptionId(), $duplicateOption->getOptionId());
+        }
+
+        return $result;
+    }
+
+    /**
      * Load Custom Option Flexible Field mapping onto a custom option
      *
      * @param ProductCustomOptionRepositoryInterface $repository
@@ -67,7 +146,7 @@ class CustomOptionFlexFieldExtensionAttributeHandler
      */
     public function afterGet(
         ProductCustomOptionRepositoryInterface $repository = null,
-        ProductCustomOptionInterface $customOption
+        $customOption
     ) {
         if (!$this->config->isVertexActive()) {
             // Early exit if module is unused
@@ -152,7 +231,7 @@ class CustomOptionFlexFieldExtensionAttributeHandler
      */
     public function afterSave(
         ProductCustomOptionRepositoryInterface $repository,
-        ProductCustomOptionInterface $customOption
+        $customOption
     ) {
         if (!$this->config->isVertexActive() || !$customOption->getExtensionAttributes()) {
             // Early exit if module is unused or there are no extension attributes
@@ -188,92 +267,6 @@ class CustomOptionFlexFieldExtensionAttributeHandler
     }
 
     /**
-     * Delete flexible field mapping objects for a given Custom Option
-     *
-     * @param ProductCustomOptionRepositoryInterface $repository
-     * @param callable $super
-     * @param ProductCustomOptionInterface $option
-     * @return bool
-     * @see ProductCustomOptionRepositoryInterface::delete() Intercepted method
-     */
-    public function aroundDelete(
-        ProductCustomOptionRepositoryInterface $repository,
-        callable $super,
-        ProductCustomOptionInterface $option
-    ) {
-        $result = $super($option);
-        $this->repository->deleteByOptionId($option->getOptionId());
-        return $result;
-    }
-
-    /**
-     * Duplicate flexible field mapping objects on custom options for a given Product
-     *
-     * @param ProductCustomOptionRepositoryInterface $repository
-     * @param callable $super
-     * @param ProductInterface $originalProduct
-     * @param ProductInterface $duplicateProduct
-     * @return mixed
-     * @see ProductCustomOptionRepositoryInterface::duplicate() Intercepted method
-     */
-    public function aroundDuplicate(
-        ProductCustomOptionRepositoryInterface $repository,
-        callable $super,
-        ProductInterface $originalProduct,
-        ProductInterface $duplicateProduct
-    ) {
-        $arguments = func_get_args();
-        array_splice($arguments, 0, -2);
-        // phpcs:ignore Magento2.Functions.DiscouragedFunction.Discouraged
-        $result = call_user_func_array($super, $arguments);
-
-        $options = $originalProduct->getOptions();
-        $option = is_array($options) && count($options) ? end($options) : null;
-
-        if ($option === null // No options to duplicate
-            || !$this->config->isVertexActive($this->getWebsiteId($option), ScopeInterface::SCOPE_WEBSITE)
-        ) {
-            return $result;
-        }
-
-        // We create some sort of unique hash map to tie the old options to the new ones, since that duplication
-        // happens too low level for us to work with
-
-        /** @var ProductCustomOptionInterface[] $originalOptionMap */
-        $originalOptionMap = array_reduce(
-            $repository->getProductOptions($originalProduct),
-            function (array $carry, ProductCustomOptionInterface $option) {
-                $carry[$this->getOptionHash($option)] = $option;
-                return $carry;
-            },
-            []
-        );
-
-        /** @var ProductCustomOptionInterface[] $duplicateOptionMap */
-        $duplicateOptionMap = array_reduce(
-            $repository->getProductOptions($duplicateProduct),
-            function (array $carry, ProductCustomOptionInterface $option) {
-                $carry[$this->getOptionHash($option)] = $option;
-                return $carry;
-            },
-            []
-        );
-
-        // With our hashes created, we simply grab the old and new IDs and put the database layer to work
-
-        foreach ($originalOptionMap as $hash => $option) {
-            if (!isset($duplicateOptionMap[$hash])) {
-                continue;
-            }
-
-            $duplicateOption = $duplicateOptionMap[$hash];
-            $this->resourceModel->duplicate($option->getOptionId(), $duplicateOption->getOptionId());
-        }
-
-        return $result;
-    }
-
-    /**
      * Retrieve a semi-unique hash to represent a custom option
      *
      * @param ProductCustomOptionInterface $customOption
@@ -289,7 +282,7 @@ class CustomOptionFlexFieldExtensionAttributeHandler
                     $customOption->getType(),
                     $customOption->getSku(),
                     $customOption->getPrice(),
-                    $customOption->getPriceType()
+                    $customOption->getPriceType(),
                 ]
             )
         );

@@ -1,7 +1,7 @@
 <?php
 /**
- * @copyright  Vertex. All rights reserved.  https://www.vertexinc.com/
- * @author     Mediotype                     https://www.mediotype.com/
+ * @author    Blue Acorn iCi <code@blueacornici.com>
+ * @copyright 2021 Vertex, Inc. All Rights Reserved.
  */
 
 namespace Vertex\Tax\Model\Plugin;
@@ -15,6 +15,8 @@ use Vertex\Tax\Model\VertexTaxAttributeManager;
 
 /**
  * Plugin that adds Vertex Tax extension attributes when Order Repository called
+ *
+ * @see OrderRepositoryInterface
  */
 class OrderRepositoryPlugin
 {
@@ -42,6 +44,7 @@ class OrderRepositoryPlugin
      * @param OrderRepositoryInterface $subject
      * @param OrderInterface $resultOrder
      * @return OrderInterface
+     * @see OrderRepositoryInterface::get()
      */
     public function afterGet(OrderRepositoryInterface $subject, OrderInterface $resultOrder)
     {
@@ -71,6 +74,7 @@ class OrderRepositoryPlugin
      * @param OrderRepositoryInterface $subject
      * @param OrderSearchResultInterface $searchResult
      * @return OrderSearchResultInterface
+     * @see OrderRepositoryInterface::getList()
      */
     public function afterGetList(OrderRepositoryInterface $subject, OrderSearchResultInterface $searchResult)
     {

@@ -6,22 +6,28 @@
 /**
  * @typedef UncleanAddress
  * @api
- * @property {string[]} streetAddress
- * @property {string} city
- * @property {string} mainDivision - Region, State, or Province
- * @property {string} postalCode - ZIP or postal code
- * @property {string} country - 2 or 3 letter country code
+ * @property {String[]} streetAddress
+ * @property {String} city
+ * @property {String} mainDivision - Region, State, or Province
+ * @property {String} postalCode - ZIP or postal code
+ * @property {String} country - 2 or 3 letter country code
  */
 
 /**
  * @typedef CleanAddress
  * @api
- * @property {string[]} streetAddress - street address lines
- * @property {?string} city - name of the city
- * @property {?string} subDivision - name of the sub-division (county, parish)
- * @property {?string} regionName - name of the region (state/province)
+ * @property {String[]} streetAddress - street address lines
+ * @property {?String} city - name of the city
+ * @property {?String} subDivision - name of the sub-division (county, parish)
+ * @property {?String} regionName - name of the region (state/province)
  * @property {?int} regionId - numeric (state/province) region identifier in the Magento database
- * @property {?string} postalCode - ZIP+4 or postal code
- * @property {?string} countryCode - 2 letter country code
- * @property {?string} countryName - name of the country
+ * @property {?String} postalCode - ZIP+4 or postal code
+ * @property {?String} countryCode - 2 letter country code
+ * @property {?String} countryName - name of the country
+ */
+
+/**
+ * @typedef UpdateFieldElement
+ * @property {String} name - Element name
+ * @property {int} key - Element key
  */

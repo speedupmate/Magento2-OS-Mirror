@@ -63,10 +63,10 @@
                             <object key="shipping_origin_source" dataType="VertexSellerUseShippingOrigin">
                                 <field key="value">string</field>
                             </object>
-                            <object key="streetAddress1" dataType="VertexSellerStreetAddress1">
+                            <object key="street_address_1" dataType="VertexSellerStreetAddress1">
                                 <field key="value">string</field>
                             </object>
-                            <object key="streetAddress2" dataType="VertexSellerStreetAddress2">
+                            <object key="street_address_2" dataType="VertexSellerStreetAddress2">
                                 <field key="value">string</field>
                             </object>
                             <object key="city" dataType="VertexSellerCity">
@@ -78,7 +78,7 @@
                             <object key="region_id" dataType="VertexSellerRegionId">
                                 <field key="value">string</field>
                             </object>
-                            <object key="postalCode" dataType="VertexSellerPostcode">
+                            <object key="postal_code" dataType="VertexSellerPostcode">
                                 <field key="value">string</field>
                             </object>
                         </object>

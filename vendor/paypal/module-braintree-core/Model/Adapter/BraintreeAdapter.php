@@ -143,11 +143,7 @@ class BraintreeAdapter
     public function generate(array $params = [])
     {
         try {
-            if ($this->config->isActive()) {
-                return ClientToken::generate($params);
-            }
-
-            return '';
+            return ClientToken::generate($params);
         } catch (Exception $e) {
             $this->logger->error($e->getMessage());
             return '';

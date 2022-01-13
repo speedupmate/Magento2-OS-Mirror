@@ -12,15 +12,15 @@ define([
     'Vertex_AddressValidation/js/model/difference-determiner',
     'Vertex_AddressValidation/js/action/cleanse-address',
     'Vertex_AddressValidation/js/validation-messages'
-], function ($, Component, ko, $t, differenceRenderer, differenceDeterminer, addressCleaner, validationMessages) {
+], function ($, Component, ko, $t, DifferenceRenderer, differenceDeterminer, addressCleaner, validationMessages) {
     'use strict';
 
     return Component.extend({
         defaults: {
-            /** @var {string} */
+            /** @var {String} */
             prefix: '',
 
-            /** @var {string[]} */
+            /** @var {String[]} */
             validCountryList: ['US'],
 
             /**
@@ -29,44 +29,44 @@ define([
             animationDuration: null,
 
             /**
-             * @var {string} - Template to use for rendering differences between clean and unclean addresses
+             * @var {String} - Template to use for rendering differences between clean and unclean addresses
              */
             cleanseAddressTemplate: 'Vertex_AddressValidation/template/validation-result.html',
 
             /**
-             * @var {string} - Selector for the element that will have its HTML replaced by our messages
+             * @var {String} - Selector for the element that will have its HTML replaced by our messages
              */
             messageContainerSelector: '[data-role="vertex-message_container"]',
 
             /**
-             * @var {string} - Selector for the element that, when clicked, will trigger address cleansing
+             * @var {String} - Selector for the element that, when clicked, will trigger address cleansing
              */
             cleanseAddressButtonSelector: '[data-role="vertex-cleanse_address"]',
 
             /**
-             * @var {string} - Selector for the element that, when clicked, will update address form fields
+             * @var {String} - Selector for the element that, when clicked, will update address form fields
              */
-            updateAddressButtonSelector: '[data-role="vertex-update_address"]',
+            updateAddressButtonSelector: '[data-role="vertex-update_address"]'
         },
 
         /**
          * @function
-         * @param {boolean} enabled - Whether or not the button should be enabled
-         * @returns {boolean} Whether or not the button is enabled
+         * @param {Boolean} enabled - Whether or not the button should be enabled
+         * @returns {Boolean} Whether or not the button is enabled
          */
         cleanseAddressButtonEnabled: null,
 
         /**
          * @function
-         * @param {boolean} inProgress - Whether or not we're currently cleansing an address
-         * @returns {boolean} Whether or not we're currently cleansing an address
+         * @param {Boolean} inProgress - Whether or not we're currently cleansing an address
+         * @returns {Boolean} Whether or not we're currently cleansing an address
          */
         inProgress: null,
 
         /**
          * @function
-         * @param {boolean} validCountry - Whether or not the currently selected country is valid
-         * @returns {boolean} Whether or not the currently selected country is valid
+         * @param {Boolean} validCountry - Whether or not the currently selected country is valid
+         * @returns {Boolean} Whether or not the currently selected country is valid
          */
         validatableAddress: null,
 
@@ -121,7 +121,7 @@ define([
         messageContainer: null,
 
         /**
-         * @var {function}
+         * @var {Function}
          */
         templateRenderer: null,
 
@@ -143,11 +143,16 @@ define([
             this.updateValidatableAddress();
             this.updateCleanseAddressButtonEnabled();
 
-            this.templateRenderer = new differenceRenderer(this.cleanseAddressTemplate);
+            this.templateRenderer = new DifferenceRenderer(this.cleanseAddressTemplate);
 
             return this;
         },
 
+        /**
+         * Initialize Config
+         *
+         * @returns {*}
+         */
         initConfig: function () {
             this._super();
 
@@ -163,13 +168,18 @@ define([
             this.regionInput = this.form.find('select[name*="[region_id]"]');
             this.postalCodeInput = this.form.find('input[name*="[postcode]"]');
 
-            this.animationDuration = this.animationDuration !== null
-                ? parseInt(this.animationDuration, 10)
-                : null;
+            this.animationDuration = this.animationDuration !== null ?
+                parseInt(this.animationDuration, 10) :
+                null;
 
             return this;
         },
 
+        /**
+         * Initialize Observables
+         *
+         * @returns {*}
+         */
         initObservable: function () {
             this._super();
 
@@ -190,6 +200,11 @@ define([
             return this;
         },
 
+        /**
+         * Determine the Street Address lines
+         *
+         * @returns {String[]}
+         */
         getStreetLines: function () {
             return this.streetInputs
                 .map(function (index, element) {
@@ -213,9 +228,9 @@ define([
              * - have a street address
              * - have either a postcode or a region
              */
-            const validAddress = this.validCountryList.indexOf(this.countryInput.val()) >= 0
-                && this.getStreetLines().length > 0
-                && (this.postalCodeInput.val() !== '' || this.regionInput.val() !== '');
+            const validAddress = this.validCountryList.indexOf(this.countryInput.val()) >= 0 &&
+                this.getStreetLines().length > 0 &&
+                (this.postalCodeInput.val() !== '' || this.regionInput.val() !== '');
 
             this.validatableAddress(validAddress);
             this.updateCleanseAddressButtonEnabled();
@@ -226,30 +241,36 @@ define([
          */
         updateAddress: function () {
             const differences = differenceDeterminer(this.retrieveAddress(), this.cleanAddress);
+
             for (let index = 0, length = differences.length; index < length; ++index) {
                 let difference = differences[index];
+
                 switch (difference.type) {
                     case 'street':
                         this.streetInputs.val('');
-                        for (
-                            let streetIndex = 0, streetLength = difference.rawValue.length;
-                            streetIndex < streetLength;
-                            ++streetIndex
+
+                        for (let streetIndex = 0, streetLength = difference.rawValue.length;
+                             streetIndex < streetLength;
+                             ++streetIndex
                         ) {
                             $(this.streetInputs[streetIndex]).val(difference.rawValue[streetIndex])
                                 .trigger('change')
                                 .trigger('blur');
                         }
                         break;
+
                     case 'city':
                         this.cityInput.val(difference.rawValue).trigger('change').trigger('blur');
                         break;
+
                     case 'region':
                         this.regionInput.val(difference.rawValue).trigger('change').trigger('blur');
                         break;
+
                     case 'postcode':
                         this.postalCodeInput.val(difference.rawValue).trigger('change').trigger('blur');
                         break;
+
                     case 'country':
                         this.countryInput.val(difference.rawValue).trigger('change').trigger('blur');
                         break;
@@ -263,7 +284,7 @@ define([
          *
          * This updates the value of {@link this.buttonEnabled}
          *
-         * @param {boolean} [inProgressValue]
+         * @param {Boolean} [inProgressValue]
          */
         updateCleanseAddressButtonEnabled: function (inProgressValue) {
             if (typeof inProgressValue === 'undefined') {
@@ -275,7 +296,7 @@ define([
         /**
          * Update the button to be enabled or disabled
          *
-         * @param {boolean} enabled
+         * @param {Boolean} enabled
          */
         triggerButtonUpdate: function (enabled) {
             $(this.cleanseAddressButton).attr('disabled', !enabled);
@@ -307,9 +328,12 @@ define([
                 return;
             }
 
+            // jscs:disable requireCamelCaseOrUpperCaseIdentifiers
             if (address !== null && (typeof address !== 'object' || typeof address.postal_code === 'undefined')) {
+                // jscs:enable requireCamelCaseOrUpperCaseIdentifiers
                 // When things go weird wrong but we get a 200 (it happens!)
                 this.showErrorMessage();
+
                 return;
             }
 
@@ -320,16 +344,18 @@ define([
                 case address === null:
                     messageText = validationMessages.noAddressFound;
                     break;
+
                 case differences.length === 0:
                     containerClass = 'message-success';
                     messageText = validationMessages.noChangesNecessary;
                     break;
+
                 default:
                     messageText = validationMessages.adminChangesFound;
             }
 
             /** @var {vertexDifferenceRendererObject} */
-            const templateVariables = {
+            const templateVariables = { // jscs:ignore requireMultipleVarDecl
                 message: {
                     text: messageText,
                     differences: differences
@@ -356,7 +382,9 @@ define([
             }
 
             if (this.animationDuration !== 0) {
-                const options = this.animationDuration !== null ? {duration: this.animationDuration} : {};
+                const options = this.animationDuration !== null ? { // jscs:ignore requireMultipleVarDecl
+                    duration: this.animationDuration
+                } : {};
                 this.messageContainer.slideDown(options);
             } else {
                 this.messageContainer.show();
@@ -373,38 +401,47 @@ define([
                 mainDivisionValue = this.regionInput.val(),
                 postalCodeValue = this.postalCodeInput.val();
 
-            uncleanAddress.street_address = this.getStreetLines();
+            uncleanAddress.street_address = this.getStreetLines(); // jscs:ignore requireCamelCaseOrUpperCaseIdentifiers
+
             if (city.length > 0) {
                 uncleanAddress.city = city;
             }
+
             if (mainDivisionValue.length > 0) {
+                // jscs:disable requireCamelCaseOrUpperCaseIdentifiers
                 uncleanAddress.main_division = this.regionInput.find('option[value="' + mainDivisionValue + '"]').text();
+                // jscs:enable requireCamelCaseOrUpperCaseIdentifiers
             }
+
             if (postalCodeValue.length > 0) {
-                uncleanAddress.postal_code = postalCodeValue;
+                uncleanAddress.postal_code = postalCodeValue; // jscs:ignore requireCamelCaseOrUpperCaseIdentifiers
             }
             uncleanAddress.country = this.countryInput.val();
+
             return uncleanAddress;
         },
 
         /**
          * Show an error message (for various failures)
          *
-         * @param {int=500} errorCode
+         * @param {int} [errorCode=500]
          */
         showErrorMessage: function (errorCode) {
             if (typeof errorCode === 'undefined') {
                 errorCode = 500;
             }
+
             if (this.animationDuration !== 0) {
                 this.messageContainer.stop(true, true);
             }
 
             let message = '';
+
             switch (errorCode) {
                 case '403':
                     message = $t('Your session has expired. Please reload the page and try again.');
                     break;
+
                 default:
                     message = $t('There was an error cleansing the address. Please try again.');
                     break;
@@ -415,7 +452,9 @@ define([
                 .text(message);
 
             if (this.animationDuration !== 0) {
-                const options = this.animationDuration !== null ? {duration: this.animationDuration} : {};
+                const options = this.animationDuration !== null ? {
+                    duration: this.animationDuration
+                } : {};
                 this.messageContainer.slideDown(options);
             } else {
                 this.messageContainer.show();
@@ -427,20 +466,21 @@ define([
          */
         hideMessage: function () {
             const updateContainer = function () {
-                this.messageContainer.text('')
-                    .removeClass('message-error')
-                    .removeClass('message-notice')
-                    .removeClass('message-success');
-            }.bind(this);
+                    this.messageContainer.text('')
+                        .removeClass('message-error')
+                        .removeClass('message-notice')
+                        .removeClass('message-success');
+                }.bind(this),
+                options = {
+                    done: updateContainer
+                };
 
             this.updateAddressButton.hide();
+
             if (this.animationDuration === 0) {
                 updateContainer();
                 this.messageContainer.hide();
             } else {
-                const options = {
-                    done: updateContainer
-                };
                 if (this.animationDuration !== null) {
                     options.duration = this.animationDuration;
                 }

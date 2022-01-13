@@ -58,6 +58,7 @@
         <waitForLoadingMaskToDisappear stepKey="waitForElementsLoaded"/>
 
         <checkOption selector="{{CheckoutShippingMethodsSection.firstShippingMethod}}" stepKey="selectShippingMethod"/>
+        <waitForLoadingMaskToDisappear stepKey="waitForShippingMethodSelection"/>
         <click selector="{{CheckoutShippingSection.next}}" stepKey="clickNext"/>
 
         <actionGroup ref="VertexAssertAddressValidationInvalidMessageActionGroup" stepKey="assertMessageVisible"/>

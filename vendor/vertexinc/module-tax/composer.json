@@ -3,7 +3,7 @@
     "description": "Vertex Tax Links for Magento 2",
     "type": "magento2-module",
     "license": "proprietary",
-    "version": "4.2.1",
+    "version": "4.2.2",
     "require": {
         "php": "^7.1",
         "ext-soap": "*",

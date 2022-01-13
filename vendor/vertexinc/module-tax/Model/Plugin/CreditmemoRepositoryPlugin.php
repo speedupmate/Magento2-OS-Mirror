@@ -1,7 +1,7 @@
 <?php
 /**
- * @copyright  Vertex. All rights reserved.  https://www.vertexinc.com/
- * @author     Mediotype                     https://www.mediotype.com/
+ * @author    Blue Acorn iCi <code@blueacornici.com>
+ * @copyright 2021 Vertex, Inc. All Rights Reserved.
  */
 
 namespace Vertex\Tax\Model\Plugin;
@@ -15,6 +15,8 @@ use Vertex\Tax\Model\VertexTaxAttributeManager;
 
 /**
  * Plugin that adds Vertex Tax extension attributes when Creditmemo Repository called
+ *
+ * @see CreditmemoRepositoryInterface
  */
 class CreditmemoRepositoryPlugin
 {
@@ -38,6 +40,7 @@ class CreditmemoRepositoryPlugin
      * @param CreditmemoRepositoryInterface $subject
      * @param CreditmemoInterface $resultCreditmemo
      * @return CreditmemoInterface
+     * @see CreditmemoRepositoryInterface::get()
      */
     public function afterGet(CreditmemoRepositoryInterface $subject, CreditmemoInterface $resultCreditmemo)
     {
@@ -68,6 +71,7 @@ class CreditmemoRepositoryPlugin
      * @param CreditmemoRepositoryInterface $subject
      * @param CreditmemoSearchResultInterface $searchResult
      * @return CreditmemoSearchResultInterface
+     * @see CreditmemoRepositoryInterface::getList()
      */
     public function afterGetList(
         CreditmemoRepositoryInterface $subject,

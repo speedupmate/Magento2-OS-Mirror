@@ -9,6 +9,8 @@ namespace PayPal\Braintree\Block\LayoutProcessor\Checkout;
 
 use Magento\Checkout\Block\Checkout\LayoutProcessorInterface;
 use Magento\Framework\Exception\InputException;
+use Magento\ReCaptchaUi\Model\IsCaptchaEnabledInterface;
+use Magento\ReCaptchaUi\Model\UiConfigResolverInterface;
 
 /**
  * Provides reCaptcha component configuration.
@@ -16,27 +18,25 @@ use Magento\Framework\Exception\InputException;
 class Onepage implements LayoutProcessorInterface
 {
     /**
-     * @var \Magento\ReCaptchaUi\Model\IsCaptchaEnabledInterface
+     * @var UiConfigResolverInterface
      */
     private $captchaUiConfigResolver;
 
     /**
-     * @var \Magento\ReCaptchaUi\Model\UiConfigResolverInterface
+     * @var IsCaptchaEnabledInterface
      */
     private $isCaptchaEnabled;
 
     /**
-     * @var \Magento\Framework\Module\Manager
-     */
-    private $moduleManager;
-
-    /**
-     * @param \Magento\Framework\Module\Manager $moduleManager
+     * @param UiConfigResolverInterface $captchaUiConfigResolver
+     * @param IsCaptchaEnabledInterface $isCaptchaEnabled
      */
     public function __construct(
-        \Magento\Framework\Module\Manager $moduleManager
+        UiConfigResolverInterface $captchaUiConfigResolver,
+        IsCaptchaEnabledInterface $isCaptchaEnabled
     ) {
-        $this->moduleManager = $moduleManager;
+        $this->captchaUiConfigResolver = $captchaUiConfigResolver;
+        $this->isCaptchaEnabled = $isCaptchaEnabled;
     }
 
     /**
@@ -48,20 +48,7 @@ class Onepage implements LayoutProcessorInterface
      */
     public function process($jsLayout)
     {
-        if ($this->moduleManager->isEnabled('Magento_ReCaptchaUi')) {
-            $objectManager = \Magento\Framework\App\ObjectManager::getInstance();
-            $this->isCaptchaEnabled = $objectManager->create(
-                'Magento\ReCaptchaUi\Model\IsCaptchaEnabledInterface'
-            );
-            $this->captchaUiConfigResolver = $objectManager->create(
-                'Magento\ReCaptchaUi\Model\UiConfigResolverInterface'
-            );
-        } else {
-            return $jsLayout;
-        }
-
         $key = 'braintree';
-
         if ($this->isCaptchaEnabled->isCaptchaEnabledFor($key)) {
             $jsLayout['components']['checkout']['children']['steps']['children']['billing-step']['children']
             ['payment']['children']['payments-list']['children']['braintree-recaptcha']['children']

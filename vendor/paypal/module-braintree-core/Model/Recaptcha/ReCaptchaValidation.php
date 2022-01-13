@@ -10,6 +10,8 @@ use PayPal\Braintree\Gateway\Helper\SubjectReader;
 use Magento\ReCaptchaUi\Model\ValidationConfigResolver;
 use PayPal\Braintree\Observer\DataAssignObserver;
 use Magento\Framework\Exception\InputException;
+use Magento\Framework\App\Area;
+use Magento\Framework\App\State;
 
 class ReCaptchaValidation
 {
@@ -39,11 +41,17 @@ class ReCaptchaValidation
     private $captchaValidator;
 
     /**
+     * @var State
+     */
+    protected $state;
+
+    /**
      * @param SubjectReader $subjectReader
      * @param CaptchaTypeResolver $captchaTypeResolverFrontEnd
      * @param ValidationConfigResolver $validationConfigResolver
      * @param \Magento\Framework\ObjectManagerInterface $objectmanager
      * @param ValidatorInterface $captchaValidator
+     * @param State $state
      * @throws InputException
      */
     public function __construct(
@@ -51,13 +59,15 @@ class ReCaptchaValidation
         CaptchaTypeResolver $captchaTypeResolverFrontEnd,
         ValidationConfigResolver $validationConfigResolver,
         \Magento\Framework\ObjectManagerInterface $objectmanager,
-        ValidatorInterface $captchaValidator
+        ValidatorInterface $captchaValidator,
+        State $state
     ) {
         $this->subjectReader = $subjectReader;
         $this->captchaTypeResolverFrontEnd = $captchaTypeResolverFrontEnd;
         $this->validationConfigResolver = $validationConfigResolver;
         $this->objectManager = $objectmanager;
         $this->captchaValidator = $captchaValidator;
+        $this->state = $state;
     }
 
     /**
@@ -66,33 +76,32 @@ class ReCaptchaValidation
     public function validate($payment)
     {
         $captchaType = $this->captchaTypeResolverFrontEnd->getCaptchaTypeFor('braintree');
-        if(!$captchaType) {
-
-            return;
-        }
 
         $className = $this->getReCaptchaClassName($captchaType);
         $validationConfig = $this->objectManager->create($className)->get();
         $paymentDO = $this->subjectReader->readPayment($payment);
         $payment = $paymentDO->getPayment();
 
-        $this->isCaptchaEnabled = $this->objectManager->create(
-            'Magento\ReCaptchaUi\Model\IsCaptchaEnabledInterface'
-        );
-        if (($payment->getMethod() != 'braintree') || !$this->isCaptchaEnabled->isCaptchaEnabledFor('braintree')) {
-
-            return;
-        }
         $token = $payment->getAdditionalInformation(
             DataAssignObserver::CAPTCHA_RESPONSE
         );
-        if (empty($token)) {
-            throw new CommandException(__('Can not resolve reCAPTCHA response.'));
+
+        if (
+            in_array($this->state->getAreaCode(), [Area::AREA_ADMINHTML, Area::AREA_CRONTAB])
+            || ($payment->getMethod() !== 'braintree')
+            || !$captchaType
+            || empty($token)
+        ) {
+            return;
         }
+
         $validationResult = $this->captchaValidator->isValid($token, $validationConfig);
 
         if (false === $validationResult->isValid()) {
-            throw new CommandException(current($validationResult->getErrors()));
+            throw new CommandException(__(
+                'reCAPTCHA validation error: %1',
+                current($validationResult->getErrors())
+            ));
         }
     }
 

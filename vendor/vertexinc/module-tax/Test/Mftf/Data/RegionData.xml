@@ -35,7 +35,7 @@
     <entity name="RegionRM" type="region">
         <data key="region">Roma</data>
         <data key="region_code">RM</data>
-        <data key="region_id">739</data>
+        <data key="region_id">889</data>
     </entity>
     <entity name="RegionMN" type="region">
         <data key="region">Minnesota</data>

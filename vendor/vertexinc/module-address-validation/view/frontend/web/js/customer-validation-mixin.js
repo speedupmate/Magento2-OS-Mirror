@@ -24,7 +24,7 @@ define(['jquery'], function ($) {
              * @private
              */
             _create: function () {
-                var result = this._super(),
+                const result = this._super(),
                     button = $(this.options.selectors.button, this.element);
 
                 require([
@@ -41,6 +41,7 @@ define(['jquery'], function ($) {
                 this.element.data('validator').settings.submitHandler = function (form) {
                     if (this._vertexForm && this._vertexForm.isSaveAsIs) {
                         this._vertexForm.isSaveAsIs = false;
+
                         return this.submitForm(form);
                     }
 
@@ -64,6 +65,7 @@ define(['jquery'], function ($) {
                 form.submit();
             }
         });
+
         return $.mage.addressValidation;
     };
 });

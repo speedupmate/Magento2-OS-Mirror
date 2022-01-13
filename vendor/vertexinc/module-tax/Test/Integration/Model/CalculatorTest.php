@@ -106,7 +106,8 @@ class CalculatorTest extends TestCase
      */
     public function testShowErrorMessageToAdminUser()
     {
-        $this->markTestIncomplete('To be fixed in scope of VRTX-754');
+        $this->markTestIncomplete('Build error: Product that you are trying to add is not available.');
+
         $soapClientMock = $this->getMockBuilder(\SoapClient::class)->disableOriginalConstructor()
             ->addMethods(['CalculateTax70'])->getMock();
         $soapClientMock->expects($this->atLeastOnce())

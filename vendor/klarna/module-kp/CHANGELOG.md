@@ -1,4 +1,31 @@
 
+7.3.7 / 2021-09-01
+==================
+
+  * MAGE-3343 Fix Klarna payment method discounting
+
+7.3.6 / 2021-08-10
+==================
+
+  * MAGE-3314 Retrieve versions without hard dependency
+
+7.3.5 / 2021-08-02
+==================
+
+  * MAGE-3157 Add GraphQL usage info to create session api call
+  * MAGE-3311 Add fixes for integration and static tests
+  * MAGE-3127 Fix mftf test KP_DPM
+
+7.3.4 / 2021-07-30
+==================
+
+  * MAGE-3271 Add index, add foreign key constraint
+
+7.3.3 / 2021-06-10
+==================
+
+  * MAGE-3228 Bump version because of updated dependencies
+
 7.3.2 / 2021-06-04
 ==================
 

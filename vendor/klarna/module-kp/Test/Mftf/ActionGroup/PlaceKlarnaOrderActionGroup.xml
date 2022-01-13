@@ -28,7 +28,13 @@
         <waitForElementVisible selector="{{CheckoutPaymentSection.klarnaPaymentsIframeElement(paymentMethod.iframe)}}" stepKey="waitForKlarnaPaymentsIframe"/>
         <switchToIFrame selector="{{CheckoutPaymentSection.klarnaPaymentsIframe(paymentMethod.iframe)}}" stepKey="enterKlarnaPaymentsIframe"/>
         <waitForElementNotVisible selector="{{CheckoutPaymentSection.klarnaPaymentsPaymentSelectorLoader}}" stepKey="waitForLoaderToDisappear"/>
-        <waitForElementVisible selector="{{CheckoutPaymentSection.klarnaPaymentsPaymentSelector}}" stepKey="waitForKlarnaPaymentSelector"/>
+        <helper class="\Klarna\Kp\Test\Mftf\Helper\CustomActions" method="waitForElementVisibleMarketDependent" stepKey="waitForElementVisibleMarketDependent">
+            <argument name="market">{{customer.addresses[0][country_id]}}</argument>
+            <argument name="targetMarket">DE</argument>
+            <argument name="defaultFieldSelector">{{CheckoutPaymentSection.klarnaPaymentsPaymentSelector}}</argument>
+            <argument name="fieldSelector">{{CheckoutPaymentSection.klarnaPaymentsPaymentSelectorDE}}</argument>
+        </helper>
+
         <!--We need to wait to allow the iframe and place order button elements to stop moving around-->
         <wait time="1" stepKey="waitForKlarnaPaymentsIframeToResize"/>
         <switchToIFrame stepKey="goBackToTopLevelFrame"/>

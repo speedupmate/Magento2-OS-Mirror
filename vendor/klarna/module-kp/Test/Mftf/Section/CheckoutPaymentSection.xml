@@ -19,10 +19,11 @@
         <element name="klarnaPaymentsIframeElement" type="text" selector="#{{paymentMethodIframe}}" parameterized="true"/>
         <element name="klarnaPaymentsIframe" type="iframe" selector="{{paymentMethodIframe}}" parameterized="true"/>
         <element name="klarnaPaymentsPaymentSelector" type="text" selector="#payment-selector"/>
+        <element name="klarnaPaymentsPaymentSelectorDE" type="text" selector="#scheme-payment-selector"/>
         <element name="klarnaPaymentsPaymentSelectorLoader" type="text" selector="div:not(#klarna-logo) > svg"/>
         <element name="klarnaPaymentsPlaceOrderButton" type="button" selector="[data-role='review-save']:not(:disabled)"/>
         <element name="klarnaPaymentsPayLaterIframe" type="iframe" selector="klarna-pay-later-fullscreen"/>
-        <element name="klarnaPaymentsPayLaterIframeDobField" type="input" selector="#purchase-approval-form-date-of-birth"/>
-        <element name="klarnaPaymentsPayLaterIframeButton" type="button" selector="#purchase-approval-form-continue-button"/>
+        <element name="klarnaPaymentsPayLaterIframeDobField" type="input" selector="#invoice_kp-purchase-approval-form-date-of-birth"/>
+        <element name="klarnaPaymentsPayLaterIframeButton" type="button" selector="#invoice_kp-purchase-approval-form-continue-button"/>
     </section>
 </sections>

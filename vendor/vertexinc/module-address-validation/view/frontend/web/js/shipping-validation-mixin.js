@@ -31,6 +31,7 @@ define([
                 );
 
                 this.shippingData = quote.shippingAddress();
+
                 return this;
             },
 
@@ -38,7 +39,7 @@ define([
              * @return {Boolean}
              */
             validateShippingInformation: function () {
-                var superResult = this._super();
+                const superResult = this._super();
 
                 // Proceed with saving the address
                 if (!this.validationConfig.isAddressValidationEnabled ||
@@ -48,6 +49,7 @@ define([
                     this.validationConfig.countryValidation.indexOf(this.shippingData.countryId) === -1
                 ) {
                     this.addressValidator.message.clear();
+
                     return superResult;
                 }
 
@@ -61,6 +63,7 @@ define([
 
                     return false;
                 }
+
                 return superResult;
             }
         });

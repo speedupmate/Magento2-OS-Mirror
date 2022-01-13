@@ -1,11 +1,14 @@
 <?php
 /**
- * @copyright  Vertex. All rights reserved.  https://www.vertexinc.com/
- * @author     Mediotype                     https://www.mediotype.com/
+ * @author    Blue Acorn iCi <code@blueacornici.com>
+ * @copyright 2021 Vertex, Inc. All Rights Reserved.
  */
+
+declare(strict_types=1);
 
 namespace Vertex\Tax\Model\Plugin;
 
+use JetBrains\PhpStorm\ArrayShape;
 use Magento\Config\Model\Config\Structure\Element\Group;
 use Vertex\Tax\Model\Config;
 use Vertex\Tax\Model\ModuleManager;
@@ -23,10 +26,6 @@ class GroupPlugin
     /** @var ModuleManager */
     private $moduleManager;
 
-    /**
-     * @param ModuleManager $moduleManager
-     * @param Config $config
-     */
     public function __construct(ModuleManager $moduleManager, Config $config)
     {
         $this->moduleManager = $moduleManager;
@@ -37,22 +36,21 @@ class GroupPlugin
      * Hides likely unused tax classes
      * MEQP2 Warning: Unused Parameter $subject necessary for plugins
      *
-     * @see Group::setData()
      * @param Group $subject
-     * @param \Closure $proceed
      * @param array $data
      * @param string $scope
-     * @return mixed
      * @SuppressWarnings(PHPMD.UnusedFormalParameter) $subject is a necessary part of a plugin
+     * @see Group::setData()
      */
-    public function aroundSetData(Group $subject, \Closure $proceed, $data, $scope)
-    {
-        if (!$this->config->isVertexActive() || !$this->config->isTaxCalculationEnabled()) {
-            return $proceed($data, $scope);
-        }
+    #[ArrayShape(['array', 'string'])]
+    public function beforeSetData(
+        Group $subject,
+        array $data,
+        $scope
+    ): array {
         $taxClasses = isset($data['path'], $data['id']) && $data['path'] === 'tax' && $data['id'] === 'classes';
         if ($taxClasses && !$this->moduleManager->isEnabled('Magento_GiftWrapping')) {
-            $this->hide(
+            $data = $this->hide(
                 $data,
                 [
                     'giftwrap_order_class',
@@ -66,7 +64,7 @@ class GroupPlugin
         }
 
         if ($taxClasses && !$this->moduleManager->isEnabled('Magento_Reward')) {
-            $this->hide(
+            $data = $this->hide(
                 $data,
                 [
                     'reward_points_class',
@@ -75,7 +73,7 @@ class GroupPlugin
             );
         }
 
-        return $proceed($data, $scope);
+        return [$data, $scope];
     }
 
     /**
@@ -84,16 +82,18 @@ class GroupPlugin
      * @param array &$data
      * @param array $toHide
      */
-    private function hide(array &$data, array $toHide)
+    private function hide(array $data, array $toHide)
     {
+        $result = $data;
         if (isset($data['path'], $data['id']) && $data['path'] === 'tax' && $data['id'] === 'classes') {
             foreach ($toHide as $code) {
                 if (is_array($data['children'][$code])) {
-                    $data['children'][$code]['showInDefault'] = 0;
-                    $data['children'][$code]['showInWebsite'] = 0;
-                    $data['children'][$code]['showInStore'] = 0;
+                    $result['children'][$code]['showInDefault'] = 0;
+                    $result['children'][$code]['showInWebsite'] = 0;
+                    $result['children'][$code]['showInStore'] = 0;
                 }
             }
         }
+        return $result;
     }
 }

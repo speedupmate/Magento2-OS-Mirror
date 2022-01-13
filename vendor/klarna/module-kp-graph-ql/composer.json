@@ -3,16 +3,14 @@
     "description": "Klarna KpGraphQl Magento 2 Extension",
     "type": "magento2-module",
     "license": "Apache-2.0",
-    "version": "0.9.3",
+    "version": "0.9.7",
     "require": {
         "php": "~7.3.0||~7.4.0",
         "magento/framework": "^102|^103",
-        "magento/module-payment": "^100.1",
         "magento/module-quote-graph-ql": "^100",
         "magento/module-store": "^101.0",
-        "magento/module-graph-ql": "^100",
-        "klarna/module-kp": "7.3.2",
-        "klarna/module-core": "6.2.2"
+        "klarna/module-kp": "7.3.7",
+        "klarna/module-core": "6.2.4"
     },
     "autoload": {
         "files": [
@@ -31,6 +29,11 @@
         {
             "email": "dario.kassler@klarna.com",
             "name": "Dario Kassler",
+            "role": "Developer"
+        },
+        {
+            "email": "christian.jung@klarna.com",
+            "name": "Christian Jung",
             "role": "Developer"
         }
     ],

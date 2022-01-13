@@ -53,15 +53,15 @@
             <collapsible>false</collapsible>
         </settings>
         <field name="log_id" formElement="input">
-            <settings>
-                <dataType>text</dataType>
-                <visible>false</visible>
-            </settings>
             <argument name="data" xsi:type="array">
                 <item name="config" xsi:type="array">
                     <item name="source" xsi:type="string">log</item>
                 </item>
             </argument>
+            <settings>
+                <dataType>text</dataType>
+                <visible>false</visible>
+            </settings>
         </field>
         <field name="status" formElement="input">
             <settings>

@@ -1,7 +1,7 @@
 <?php
 /**
- * @copyright  Vertex. All rights reserved.  https://www.vertexinc.com/
- * @author     Mediotype                     https://www.mediotype.com/
+ * @author    Blue Acorn iCi <code@blueacornici.com>
+ * @copyright 2021 Vertex, Inc. All Rights Reserved.
  */
 
 declare(strict_types=1);
@@ -10,11 +10,13 @@ namespace Vertex\Tax\Model\Plugin;
 
 use Magento\Customer\Model\Metadata\Form;
 use Magento\Framework\App\RequestInterface;
-use Vertex\Tax\Model\Data\CustomerCountry;
 use Vertex\Tax\Model\Config;
+use Vertex\Tax\Model\Data\CustomerCountry;
 
 /**
  * Includes extension attributes from frontend forms in the customer data object
+ *
+ * @see Form
  */
 class ExtensionAttributesFrontendForm
 {
@@ -27,12 +29,33 @@ class ExtensionAttributesFrontendForm
     }
 
     /**
+     * Includes extension attributes in the compacted data, if present
+     *
+     * @param Form $subject
+     * @param array $result
+     * @param array $data
+     * @return array
+     * @see Form::compactData()
+     */
+    public function afterCompactData(Form $subject, $result, $data): array
+    {
+        if ($this->config->isVertexActive()) {
+            if (isset($data['extension_attributes'])) {
+                $result['extension_attributes'] = $data['extension_attributes'];
+            }
+        }
+
+        return $result;
+    }
+
+    /**
      * Includes allowed extension attributes in the result data
      *
      * @param Form $subject
      * @param array $result
      * @param RequestInterface $request
      * @return array
+     * @see Form::extractData()
      */
     public function afterExtractData(Form $subject, $result, RequestInterface $request): array
     {
@@ -52,25 +75,6 @@ class ExtensionAttributesFrontendForm
     }
 
     /**
-     * Includes extension attributes in the compacted data, if present
-     *
-     * @param Form $subject
-     * @param array $result
-     * @param array $data
-     * @return array
-     */
-    public function afterCompactData(Form $subject, $result, $data): array
-    {
-        if ($this->config->isVertexActive()) {
-            if (isset($data['extension_attributes'])) {
-                $result['extension_attributes'] = $data['extension_attributes'];
-            }
-        }
-
-        return $result;
-    }
-
-    /**
      * Returns a list of allowed attributes
      *
      * @return array
@@ -78,7 +82,7 @@ class ExtensionAttributesFrontendForm
     private function getAllowedAttributes(): array
     {
         return [
-            CustomerCountry::EXTENSION_ATTRIBUTE_CODE
+            CustomerCountry::EXTENSION_ATTRIBUTE_CODE,
         ];
     }
 }

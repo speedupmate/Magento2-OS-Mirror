@@ -3,10 +3,10 @@
     "description": "Klarna Order Management Magento 2 Extension",
     "type": "magento2-module",
     "license": "Apache-2.0",
-    "version": "6.2.2",
+    "version": "6.2.5",
     "require": {
         "php": "~7.3.0||~7.4.0",
-        "klarna/module-core": "6.2.2",
+        "klarna/module-core": "6.2.4",
         "magento/framework": "^102|^103",
         "magento/module-payment": "^100.3",
         "magento/module-quote": "^101.1",

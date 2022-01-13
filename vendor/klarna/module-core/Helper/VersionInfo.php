@@ -86,4 +86,21 @@ class VersionInfo
     {
         return $this->productMetadata->getEdition();
     }
+
+    /**
+     * Creates the module version string
+     *
+     * @param string $version
+     * @param string $caller
+     * @return string
+     * @SuppressWarnings(PMD.UnusedFormalParameter)
+     */
+    public function getModuleVersionString(string $version, string $caller): string
+    {
+        return sprintf(
+            "%s;Core/%s",
+            $version,
+            $this->getVersion('Klarna_Core')
+        );
+    }
 }

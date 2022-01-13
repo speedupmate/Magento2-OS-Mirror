@@ -1,4 +1,14 @@
 
+6.2.4 / 2021-08-10
+==================
+
+  * MAGE-3314 Retrieve versions without hard dependency
+
+6.2.3 / 2021-06-10
+==================
+
+  * MAGE-3214 Fixed UI Component xml
+
 6.2.2 / 2021-06-04
 ==================
 

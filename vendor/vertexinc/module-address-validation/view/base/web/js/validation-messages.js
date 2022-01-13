@@ -19,4 +19,4 @@ define(['mage/translate'], function ($t) {
         addressUpdated: $t('The address was updated'),
         streetAddressUpdateWarning: $t('Warning: Updating the address will replace all street address fields.')
     };
-})
+});

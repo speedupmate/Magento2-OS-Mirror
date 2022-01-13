@@ -103,14 +103,13 @@ class VaultDetailsHandler implements HandlerInterface
     protected function getVaultPaymentToken(Transaction $transaction)
     {
         // Check token existing in gateway response
-        $token = $transaction->venmoAccount->token;
-        if (empty($token)) {
+        if (!isset($transaction->venmoAccount->token) || empty($token)) {
             return null;
         }
 
         /** @var PaymentTokenInterface $paymentToken */
         $paymentToken = $this->paymentTokenFactory->create();
-        $paymentToken->setGatewayToken($token);
+        $paymentToken->setGatewayToken($transaction->venmoAccount->token);
         $paymentToken->setExpiresAt($this->getExpirationDate($transaction));
 
         $paymentToken->setTokenDetails($this->convertDetailsToJSON([

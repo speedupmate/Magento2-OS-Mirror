@@ -1,7 +1,7 @@
 <?php
 /**
- * @copyright  Vertex. All rights reserved.  https://www.vertexinc.com/
- * @author     Mediotype                     https://www.mediotype.com/
+ * @author    Blue Acorn iCi <code@blueacornici.com>
+ * @copyright 2021 Vertex, Inc. All Rights Reserved.
  */
 
 declare(strict_types=1);
@@ -68,27 +68,6 @@ class VatCountryCodeAttributePlugin
     ): bool {
         if ($orderAddress->getId() && $this->config->isVertexActive() && $result) {
             $this->deleteByAddressId($orderAddress->getId());
-        }
-
-        return $result;
-    }
-
-    /**
-     * Delete the Vat Country Code when the Order Address is deleted
-     *
-     * @see OrderAddressRepositoryInterface::deleteById()
-     * @param OrderAddressInterface $subject
-     * @param bool $result
-     * @param int $addressId
-     * @return bool
-     */
-    public function afterDeleteById(
-        OrderAddressInterface $subject,
-        $result,
-        $addressId
-    ): bool {
-        if ($this->config->isVertexActive() && $result) {
-            $this->deleteByAddressId($addressId);
         }
 
         return $result;

@@ -19,7 +19,9 @@ define([
      */
     return function (address) {
         let url = '/address/cleanse';
-        const params = {address: address};
+        const params = {
+            address: address
+        };
 
         if (window.checkoutConfig && window.checkoutConfig.isCustomerLoggedIn === false) {
             url = '/guest-address/cleanse';

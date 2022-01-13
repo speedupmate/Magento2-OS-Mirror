@@ -1,7 +1,7 @@
 <?php
 /**
- * @copyright  Vertex. All rights reserved.  https://www.vertexinc.com/
- * @author     Mediotype                     https://www.mediotype.com/
+ * @author    Blue Acorn iCi <code@blueacornici.com>
+ * @copyright 2021 Vertex, Inc. All Rights Reserved.
  */
 
 declare(strict_types=1);
@@ -29,11 +29,11 @@ class CustomerCountryAttributePlugin
     /** @var Config */
     private $config;
 
-    /** @var CustomerCountryRepository */
-    private $customerCountryRepository;
-
     /** @var CustomerCountryFactory */
     private $customerCountryFactory;
+
+    /** @var CustomerCountryRepository */
+    private $customerCountryRepository;
 
     /** @var ExceptionLogger */
     private $logger;
@@ -53,11 +53,11 @@ class CustomerCountryAttributePlugin
     /**
      * Delete the Vertex Customer Country when the customer is deleted
      *
-     * @see CustomerRepositoryInterface::delete()
      * @param CustomerRepositoryInterface $subject
      * @param bool $result
      * @param CustomerInterface $customer
      * @return bool
+     * @see CustomerRepositoryInterface::delete()
      */
     public function afterDelete(
         CustomerRepositoryInterface $subject,
@@ -74,11 +74,11 @@ class CustomerCountryAttributePlugin
     /**
      * Delete the Vertex Customer code when the customer is deleted
      *
-     * @see CustomerRepositoryInterface::deleteById()
      * @param CustomerRepositoryInterface $subject
      * @param bool $result
      * @param int $customerId
      * @return bool
+     * @see CustomerRepositoryInterface::deleteById()
      */
     public function afterDeleteById(
         CustomerRepositoryInterface $subject,
@@ -95,12 +95,12 @@ class CustomerCountryAttributePlugin
     /**
      * Add Customer Country to the Customer extension attribute when a customer is retrieved from the repository
      *
-     * @see CustomerRepositoryInterface::get()
-     *
      * @param CustomerRepositoryInterface $subject
      * @param CustomerInterface $result
      * @return CustomerInterface
      * @SuppressWarnings(PHPMD.UnusedFormalParameter)
+     * @see CustomerRepositoryInterface::get()
+     *
      */
     public function afterGet(CustomerRepositoryInterface $subject, CustomerInterface $result): CustomerInterface
     {
@@ -110,12 +110,12 @@ class CustomerCountryAttributePlugin
     /**
      * Add Customer Country to the Customer extension attribute when a customer is retrieved from the repository
      *
-     * @see CustomerRepositoryInterface::getById()
-     *
      * @param CustomerRepositoryInterface $subject
      * @param CustomerInterface $result
      * @return CustomerInterface
      * @SuppressWarnings(PHPMD.UnusedFormalParameter)
+     * @see CustomerRepositoryInterface::getById()
+     *
      */
     public function afterGetById(CustomerRepositoryInterface $subject, CustomerInterface $result): CustomerInterface
     {
@@ -140,11 +140,11 @@ class CustomerCountryAttributePlugin
     /**
      * Add Customer Country to the Customer extension attribute when customers are retrieved from the repository
      *
-     * @see CustomerRepositoryInterface::getList()
      * @param CustomerRepositoryInterface $subject
      * @param CustomerSearchResultsInterface $results
      * @return CustomerSearchResultsInterface
      * @SuppressWarnings(PHPMD.UnusedFormalParameter)
+     * @see CustomerRepositoryInterface::getList()
      */
     public function afterGetList(CustomerRepositoryInterface $subject, $results): CustomerSearchResultsInterface
     {
@@ -183,6 +183,7 @@ class CustomerCountryAttributePlugin
      * @param CustomerInterface $customer The customer entity with modified data, if any.
      * @return CustomerInterface
      * @throws InputException When there is taxvat but no Country specified.
+     * @see CustomerRepositoryInterface::save()
      */
     public function afterSave(
         CustomerRepositoryInterface $subject,

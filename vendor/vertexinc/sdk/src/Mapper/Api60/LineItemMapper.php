@@ -401,10 +401,12 @@ class LineItemMapper implements LineItemMapperInterface
         if ($object->getProductCode() !== null) {
             $map->Product = new \stdClass();
             $map->Product->_ = $object->getProductCode();
-            if ($object->getProductClass() !== null) {
-                $map->Product->productClass = $object->getProductClass();
-            }
         }
+        if ($object->getProductClass() !== null) {
+            $map->Product = isset($map->Product) ? $map->Product : new \stdClass();
+            $map->Product->productClass = $object->getProductClass();
+        }
+
         return $map;
     }
 
@@ -536,11 +538,11 @@ class LineItemMapper implements LineItemMapperInterface
         if (isset($map->Product)) {
             if ($map->Product instanceof \stdClass) {
                 $object->setProductCode($map->Product->_);
-                if (isset($map->Product->productClass)) {
-                    $object->setProductClass($map->Product->productClass);
-                }
             } else {
                 $object->setProductCode($map->Product);
+            }
+            if (isset($map->Product->productClass)) {
+                $object->setProductClass($map->Product->productClass);
             }
         }
     }

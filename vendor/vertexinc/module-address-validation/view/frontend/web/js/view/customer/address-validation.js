@@ -30,7 +30,7 @@ define([
 ) {
     'use strict';
 
-    var config = window.vertexAddressValidationConfig || {};
+    const config = window.vertexAddressValidationConfig || {};
 
     return Component.extend({
         message: null,
@@ -40,11 +40,16 @@ define([
         addressResolver: addressResolver,
         correctAddress: null,
 
+        /**
+         * Initialize
+         */
         initialize: function () {
             this._super();
 
             this.message = addressValidationMessage;
-            addressForm.formUpdated.extend({notify: 'always'}).subscribe(this.addressUpdated.bind(this));
+            addressForm.formUpdated.extend({
+                notify: 'always'
+            }).subscribe(this.addressUpdated.bind(this));
 
             return this;
         },
@@ -68,12 +73,13 @@ define([
          * @returns {Object}
          */
         addressValidation: function (formAddressData) {
-            var deferred = $.Deferred();
+            const deferred = $.Deferred();
 
             if (this.isAddressValid || !this.validateCountry()) {
                 if (this.updateAddress) {
                     this.updateVertexAddress();
                 }
+
                 return deferred.resolve();
             }
 
@@ -84,6 +90,7 @@ define([
                 .done(function (response) {
                     this.isAddressValid = true;
                     this.correctAddress = response;
+
                     if (this.handleAddressDifferenceResponse(response) === true) {
                         deferred.resolve();
                     } else {
@@ -101,14 +108,14 @@ define([
         /**
          * Check if country is used in validation
          *
-         * @returns {boolean}
+         * @returns {Boolean}
          */
         validateCountry: function () {
-            var countryCode = addressForm.getFieldByName('country_id').val();
+            const countryCode = addressForm.getFieldByName('country_id').val();
 
-            return countryCode !== undefined
-                ? config.countryValidation.includes(countryCode)
-                : true;
+            return countryCode !== undefined ?
+                config.countryValidation.includes(countryCode) :
+                true;
         },
 
         /**
@@ -120,6 +127,7 @@ define([
             if (response === null || !Object.keys(response).length) {
                 addressForm.renameSubmitButton(config.saveAsIsButtonText);
                 this.message.setWarningMessage(validationMessages.noAddressFound);
+
                 return;
             }
 
@@ -127,6 +135,7 @@ define([
 
             if (differences.length === 0 && config.showSuccessMessage) {
                 this.message.showSuccessMessage = true;
+
                 return true;
             } else if (differences.length > 0) {
                 this.updateAddress = true;

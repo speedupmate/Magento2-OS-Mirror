@@ -3,13 +3,20 @@
  * @author     Mediotype                     https://www.mediotype.com/
  */
 
-define([], function() {
-    return function(config) {
-        var messageObject = config.messageObject;
-        var messageHtml = messageObject.messages;
-        var mainContainer = $('page:main-container');
-        var parent = mainContainer.parentNode;
-        var messages = $('messages');
+define([], function () {
+    'use strict';
+
+    /**
+     * Add messages to the page
+     *
+     * For use as a Mage-Init on AJAX loaded content
+     */
+    return function (config) {
+        const messageObject = config.messageObject,
+            messageHtml = messageObject.messages,
+            mainContainer = $('page:main-container'),
+            parent = mainContainer.parentNode;
+        let messages = $('messages');
 
         if (messages === null) {
             messages = document.createElement('div');

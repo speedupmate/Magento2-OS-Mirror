@@ -2,12 +2,6 @@
 
 declare(strict_types=1);
 
-/**
- * @see       https://github.com/laminas/laminas-servicemanager for the canonical source repository
- * @copyright https://github.com/laminas/laminas-servicemanager/blob/master/COPYRIGHT.md
- * @license   https://github.com/laminas/laminas-servicemanager/blob/master/LICENSE.md New BSD License
- */
-
 namespace Laminas\ServiceManager\Tool;
 
 use Interop\Container\ContainerInterface;
@@ -31,7 +25,7 @@ use function substr;
 
 class FactoryCreator
 {
-    const FACTORY_TEMPLATE = <<<'EOT'
+    public const FACTORY_TEMPLATE = <<<'EOT'
         <?php
         
         declare(strict_types=1);
@@ -80,14 +74,9 @@ class FactoryCreator
         );
     }
 
-    /**
-     * @param $className
-     * @return string
-     */
-    private function getClassName($className)
+    private function getClassName(string $className): string
     {
-        $class = substr($className, strrpos($className, '\\') + 1);
-        return $class;
+        return substr($className, strrpos($className, '\\') + 1);
     }
 
     /**
@@ -115,7 +104,7 @@ class FactoryCreator
                     return false;
                 }
 
-                $type = $argument->getType();
+                $type  = $argument->getType();
                 $class = null !== $type && ! $type->isBuiltin() ? $type->getName() : null;
 
                 if (null === $class) {
@@ -157,7 +146,7 @@ class FactoryCreator
                 return array_shift($arguments);
             default:
                 $argumentPad = str_repeat(' ', 12);
-                $closePad = str_repeat(' ', 8);
+                $closePad    = str_repeat(' ', 8);
                 return sprintf(
                     "\n%s%s\n%s",
                     $argumentPad,

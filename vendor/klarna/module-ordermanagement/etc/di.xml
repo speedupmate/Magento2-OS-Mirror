@@ -42,4 +42,11 @@
             </argument>
         </arguments>
     </virtualType>
+    <type name="Klarna\Core\Helper\VersionInfo">
+        <plugin
+            sortOrder="10"
+            name="klarnaOrdermanagementVersionInfo"
+            type="Klarna\Ordermanagement\Plugin\Helper\VersionInfoPlugin"
+        />
+    </type>
 </config>

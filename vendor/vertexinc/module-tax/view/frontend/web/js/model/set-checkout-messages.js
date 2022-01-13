@@ -17,7 +17,7 @@ define(
          * customer data updates and forward messages to the appropriate messageList model.
          */
         return function () {
-            var typeMap = {
+            const typeMap = {
                     'success': 'addSuccessMessage',
                     'warning': 'addErrorMessage',
                     'error': 'addErrorMessage'

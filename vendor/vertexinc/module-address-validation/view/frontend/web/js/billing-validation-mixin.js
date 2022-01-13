@@ -19,7 +19,7 @@ define([
              * @returns {Object}
              */
             initialize: function () {
-                let self = this;
+                const self = this;
                 this._super();
 
                 registry.get(
@@ -44,8 +44,9 @@ define([
             updateAddress: function () {
                 this.registerAddressInvalidationTrigger();
 
-                var billingData = checkoutData.getBillingAddressFromData();
+                const billingData = checkoutData.getBillingAddressFromData();
 
+                // jscs:disable requireCamelCaseOrUpperCaseIdentifiers
                 if (!this.validationConfig.isAddressValidationEnabled ||
                     this.addressValidator.isAddressValid ||
                     billingData === null ||
@@ -54,6 +55,7 @@ define([
                 ) {
                     return this._super();
                 }
+                // jscs:enable requireCamelCaseOrUpperCaseIdentifiers
 
                 this.addressValidator.addressValidation().done(function () {
                     if (!this.validationConfig.showValidationSuccessMessage) {
@@ -85,10 +87,11 @@ define([
             /**
              * If the address details are visible, then remove the validation address warning message
              *
-             * @param isVisible
+             * @param {Boolean} isVisible
              */
             addressDetailsVisibilityChanged: function (isVisible) {
                 let message = this.addressValidator.message;
+
                 if (isVisible && message.hasMessage() && message.message.type === 1) {
                     message.clear();
                 }

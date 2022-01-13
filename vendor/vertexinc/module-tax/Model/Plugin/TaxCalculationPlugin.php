@@ -1,7 +1,7 @@
 <?php
 /**
- * @copyright  Vertex. All rights reserved.  https://www.vertexinc.com/
- * @author     Mediotype                     https://www.mediotype.com/
+ * @author    Blue Acorn iCi <code@blueacornici.com>
+ * @copyright 2021 Vertex, Inc. All Rights Reserved.
  */
 
 namespace Vertex\Tax\Model\Plugin;
@@ -18,6 +18,8 @@ use Vertex\Tax\Model\VertexUsageDeterminer;
 
 /**
  * Handle tax calculation through Vertex
+ *
+ * @see TaxCalculationInterface
  */
 class TaxCalculationPlugin
 {
@@ -48,7 +50,6 @@ class TaxCalculationPlugin
     /**
      * Use Vertex to calculate tax if it can be used
      *
-     * @see TaxCalculationInterface::calculateTax()
      * @param TaxCalculationInterface $subject
      * @param Closure $super
      * @param QuoteDetailsInterface $quoteDetails
@@ -57,6 +58,7 @@ class TaxCalculationPlugin
      * @return TaxDetailsInterface
      * @throws NoSuchEntityException
      * @throws InvalidArgumentException
+     * @see TaxCalculationInterface::calculateTax()
      */
     public function aroundCalculateTax(
         TaxCalculationInterface $subject,

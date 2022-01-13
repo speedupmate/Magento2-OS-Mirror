@@ -1,7 +1,7 @@
 <?php
 /**
- * @copyright  Vertex. All rights reserved.  https://www.vertexinc.com/
- * @author     Mediotype                     https://www.mediotype.com/
+ * @author    Blue Acorn iCi <code@blueacornici.com>
+ * @copyright 2021 Vertex, Inc. All Rights Reserved.
  */
 
 namespace Vertex\Tax\Model\Repository;
@@ -108,7 +108,7 @@ class LogEntryRepository implements LogEntryRepositoryInterface
         $model->setDate($logEntry->getDate());
         $model->setRequestXml($logEntry->getRequestXml());
         $model->setResponseXml($logEntry->getResponseTime());
-        $model->setResponseTime((int)$logEntry->getResponseTime());
+        $model->setResponseTime($logEntry->getResponseTime());
         return $model;
     }
 

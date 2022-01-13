@@ -16,8 +16,8 @@ define(['underscore', 'Magento_Ui/js/form/element/select'], function (_, Select)
          * @param {String} field
          */
         filter: function (value, field) {
-            var source = this.initialOptions,
-                result;
+            const source = this.initialOptions;
+            let result;
 
             field = field || this.filterBy.field;
 

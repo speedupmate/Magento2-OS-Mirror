@@ -16,15 +16,22 @@ define([
     addressResolver = $.extend({}, addressResolver, {
         checkoutProvider: registry.get('checkoutProvider'),
 
+        /**
+         * Update the <input /> elements for the Shipping Address
+         *
+         * @param {UpdateFieldElement} element
+         * @param {String|String[]} value
+         */
         updateFields: function (element, value) {
             var addressData = $.extend({}, this.checkoutProvider.get('shippingAddress'));
 
             if (element.name === 'street') {
                 // Just updating the addressData element doesn't seem to work on street inputs
                 const streetInputs = $('.form-shipping-address input[name^="street["]');
-                value = typeof value === "string" ? [value] : Object.values(value);
+                value = typeof value === 'string' ? [value] : Object.values(value);
                 streetInputs.val('');
-                for(let index = 0, length = value.length;index < length;++index) {
+
+                for (let index = 0, length = value.length; index < length; ++index) {
                     addressData[element.name][index] = typeof value[index] !== 'undefined' ? value[index] : '';
                     $(streetInputs[index])
                         .val(addressData[element.name][index]);
@@ -41,5 +48,6 @@ define([
             checkoutData.setNewCustomerShippingAddress($.extend(true, {}, addressData));
         }
     });
+
     return addressResolver;
 });

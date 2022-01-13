@@ -1,5 +1,27 @@
 # Changelog
 
+## [3.14.0](https://github.com/schmittjoh/serializer/tree/3.14.0) (2021-08-06)
+
+**Merged pull requests:**
+
+- Avoid duplicate/invalid definitions when loading the php attributes using the annotation driver [\#1340](https://github.com/schmittjoh/serializer/pull/1340) ([goetas](https://github.com/goetas))
+
+## [3.14.0-rc2](https://github.com/schmittjoh/serializer/tree/3.14.0-rc2) (2021-08-06)
+
+**Merged pull requests:**
+
+- run php8 ci on high and low deps [\#1339](https://github.com/schmittjoh/serializer/pull/1339) ([goetas](https://github.com/goetas))
+- php8 attributes are enabled by default on php8 or higher [\#1338](https://github.com/schmittjoh/serializer/pull/1338) ([goetas](https://github.com/goetas))
+- Allow positional php8 attributes [\#1337](https://github.com/schmittjoh/serializer/pull/1337) ([goetas](https://github.com/goetas))
+- Drop Travis [\#1306](https://github.com/schmittjoh/serializer/pull/1306) ([simPod](https://github.com/simPod))
+
+## [3.14.0-rc1](https://github.com/schmittjoh/serializer/tree/3.14.0-rc1) (2021-08-01)
+
+**Merged pull requests:**
+
+- Add PHP attributes support [\#1332](https://github.com/schmittjoh/serializer/pull/1332) ([goetas](https://github.com/goetas))
+- Deprecate `@ReadOnly` annotation in favor of `@ReadOnlyProperty` [\#1333](https://github.com/schmittjoh/serializer/pull/1333) ([mbabker](https://github.com/mbabker))
+
 ## [3.13.0](https://github.com/schmittjoh/serializer/tree/3.13.0) (2021-07-05)
 
 **Merged pull requests:**

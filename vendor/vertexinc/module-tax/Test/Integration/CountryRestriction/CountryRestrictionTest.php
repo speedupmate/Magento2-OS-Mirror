@@ -78,8 +78,6 @@ class CountryRestrictionTest extends TestCase
      */
     public function testUsesVertexWhenCountryIsEnabled()
     {
-        $this->markTestIncomplete('To be fixed in scope of VRTX-754');
-
         $soapClient = $this->getMockBuilder(\SoapClient::class)->disableOriginalConstructor()
             ->addMethods(['CalculateTax70'])->getMock();
         $soapClient->expects($this->atLeastOnce())

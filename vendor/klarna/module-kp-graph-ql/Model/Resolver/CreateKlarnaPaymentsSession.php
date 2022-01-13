@@ -13,6 +13,7 @@ namespace Klarna\KpGraphQl\Model\Resolver;
 
 use Klarna\Core\Helper\ConfigHelper;
 use Klarna\Kp\Model\Session;
+use Magento\Framework\App\RequestInterface;
 use Magento\Framework\GraphQl\Config\Element\Field;
 use Magento\Framework\GraphQl\Exception\GraphQlInputException;
 use Magento\Framework\GraphQl\Query\ResolverInterface;
@@ -36,21 +37,28 @@ class CreateKlarnaPaymentsSession implements ResolverInterface
      * @var GetCartForUser
      */
     private $getCartForUser;
+    /**
+     * @var RequestInterface
+     */
+    private $request;
 
     /**
-     * @param ConfigHelper   $configHelper
-     * @param Session        $session
-     * @param GetCartForUser $getCartForUser
+     * @param ConfigHelper     $configHelper
+     * @param Session          $session
+     * @param GetCartForUser   $getCartForUser
+     * @param RequestInterface $request
      * @codeCoverageIgnore
      */
     public function __construct(
         ConfigHelper $configHelper,
         Session $session,
-        GetCartForUser $getCartForUser
+        GetCartForUser $getCartForUser,
+        RequestInterface $request
     ) {
         $this->configHelper   = $configHelper;
         $this->session        = $session;
         $this->getCartForUser = $getCartForUser;
+        $this->request        = $request;
     }
 
     /**
@@ -63,6 +71,7 @@ class CreateKlarnaPaymentsSession implements ResolverInterface
         array $value = null,
         array $args = null
     ) {
+        $this->request->setParam('GraphQlCreateSession', true);
         $maskedCartId = $args['input']['cart_id'];
         $storeId      = (int)$context->getExtensionAttributes()->getStore()->getId();
         $this->validate($maskedCartId, $storeId);

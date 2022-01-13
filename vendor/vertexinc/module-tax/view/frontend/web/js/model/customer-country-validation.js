@@ -14,13 +14,13 @@ define([
     /**
      * Validates if customer added a VAT number, then selecting a Country is required.
      */
-    return function (config) {
+    return function () {
         $.validator.addMethod(
-            "vertex-customer-country",
+            'vertex-customer-country',
             function (value, element, dependField) {
                 return dependFieldChecker.validateValues(dependField, value);
             },
-            $.mage.__("Please select a Country.")
+            $.mage.__('Please select a Country.')
         );
-    }
+    };
 });

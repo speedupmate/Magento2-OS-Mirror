@@ -1,8 +1,10 @@
 <?php
 /**
- * @author    Mediotype Developement <diveinto@mediotype.com>
- * @copyright 2018 Mediotype. All rights reserved.
+ * @author    Blue Acorn iCi <code@blueacornici.com>
+ * @copyright 2021 Vertex, Inc. All Rights Reserved.
  */
+
+declare(strict_types=1);
 
 namespace Vertex\Tax\Model\Plugin;
 
@@ -51,25 +53,17 @@ class TotalsCalculationMessagePlugin
     /**
      * Add any Vertex error messages to the tax totals data
      *
-     * @see TotalsConverter::process()
      * @param TotalsConverter $subject
-     * @param callable $super
+     * @param TotalSegmentInterface[] $totalSegments
      * @param Total[] $addressTotals
      * @return TotalSegmentInterface[]
+     * @see TotalsConverter::process()
      */
-    public function aroundProcess(
+    public function afterProcess(
         TotalsConverter $subject,
-        callable $super,
+        array $totalSegments,
         $addressTotals = []
-    ) {
-        // Allows forward compatibility with argument additions
-        $arguments = func_get_args();
-        array_splice($arguments, 0, 2);
-
-        /** @var TotalSegmentInterface[] $totalSegment */
-        // phpcs:ignore Magento2.Functions.DiscouragedFunction.Discouraged
-        $totalSegments = call_user_func_array($super, $arguments);
-
+    ): array {
         $storeId = null;
         try {
             if ($currentStore = $this->storeManager->getStore()) {

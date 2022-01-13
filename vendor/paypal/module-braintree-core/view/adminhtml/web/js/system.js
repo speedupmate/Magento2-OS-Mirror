@@ -5,7 +5,7 @@ require(['jquery', 'Magento_Ui/js/modal/alert', 'mage/translate', 'domReady!'], 
         merchant_country = $('[data-ui-id="adminhtml-system-config-field-country-0-select-groups-account-fields-merchant-country-value"]').val();
         paypal_credit = $('[data-ui-id="select-groups-braintree-section-groups-braintree-fields-braintree-paypal-credit-active-value"]').val();
 
-        allowed_countries = ['GB','FR','US','DE'];
+        allowed_countries = ['GB','FR','US','DE', 'AU'];
         if($.inArray(merchant_country, allowed_countries) == -1 || paypal_credit == 1){
             //hide paylater message
             $('[data-ui-id="select-groups-braintree-section-groups-braintree-groups-braintree-paypal-groups-button-cart-fields-message-cart-enable-value"]').val(0).attr('readonly',true).click();

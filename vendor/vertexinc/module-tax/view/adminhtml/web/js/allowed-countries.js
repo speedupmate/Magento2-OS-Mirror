@@ -38,7 +38,7 @@ define(['jquery', 'jquery/ui'], function ($) {
          * @return void
          */
         _processClick: function (event) {
-            var optgroup = $(event.target),
+            const optgroup = $(event.target),
                 select = optgroup.closest('select'),
                 scrollTop = select.scrollTop();
 

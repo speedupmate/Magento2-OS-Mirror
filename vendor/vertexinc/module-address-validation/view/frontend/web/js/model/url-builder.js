@@ -8,7 +8,7 @@ define([
 ], function ($) {
     'use strict';
 
-    var config = window.checkoutConfig || window.vertexAddressValidationConfig || {};
+    const config = window.checkoutConfig || window.vertexAddressValidationConfig || {};
 
     return {
         method: 'rest',
@@ -22,7 +22,8 @@ define([
          * @return {*}
          */
         createUrl: function (url, params) {
-            var completeUrl = this.serviceUrl + url;
+            const completeUrl = this.serviceUrl + url;
+
             return this.bindParams(completeUrl, params);
         },
 
@@ -32,13 +33,11 @@ define([
          * @return {*}
          */
         bindParams: function (url, params) {
-            var urlParts;
-
             params.method = this.method;
             params.storeCode = this.storeCode;
             params.version = this.version;
 
-            urlParts = url.split('/');
+            let urlParts = url.split('/');
             urlParts = urlParts.filter(Boolean);
 
             $.each(urlParts, function (key, part) {

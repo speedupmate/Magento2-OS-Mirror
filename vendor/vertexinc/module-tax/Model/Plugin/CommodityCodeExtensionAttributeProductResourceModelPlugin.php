@@ -1,7 +1,7 @@
 <?php
 /**
- * @copyright  Vertex. All rights reserved.  https://www.vertexinc.com/
- * @author     Mediotype                     https://www.mediotype.com/
+ * @author    Blue Acorn iCi <code@blueacornici.com>
+ * @copyright 2021 Vertex, Inc. All Rights Reserved.
  */
 
 declare(strict_types=1);
@@ -11,6 +11,7 @@ namespace Vertex\Tax\Model\Plugin;
 use Magento\Catalog\Model\Product;
 use Magento\Catalog\Model\ResourceModel\Product as ProductResourceModel;
 use Magento\Framework\Exception\NoSuchEntityException;
+use Magento\Framework\Model\AbstractModel;
 use Vertex\Tax\Model\ProductLoadIdResolverInterface;
 use Vertex\Tax\Model\Config;
 use Vertex\Tax\Model\Data\CommodityCodeProduct;
@@ -60,15 +61,15 @@ class CommodityCodeExtensionAttributeProductResourceModelPlugin
      * @see ProductResourceModel::save()
      * @param ProductResourceModel $subject
      * @param ProductResourceModel $result
-     * @param Product $product
+     * @param AbstractModel $product
      * @return ProductResourceModel
      */
     public function afterSave(
         ProductResourceModel $subject,
         ProductResourceModel $result,
-        Product $product
+        AbstractModel $product
     ): ProductResourceModel {
-        if (!$this->config->isVertexActive()) {
+        if (!$product instanceof Product || !$this->config->isVertexActive()) {
             return $result;
         }
 

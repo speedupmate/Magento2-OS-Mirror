@@ -4,7 +4,7 @@
  */
 
 define([
-    'jquery',
+    'jquery'
 ], function ($) {
     'use strict';
 
@@ -12,11 +12,11 @@ define([
         /**
          * Makes sure a value is set if its depending field is also set.
          *
-         * @param dependField
-         * @param valueCheck
-         * @returns {boolean}
+         * @param {Element} dependField
+         * @param {Boolean} valueCheck
+         * @returns {Boolean}
          */
-        validateValues : function (dependField, valueCheck) {
+        validateValues: function (dependField, valueCheck) {
             if ($(dependField).length) {
                 let dependValue = $(dependField).val();
 

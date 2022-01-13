@@ -1,7 +1,7 @@
 <?php
 /**
- * @copyright  Vertex. All rights reserved.  https://www.vertexinc.com/
- * @author     Mediotype                     https://www.mediotype.com/
+ * @author    Blue Acorn iCi <code@blueacornici.com>
+ * @copyright 2021 Vertex, Inc. All Rights Reserved.
  */
 
 declare(strict_types=1);
@@ -18,6 +18,8 @@ use Magento\Framework\Model\ResourceModel\Db\AbstractDb;
  * table is.
  *
  * @see \Magento\Quote\Model\ResourceModel\Quote\QuoteIdMask
+ * @api
+ * @since 2.1.0
  */
 class QuoteIdMask extends AbstractDb
 {

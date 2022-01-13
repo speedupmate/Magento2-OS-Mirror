@@ -18,17 +18,16 @@ define(['uiRegistry'], function (registry) {
         const streetAddress = [];
 
         for (let i in address.street) {
-            if (!address.street.hasOwnProperty(i)) {
-                continue;
-            }
-            if (address.street[i].length > 0) {
+            if (address.street.hasOwnProperty(i) && address.street[i].length > 0) {
                 streetAddress.push(address.street[i]);
             }
         }
 
         let countryId;
+
         if (typeof address.countryId !== 'undefined') {
             countryId = address.countryId;
+            // jscs:disable requireCamelCaseOrUpperCaseIdentifiers
         } else if (typeof address.country_id !== 'undefined') {
             countryId = address.country_id;
         }
@@ -40,5 +39,6 @@ define(['uiRegistry'], function (registry) {
             postal_code: address.postcode,
             country: countryId
         };
+        // jscs:disable requireCamelCaseOrUpperCaseIdentifiers
     };
 });

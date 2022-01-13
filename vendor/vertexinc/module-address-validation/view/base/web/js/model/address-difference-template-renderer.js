@@ -13,14 +13,14 @@ define(['underscore', 'uiClass'], function (_, Component) {
 
     /**
      * @typedef {Object} vertexDifferenceObject_Message
-     * @property {string} text - Informative message to end user
+     * @property {String} text - Informative message to end user
      * @property {vertexDifferenceObject_Difference[]} differences - Array of differences
      */
 
     /**
      * @typedef {Object} vertexDifferenceObject_Difference
-     * @property {string} name - Human readable name of field that has a difference
-     * @property {string} value - New value for the field
+     * @property {String} name - Human readable name of field that has a difference
+     * @property {String} value - New value for the field
      */
 
     /**
@@ -28,7 +28,7 @@ define(['underscore', 'uiClass'], function (_, Component) {
      */
     return Component.extend({
         /**
-         * @var {string} template - Location of file to render
+         * @var {String} template - Location of file to render
          */
         template: 'Vertex_AddressValidation/template/validation-result.html',
 
@@ -39,7 +39,7 @@ define(['underscore', 'uiClass'], function (_, Component) {
 
         /**
          * @constructor
-         * @param {string} template - File to render
+         * @param {String} template - File to render
          * @returns {*}
          */
         initialize: function (template) {
@@ -56,7 +56,7 @@ define(['underscore', 'uiClass'], function (_, Component) {
 
         /**
          * @param {vertexDifferenceRendererObject} message
-         * @returns {string} HTML
+         * @returns {String} HTML
          */
         render: function (message) {
             return this.renderer(message);

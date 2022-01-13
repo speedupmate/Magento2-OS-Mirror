@@ -9,16 +9,18 @@ define(function () {
     return {
         /**
          * Return formatted selected option value
+         *
          * @param {Object} selected
          * @returns {String}
          */
         getFormattedValue: function (selected) {
-            var label = '';
+            let label = '';
 
             if (selected.parent) {
                 label = selected.parent + ' - ';
             }
             label += selected.label;
+
             return label;
         }
     };

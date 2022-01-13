@@ -22,7 +22,7 @@ define([
          * @returns {Boolean|Array}
          */
         resolveAddressDifference: function (responseAddressData, formAddressData) {
-            var differences = [],
+            const differences = [],
                 valid = [];
 
             this.responseAddressData = responseAddressData;
@@ -33,8 +33,8 @@ define([
             }
 
             _.each(this.addressFieldsForValidation, function (v, i) {
-                var responseValue, value, name, isComplex,
-                    complexValues = [],
+                const complexValues = [];
+                let responseValue, value, name, isComplex,
                     isDifferent = false;
 
                 isComplex = _.isObject(formAddressData[v]) || _.isArray(formAddressData[v]);
@@ -54,6 +54,7 @@ define([
                     }
 
                     responseValue = responseAddressData[v];
+
                     if (complexValues.length) {
                         responseValue = complexValues.join(', ');
                     }
@@ -77,6 +78,7 @@ define([
             if (valid.length === this.addressFieldsForValidation.length && _.isEmpty(differences)) {
                 return true;
             }
+
             return differences;
         },
 
@@ -86,30 +88,35 @@ define([
          * @returns {*}
          */
         resolveAddressUpdate: function () {
-            var responseAddressData = this.responseAddressData,
+            const responseAddressData = this.responseAddressData,
                 formAddressData = this.formAddressData,
                 self = this;
 
             _.each(this.addressFieldsForValidation, function (v) {
-                var fieldValue = responseAddressData[v],
+                const fieldValue = responseAddressData[v],
                     linesObj = {};
 
                 if (_.isObject(formAddressData[v])) {
                     _.each(formAddressData[v], function (val, i) {
                         if (fieldValue[i]) {
                             linesObj[i] = fieldValue[i];
-                            self.updateFields({name: v, key: i}, fieldValue[i]);
+                            self.updateFields({
+                                name: v, key: i
+                            }, fieldValue[i]);
 
                             return;
                         }
                         linesObj[i] = val;
                     });
                     formAddressData[v] = linesObj;
+
                     return;
                 }
 
                 formAddressData[v] = fieldValue;
-                self.updateFields({name: v}, fieldValue);
+                self.updateFields({
+                    name: v
+                }, fieldValue);
             });
 
             return formAddressData;
@@ -145,6 +152,7 @@ define([
                     return true;
                 }
             });
+
             return false;
         }
     };

@@ -2,12 +2,6 @@
 
 declare(strict_types=1);
 
-/**
- * @see       https://github.com/laminas/laminas-servicemanager for the canonical source repository
- * @copyright https://github.com/laminas/laminas-servicemanager/blob/master/COPYRIGHT.md
- * @license   https://github.com/laminas/laminas-servicemanager/blob/master/LICENSE.md New BSD License
- */
-
 namespace Laminas\ServiceManager;
 
 use Interop\Container\ContainerInterface;
@@ -21,6 +15,8 @@ use function is_object;
 use function method_exists;
 use function sprintf;
 use function trigger_error;
+
+use const E_USER_DEPRECATED;
 
 /**
  * Abstract plugin manager.
@@ -50,11 +46,9 @@ abstract class AbstractPluginManager extends ServiceManager implements PluginMan
      *
      * @var null|string
      */
-    protected $instanceOf = null;
+    protected $instanceOf;
 
     /**
-     * Constructor.
-     *
      * Sets the provided $parentLocator as the creation context for all
      * factories; for $config, {@see \Laminas\ServiceManager\ServiceManager::configure()}
      * for details on its accepted structure.
@@ -64,7 +58,8 @@ abstract class AbstractPluginManager extends ServiceManager implements PluginMan
      */
     public function __construct($configInstanceOrParentLocator = null, array $config = [])
     {
-        if ($configInstanceOrParentLocator instanceof PsrContainerInterface
+        if (
+            $configInstanceOrParentLocator instanceof PsrContainerInterface
             && ! $configInstanceOrParentLocator instanceof ContainerInterface
         ) {
             /**
@@ -74,17 +69,17 @@ abstract class AbstractPluginManager extends ServiceManager implements PluginMan
              */
             $configInstanceOrParentLocator = new PsrContainerDecorator($configInstanceOrParentLocator);
         }
-        if (null !== $configInstanceOrParentLocator
+        if (
+            null !== $configInstanceOrParentLocator
             && ! $configInstanceOrParentLocator instanceof ConfigInterface
             && ! $configInstanceOrParentLocator instanceof ContainerInterface
         ) {
             throw new Exception\InvalidArgumentException(sprintf(
                 '%s expects a ConfigInterface or ContainerInterface instance as the first argument; received %s',
-                __CLASS__,
-                (is_object($configInstanceOrParentLocator)
+                self::class,
+                is_object($configInstanceOrParentLocator)
                     ? get_class($configInstanceOrParentLocator)
                     : gettype($configInstanceOrParentLocator)
-                )
             ));
         }
 
@@ -92,7 +87,7 @@ abstract class AbstractPluginManager extends ServiceManager implements PluginMan
             trigger_error(sprintf(
                 'Usage of %s as a constructor argument for %s is now deprecated',
                 ConfigInterface::class,
-                get_class($this)
+                static::class
             ), E_USER_DEPRECATED);
             $config = $configInstanceOrParentLocator->toArray();
         }
@@ -119,6 +114,7 @@ abstract class AbstractPluginManager extends ServiceManager implements PluginMan
      * plugin manager, this method will raise an InvalidServiceException.
      *
      * {@inheritDoc}
+     *
      * @throws InvalidServiceException
      */
     public function configure(array $config)
@@ -151,20 +147,20 @@ abstract class AbstractPluginManager extends ServiceManager implements PluginMan
      * @param string $name Service name of plugin to retrieve.
      * @param null|array $options Options to use when creating the instance.
      * @return mixed
-     * @throws Exception\ServiceNotFoundException if the manager does not have
+     * @throws Exception\ServiceNotFoundException If the manager does not have
      *     a service definition for the instance, and the service is not
      *     auto-invokable.
-     * @throws InvalidServiceException if the plugin created is invalid for the
+     * @throws InvalidServiceException If the plugin created is invalid for the
      *     plugin context.
      */
-    public function get($name, array $options = null)
+    public function get($name, ?array $options = null)
     {
         if (! $this->has($name)) {
             if (! $this->autoAddInvokableClass || ! class_exists($name)) {
                 throw new Exception\ServiceNotFoundException(sprintf(
                     'A plugin by the name "%s" was not found in the plugin manager %s',
                     $name,
-                    get_class($this)
+                    static::class
                 ));
             }
 
@@ -184,7 +180,7 @@ abstract class AbstractPluginManager extends ServiceManager implements PluginMan
         if (method_exists($this, 'validatePlugin')) {
             trigger_error(sprintf(
                 '%s::validatePlugin() has been deprecated as of 3.0; please define validate() instead',
-                get_class($this)
+                static::class
             ), E_USER_DEPRECATED);
             $this->validatePlugin($instance);
             return;
@@ -196,7 +192,7 @@ abstract class AbstractPluginManager extends ServiceManager implements PluginMan
 
         throw new InvalidServiceException(sprintf(
             'Plugin manager "%s" expected an instance of type "%s", but "%s" was received',
-            __CLASS__,
+            self::class,
             $this->instanceOf,
             is_object($instance) ? get_class($instance) : gettype($instance)
         ));
@@ -209,7 +205,7 @@ abstract class AbstractPluginManager extends ServiceManager implements PluginMan
      *
      * @deprecated since 3.0.0. The creation context should be passed during
      *     instantiation instead.
-     * @param ContainerInterface $container
+     *
      * @return void
      */
     public function setServiceLocator(ContainerInterface $container)
