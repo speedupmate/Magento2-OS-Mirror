@@ -41,7 +41,7 @@ interface ContainerInterface extends PsrContainerInterface
      * @param string $id              The service identifier
      * @param int    $invalidBehavior The behavior when the service does not exist
      *
-     * @return object|null The associated service
+     * @return object|null
      *
      * @throws ServiceCircularReferenceException When a circular reference is detected
      * @throws ServiceNotFoundException          When the service is not defined
@@ -51,19 +51,19 @@ interface ContainerInterface extends PsrContainerInterface
     public function get(string $id, int $invalidBehavior = self::EXCEPTION_ON_INVALID_REFERENCE);
 
     /**
-     * @return bool true if the service is defined, false otherwise
+     * @return bool
      */
     public function has(string $id);
 
     /**
      * Check for whether or not a service has been initialized.
      *
-     * @return bool true if the service has been initialized, false otherwise
+     * @return bool
      */
     public function initialized(string $id);
 
     /**
-     * @return array|bool|string|int|float|null
+     * @return array|bool|string|int|float|\UnitEnum|null
      *
      * @throws InvalidArgumentException if the parameter is not defined
      */
@@ -77,8 +77,8 @@ interface ContainerInterface extends PsrContainerInterface
     /**
      * Sets a parameter.
      *
-     * @param string                           $name  The parameter name
-     * @param array|bool|string|int|float|null $value The parameter value
+     * @param string                                     $name  The parameter name
+     * @param array|bool|string|int|float|\UnitEnum|null $value The parameter value
      */
     public function setParameter(string $name, $value);
 }

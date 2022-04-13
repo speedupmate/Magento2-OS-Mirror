@@ -8,14 +8,14 @@
     "config": {
         "sort-packages": true
     },
-    "version": "1.1.1-p1",
+    "version": "1.1.1-p2",
     "require": {
-        "magento/framework": "103.0.3-p1",
+        "magento/framework": "103.0.3-p2",
         "php": "~7.3.0||~7.4.0"
     },
     "suggest": {
         "magento/module-admin-analytics": "100.4.3-p1",
-        "magento/module-page-builder": "2.2.1-p1"
+        "magento/module-page-builder": "2.2.1-p2"
     },
     "autoload": {
         "files": [

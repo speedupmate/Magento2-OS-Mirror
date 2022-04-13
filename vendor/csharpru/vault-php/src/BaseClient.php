@@ -40,6 +40,11 @@ abstract class BaseClient implements LoggerAwareInterface
     protected $token;
 
     /**
+     * @var Namespace
+     */
+    protected $namespace;
+
+    /**
      * @var UriInterface
      */
     protected $baseUri;
@@ -118,6 +123,10 @@ abstract class BaseClient implements LoggerAwareInterface
 
         if ($this->token) {
             $headers['X-Vault-Token'] = $this->token->getAuth()->getClientToken();
+        }
+
+        if ($this->namespace) {
+            $headers['X-Vault-Namespace'] = $this->getNamespace();
         }
 
         if (strpos($path, '?') !== false) {
@@ -300,6 +309,26 @@ abstract class BaseClient implements LoggerAwareInterface
     }
 
     /**
+     * @return Namespace
+     */
+    public function getNamespace(): string
+    {
+        return $this->namespace;
+    }
+
+    /**
+     * @param String $namespace
+     *
+     * @return $this
+     */
+    public function setNamespace(string $namespace)
+    {
+        $this->namespace = $namespace;
+
+        return $this;
+    }
+
+    /**
      * @return UriInterface
      */
     public function getBaseUri(): UriInterface
@@ -375,20 +404,6 @@ abstract class BaseClient implements LoggerAwareInterface
     public function setStreamFactory($streamFactory)
     {
         $this->streamFactory = $streamFactory;
-
-        return $this;
-    }
-
-    /**
-     * Sets a logger.
-     *
-     * @param LoggerInterface $logger
-     *
-     * @return $this
-     */
-    public function setLogger(LoggerInterface $logger)
-    {
-        $this->logger = $logger;
 
         return $this;
     }

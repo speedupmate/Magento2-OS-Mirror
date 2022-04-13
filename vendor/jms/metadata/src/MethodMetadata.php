@@ -15,6 +15,8 @@ namespace Metadata;
  */
 class MethodMetadata implements \Serializable
 {
+    use SerializationHelper;
+
     /**
      * @var string
      */
@@ -47,32 +49,6 @@ class MethodMetadata implements \Serializable
     }
 
     /**
-     * @return string
-     *
-     * @phpcsSuppress SlevomatCodingStandard.TypeHints.ParameterTypeHint.MissingNativeTypeHint
-     * @phpcsSuppress SlevomatCodingStandard.TypeHints.ReturnTypeHint.MissingNativeTypeHint
-     * @phpcsSuppress SlevomatCodingStandard.TypeHints.TypeHintDeclaration.UselessReturnAnnotation
-     */
-    public function serialize()
-    {
-        return serialize([$this->class, $this->name]);
-    }
-
-    /**
-     * @param string $str
-     *
-     * @return void
-     *
-     * @phpcsSuppress SlevomatCodingStandard.TypeHints.ParameterTypeHint.MissingNativeTypeHint
-     * @phpcsSuppress SlevomatCodingStandard.TypeHints.ReturnTypeHint.MissingNativeTypeHint
-     * @phpcsSuppress SlevomatCodingStandard.TypeHints.TypeHintDeclaration.UselessReturnAnnotation
-     */
-    public function unserialize($str)
-    {
-        [$this->class, $this->name] = unserialize($str);
-    }
-
-    /**
      * @return mixed
      */
     public function __get(string $propertyName)
@@ -100,5 +76,15 @@ class MethodMetadata implements \Serializable
         }
 
         return $this->reflection;
+    }
+
+    protected function serializeToArray(): array
+    {
+        return [$this->class, $this->name];
+    }
+
+    protected function unserializeFromArray(array $data): void
+    {
+        [$this->class, $this->name] = $data;
     }
 }

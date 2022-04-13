@@ -1,11 +1,5 @@
 <?php
 
-/**
- * @see       https://github.com/laminas/laminas-math for the canonical source repository
- * @copyright https://github.com/laminas/laminas-math/blob/master/COPYRIGHT.md
- * @license   https://github.com/laminas/laminas-math/blob/master/LICENSE.md New BSD License
- */
-
 namespace Laminas\Math;
 
 /**
@@ -39,13 +33,6 @@ abstract class Rand
         } catch (\Error $e) {
             throw new Exception\DomainException(
                 'The length must be a positive number in getBytes(length)',
-                0,
-                $e
-            );
-        } catch (\Exception $e) {
-            throw new Exception\RuntimeException(
-                'This PHP environment doesn\'t support secure random number generation. ' .
-                'Please consider upgrading to PHP 7',
                 0,
                 $e
             );
@@ -84,13 +71,6 @@ abstract class Rand
         } catch (\Error $e) {
             throw new Exception\DomainException(
                 'The min parameter must be lower than max in getInteger(min, max)',
-                0,
-                $e
-            );
-        } catch (\Exception $e) {
-            throw new Exception\RuntimeException(
-                'This PHP environment doesn\'t support secure random number generation. ' .
-                'Please consider upgrading to PHP 7',
                 0,
                 $e
             );

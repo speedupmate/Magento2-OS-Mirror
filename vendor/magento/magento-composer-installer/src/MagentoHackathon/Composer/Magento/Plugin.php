@@ -75,7 +75,7 @@ class Plugin implements PluginInterface, EventSubscriberInterface
         $this->deployManager = new DeployManager($io);
 
         $extra = $composer->getPackage()->getExtra();
-        $sortPriority = isset($extra['magento-deploy-sort-priority']) ? $extra['magento-deploy-sort-priority'] : array();
+        $sortPriority = $extra['magento-deploy-sort-priority'] ?? [];
         $this->deployManager->setSortPriority($sortPriority);
 
     }
@@ -99,20 +99,20 @@ class Plugin implements PluginInterface, EventSubscriberInterface
 
     public static function getSubscribedEvents()
     {
-        return array(
-            PluginEvents::COMMAND => array(
-                array('onCommandEvent', 1),
-            ),
-            ScriptEvents::POST_INSTALL_CMD => array(
-                array('onNewCodeEvent', 1),
-            ),
-            ScriptEvents::POST_UPDATE_CMD => array(
-                array('onNewCodeEvent', 1),
-            ),
-            PackageEvents::POST_PACKAGE_UNINSTALL => array(
-                array('onPackageUnistall', 0),
-            )
-        );
+        return [
+            PluginEvents::COMMAND => [
+                ['onCommandEvent', 1],
+            ],
+            ScriptEvents::POST_INSTALL_CMD => [
+                ['onNewCodeEvent', 1],
+            ],
+            ScriptEvents::POST_UPDATE_CMD => [
+                ['onNewCodeEvent', 1],
+            ],
+            PackageEvents::POST_PACKAGE_UNINSTALL => [
+                ['onPackageUnistall', 0],
+            ]
+        ];
     }
 
     public function onPackageUnistall(\Composer\Installer\PackageEvent $event)
@@ -206,7 +206,7 @@ class Plugin implements PluginInterface, EventSubscriberInterface
     protected function deployLibraries()
     {
         $packages = $this->composer->getRepositoryManager()->getLocalRepository()->getPackages();
-        $autoloadDirectories = array();
+        $autoloadDirectories = [];
 
         $libraryPath = $this->config->getLibraryPath();
         if ($libraryPath === null) {
@@ -230,7 +230,7 @@ class Plugin implements PluginInterface, EventSubscriberInterface
                 continue;
             }
             if (!isset($packageConfig['autoload'])) {
-                $packageConfig['autoload'] = array('/');
+                $packageConfig['autoload'] = ['/'];
             }
             foreach ($packageConfig['autoload'] as $path) {
                 $autoloadDirectories[] = $libraryPath . '/' . $package->getName() . "/" . $path;

@@ -1,11 +1,5 @@
 <?php
 
-/**
- * @see       https://github.com/laminas/laminas-mail for the canonical source repository
- * @copyright https://github.com/laminas/laminas-mail/blob/master/COPYRIGHT.md
- * @license   https://github.com/laminas/laminas-mail/blob/master/LICENSE.md New BSD License
- */
-
 namespace Laminas\Mail\Protocol;
 
 use Generator;
@@ -488,13 +482,12 @@ class Smtp extends AbstractProtocol
         $this->_disconnect();
     }
 
-    // @codingStandardsIgnoreStart
     /**
      * Disconnect from remote host and free resource
      */
+    // @codingStandardsIgnoreLine PSR2.Methods.MethodDeclaration.Underscore
     protected function _disconnect()
     {
-        // @codingStandardsIgnoreEnd
 
         // Make sure the session gets closed
         $this->quit();

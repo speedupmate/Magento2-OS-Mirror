@@ -1,11 +1,5 @@
 <?php
 
-/**
- * @see       https://github.com/laminas/laminas-crypt for the canonical source repository
- * @copyright https://github.com/laminas/laminas-crypt/blob/master/COPYRIGHT.md
- * @license   https://github.com/laminas/laminas-crypt/blob/master/LICENSE.md New BSD License
- */
-
 namespace Laminas\Crypt\Key\Derivation;
 
 use function array_keys;
@@ -71,6 +65,22 @@ class SaltedS2k
         if (mb_strlen($salt, '8bit') < 8) {
             throw new Exception\InvalidArgumentException('The salt size must be at least of 8 bytes');
         }
-        return mhash_keygen_s2k(static::$supportedMhashAlgos[$hash], $password, $salt, $bytes);
+
+        $result = '';
+
+        foreach (range(0, ceil($bytes / strlen(hash($hash, '', true))) - 1) as $i) {
+            $result .= hash(
+                $hash,
+                str_repeat("\0", $i) . str_pad(
+                    substr($salt, 0, 8),
+                    8,
+                    "\0",
+                    STR_PAD_RIGHT
+                ) . $password,
+                true
+            );
+        }
+
+        return substr($result, 0, intval($bytes));
     }
 }

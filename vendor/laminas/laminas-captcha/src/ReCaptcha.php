@@ -1,11 +1,5 @@
 <?php
 
-/**
- * @see       https://github.com/laminas/laminas-captcha for the canonical source repository
- * @copyright https://github.com/laminas/laminas-captcha/blob/master/COPYRIGHT.md
- * @license   https://github.com/laminas/laminas-captcha/blob/master/LICENSE.md New BSD License
- */
-
 namespace Laminas\Captcha;
 
 use Laminas\ReCaptcha\ReCaptcha as ReCaptchaService;
@@ -173,7 +167,7 @@ class ReCaptcha extends AbstractAdapter
         parent::__construct($options);
 
         if (! empty($options)) {
-            if (array_key_exists('secret_key', $options)) {
+            if (array_key_exists('secret_key', $options) && is_string($options['secret_key'])) {
                 $this->getService()->setSecretKey($options['secret_key']);
             }
             if (array_key_exists('site_key', $options)) {
@@ -181,7 +175,7 @@ class ReCaptcha extends AbstractAdapter
             }
 
             // Support pubKey and pubKey for BC
-            if (array_key_exists('privKey', $options)) {
+            if (array_key_exists('privKey', $options) && is_string($options['privKey'])) {
                 $this->getService()->setSecretKey($options['privKey']);
             }
             if (array_key_exists('pubKey', $options)) {

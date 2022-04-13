@@ -5,11 +5,11 @@
     "license": [
         "proprietary"
     ],
-    "version": "1.6.1-p1",
+    "version": "1.6.1-p2",
     "require": {
         "magento/module-analytics": "100.4.3",
-        "magento/module-page-builder": "2.2.1-p1",
-        "magento/framework": "103.0.3-p1",
+        "magento/module-page-builder": "2.2.1-p2",
+        "magento/framework": "103.0.3-p2",
         "php": "~7.3.0||~7.4.0"
     },
     "autoload": {
