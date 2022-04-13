@@ -18,6 +18,14 @@ downloadable packages with respected tools (git) and therefore ease devops relat
   * magento2-os-2.4.2-with-samples
   * magento2-os-2.4.2-p1
   * magento2-os-2.4.2-p1-with-samples
+  * magento2-os-2.4.3
+  * magento2-os-2.4.3-with-samples
+  * magento2-os-2.4.3-p1
+  * magento2-os-2.4.3-p1-with-samples
+  * magento2-os-2.4.3-p2
+  * magento2-os-2.4.3-p2-with-samples
+  * magento2-os-2.4.4
+  * magento2-os-2.4.4-with-samples
 * magento2-os-2.3
   * magento2-os-2.3.0
   * magento2-os-2.3.0-with-samples
@@ -41,6 +49,12 @@ downloadable packages with respected tools (git) and therefore ease devops relat
   * magento2-os-2.3.6-p1-with-samples
   * magento2-os-2.3.7
   * magento2-os-2.3.7-with-samples
+  * magento2-os-2.3.7-p1
+  * magento2-os-2.3.7-p1-with-samples
+  * magento2-os-2.3.7-p2
+  * magento2-os-2.3.7-p2-with-samples
+  * magento2-os-2.3.7-p3
+  * magento2-os-2.3.7-p3-with-samples
 * magento2-os-2.2
   * magento2-os-2.2.0
   * magento2-os-2.2.0-with-samples
