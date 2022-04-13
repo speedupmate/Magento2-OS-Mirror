@@ -16,7 +16,7 @@ define([
         defaults: {
             template: 'PayPal_Braintree/googlepay/core-checkout',
             paymentMethodNonce: null,
-            deviceSupported: button.deviceSupported(),
+            deviceData: null,
             grandTotalAmount: 0
         },
 
@@ -50,8 +50,9 @@ define([
         /**
          * Google pay place order method
          */
-        startPlaceOrder: function (nonce, paymentData) {
+        startPlaceOrder: function (nonce, paymentData, device_data) {
             this.setPaymentMethodNonce(nonce);
+            this.setDeviceData(device_data);
             this.placeOrder();
         },
 
@@ -60,6 +61,13 @@ define([
          */
         setPaymentMethodNonce: function (nonce) {
             this.paymentMethodNonce = nonce;
+        },
+
+        /**
+         * Save device_data
+         */
+        setDeviceData: function (device_data) {
+            this.deviceData = device_data;
         },
 
         /**
@@ -75,19 +83,23 @@ define([
          */
         getPaymentRequest: function () {
            var result = {
-                transactionInfo: {
-                    totalPriceStatus: 'FINAL',
-                    totalPrice: this.grandTotalAmount,
-                    currencyCode: this.currencyCode
-                },
-                allowedPaymentMethods: ['CARD'],
-                phoneNumberRequired: false,
-                emailRequired: false,
-                shippingAddressRequired: false,
-                cardRequirements: {
-                    billingAddressRequired: false,
-                    allowedCardNetworks: this.getCardTypes()
-                }
+               transactionInfo: {
+                   totalPriceStatus: 'FINAL',
+                   totalPrice: this.grandTotalAmount,
+                   currencyCode: this.currencyCode
+               },
+               allowedPaymentMethods: [
+                   {
+                       "type": "CARD",
+                       "parameters": {
+                           "allowedCardNetworks": this.getCardTypes(),
+                           "billingAddressRequired": false,
+                       },
+
+                   }
+               ],
+               shippingAddressRequired: false,
+               emailRequired: false,
             };
 
            if (this.getEnvironment() !== "TEST") {
@@ -133,7 +145,8 @@ define([
             return {
                 'method': this.getCode(),
                 'additional_data': {
-                    'payment_method_nonce': this.paymentMethodNonce
+                    'payment_method_nonce': this.paymentMethodNonce,
+                    'device_data': this.deviceData
                 }
             };
         },

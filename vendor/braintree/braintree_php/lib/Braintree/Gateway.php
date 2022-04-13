@@ -1,11 +1,9 @@
-<?php
+<?php // phpcs:disable Generic.Commenting.DocComment.MissingShort
+
 namespace Braintree;
 
 /**
  * Braintree Gateway module
- *
- * @package    Braintree
- * @category   Resources
  */
 class Gateway
 {
@@ -21,6 +19,7 @@ class Gateway
      */
     public $graphQLClient;
 
+    // phpcs:ignore PEAR.Commenting.FunctionComment.Missing
     public function __construct($config)
     {
         if (is_array($config)) {

@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types=1);
+
 /*
  * This file is part of PHP CS Fixer.
  *
@@ -22,20 +24,25 @@ final class CaseAnalysis
     /**
      * @var int
      */
-    private $colonIndex;
+    private $index;
 
     /**
-     * @param int $colonIndex
+     * @var int
      */
-    public function __construct($colonIndex)
+    private $colonIndex;
+
+    public function __construct(int $index, int $colonIndex)
     {
+        $this->index = $index;
         $this->colonIndex = $colonIndex;
     }
 
-    /**
-     * @return int
-     */
-    public function getColonIndex()
+    public function getIndex(): int
+    {
+        return $this->index;
+    }
+
+    public function getColonIndex(): int
     {
         return $this->colonIndex;
     }

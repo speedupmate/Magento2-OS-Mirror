@@ -52,10 +52,10 @@
             <argument name="image" value="ImageUpload"/>
         </actionGroup>
         <actionGroup ref="AdminEnhancedMediaGalleryUploadImageActionGroup" stepKey="uploadSecondImage">
-            <argument name="image" value="ImageUpload_1"/>
+            <argument name="image" value="ImageUpload1"/>
         </actionGroup>
         <actionGroup ref="AdminEnhancedMediaGalleryUploadImageActionGroup" stepKey="uploadThirdImage">
-            <argument name="image" value="ImageUpload1"/>
+            <argument name="image" value="ImageUpload3"/>
         </actionGroup>
         <comment userInput="BIC workaround" stepKey="waitForGridToLoad"/>
         <actionGroup ref="AdminEnhancedMediaGalleryClickSortActionGroup" stepKey="sortByNameAToZ">
@@ -63,8 +63,8 @@
         </actionGroup>
         <actionGroup ref="AssertAdminEnhancedMediaGallerySortByActionGroup" stepKey="assertImagePositionAfterSortByNameAToZ">
             <argument name="firstImageFile" value="{{ImageUpload.file}}"/>
-            <argument name="secondImageFile" value="{{ImageUpload_1.file}}"/>
-            <argument name="thirdImageFile" value="{{ImageUpload1.value}}"/>
+            <argument name="secondImageFile" value="{{ImageUpload1.value}}"/>
+            <argument name="thirdImageFile" value="{{ImageUpload3.value}}"/>
         </actionGroup>
     </test>
 </tests>

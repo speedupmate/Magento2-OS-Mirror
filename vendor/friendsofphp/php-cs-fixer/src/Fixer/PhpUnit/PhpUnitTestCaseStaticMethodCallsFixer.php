@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types=1);
+
 /*
  * This file is part of PHP CS Fixer.
  *
@@ -13,12 +15,15 @@
 namespace PhpCsFixer\Fixer\PhpUnit;
 
 use PhpCsFixer\Fixer\AbstractPhpUnitFixer;
-use PhpCsFixer\Fixer\ConfigurationDefinitionFixerInterface;
+use PhpCsFixer\Fixer\ConfigurableFixerInterface;
 use PhpCsFixer\FixerConfiguration\FixerConfigurationResolver;
+use PhpCsFixer\FixerConfiguration\FixerConfigurationResolverInterface;
 use PhpCsFixer\FixerConfiguration\FixerOptionBuilder;
 use PhpCsFixer\FixerDefinition\CodeSample;
 use PhpCsFixer\FixerDefinition\FixerDefinition;
+use PhpCsFixer\FixerDefinition\FixerDefinitionInterface;
 use PhpCsFixer\Tokenizer\Analyzer\FunctionsAnalyzer;
+use PhpCsFixer\Tokenizer\CT;
 use PhpCsFixer\Tokenizer\Token;
 use PhpCsFixer\Tokenizer\Tokens;
 use PhpCsFixer\Tokenizer\TokensAnalyzer;
@@ -27,29 +32,35 @@ use Symfony\Component\OptionsResolver\Exception\InvalidOptionsException;
 /**
  * @author Filippo Tessarotto <zoeslam@gmail.com>
  */
-final class PhpUnitTestCaseStaticMethodCallsFixer extends AbstractPhpUnitFixer implements ConfigurationDefinitionFixerInterface
+final class PhpUnitTestCaseStaticMethodCallsFixer extends AbstractPhpUnitFixer implements ConfigurableFixerInterface
 {
     /**
      * @internal
      */
-    const CALL_TYPE_THIS = 'this';
+    public const CALL_TYPE_THIS = 'this';
 
     /**
      * @internal
      */
-    const CALL_TYPE_SELF = 'self';
+    public const CALL_TYPE_SELF = 'self';
 
     /**
      * @internal
      */
-    const CALL_TYPE_STATIC = 'static';
+    public const CALL_TYPE_STATIC = 'static';
 
+    /**
+     * @var array<string,bool>
+     */
     private $allowedValues = [
         self::CALL_TYPE_THIS => true,
         self::CALL_TYPE_SELF => true,
         self::CALL_TYPE_STATIC => true,
     ];
 
+    /**
+     * @var array<string,true>
+     */
     private $staticMethods = [
         // Assert methods
         'anything' => true,
@@ -298,7 +309,7 @@ final class PhpUnitTestCaseStaticMethodCallsFixer extends AbstractPhpUnitFixer i
     /**
      * {@inheritdoc}
      */
-    public function getDefinition()
+    public function getDefinition(): FixerDefinitionInterface
     {
         $codeSample = '<?php
 final class MyTest extends \PHPUnit_Framework_TestCase
@@ -326,9 +337,9 @@ final class MyTest extends \PHPUnit_Framework_TestCase
     /**
      * {@inheritdoc}
      *
-     * Must run before FinalStaticAccessFixer, SelfStaticAccessorFixer.
+     * Must run before SelfStaticAccessorFixer.
      */
-    public function getPriority()
+    public function getPriority(): int
     {
         return 0;
     }
@@ -336,7 +347,7 @@ final class MyTest extends \PHPUnit_Framework_TestCase
     /**
      * {@inheritdoc}
      */
-    public function isRisky()
+    public function isRisky(): bool
     {
         return true;
     }
@@ -344,7 +355,7 @@ final class MyTest extends \PHPUnit_Framework_TestCase
     /**
      * {@inheritdoc}
      */
-    protected function createConfigurationDefinition()
+    protected function createConfigurationDefinition(): FixerConfigurationResolverInterface
     {
         $thisFixer = $this;
 
@@ -356,14 +367,14 @@ final class MyTest extends \PHPUnit_Framework_TestCase
                 ->getOption(),
             (new FixerOptionBuilder('methods', 'Dictionary of `method` => `call_type` values that differ from the default strategy.'))
                 ->setAllowedTypes(['array'])
-                ->setAllowedValues([static function ($option) use ($thisFixer) {
+                ->setAllowedValues([static function (array $option) use ($thisFixer): bool {
                     foreach ($option as $method => $value) {
                         if (!isset($thisFixer->staticMethods[$method])) {
                             throw new InvalidOptionsException(
                                 sprintf(
                                     'Unexpected "methods" key, expected any of "%s", got "%s".',
                                     implode('", "', array_keys($thisFixer->staticMethods)),
-                                    \is_object($method) ? \get_class($method) : \gettype($method).'#'.$method
+                                    \gettype($method).'#'.$method
                                 )
                             );
                         }
@@ -390,7 +401,7 @@ final class MyTest extends \PHPUnit_Framework_TestCase
     /**
      * {@inheritdoc}
      */
-    protected function applyPhpUnitClassFix(Tokens $tokens, $startIndex, $endIndex)
+    protected function applyPhpUnitClassFix(Tokens $tokens, int $startIndex, int $endIndex): void
     {
         $analyzer = new TokensAnalyzer($tokens);
 
@@ -415,6 +426,7 @@ final class MyTest extends \PHPUnit_Framework_TestCase
                 // do not change `self` to `this` in static methods
                 if ('this' === $callType) {
                     $attributes = $analyzer->getMethodAttributes($index);
+
                     if (false !== $attributes['static']) {
                         $index = $this->findEndOfNextBlock($tokens, $index);
 
@@ -428,9 +440,14 @@ final class MyTest extends \PHPUnit_Framework_TestCase
             }
 
             $nextIndex = $tokens->getNextMeaningfulToken($index);
+
             if (!$tokens[$nextIndex]->equals('(')) {
                 $index = $nextIndex;
 
+                continue;
+            }
+
+            if ($tokens[$tokens->getNextMeaningfulToken($nextIndex)]->isGivenKind(CT::T_FIRST_CLASS_CALLABLE)) {
                 continue;
             }
 
@@ -442,6 +459,7 @@ final class MyTest extends \PHPUnit_Framework_TestCase
 
             $operatorIndex = $tokens->getPrevMeaningfulToken($index);
             $referenceIndex = $tokens->getPrevMeaningfulToken($operatorIndex);
+
             if (!$this->needsConversion($tokens, $index, $referenceIndex, $callType)) {
                 continue;
             }
@@ -451,14 +469,7 @@ final class MyTest extends \PHPUnit_Framework_TestCase
         }
     }
 
-    /**
-     * @param int    $index
-     * @param int    $referenceIndex
-     * @param string $callType
-     *
-     * @return bool
-     */
-    private function needsConversion(Tokens $tokens, $index, $referenceIndex, $callType)
+    private function needsConversion(Tokens $tokens, int $index, int $referenceIndex, string $callType): bool
     {
         $functionsAnalyzer = new FunctionsAnalyzer();
 
@@ -466,12 +477,7 @@ final class MyTest extends \PHPUnit_Framework_TestCase
             && !$tokens[$referenceIndex]->equals($this->conversionMap[$callType][1], false);
     }
 
-    /**
-     * @param int $index
-     *
-     * @return int
-     */
-    private function findEndOfNextBlock(Tokens $tokens, $index)
+    private function findEndOfNextBlock(Tokens $tokens, int $index): int
     {
         $nextIndex = $tokens->getNextTokenOfKind($index, [';', '{']);
 

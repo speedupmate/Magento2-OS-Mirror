@@ -11,6 +11,7 @@ use Magento\Checkout\Block\QuoteShortcutButtons;
 use Magento\Framework\Event\Observer;
 use Magento\Framework\Event\ObserverInterface;
 use Magento\Framework\Exception\LocalizedException;
+use PayPal\Braintree\Gateway\Config\Config;
 
 class AddPaypalShortcuts implements ObserverInterface
 {
@@ -18,6 +19,20 @@ class AddPaypalShortcuts implements ObserverInterface
      * Block class
      */
     const PAYPAL_SHORTCUT_BLOCK = Button::class;
+
+    /**
+     * @var Config
+     */
+    private $config;
+
+    /**
+     * @param Config $config
+     */
+    public function __construct(
+        Config $config
+    ) {
+        $this->config = $config;
+    }
 
     /**
      * Add Braintree PayPal shortcut buttons
@@ -28,6 +43,9 @@ class AddPaypalShortcuts implements ObserverInterface
      */
     public function execute(Observer $observer)
     {
+        if (!$this->config->isActive()) {
+            return;
+        }
         // Remove button from catalog pages
         if ($observer->getData('is_catalog_product')) {
             return;

@@ -1,11 +1,5 @@
 <?php
 
-/**
- * @see       https://github.com/laminas/laminas-view for the canonical source repository
- * @copyright https://github.com/laminas/laminas-view/blob/master/COPYRIGHT.md
- * @license   https://github.com/laminas/laminas-view/blob/master/LICENSE.md New BSD License
- */
-
 namespace Laminas\View\Helper;
 
 use Laminas\Stdlib\ArrayUtils;
@@ -47,10 +41,10 @@ class PartialLoop extends Partial
      *
      * If no arguments are provided, returns object instance.
      *
-     * @param  string $name   Name of view script
-     * @param  array  $values Variables to populate in the view
+     * @param string $name   Name of view script
+     * @param array  $values Variables to populate in the view
+     * @return static|string
      * @throws Exception\InvalidArgumentException
-     * @return string
      */
     public function __invoke($name = null, $values = null)
     {

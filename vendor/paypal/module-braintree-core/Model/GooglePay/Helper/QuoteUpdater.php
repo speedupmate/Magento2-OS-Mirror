@@ -45,13 +45,14 @@ class QuoteUpdater extends AbstractHelper
      * Execute operation
      *
      * @param string $nonce
+     * @param array $deviceData
      * @param array $details
      * @param Quote $quote
      * @return void
      * @throws InvalidArgumentException
      * @throws LocalizedException
      */
-    public function execute($nonce, array $details, Quote $quote)
+    public function execute($nonce, $deviceData, array $details, Quote $quote)
     {
         if (empty($nonce) || empty($details)) {
             throw new InvalidArgumentException('The "nonce" and "details" fields does not exists');
@@ -60,6 +61,7 @@ class QuoteUpdater extends AbstractHelper
         $payment = $quote->getPayment();
         $payment->setMethod(ConfigProvider::METHOD_CODE);
         $payment->setAdditionalInformation(DataAssignObserver::PAYMENT_METHOD_NONCE, $nonce);
+        $payment->setAdditionalInformation(DataAssignObserver::DEVICE_DATA, $deviceData);
         $this->updateQuote($quote, $details);
     }
 
@@ -173,7 +175,7 @@ class QuoteUpdater extends AbstractHelper
 
         $address->setEmail($addressData['email']);
         $address->setFirstname($name[0]);
-        $address->setLastname($name[1]);
+        $address->setLastname($name[1] ?? '');
 
         $address->setStreet($street);
         $address->setCity($addressData['locality']);

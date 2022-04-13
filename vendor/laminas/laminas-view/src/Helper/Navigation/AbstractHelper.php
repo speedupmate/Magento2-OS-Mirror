@@ -1,11 +1,5 @@
 <?php
 
-/**
- * @see       https://github.com/laminas/laminas-view for the canonical source repository
- * @copyright https://github.com/laminas/laminas-view/blob/master/COPYRIGHT.md
- * @license   https://github.com/laminas/laminas-view/blob/master/LICENSE.md New BSD License
- */
-
 namespace Laminas\View\Helper\Navigation;
 
 use Interop\Container\ContainerInterface;
@@ -232,8 +226,9 @@ abstract class AbstractHelper extends View\Helper\AbstractHtmlElement implements
     /**
      * Verifies container and eventually fetches it from service locator if it is a string
      *
-     * @param  Navigation\AbstractContainer|string|null $container
+     * @param Navigation\AbstractContainer|string|null $container
      * @throws Exception\InvalidArgumentException
+     * @return void
      */
     protected function parseContainer(&$container = null)
     {
@@ -858,6 +853,8 @@ abstract class AbstractHelper extends View\Helper\AbstractHtmlElement implements
 
     /**
      * Attaches default ACL listeners, if ACLs are in use
+     *
+     * @return void
      */
     protected function setDefaultListeners()
     {

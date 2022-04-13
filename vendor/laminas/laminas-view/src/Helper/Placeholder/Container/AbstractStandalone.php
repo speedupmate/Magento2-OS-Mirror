@@ -1,11 +1,5 @@
 <?php
 
-/**
- * @see       https://github.com/laminas/laminas-view for the canonical source repository
- * @copyright https://github.com/laminas/laminas-view/blob/master/COPYRIGHT.md
- * @license   https://github.com/laminas/laminas-view/blob/master/LICENSE.md New BSD License
- */
-
 namespace Laminas\View\Helper\Placeholder\Container;
 
 use ArrayAccess;
@@ -14,7 +8,7 @@ use IteratorAggregate;
 use Laminas\Escaper\Escaper;
 use Laminas\View\Exception;
 use Laminas\View\Helper\AbstractHelper;
-use Laminas\View\Renderer\RendererInterface;
+use ReturnTypeWillChange;
 
 /**
  * Base class for targeted placeholder helpers
@@ -194,7 +188,7 @@ abstract class AbstractStandalone extends AbstractHelper implements
     /**
      * Return whether autoEscaping is enabled or disabled
      *
-     * return bool
+     * @return bool
      */
     public function getAutoEscape()
     {
@@ -316,6 +310,7 @@ abstract class AbstractStandalone extends AbstractHelper implements
      *
      * @return int
      */
+    #[ReturnTypeWillChange]
     public function count()
     {
         $container = $this->getContainer();
@@ -328,6 +323,7 @@ abstract class AbstractStandalone extends AbstractHelper implements
      * @param  string|int $offset
      * @return bool
      */
+    #[ReturnTypeWillChange]
     public function offsetExists($offset)
     {
         return $this->getContainer()->offsetExists($offset);
@@ -339,6 +335,7 @@ abstract class AbstractStandalone extends AbstractHelper implements
      * @param  string|int $offset
      * @return mixed
      */
+    #[ReturnTypeWillChange]
     public function offsetGet($offset)
     {
         return $this->getContainer()->offsetGet($offset);
@@ -351,6 +348,7 @@ abstract class AbstractStandalone extends AbstractHelper implements
      * @param  mixed $value
      * @return void
      */
+    #[ReturnTypeWillChange]
     public function offsetSet($offset, $value)
     {
         return $this->getContainer()->offsetSet($offset, $value);
@@ -362,6 +360,7 @@ abstract class AbstractStandalone extends AbstractHelper implements
      * @param  string|int $offset
      * @return void
      */
+    #[ReturnTypeWillChange]
     public function offsetUnset($offset)
     {
         return $this->getContainer()->offsetUnset($offset);
@@ -372,6 +371,7 @@ abstract class AbstractStandalone extends AbstractHelper implements
      *
      * @return \Iterator
      */
+    #[ReturnTypeWillChange]
     public function getIterator()
     {
         return $this->getContainer()->getIterator();

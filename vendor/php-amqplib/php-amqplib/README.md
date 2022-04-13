@@ -1,31 +1,26 @@
 # php-amqplib #
 
+![PHPUnit tests](https://github.com/php-amqplib/php-amqplib/workflows/PHPUnit%20tests/badge.svg)
 [![Latest Version on Packagist][ico-version]][link-packagist]
+[![Total Downloads][ico-downloads]][link-downloads]
 [![Software License][ico-license]](LICENSE)
-[![Build Status][ico-travis]][link-travis]
+
+[![codecov](https://codecov.io/gh/php-amqplib/php-amqplib/branch/master/graph/badge.svg?token=tgeYkUsaDM)](https://codecov.io/gh/php-amqplib/php-amqplib)
 [![Coverage Status][ico-scrutinizer]][link-scrutinizer]
 [![Quality Score][ico-code-quality]][link-code-quality]
-[![Total Downloads][ico-downloads]][link-downloads]
 
 This library is a _pure PHP_ implementation of the [AMQP 0-9-1 protocol](http://www.rabbitmq.com/tutorials/amqp-concepts.html).
 It's been tested against [RabbitMQ](http://www.rabbitmq.com/).
 
-**Requirements: bcmath extension** This library utilizes the bcmath PHP extension. The installation steps vary per PHP version and the underlying OS. The following example shows how to add to an existing PHP installation on Ubuntu 15.10:
-
-```bash
-sudo apt-get install php7.0-bcmath
-```
-
 The library was used for the PHP examples of [RabbitMQ in Action](http://manning.com/videla/) and the [official RabbitMQ tutorials](http://www.rabbitmq.com/tutorials/tutorial-one-php.html).
 
-Please note that this project is released with a [Contributor Code of Conduct](CODE_OF_CONDUCT.md). By participating in this project you agree to abide by its terms.
+Please note that this project is released with a [Contributor Code of Conduct](.github/CODE_OF_CONDUCT.md). By participating in this project you agree to abide by its terms.
 
 ## Project Maintainers
 
-Thanks to [videlalvaro](https://github.com/videlalvaro) and [postalservice14](https://github.com/postalservice14) for their hard work maintaining php-amqplib! The library wouldn't be where it is without them.
+Thanks to [videlalvaro](https://github.com/videlalvaro) and [postalservice14](https://github.com/postalservice14) for creating `php-amqplib`.
 
-The package is now maintained by [nubeiro](https://github.com/nubeiro) and several Pivotal engineers
-working on RabbitMQ and related projects.
+The package is now maintained by [Ramūnas Dronga](https://github.com/ramunasd), [Luke Bakken](https://github.com/lukebakken) and several VMware engineers working on RabbitMQ.
 
 ## Supported RabbitMQ Versions ##
 
@@ -47,6 +42,8 @@ Extensions that modify existing methods like `alternate exchanges` are also supp
 ### Related libraries
 
 * [enqueue/amqp-lib](https://github.com/php-enqueue/amqp-lib) is a [amqp interop](https://github.com/queue-interop/queue-interop#amqp-interop) compatible wrapper.
+
+* [AMQProxy](https://github.com/cloudamqp/amqproxy) is a proxy library with connection and channel pooling/reusing. This allows for lower connection and channel churn when using php-amqplib, leading to less CPU usage of RabbitMQ.
 
 ## Setup ##
 
@@ -104,6 +101,10 @@ $ php amqp_consumer_non_blocking.php
 
 Please see [CHANGELOG](CHANGELOG.md) for more information what has changed recently.
 
+## API Documentation ##
+
+http://php-amqplib.github.io/php-amqplib/
+
 ## Tutorials ##
 
 To not repeat ourselves, if you want to learn more about this library,
@@ -111,9 +112,10 @@ please refer to the [official RabbitMQ tutorials](http://www.rabbitmq.com/tutori
 
 ## More Examples ##
 
-- `amqp_ha_consumer.php`: demos the use of mirrored queues
+- `amqp_ha_consumer.php`: demos the use of mirrored queues.
 - `amqp_consumer_exclusive.php` and `amqp_publisher_exclusive.php`: demos fanout exchanges using exclusive queues.
 - `amqp_consumer_fanout_{1,2}.php` and `amqp_publisher_fanout.php`: demos fanout exchanges with named queues.
+- `amqp_consumer_pcntl_heartbeat.php`: demos signal-based heartbeat sender usage.
 - `basic_get.php`: demos obtaining messages from the queues by using the _basic get_ AMQP call.
 
 ## Multiple hosts connections ##
@@ -293,6 +295,22 @@ define('AMQP_WITHOUT_SIGNALS', true);
 
 ```
 
+
+## Signal-based Heartbeat ##
+
+If you have installed [PCNTL extension](http://www.php.net/manual/en/book.pcntl.php) and are using PHP 7.1 or greater,
+you can register a signal-based heartbeat sender.
+
+```php
+<?php
+
+$sender = new PCNTLHeartbeatSender($connection);
+$sender->register();
+... code
+$sender->unregister();
+
+```
+
 ## Debugging ##
 
 If you want to know what's going on at a protocol level then add the following constant to your code:
@@ -365,13 +383,11 @@ Author: Vadim Zaliva <lord@crocodile.org>
 
 [ico-version]: https://img.shields.io/packagist/v/php-amqplib/php-amqplib.svg?style=flat-square
 [ico-license]: https://img.shields.io/badge/license-LGPL_2.1-brightgreen.svg?style=flat-square
-[ico-travis]: https://img.shields.io/travis/php-amqplib/php-amqplib/master.svg?style=flat-square
 [ico-scrutinizer]: https://img.shields.io/scrutinizer/coverage/g/php-amqplib/php-amqplib.svg?style=flat-square
 [ico-code-quality]: https://img.shields.io/scrutinizer/g/php-amqplib/php-amqplib.svg?style=flat-square
 [ico-downloads]: https://img.shields.io/packagist/dt/php-amqplib/php-amqplib.svg?style=flat-square
 
 [link-packagist]: https://packagist.org/packages/php-amqplib/php-amqplib
-[link-travis]: https://travis-ci.org/php-amqplib/php-amqplib
 [link-scrutinizer]: https://scrutinizer-ci.com/g/php-amqplib/php-amqplib/code-structure
 [link-code-quality]: https://scrutinizer-ci.com/g/php-amqplib/php-amqplib
 [link-downloads]: https://packagist.org/packages/php-amqplib/php-amqplib

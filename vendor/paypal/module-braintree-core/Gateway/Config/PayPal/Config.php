@@ -259,7 +259,14 @@ class Config extends \Magento\Payment\Gateway\Config\Config
         if (!$area) {
             $area = self::KEY_PAYPAL_DISABLED_FUNDING_CHECKOUT;
         }
-        return false !== strpos($this->getValue($area), 'card');
+
+        if ($value = $this->getValue($area)) {
+            if (strpos($value, 'card') !== false) {
+                return true;
+            }
+        }
+
+        return false;
     }
 
     /**
@@ -273,7 +280,14 @@ class Config extends \Magento\Payment\Gateway\Config\Config
         if (!$area) {
             $area = self::KEY_PAYPAL_DISABLED_FUNDING_CHECKOUT;
         }
-        return false !== strpos($this->getValue($area), 'elv');
+
+        if ($value = $this->getValue($area)) {
+            if (strpos($value, 'elv') !== false) {
+                return true;
+            }
+        }
+
+        return false;
     }
 
     /**

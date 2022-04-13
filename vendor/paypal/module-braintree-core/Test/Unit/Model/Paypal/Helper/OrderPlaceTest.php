@@ -6,6 +6,7 @@
 namespace PayPal\Braintree\Test\Unit\Model\Paypal\Helper;
 
 use PayPal\Braintree\Model\Paypal\Helper\OrderPlace;
+use PayPal\Braintree\Model\Paypal\OrderCancellationService;
 use Magento\Checkout\Api\AgreementsValidatorInterface;
 use Magento\Checkout\Helper\Data;
 use Magento\Checkout\Model\Type\Onepage;
@@ -66,12 +67,16 @@ class OrderPlaceTest extends \PHPUnit\Framework\TestCase
         $this->checkoutHelperMock = $this->getMockBuilder(Data::class)
             ->disableOriginalConstructor()
             ->getMock();
+        $this->orderCancellationService = $this->getMockBuilder(OrderCancellationService::class)
+            ->disableOriginalConstructor()
+            ->getMock();
 
         $this->orderPlace = new OrderPlace(
             $this->cartManagementMock,
             $this->agreementsValidatorMock,
             $this->customerSessionMock,
-            $this->checkoutHelperMock
+            $this->checkoutHelperMock,
+            $this->orderCancellationService
         );
     }
 

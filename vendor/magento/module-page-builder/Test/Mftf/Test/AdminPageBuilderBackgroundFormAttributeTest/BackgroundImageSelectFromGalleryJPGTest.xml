@@ -40,7 +40,7 @@
             </actionGroup>
             <comment userInput="BIC workaround" stepKey="DeleteImageFromStorage"/>
             <actionGroup ref="DeleteFolderActionGroup" stepKey="DeleteFolderFromMediaGallery">
-                <argument name="ImageFolder" value="ImageFolder"/>
+                <argument name="Image" value="{{ImageFolder.name}}"/>
             </actionGroup>
             <actionGroup ref="AdminLogoutActionGroup" stepKey="logout"/>
         </after>

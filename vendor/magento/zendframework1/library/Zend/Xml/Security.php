@@ -83,7 +83,10 @@ class Zend_Xml_Security
         }
 
         if (!self::isPhpFpm()) {
-            $loadEntities = libxml_disable_entity_loader(true);
+            if (LIBXML_VERSION < 20900) {
+                // this function no longer has an effect in PHP 8.0, but it's required in earlier versions
+                $loadEntities = libxml_disable_entity_loader(true);
+            }
             $useInternalXmlErrors = libxml_use_internal_errors(true);
         }
 
@@ -97,7 +100,9 @@ class Zend_Xml_Security
         if (!$result) {
             // Entity load to previous setting
             if (!self::isPhpFpm()) {
-                libxml_disable_entity_loader($loadEntities);
+                if (isset($loadEntities)) {
+                    libxml_disable_entity_loader($loadEntities);
+                }
                 libxml_use_internal_errors($useInternalXmlErrors);
             }
             return false;
@@ -117,7 +122,9 @@ class Zend_Xml_Security
 
         // Entity load to previous setting
         if (!self::isPhpFpm()) {
-            libxml_disable_entity_loader($loadEntities);
+            if (isset($loadEntities)) {
+                libxml_disable_entity_loader($loadEntities);
+            }
             libxml_use_internal_errors($useInternalXmlErrors);
         }
 
@@ -167,10 +174,10 @@ class Zend_Xml_Security
     public static function isPhpFpm()
     {
         $isVulnerableVersion = (
-            version_compare(PHP_VERSION, '5.5.22', 'lt')
+            version_compare(PHP_VERSION, '5.5.22', '<')
             || (
-                version_compare(PHP_VERSION, '5.6', 'gte')
-                && version_compare(PHP_VERSION, '5.6.6', 'lt')
+                version_compare(PHP_VERSION, '5.6', '>=')
+                && version_compare(PHP_VERSION, '5.6.6', '<')
             )
         );
 

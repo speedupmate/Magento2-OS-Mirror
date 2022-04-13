@@ -1,12 +1,108 @@
 Magento Functional Testing Framework Changelog
 ================================================
+3.8.0
+---------
+
+### Updates:
+* Allow MFTF Helpers to Return Data to MFTF Test
+* Improve parallel grouping and fix an issue with unbalanced groups
+* Added new action WaitForElementClickable
+
+3.7.3
+---------
+
+### Updates:
+* Fix encoding issue when secret key contains plus sign
+* Adding pagebuilder file upload spinner to loadingMaskLocators
+
+
+3.7.2
+---------
+
+### Bug fix:
+* Failed tests weren't logged correctly to `failed` file which caused a failure during run:failed command execution
+
+
+3.7.1
+---------
+
+### GitHub Pull Requests:
+* [#873](https://github.com/magento/magento2-functional-testing-framework/pull/873) -- Add check for isBuiltin method (for PHP 8 compatibility) by @karyna-tsymbal-atwix
+
+### Updates
+* Moved `hoa/console` to suggest section to avoid issues with PHP8.0
+* Update `vlucas/phpdotenv` to the latest versions
+* `<seeInCurrentUrl />` encodes special character which caused test failed
+* Add filter for groups, now we can generate tests with specific group annotation
+* Seprated a `run:failed` command to `generate:failed` and `run:failed`
+  * `run:failed` command can execute failed tests without need to regenerate failed tests
+* Deleting MagentoPwaWebDriver file and moving it to Pwa_tests repo
+
+
+3.7.0
+---------
+
+### GitHub Pull Requests:
+
+* [#842](https://github.com/magento/magento2-functional-testing-framework/pull/842) -- Eliminated AspectMock from FileStorageTest
+* [#843](https://github.com/magento/magento2-functional-testing-framework/pull/843) -- Eliminated AspectMock from ObjectExtensionUtilTest
+* [#844](https://github.com/magento/magento2-functional-testing-framework/pull/844) -- Eliminated AspectMock from TestObjectHandlerTest
+* [#845](https://github.com/magento/magento2-functional-testing-framework/pull/845) -- Eliminated AspectMock from SuiteObjectHandlerTest
+* [#846](https://github.com/magento/magento2-functional-testing-framework/pull/846) -- Eliminated AspectMock from ActionGroupObjectTest
+* [#847](https://github.com/magento/magento2-functional-testing-framework/pull/847) -- Removed not used mocked object
+* [#848](https://github.com/magento/magento2-functional-testing-framework/pull/848) -- Eliminated AspectMock usage from ActionObjectTest
+* [#850](https://github.com/magento/magento2-functional-testing-framework/pull/850) -- Eliminated AspectMock from TestGeneratorTest
+* [#852](https://github.com/magento/magento2-functional-testing-framework/pull/852) -- Eliminated AspectMock from ModuleResolverTest
+* [#853](https://github.com/magento/magento2-functional-testing-framework/pull/853) -- Eliminated AspectMock from PersistedObjectHandlerTest
+* [#855](https://github.com/magento/magento2-functional-testing-framework/pull/855) -- Eliminated AspectMock from OperationDataArrayResolverTest
+* [#856](https://github.com/magento/magento2-functional-testing-framework/pull/856) -- Eliminated AspectMock from DataExtensionUtilTest
+* [#857](https://github.com/magento/magento2-functional-testing-framework/pull/857) -- Eliminated AspectMock from ParallelGroupSorterTest
+* [#859](https://github.com/magento/magento2-functional-testing-framework/pull/859) -- Eliminated AspectMock usage from SuiteGeneratorTest
+* [#861](https://github.com/magento/magento2-functional-testing-framework/pull/861) -- Eliminated aspect mock from mock module resolver builder
+* [#862](https://github.com/magento/magento2-functional-testing-framework/pull/862) -- Eliminated AspectMock where it was imported but never used
+* [#863](https://github.com/magento/magento2-functional-testing-framework/pull/863) -- Eliminated AspectMock from MagentoTestCase
+* [#864](https://github.com/magento/magento2-functional-testing-framework/pull/864) -- Eliminated AspectMock usage from TestLoggingUtil
+* [#865](https://github.com/magento/magento2-functional-testing-framework/pull/865) -- Eliminated aspect mock from object handler uti
+* [#866](https://github.com/magento/magento2-functional-testing-framework/pull/866) -- Added access/secret key config parameters
+* [#867](https://github.com/magento/magento2-functional-testing-framework/pull/867) -- Added empty query and fragment testing to the UrlFormatterTest
+* [#868](https://github.com/magento/magento2-functional-testing-framework/pull/868) -- PHP 8 support - fix code related to changes in CURL
+* [#869](https://github.com/magento/magento2-functional-testing-framework/pull/869) -- The squizlabs/php_codesniffer composer dependency has been updated to version 3.6.0
+* [#870](https://github.com/magento/magento2-functional-testing-framework/pull/870) -- Removing the csharpru/vault-php-guzzle6-transport not needed dependency
+* [#871](https://github.com/magento/magento2-functional-testing-framework/pull/871) -- Changed loose comparisons into strict
+* [#872](https://github.com/magento/magento2-functional-testing-framework/pull/872) -- Fix broken MFTF tests
+  
+  3.6.1
+---------
+
+### Enhancements
+
+* Maintainability
+  * Updated allure dependencies to pull package from new repo `allure-framework/allure-php-api`.
+
+3.6.0
+---------
+
+### Enhancements
+
+* Maintainability
+  * Updated composer dependencies to be PHP 8 compatible with the except of codeception/aspect-mock.
+    
+### GitHub Pull Requests:
+
+* [#830](https://github.com/magento/magento2-functional-testing-framework/pull/830) -- Add ability to configure multiple OTPs
+* [#832](https://github.com/magento/magento2-functional-testing-framework/pull/832) -- Updated monolog/monolog to ^2.2
+* [#833](https://github.com/magento/magento2-functional-testing-framework/pull/833) -- Removed usage of AspectMock in FilesystemTest
+* [#834](https://github.com/magento/magento2-functional-testing-framework/pull/834) -- Removed usage of AspectMock in AnnotationsCheckTest
+* [#838](https://github.com/magento/magento2-functional-testing-framework/pull/838) -- Removed usage of AspectMock in DeprecatedEntityUsageCheckTest
+* [#841](https://github.com/magento/magento2-functional-testing-framework/pull/841) -- Removed usage of AspectMock in GenerationErrorHandlerTest
+* [#854](https://github.com/magento/magento2-functional-testing-framework/pull/854) -- Updated "monolog" to the latest version 2.3.1
+
 3.5.1
 ---------
 
 ### GitHub Pull Requests:
 
 * [#825](https://github.com/magento/magento2-functional-testing-framework/pull/825) -- Update allure-codeception in order to support php8
-
 
 3.5.0
 ---------

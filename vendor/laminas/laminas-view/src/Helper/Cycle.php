@@ -1,14 +1,9 @@
 <?php
 
-/**
- * @see       https://github.com/laminas/laminas-view for the canonical source repository
- * @copyright https://github.com/laminas/laminas-view/blob/master/COPYRIGHT.md
- * @license   https://github.com/laminas/laminas-view/blob/master/LICENSE.md New BSD License
- */
-
 namespace Laminas\View\Helper;
 
 use Iterator;
+use ReturnTypeWillChange;
 
 /**
  * Helper for alternating between set of values
@@ -98,7 +93,7 @@ class Cycle extends AbstractHelper implements Iterator
     /**
      * Sets actual name of cycle
      *
-     * @param  $name
+     * @param  string $name
      * @return Cycle
      */
     public function setName($name = self::DEFAULT_NAME)
@@ -141,6 +136,7 @@ class Cycle extends AbstractHelper implements Iterator
      *
      * @return Cycle
      */
+    #[ReturnTypeWillChange]
     public function next()
     {
         $count = count($this->data[$this->name]);
@@ -177,6 +173,7 @@ class Cycle extends AbstractHelper implements Iterator
      *
      * @return int
      */
+    #[ReturnTypeWillChange]
     public function key()
     {
         if ($this->pointers[$this->name] < 0) {
@@ -191,6 +188,7 @@ class Cycle extends AbstractHelper implements Iterator
      *
      * @return Cycle
      */
+    #[ReturnTypeWillChange]
     public function rewind()
     {
         $this->pointers[$this->name] = -1;
@@ -202,6 +200,7 @@ class Cycle extends AbstractHelper implements Iterator
      *
      * @return bool
      */
+    #[ReturnTypeWillChange]
     public function valid()
     {
         return isset($this->data[$this->name][$this->key()]);
@@ -212,6 +211,7 @@ class Cycle extends AbstractHelper implements Iterator
      *
      * @return mixed
      */
+    #[ReturnTypeWillChange]
     public function current()
     {
         return $this->data[$this->name][$this->key()];

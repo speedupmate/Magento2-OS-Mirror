@@ -1,11 +1,5 @@
 <?php
 
-/**
- * @see       https://github.com/laminas/laminas-view for the canonical source repository
- * @copyright https://github.com/laminas/laminas-view/blob/master/COPYRIGHT.md
- * @license   https://github.com/laminas/laminas-view/blob/master/LICENSE.md New BSD License
- */
-
 namespace Laminas\View\Helper;
 
 use Laminas\View;
@@ -456,9 +450,9 @@ class HeadMeta extends Placeholder\Container\AbstractStandalone
      *
      * Not valid in a non-HTML5 doctype
      *
-     * @param  string $charset
-     * @param  Exception\InvalidArgumentException
-     * @return HeadMeta Provides a fluent interface
+     * @param string $charset
+     * @param Exception\InvalidArgumentException
+     * @return static
      */
     public function setCharset($charset)
     {

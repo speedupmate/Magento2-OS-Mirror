@@ -17,7 +17,9 @@ By default, each error entry is converted to an associative array with following
 <?php
 [
     'message' => 'Error message',
-    'category' => 'graphql',
+    'extensions' => [
+        'category' => 'graphql'
+    ],
     'locations' => [
         ['line' => 1, 'column' => 2]
     ],
@@ -67,7 +69,9 @@ When such exception is thrown it will be reported with a full error message:
 <?php
 [
     'message' => 'My reported error',
-    'category' => 'businessLogic',
+    'extensions' => [
+        'category' => 'businessLogic'
+    ],
     'locations' => [
         ['line' => 10, 'column' => 2]
     ],
@@ -86,12 +90,12 @@ GraphQL\Error\FormattedError::setInternalErrorMessage("Unexpected error");
 
 # Debugging tools
 
-During development or debugging use `$result->toArray(true)` to add **debugMessage** key to 
+During development or debugging use `$result->toArray(DebugFlag::INCLUDE_DEBUG_MESSAGE)` to add **debugMessage** key to 
 each formatted error entry. If you also want to add exception trace - pass flags instead:
 
-```
-use GraphQL\Error\Debug;
-$debug = Debug::INCLUDE_DEBUG_MESSAGE | Debug::INCLUDE_TRACE;
+```php
+use GraphQL\Error\DebugFlag;
+$debug = DebugFlag::INCLUDE_DEBUG_MESSAGE | DebugFlag::INCLUDE_TRACE;
 $result = GraphQL::executeQuery(/*args*/)->toArray($debug);
 ```
 
@@ -101,7 +105,9 @@ This will make each error entry to look like this:
 [
     'debugMessage' => 'Actual exception message',
     'message' => 'Internal server error',
-    'category' => 'internal',
+    'extensions' => [
+        'category' => 'internal'
+    ],
     'locations' => [
         ['line' => 10, 'column' => 2]
     ],
@@ -120,8 +126,8 @@ If you prefer the first resolver exception to be re-thrown, use following flags:
 ```php
 <?php
 use GraphQL\GraphQL;
-use GraphQL\Error\Debug;
-$debug = Debug::INCLUDE_DEBUG_MESSAGE | Debug::RETHROW_INTERNAL_EXCEPTIONS;
+use GraphQL\Error\DebugFlag;
+$debug = DebugFlag::INCLUDE_DEBUG_MESSAGE | DebugFlag::RETHROW_INTERNAL_EXCEPTIONS;
 
 // Following will throw if there was an exception in resolver during execution:
 $result = GraphQL::executeQuery(/*args*/)->toArray($debug); 

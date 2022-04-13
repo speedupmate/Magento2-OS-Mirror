@@ -21,6 +21,7 @@
                 <value id="api_sandbox_braintree_gateway" type="host">api.sandbox.braintreegateway.com</value>
                 <value id="ca_braintree_gateway" type="host">client-analytics.braintreegateway.com</value>
                 <value id="ca_sandbox_braintree_gateway" type="host">client-analytics.sandbox.braintreegateway.com</value>
+                <value id="paypal_script" type="host">*.paypal.com</value>
             </values>
         </policy>
         <policy id="style-src">
@@ -38,12 +39,14 @@
                 <value id="c_paypal" type="host">c.paypal.com</value>
                 <value id="checkout_paypal" type="host">checkout.paypal.com</value>
                 <value id="data_image" type="host">data:</value>
+                <value id="paypal_image" type="host">*.paypal.com</value>
             </values>
         </policy>
         <policy id="child-src">
             <values>
                 <value id="assets_braintree_gateway" type="host">assets.braintreegateway.com</value>
                 <value id="c_paypal" type="host">c.paypal.com</value>
+                <value id="paypal_child" type="host">*.paypal.com</value>
             </values>
         </policy>
         <policy id="frame-src">
@@ -55,6 +58,7 @@
                 <value id="assets_braintree_gateway" type="host">assets.braintreegateway.com</value>
                 <value id="pay_google" type="host">pay.google.com</value>
                 <value id="cardinal_commerce" type="host">*.cardinalcommerce.com</value>
+                <value id="paypal_frame" type="host">*.paypal.com</value>
             </values>
         </policy>
         <policy id="connect-src">
@@ -66,6 +70,13 @@
                 <value id="ca_braintree_gateway" type="host">client-analytics.braintreegateway.com</value>
                 <value id="ca_sandbox_braintree_gateway" type="host">client-analytics.sandbox.braintreegateway.com</value>
                 <value id="braintree_api" type="host">*.braintree-api.com</value>
+                <value id="paypal_connect" type="host">*.paypal.com</value>
+            </values>
+        </policy>
+        <policy id="form-action">
+            <values>
+                <value id="cardinal_commerce_form" type="host">*.cardinalcommerce.com</value>
+                <value id="paypal_form" type="host">*.paypal.com</value>
             </values>
         </policy>
     </policies>

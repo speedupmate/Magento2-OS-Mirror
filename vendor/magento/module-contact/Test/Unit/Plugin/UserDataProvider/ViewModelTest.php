@@ -61,7 +61,7 @@ class ViewModelTest extends TestCase
         $this->plugin->beforeToHtml($this->blockMock);
     }
 
-    public function dataProvider(): array
+    public function dataProvider()
     {
         return [
             'view model was not preset before' => [

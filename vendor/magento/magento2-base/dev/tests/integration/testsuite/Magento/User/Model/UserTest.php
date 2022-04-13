@@ -488,7 +488,6 @@ class UserTest extends TestCase
      */
     public function testChangeResetPasswordLinkToken()
     {
-
         $this->_model->loadByUsername(TestFrameworkBootstrap::ADMIN_NAME);
         $userId = $this->_model->getId();
         $this->_model->changeResetPasswordLinkToken('test');

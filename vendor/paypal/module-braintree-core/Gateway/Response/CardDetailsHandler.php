@@ -72,6 +72,15 @@ class CardDetailsHandler implements HandlerInterface
             $payment->setCcType($this->getCreditCardType($creditCard['sourceCardType']));
             $payment->setAdditionalInformation(OrderPaymentInterface::CC_TYPE, $creditCard['sourceCardType']);
             $payment->setAdditionalInformation(self::CARD_NUMBER, 'xxxx-' . $creditCard['sourceCardLast4']);
+        } elseif (!empty($transaction->applePay[self::CARD_LAST4])){
+            $creditCard = $transaction->applePay;
+            $ccType = str_replace('Apple Pay - ', '', $creditCard[self::CARD_TYPE]);
+            $payment->setCcLast4($creditCard[self::CARD_LAST4]);
+            $payment->setCcExpMonth($creditCard[self::CARD_EXP_MONTH]);
+            $payment->setCcExpYear($creditCard[self::CARD_EXP_YEAR]);
+            $payment->setCcType($this->getCreditCardType($ccType));
+            $payment->setAdditionalInformation(OrderPaymentInterface::CC_TYPE, $ccType);
+            $payment->setAdditionalInformation(self::CARD_NUMBER, 'xxxx-' . $creditCard[self::CARD_LAST4]);
         } else {
             $creditCard = $transaction->creditCard;
             $payment->setCcLast4($creditCard[self::CARD_LAST4]);

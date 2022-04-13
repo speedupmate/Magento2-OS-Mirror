@@ -3,28 +3,13 @@
  * Copyright © Magento, Inc. All rights reserved.
  * See COPYING.txt for license details.
  */
-declare(strict_types=1);
-
 namespace Magento\TestFramework\TestCase;
 
-use LogicException;
-use Magento\Config\Model\Config;
-use Magento\Framework\App\Cache;
-use Magento\Framework\App\Config\ReinitableConfigInterface;
-use Magento\Framework\App\Config\ScopeConfigInterface;
 use Magento\Framework\App\Filesystem\DirectoryList;
 use Magento\Framework\Filesystem;
-use Magento\Framework\Model\AbstractModel;
 use Magento\Framework\Webapi\Exception as WebapiException;
-use Magento\Integration\Model\Integration;
-use Magento\Store\Model\StoreManagerInterface;
-use Magento\TestFramework\ObjectManager;
-use Magento\TestFramework\TestCase\Webapi\Adapter\Rest;
-use Magento\TestFramework\TestCase\Webapi\Adapter\Soap;
-use Magento\TestFramework\TestCase\Webapi\AdapterInterface;
 use Magento\Webapi\Model\Soap\Fault;
 use Magento\TestFramework\Helper\Bootstrap;
-use RuntimeException;
 
 /**
  * Test case for Web API functional tests for REST and SOAP.
@@ -53,7 +38,7 @@ abstract class WebapiAbstract extends \PHPUnit\Framework\TestCase
     /**
      * Application cache model.
      *
-     * @var Cache
+     * @var \Magento\Framework\App\Cache
      */
     protected $_appCache;
 
@@ -102,7 +87,7 @@ abstract class WebapiAbstract extends \PHPUnit\Framework\TestCase
     /**
      * The list of instantiated Web API adapters.
      *
-     * @var AdapterInterface[]
+     * @var \Magento\TestFramework\TestCase\Webapi\AdapterInterface[]
      */
     protected $_webApiAdapters;
 
@@ -112,8 +97,8 @@ abstract class WebapiAbstract extends \PHPUnit\Framework\TestCase
      * @var array
      */
     protected $_webApiAdaptersMap = [
-        self::ADAPTER_SOAP => Soap::class,
-        self::ADAPTER_REST => Rest::class,
+        self::ADAPTER_SOAP => \Magento\TestFramework\TestCase\Webapi\Adapter\Soap::class,
+        self::ADAPTER_REST => \Magento\TestFramework\TestCase\Webapi\Adapter\Rest::class,
     ];
 
     /**
@@ -178,7 +163,7 @@ abstract class WebapiAbstract extends \PHPUnit\Framework\TestCase
      * @param array $arguments
      * @param string|null $webApiAdapterCode
      * @param string|null $storeCode
-     * @param Integration|null $integration
+     * @param \Magento\Integration\Model\Integration|null $integration
      * @return array|int|string|float|bool Web API call results
      */
     protected function _webApiCall(
@@ -271,7 +256,7 @@ abstract class WebapiAbstract extends \PHPUnit\Framework\TestCase
     /**
      * Call safe delete for model
      *
-     * @param AbstractModel $model
+     * @param \Magento\Framework\Model\AbstractModel $model
      * @param bool $secure
      * @return void
      * //phpcs:disable
@@ -279,7 +264,7 @@ abstract class WebapiAbstract extends \PHPUnit\Framework\TestCase
     public static function callModelDelete($model, $secure = false) : void
     {
         //phpcs:enable
-        if ($model instanceof AbstractModel && $model->getId()) {
+        if ($model instanceof \Magento\Framework\Model\AbstractModel && $model->getId()) {
             if ($secure) {
                 self::_enableSecureArea();
             }
@@ -293,9 +278,9 @@ abstract class WebapiAbstract extends \PHPUnit\Framework\TestCase
     /**
      * Call safe delete for model
      *
-     * @param AbstractModel $model
+     * @param \Magento\Framework\Model\AbstractModel $model
      * @param bool $secure
-     * @return WebapiAbstract
+     * @return \Magento\TestFramework\TestCase\WebapiAbstract
      */
     public function addModelToDelete($model, $secure = false)
     {
@@ -307,14 +292,14 @@ abstract class WebapiAbstract extends \PHPUnit\Framework\TestCase
      * Get Web API adapter (create if requested one does not exist).
      *
      * @param string $webApiAdapterCode
-     * @return AdapterInterface
-     * @throws LogicException When requested Web API adapter is not declared
+     * @return \Magento\TestFramework\TestCase\Webapi\AdapterInterface
+     * @throws \LogicException When requested Web API adapter is not declared
      */
     protected function _getWebApiAdapter($webApiAdapterCode)
     {
         if (!isset($this->_webApiAdapters[$webApiAdapterCode])) {
             if (!isset($this->_webApiAdaptersMap[$webApiAdapterCode])) {
-                throw new LogicException(
+                throw new \LogicException(
                     sprintf('Declaration of the requested Web API adapter "%s" was not found.', $webApiAdapterCode)
                 );
             }
@@ -328,14 +313,14 @@ abstract class WebapiAbstract extends \PHPUnit\Framework\TestCase
     /**
      * Set fixtures namespace
      *
-     * @throws RuntimeException
+     * @throws \RuntimeException
      * //phpcs:disable
      */
     protected static function _setFixtureNamespace()
     {
         //phpcs:enable
         if (self::$_fixturesNamespace !== null) {
-            throw new RuntimeException('Fixture namespace is already set.');
+            throw new \RuntimeException('Fixture namespace is already set.');
         }
         self::$_fixturesNamespace = uniqid();
     }
@@ -355,7 +340,7 @@ abstract class WebapiAbstract extends \PHPUnit\Framework\TestCase
     /**
      * Get fixtures namespace
      *
-     * @throws RuntimeException
+     * @throws \RuntimeException
      * @return string
      * //phpcs:disable
      */
@@ -365,7 +350,7 @@ abstract class WebapiAbstract extends \PHPUnit\Framework\TestCase
 
         $fixtureNamespace = self::$_fixturesNamespace;
         if ($fixtureNamespace === null) {
-            throw new RuntimeException('Fixture namespace must be set.');
+            throw new \RuntimeException('Fixture namespace must be set.');
         }
         return $fixtureNamespace;
     }
@@ -381,7 +366,7 @@ abstract class WebapiAbstract extends \PHPUnit\Framework\TestCase
     {
         //phpcs:enable
 
-        /** @var $objectManager ObjectManager */
+        /** @var $objectManager \Magento\TestFramework\ObjectManager */
         $objectManager = \Magento\TestFramework\Helper\Bootstrap::getObjectManager();
 
         $objectManager->get(\Magento\Framework\Registry::class)->unregister('isSecureArea');
@@ -393,13 +378,13 @@ abstract class WebapiAbstract extends \PHPUnit\Framework\TestCase
     /**
      * Call delete models from list
      *
-     * @return WebapiAbstract
+     * @return \Magento\TestFramework\TestCase\WebapiAbstract
      */
     protected function _callModelsDelete()
     {
         if ($this->_modelsToDelete) {
             foreach ($this->_modelsToDelete as $key => $modelData) {
-                /** @var $model AbstractModel */
+                /** @var $model \Magento\Framework\Model\AbstractModel */
                 $model = $modelData['model'];
                 $this->callModelDelete($model, $modelData['secure']);
                 unset($this->_modelsToDelete[$key]);
@@ -460,15 +445,15 @@ abstract class WebapiAbstract extends \PHPUnit\Framework\TestCase
     /**
      * Get application cache model
      *
-     * @return Cache
+     * @return \Magento\Framework\App\Cache
      */
     protected function _getAppCache()
     {
         if (null === $this->_appCache) {
             //set application path
             $objectManager = \Magento\TestFramework\Helper\Bootstrap::getObjectManager();
-            /** @var ScopeConfigInterface $config */
-            $config = $objectManager->get(ScopeConfigInterface::class);
+            /** @var \Magento\Framework\App\Config\ScopeConfigInterface $config */
+            $config = $objectManager->get(\Magento\Framework\App\Config\ScopeConfigInterface::class);
             $options = $config->getOptions();
             $currentCacheDir = $options->getCacheDir();
             $currentEtcDir = $options->getEtcDir();
@@ -477,7 +462,7 @@ abstract class WebapiAbstract extends \PHPUnit\Framework\TestCase
             $options->setCacheDir($filesystem->getDirectoryRead(DirectoryList::CACHE)->getAbsolutePath());
             $options->setEtcDir($filesystem->getDirectoryRead(DirectoryList::CONFIG)->getAbsolutePath());
 
-            $this->_appCache = $objectManager->get(Cache::class);
+            $this->_appCache = $objectManager->get(\Magento\Framework\App\Cache::class);
 
             //revert paths options
             $options->setCacheDir($currentCacheDir);
@@ -504,8 +489,8 @@ abstract class WebapiAbstract extends \PHPUnit\Framework\TestCase
      * @param bool $cleanAppCache If TRUE application cache will be refreshed
      * @param bool $updateLocalConfig If TRUE local config object will be updated too
      * @param bool $restore If TRUE config value will be restored after test run
-     * @return WebapiAbstract
-     * @throws RuntimeException
+     * @return \Magento\TestFramework\TestCase\WebapiAbstract
+     * @throws \RuntimeException
      */
     protected function _updateAppConfig(
         $path,
@@ -517,20 +502,20 @@ abstract class WebapiAbstract extends \PHPUnit\Framework\TestCase
         list($section, $group, $node) = explode('/', $path);
 
         if (!$section || !$group || !$node) {
-            throw new RuntimeException(
+            throw new \RuntimeException(
                 sprintf('Config path must have view as "section/group/node" but now it "%s"', $path)
             );
         }
 
         $objectManager = \Magento\TestFramework\Helper\Bootstrap::getObjectManager();
-        /** @var $config Config */
-        $config = $objectManager->create(Config::class);
+        /** @var $config \Magento\Config\Model\Config */
+        $config = $objectManager->create(\Magento\Config\Model\Config::class);
         $data[$group]['fields'][$node]['value'] = $value;
         $config->setSection($section)->setGroups($data)->save();
 
         if ($restore && !isset($this->_origConfigValues[$path])) {
             $this->_origConfigValues[$path] = (string)$objectManager->get(
-                ScopeConfigInterface::class
+                \Magento\Framework\App\Config\ScopeConfigInterface::class
             )->getNode(
                 $path,
                 'default'
@@ -540,12 +525,12 @@ abstract class WebapiAbstract extends \PHPUnit\Framework\TestCase
         //refresh local cache
         if ($cleanAppCache) {
             if ($updateLocalConfig) {
-                $objectManager->get(ReinitableConfigInterface::class)->reinit();
-                $objectManager->get(StoreManagerInterface::class)->reinitStores();
+                $objectManager->get(\Magento\Framework\App\Config\ReinitableConfigInterface::class)->reinit();
+                $objectManager->get(\Magento\Store\Model\StoreManagerInterface::class)->reinitStores();
             }
 
             if (!$this->_cleanAppConfigCache()) {
-                throw new RuntimeException('Application configuration cache cannot be cleaned.');
+                throw new \RuntimeException('Application configuration cache cannot be cleaned.');
             }
         }
 

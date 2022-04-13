@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types=1);
+
 /*
  * This file is part of PHP CS Fixer.
  *
@@ -13,12 +15,13 @@
 namespace PhpCsFixer\Fixer\FunctionNotation;
 
 use PhpCsFixer\AbstractFixer;
-use PhpCsFixer\Fixer\ConfigurationDefinitionFixerInterface;
+use PhpCsFixer\Fixer\ConfigurableFixerInterface;
 use PhpCsFixer\FixerConfiguration\FixerConfigurationResolver;
+use PhpCsFixer\FixerConfiguration\FixerConfigurationResolverInterface;
 use PhpCsFixer\FixerConfiguration\FixerOptionBuilder;
+use PhpCsFixer\FixerDefinition\CodeSample;
 use PhpCsFixer\FixerDefinition\FixerDefinition;
-use PhpCsFixer\FixerDefinition\VersionSpecification;
-use PhpCsFixer\FixerDefinition\VersionSpecificCodeSample;
+use PhpCsFixer\FixerDefinition\FixerDefinitionInterface;
 use PhpCsFixer\Tokenizer\Analyzer\Analysis\ArgumentAnalysis;
 use PhpCsFixer\Tokenizer\Analyzer\FunctionsAnalyzer;
 use PhpCsFixer\Tokenizer\CT;
@@ -28,23 +31,21 @@ use PhpCsFixer\Tokenizer\Tokens;
 /**
  * @author HypeMC
  */
-final class NullableTypeDeclarationForDefaultNullValueFixer extends AbstractFixer implements ConfigurationDefinitionFixerInterface
+final class NullableTypeDeclarationForDefaultNullValueFixer extends AbstractFixer implements ConfigurableFixerInterface
 {
     /**
      * {@inheritdoc}
      */
-    public function getDefinition()
+    public function getDefinition(): FixerDefinitionInterface
     {
         return new FixerDefinition(
             'Adds or removes `?` before type declarations for parameters with a default `null` value.',
             [
-                new VersionSpecificCodeSample(
-                    "<?php\nfunction sample(string \$str = null)\n{}\n",
-                    new VersionSpecification(70100)
+                new CodeSample(
+                    "<?php\nfunction sample(string \$str = null)\n{}\n"
                 ),
-                new VersionSpecificCodeSample(
+                new CodeSample(
                     "<?php\nfunction sample(?string \$str = null)\n{}\n",
-                    new VersionSpecification(70100),
                     ['use_nullable_type_declaration' => false]
                 ),
             ],
@@ -55,12 +56,8 @@ final class NullableTypeDeclarationForDefaultNullValueFixer extends AbstractFixe
     /**
      * {@inheritdoc}
      */
-    public function isCandidate(Tokens $tokens)
+    public function isCandidate(Tokens $tokens): bool
     {
-        if (\PHP_VERSION_ID < 70100) {
-            return false;
-        }
-
         if (!$tokens->isTokenKindFound(T_VARIABLE)) {
             return false;
         }
@@ -77,7 +74,7 @@ final class NullableTypeDeclarationForDefaultNullValueFixer extends AbstractFixe
      *
      * Must run before NoUnreachableDefaultArgumentValueFixer.
      */
-    public function getPriority()
+    public function getPriority(): int
     {
         return 1;
     }
@@ -85,7 +82,7 @@ final class NullableTypeDeclarationForDefaultNullValueFixer extends AbstractFixe
     /**
      * {@inheritdoc}
      */
-    protected function createConfigurationDefinition()
+    protected function createConfigurationDefinition(): FixerConfigurationResolverInterface
     {
         return new FixerConfigurationResolver([
             (new FixerOptionBuilder('use_nullable_type_declaration', 'Whether to add or remove `?` before type declarations for parameters with a default `null` value.'))
@@ -98,7 +95,7 @@ final class NullableTypeDeclarationForDefaultNullValueFixer extends AbstractFixe
     /**
      * {@inheritdoc}
      */
-    protected function applyFix(\SplFileInfo $file, Tokens $tokens)
+    protected function applyFix(\SplFileInfo $file, Tokens $tokens): void
     {
         $functionsAnalyzer = new FunctionsAnalyzer();
 
@@ -123,7 +120,7 @@ final class NullableTypeDeclarationForDefaultNullValueFixer extends AbstractFixe
     /**
      * @param ArgumentAnalysis[] $arguments
      */
-    private function fixFunctionParameters(Tokens $tokens, array $arguments)
+    private function fixFunctionParameters(Tokens $tokens, array $arguments): void
     {
         foreach (array_reverse($arguments) as $argumentInfo) {
             if (
@@ -131,7 +128,7 @@ final class NullableTypeDeclarationForDefaultNullValueFixer extends AbstractFixe
                 // - doesn't have a type declaration
                 !$argumentInfo->hasTypeAnalysis()
                 // type is a union
-                || false !== strpos($argumentInfo->getTypeAnalysis()->getName(), '|')
+                || str_contains($argumentInfo->getTypeAnalysis()->getName(), '|')
                 // - a default value is not null we can continue
                 || !$argumentInfo->hasDefault() || 'null' !== strtolower($argumentInfo->getDefault())
             ) {

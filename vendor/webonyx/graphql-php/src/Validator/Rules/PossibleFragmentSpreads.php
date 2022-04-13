@@ -23,7 +23,7 @@ class PossibleFragmentSpreads extends ValidationRule
     public function getVisitor(ValidationContext $context)
     {
         return [
-            NodeKind::INLINE_FRAGMENT => function (InlineFragmentNode $node) use ($context) {
+            NodeKind::INLINE_FRAGMENT => function (InlineFragmentNode $node) use ($context) : void {
                 $fragType   = $context->getType();
                 $parentType = $context->getParentType();
 
@@ -38,7 +38,7 @@ class PossibleFragmentSpreads extends ValidationRule
                     [$node]
                 ));
             },
-            NodeKind::FRAGMENT_SPREAD => function (FragmentSpreadNode $node) use ($context) {
+            NodeKind::FRAGMENT_SPREAD => function (FragmentSpreadNode $node) use ($context) : void {
                 $fragName   = $node->name->value;
                 $fragType   = $this->getFragmentType($context, $fragName);
                 $parentType = $context->getParentType();
@@ -68,12 +68,12 @@ class PossibleFragmentSpreads extends ValidationRule
 
         // Parent type is interface or union, fragment type is object type
         if ($parentType instanceof AbstractType && $fragType instanceof ObjectType) {
-            return $schema->isPossibleType($parentType, $fragType);
+            return $schema->isSubType($parentType, $fragType);
         }
 
         // Parent type is object type, fragment type is interface (or rather rare - union)
         if ($parentType instanceof ObjectType && $fragType instanceof AbstractType) {
-            return $schema->isPossibleType($fragType, $parentType);
+            return $schema->isSubType($fragType, $parentType);
         }
 
         // Both are object types:

@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types=1);
+
 /*
  * This file is part of PHP CS Fixer.
  *
@@ -19,7 +21,7 @@ use PhpCsFixer\RuleSet\AbstractRuleSetDescription;
  */
 final class PSR12Set extends AbstractRuleSetDescription
 {
-    public function getRules()
+    public function getRules(): array
     {
         return [
             '@PSR2' => true,
@@ -27,6 +29,7 @@ final class PSR12Set extends AbstractRuleSetDescription
             'braces' => [
                 'allow_single_line_anonymous_class_with_empty_body' => true,
             ],
+            'class_definition' => ['space_before_parenthesis' => true], // defined in PSR12 ¶8. Anonymous Classes
             'compact_nullable_typehint' => true,
             'declare_equal_normalize' => true,
             'lowercase_cast' => true,
@@ -53,17 +56,11 @@ final class PSR12Set extends AbstractRuleSetDescription
             'single_blank_line_before_namespace' => true,
             'single_trait_insert_per_statement' => true,
             'ternary_operator_spaces' => true,
-            'visibility_required' => [
-                'elements' => [
-                    'const',
-                    'method',
-                    'property',
-                ],
-            ],
+            'visibility_required' => true,
         ];
     }
 
-    public function getDescription()
+    public function getDescription(): string
     {
         return 'Rules that follow `PSR-12 <https://www.php-fig.org/psr/psr-12/>`_ standard.';
     }

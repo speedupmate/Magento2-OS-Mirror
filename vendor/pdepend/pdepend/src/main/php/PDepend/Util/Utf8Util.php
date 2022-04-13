@@ -48,24 +48,29 @@ namespace PDepend\Util;
  *
  * @copyright 2008-2017 Manuel Pichler. All rights reserved.
  * @license http://www.opensource.org/licenses/bsd-license.php BSD License
+ *
  * @since 2.2.x
  */
 final class Utf8Util
 {
+    /**
+     * @param string $raw
+     *
+     * @return string
+     */
     public static function ensureEncoding($raw)
     {
+        $encoding = 'UTF8';
         if (function_exists('mb_detect_encoding')) {
-            $encoding = mb_detect_encoding($raw);
-        } else {
-            $encoding = 'UTF8';
+            $encoding = mb_detect_encoding($raw) ?: $encoding;
         }
 
         $text = '';
         if (function_exists('iconv')) {
-            $text = @iconv($encoding, 'UTF8//IGNORE', $raw);
+            $text = @iconv($encoding, 'UTF8//IGNORE', $raw) ?: '';
         }
 
-        if ('' == $text) {
+        if ($text === '') {
             $text = utf8_encode($raw);
         }
 

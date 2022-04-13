@@ -13,11 +13,6 @@
             "role": "Original Maintainer"
         },
         {
-            "name": "John Kelly",
-            "email": "johnmkelly86@gmail.com",
-            "role": "Maintainer"
-        },
-        {
             "name": "Raúl Araya",
             "email": "nubeiro@gmail.com",
             "role": "Maintainer"
@@ -26,18 +21,27 @@
             "name": "Luke Bakken",
             "email": "luke@bakken.io",
             "role": "Maintainer"
+        },
+        {
+            "name": "Ramūnas Dronga",
+            "email": "github@ramuno.lt",
+            "role": "Maintainer"
         }
     ],
     "require": {
-        "php": ">=5.6",
-        "ext-bcmath": "*",
-        "ext-sockets": "*"
+        "php": "^7.1||^8.0",
+        "ext-sockets": "*",
+        "ext-mbstring": "*",
+        "phpseclib/phpseclib": "^2.0|^3.0"
     },
     "require-dev": {
         "ext-curl": "*",
-        "phpunit/phpunit": "^5.7|^6.5|^7.0",
-        "squizlabs/php_codesniffer": "^2.5",
+        "phpunit/phpunit": "^7.5|^9.5",
+        "squizlabs/php_codesniffer": "^3.6",
         "nategood/httpful": "^0.2.20"
+    },
+    "conflict": {
+        "php": "7.4.0 - 7.4.1"
     },
     "autoload": {
         "psr-4": {
@@ -53,7 +57,7 @@
     "license": "LGPL-2.1-or-later",
     "extra": {
         "branch-alias": {
-            "dev-master": "2.10-dev"
+            "dev-master": "3.0-dev"
         }
     }
 }

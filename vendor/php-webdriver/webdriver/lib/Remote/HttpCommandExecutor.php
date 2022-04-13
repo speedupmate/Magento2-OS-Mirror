@@ -157,6 +157,7 @@ class HttpCommandExecutor implements WebDriverCommandExecutor
         DriverCommand::IMPLICITLY_WAIT => ['method' => 'POST', 'url' => '/session/:sessionId/timeouts'],
         DriverCommand::MAXIMIZE_WINDOW => ['method' => 'POST', 'url' => '/session/:sessionId/window/maximize'],
         DriverCommand::MINIMIZE_WINDOW => ['method' => 'POST', 'url' => '/session/:sessionId/window/minimize'],
+        DriverCommand::NEW_WINDOW => ['method' => 'POST', 'url' => '/session/:sessionId/window/new'],
         DriverCommand::SET_ALERT_VALUE => ['method' => 'POST', 'url' => '/session/:sessionId/alert/text'],
         DriverCommand::SET_SCRIPT_TIMEOUT => ['method' => 'POST', 'url' => '/session/:sessionId/timeouts'],
         DriverCommand::SET_TIMEOUT => ['method' => 'POST', 'url' => '/session/:sessionId/timeouts'],
@@ -267,7 +268,8 @@ class HttpCommandExecutor implements WebDriverCommandExecutor
         $http_method = $http_options['method'];
         $url = $http_options['url'];
 
-        $url = str_replace(':sessionId', $command->getSessionID(), $url);
+        $sessionID = $command->getSessionID();
+        $url = str_replace(':sessionId', $sessionID === null ? '' : $sessionID, $url);
         $params = $command->getParameters();
         foreach ($params as $name => $value) {
             if ($name[0] === ':') {
@@ -295,7 +297,7 @@ class HttpCommandExecutor implements WebDriverCommandExecutor
             curl_setopt($this->curl, CURLOPT_CUSTOMREQUEST, $http_method);
         }
 
-        if (in_array($http_method, ['POST', 'PUT'])) {
+        if (in_array($http_method, ['POST', 'PUT'], true)) {
             // Disable sending 'Expect: 100-Continue' header, as it is causing issues with eg. squid proxy
             // https://tools.ietf.org/html/rfc7231#section-5.1.1
             curl_setopt($this->curl, CURLOPT_HTTPHEADER, array_merge(static::DEFAULT_HTTP_HEADERS, ['Expect:']));
@@ -325,7 +327,7 @@ class HttpCommandExecutor implements WebDriverCommandExecutor
                 $url
             );
             if (is_array($params) && !empty($params)) {
-                $msg .= sprintf(' with params: %s', json_encode($params));
+                $msg .= sprintf(' with params: %s', json_encode($params, JSON_UNESCAPED_SLASHES));
             }
 
             throw new WebDriverCurlException($msg . "\n\n" . $error);

@@ -66,11 +66,11 @@ Server also supports [PSR-7 request/response interfaces](http://www.php-fig.org/
 <?php
 use GraphQL\Server\StandardServer;
 use GraphQL\Executor\ExecutionResult;
-use Psr\Http\Message\ServerRequestInterface;
+use Psr\Http\Message\RequestInterface;
 use Psr\Http\Message\ResponseInterface;
 use Psr\Http\Message\StreamInterface;
 
-/** @var ServerRequestInterface $psrRequest */
+/** @var RequestInterface $psrRequest */
 /** @var ResponseInterface $psrResponse */
 /** @var StreamInterface $psrBodyStream */
 $server = new StandardServer([/* server options, see below */]);
@@ -86,9 +86,9 @@ $psrResponse = new SomePsr7ResponseImplementation(json_encode($result));
 
 PSR-7 is useful when you want to integrate the server into existing framework:
 
-- [PSR-7 for Laravel](https://laravel.com/docs/5.1/requests#psr7-requests)
+- [PSR-7 for Laravel](https://laravel.com/docs/requests#psr7-requests)
 - [Symfony PSR-7 Bridge](https://symfony.com/doc/current/components/psr7.html)
-- [Slim](https://www.slimframework.com/docs/concepts/value-objects.html)
+- [Slim](https://www.slimframework.com/docs/v4/concepts/value-objects.html)
 - [Zend Expressive](http://zendframework.github.io/zend-expressive/)
 
 ## Server configuration options
@@ -120,7 +120,7 @@ use GraphQL\Server\StandardServer;
 $config = ServerConfig::create()
     ->setSchema($schema)
     ->setErrorFormatter($myFormatter)
-    ->setDebug($debug)
+    ->setDebugFlag($debug)
 ;
 
 $server = new StandardServer($config);

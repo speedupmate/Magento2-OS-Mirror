@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types=1);
+
 /*
  * This file is part of PHP CS Fixer.
  *
@@ -17,7 +19,7 @@ use Symfony\Component\Console\Formatter\OutputFormatter;
 /**
  * Generates a report according to gitlabs subset of codeclimate json files.
  *
- * @see https://github.com/codeclimate/spec/blob/master/SPEC.md#data-types
+ * @see https://github.com/codeclimate/platform/blob/master/spec/analyzers/SPEC.md#data-types
  *
  * @author Hans-Christian Otto <c.otto@suora.com>
  *
@@ -25,17 +27,15 @@ use Symfony\Component\Console\Formatter\OutputFormatter;
  */
 final class GitlabReporter implements ReporterInterface
 {
-    public function getFormat()
+    public function getFormat(): string
     {
         return 'gitlab';
     }
 
     /**
      * Process changed files array. Returns generated report.
-     *
-     * @return string
      */
-    public function generate(ReportSummary $reportSummary)
+    public function generate(ReportSummary $reportSummary): string
     {
         $report = [];
         foreach ($reportSummary->getChanged() as $fileName => $change) {

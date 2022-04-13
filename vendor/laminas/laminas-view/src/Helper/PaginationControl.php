@@ -1,11 +1,5 @@
 <?php
 
-/**
- * @see       https://github.com/laminas/laminas-view for the canonical source repository
- * @copyright https://github.com/laminas/laminas-view/blob/master/COPYRIGHT.md
- * @license   https://github.com/laminas/laminas-view/blob/master/LICENSE.md New BSD License
- */
-
 namespace Laminas\View\Helper;
 
 use Laminas\Paginator;
@@ -99,6 +93,7 @@ class PaginationControl extends AbstractHelper
      * Sets the default Scrolling Style
      *
      * @param string $style string 'all' | 'elastic' | 'sliding' | 'jumping'
+     * @return void
      */
     public static function setDefaultScrollingStyle($style)
     {
@@ -119,6 +114,7 @@ class PaginationControl extends AbstractHelper
      * Sets the default view partial.
      *
      * @param string|array $partial View partial
+     * @return void
      */
     public static function setDefaultViewPartial($partial)
     {

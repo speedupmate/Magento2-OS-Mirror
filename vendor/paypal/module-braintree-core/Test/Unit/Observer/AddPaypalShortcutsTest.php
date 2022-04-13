@@ -6,9 +6,11 @@
 namespace PayPal\Braintree\Test\Unit\Observer;
 
 use PayPal\Braintree\Block\Paypal\Button;
+use PayPal\Braintree\Gateway\Config\Config;
 use Magento\Catalog\Block\ShortcutButtons;
 use Magento\Framework\Event;
 use Magento\Framework\Event\Observer;
+use PayPal\Braintree\Model\Paypal\OrderCancellationService;
 use PayPal\Braintree\Observer\AddPaypalShortcuts;
 use Magento\Framework\View\LayoutInterface;
 
@@ -19,7 +21,10 @@ class AddPaypalShortcutsTest extends \PHPUnit\Framework\TestCase
 {
     public function testExecute()
     {
-        $addPaypalShortcuts = new AddPaypalShortcuts();
+        $this->config = $this->getMockBuilder(Config::class)
+            ->disableOriginalConstructor()
+            ->getMock();
+        $addPaypalShortcuts = new AddPaypalShortcuts($this->config);
 
         /** @var Observer|\PHPUnit\Framework\MockObject\MockObject $observerMock */
         $observerMock = $this->getMockBuilder(Observer::class)

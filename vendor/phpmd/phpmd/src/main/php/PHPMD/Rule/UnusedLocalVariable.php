@@ -101,7 +101,7 @@ class UnusedLocalVariable extends AbstractLocalVariable implements FunctionAware
         $declarators = $parameters->findChildrenOfType('VariableDeclarator');
 
         foreach ($declarators as $declarator) {
-            unset($this->images[$declarator->getImage()]);
+            unset($this->images[$this->getVariableImage($declarator)]);
         }
     }
 
@@ -116,8 +116,7 @@ class UnusedLocalVariable extends AbstractLocalVariable implements FunctionAware
      */
     protected function collectVariables(AbstractCallableNode $node)
     {
-        foreach ($node->findChildrenOfType('Variable') as $variable) {
-            /** @var $variable ASTNode */
+        foreach ($node->findChildrenOfTypeVariable() as $variable) {
             if ($this->isLocal($variable)) {
                 $this->collectVariable($variable);
             }
@@ -156,7 +155,7 @@ class UnusedLocalVariable extends AbstractLocalVariable implements FunctionAware
             $variablePrefix = $node->getImage();
 
             foreach ($node->findChildrenOfType('Expression') as $child) {
-                $variableName = $child->getImage();
+                $variableName = $this->getVariableImage($child);
                 $variableImage = $variablePrefix . $variableName;
 
                 $this->storeImage($variableImage, $node);
@@ -172,8 +171,7 @@ class UnusedLocalVariable extends AbstractLocalVariable implements FunctionAware
      */
     protected function collectVariable(ASTNode $node)
     {
-        $imageName = $node->getImage();
-        $this->storeImage($imageName, $node);
+        $this->storeImage($this->getVariableImage($node), $node);
     }
 
     /**
@@ -200,7 +198,7 @@ class UnusedLocalVariable extends AbstractLocalVariable implements FunctionAware
      */
     protected function collectLiteral(ASTNode $node)
     {
-        $variable = '$' . trim($node->getImage(), '\'');
+        $variable = '$' . trim($node->getImage(), '\'"');
 
         if (!isset($this->images[$variable])) {
             $this->images[$variable] = array();
@@ -225,7 +223,9 @@ class UnusedLocalVariable extends AbstractLocalVariable implements FunctionAware
             return;
         }
 
-        if (in_array(substr($node->getImage(), 1), $this->getExceptionsList())) {
+        $image = $this->getVariableImage($node);
+
+        if (substr($image, 0, 2) === '::' || in_array(substr($image, 1), $this->getExceptionsList())) {
             return;
         }
 
@@ -236,7 +236,7 @@ class UnusedLocalVariable extends AbstractLocalVariable implements FunctionAware
             return;
         }
 
-        $this->addViolation($node, array($node->getImage()));
+        $this->addViolation($node, array($image));
     }
 
     /**

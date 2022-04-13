@@ -49,6 +49,11 @@ class VariableTest extends TestCase
      */
     private $objectManager;
 
+    /**
+     * @var WYSIWYGValidatorInterface
+     */
+    private $wysiwygValidator;
+
     protected function setUp(): void
     {
         $this->wysiwygValidator = $this->createMock(WYSIWYGValidatorInterface::class);
@@ -209,7 +214,7 @@ class VariableTest extends TestCase
      * @param bool $exceptionThrown
      * @dataProvider getWysiwygValidationCases
      */
-    public function testBeforeSave(string $value,bool $isChanged,bool $isValidated, bool $exceptionThrown): void
+    public function testBeforeSave(string $value, bool $isChanged, bool $isValidated, bool $exceptionThrown): void
     {
         $actuallyThrown = false;
 
@@ -245,12 +250,11 @@ class VariableTest extends TestCase
      */
     public function getWysiwygValidationCases(): array
     {
-        return
-            [
-                'changed-html-value-without-exception' => ['<b>Test Html</b>',true,true,false],
-                'changed-html-value-with-exception' => ['<b>Test Html</b>',true,false,true],
-                'no-changed-html-value-without-exception' => ['<b>Test Html</b>',false,false,false],
-                'no-html-value-with-exception' => ['',true,false,false]
-            ];
+        return [
+            'changed-html-value-without-exception' => ['<b>Test Html</b>',true,true,false],
+            'changed-html-value-with-exception' => ['<b>Test Html</b>',true,false,true],
+            'no-changed-html-value-without-exception' => ['<b>Test Html</b>',false,false,false],
+            'no-html-value-with-exception' => ['',true,false,false]
+        ];
     }
 }

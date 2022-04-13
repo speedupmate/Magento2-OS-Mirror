@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types=1);
+
 /*
  * This file is part of PHP CS Fixer.
  *
@@ -13,9 +15,9 @@
 namespace PhpCsFixer\Fixer\Import;
 
 use PhpCsFixer\AbstractFixer;
+use PhpCsFixer\FixerDefinition\CodeSample;
 use PhpCsFixer\FixerDefinition\FixerDefinition;
-use PhpCsFixer\FixerDefinition\VersionSpecification;
-use PhpCsFixer\FixerDefinition\VersionSpecificCodeSample;
+use PhpCsFixer\FixerDefinition\FixerDefinitionInterface;
 use PhpCsFixer\Tokenizer\Analyzer\Analysis\NamespaceUseAnalysis;
 use PhpCsFixer\Tokenizer\Analyzer\NamespaceUsesAnalyzer;
 use PhpCsFixer\Tokenizer\CT;
@@ -30,14 +32,13 @@ final class GroupImportFixer extends AbstractFixer
     /**
      * {@inheritdoc}
      */
-    public function getDefinition()
+    public function getDefinition(): FixerDefinitionInterface
     {
         return new FixerDefinition(
             'There MUST be group use for the same namespaces.',
             [
-                new VersionSpecificCodeSample(
-                    "<?php\nuse Foo\\Bar;\nuse Foo\\Baz;\n",
-                    new VersionSpecification(70000)
+                new CodeSample(
+                    "<?php\nuse Foo\\Bar;\nuse Foo\\Baz;\n"
                 ),
             ]
         );
@@ -46,15 +47,15 @@ final class GroupImportFixer extends AbstractFixer
     /**
      * {@inheritdoc}
      */
-    public function isCandidate(Tokens $tokens)
+    public function isCandidate(Tokens $tokens): bool
     {
-        return \PHP_VERSION_ID >= 70000 && $tokens->isTokenKindFound(T_USE);
+        return $tokens->isTokenKindFound(T_USE);
     }
 
     /**
      * {@inheritdoc}
      */
-    protected function applyFix(\SplFileInfo $file, Tokens $tokens)
+    protected function applyFix(\SplFileInfo $file, Tokens $tokens): void
     {
         $useWithSameNamespaces = $this->getSameNamespaces($tokens);
 
@@ -71,7 +72,7 @@ final class GroupImportFixer extends AbstractFixer
      *
      * @return NamespaceUseAnalysis[]
      */
-    private function getSameNamespaces(Tokens $tokens)
+    private function getSameNamespaces(Tokens $tokens): array
     {
         $useDeclarations = (new NamespaceUsesAnalyzer())->getDeclarationsFromTokens($tokens);
 
@@ -80,24 +81,24 @@ final class GroupImportFixer extends AbstractFixer
         }
 
         $allNamespaceAndType = array_map(
-            function (NamespaceUseAnalysis $useDeclaration) {
+            function (NamespaceUseAnalysis $useDeclaration): string {
                 return $this->getNamespaceNameWithSlash($useDeclaration).$useDeclaration->getType();
             },
             $useDeclarations
         );
 
-        $sameNamespaces = array_filter(array_count_values($allNamespaceAndType), function ($count) {
+        $sameNamespaces = array_filter(array_count_values($allNamespaceAndType), static function (int $count): bool {
             return $count > 1;
         });
         $sameNamespaces = array_keys($sameNamespaces);
 
-        $sameNamespaceAnalysis = array_filter($useDeclarations, function ($useDeclaration) use ($sameNamespaces) {
+        $sameNamespaceAnalysis = array_filter($useDeclarations, function (NamespaceUseAnalysis $useDeclaration) use ($sameNamespaces): bool {
             $namespaceNameAndType = $this->getNamespaceNameWithSlash($useDeclaration).$useDeclaration->getType();
 
             return \in_array($namespaceNameAndType, $sameNamespaces, true);
         });
 
-        usort($sameNamespaceAnalysis, function (NamespaceUseAnalysis $a, NamespaceUseAnalysis $b) {
+        usort($sameNamespaceAnalysis, function (NamespaceUseAnalysis $a, NamespaceUseAnalysis $b): int {
             $namespaceA = $this->getNamespaceNameWithSlash($a);
             $namespaceB = $this->getNamespaceNameWithSlash($b);
 
@@ -110,7 +111,7 @@ final class GroupImportFixer extends AbstractFixer
     /**
      * @param NamespaceUseAnalysis[] $statements
      */
-    private function removeSingleUseStatements(array $statements, Tokens $tokens)
+    private function removeSingleUseStatements(array $statements, Tokens $tokens): void
     {
         foreach ($statements as $useDeclaration) {
             $index = $useDeclaration->getStartIndex();
@@ -141,7 +142,7 @@ final class GroupImportFixer extends AbstractFixer
     /**
      * @param NamespaceUseAnalysis[] $statements
      */
-    private function addGroupUseStatements(array $statements, Tokens $tokens)
+    private function addGroupUseStatements(array $statements, Tokens $tokens): void
     {
         $currentUseDeclaration = null;
         $insertIndex = \array_slice($statements, -1)[0]->getEndIndex() + 1;
@@ -183,10 +184,7 @@ final class GroupImportFixer extends AbstractFixer
         }
     }
 
-    /**
-     * @return string
-     */
-    private function getNamespaceNameWithSlash(NamespaceUseAnalysis $useDeclaration)
+    private function getNamespaceNameWithSlash(NamespaceUseAnalysis $useDeclaration): string
     {
         $position = strrpos($useDeclaration->getFullName(), '\\');
         if (false === $position || 0 === $position) {
@@ -198,12 +196,8 @@ final class GroupImportFixer extends AbstractFixer
 
     /**
      * Insert use with alias to the group.
-     *
-     * @param int $insertIndex
-     *
-     * @return int
      */
-    private function insertToGroupUseWithAlias(Tokens $tokens, $insertIndex, NamespaceUseAnalysis $useDeclaration)
+    private function insertToGroupUseWithAlias(Tokens $tokens, int $insertIndex, NamespaceUseAnalysis $useDeclaration): int
     {
         $newTokens = [
             new Token([T_STRING, substr($useDeclaration->getFullName(), strripos($useDeclaration->getFullName(), '\\') + 1)]),
@@ -219,13 +213,8 @@ final class GroupImportFixer extends AbstractFixer
 
     /**
      * Creates new use statement group.
-     *
-     * @param int    $insertIndex
-     * @param string $currentNamespace
-     *
-     * @return int
      */
-    private function createNewGroup(Tokens $tokens, $insertIndex, NamespaceUseAnalysis $useDeclaration, $currentNamespace)
+    private function createNewGroup(Tokens $tokens, int $insertIndex, NamespaceUseAnalysis $useDeclaration, string $currentNamespace): int
     {
         $insertedTokens = 0;
 
@@ -276,13 +265,8 @@ final class GroupImportFixer extends AbstractFixer
 
     /**
      * Check if namespace use analyses are different.
-     *
-     * @param null|NamespaceUseAnalysis $analysis1
-     * @param null|NamespaceUseAnalysis $analysis2
-     *
-     * @return bool
      */
-    private function areDeclarationsDifferent($analysis1, $analysis2)
+    private function areDeclarationsDifferent(?NamespaceUseAnalysis $analysis1, ?NamespaceUseAnalysis $analysis2): bool
     {
         if (null === $analysis1 || null === $analysis2) {
             return true;

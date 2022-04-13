@@ -1,6 +1,6 @@
 <?php
 /**
- * Copyright © Magento. All rights reserved.
+ * Copyright © Magento, Inc. All rights reserved.
  * See COPYING.txt for license details.
  */
 namespace Magento2\Tests\Functions;
@@ -246,7 +246,27 @@ class DiscouragedFunctionUnitTest extends AbstractSniffUnitTest
             458 => 1,
             460 => 1,
             462 => 1,
-            466 => 1
+            466 => 1,
+            468 => 1,
+            470 => 1,
+            472 => 1,
+            474 => 1,
+            476 => 1,
+            478 => 1,
+            480 => 1,
+            482 => 1,
+            484 => 1,
+            486 => 1,
+            488 => 1,
+            490 => 1,
+            492 => 1,
+            494 => 1,
+            496 => 1,
+            498 => 1,
+            500 => 1,
+            502 => 1,
+            504 => 1,
+            506 => 1
         ];
     }
 }

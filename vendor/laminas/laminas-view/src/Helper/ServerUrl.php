@@ -1,11 +1,5 @@
 <?php
 
-/**
- * @see       https://github.com/laminas/laminas-view for the canonical source repository
- * @copyright https://github.com/laminas/laminas-view/blob/master/COPYRIGHT.md
- * @license   https://github.com/laminas/laminas-view/blob/master/LICENSE.md New BSD License
- */
-
 namespace Laminas\View\Helper;
 
 /**
@@ -113,9 +107,9 @@ class ServerUrl extends AbstractHelper
     /**
      * Detect the port
      *
-     * @return null
+     * @return void
      */
-    protected function detectPort()
+    protected function detectPort(): void
     {
         if ($this->setPortFromProxy()) {
             return;
@@ -134,9 +128,9 @@ class ServerUrl extends AbstractHelper
     /**
      * Detect the scheme
      *
-     * @return null
+     * @return void
      */
-    protected function detectScheme()
+    protected function detectScheme(): void
     {
         if ($this->setSchemeFromProxy()) {
             return;
@@ -157,7 +151,7 @@ class ServerUrl extends AbstractHelper
         $this->setScheme($scheme);
     }
 
-    protected function isReversedProxy()
+    protected function isReversedProxy(): bool
     {
         return isset($_SERVER['HTTP_X_FORWARDED_PROTO']) && $_SERVER['HTTP_X_FORWARDED_PROTO'] == 'https';
     }

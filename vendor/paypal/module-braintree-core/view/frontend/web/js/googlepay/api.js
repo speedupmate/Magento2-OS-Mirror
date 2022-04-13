@@ -112,15 +112,22 @@ define([
                     totalPrice: this.getAmount(),
                     currencyCode: this.getCurrencyCode()
                 },
-                allowedPaymentMethods: ['CARD'],
-                phoneNumberRequired: true,
-                emailRequired: true,
+                allowedPaymentMethods: [
+                    {
+                        "type": "CARD",
+                        "parameters": {
+                            "allowedCardNetworks": this.getCardTypes(),
+                            "billingAddressRequired": true,
+                            "billingAddressParameters": {
+                                format: 'FULL',
+                                phoneNumberRequired: true
+                            },
+                        },
+
+                    }
+                ],
                 shippingAddressRequired: true,
-                cardRequirements: {
-                    billingAddressRequired: true,
-                    billingAddressFormat: 'FULL',
-                    allowedCardNetworks: this.getCardTypes()
-                }
+                emailRequired: true,
             };
 
             if (this.getEnvironment() !== "TEST") {
@@ -133,12 +140,12 @@ define([
         /**
          * Place the order
          */
-        startPlaceOrder: function (nonce, paymentData) {
+        startPlaceOrder: function (nonce, paymentData, deviceData) {
             var payload = {
                 details: {
                     shippingAddress: {
                         streetAddress: paymentData.shippingAddress.address1 + "\n"
-                        + paymentData.shippingAddress.address2,
+                            + paymentData.shippingAddress.address2,
                         locality: paymentData.shippingAddress.locality,
                         postalCode: paymentData.shippingAddress.postalCode,
                         countryCodeAlpha2: paymentData.shippingAddress.countryCode,
@@ -148,18 +155,19 @@ define([
                         region: typeof paymentData.shippingAddress.administrativeArea !== 'undefined' ? paymentData.shippingAddress.administrativeArea : ''
                     },
                     billingAddress: {
-                        streetAddress: paymentData.cardInfo.billingAddress.address1 + "\n"
-                        + paymentData.cardInfo.billingAddress.address2,
-                        locality: paymentData.cardInfo.billingAddress.locality,
-                        postalCode: paymentData.cardInfo.billingAddress.postalCode,
-                        countryCodeAlpha2: paymentData.cardInfo.billingAddress.countryCode,
+                        streetAddress: paymentData.paymentMethodData.info.billingAddress.address1 + "\n"
+                            + paymentData.paymentMethodData.info.billingAddress.address2,
+                        locality: paymentData.paymentMethodData.info.billingAddress.locality,
+                        postalCode: paymentData.paymentMethodData.info.billingAddress.postalCode,
+                        countryCodeAlpha2: paymentData.paymentMethodData.info.billingAddress.countryCode,
                         email: paymentData.email,
-                        name: paymentData.cardInfo.billingAddress.name,
-                        telephone: typeof paymentData.cardInfo.billingAddress.phoneNumber !== 'undefined' ? paymentData.cardInfo.billingAddress.phoneNumber : '',
-                        region: typeof paymentData.cardInfo.billingAddress.administrativeArea !== 'undefined' ? paymentData.cardInfo.billingAddress.administrativeArea : ''
+                        name: paymentData.paymentMethodData.info.billingAddress.name,
+                        telephone: typeof paymentData.paymentMethodData.info.billingAddress.phoneNumber !== 'undefined' ? paymentData.paymentMethodData.info.billingAddress.phoneNumber : '',
+                        region: typeof paymentData.paymentMethodData.info.billingAddress.administrativeArea !== 'undefined' ? paymentData.paymentMethodData.info.billingAddress.administrativeArea : ''
                     }
                 },
-                nonce: nonce
+                nonce: nonce,
+                deviceData: deviceData,
             };
 
             formBuilder.build({

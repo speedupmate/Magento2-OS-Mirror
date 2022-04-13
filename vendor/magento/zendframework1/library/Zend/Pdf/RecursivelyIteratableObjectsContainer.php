@@ -29,17 +29,85 @@
  */
 class Zend_Pdf_RecursivelyIteratableObjectsContainer implements RecursiveIterator, Countable
 {
-    protected $_objects = array();
+    protected $_objects = [];
 
-    public function __construct(array $objects) { $this->_objects = $objects; }
+    /**
+     * @param array $objects
+     */
+    public function __construct(array $objects)
+    {
+        $this->_objects = $objects;
+    }
 
-    public function current()      { return current($this->_objects);            }
-    public function key()          { return key($this->_objects);                }
-    public function next()         { return next($this->_objects);               }
-    public function rewind()       { return reset($this->_objects);              }
-    public function valid()        { return current($this->_objects) !== false;  }
-    public function getChildren()  { return current($this->_objects);            }
-    public function hasChildren()  { return count($this->_objects) > 0;          }
+    /**
+     * @inheritDoc
+     */
+    #[\ReturnTypeWillChange]
+    public function current()
+    {
+        return current($this->_objects);
+    }
 
-    public function count() { return count($this->_objects); }
+    /**
+     * @inheritDoc
+     */
+    #[\ReturnTypeWillChange]
+    public function key()
+    {
+        return key($this->_objects);
+    }
+
+    /**
+     * @inheritDoc
+     */
+    #[\ReturnTypeWillChange]
+    public function next()
+    {
+        return next($this->_objects);
+    }
+
+    /**
+     * @inheritDoc
+     */
+    #[\ReturnTypeWillChange]
+    public function rewind()
+    {
+        return reset($this->_objects);
+    }
+
+    /**
+     * @inheritDoc
+     */
+    #[\ReturnTypeWillChange]
+    public function valid()
+    {
+        return current($this->_objects) !== false;
+    }
+
+    /**
+     * @inheritDoc
+     */
+    #[\ReturnTypeWillChange]
+    public function getChildren()
+    {
+        return current($this->_objects);
+    }
+
+    /**
+     * @inheritDoc
+     */
+    #[\ReturnTypeWillChange]
+    public function hasChildren()
+    {
+        return count($this->_objects) > 0;
+    }
+
+    /**
+     * @inheritDoc
+     */
+    #[\ReturnTypeWillChange]
+    public function count()
+    {
+        return count($this->_objects);
+    }
 }

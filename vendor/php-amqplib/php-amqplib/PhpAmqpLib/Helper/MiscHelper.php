@@ -1,4 +1,5 @@
 <?php
+
 namespace PhpAmqpLib\Helper;
 
 class MiscHelper
@@ -107,6 +108,8 @@ class MiscHelper
         }
 
         echo $dump;
+
+        return null;
     }
 
     /**

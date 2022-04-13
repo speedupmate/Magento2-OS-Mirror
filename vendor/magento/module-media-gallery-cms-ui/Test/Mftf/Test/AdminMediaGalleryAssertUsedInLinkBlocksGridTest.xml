@@ -20,6 +20,7 @@
             <skip>
                 <issueId value="DEPRECATED">Use AdminMediaGalleryAssertImageUsedInLinkBlocksGridTest instead</issueId>
             </skip>
+            <group value="pr_exclude"/>
         </annotations>
         <before>
             <createData entity="_defaultBlock" stepKey="block" />
@@ -32,7 +33,7 @@
          <actionGroup ref="NavigateToCreatedCMSBlockPageActionGroup" stepKey="navigateToCreatedCMSBlockPage1">
             <argument name="CMSBlockPage" value="$$block$$"/>
         </actionGroup>
-        <click selector="{{CmsWYSIWYGSection.InsertImageBtn}}" stepKey="clickInsertImageIcon" />
+        <click selector="{{TinyMCESection.InsertImageBtn}}" stepKey="clickInsertImageIcon" />
         <waitForPageLoad stepKey="waitForInitialPageLoad" />
         <waitForPageLoad stepKey="waitForSecondaryPageLoad" />
         <actionGroup ref="ResetAdminDataGridToDefaultViewActionGroup" stepKey="resetToDefaultView"/>

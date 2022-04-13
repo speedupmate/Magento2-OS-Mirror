@@ -113,7 +113,7 @@ class AccountTest extends AbstractController
         $customer->save();
 
         $this->getRequest()->setParam('token', $token);
-        $this->getRequest()->setParam('id', $customer->getId());
+        $this->getRequest()->setParam('id', 1);
 
         $this->dispatch('customer/account/createPassword');
 
@@ -267,7 +267,7 @@ class AccountTest extends AbstractController
     /**
      * @magentoDataFixture Magento/Customer/_files/customer.php
      */
-    public function testResetPasswordPostNoTokenAction()
+    public function testResetPasswordPostNoEmail()
     {
         $this->getRequest()
             ->setParam('id', 1)
@@ -701,7 +701,6 @@ class AccountTest extends AbstractController
      * Check that 'Forgot password' email contains correct data.
      *
      * @param string $token
-     * @param int $customerId
      * @return void
      */
     private function assertForgotPasswordEmailContent(string $token, int $customerId): void

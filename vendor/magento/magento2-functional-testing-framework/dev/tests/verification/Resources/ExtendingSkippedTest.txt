@@ -20,6 +20,11 @@ use Yandex\Allure\Adapter\Annotation\TestCaseId;
 class ExtendingSkippedTestCest
 {
 	/**
+	 * @var bool
+	 */
+	private $isSuccess = false;
+
+	/**
 	 * @Severity(level = SeverityLevel::CRITICAL)
 	 * @Features({"TestModule"})
 	 * @Stories({"Child"})
@@ -30,6 +35,7 @@ class ExtendingSkippedTestCest
 	 */
 	public function ExtendingSkippedTest(AcceptanceTester $I, \Codeception\Scenario $scenario)
 	{
+		unlink(__FILE__);
 		$scenario->skip("This test is skipped due to the following issues:\nParentTestIsSkipped");
 	}
 }

@@ -48,9 +48,12 @@ class Fieldset extends Payment
     {
         $countryCode = $this->getRequest()->getParam('paypal_country');
         if ($countryCode) {
-            $locale = strtolower($countryCode);
+            $locale = $countryCode;
         } else {
-            $locale = strtolower($this->config->getMerchantCountry());
+            $locale = $this->config->getMerchantCountry();
+        }
+        if (is_string($locale)) {
+            $locale = strtolower($locale);
         }
 
         // Only available to GB

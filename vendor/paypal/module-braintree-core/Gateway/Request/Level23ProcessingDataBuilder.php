@@ -4,7 +4,7 @@ declare(strict_types=1);
 namespace PayPal\Braintree\Gateway\Request;
 
 use Braintree\TransactionLineItem;
-use League\ISO3166\ISO3166;
+use Magento\Directory\Model\Country;
 use PayPal\Braintree\Gateway\Data\Order\OrderAdapter;
 use PayPal\Braintree\Gateway\Helper\SubjectReader;
 use Magento\Framework\App\Config\ScopeConfigInterface;
@@ -50,25 +50,25 @@ class Level23ProcessingDataBuilder implements BuilderInterface
     private $scopeConfig;
 
     /**
-     * @var ISO3166
+     * @var Country
      */
-    private $iso3166;
+    private $country;
 
     /**
      * Level23ProcessingDataBuilder constructor.
      *
      * @param SubjectReader $subjectReader
      * @param ScopeConfigInterface $scopeConfig
-     * @param ISO3166 $iso3166
+     * @param Country $country
      */
     public function __construct(
         SubjectReader $subjectReader,
         ScopeConfigInterface $scopeConfig,
-        ISO3166 $iso3166
+        Country $country
     ) {
         $this->subjectReader = $subjectReader;
         $this->scopeConfig = $scopeConfig;
-        $this->iso3166 = $iso3166;
+        $this->country = $country;
     }
 
     /**
@@ -145,13 +145,13 @@ class Level23ProcessingDataBuilder implements BuilderInterface
 
             $address = $order->getShippingAddress();
             // use Magento's Alpha2 code to get the Alpha3 code.
-            $addressData = $this->iso3166->alpha2($address->getCountryId());
+            $country  = $this->country->loadByCode($address->getCountryId());
 
             // Level 3.
             $processingData[self::KEY_SHIPPING_AMT] = $this->numberToString($payment->getShippingAmount(), 2);
             $processingData[self::KEY_SHIPS_FROM_POSTAL_CODE] = $storePostalCode;
             $processingData[self::KEY_SHIPPING] = [
-                self::KEY_COUNTRY_CODE_ALPHA_3 => $addressData['alpha3']
+                self::KEY_COUNTRY_CODE_ALPHA_3 => $country['iso3_code'] ?? $address->getCountryId()
             ];
         }
 

@@ -59,6 +59,12 @@ define(
              * @returns {Boolean}
              */
             getIsInvisibleRecaptcha: function () {
+                if (this.settings ===
+
+                    void 0) {
+                    return false;
+                }
+
                 return this.settings.invisible;
             },
 
@@ -83,7 +89,9 @@ define(
                     widgetId,
                     parameters;
 
-                if (this.captchaInitialized) {
+                if (this.captchaInitialized || this.settings ===
+
+                    void 0) {
                     return;
                 }
 
@@ -103,6 +111,11 @@ define(
                 $reCaptcha.attr('id', this.getReCaptchaId());
 
                 $parentForm = $wrapper.parents('form');
+
+                if (this.settings === undefined) {
+
+                    return;
+                }
 
                 parameters = _.extend(
                     {

@@ -125,7 +125,6 @@ class UserTest extends \PHPUnit\Framework\TestCase
      * Test save rp token
      *
      * @throws \Exception
-     * @magentoDbIsolation enabled
      */
     public function testSave(): void
     {

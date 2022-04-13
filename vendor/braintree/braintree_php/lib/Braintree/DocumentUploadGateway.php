@@ -1,4 +1,5 @@
 <?php
+
 namespace Braintree;
 
 use InvalidArgumentException;
@@ -6,29 +7,14 @@ use InvalidArgumentException;
 /**
  * Braintree DisputeGateway module
  * Creates and manages Braintree Disputes
- *
- * @package   Braintree
  */
 class DocumentUploadGateway
 {
-    /**
-     * @var Gateway
-     */
     private $_gateway;
-
-    /**
-     * @var Configuration
-     */
     private $_config;
-
-    /**
-     * @var Http
-     */
     private $_http;
 
-    /**
-     * @param Gateway $gateway
-     */
+    // phpcs:ignore PEAR.Commenting.FunctionComment.Missing
     public function __construct($gateway)
     {
         $this->_gateway = $gateway;
@@ -37,12 +23,16 @@ class DocumentUploadGateway
         $this->_http = new Http($gateway->config);
     }
 
-    /* public class methods */
-
     /**
      * Accepts a dispute, given a dispute ID
      *
-     * @param string $id
+     * @param mixed $params containing:
+     *                      kind - The kind of document
+     *                      file - The open file to upload
+     *
+     * @throws InvalidArgumentException if the params are not expected
+     *
+     * @return Result\Successful|Result\Error
      */
     public function create($params)
     {
@@ -70,6 +60,11 @@ class DocumentUploadGateway
         }
     }
 
+    /*
+     * Returns keys that are acceptable for create requests
+     *
+     * @see create
+     */
     public static function createSignature()
     {
         return [

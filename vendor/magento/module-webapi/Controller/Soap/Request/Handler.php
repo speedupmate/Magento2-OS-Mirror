@@ -3,6 +3,7 @@
  * Copyright © Magento, Inc. All rights reserved.
  * See COPYING.txt for license details.
  */
+
 declare(strict_types=1);
 
 namespace Magento\Webapi\Controller\Soap\Request;
@@ -12,7 +13,6 @@ use Magento\Framework\Api\ExtensibleDataInterface;
 use Magento\Framework\Api\MetadataObjectInterface;
 use Magento\Framework\Api\SimpleDataObjectConverter;
 use Magento\Framework\App\ObjectManager;
-use Magento\Framework\Exception\InputException;
 use Magento\Framework\ObjectManagerInterface;
 use Magento\Framework\Webapi\Authorization;
 use Magento\Framework\Exception\AuthorizationException;
@@ -20,11 +20,11 @@ use Magento\Framework\Reflection\DataObjectProcessor;
 use Magento\Framework\Webapi\ServiceInputProcessor;
 use Magento\Framework\Webapi\Request as WebapiRequest;
 use Magento\Framework\Webapi\Exception as WebapiException;
+use Magento\Framework\Webapi\Validator\EntityArrayValidator\InputArraySizeLimitValue;
 use Magento\Webapi\Controller\Rest\ParamsOverrider;
 use Magento\Webapi\Model\Soap\Config as SoapConfig;
 use Magento\Framework\Reflection\MethodsMap;
 use Magento\Webapi\Model\ServiceMetadata;
-use Magento\Framework\Webapi\Validator\EntityArrayValidator\InputArraySizeLimitValue;
 
 /**
  * Handler of requests to SOAP server.
@@ -103,7 +103,7 @@ class Handler
      * @SuppressWarnings(PHPMD.ExcessiveParameterList)
      */
     public function __construct(
-        WebapiRequest $request,
+        WebapiRequest  $request,
         ObjectManagerInterface $objectManager,
         SoapConfig $apiConfig,
         Authorization $authorization,
@@ -160,7 +160,6 @@ class Handler
         $service = $this->_objectManager->get($serviceClass);
         $inputData = $this->prepareOperationInput($serviceClass, $serviceMethodInfo, $arguments);
         $outputData = $this->runServiceMethod($service, $serviceMethod, $inputData);
-
         return $this->_prepareResponseData($outputData, $serviceClass, $serviceMethod);
     }
 
@@ -210,8 +209,8 @@ class Handler
      * @param array $arguments
      * @return array
      * @throws WebapiException
-     * @deprecated 100.3.2
      * @see Handler::prepareOperationInput()
+     * @deprecated 100.3.2
      */
     protected function _prepareRequestData($serviceClass, $serviceMethod, $arguments)
     {
@@ -233,6 +232,7 @@ class Handler
      */
     protected function _prepareResponseData($data, $serviceClassName, $serviceMethodName)
     {
+        /** @var string $dataType */
         $dataType = $this->methodsMapProcessor->getMethodReturnType($serviceClassName, $serviceMethodName);
         $result = null;
         if (is_object($data)) {

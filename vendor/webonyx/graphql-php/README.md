@@ -1,6 +1,6 @@
 # graphql-php
-[![Build Status](https://travis-ci.org/webonyx/graphql-php.svg?branch=master)](https://travis-ci.org/webonyx/graphql-php)
-[![Code Coverage](https://scrutinizer-ci.com/g/webonyx/graphql-php/badges/coverage.png?b=master)](https://scrutinizer-ci.com/g/webonyx/graphql-php)
+![CI](https://github.com/webonyx/graphql-php/workflows/CI/badge.svg)
+[![Coverage Status](https://coveralls.io/repos/github/webonyx/graphql-php/badge.svg?branch=master)](https://coveralls.io/github/webonyx/graphql-php?branch=master)
 [![Latest Stable Version](https://poser.pugx.org/webonyx/graphql-php/version)](https://packagist.org/packages/webonyx/graphql-php)
 [![License](https://poser.pugx.org/webonyx/graphql-php/license)](https://packagist.org/packages/webonyx/graphql-php)
 
@@ -17,12 +17,11 @@ composer require webonyx/graphql-php
 Full documentation is available on the [Documentation site](https://webonyx.github.io/graphql-php/) as well 
 as in the [docs](docs/) folder of the distribution.
 
-If you don't know what GraphQL is, visit this [official website](http://graphql.org) 
-by the Facebook engineering team.
+If you don't know what GraphQL is, visit the [official website](http://graphql.org) first.
 
 ## Examples
-There are several ready examples in the [examples](examples/) folder of the distribution with specific 
-README file per example.
+There are several ready examples in the [examples](examples) folder of the distribution,
+with a specific README file per example.
 
 ## Contributors
 
@@ -49,4 +48,4 @@ Support this project by becoming a sponsor. Your logo will show up here with a l
 
 ## License
 
-See [LICENCE](LICENSE).
+See [LICENSE](LICENSE).

@@ -112,7 +112,7 @@ class GatewayCommand implements CommandInterface
         );
 
         $key = 'braintree';
-        if ($this->isCaptchaEnabled->isCaptchaEnabledFor($key)) {
+        if ($this->isCaptchaEnabled->isCaptchaEnabledFor($key) && isset($transferO->getBody()['paymentMethodNonce'])) {
             $this->reCaptchaValidation->validate($commandSubject);
         }
 

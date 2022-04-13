@@ -4,22 +4,22 @@ namespace PhpAmqpLib\Exception;
 
 class AMQPProtocolException extends \Exception implements AMQPExceptionInterface
 {
-    /** @var string */
+    /** @var int */
     public $amqp_reply_code;
 
-    /** @var int */
+    /** @var string */
     public $amqp_reply_text;
 
-    /** @var \Exception */
+    /** @var int[] */
     public $amqp_method_sig;
 
     /** @var array */
     public $args;
 
     /**
-     * @param string $reply_code
-     * @param int $reply_text
-     * @param array $method_sig
+     * @param int $reply_code
+     * @param string $reply_text
+     * @param int[] $method_sig
      */
     public function __construct($reply_code, $reply_text, $method_sig)
     {

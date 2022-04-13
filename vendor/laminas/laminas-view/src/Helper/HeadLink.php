@@ -1,11 +1,5 @@
 <?php
 
-/**
- * @see       https://github.com/laminas/laminas-view for the canonical source repository
- * @copyright https://github.com/laminas/laminas-view/blob/master/COPYRIGHT.md
- * @license   https://github.com/laminas/laminas-view/blob/master/LICENSE.md New BSD License
- */
-
 namespace Laminas\View\Helper;
 
 use Laminas\View\Exception;
@@ -208,9 +202,9 @@ class HeadLink extends Placeholder\Container\AbstractStandalone
     /**
      * append()
      *
-     * @param  array $value
+     * @param mixed $value
      * @throws Exception\InvalidArgumentException
-     * @return void
+     * @return Placeholder\Container\AbstractContainer
      */
     public function append($value)
     {
@@ -245,9 +239,9 @@ class HeadLink extends Placeholder\Container\AbstractStandalone
     /**
      * prepend()
      *
-     * @param  array $value
+     * @param mixed $value
      * @throws Exception\InvalidArgumentException
-     * @return HeadLink
+     * @return Placeholder\Container\AbstractContainer
      */
     public function prepend($value)
     {

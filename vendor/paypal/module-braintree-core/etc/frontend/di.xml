@@ -17,6 +17,7 @@
                 <item name="braintree_venmo_config_provider" xsi:type="object">PayPal\Braintree\Model\Venmo\Ui\ConfigProvider</item>
                 <item name="braintree_ach_config_provider" xsi:type="object">PayPal\Braintree\Model\Ach\Ui\ConfigProvider</item>
                 <item name="braintree_lpm_config_provider" xsi:type="object">PayPal\Braintree\Model\Lpm\Ui\ConfigProvider</item>
+                <item name="braintree_recaptcha_config_provider" xsi:type="object">PayPal\Braintree\Model\CheckoutConfigProvider</item>
             </argument>
         </arguments>
     </type>
@@ -109,13 +110,6 @@
         <arguments>
             <argument name="layoutProcessors" xsi:type="array">
                 <item name="braintree_recaptcha" xsi:type="object">\PayPal\Braintree\Block\LayoutProcessor\Checkout\Onepage</item>
-            </argument>
-        </arguments>
-    </type>
-    <type name="Magento\Checkout\Model\CompositeConfigProvider">
-        <arguments>
-            <argument name="configProviders" xsi:type="array">
-                <item name="braintree_recaptcha_config_provider" xsi:type="object">PayPal\Braintree\Model\CheckoutConfigProvider</item>
             </argument>
         </arguments>
     </type>

@@ -1,7 +1,0 @@
-<?xml version="1.0"?>
-<config xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="urn:magento:framework:ObjectManager/etc/config.xsd">
-    <virtualType name="Dotdigitalgroup\Chat\Block\Virtual" type="Magento\Framework\View\Element\Template" />
-    <type name="Dotdigitalgroup\Email\Controller\Ajax\Emailcapture">
-        <plugin name="ddg_chat_emailcapture_plugin" type="Dotdigitalgroup\Chat\Plugin\EmailcapturePlugin" sortOrder="1" disabled="false"/>
-    </type>
-</config>

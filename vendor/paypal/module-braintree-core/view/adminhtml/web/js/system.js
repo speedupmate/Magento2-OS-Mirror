@@ -4,13 +4,23 @@ require(['jquery', 'Magento_Ui/js/modal/alert', 'mage/translate', 'domReady!'], 
         var merchant_country = '', allowed_countries = '', paypal_credit = '';
         merchant_country = $('[data-ui-id="adminhtml-system-config-field-country-0-select-groups-account-fields-merchant-country-value"]').val();
         paypal_credit = $('[data-ui-id="select-groups-braintree-section-groups-braintree-fields-braintree-paypal-credit-active-value"]').val();
-
+        var cart = $('[data-ui-id="select-groups-braintree-section-groups-braintree-groups-braintree-paypal-groups-button-cart-fields-message-cart-enable-value"]');
+        var product = $('[data-ui-id="select-groups-braintree-section-groups-braintree-groups-braintree-paypal-groups-button-checkout-fields-message-checkout-enable-value"]')
+        var checkout = $('[data-ui-id="select-groups-braintree-section-groups-braintree-groups-braintree-paypal-groups-button-productpage-fields-message-productpage-enable-value"]')
         allowed_countries = ['GB','FR','US','DE', 'AU'];
         if($.inArray(merchant_country, allowed_countries) == -1 || paypal_credit == 1){
             //hide paylater message
-            $('[data-ui-id="select-groups-braintree-section-groups-braintree-groups-braintree-paypal-groups-button-cart-fields-message-cart-enable-value"]').val(0).attr('readonly',true).click();
-            $('[data-ui-id="select-groups-braintree-section-groups-braintree-groups-braintree-paypal-groups-button-checkout-fields-message-checkout-enable-value"]').val(0).attr('readonly',true).click();
-            $('[data-ui-id="select-groups-braintree-section-groups-braintree-groups-braintree-paypal-groups-button-productpage-fields-message-productpage-enable-value"]').val(0).attr('readonly',true).click();
+            cart.val(0).attr('readonly',true).click();
+            product.val(0).attr('readonly',true).click();
+            checkout.val(0).attr('readonly',true).click();
+        }
+        if (merchant_country) {
+            if ( merchant_country == 'GB') {
+                merchant_country = 'UK'
+            }
+            cart.next().find('a').attr('href', cart.next().find('a').attr('href') + merchant_country.toLowerCase());
+            product.next().find('a').attr('href', product.next().find('a').attr('href') + merchant_country.toLowerCase());
+            checkout.next().find('a').attr('href', checkout.next().find('a').attr('href') + merchant_country.toLowerCase());
         }
 
     }
@@ -64,21 +74,29 @@ require(['jquery', 'Magento_Ui/js/modal/alert', 'mage/translate', 'domReady!'], 
         $(this).text($t("We're validating your credentials...")).attr('disabled', true);
 
         var self = this;
-        $.post(endpoint, {
-            environment: env_id,
-            merchant_id: merch_id,
-            public_key: public_id,
-            private_key: private_id
-        }).done(function () {
-            $('<div class="message message-success braintree-credentials-success-message">' + $t("Your credentials are valid.") + '</div>').insertAfter(self);
-        }).fail(function () {
-            alert({
-                title: $t('Braintree Credential Validation Failed'),
-                content: $t('Your Braintree Credentials could not be validated. Please ensure you have selected the correct environment and entered a valid Merchant ID, Public Key and Private Key.')
+        $.ajax({
+                type: 'POST',
+                url: endpoint,
+                data: {
+                    environment: env_id,
+                    merchant_id: merch_id,
+                    public_key: public_id,
+                    private_key: private_id
+                },
+                showLoader: true,
+                success: function (result) {
+                    if (result.success === 'true') {
+                        $('<div class="message message-success braintree-credentials-success-message">' + $t("Your credentials are valid.") + '</div>').insertAfter(self);
+                    } else {
+                        alert({
+                            title: $t('Braintree Credential Validation Failed'),
+                            content: $t('Your Braintree Credentials could not be validated. Please ensure you have selected the correct environment and entered a valid Merchant ID, Public Key and Private Key.')
+                        });
+                    }
+                }
+            }).always(function () {
+                $(self).text($t("Validate Credentials")).attr('disabled', false);
             });
-        }).always(function () {
-            $(self).text($t("Validate Credentials")).attr('disabled', false);
-        });
     }
     disablePayLaterMessages();
 });

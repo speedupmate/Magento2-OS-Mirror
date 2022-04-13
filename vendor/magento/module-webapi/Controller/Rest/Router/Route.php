@@ -3,6 +3,7 @@
  * Copyright © Magento, Inc. All rights reserved.
  * See COPYING.txt for license details.
  */
+
 declare(strict_types=1);
 
 namespace Magento\Webapi\Controller\Rest\Router;
@@ -11,7 +12,7 @@ use Magento\Framework\App\RequestInterface as Request;
 use Magento\Framework\App\RouterInterface;
 
 /**
- * Route to services available via REST API
+ * Route to services available via REST API.
  */
 class Route implements RouterInterface
 {

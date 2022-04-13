@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types=1);
+
 /*
  * This file is part of PHP CS Fixer.
  *
@@ -15,6 +17,7 @@ namespace PhpCsFixer\Fixer\Operator;
 use PhpCsFixer\AbstractFixer;
 use PhpCsFixer\FixerDefinition\CodeSample;
 use PhpCsFixer\FixerDefinition\FixerDefinition;
+use PhpCsFixer\FixerDefinition\FixerDefinitionInterface;
 use PhpCsFixer\Tokenizer\CT;
 use PhpCsFixer\Tokenizer\Token;
 use PhpCsFixer\Tokenizer\Tokens;
@@ -27,7 +30,7 @@ final class NewWithBracesFixer extends AbstractFixer
     /**
      * {@inheritdoc}
      */
-    public function getDefinition()
+    public function getDefinition(): FixerDefinitionInterface
     {
         return new FixerDefinition(
             'All instances created with new keyword must be followed by braces.',
@@ -38,7 +41,7 @@ final class NewWithBracesFixer extends AbstractFixer
     /**
      * {@inheritdoc}
      */
-    public function isCandidate(Tokens $tokens)
+    public function isCandidate(Tokens $tokens): bool
     {
         return $tokens->isTokenKindFound(T_NEW);
     }
@@ -46,7 +49,7 @@ final class NewWithBracesFixer extends AbstractFixer
     /**
      * {@inheritdoc}
      */
-    protected function applyFix(\SplFileInfo $file, Tokens $tokens)
+    protected function applyFix(\SplFileInfo $file, Tokens $tokens): void
     {
         static $nextTokenKinds = null;
 
@@ -89,22 +92,16 @@ final class NewWithBracesFixer extends AbstractFixer
                 [T_AS],
                 [T_DOUBLE_ARROW],
                 [T_POW],
+                [T_SPACESHIP],
                 [CT::T_ARRAY_SQUARE_BRACE_OPEN],
                 [CT::T_ARRAY_SQUARE_BRACE_CLOSE],
                 [CT::T_BRACE_CLASS_INSTANTIATION_OPEN],
                 [CT::T_BRACE_CLASS_INSTANTIATION_CLOSE],
             ];
-
-            // @TODO: drop condition when PHP 7.0+ is required
-            if (\defined('T_SPACESHIP')) {
-                $nextTokenKinds[] = [T_SPACESHIP];
-            }
         }
 
         for ($index = $tokens->count() - 3; $index > 0; --$index) {
-            $token = $tokens[$index];
-
-            if (!$token->isGivenKind(T_NEW)) {
+            if (!$tokens[$index]->isGivenKind(T_NEW)) {
                 continue;
             }
 
@@ -122,7 +119,7 @@ final class NewWithBracesFixer extends AbstractFixer
 
             // entrance into array index syntax - need to look for exit
             while ($nextToken->equals('[') || $nextToken->isGivenKind(CT::T_ARRAY_INDEX_CURLY_BRACE_OPEN)) {
-                $nextIndex = $tokens->findBlockEnd($tokens->detectBlockType($nextToken)['type'], $nextIndex) + 1;
+                $nextIndex = $tokens->findBlockEnd(Tokens::detectBlockType($nextToken)['type'], $nextIndex) + 1;
                 $nextToken = $tokens[$nextIndex];
             }
 
@@ -141,10 +138,7 @@ final class NewWithBracesFixer extends AbstractFixer
         }
     }
 
-    /**
-     * @param int $index
-     */
-    private function insertBracesAfter(Tokens $tokens, $index)
+    private function insertBracesAfter(Tokens $tokens, int $index): void
     {
         $tokens->insertAt(++$index, [new Token('('), new Token(')')]);
     }

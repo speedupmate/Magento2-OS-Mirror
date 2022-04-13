@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types=1);
+
 /*
  * This file is part of PHP CS Fixer.
  *
@@ -17,18 +19,19 @@ use Symfony\Component\Finder\Finder;
 /**
  * Set of rule sets to be used by fixer.
  *
- * @author SpacePossum
- *
  * @internal
  */
 final class RuleSets
 {
+    /**
+     * @var array<string,RuleSetDescriptionInterface>
+     */
     private static $setDefinitions;
 
     /**
      * @return array<string, RuleSetDescriptionInterface>
      */
-    public static function getSetDefinitions()
+    public static function getSetDefinitions(): array
     {
         if (null === self::$setDefinitions) {
             self::$setDefinitions = [];
@@ -49,17 +52,12 @@ final class RuleSets
     /**
      * @return string[]
      */
-    public static function getSetDefinitionNames()
+    public static function getSetDefinitionNames(): array
     {
         return array_keys(self::getSetDefinitions());
     }
 
-    /**
-     * @param string $name
-     *
-     * @return RuleSetDescriptionInterface
-     */
-    public static function getSetDefinition($name)
+    public static function getSetDefinition(string $name): RuleSetDescriptionInterface
     {
         $definitions = self::getSetDefinitions();
 

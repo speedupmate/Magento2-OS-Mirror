@@ -60,7 +60,7 @@ class ContactFormTest extends TestCase
         $this->assertInstanceOf($expectedViewModelType, $this->block->getData('view_model'));
     }
 
-    public function dataProvider()
+    public function dataProvider(): array
     {
         return [
             'view model was not preset before' => [

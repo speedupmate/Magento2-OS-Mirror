@@ -1,3 +1,101 @@
+## 6.5.1
+* Address PHP 8.1 Deprecation warnings
+
+## 6.5.0
+* Add plan create/update/find API endpoint
+* Add `TransactionReview` webhook notification
+
+## 6.4.1
+* Add `exchangeRateQuoteId` to `Transaction.sale`
+* Add error code `EXCHANGE_RATE_QUOTE_ID_IS_TOO_LONG`
+* Added the following fields to GooglePayCard and ApplePayCard:
+  * `commercial`
+  * `debit`
+  * `durbinRegulated`
+  * `healthcare`
+  * `payroll`
+  * `prepaid`
+  * `productId`
+  * `countryOfIssuance`
+  * `issuingBank`
+* Add `LocalPaymentExpired` and `LocalPaymentFunded` webhook notification support
+
+## 6.3.0
+* Add `paymentReaderCardDetails` parameter to `Transaction.sale`
+* Add error code `TRANSACTION_TAX_AMOUNT_IS_REQUIRED_FOR_AIB_SWEDISH` for attribute `taxAmount` in `transaction` key for AIB:Domestic transactions in Sweden.
+
+## 6.2.0
+* Add `chargebackProtectionLevel ` to `Dispute` and `DisputeSearch`
+* Add `skipAdvancedFraudChecking` to:
+  * `CreditCard.create` and `CreditCard.update`
+  * `PaymentMethod.create` and `PaymentMethod.update`
+
+## 6.1.0
+* Add `paypalMessages` to `Dispute`
+* Fix bug where `__isset` methods in `Instance` and `Base` classes treated `null` value as set (Thanks @sklodzio)
+* Add `tax_identifiers` parameter to `Customer.create` and `Customer.update`
+* Add webhook sample for `GrantedPaymentMethodRevoked`
+* Add sample webhook notifications for `SUBSCRIPTION_EXPIRED`, `SUBSCRIPTION_CANCELED` and `SUBSCRIPTION_WENT_PAST_DUE` (thanks @antonvolokha)
+
+## 6.0.0
+* Add `LocalPaymentReversed` webhook
+* Add `adjustAuthorization` method to Transaction, for supporting multiple authorizations on a single transaction
+* Add `storeId` and `storeIds` to Transaction search
+* Add `merchantAccountId` parameter to Transaction refund
+* Parameters that supported DateTime objects can also support DateTimeImmutable objects (closes #278)
+* Add `toArray` function to Base and Instance classes (resolves #289)
+* Add `jsonSerialize` to Instance class
+* Breaking Changes:
+  * Require PHP 7.3 or higher
+  * Rename `AndroidPayCard` to `GooglePayCard`
+  * Rename `AndroidPayCardDetails` to `GooglePayCardDetails`
+  * Remove Configuration#isAuthenticatedInstanceProxy method in favor of Configuration#isAuthenticatedProxy
+  * Remove Configuration#isUsingInstanceProxy method in favor of Configuration#isUsingProxy
+  * Remove `TRANSACTION_EXTERNAL_VAULT_CARD_TYPE_IS_INVALID ` and `RISK_DATA_CUSTOMER_BROWSER_IS_TOO_LONG` error codes
+  * Remove `customer_ip` and `customer_browser` snake case parameters in favor of camel case `customerIp` and `customerBrowser` accepted in `Customer#create` and `Transaction#sale`
+  * Remove `AmexExpressCheckoutCard` and `AmexExpressCheckoutCardDetails`
+  * Remove `MasterpassCard` and `MasterpassCardDetails`
+  * Remove deprecated parameters:
+    * `deviceSessionId` from CreditCardGateway#update, CreditCardGateway#create, CustomerGateway#create, CustomerGateway#update, PaymentMethodGateay#update, and TransactionGateway#create
+    * `fraudMerchantId` from CreditCardGateway#update, CreditCardGateway#create, CustomerGateway#create, CustomerGateway#update, PaymentMethodGateay#update, and TransactionGateway#create
+
+## 5.5.0
+* Add `scaExemption` to Transaction sale
+* Deprecate `deviceSessionId` and `fraudMerchantId` in `CreditCardGateway`, `CustomerGateway`, `PaymentMethodGateway`, and `TransactionGateway` classes
+* Add `installments` to Transaction sale
+* Add `count` to `installments`
+
+## 5.4.0
+* Add `AcquirerReferenceNumber` to `Transaction`
+* Add `billingAgreementId` to `PayPalDetails`
+* Deprecate `recurring` in Transaction sale
+* Deprecate `tag` in Dispute add text evidence
+
+## 5.3.1
+* Deprecate `masterpassCard` and `amexExpressCheckoutCard` payment methods
+* Deprecate `amexExpressCheckoutCardDetails`
+
+## 5.3.0
+* Add `RISK_THRESHOLD` to `GatewayRejectionReason` constants
+* Add `networkTransactionId` to `CreditCardVerification`
+* Add `processedWithNetworkToken` to `Transaction`
+* Add `isNetworkTokenized` to `CreditCard`
+* Add `productSku` to `Transaction`
+* Add `phoneNumber` and `shippingMethod` to `Address`
+* Add `customerDeviceId`, `customerLocationZip`, and `customerTenure` to `RiskData`
+* Add error codes
+  * `TRANSACTION_PRODUCT_SKU_IS_INVALID`
+  * `TRANSACTION_SHIPPING_METHOD_IS_INVALID`
+  * `TRANSACTION_SHIPPING_PHONE_NUMBER_IS_INVALID`
+  * `TRANSACTION_BILLING_PHONE_NUMBER_IS_INVALID`
+  * `RISK_DATA_CUSTOMER_BROWSER_IS_TOO_LONG`
+  * `RISK_DATA_CUSTOMER_DEVICE_ID_IS_TOO_LONG`
+  * `RISK_DATA_CUSTOMER_LOCATION_ZIP_INVALID_CHARACTERS`
+  * `RISK_DATA_CUSTOMER_LOCATION_ZIP_IS_INVALID`
+  * `RISK_DATA_CUSTOMER_LOCATION_ZIP_IS_TOO_LONG`
+  * `RISK_DATA_CUSTOMER_TENURE_IS_TOO_LONG`
+  * `RISK_DATA_CUSTOMER_TENURE_IS_INVALID`
+
 ## 5.2.0
 * Add `retrieval_reference_number` to `Transaction`
 * Fix class alias issue where Exceptions could not be thrown for missing libraries or older PHP versions.

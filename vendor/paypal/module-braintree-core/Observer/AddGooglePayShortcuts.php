@@ -7,9 +7,24 @@ use Magento\Checkout\Block\QuoteShortcutButtons;
 use Magento\Framework\Event\Observer;
 use Magento\Framework\Event\ObserverInterface;
 use Magento\Framework\Exception\LocalizedException;
+use PayPal\Braintree\Gateway\Config\Config;
 
 class AddGooglePayShortcuts implements ObserverInterface
 {
+    /**
+     * @var Config
+     */
+    private $config;
+
+    /**
+     * @param Config $config
+     */
+    public function __construct(
+        Config $config
+    ) {
+        $this->config = $config;
+    }
+
     /**
      * Add google pay shortcut button
      *
@@ -19,6 +34,10 @@ class AddGooglePayShortcuts implements ObserverInterface
      */
     public function execute(Observer $observer)
     {
+        if (!$this->config->isActive()) {
+            return;
+        }
+
         // Remove button from catalog pages
         if ($observer->getData('is_catalog_product')) {
             return;

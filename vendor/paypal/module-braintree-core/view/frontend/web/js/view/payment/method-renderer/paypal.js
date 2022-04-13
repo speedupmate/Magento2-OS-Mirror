@@ -138,7 +138,7 @@ define([
                     self.grandTotalAmount = quote.totals()['base_grand_total'];
                     var methodCode = quote.paymentMethod();
 
-                    if (methodCode === 'braintree_paypal' || methodCode === 'braintree_paypal_vault') {
+                    if (methodCode && (methodCode.method === 'braintree_paypal' || methodCode.method === 'braintree_paypal_vault')) {
                         self.reInitPayPal();
                     }
                 }

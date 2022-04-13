@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types=1);
+
 /*
  * This file is part of PHP CS Fixer.
  *
@@ -16,18 +18,19 @@ use PhpCsFixer\AbstractFixer;
 use PhpCsFixer\DocBlock\DocBlock;
 use PhpCsFixer\FixerDefinition\CodeSample;
 use PhpCsFixer\FixerDefinition\FixerDefinition;
+use PhpCsFixer\FixerDefinition\FixerDefinitionInterface;
 use PhpCsFixer\Tokenizer\Token;
 use PhpCsFixer\Tokenizer\Tokens;
 
 /**
- * @author Graham Campbell <graham@alt-three.com>
+ * @author Graham Campbell <hello@gjcampbell.co.uk>
  */
 final class PhpdocOrderFixer extends AbstractFixer
 {
     /**
      * {@inheritdoc}
      */
-    public function isCandidate(Tokens $tokens)
+    public function isCandidate(Tokens $tokens): bool
     {
         return $tokens->isTokenKindFound(T_DOC_COMMENT);
     }
@@ -35,7 +38,7 @@ final class PhpdocOrderFixer extends AbstractFixer
     /**
      * {@inheritdoc}
      */
-    public function getDefinition()
+    public function getDefinition(): FixerDefinitionInterface
     {
         return new FixerDefinition(
             'Annotations in PHPDoc should be ordered so that `@param` annotations come first, then `@throws` annotations, then `@return` annotations.',
@@ -63,7 +66,7 @@ final class PhpdocOrderFixer extends AbstractFixer
      * Must run before PhpdocAlignFixer, PhpdocSeparationFixer, PhpdocTrimFixer.
      * Must run after AlignMultilineCommentFixer, CommentToPhpdocFixer, PhpdocAddMissingParamAnnotationFixer, PhpdocIndentFixer, PhpdocNoEmptyReturnFixer, PhpdocScalarFixer, PhpdocToCommentFixer, PhpdocTypesFixer.
      */
-    public function getPriority()
+    public function getPriority(): int
     {
         return -2;
     }
@@ -71,7 +74,7 @@ final class PhpdocOrderFixer extends AbstractFixer
     /**
      * {@inheritdoc}
      */
-    protected function applyFix(\SplFileInfo $file, Tokens $tokens)
+    protected function applyFix(\SplFileInfo $file, Tokens $tokens): void
     {
         foreach ($tokens as $index => $token) {
             if (!$token->isGivenKind(T_DOC_COMMENT)) {
@@ -91,24 +94,20 @@ final class PhpdocOrderFixer extends AbstractFixer
 
     /**
      * Move all param annotations in before throws and return annotations.
-     *
-     * @param string $content
-     *
-     * @return string
      */
-    private function moveParamAnnotations($content)
+    private function moveParamAnnotations(string $content): string
     {
         $doc = new DocBlock($content);
         $params = $doc->getAnnotationsOfType('param');
 
         // nothing to do if there are no param annotations
-        if (empty($params)) {
+        if (0 === \count($params)) {
             return $content;
         }
 
         $others = $doc->getAnnotationsOfType(['throws', 'return']);
 
-        if (empty($others)) {
+        if (0 === \count($others)) {
             return $content;
         }
 
@@ -131,25 +130,21 @@ final class PhpdocOrderFixer extends AbstractFixer
 
     /**
      * Move all return annotations after param and throws annotations.
-     *
-     * @param string $content
-     *
-     * @return string
      */
-    private function moveReturnAnnotations($content)
+    private function moveReturnAnnotations(string $content): string
     {
         $doc = new DocBlock($content);
         $returns = $doc->getAnnotationsOfType('return');
 
         // nothing to do if there are no return annotations
-        if (empty($returns)) {
+        if (0 === \count($returns)) {
             return $content;
         }
 
         $others = $doc->getAnnotationsOfType(['param', 'throws']);
 
         // nothing to do if there are no other annotations
-        if (empty($others)) {
+        if (0 === \count($others)) {
             return $content;
         }
 

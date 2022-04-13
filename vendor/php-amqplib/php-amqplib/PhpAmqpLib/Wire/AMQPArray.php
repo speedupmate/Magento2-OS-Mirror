@@ -1,6 +1,6 @@
 <?php
-namespace PhpAmqpLib\Wire;
 
+namespace PhpAmqpLib\Wire;
 
 class AMQPArray extends AMQPAbstractCollection
 {
@@ -23,7 +23,7 @@ class AMQPArray extends AMQPAbstractCollection
 
     /**
      * @param mixed $val
-     * @param null $type
+     * @param int|null $type
      * @return $this
      */
     public function push($val, $type = null)

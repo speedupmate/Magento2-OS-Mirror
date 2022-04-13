@@ -1,11 +1,5 @@
 <?php
 
-/**
- * @see       https://github.com/laminas/laminas-view for the canonical source repository
- * @copyright https://github.com/laminas/laminas-view/blob/master/COPYRIGHT.md
- * @license   https://github.com/laminas/laminas-view/blob/master/LICENSE.md New BSD License
- */
-
 namespace Laminas\View\Helper;
 
 use Laminas\Mvc\Controller\Plugin\FlashMessenger as V2PluginFlashMessenger;
@@ -72,8 +66,8 @@ class FlashMessenger extends AbstractHelper
     /**
      * Returns the flash messenger plugin controller
      *
-     * @param  string|null $namespace
-     * @return FlashMessenger|V2PluginFlashMessenger|PluginFlashMessenger
+     * @param string|null $namespace
+     * @return array|static
      */
     public function __invoke($namespace = null)
     {
@@ -214,7 +208,7 @@ class FlashMessenger extends AbstractHelper
     /**
      * Return whether auto escaping is enabled or disabled
      *
-     * return bool
+     * @return bool
      */
     public function getAutoEscape()
     {

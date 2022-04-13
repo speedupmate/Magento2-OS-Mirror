@@ -3,15 +3,14 @@
  * Copyright © Magento, Inc. All rights reserved.
  * See COPYING.txt for license details.
  */
+
 declare(strict_types=1);
 
 namespace Magento\Webapi\Model;
 
 use Magento\Framework\App\ObjectManager;
-use Magento\Framework\Reflection\TypeProcessor;
 use Magento\Framework\Serialize\SerializerInterface;
 use Magento\Webapi\Model\Cache\Type\Webapi as WebApiCache;
-use Magento\Webapi\Model\Config\ClassReflector;
 use Magento\Webapi\Model\Config\Converter;
 
 /**
@@ -70,17 +69,17 @@ class ServiceMetadata
     protected $cache;
 
     /**
-     * @var Config
+     * @var \Magento\Webapi\Model\Config
      */
     protected $config;
 
     /**
-     * @var ClassReflector
+     * @var \Magento\Webapi\Model\Config\ClassReflector
      */
     protected $classReflector;
 
     /**
-     * @var TypeProcessor
+     * @var \Magento\Framework\Reflection\TypeProcessor
      */
     protected $typeProcessor;
 
@@ -92,17 +91,17 @@ class ServiceMetadata
     /**
      * Initialize dependencies.
      *
-     * @param Config $config
+     * @param \Magento\Webapi\Model\Config $config
      * @param WebApiCache $cache
-     * @param ClassReflector $classReflector
-     * @param TypeProcessor $typeProcessor
+     * @param \Magento\Webapi\Model\Config\ClassReflector $classReflector
+     * @param \Magento\Framework\Reflection\TypeProcessor $typeProcessor
      * @param SerializerInterface|null $serializer
      */
     public function __construct(
-        Config $config,
+        \Magento\Webapi\Model\Config $config,
         WebApiCache $cache,
-        ClassReflector $classReflector,
-        TypeProcessor $typeProcessor,
+        \Magento\Webapi\Model\Config\ClassReflector $classReflector,
+        \Magento\Framework\Reflection\TypeProcessor $typeProcessor,
         SerializerInterface $serializer = null
     ) {
         $this->config = $config;
@@ -221,7 +220,7 @@ class ServiceMetadata
      */
     public function getServiceName($interfaceName, $version, $preserveVersion = true)
     {
-        if (!preg_match(Config::SERVICE_CLASS_PATTERN, $interfaceName, $matches)) {
+        if (!preg_match(\Magento\Webapi\Model\Config::SERVICE_CLASS_PATTERN, $interfaceName, $matches)) {
             $apiClassPattern = "#^(.+?)\\\\(.+?)\\\\Api\\\\(.+?)(Interface)?$#";
             preg_match($apiClassPattern, $interfaceName, $matches);
         }
@@ -243,7 +242,7 @@ class ServiceMetadata
             if ($preserveVersion) {
                 $serviceNameParts[] = $version;
             }
-        } elseif (preg_match(Config::API_PATTERN, $interfaceName, $matches)) {
+        } elseif (preg_match(\Magento\Webapi\Model\Config::API_PATTERN, $interfaceName, $matches)) {
             $moduleNamespace = $matches[1];
             $moduleName = $matches[2];
             $moduleNamespace = ($moduleNamespace == 'Magento') ? '' : $moduleNamespace;

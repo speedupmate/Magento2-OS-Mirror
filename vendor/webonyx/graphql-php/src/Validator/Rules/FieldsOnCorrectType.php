@@ -16,6 +16,7 @@ use GraphQL\Validator\ValidationContext;
 use function array_keys;
 use function array_merge;
 use function arsort;
+use function count;
 use function sprintf;
 
 class FieldsOnCorrectType extends ValidationRule
@@ -23,7 +24,7 @@ class FieldsOnCorrectType extends ValidationRule
     public function getVisitor(ValidationContext $context)
     {
         return [
-            NodeKind::FIELD => function (FieldNode $node) use ($context) {
+            NodeKind::FIELD => function (FieldNode $node) use ($context) : void {
                 $type = $context->getParentType();
                 if (! $type) {
                     return;
@@ -84,15 +85,13 @@ class FieldsOnCorrectType extends ValidationRule
             $interfaceUsageCount  = [];
 
             foreach ($schema->getPossibleTypes($type) as $possibleType) {
-                $fields = $possibleType->getFields();
-                if (! isset($fields[$fieldName])) {
+                if (! $possibleType->hasField($fieldName)) {
                     continue;
                 }
                 // This object type defines this field.
                 $suggestedObjectTypes[] = $possibleType->name;
                 foreach ($possibleType->getInterfaces() as $possibleInterface) {
-                    $fields = $possibleInterface->getFields();
-                    if (! isset($fields[$fieldName])) {
+                    if (! $possibleInterface->hasField($fieldName)) {
                         continue;
                     }
                     // This interface type defines this field.
@@ -127,7 +126,7 @@ class FieldsOnCorrectType extends ValidationRule
     private function getSuggestedFieldNames(Schema $schema, $type, $fieldName)
     {
         if ($type instanceof ObjectType || $type instanceof InterfaceType) {
-            $possibleFieldNames = array_keys($type->getFields());
+            $possibleFieldNames = $type->getFieldNames();
 
             return Utils::suggestionList($fieldName, $possibleFieldNames);
         }
@@ -156,7 +155,7 @@ class FieldsOnCorrectType extends ValidationRule
             $suggestions = Utils::quotedOrList($suggestedTypeNames);
 
             $message .= sprintf(' Did you mean to use an inline fragment on %s?', $suggestions);
-        } elseif (! empty($suggestedFieldNames)) {
+        } elseif (count($suggestedFieldNames) > 0) {
             $suggestions = Utils::quotedOrList($suggestedFieldNames);
 
             $message .= sprintf(' Did you mean %s?', $suggestions);

@@ -93,7 +93,6 @@ class RemoteWebDriver implements WebDriver, JavaScriptExecutor, WebDriverHasInpu
         $http_proxy_port = null,
         DesiredCapabilities $required_capabilities = null
     ) {
-        // BC layer to not break the method signature
         $selenium_server_url = preg_replace('#/+$#', '', $selenium_server_url);
 
         $desired_capabilities = self::castToDesiredCapabilitiesObject($desired_capabilities);
@@ -109,12 +108,12 @@ class RemoteWebDriver implements WebDriver, JavaScriptExecutor, WebDriverHasInpu
         // W3C
         $parameters = [
             'capabilities' => [
-                'firstMatch' => [$desired_capabilities->toW3cCompatibleArray()],
+                'firstMatch' => [(object) $desired_capabilities->toW3cCompatibleArray()],
             ],
         ];
 
         if ($required_capabilities !== null && !empty($required_capabilities->toArray())) {
-            $parameters['capabilities']['alwaysMatch'] = $required_capabilities->toW3cCompatibleArray();
+            $parameters['capabilities']['alwaysMatch'] = (object) $required_capabilities->toW3cCompatibleArray();
         }
 
         // Legacy protocol
@@ -122,33 +121,16 @@ class RemoteWebDriver implements WebDriver, JavaScriptExecutor, WebDriverHasInpu
             // TODO: Selenium (as of v3.0.1) does accept requiredCapabilities only as a property of desiredCapabilities.
             // This has changed with the W3C WebDriver spec, but is the only way how to pass these
             // values with the legacy protocol.
-            $desired_capabilities->setCapability('requiredCapabilities', $required_capabilities->toArray());
+            $desired_capabilities->setCapability('requiredCapabilities', (object) $required_capabilities->toArray());
         }
 
-        $parameters['desiredCapabilities'] = $desired_capabilities->toArray();
+        $parameters['desiredCapabilities'] = (object) $desired_capabilities->toArray();
 
-        $command = new WebDriverCommand(
-            null,
-            DriverCommand::NEW_SESSION,
-            $parameters
-        );
+        $command = WebDriverCommand::newSession($parameters);
 
         $response = $executor->execute($command);
-        $value = $response->getValue();
 
-        if (!$isW3cCompliant = isset($value['capabilities'])) {
-            $executor->disableW3cCompliance();
-        }
-
-        if ($isW3cCompliant) {
-            $returnedCapabilities = DesiredCapabilities::createFromW3cCapabilities($value['capabilities']);
-        } else {
-            $returnedCapabilities = new DesiredCapabilities($value);
-        }
-
-        $driver = new static($executor, $response->getSessionID(), $returnedCapabilities, $isW3cCompliant);
-
-        return $driver;
+        return static::createFromResponse($response, $executor);
     }
 
     /**
@@ -198,6 +180,18 @@ class RemoteWebDriver implements WebDriver, JavaScriptExecutor, WebDriverHasInpu
         $this->execute(DriverCommand::CLOSE, []);
 
         return $this;
+    }
+
+    /**
+     * Create a new top-level browsing context.
+     *
+     * @codeCoverageIgnore
+     * @deprecated Use $driver->switchTo()->newWindow()
+     * @return WebDriver The current instance.
+     */
+    public function newWindow()
+    {
+        return $this->switchTo()->newWindow();
     }
 
     /**
@@ -300,6 +294,9 @@ class RemoteWebDriver implements WebDriver, JavaScriptExecutor, WebDriverHasInpu
     /**
      * Get all window handles available to the current session.
      *
+     * Note: Do not use `end($driver->getWindowHandles())` to find the last open window, for proper solution see:
+     * https://github.com/php-webdriver/php-webdriver/wiki/Alert,-tabs,-frames,-iframes#switch-to-the-new-window
+     *
      * @return array An array of string containing all available window handles.
      */
     public function getWindowHandles()
@@ -367,9 +364,7 @@ class RemoteWebDriver implements WebDriver, JavaScriptExecutor, WebDriverHasInpu
      */
     public function takeScreenshot($save_as = null)
     {
-        $screenshot = base64_decode(
-            $this->execute(DriverCommand::SCREENSHOT)
-        );
+        $screenshot = base64_decode($this->execute(DriverCommand::SCREENSHOT), true);
 
         if ($save_as !== null) {
             $directoryPath = dirname($save_as);
@@ -596,6 +591,10 @@ class RemoteWebDriver implements WebDriver, JavaScriptExecutor, WebDriverHasInpu
     }
 
     /**
+     * Execute custom commands on remote end.
+     * For example vendor-specific commands or other commands not implemented by php-webdriver.
+     *
+     * @see https://github.com/php-webdriver/php-webdriver/wiki/Custom-commands
      * @param string $endpointUrl
      * @param string $method
      * @param array $params
@@ -626,6 +625,30 @@ class RemoteWebDriver implements WebDriver, JavaScriptExecutor, WebDriverHasInpu
     public function isW3cCompliant()
     {
         return $this->isW3cCompliant;
+    }
+
+    /**
+     * Create instance based on response to NEW_SESSION command.
+     * Also detect W3C/OSS dialect and setup the driver/executor accordingly.
+     *
+     * @internal
+     * @return static
+     */
+    protected static function createFromResponse(WebDriverResponse $response, HttpCommandExecutor $commandExecutor)
+    {
+        $responseValue = $response->getValue();
+
+        if (!$isW3cCompliant = isset($responseValue['capabilities'])) {
+            $commandExecutor->disableW3cCompliance();
+        }
+
+        if ($isW3cCompliant) {
+            $returnedCapabilities = DesiredCapabilities::createFromW3cCapabilities($responseValue['capabilities']);
+        } else {
+            $returnedCapabilities = new DesiredCapabilities($responseValue);
+        }
+
+        return new static($commandExecutor, $response->getSessionID(), $returnedCapabilities, $isW3cCompliant);
     }
 
     /**

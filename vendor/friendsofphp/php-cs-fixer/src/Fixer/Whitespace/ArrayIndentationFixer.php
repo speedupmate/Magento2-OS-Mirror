@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types=1);
+
 /*
  * This file is part of PHP CS Fixer.
  *
@@ -16,6 +18,7 @@ use PhpCsFixer\AbstractFixer;
 use PhpCsFixer\Fixer\WhitespacesAwareFixerInterface;
 use PhpCsFixer\FixerDefinition\CodeSample;
 use PhpCsFixer\FixerDefinition\FixerDefinition;
+use PhpCsFixer\FixerDefinition\FixerDefinitionInterface;
 use PhpCsFixer\Preg;
 use PhpCsFixer\Tokenizer\CT;
 use PhpCsFixer\Tokenizer\Token;
@@ -23,10 +26,16 @@ use PhpCsFixer\Tokenizer\Tokens;
 
 final class ArrayIndentationFixer extends AbstractFixer implements WhitespacesAwareFixerInterface
 {
+    /** @var int */
+    private $newlineTokenIndexCache;
+
+    /** @var int */
+    private $newlineTokenPositionCache;
+
     /**
      * {@inheritdoc}
      */
-    public function getDefinition()
+    public function getDefinition(): FixerDefinitionInterface
     {
         return new FixerDefinition(
             'Each element of an array must be indented exactly once.',
@@ -39,7 +48,7 @@ final class ArrayIndentationFixer extends AbstractFixer implements WhitespacesAw
     /**
      * {@inheritdoc}
      */
-    public function isCandidate(Tokens $tokens)
+    public function isCandidate(Tokens $tokens): bool
     {
         return $tokens->isAnyTokenKindsFound([T_ARRAY, CT::T_ARRAY_SQUARE_BRACE_OPEN]);
     }
@@ -50,13 +59,15 @@ final class ArrayIndentationFixer extends AbstractFixer implements WhitespacesAw
      * Must run before AlignMultilineCommentFixer, BinaryOperatorSpacesFixer.
      * Must run after BracesFixer, MethodArgumentSpaceFixer, MethodChainingIndentationFixer.
      */
-    public function getPriority()
+    public function getPriority(): int
     {
         return 29;
     }
 
-    protected function applyFix(\SplFileInfo $file, Tokens $tokens)
+    protected function applyFix(\SplFileInfo $file, Tokens $tokens): void
     {
+        $this->returnWithUpdateCache(0, null);
+
         $scopes = [];
         $previousLineInitialIndent = '';
         $previousLineNewIndent = '';
@@ -162,7 +173,7 @@ final class ArrayIndentationFixer extends AbstractFixer implements WhitespacesAw
         }
     }
 
-    private function findExpressionEndIndex(Tokens $tokens, $index, $parentScopeEndIndex)
+    private function findExpressionEndIndex(Tokens $tokens, int $index, int $parentScopeEndIndex): int
     {
         $endIndex = null;
 
@@ -186,14 +197,10 @@ final class ArrayIndentationFixer extends AbstractFixer implements WhitespacesAw
             }
         }
 
-        if (null !== $endIndex) {
-            return $endIndex;
-        }
-
-        return $tokens->getPrevMeaningfulToken($parentScopeEndIndex);
+        return $endIndex ?? $tokens->getPrevMeaningfulToken($parentScopeEndIndex);
     }
 
-    private function getLineIndentation(Tokens $tokens, $index)
+    private function getLineIndentation(Tokens $tokens, int $index): string
     {
         $newlineTokenIndex = $this->getPreviousNewlineTokenIndex($tokens, $index);
 
@@ -204,7 +211,7 @@ final class ArrayIndentationFixer extends AbstractFixer implements WhitespacesAw
         return $this->extractIndent($this->computeNewLineContent($tokens, $newlineTokenIndex));
     }
 
-    private function extractIndent($content)
+    private function extractIndent(string $content): string
     {
         if (Preg::match('/\R(\h*)[^\r\n]*$/D', $content, $matches)) {
             return $matches[1];
@@ -213,24 +220,29 @@ final class ArrayIndentationFixer extends AbstractFixer implements WhitespacesAw
         return '';
     }
 
-    private function getPreviousNewlineTokenIndex(Tokens $tokens, $index)
+    private function getPreviousNewlineTokenIndex(Tokens $tokens, int $startIndex): ?int
     {
+        $index = $startIndex;
         while ($index > 0) {
             $index = $tokens->getPrevTokenOfKind($index, [[T_WHITESPACE], [T_INLINE_HTML]]);
+
+            if ($this->newlineTokenIndexCache > $index) {
+                return $this->returnWithUpdateCache($startIndex, $this->newlineTokenPositionCache);
+            }
 
             if (null === $index) {
                 break;
             }
 
             if ($this->isNewLineToken($tokens, $index)) {
-                return $index;
+                return $this->returnWithUpdateCache($startIndex, $index);
             }
         }
 
-        return null;
+        return $this->returnWithUpdateCache($startIndex, null);
     }
 
-    private function isNewLineToken(Tokens $tokens, $index)
+    private function isNewLineToken(Tokens $tokens, int $index): bool
     {
         if (!$tokens[$index]->isGivenKind([T_WHITESPACE, T_INLINE_HTML])) {
             return false;
@@ -239,7 +251,7 @@ final class ArrayIndentationFixer extends AbstractFixer implements WhitespacesAw
         return (bool) Preg::match('/\R/', $this->computeNewLineContent($tokens, $index));
     }
 
-    private function computeNewLineContent(Tokens $tokens, $index)
+    private function computeNewLineContent(Tokens $tokens, int $index): string
     {
         $content = $tokens[$index]->getContent();
 
@@ -248,5 +260,13 @@ final class ArrayIndentationFixer extends AbstractFixer implements WhitespacesAw
         }
 
         return $content;
+    }
+
+    private function returnWithUpdateCache(int $index, ?int $position): ?int
+    {
+        $this->newlineTokenIndexCache = $index;
+        $this->newlineTokenPositionCache = $position;
+
+        return $position;
     }
 }

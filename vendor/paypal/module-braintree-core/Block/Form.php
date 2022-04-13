@@ -113,7 +113,12 @@ class Form extends Cc
      */
     public function isVaultEnabled(): bool
     {
-        $storeId = $this->_storeManager->getStore()->getId();
+        if ($this->sessionQuote->getStoreId()) {
+            $storeId = $this->sessionQuote->getStoreId();
+        } else {
+            $storeId = $this->_storeManager->getStore()->getId();
+        }
+
         $vaultPayment = $this->getVaultPayment();
 
         return $vaultPayment->isActive($storeId);

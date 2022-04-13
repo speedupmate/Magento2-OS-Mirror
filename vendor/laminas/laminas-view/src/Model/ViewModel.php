@@ -1,19 +1,13 @@
 <?php
 
-/**
- * @see       https://github.com/laminas/laminas-view for the canonical source repository
- * @copyright https://github.com/laminas/laminas-view/blob/master/COPYRIGHT.md
- * @license   https://github.com/laminas/laminas-view/blob/master/LICENSE.md New BSD License
- */
-
 namespace Laminas\View\Model;
 
 use ArrayAccess;
 use ArrayIterator;
 use Laminas\Stdlib\ArrayUtils;
 use Laminas\View\Exception;
-use Laminas\View\Model;
 use Laminas\View\Variables as ViewVariables;
+use ReturnTypeWillChange;
 use Traversable;
 
 class ViewModel implements ModelInterface, ClearableModelInterface, RetrievableChildrenInterface
@@ -493,6 +487,7 @@ class ViewModel implements ModelInterface, ClearableModelInterface, RetrievableC
      *
      * @return int
      */
+    #[ReturnTypeWillChange]
     public function count()
     {
         return count($this->children);
@@ -503,6 +498,7 @@ class ViewModel implements ModelInterface, ClearableModelInterface, RetrievableC
      *
      * @return ArrayIterator
      */
+    #[ReturnTypeWillChange]
     public function getIterator()
     {
         return new ArrayIterator($this->children);

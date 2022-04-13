@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types=1);
+
 /*
  * This file is part of PHP CS Fixer.
  *
@@ -27,12 +29,14 @@ use Symfony\Component\Console\Output\OutputInterface;
  * @author Stephane PY <py.stephane1@gmail.com>
  * @author Grégoire Pineau <lyrixx@lyrixx.info>
  * @author Dariusz Rumiński <dariusz.ruminski@gmail.com>
- * @author SpacePossum
  *
  * @internal
  */
 final class SelfUpdateCommand extends Command
 {
+    /**
+     * @var string
+     */
     protected static $defaultName = 'self-update';
 
     /**
@@ -65,7 +69,7 @@ final class SelfUpdateCommand extends Command
     /**
      * {@inheritdoc}
      */
-    protected function configure()
+    protected function configure(): void
     {
         $this
             ->setAliases(['selfupdate'])
@@ -91,7 +95,7 @@ EOT
     /**
      * {@inheritdoc}
      */
-    protected function execute(InputInterface $input, OutputInterface $output)
+    protected function execute(InputInterface $input, OutputInterface $output): int
     {
         if (OutputInterface::VERBOSITY_VERBOSE <= $output->getVerbosity() && $output instanceof ConsoleOutputInterface) {
             $stdErr = $output->getErrorOutput();
@@ -122,7 +126,7 @@ EOT
         }
 
         if (1 !== $this->versionChecker->compareVersions($latestVersion, $currentVersion)) {
-            $output->writeln('<info>PHP CS Fixer is already up to date.</info>');
+            $output->writeln('<info>PHP CS Fixer is already up-to-date.</info>');
 
             return 0;
         }
@@ -134,7 +138,7 @@ EOT
             && true !== $input->getOption('force')
         ) {
             $output->writeln(sprintf('<info>A new major version of PHP CS Fixer is available</info> (<comment>%s</comment>)', $latestVersion));
-            $output->writeln(sprintf('<info>Before upgrading please read</info> https://github.com/FriendsOfPHP/PHP-CS-Fixer/blob/%s/UPGRADE.md', $latestVersion));
+            $output->writeln(sprintf('<info>Before upgrading please read</info> https://github.com/FriendsOfPHP/PHP-CS-Fixer/blob/%s/UPGRADE-v%s.md', $latestVersion, $currentMajor + 1));
             $output->writeln('<info>If you are ready to upgrade run this command with</info> <comment>-f</comment>');
             $output->writeln('<info>Checking for new minor/patch version...</info>');
 

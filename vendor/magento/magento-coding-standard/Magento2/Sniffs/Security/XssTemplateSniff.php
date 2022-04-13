@@ -1,6 +1,6 @@
 <?php
 /**
- * Copyright © Magento. All rights reserved.
+ * Copyright © Magento, Inc. All rights reserved.
  * See COPYING.txt for license details.
  */
 namespace Magento2\Sniffs\Security;
@@ -50,8 +50,6 @@ class XssTemplateSniff implements Sniff
     ];
 
     /**
-     * Allowed method name - {suffix}Html{postfix}()
-     *
      * @var string
      */
     protected $methodNameContains = 'html';
@@ -64,7 +62,7 @@ class XssTemplateSniff implements Sniff
     protected $allowedFunctions = ['count'];
 
     /**
-     * Allowed annotations.
+     * Annotations preventing from static analysis (skipping this sniff)
      *
      * @var array
      */
@@ -249,8 +247,10 @@ class XssTemplateSniff implements Sniff
         $posOfLastInlineThen = $this->findLastInScope(T_INLINE_THEN, $start, $end);
         if ($posOfLastInlineThen !== false) {
             $posOfInlineElse = $this->file->findNext(T_INLINE_ELSE, $posOfLastInlineThen, $end);
-            $this->addStatement($posOfLastInlineThen + 1, $posOfInlineElse);
-            $this->addStatement($posOfInlineElse + 1, $end);
+            if ($posOfInlineElse !== false) {
+                $this->addStatement($posOfLastInlineThen + 1, $posOfInlineElse);
+                $this->addStatement($posOfInlineElse + 1, $end);
+            }
             $parsed = true;
         } else {
             do {

@@ -31,39 +31,33 @@ class InputParamsResolver
      * @var RestRequest
      */
     private $request;
-
     /**
      * @var ParamsOverrider
      */
     private $paramsOverrider;
-
     /**
      * @var ServiceInputProcessor
      */
     private $serviceInputProcessor;
-
     /**
      * @var Router
      */
     private $router;
-
     /**
      * @var RequestValidator
      */
     private $requestValidator;
-
     /**
      * @var WebapiInputParamsResolver
      */
     private $inputParamsResolver;
-
     /**
      * @var bool
      */
     private $isBulk;
 
     /**
-     * @var InputArraySizeLimitValue
+     * @var InputArraySizeLimitValue|null
      */
     private $inputArraySizeLimitValue;
 
@@ -116,12 +110,13 @@ class InputParamsResolver
         if ($this->isBulk === false) {
             return [$this->inputParamsResolver->resolve()];
         }
+
         $this->requestValidator->validate();
         $webapiResolvedParams = [];
         $route = $this->getRoute();
-        $this->inputArraySizeLimitValue->set($route->getInputArraySizeLimit());
         $routeServiceClass = $route->getServiceClass();
         $routeServiceMethod = $route->getServiceMethod();
+        $this->inputArraySizeLimitValue->set($route->getInputArraySizeLimit());
 
         foreach ($this->getInputData() as $key => $singleEntityParams) {
             $webapiResolvedParams[$key] = $this->resolveBulkItemParams(
@@ -130,6 +125,7 @@ class InputParamsResolver
                 $routeServiceMethod
             );
         }
+
         return $webapiResolvedParams;
     }
 

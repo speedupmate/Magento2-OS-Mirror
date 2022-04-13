@@ -56,10 +56,10 @@ class Save
         IsPathExcludedInterface $isPathExcluded,
         int $maxFileLength = null
     ) {
-        $this->maxFileLength = $maxFileLength ?: 255;
         $this->filesystem = $filesystem;
         $this->driver = $driver;
         $this->isPathExcluded = $isPathExcluded;
+        $this->maxFileLength = $maxFileLength ?: 255;
     }
 
     /**
@@ -75,9 +75,7 @@ class Save
     public function execute(string $imageUrl, string $destinationPath, bool $allowOverwrite = false): void
     {
         if (strlen($destinationPath) > $this->maxFileLength) {
-            throw new LocalizedException(
-                __('Destination path is too long; must be %1 characters or less', $this->maxFileLength)
-            );
+            throw new LocalizedException(__('Destination Path is too long; must be %1 characters or less', $this->maxFileLength));
         }
 
         $mediaDirectory = $this->filesystem->getDirectoryWrite(DirectoryList::MEDIA);

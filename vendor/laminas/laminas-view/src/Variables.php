@@ -1,14 +1,9 @@
 <?php
 
-/**
- * @see       https://github.com/laminas/laminas-view for the canonical source repository
- * @copyright https://github.com/laminas/laminas-view/blob/master/COPYRIGHT.md
- * @license   https://github.com/laminas/laminas-view/blob/master/LICENSE.md New BSD License
- */
-
 namespace Laminas\View;
 
 use ArrayObject;
+use ReturnTypeWillChange;
 
 /**
  * Class for Laminas\View\Renderer\PhpRenderer to help enforce private constructs.
@@ -128,6 +123,7 @@ class Variables extends ArrayObject
      * @param  mixed $key
      * @return mixed
      */
+    #[ReturnTypeWillChange]
     public function offsetGet($key)
     {
         if (! $this->offsetExists($key)) {

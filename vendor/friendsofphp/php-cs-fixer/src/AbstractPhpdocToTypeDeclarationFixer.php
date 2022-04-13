@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types=1);
+
 /*
  * This file is part of PHP CS Fixer.
  *
@@ -14,8 +16,9 @@ namespace PhpCsFixer;
 
 use PhpCsFixer\DocBlock\Annotation;
 use PhpCsFixer\DocBlock\DocBlock;
-use PhpCsFixer\Fixer\ConfigurationDefinitionFixerInterface;
+use PhpCsFixer\Fixer\ConfigurableFixerInterface;
 use PhpCsFixer\FixerConfiguration\FixerConfigurationResolver;
+use PhpCsFixer\FixerConfiguration\FixerConfigurationResolverInterface;
 use PhpCsFixer\FixerConfiguration\FixerOptionBuilder;
 use PhpCsFixer\Tokenizer\Analyzer\NamespacesAnalyzer;
 use PhpCsFixer\Tokenizer\Analyzer\NamespaceUsesAnalyzer;
@@ -26,7 +29,7 @@ use PhpCsFixer\Tokenizer\Tokens;
 /**
  * @internal
  */
-abstract class AbstractPhpdocToTypeDeclarationFixer extends AbstractFixer implements ConfigurationDefinitionFixerInterface
+abstract class AbstractPhpdocToTypeDeclarationFixer extends AbstractFixer implements ConfigurableFixerInterface
 {
     /**
      * @var string
@@ -61,22 +64,17 @@ abstract class AbstractPhpdocToTypeDeclarationFixer extends AbstractFixer implem
     /**
      * {@inheritdoc}
      */
-    public function isRisky()
+    public function isRisky(): bool
     {
         return true;
     }
 
-    /**
-     * @param string $type
-     *
-     * @return bool
-     */
-    abstract protected function isSkippedType($type);
+    abstract protected function isSkippedType(string $type): bool;
 
     /**
      * {@inheritdoc}
      */
-    protected function createConfigurationDefinition()
+    protected function createConfigurationDefinition(): FixerConfigurationResolverInterface
     {
         return new FixerConfigurationResolver([
             (new FixerOptionBuilder('scalar_types', 'Fix also scalar types; may have unexpected behaviour due to PHP bad type coercion system.'))
@@ -87,14 +85,9 @@ abstract class AbstractPhpdocToTypeDeclarationFixer extends AbstractFixer implem
     }
 
     /**
-     * Find all the annotations of given type in the function's PHPDoc comment.
-     *
-     * @param string $name
-     * @param int    $index The index of the function token
-     *
-     * @return Annotation[]
+     * @param int $index The index of the function token
      */
-    protected function findAnnotations($name, Tokens $tokens, $index)
+    protected function findFunctionDocComment(Tokens $tokens, int $index): ?int
     {
         do {
             $index = $tokens->getPrevNonWhitespace($index);
@@ -108,18 +101,26 @@ abstract class AbstractPhpdocToTypeDeclarationFixer extends AbstractFixer implem
             T_STATIC,
         ]));
 
-        if (!$tokens[$index]->isGivenKind(T_DOC_COMMENT)) {
-            return [];
+        if ($tokens[$index]->isGivenKind(T_DOC_COMMENT)) {
+            return $index;
         }
 
+        return null;
+    }
+
+    /**
+     * @return Annotation[]
+     */
+    protected function getAnnotationsFromDocComment(string $name, Tokens $tokens, int $docCommentIndex): array
+    {
         $namespacesAnalyzer = new NamespacesAnalyzer();
-        $namespace = $namespacesAnalyzer->getNamespaceAt($tokens, $index);
+        $namespace = $namespacesAnalyzer->getNamespaceAt($tokens, $docCommentIndex);
 
         $namespaceUsesAnalyzer = new NamespaceUsesAnalyzer();
         $namespaceUses = $namespaceUsesAnalyzer->getDeclarationsInNamespace($tokens, $namespace);
 
         $doc = new DocBlock(
-            $tokens[$index]->getContent(),
+            $tokens[$docCommentIndex]->getContent(),
             $namespace,
             $namespaceUses
         );
@@ -128,12 +129,9 @@ abstract class AbstractPhpdocToTypeDeclarationFixer extends AbstractFixer implem
     }
 
     /**
-     * @param string $type
-     * @param bool   $isNullable
-     *
      * @return Token[]
      */
-    protected function createTypeDeclarationTokens($type, $isNullable)
+    protected function createTypeDeclarationTokens(string $type, bool $isNullable): array
     {
         static $specialTypes = [
             'array' => [CT::T_ARRAY_TYPEHINT, 'array'],
@@ -173,12 +171,7 @@ abstract class AbstractPhpdocToTypeDeclarationFixer extends AbstractFixer implem
         return $newTokens;
     }
 
-    /**
-     * @param bool $isReturnType
-     *
-     * @return null|array
-     */
-    protected function getCommonTypeFromAnnotation(Annotation $annotation, $isReturnType)
+    protected function getCommonTypeFromAnnotation(Annotation $annotation, bool $isReturnType): ?array
     {
         $typesExpression = $annotation->getTypeExpression();
 
@@ -189,7 +182,7 @@ abstract class AbstractPhpdocToTypeDeclarationFixer extends AbstractFixer implem
             return null;
         }
 
-        if ($isNullable && (\PHP_VERSION_ID < 70100 || 'void' === $commonType)) {
+        if ($isNullable && 'void' === $commonType) {
             return null;
         }
 
@@ -216,7 +209,7 @@ abstract class AbstractPhpdocToTypeDeclarationFixer extends AbstractFixer implem
         return [$commonType, $isNullable];
     }
 
-    final protected function isValidSyntax($code)
+    final protected function isValidSyntax(string $code): bool
     {
         if (!isset(self::$syntaxValidationCache[$code])) {
             try {

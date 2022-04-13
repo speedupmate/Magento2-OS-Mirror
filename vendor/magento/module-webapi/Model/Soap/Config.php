@@ -3,12 +3,11 @@
  * Copyright © Magento, Inc. All rights reserved.
  * See COPYING.txt for license details.
  */
+
 declare(strict_types=1);
 
 namespace Magento\Webapi\Model\Soap;
 
-use Magento\Framework\ObjectManagerInterface;
-use Magento\Framework\Registry;
 use Magento\Webapi\Model\ServiceMetadata;
 
 /**
@@ -19,7 +18,7 @@ use Magento\Webapi\Model\ServiceMetadata;
 class Config
 {
     /**
-     * @var ObjectManagerInterface
+     * @var \Magento\Framework\ObjectManagerInterface
      */
     protected $objectManager;
 
@@ -31,26 +30,26 @@ class Config
     protected $soapOperations;
 
     /**
-     * @var Registry
+     * @var \Magento\Framework\Registry
      */
     protected $registry;
 
     /**
-     * @var ServiceMetadata
+     * @var \Magento\Webapi\Model\ServiceMetadata
      */
     protected $serviceMetadata;
 
     /**
      * Initialize dependencies.
      *
-     * @param ObjectManagerInterface $objectManager
-     * @param Registry $registry
-     * @param ServiceMetadata $serviceMetadata
+     * @param \Magento\Framework\ObjectManagerInterface $objectManager
+     * @param \Magento\Framework\Registry $registry
+     * @param \Magento\Webapi\Model\ServiceMetadata $serviceMetadata
      */
     public function __construct(
-        ObjectManagerInterface $objectManager,
-        Registry $registry,
-        ServiceMetadata $serviceMetadata
+        \Magento\Framework\ObjectManagerInterface $objectManager,
+        \Magento\Framework\Registry $registry,
+        \Magento\Webapi\Model\ServiceMetadata $serviceMetadata
     ) {
         $this->objectManager = $objectManager;
         $this->registry = $registry;
@@ -93,7 +92,6 @@ class Config
                 }
             }
         }
-
         return $this->soapOperations;
     }
 

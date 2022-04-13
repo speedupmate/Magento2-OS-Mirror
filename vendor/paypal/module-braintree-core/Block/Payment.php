@@ -34,7 +34,6 @@ class Payment extends Template
         array $data = []
     ) {
         parent::__construct($context, $data);
-
         $this->config = $config;
     }
 
@@ -43,8 +42,11 @@ class Payment extends Template
      */
     public function getPaymentConfig(): string
     {
-        $payment = $this->config->getConfig()['payment'];
-        $config = $payment[$this->getCode()];
+        $config = $this->config->getConfig();
+        if (isset($config['payment'])) {
+            $payment = $config['payment'];
+            $config = $payment[$this->getCode()];
+        }
         $config['code'] = $this->getCode();
 
         return json_encode($config, JSON_UNESCAPED_SLASHES);

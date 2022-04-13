@@ -38,6 +38,7 @@
             <group name="remote_storage_aws_s3_media_gallery_ui"/>
         </include>
         <exclude>
+            <group name="remote_storage_aws_s3"/>
             <group name="remote_storage_disabled"/>
             <group name="remote_storage_aws_s3_pagebuilder"/>
         </exclude>

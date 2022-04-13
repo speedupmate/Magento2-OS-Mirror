@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types=1);
+
 /*
  * This file is part of PHP CS Fixer.
  *
@@ -13,24 +15,23 @@
 namespace PhpCsFixer\Fixer\Phpdoc;
 
 use PhpCsFixer\AbstractFixer;
-use PhpCsFixer\Fixer\ConfigurationDefinitionFixerInterface;
+use PhpCsFixer\Fixer\ConfigurableFixerInterface;
 use PhpCsFixer\FixerConfiguration\FixerConfigurationResolver;
+use PhpCsFixer\FixerConfiguration\FixerConfigurationResolverInterface;
 use PhpCsFixer\FixerConfiguration\FixerOptionBuilder;
 use PhpCsFixer\FixerDefinition\CodeSample;
 use PhpCsFixer\FixerDefinition\FixerDefinition;
+use PhpCsFixer\FixerDefinition\FixerDefinitionInterface;
 use PhpCsFixer\Preg;
 use PhpCsFixer\Tokenizer\Token;
 use PhpCsFixer\Tokenizer\Tokens;
 
-/**
- * @author SpacePossum
- */
-final class PhpdocInlineTagNormalizerFixer extends AbstractFixer implements ConfigurationDefinitionFixerInterface
+final class PhpdocInlineTagNormalizerFixer extends AbstractFixer implements ConfigurableFixerInterface
 {
     /**
      * {@inheritdoc}
      */
-    public function isCandidate(Tokens $tokens)
+    public function isCandidate(Tokens $tokens): bool
     {
         return $tokens->isTokenKindFound(T_DOC_COMMENT);
     }
@@ -38,7 +39,7 @@ final class PhpdocInlineTagNormalizerFixer extends AbstractFixer implements Conf
     /**
      * {@inheritdoc}
      */
-    public function getDefinition()
+    public function getDefinition(): FixerDefinitionInterface
     {
         return new FixerDefinition(
             'Fixes PHPDoc inline tags.',
@@ -60,7 +61,7 @@ final class PhpdocInlineTagNormalizerFixer extends AbstractFixer implements Conf
      * Must run before PhpdocAlignFixer.
      * Must run after AlignMultilineCommentFixer, CommentToPhpdocFixer, PhpdocIndentFixer, PhpdocScalarFixer, PhpdocToCommentFixer, PhpdocTypesFixer.
      */
-    public function getPriority()
+    public function getPriority(): int
     {
         return 0;
     }
@@ -68,9 +69,9 @@ final class PhpdocInlineTagNormalizerFixer extends AbstractFixer implements Conf
     /**
      * {@inheritdoc}
      */
-    protected function applyFix(\SplFileInfo $file, Tokens $tokens)
+    protected function applyFix(\SplFileInfo $file, Tokens $tokens): void
     {
-        if (!$this->configuration['tags']) {
+        if (0 === \count($this->configuration['tags'])) {
             return;
         }
 
@@ -85,11 +86,11 @@ final class PhpdocInlineTagNormalizerFixer extends AbstractFixer implements Conf
             $content = Preg::replaceCallback(
                 sprintf(
                     '#(?:@{+|{+\h*@)\h*(%s)s?([^}]*)(?:}+)#i',
-                    implode('|', array_map(function ($tag) {
+                    implode('|', array_map(static function (string $tag): string {
                         return preg_quote($tag, '/');
                     }, $this->configuration['tags']))
                 ),
-                function (array $matches) {
+                static function (array $matches): string {
                     $doc = trim($matches[2]);
 
                     if ('' === $doc) {
@@ -108,7 +109,7 @@ final class PhpdocInlineTagNormalizerFixer extends AbstractFixer implements Conf
     /**
      * {@inheritdoc}
      */
-    protected function createConfigurationDefinition()
+    protected function createConfigurationDefinition(): FixerConfigurationResolverInterface
     {
         return new FixerConfigurationResolver([
             (new FixerOptionBuilder('tags', 'The list of tags to normalize'))

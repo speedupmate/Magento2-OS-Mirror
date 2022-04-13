@@ -69,9 +69,9 @@ class Validate extends Action
 
             Configuration::gateway()->plan()->all();
 
-            $response->setHttpResponseCode(200);
+            $response->setData(['success' => 'true']);
         } catch (Exception $e) {
-            $response->setHttpResponseCode(400);
+            $response->setData(['success' => 'false']);
         }
 
         return $response;

@@ -33,7 +33,7 @@ class EntityArrayValidatorTest extends TestCase
     /**
      * @var EntityArrayValidator
      */
-    private $validator;
+    private EntityArrayValidator $validator;
 
     /**
      * @inheritDoc

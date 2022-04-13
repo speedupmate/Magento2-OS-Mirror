@@ -38,11 +38,13 @@
  *
  * @copyright 2008-2017 Manuel Pichler. All rights reserved.
  * @license http://www.opensource.org/licenses/bsd-license.php BSD License
+ *
  * @since 0.10.0
  */
 
 namespace PDepend\Util\Cache;
 
+use InvalidArgumentException;
 use PDepend\Util\Cache\Driver\FileCacheDriver;
 use PDepend\Util\Cache\Driver\MemoryCacheDriver;
 use PDepend\Util\Configuration;
@@ -52,28 +54,31 @@ use PDepend\Util\Configuration;
  *
  * @copyright 2008-2017 Manuel Pichler. All rights reserved.
  * @license http://www.opensource.org/licenses/bsd-license.php BSD License
+ *
  * @since 0.10.0
  */
 class CacheFactory
 {
+    const DEFAULT_TTL = 2592000; //30 days
+
     /**
      * The system configuration.
      *
-     * @var \PDepend\Util\Configuration
+     * @var Configuration
      */
     protected $configuration = null;
 
     /**
      * Singleton property that holds existing cache instances.
      *
-     * @var \PDepend\Util\Cache\CacheDriver[]
+     * @var CacheDriver[]
      */
     protected $caches = array();
 
     /**
      * Constructs a new cache factory instance for the given configuration.
      *
-     * @param \PDepend\Util\Configuration $configuration The system configuration.
+     * @param Configuration $configuration The system configuration.
      */
     public function __construct(Configuration $configuration)
     {
@@ -86,7 +91,7 @@ class CacheFactory
      *
      * @param string $cacheKey The name/identifier for the cache instance.
      *
-     * @return \PDepend\Util\Cache\CacheDriver
+     * @return CacheDriver
      */
     public function create($cacheKey = null)
     {
@@ -99,22 +104,25 @@ class CacheFactory
     /**
      * Creates a cache instance based on the supplied configuration.
      *
-     * @param  string $cacheKey The name/identifier for the cache instance.
-     * @return \PDepend\Util\Cache\CacheDriver
-     * @throws \InvalidArgumentException If the configured cache driver is unknown.
+     * @param string|null $cacheKey The name/identifier for the cache instance.
+     *
+     * @throws InvalidArgumentException If the configured cache driver is unknown.
+     *
+     * @return CacheDriver
      */
-    protected function createCache($cacheKey)
+    protected function createCache($cacheKey = null)
     {
         switch ($this->configuration->cache->driver) {
             case 'file':
                 return $this->createFileCache(
                     $this->configuration->cache->location,
+                    $this->configuration->cache->ttl,
                     $cacheKey
                 );
             case 'memory':
                 return $this->createMemoryCache();
         }
-        throw new \InvalidArgumentException(
+        throw new InvalidArgumentException(
             "Unknown cache driver '{$this->configuration->cache->driver}' given."
         );
     }
@@ -122,19 +130,21 @@ class CacheFactory
     /**
      * Creates a new file system based cache instance.
      *
-     * @param  string $location Cache root directory.
-     * @param  string $cacheKey The name/identifier for the cache instance.
-     * @return \PDepend\Util\Cache\Driver\FileCacheDriver
+     * @param string      $location Cache root directory.
+     * @param int         $ttl      Cache ttl
+     * @param string|null $cacheKey The name/identifier for the cache instance.
+     *
+     * @return FileCacheDriver
      */
-    protected function createFileCache($location, $cacheKey)
+    protected function createFileCache($location, $ttl = self::DEFAULT_TTL, $cacheKey = null)
     {
-        return new FileCacheDriver($location, $cacheKey);
+        return new FileCacheDriver($location, $ttl, $cacheKey);
     }
 
     /**
      * Creates an in memory cache instance.
      *
-     * @return \PDepend\Util\Cache\Driver\MemoryCacheDriver
+     * @return MemoryCacheDriver
      */
     protected function createMemoryCache()
     {

@@ -48,6 +48,9 @@
                 <item name="min_qty" xsi:type="object">Magento\InventorySales\Model\ResourceModel\IsStockItemSalableCondition\MinQtyStockCondition</item>
                 <item name="non_existing_legacy_sku" xsi:type="object">Magento\InventorySales\Model\ResourceModel\IsStockItemSalableCondition\SkuIsAbsentInCatalogCondition</item>
             </argument>
+            <argument name="requiredConditions" xsi:type="array">
+                <item name="reservations" xsi:type="object">Magento\InventorySales\Model\ResourceModel\IsStockItemSalableCondition\ReservationsCondition</item>
+            </argument>
         </arguments>
     </type>
     <!-- AreProductsSalable -->
@@ -168,6 +171,9 @@
         <plugin name="assign_website_to_default_stock" type="Magento\InventorySales\Plugin\Store\Model\ResourceModel\Website\AssignWebsiteToDefaultStockPlugin"/>
         <plugin name="delete_website_to_stock_link" type="Magento\InventorySales\Plugin\Store\Model\ResourceModel\Website\DeleteWebsiteToStockLinkPlugin"/>
         <plugin name="update_sales_channel_website_code" type="Magento\InventorySales\Plugin\Store\Model\ResourceModel\Website\UpdateSalesChannelWebsiteCodePlugin"/>
+    </type>
+    <type name="Magento\Sales\Api\CreditmemoRepositoryInterface">
+        <plugin name="deduct_source_item_quantity_on_refund" type="Magento\InventorySales\Plugin\Sales\OrderManagement\DeductSourceItemQuantityOnRefundPlugin"/>
     </type>
     <type name="Magento\InventoryApi\Model\StockValidatorChain">
         <arguments>

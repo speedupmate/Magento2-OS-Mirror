@@ -121,9 +121,7 @@ class Zend_Validate_File_Extension extends Zend_Validate_Abstract
      */
     public function getExtension()
     {
-        $extension = explode(',', $this->_extension);
-
-        return $extension;
+        return explode(',', $this->_extension);
     }
 
     /**
@@ -134,7 +132,7 @@ class Zend_Validate_File_Extension extends Zend_Validate_Abstract
      */
     public function setExtension($extension)
     {
-        $this->_extension = null;
+        $this->_extension = '';
         $this->addExtension($extension);
         return $this;
     }

@@ -28,16 +28,15 @@ define([
                 }
 
                 paymentFormSelector.off(endEvent).on(endEvent, function () {
-                        var recaptchaCheckBox = jQuery("#recaptcha-checkout-braintree-wrapper input[name='recaptcha-validate-']");
+                    var recaptchaCheckBox = jQuery("#recaptcha-checkout-braintree-wrapper input[name='recaptcha-validate-']");
 
-                        if (recaptchaCheckBox.length &&  recaptchaCheckBox.prop('checked') === false) {
-                            alert($t('Please indicate google recaptcha'));
-                        } else {
-                            original();
-                            paymentFormSelector.off(endEvent);
-                        }
+                    if (recaptchaCheckBox.length && recaptchaCheckBox.prop('checked') === false) {
+                        alert($t('Please indicate google recaptcha'));
+                    } else {
+                        original();
+                        paymentFormSelector.off(endEvent);
                     }
-                );
+                });
 
                 paymentFormSelector.trigger(startEvent);
             }

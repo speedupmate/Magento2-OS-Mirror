@@ -63,6 +63,7 @@ class Review extends AbstractAction
             if ($this->validateRequestData($requestData)) {
                 $this->quoteUpdater->execute(
                     $requestData['nonce'],
+                    $requestData['deviceData'] ?? '',
                     $requestData['details'],
                     $quote
                 );

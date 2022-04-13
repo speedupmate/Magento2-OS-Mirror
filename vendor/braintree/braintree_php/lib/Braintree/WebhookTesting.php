@@ -1,4 +1,5 @@
-<?php
+<?php //phpcs:disable PEAR
+
 namespace Braintree;
 
 class WebhookTesting

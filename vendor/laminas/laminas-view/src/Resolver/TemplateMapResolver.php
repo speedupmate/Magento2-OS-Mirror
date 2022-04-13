@@ -1,11 +1,5 @@
 <?php
 
-/**
- * @see       https://github.com/laminas/laminas-view for the canonical source repository
- * @copyright https://github.com/laminas/laminas-view/blob/master/COPYRIGHT.md
- * @license   https://github.com/laminas/laminas-view/blob/master/LICENSE.md New BSD License
- */
-
 namespace Laminas\View\Resolver;
 
 use ArrayIterator;
@@ -13,6 +7,7 @@ use IteratorAggregate;
 use Laminas\Stdlib\ArrayUtils;
 use Laminas\View\Exception;
 use Laminas\View\Renderer\RendererInterface as Renderer;
+use ReturnTypeWillChange;
 use Traversable;
 
 class TemplateMapResolver implements IteratorAggregate, ResolverInterface
@@ -39,6 +34,7 @@ class TemplateMapResolver implements IteratorAggregate, ResolverInterface
      *
      * @return Traversable
      */
+    #[ReturnTypeWillChange]
     public function getIterator()
     {
         return new ArrayIterator($this->map);
@@ -169,9 +165,9 @@ class TemplateMapResolver implements IteratorAggregate, ResolverInterface
     /**
      * Resolve a template/pattern name to a resource the renderer can consume
      *
-     * @param  string $name
-     * @param  null|Renderer $renderer
-     * @return string
+     * @param string $name
+     * @param null|Renderer $renderer
+     * @return false|string
      */
     public function resolve($name, Renderer $renderer = null)
     {

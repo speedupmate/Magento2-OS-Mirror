@@ -14,7 +14,7 @@ use Magento\Framework\Exception\InputException;
 use Magento\Customer\Model\Customer\CredentialsValidator;
 
 /**
- * Class to Process Password Reset form and successfully redirect
+ * Customer reset password controller
  */
 class ResetPasswordPost extends \Magento\Customer\Controller\AbstractAccount implements HttpPostActionInterface
 {

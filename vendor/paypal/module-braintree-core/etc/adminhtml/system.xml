@@ -309,6 +309,10 @@
                             <label>Enable ACH Direct Debit</label>
                             <source_model>Magento\Config\Model\Config\Source\Yesno</source_model>
                             <config_path>payment/braintree_ach_direct_debit/active</config_path>
+                            <frontend_model>PayPal\Braintree\Block\System\Config\Form\Field\RequiresStatus</frontend_model>
+                            <requires>
+                                <group id="braintree_required"/>
+                            </requires>
                         </field>
                         <field id="sort_order" translate="label" type="text" sortOrder="230" showInDefault="1" showInWebsite="1" showInStore="0">
                             <label>Sort Order</label>
@@ -341,6 +345,10 @@
                             <comment>
                                 <![CDATA[You need to <a href="https://developers.braintreepayments.com/guides/apple-pay/configuration/javascript/v3" target="_blank" rel="noopener noreferrer">verify your domain name</a> in your Braintree account first.]]>
                             </comment>
+                            <frontend_model>PayPal\Braintree\Block\System\Config\Form\Field\RequiresStatus</frontend_model>
+                            <requires>
+                                <group id="braintree_required"/>
+                            </requires>
                         </field>
                         <field id="payment_action" translate="label" type="select" sortOrder="11" showInDefault="1" showInWebsite="1" showInStore="0">
                             <label>Payment Action</label>
@@ -371,6 +379,10 @@
                             <label>Enable Local Payment Methods</label>
                             <source_model>Magento\Config\Model\Config\Source\Yesno</source_model>
                             <config_path>payment/braintree_local_payment/active</config_path>
+                            <frontend_model>PayPal\Braintree\Block\System\Config\Form\Field\RequiresStatus</frontend_model>
+                            <requires>
+                                <group id="braintree_required"/>
+                            </requires>
                         </field>
                         <field id="title" translate="label" type="text" sortOrder="5" showInDefault="1" showInWebsite="1" showInStore="0">
                             <label>Title</label>
@@ -409,6 +421,10 @@
                             <comment>
                                 <![CDATA[Consult the <A href="https://developers.braintreepayments.com/guides/google-pay/testing-go-live/javascript/v3#go-live">Braintree documentation</a> when enabling Google Pay for production.]]>
                             </comment>
+                            <frontend_model>PayPal\Braintree\Block\System\Config\Form\Field\RequiresStatus</frontend_model>
+                            <requires>
+                                <group id="braintree_required"/>
+                            </requires>
                         </field>
                         <field id="payment_action" translate="label" type="select" sortOrder="20" showInDefault="1" showInWebsite="1" showInStore="0">
                             <label>Payment Action</label>
@@ -455,6 +471,10 @@
                             <label>Enable Venmo through Braintree</label>
                             <source_model>Magento\Config\Model\Config\Source\Yesno</source_model>
                             <config_path>payment/braintree_venmo/active</config_path>
+                            <frontend_model>PayPal\Braintree\Block\System\Config\Form\Field\RequiresStatus</frontend_model>
+                            <requires>
+                                <group id="braintree_required"/>
+                            </requires>
                         </field>
                         <field id="payment_action" translate="label" type="select" sortOrder="50" showInDefault="1" showInWebsite="1" showInStore="0">
                             <label>Payment Action</label>
@@ -541,6 +561,7 @@
                                 <label>Enable PayPal Pay Later message on the cart page and mini-cart</label>
                                 <source_model>Magento\Config\Model\Config\Source\Yesno</source_model>
                                 <config_path>payment/braintree_paypal/message_cart_enable</config_path>
+                                <comment><![CDATA[Displays Pay Later messaging for available offers. Restrictions apply. <a  target="_blank" href="https://developer.paypal.com/docs/commerce-platforms/admin-panel/magento2/genecommerce/">Click here to learn more.</a>]]></comment>
                             </field>
                             <field id="disabled_funding" translate="label" type="multiselect" sortOrder="131" showInDefault="1" showInWebsite="1" showInStore="0">
                                 <label>Disable Funding Options</label>
@@ -590,6 +611,7 @@
                                 <label>Enable PayPal Pay Later message on the checkout page</label>
                                 <source_model>Magento\Config\Model\Config\Source\Yesno</source_model>
                                 <config_path>payment/braintree_paypal/message_checkout_enable</config_path>
+                                <comment><![CDATA[Displays Pay Later messaging for available offers. Restrictions apply. <a  target="_blank" href="https://developer.paypal.com/docs/commerce-platforms/admin-panel/magento2/genecommerce/">Click here to learn more.</a>]]></comment>
                             </field>
                             <field id="disabled_funding" translate="label" type="multiselect" sortOrder="131" showInDefault="1" showInWebsite="1" showInStore="0">
                                 <label>Disable Funding Options</label>
@@ -645,6 +667,7 @@
                                 <label>Enable PayPal Pay Later message on the product page</label>
                                 <source_model>Magento\Config\Model\Config\Source\Yesno</source_model>
                                 <config_path>payment/braintree_paypal/message_productpage_enable</config_path>
+                                <comment><![CDATA[Displays Pay Later messaging for available offers. Restrictions apply. <a  target="_blank" href="https://developer.paypal.com/docs/commerce-platforms/admin-panel/magento2/genecommerce/">Click here to learn more.</a>]]></comment>
                             </field>
                             <field id="disabled_funding" translate="label" type="multiselect" sortOrder="131" showInDefault="1" showInWebsite="1" showInStore="0">
                                 <label>Disable Funding Options</label>

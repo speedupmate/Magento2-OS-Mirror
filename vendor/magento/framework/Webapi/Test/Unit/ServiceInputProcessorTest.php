@@ -390,8 +390,6 @@ class ServiceInputProcessorTest extends TestCase
         );
         $this->inputLimitConfig->method('isInputLimitingEnabled')
             ->willReturn(true);
-        $this->inputLimitConfig->method('isInputLimitingEnabled')
-            ->willReturn(true);
         $objects = [];
         for ($i = 0; $i < 51; $i++) {
             $objects[] = ['entityId' => $i + 1, 'name' => 'Item' . $i];

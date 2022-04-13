@@ -1,11 +1,5 @@
 <?php
 
-/**
- * @see       https://github.com/laminas/laminas-view for the canonical source repository
- * @copyright https://github.com/laminas/laminas-view/blob/master/COPYRIGHT.md
- * @license   https://github.com/laminas/laminas-view/blob/master/LICENSE.md New BSD License
- */
-
 namespace Laminas\View\Helper\Navigation;
 
 use Interop\Container\ContainerInterface;
@@ -76,7 +70,7 @@ class PluginManager extends HelperPluginManager
      */
     public function __construct($configOrContainerInstance = null, array $v3config = [])
     {
-        $this->initializers[] = function ($first, $second) {
+        $this->initializers[] = function ($first, $second): void {
             // v2 vs v3 argument order
             if ($first instanceof ContainerInterface) {
                 // v3

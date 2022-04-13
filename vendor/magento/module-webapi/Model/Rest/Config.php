@@ -8,9 +8,6 @@ declare(strict_types=1);
 
 namespace Magento\Webapi\Model\Rest;
 
-use Magento\Framework\Controller\Router\Route\Factory;
-use Magento\Framework\Exception\InputException;
-use Magento\Framework\Webapi\Rest\Request;
 use Magento\Webapi\Controller\Rest\Router\Route;
 use Magento\Webapi\Model\ConfigInterface as ModelConfigInterface;
 use Magento\Webapi\Model\Config\Converter;
@@ -48,17 +45,17 @@ class Config
     protected $_config;
 
     /**
-     * @var Factory
+     * @var \Magento\Framework\Controller\Router\Route\Factory
      */
     protected $_routeFactory;
 
     /**
      * @param ModelConfigInterface $config
-     * @param Factory $routeFactory
+     * @param \Magento\Framework\Controller\Router\Route\Factory $routeFactory
      */
     public function __construct(
         ModelConfigInterface $config,
-        Factory $routeFactory
+        \Magento\Framework\Controller\Router\Route\Factory $routeFactory
     ) {
         $this->_config = $config;
         $this->_routeFactory = $routeFactory;
@@ -74,13 +71,13 @@ class Config
      *      'serviceMethod' => 'item'
      *      'secure' => true
      *  );</pre>
-     * @return Route
+     * @return \Magento\Webapi\Controller\Rest\Router\Route
      */
     protected function _createRoute($routeData)
     {
-        /** @var $route Route */
+        /** @var $route \Magento\Webapi\Controller\Rest\Router\Route */
         $route = $this->_routeFactory->createRoute(
-            Route::class,
+            \Magento\Webapi\Controller\Rest\Router\Route::class,
             $routeData[self::KEY_ROUTE_PATH]
         );
 
@@ -90,14 +87,13 @@ class Config
             ->setAclResources($routeData[self::KEY_ACL_RESOURCES])
             ->setParameters($routeData[self::KEY_PARAMETERS])
             ->setInputArraySizeLimit($routeData[self::KEY_INPUT_ARRAY_SIZE_LIMIT]);
-
         return $route;
     }
 
     /**
      * Get service base URL
      *
-     * @param Request $request
+     * @param \Magento\Framework\Webapi\Rest\Request $request
      * @return string|null
      */
     protected function _getServiceBaseUrl($request)
@@ -111,11 +107,11 @@ class Config
     /**
      * Generate the list of available REST routes. Current HTTP method is taken into account.
      *
-     * @param Request $request
+     * @param \Magento\Framework\Webapi\Rest\Request $request
      * @return Route[] matched routes
-     * @throws InputException
+     * @throws \Magento\Framework\Webapi\Exception
      */
-    public function getRestRoutes(Request $request)
+    public function getRestRoutes(\Magento\Framework\Webapi\Rest\Request $request)
     {
         $requestHttpMethod = $request->getHttpMethod();
         $servicesRoutes = $this->_config->getServices()[Converter::KEY_ROUTES];

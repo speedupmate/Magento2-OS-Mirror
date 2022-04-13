@@ -3,18 +3,15 @@
  * Copyright © Magento, Inc. All rights reserved.
  * See COPYING.txt for license details.
  */
+
 declare(strict_types=1);
 
 namespace Magento\Webapi\Model\Config;
 
-use DOMElement;
-use DOMNodeList;
-use Magento\Framework\Config\ConverterInterface;
-
 /**
  * Converter of webapi.xml content into array format.
  */
-class Converter implements ConverterInterface
+class Converter implements \Magento\Framework\Config\ConverterInterface
 {
     /**#@+
      * Array keys for config internal representation.
@@ -46,13 +43,14 @@ class Converter implements ConverterInterface
     public function convert($source)
     {
         $result = [];
+        /** @var \DOMNodeList $routes */
         $routes = $source->getElementsByTagName('route');
-        /** @var DOMElement $route */
+        /** @var \DOMElement $route */
         foreach ($routes as $route) {
             if ($route->nodeType != XML_ELEMENT_NODE) {
                 continue;
             }
-            /** @var DOMElement $service */
+            /** @var \DOMElement $service */
             $service = $route->getElementsByTagName('service')->item(0);
             $serviceClass = $service->attributes->getNamedItem('class')->nodeValue;
             $serviceMethod = $service->attributes->getNamedItem('method')->nodeValue;
@@ -71,7 +69,7 @@ class Converter implements ConverterInterface
             $resources = $route->getElementsByTagName('resource');
             $resourceReferences = [];
             $resourcePermissionSet = [];
-            /** @var DOMElement $resource */
+            /** @var \DOMElement $resource */
             foreach ($resources as $resource) {
                 if ($resource->nodeType != XML_ELEMENT_NODE) {
                     continue;
@@ -89,6 +87,7 @@ class Converter implements ConverterInterface
             } else {
                 $serviceClassData[self::KEY_METHODS][$soapMethod][self::KEY_ACL_RESOURCES] =
                     array_unique(
+                        // phpcs:ignore Magento2.Performance.ForeachArrayMerge
                         array_merge(
                             $serviceClassData[self::KEY_METHODS][$soapMethod][self::KEY_ACL_RESOURCES],
                             $resourcePermissionSet
@@ -100,6 +99,7 @@ class Converter implements ConverterInterface
             $method = $route->attributes->getNamedItem('method')->nodeValue;
             $secureNode = $route->attributes->getNamedItem('secure');
             $secure = $secureNode ? (bool)trim($secureNode->nodeValue) : false;
+
             $arraySizeLimit = $this->getInputArraySizeLimit($route);
 
             // We could handle merging here by checking if the route already exists
@@ -135,21 +135,21 @@ class Converter implements ConverterInterface
     /**
      * Parses the method parameters into a string array.
      *
-     * @param DOMNodeList $parameters
+     * @param \DOMNodeList $parameters
      * @return array
      * @SuppressWarnings(PHPMD.NPathComplexity)
      */
     protected function convertMethodParameters($parameters)
     {
         $data = [];
-        /** @var DOMElement $parameter */
+        /** @var \DOMElement $parameter */
         foreach ($parameters as $parameter) {
             if ($parameter->nodeType != XML_ELEMENT_NODE) {
                 continue;
             }
             $name = $parameter->attributes->getNamedItem('name')->nodeValue;
             $forceNode = $parameter->attributes->getNamedItem('force');
-            $force = $forceNode ? (bool)$forceNode->nodeValue : false;
+            $force = $forceNode ? filter_var($forceNode->nodeValue, FILTER_VALIDATE_BOOLEAN) : false;
             $value = $parameter->nodeValue;
             $data[$name] = [
                 self::KEY_FORCE => $force,
@@ -183,12 +183,12 @@ class Converter implements ConverterInterface
     /**
      * Returns array size limit of input data
      *
-     * @param DOMElement $routeDOMElement
+     * @param \DOMElement $routeDOMElement
      * @return int|null
      */
-    private function getInputArraySizeLimit(DOMElement $routeDOMElement): ?int
+    private function getInputArraySizeLimit(\DOMElement $routeDOMElement): ?int
     {
-        /** @var DOMElement $dataDOMElement */
+        /** @var \DOMElement $dataDOMElement */
         foreach ($routeDOMElement->getElementsByTagName('data') as $dataDOMElement) {
             if ($dataDOMElement->nodeType === XML_ELEMENT_NODE) {
                 $inputArraySizeLimitDOMNode = $dataDOMElement->attributes

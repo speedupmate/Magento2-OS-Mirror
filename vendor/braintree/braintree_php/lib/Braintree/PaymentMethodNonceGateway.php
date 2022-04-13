@@ -1,21 +1,9 @@
 <?php
+
 namespace Braintree;
 
 /**
  * Braintree PaymentMethodNonceGateway module
- *
- * @package    Braintree
- * @category   Resources
- */
-
-/**
- * Creates and manages Braintree PaymentMethodNonces
- *
- * <b>== More information ==</b>
- *
- *
- * @package    Braintree
- * @category   Resources
  */
 class PaymentMethodNonceGateway
 {
@@ -23,6 +11,7 @@ class PaymentMethodNonceGateway
     private $_config;
     private $_http;
 
+    // phpcs:ignore PEAR.Commenting.FunctionComment.Missing
     public function __construct($gateway)
     {
         $this->_gateway = $gateway;
@@ -30,7 +19,14 @@ class PaymentMethodNonceGateway
         $this->_http = new Http($gateway->config);
     }
 
-
+    /**
+     * Create a payment method nonce from an existing payment method's token
+     *
+     * @param string     $token  the identifier of the payment method
+     * @param mixed|null $params additional parameters to be included in the request
+     *
+     * @return PaymentMethodNonce|Error
+     */
     public function create($token, $params = [])
     {
         $subPath = '/payment_methods/' . $token . '/nonces';
@@ -44,7 +40,7 @@ class PaymentMethodNonceGateway
                     'recurringCustomerConsent',
                     'recurringMaxAmount'
                 ]
-            ]]
+                ]]
         ]];
         Util::verifyKeys($schema, $params);
         $response = $this->_http->post($fullPath, $params);
@@ -56,8 +52,13 @@ class PaymentMethodNonceGateway
     }
 
     /**
-     * @access public
+     * Find a Payment Method Nonce given the string value
      *
+     * @param string $nonce to be found
+     *
+     * @throws NotFound
+     *
+     * @return PaymentMethodNonce
      */
     public function find($nonce)
     {
@@ -67,9 +68,8 @@ class PaymentMethodNonceGateway
             return PaymentMethodNonce::factory($response['paymentMethodNonce']);
         } catch (Exception\NotFound $e) {
             throw new Exception\NotFound(
-            'payment method nonce with id ' . $nonce . ' not found'
+                'payment method nonce with id ' . $nonce . ' not found'
             );
         }
-
     }
 }

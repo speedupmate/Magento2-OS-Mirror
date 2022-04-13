@@ -1,8 +1,213 @@
 # Changelog
-### v0.13.8
+
+#### Unreleased
+
+#### 14.11.5
+
+Fixed:
+- Fix `extend()` to preserve `repeatable` (#931)
+
+#### 14.11.4
+
+Fixed:
+- Fix repeatable directive validation for AST
+
+#### 14.11.3
+
+Fixed:
+- Fix compatibility of more methods with native return type in PHP 8.1
+
+#### 14.11.2
+
+Fixed:
+- Support non-JSON `ServerRequestInterface`
+
+#### 14.11.1
+
+Fixed:
+- Fix compatibility of methods with native return type in PHP 8.1
+
+#### 14.11.0
+
+Feat:
+- Allow field definitions to be defined as any `iterable`, not just `array`
+
+#### 14.10.0
+
+Feat:
+- Make `IntType` constants `MAX_INT` and `MIN_INT` public
+
+#### 14.9.0
+
+Feat:
+- Add support for type config decorator in `SchemaExtender`
+
+#### 14.8.0
+
+Feat:
+- Implement `GraphQL\Utils\AST::getOperationAST()`
+
+#### 14.7.0
+
+Feat:
+- Allow providing field definitions as a callable and resolve them lazily
+
+#### 14.6.4
+
+Fix:
+- Avoid crashing in `QueryPlan` when `__typename` is used in the query
+
+#### 14.6.3
+
+Refactoring:
+- Improve performance of subtype checks
+
+#### 14.6.2
+
+Fix:
+- Fix overly eager validation of repeatable directive usage
+
+#### 14.6.1
+
+Fix:
+- Add fallback for `directive.isRepeatable` in `BuildClientSchema`
+
+#### 14.6.0
+
+Feat:
+- Open ReferenceExecutor for extending
+
+#### 14.5.1
+
+Fix:
+- Fix Input Object field shortcut definition with callable (#773)
+
+#### 14.5.0
+
+Feat:
+- Implement support for interfaces implementing interfaces (#740), huge kudos to @Kingdutch
+
+Deprecates:
+- Constant `BreakingChangeFinder::BREAKING_CHANGE_INTERFACE_REMOVED_FROM_OBJECT`.
+  Use `BreakingChangeFinder::BREAKING_CHANGE_IMPLEMENTED_INTERFACE_REMOVED` instead.
+  Constant value also changed from `INTERFACE_REMOVED_FROM_OBJECT` to `IMPLEMENTED_INTERFACE_REMOVED`.
+
+- Constant `BreakingChangeFinder::DANGEROUS_CHANGE_INTERFACE_ADDED_TO_OBJECT`
+  Use `DANGEROUS_CHANGE_IMPLEMENTED_INTERFACE_ADDED` instead.
+  Constant value also changed from `INTERFACE_ADDED_TO_OBJECT` to `IMPLEMENTED_INTERFACE_ADDED`.
+
+Refactoring:
+- Reify AST node types and remove unneeded nullability (#751)
+
+#### 14.4.1
+
+Fix:
+- Allow pushing nodes to `NodeList` via `[]=` (#767)
+- Fix signature of `Error\FormattedError::prepareFormatter()` to address PHP8 deprecation (#742)
+- Do not add errors key to result when errors discarded by custom error handler (#766)
+
+#### 14.4.0
+
+Fix:
+- Fixed `SchemaPrinter` so that it uses late static bindings when extended
+- Parse `DirectiveDefinitionNode->locations` as `NodeList<NamedNode>` (fixes AST::fromArray conversion) (#723)
+- Parse `Parser::implementsInterfaces` as `NodeList<NamedTypeNode>` (fixes AST::fromArray conversion)
+- Fix signature of `Parser::unionMemberTypes` to match actual `NodeList<NamedTypeNode>`
+
+#### v14.3.0
+
+Feat:
+- Allow `typeLoader` to return a type thunk (#687)
+
+Fix:
+- Read getParsedBody() instead of getBody() when Request is ServerRequest (#715)
+- Fix default get/set behavior on InputObjectField and FieldDefinition (#716)
+
+#### v14.2.0
+
+Deprecates:
+- Public access to `FieldDefinition::$type` property (#702)
+
+Fixes:
+- Fix validation for input field definition directives (#714) 
+
+#### v14.1.1
+
+Fixes:
+- Handle nullable `DirectiveNode#astNode` in `SchemaValidationContext` (#708)
+
+#### v14.1.0
+
+New:
+- Add partial parse functions for const variants (#693)
+
+Fixes:
+- Differentiate between client-safe and non-client-safe errors in scalar validation (#706)
+- Proper type hints for `IntValueNode` (#691)
+
+Refactoring:
+- Ensure NamedTypeNode::$name is always a NameNode (#695)
+- Visitor: simplify getVisitFn (#694)
+- Replace function calls with type casts (#692)
+- Fix "only booleans are allowed" errors (#659)
+
+
+#### v14.0.2
+
+- Optimize lazy types (#684)
+
+#### v14.0.1
+
+Bug fixes:
+- Fix for: Argument defaults with integer/float values crashes introspection query (#679)
+- Fix for "Invalid AST Node: false" error (#685)
+- Fix double Error wrapping when parsing variables (#688)
+
+Refactoring:
+- Do not use call_user_func or call_user_func_array (#676)
+- Codestyle and static analysis improvements (#648, #690)
+
+## v14.0.0
+
+This release brings several breaking changes. Please refer to [UPGRADE](UPGRADE.md) document for details.
+
+- **BREAKING/BUGFIX:** Strict coercion of scalar types (#278)
+- **BREAKING/BUGFIX:** Spec-compliance: Fixed ambiguity with null variable values and default values (#274)
+- **BREAKING:** Removed deprecated directive introspection fields (onOperation, onFragment, onField)
+- **BREAKING:** `GraphQL\Deferred` now extends `GraphQL\Executor\Promise\Adapter\SyncPromise`
+- **BREAKING:** renamed several types of dangerous/breaking changes (returned by `BreakingChangesFinder`)
+- **BREAKING:** Renamed `GraphQL\Error\Debug` to `GraphQL\Error\DebugFlag`. 
+- **BREAKING:** Debug flags in `GraphQL\Executor\ExecutionResult`, `GraphQL\Error\FormattedError` and `GraphQL\Server\ServerConfig` do not accept `boolean` value anymore but `int` only.
+- **BREAKING:** `$positions` in `GraphQL\Error\Error` constructor are not nullable anymore. Same can be expressed by passing an empty array.
+
+Notable features and improvements:
+
+- Compliant with the GraphQL specification [June 2018 Edition](https://spec.graphql.org/June2018/)
+- Support repeatable directives (#643)
+- Perf: support lazy type definitions (#557)
+- Simplified Deferred implementation (now allows chaining like promises, #573)
+- Support SDL Validation and other schema validation improvements (e.g. #492)
+- Added promise adapter for [Amp](https://amphp.org/) (#551)
+- Query plan utility improvements (#513, #632)
+
+Other noteworthy changes:
+- Allow retrieving query complexity once query has been completed (#316) 
+- Allow input types to be passed in from variables using \stdClass instead of associative arrays (#535)
+- Support UTF-16 surrogate pairs within string literals (#554, #556)
+- Having an empty string in `deprecationReason` will now print the `@deprecated` directive (only a `null` `deprecationReason` won't print the `@deprecated` directive).
+- Deprecated Experimental executor (#397)
+
+Also some bugs fixed, heavily invested in [PHPStan](https://github.com/phpstan/phpstan) for static analysis.
+
+Special thanks to @simPod, @spawnia and @shmax for their major contributions!
+
+#### v0.13.9
+- Fix double Error wrapping when parsing variables (#689)
+
+#### v0.13.8
 - Don't call global field resolver on introspection fields (#481)
 
-### v0.13.7
+#### v0.13.7
 - Added retrieving query complexity once query has been completed (#316)
 - Allow input types to be passed in from variables using \stdClass instead of associative arrays (#535) 
 

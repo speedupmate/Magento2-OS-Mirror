@@ -56,7 +56,7 @@ class Cm_Cache_Backend_Redis extends Zend_Cache_Backend implements Zend_Cache_Ba
     const DEFAULT_CONNECT_RETRIES = 1;
 
     const LUA_SAVE_SH1 = '1617c9fb2bda7d790bb1aaa320c1099d81825e64';
-    const LUA_CLEAN_SH1 = '42ab2fe548aee5ff540123687a2c39a38b54e4a2';
+    const LUA_CLEAN_SH1 = 'a6d92d0d20e5c8fa3d1a4cf7417191b66676ce43';
     const LUA_GC_SH1 = 'c00416b970f1aa6363b44965d4cf60ee99a6f065';
 
     /** @var Credis_Client */
@@ -80,14 +80,24 @@ class Cm_Cache_Backend_Redis extends Zend_Cache_Backend implements Zend_Cache_Ba
     /** @var string */
     protected $_compressionLib;
 
+    /** @var string */
+    protected $_compressPrefix;
+
     /**
      * On large data sets SUNION slows down considerably when used with too many arguments
      * so this is used to chunk the SUNION into a few commands where the number of set ids
      * exceeds this setting.
-     * 
+     *
      * @var int
      */
     protected $_sunionChunkSize = 500;
+
+    /**
+     * Maximum number of ids to be removed at a time
+     *
+     * @var int
+     */
+    protected $_removeChunkSize = 10000;
 
     /** @var bool */
     protected $_useLua = false;
@@ -146,7 +156,7 @@ class Cm_Cache_Backend_Redis extends Zend_Cache_Backend implements Zend_Cache_Ba
     /**
      * Construct Zend_Cache Redis backend
      * @param array $options
-     * @return \Cm_Cache_Backend_Redis
+     * @throws Zend_Cache_Exception
      */
     public function __construct($options = array())
     {
@@ -159,7 +169,7 @@ class Cm_Cache_Backend_Redis extends Zend_Cache_Backend implements Zend_Cache_Ba
         // If 'sentinel_master' is specified then server is actually sentinel and master address should be fetched from server.
         $sentinelMaster =  empty($options['sentinel_master']) ? NULL : $options['sentinel_master'];
         if ($sentinelMaster) {
-            $sentinelClientOptions = isset($options['sentinel']) && is_array($options['sentinel']) 
+            $sentinelClientOptions = isset($options['sentinel']) && is_array($options['sentinel'])
                                      ? $this->getClientOptions($options['sentinel'] + $options)
                                      : $this->_clientOptions;
             $servers = preg_split('/\s*,\s*/', trim($options['server']), NULL, PREG_SPLIT_NO_EMPTY);
@@ -174,10 +184,9 @@ class Cm_Cache_Backend_Redis extends Zend_Cache_Backend implements Zend_Cache_Ba
                     if ($sentinelClientOptions->readTimeout) {
                         $sentinelClient->setReadTimeout($sentinelClientOptions->readTimeout);
                     }
-                    // Sentinel currently doesn't support AUTH
-                    //if ($password) {
-                    //    $sentinelClient->auth($password) or Zend_Cache::throwException('Unable to authenticate with the redis sentinel.');
-                    //}
+                    if ($sentinelClientOptions->password) {
+                        $sentinelClient->auth($sentinelClientOptions->password) or Zend_Cache::throwException('Unable to authenticate with the redis sentinel.');
+                    }
                     $sentinel = new Credis_Sentinel($sentinelClient);
                     $sentinel
                         ->setClientTimeout($this->_clientOptions->timeout)
@@ -360,6 +369,10 @@ class Cm_Cache_Backend_Redis extends Zend_Cache_Backend implements Zend_Cache_Ba
             $this->_sunionChunkSize = (int) $options['sunion_chunk_size'];
         }
 
+        if ( isset($options['remove_chunk_size']) && $options['remove_chunk_size'] > 0) {
+            $this->_removeChunkSize = (int) $options['remove_chunk_size'];
+        }
+
         if (isset($options['use_lua'])) {
             $this->_useLua = (bool) $options['use_lua'];
         }
@@ -471,7 +484,7 @@ class Cm_Cache_Backend_Redis extends Zend_Cache_Backend implements Zend_Cache_Ba
         } else {
             $data = $this->_redis->hGet(self::PREFIX_KEY.$id, self::FIELD_DATA);
         }
-        if ($data === NULL) {
+        if ($data === NULL || is_object($data)) {
             return FALSE;
         }
 
@@ -543,7 +556,8 @@ class Cm_Cache_Backend_Redis extends Zend_Cache_Backend implements Zend_Cache_Ba
         else
             $tags = array_flip(array_flip($tags));
 
-        $lifetime = (int)$this->_getAutoExpiringLifetime($this->getLifetime($specificLifetime), $id);
+        $lifetime = $this->_getAutoExpiringLifetime($this->getLifetime($specificLifetime), $id);
+        $lifetime = $lifetime === null ? $lifetime : (int) $lifetime;
 
         if ($this->_useLua) {
             $sArgs = array(
@@ -616,14 +630,14 @@ class Cm_Cache_Backend_Redis extends Zend_Cache_Backend implements Zend_Cache_Ba
           self::FIELD_DATA => $this->_encodeData($data, $this->_compressData),
           self::FIELD_TAGS => $this->_encodeData(implode(',',$tags), $this->_compressTags),
           self::FIELD_MTIME => time(),
-          self::FIELD_INF => $lifetime ? 0 : 1,
+          self::FIELD_INF => is_null($lifetime) ? 1 : 0,
         ));
         if( ! $result) {
             throw new CredisException("Could not set cache key $id");
         }
 
         // Set expiration if specified
-        if ($lifetime) {
+        if ($lifetime !== false && !is_null($lifetime)) {
           $this->_redis->expire(self::PREFIX_KEY.$id, min($lifetime, self::MAX_LIFETIME));
         }
 
@@ -699,17 +713,20 @@ class Cm_Cache_Backend_Redis extends Zend_Cache_Backend implements Zend_Cache_Ba
         $ids = $this->getIdsNotMatchingTags($tags);
         if($ids)
         {
-            $this->_redis->pipeline()->multi();
+            $ids = array_chunk($ids, $this->_removeChunkSize);
+            foreach ($ids as $idsChunk) {
+                $this->_redis->pipeline()->multi();
 
-            // Remove data
-            $this->_redis->del( $this->_preprocessIds($ids));
+                // Remove data
+                $this->_redis->del($this->_preprocessIds($idsChunk));
 
-            // Remove ids from list of all ids
-            if($this->_notMatchingTags) {
-                $this->_redis->sRem( self::SET_IDS, $ids);
+                // Remove ids from list of all ids
+                if ($this->_notMatchingTags) {
+                    $this->_redis->sRem(self::SET_IDS, $idsChunk);
+                }
+
+                $this->_redis->exec();
             }
-
-            $this->_redis->exec();
         }
     }
 
@@ -721,17 +738,20 @@ class Cm_Cache_Backend_Redis extends Zend_Cache_Backend implements Zend_Cache_Ba
         $ids = $this->getIdsMatchingTags($tags);
         if($ids)
         {
-            $this->_redis->pipeline()->multi();
+            $ids = array_chunk($ids, $this->_removeChunkSize);
+            foreach ($ids as $idsChunk) {
+                $this->_redis->pipeline()->multi();
 
-            // Remove data
-            $this->_redis->del( $this->_preprocessIds($ids));
+                // Remove data
+                $this->_redis->del($this->_preprocessIds($idsChunk));
 
-            // Remove ids from list of all ids
-            if($this->_notMatchingTags) {
-                $this->_redis->sRem( self::SET_IDS, $ids);
+                // Remove ids from list of all ids
+                if($this->_notMatchingTags) {
+                    $this->_redis->sRem( self::SET_IDS, $idsChunk);
+                }
+
+                $this->_redis->exec();
             }
-
-            $this->_redis->exec();
         }
     }
 
@@ -743,21 +763,24 @@ class Cm_Cache_Backend_Redis extends Zend_Cache_Backend implements Zend_Cache_Ba
         if ($this->_useLua) {
             $tags = array_chunk($tags, $this->_sunionChunkSize);
             foreach ($tags as $chunk) {
-                $chunk = $this->_preprocessTagIds($chunk);
-                $args = array(self::PREFIX_KEY, self::SET_TAGS, self::SET_IDS, ($this->_notMatchingTags ? 1 : 0), (int) $this->_luaMaxCStack);
+                $args = array(self::PREFIX_TAG_IDS, self::PREFIX_KEY, self::SET_TAGS, self::SET_IDS, ($this->_notMatchingTags ? 1 : 0), (int) $this->_luaMaxCStack);
                 if ( ! $this->_redis->evalSha(self::LUA_CLEAN_SH1, $chunk, $args)) {
                     $script =
-                        "for i = 1, #KEYS, ARGV[5] do ".
-                            "local keysToDel = redis.call('SUNION', unpack(KEYS, i, math.min(#KEYS, i + ARGV[5] - 1))) ".
-                            "for _, keyname in ipairs(keysToDel) do ".
-                                "redis.call('DEL', ARGV[1]..keyname) ".
-                                "if (ARGV[4] == '1') then ".
-                                    "redis.call('SREM', ARGV[3], keyname) ".
-                                "end ".
-                            "end ".
-                            "redis.call('DEL', unpack(KEYS, i, math.min(#KEYS, i + ARGV[5] - 1))) ".
-                            "redis.call('SREM', ARGV[2], unpack(KEYS, i, math.min(#KEYS, i + ARGV[5] - 1))) ".
-                        "end ".
+                        "for i = 1, #KEYS, ARGV[6] do " .
+                            "local prefixedTags = {} " .
+                            "for x, tag in ipairs(KEYS) do " .
+                                "prefixedTags[x] = ARGV[1]..tag " .
+                            "end " .
+                            "local keysToDel = redis.call('SUNION', unpack(prefixedTags, i, math.min(#prefixedTags, i + ARGV[6] - 1))) " .
+                            "for _, keyname in ipairs(keysToDel) do " .
+                                "redis.call('DEL', ARGV[2]..keyname) " .
+                                "if (ARGV[5] == '1') then " .
+                                    "redis.call('SREM', ARGV[4], keyname) " .
+                                "end " .
+                            "end " .
+                            "redis.call('DEL', unpack(prefixedTags, i, math.min(#prefixedTags, i + ARGV[6] - 1))) " .
+                            "redis.call('SREM', ARGV[3], unpack(KEYS, i, math.min(#KEYS, i + ARGV[6] - 1))) " .
+                        "end " .
                         "return true";
                     $this->_redis->eval($script, $chunk, $args);
                 }
@@ -771,12 +794,21 @@ class Cm_Cache_Backend_Redis extends Zend_Cache_Backend implements Zend_Cache_Ba
 
         if($ids)
         {
-            // Remove data
-            $this->_redis->del( $this->_preprocessIds($ids));
+            $ids = array_chunk($ids, $this->_removeChunkSize);
+            foreach ($ids as $index => $idsChunk) {
+                // Remove data
+                $this->_redis->del($this->_preprocessIds($idsChunk));
 
-            // Remove ids from list of all ids
-            if($this->_notMatchingTags) {
-                $this->_redis->sRem( self::SET_IDS, $ids);
+                // Remove ids from list of all ids
+                if ($this->_notMatchingTags) {
+                    $this->_redis->sRem(self::SET_IDS, $idsChunk);
+                }
+
+                // Commit each chunk in a separate transaction
+                if (count($ids) > 1) {
+                    $this->_redis->pipeline()->exec();
+                    $this->_redis->pipeline()->multi();
+                }
             }
         }
 
@@ -1123,6 +1155,16 @@ class Cm_Cache_Backend_Redis extends Zend_Cache_Backend implements Zend_Cache_Ba
     }
 
     /**
+     * Return redis server info and stats
+     *
+     * @return array
+     */
+    public function getInfo()
+    {
+        return $this->_redis->info();
+    }
+
+    /**
      * Return the filling percentage of the backend storage
      *
      * @throws Zend_Cache_Exception
@@ -1140,6 +1182,24 @@ class Cm_Cache_Backend_Redis extends Zend_Cache_Backend implements Zend_Cache_Ba
             ,0
             ,PHP_ROUND_HALF_UP
         );
+    }
+
+    /**
+     * Return the keyspace hit/miss percentage of the backend storage
+     *
+     * @throws Zend_Cache_Exception
+     * @return int integer between 0 and 100
+     */
+    public function getHitMissPercentage()
+    {
+        $info = $this->_redis->info();
+        $hits = $info['keyspace_hits'];
+        $misses = $info['keyspace_misses'];
+        $total = $misses+$hits;
+        $percentage = 0;
+        if ($total > 0)
+            $percentage = round($hits*100/$total, 0);
+        return $percentage;
     }
 
     /**
@@ -1245,14 +1305,19 @@ class Cm_Cache_Backend_Redis extends Zend_Cache_Backend implements Zend_Cache_Ba
      */
     protected function _decodeData($data)
     {
-        if (substr($data,2,3) == self::COMPRESS_PREFIX) {
-            switch(substr($data,0,2)) {
-                case 'sn': return snappy_uncompress(substr($data,5));
-                case 'lz': return lzf_decompress(substr($data,5));
-                case 'l4': return lz4_uncompress(substr($data,5));
-                case 'zs': return zstd_uncompress(substr($data,5));
-                case 'gz': case 'zc': return gzuncompress(substr($data,5));
+        try {
+            if (substr($data,2,3) == self::COMPRESS_PREFIX) {
+                switch(substr($data,0,2)) {
+                    case 'sn': return snappy_uncompress(substr($data,5));
+                    case 'lz': return lzf_decompress(substr($data,5));
+                    case 'l4': return lz4_uncompress(substr($data,5));
+                    case 'zs': return zstd_uncompress(substr($data,5));
+                    case 'gz': case 'zc': return gzuncompress(substr($data,5));
+                }
             }
+        } catch(Exception $e) {
+            // Some applications will capture the php error that these functions can sometimes generate and throw it as an Exception
+            $data = false;
         }
         return $data;
     }

@@ -1,11 +1,5 @@
 <?php
 
-/**
- * @see       https://github.com/laminas/laminas-view for the canonical source repository
- * @copyright https://github.com/laminas/laminas-view/blob/master/COPYRIGHT.md
- * @license   https://github.com/laminas/laminas-view/blob/master/LICENSE.md New BSD License
- */
-
 namespace Laminas\View\Helper;
 
 /**
@@ -116,7 +110,7 @@ class HtmlTag extends AbstractHtmlElement
         return sprintf('<html%s>', $this->htmlAttribs($this->attributes));
     }
 
-    protected function handleNamespaceAttributes()
+    protected function handleNamespaceAttributes(): void
     {
         if ($this->useNamespaces && ! $this->handledNamespaces) {
             if (method_exists($this->view, 'plugin')) {

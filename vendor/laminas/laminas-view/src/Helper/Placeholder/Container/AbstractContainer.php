@@ -1,15 +1,10 @@
 <?php
 
-/**
- * @see       https://github.com/laminas/laminas-view for the canonical source repository
- * @copyright https://github.com/laminas/laminas-view/blob/master/COPYRIGHT.md
- * @license   https://github.com/laminas/laminas-view/blob/master/LICENSE.md New BSD License
- */
-
 namespace Laminas\View\Helper\Placeholder\Container;
 
 use ArrayObject;
 use Laminas\View\Exception;
+use ReturnTypeWillChange;
 
 /**
  * Abstract class representing container for placeholder values
@@ -250,8 +245,8 @@ abstract class AbstractContainer extends ArrayObject
     /**
      * Set a single value
      *
-     * @param  mixed $value
-     * @return void
+     * @param mixed $value
+     * @return static
      */
     public function set($value)
     {
@@ -281,6 +276,7 @@ abstract class AbstractContainer extends ArrayObject
      * @param  mixed $value
      * @return self
      */
+    #[ReturnTypeWillChange]
     public function append($value)
     {
         parent::append($value);

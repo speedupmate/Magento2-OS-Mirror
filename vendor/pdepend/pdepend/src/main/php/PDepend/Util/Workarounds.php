@@ -54,19 +54,20 @@ class Workarounds
      * Tests if the used PHP version has the known unserialize issue with object
      * references.
      *
-     * @return boolean
+     * @return bool
+     *
      * @see    https://bugs.php.net/bug.php?id=62373
      */
     public function hasSerializeReferenceIssue()
     {
-        return version_compare(phpversion(), '5.4.0', '>') && version_compare(phpversion(), '5.4.5', '<=');
+        return version_compare(PHP_VERSION, '5.4.0', '>') && version_compare(PHP_VERSION, '5.4.5', '<=');
     }
 
     /**
      * Tests if the current environment has no known issues and does not
      * require any workaround.
      *
-     * @return boolean
+     * @return bool
      */
     public function isNotRequired()
     {
@@ -76,13 +77,13 @@ class Workarounds
     /**
      * Returns an array with error messages related to the required workarounds.
      *
-     * @return array
+     * @return array<int, string>
      */
     public function getRequiredWorkarounds()
     {
         $issues = array();
         if ($this->hasSerializeReferenceIssue()) {
-            $issues[] = 'File cache deactivated due to known serialize() issues in PHP ' . phpversion();
+            $issues[] = 'File cache deactivated due to known serialize() issues in PHP ' . PHP_VERSION;
         }
 
         return $issues;

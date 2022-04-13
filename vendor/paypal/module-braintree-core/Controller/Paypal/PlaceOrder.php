@@ -11,10 +11,11 @@ use Magento\Framework\App\Action\Context;
 use PayPal\Braintree\Model\Paypal\Helper;
 use Magento\Framework\Controller\Result\Redirect;
 use Magento\Framework\Controller\ResultFactory;
+use Magento\Framework\App\Action\HttpPostActionInterface;
 use Magento\Framework\Exception\LocalizedException;
 use PayPal\Braintree\Gateway\Config\PayPal\Config;
 
-class PlaceOrder extends AbstractAction
+class PlaceOrder extends AbstractAction implements HttpPostActionInterface
 {
     /**
      * @var Helper\OrderPlace
@@ -56,7 +57,10 @@ class PlaceOrder extends AbstractAction
             /** @var Redirect $resultRedirect */
             return $resultRedirect->setPath('checkout/onepage/success', ['_secure' => true]);
         } catch (Exception $e) {
-            $this->messageManager->addExceptionMessage($e, $e->getMessage());
+            $this->messageManager->addExceptionMessage(
+                $e,
+                'The order #' . $quote->getReservedOrderId() . ' cannot be processed.'
+            );
         }
 
         return $resultRedirect->setPath('checkout/cart', ['_secure' => true]);

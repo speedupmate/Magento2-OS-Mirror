@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types=1);
+
 /*
  * This file is part of PHP CS Fixer.
  *
@@ -15,20 +17,18 @@ namespace PhpCsFixer\Fixer\FunctionNotation;
 use PhpCsFixer\AbstractFixer;
 use PhpCsFixer\FixerDefinition\CodeSample;
 use PhpCsFixer\FixerDefinition\FixerDefinition;
+use PhpCsFixer\FixerDefinition\FixerDefinitionInterface;
 use PhpCsFixer\Tokenizer\CT;
 use PhpCsFixer\Tokenizer\Token;
 use PhpCsFixer\Tokenizer\Tokens;
 use PhpCsFixer\Tokenizer\TokensAnalyzer;
 
-/**
- * @author SpacePossum
- */
 final class StaticLambdaFixer extends AbstractFixer
 {
     /**
      * {@inheritdoc}
      */
-    public function getDefinition()
+    public function getDefinition(): FixerDefinitionInterface
     {
         return new FixerDefinition(
             'Lambdas not (indirect) referencing `$this` must be declared `static`.',
@@ -41,7 +41,7 @@ final class StaticLambdaFixer extends AbstractFixer
     /**
      * {@inheritdoc}
      */
-    public function isCandidate(Tokens $tokens)
+    public function isCandidate(Tokens $tokens): bool
     {
         if (\PHP_VERSION_ID >= 70400 && $tokens->isTokenKindFound(T_FN)) {
             return true;
@@ -53,7 +53,7 @@ final class StaticLambdaFixer extends AbstractFixer
     /**
      * {@inheritdoc}
      */
-    public function isRisky()
+    public function isRisky(): bool
     {
         return true;
     }
@@ -61,7 +61,7 @@ final class StaticLambdaFixer extends AbstractFixer
     /**
      * {@inheritdoc}
      */
-    protected function applyFix(\SplFileInfo $file, Tokens $tokens)
+    protected function applyFix(\SplFileInfo $file, Tokens $tokens): void
     {
         $analyzer = new TokensAnalyzer($tokens);
         $expectedFunctionKinds = [T_FUNCTION];
@@ -111,12 +111,7 @@ final class StaticLambdaFixer extends AbstractFixer
         }
     }
 
-    /**
-     * @param int $index
-     *
-     * @return int
-     */
-    private function findExpressionEnd(Tokens $tokens, $index)
+    private function findExpressionEnd(Tokens $tokens, int $index): int
     {
         $nextIndex = $tokens->getNextMeaningfulToken($index);
 
@@ -144,13 +139,8 @@ final class StaticLambdaFixer extends AbstractFixer
 
     /**
      * Returns 'true' if there is a possible reference to '$this' within the given tokens index range.
-     *
-     * @param int $startIndex
-     * @param int $endIndex
-     *
-     * @return bool
      */
-    private function hasPossibleReferenceToThis(Tokens $tokens, $startIndex, $endIndex)
+    private function hasPossibleReferenceToThis(Tokens $tokens, int $startIndex, int $endIndex): bool
     {
         for ($i = $startIndex; $i < $endIndex; ++$i) {
             if ($tokens[$i]->isGivenKind(T_VARIABLE) && '$this' === strtolower($tokens[$i]->getContent())) {
@@ -174,6 +164,10 @@ final class StaticLambdaFixer extends AbstractFixer
                 if ($tokens[$nextIndex]->isGivenKind(T_VARIABLE)) {
                     return true; // "$$a" case
                 }
+            }
+
+            if ($tokens[$i]->equals([T_STRING, 'parent'], false)) {
+                return true; // parent:: case
             }
         }
 

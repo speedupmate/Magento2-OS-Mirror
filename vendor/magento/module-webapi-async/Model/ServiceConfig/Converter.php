@@ -8,15 +8,10 @@ declare(strict_types=1);
 
 namespace Magento\WebapiAsync\Model\ServiceConfig;
 
-use DOMDocument;
-use DOMElement;
-use Magento\Framework\Config\ConverterInterface;
-use Magento\Webapi\Model\Rest\Config;
-
 /**
- * Converter of webapi_async.xml content into array format
+ * Converter of webapi_async.xml content into array format.
  */
-class Converter implements ConverterInterface
+class Converter implements \Magento\Framework\Config\ConverterInterface
 {
     /**#@+
      * Array keys for config internal representation.
@@ -33,15 +28,15 @@ class Converter implements ConverterInterface
      * @var array
      */
     private $allowedRouteMethods = [
-        Config::HTTP_METHOD_GET,
-        Config::HTTP_METHOD_POST,
-        Config::HTTP_METHOD_PUT,
-        Config::HTTP_METHOD_DELETE,
-        Config::HTTP_METHOD_PATCH
+        \Magento\Webapi\Model\Rest\Config::HTTP_METHOD_GET,
+        \Magento\Webapi\Model\Rest\Config::HTTP_METHOD_POST,
+        \Magento\Webapi\Model\Rest\Config::HTTP_METHOD_PUT,
+        \Magento\Webapi\Model\Rest\Config::HTTP_METHOD_DELETE,
+        \Magento\Webapi\Model\Rest\Config::HTTP_METHOD_PATCH
     ];
 
     /**
-     * @inheritdoc
+     * @inheritDoc
      *
      * @SuppressWarnings(PHPMD.CyclomaticComplexity)
      * @SuppressWarnings(PHPMD.NPathComplexity)
@@ -49,8 +44,9 @@ class Converter implements ConverterInterface
     public function convert($source)
     {
         $result = [self::KEY_SERVICES => []];
+        /** @var \DOMNodeList $services */
         $services = $source->getElementsByTagName('service');
-        /** @var DOMElement $service */
+        /** @var \DOMElement $service */
         foreach ($services as $service) {
             if (!$this->canConvertXmlNode($service)) {
                 continue;
@@ -70,16 +66,16 @@ class Converter implements ConverterInterface
     /**
      * Merge service data related to synchronous-only method invocations.
      *
-     * @param DOMElement $service
+     * @param \DOMElement $service
      * @param array $result
      * @param string $serviceClass
      * @param string $serviceMethod
      */
     private function mergeSynchronousInvocationMethodsData(
-        DOMElement $service,
+        \DOMElement $service,
         array &$result,
-        string $serviceClass,
-        string $serviceMethod
+        $serviceClass,
+        $serviceMethod
     ) {
         $result[self::KEY_SERVICES][$serviceClass][self::KEY_METHODS][$serviceMethod] = array_merge(
             $result[self::KEY_SERVICES][$serviceClass][self::KEY_METHODS][$serviceMethod],
@@ -92,10 +88,11 @@ class Converter implements ConverterInterface
     /**
      * Checks if xml node can be converted
      *
-     * @param DOMElement $node
+     * @param \DOMElement $node
+     *
      * @return bool
      */
-    private function canConvertXmlNode(DOMElement $node): bool
+    private function canConvertXmlNode(\DOMElement $node)
     {
         if ($node->nodeType !== XML_ELEMENT_NODE) {
             return false;
@@ -133,10 +130,11 @@ class Converter implements ConverterInterface
     /**
      * Returns service class
      *
-     * @param DOMElement $service
+     * @param \DOMElement $service
+     *
      * @return null|string
      */
-    private function getServiceClass(DOMElement $service): ?string
+    private function getServiceClass(\DOMElement $service)
     {
         $serviceClass = $service->attributes->getNamedItem('class')->nodeValue;
 
@@ -146,10 +144,11 @@ class Converter implements ConverterInterface
     /**
      * Returns service method
      *
-     * @param DOMElement $service
+     * @param \DOMElement $service
+     *
      * @return null|string
      */
-    private function getServiceMethod(DOMElement $service): ?string
+    private function getServiceMethod(\DOMElement $service)
     {
         $serviceMethod = $service->attributes->getNamedItem('method')->nodeValue;
 
@@ -159,10 +158,11 @@ class Converter implements ConverterInterface
     /**
      * Checks if synchronous method invocation only
      *
-     * @param DOMElement $serviceNode
+     * @param \DOMElement $serviceNode
+     *
      * @return bool
      */
-    private function isSynchronousMethodInvocationOnly(DOMElement $serviceNode): bool
+    private function isSynchronousMethodInvocationOnly(\DOMElement $serviceNode)
     {
         $synchronousInvocationOnlyNodes = $serviceNode->getElementsByTagName('synchronousInvocationOnly');
 
@@ -172,10 +172,11 @@ class Converter implements ConverterInterface
     /**
      * Checks if synchronous invocation only true
      *
-     * @param DOMElement|null $synchronousInvocationOnlyNode
+     * @param \DOMElement $synchronousInvocationOnlyNode
+     *
      * @return bool|mixed
      */
-    private function isSynchronousInvocationOnlyTrue(DOMElement $synchronousInvocationOnlyNode = null)
+    private function isSynchronousInvocationOnlyTrue(\DOMElement $synchronousInvocationOnlyNode = null)
     {
         if ($synchronousInvocationOnlyNode === null) {
             return false;
@@ -191,14 +192,15 @@ class Converter implements ConverterInterface
     /**
      * Convert and merge "route" nodes, which represent route customizations
      *
-     * @param DOMDocument $source
+     * @param \DOMDocument $source
+     *
      * @return array
      */
-    private function convertRouteCustomizations(DOMDocument $source): array
+    private function convertRouteCustomizations($source)
     {
         $customRoutes = [];
         $routes = $source->getElementsByTagName('route');
-        /** @var DOMElement  $route */
+        /** @var \DOMElement  $route */
         foreach ($routes as $route) {
             $routeUrl = $this->getRouteUrl($route);
             $routeMethod = $this->getRouteMethod($route);
@@ -218,10 +220,11 @@ class Converter implements ConverterInterface
     /**
      * Returns route url
      *
-     * @param DOMElement $route
+     * @param \DOMElement $route
+     *
      * @return null|string
      */
-    private function getRouteUrl(DOMElement $route): ?string
+    private function getRouteUrl($route)
     {
         $url = $route->attributes->getNamedItem('url')->nodeValue;
         return mb_strlen((string) $url) === 0 ? null : $url;
@@ -230,10 +233,11 @@ class Converter implements ConverterInterface
     /**
      * Returns route alias
      *
-     * @param DOMElement $route
+     * @param \DOMElement $route
+     *
      * @return null|string
      */
-    private function getRouteAlias(DOMElement $route): ?string
+    private function getRouteAlias($route)
     {
         $alias = $route->attributes->getNamedItem('alias')->nodeValue;
         return mb_strlen((string) $alias) === 0 ? null : ltrim($alias, '/');
@@ -242,10 +246,11 @@ class Converter implements ConverterInterface
     /**
      * Returns route method
      *
-     * @param DOMElement $route
+     * @param \DOMElement $route
+     *
      * @return null|string
      */
-    private function getRouteMethod(DOMElement $route): ?string
+    private function getRouteMethod($route)
     {
         $method = $route->attributes->getNamedItem('method')->nodeValue;
         $method =  mb_strlen((string) $method) === 0 ? null : $method;
@@ -256,6 +261,7 @@ class Converter implements ConverterInterface
      * Validates method of route
      *
      * @param string $method
+     *
      * @return bool
      */
     private function validateRouteMethod($method)

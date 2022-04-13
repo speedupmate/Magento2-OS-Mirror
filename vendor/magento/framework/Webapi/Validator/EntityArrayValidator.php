@@ -9,8 +9,10 @@ declare(strict_types=1);
 namespace Magento\Framework\Webapi\Validator;
 
 use Magento\Framework\App\ObjectManager;
+use Magento\Framework\Exception\FileSystemException;
 use Magento\Framework\Exception\InvalidArgumentException;
 use Magento\Framework\Webapi\Validator\IOLimit\IOLimitConfigProvider;
+use Magento\Framework\Exception\RuntimeException;
 use Magento\Framework\Webapi\Validator\EntityArrayValidator\InputArraySizeLimitValue;
 
 /**
@@ -21,7 +23,7 @@ class EntityArrayValidator implements ServiceInputValidatorInterface
     /**
      * @var int
      */
-    private $complexArrayItemLimit;
+    private int $complexArrayItemLimit;
 
     /**
      * @var IOLimitConfigProvider
@@ -51,6 +53,8 @@ class EntityArrayValidator implements ServiceInputValidatorInterface
 
     /**
      * @inheritDoc
+     *
+     * @throws FileSystemException|RuntimeException
      */
     public function validateComplexArrayType(string $className, array $items): void
     {

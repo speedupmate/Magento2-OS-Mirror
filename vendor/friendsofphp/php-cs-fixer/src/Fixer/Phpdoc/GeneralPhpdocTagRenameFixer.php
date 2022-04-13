@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types=1);
+
 /*
  * This file is part of PHP CS Fixer.
  *
@@ -13,23 +15,25 @@
 namespace PhpCsFixer\Fixer\Phpdoc;
 
 use PhpCsFixer\AbstractFixer;
-use PhpCsFixer\Fixer\ConfigurationDefinitionFixerInterface;
+use PhpCsFixer\Fixer\ConfigurableFixerInterface;
 use PhpCsFixer\FixerConfiguration\FixerConfigurationResolver;
+use PhpCsFixer\FixerConfiguration\FixerConfigurationResolverInterface;
 use PhpCsFixer\FixerConfiguration\FixerOptionBuilder;
 use PhpCsFixer\FixerDefinition\CodeSample;
 use PhpCsFixer\FixerDefinition\FixerDefinition;
+use PhpCsFixer\FixerDefinition\FixerDefinitionInterface;
 use PhpCsFixer\Preg;
 use PhpCsFixer\Tokenizer\Token;
 use PhpCsFixer\Tokenizer\Tokens;
 use Symfony\Component\OptionsResolver\Exception\InvalidOptionsException;
 use Symfony\Component\OptionsResolver\Options;
 
-final class GeneralPhpdocTagRenameFixer extends AbstractFixer implements ConfigurationDefinitionFixerInterface
+final class GeneralPhpdocTagRenameFixer extends AbstractFixer implements ConfigurableFixerInterface
 {
     /**
      * {@inheritdoc}
      */
-    public function getDefinition()
+    public function getDefinition(): FixerDefinitionInterface
     {
         return new FixerDefinition(
             'Renames PHPDoc tags.',
@@ -67,7 +71,7 @@ final class GeneralPhpdocTagRenameFixer extends AbstractFixer implements Configu
      * Must run before PhpdocAddMissingParamAnnotationFixer, PhpdocAlignFixer.
      * Must run after AlignMultilineCommentFixer, CommentToPhpdocFixer, PhpdocIndentFixer, PhpdocScalarFixer, PhpdocToCommentFixer, PhpdocTypesFixer.
      */
-    public function getPriority()
+    public function getPriority(): int
     {
         // must be run before PhpdocAddMissingParamAnnotationFixer
         return 11;
@@ -76,7 +80,7 @@ final class GeneralPhpdocTagRenameFixer extends AbstractFixer implements Configu
     /**
      * {@inheritdoc}
      */
-    public function isCandidate(Tokens $tokens)
+    public function isCandidate(Tokens $tokens): bool
     {
         return $tokens->isTokenKindFound(T_DOC_COMMENT);
     }
@@ -84,7 +88,7 @@ final class GeneralPhpdocTagRenameFixer extends AbstractFixer implements Configu
     /**
      * {@inheritdoc}
      */
-    protected function createConfigurationDefinition()
+    protected function createConfigurationDefinition(): FixerConfigurationResolverInterface
     {
         return new FixerConfigurationResolver([
             (new FixerOptionBuilder('fix_annotation', 'Whether annotation tags should be fixed.'))
@@ -97,7 +101,7 @@ final class GeneralPhpdocTagRenameFixer extends AbstractFixer implements Configu
                 ->getOption(),
             (new FixerOptionBuilder('replacements', 'A map of tags to replace.'))
                 ->setAllowedTypes(['array'])
-                ->setNormalizer(function (Options $options, $value) {
+                ->setNormalizer(static function (Options $options, $value): array {
                     $normalizedValue = [];
 
                     foreach ($value as $from => $to) {
@@ -112,7 +116,7 @@ final class GeneralPhpdocTagRenameFixer extends AbstractFixer implements Configu
                             ));
                         }
 
-                        if (1 !== Preg::match('#^\S+$#', $to) || false !== strpos($to, '*/')) {
+                        if (1 !== Preg::match('#^\S+$#', $to) || str_contains($to, '*/')) {
                             throw new InvalidOptionsException(sprintf(
                                 'Tag "%s" cannot be replaced by invalid tag "%s".',
                                 $from,
@@ -164,13 +168,13 @@ final class GeneralPhpdocTagRenameFixer extends AbstractFixer implements Configu
     /**
      * {@inheritdoc}
      */
-    protected function applyFix(\SplFileInfo $file, Tokens $tokens)
+    protected function applyFix(\SplFileInfo $file, Tokens $tokens): void
     {
-        if (!$this->configuration['replacements']) {
+        if (0 === \count($this->configuration['replacements'])) {
             return;
         }
 
-        if ($this->configuration['fix_annotation']) {
+        if (true === $this->configuration['fix_annotation']) {
             if ($this->configuration['fix_inline']) {
                 $regex = '/"[^"]*"(*SKIP)(*FAIL)|\b(?<=@)(%s)\b/';
             } else {
@@ -180,7 +184,7 @@ final class GeneralPhpdocTagRenameFixer extends AbstractFixer implements Configu
             $regex = '/(?<={@)(%s)(?=[ \t}])/';
         }
 
-        $caseInsensitive = !$this->configuration['case_sensitive'];
+        $caseInsensitive = false === $this->configuration['case_sensitive'];
         $replacements = $this->configuration['replacements'];
         $regex = sprintf($regex, implode('|', array_keys($replacements)));
 
@@ -195,7 +199,7 @@ final class GeneralPhpdocTagRenameFixer extends AbstractFixer implements Configu
 
             $tokens[$index] = new Token([T_DOC_COMMENT, Preg::replaceCallback(
                 $regex,
-                function (array $matches) use ($caseInsensitive, $replacements) {
+                static function (array $matches) use ($caseInsensitive, $replacements) {
                     if ($caseInsensitive) {
                         $matches[1] = strtolower($matches[1]);
                     }

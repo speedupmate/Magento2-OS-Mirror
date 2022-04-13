@@ -34,7 +34,7 @@ class InputArraySizeLimitValueTest extends TestCase
     /**
      * @var InputArraySizeLimitValue
      */
-    private $inputArraySizeLimitValue;
+    private InputArraySizeLimitValue $inputArraySizeLimitValue;
 
     /**
      * @inheritDoc

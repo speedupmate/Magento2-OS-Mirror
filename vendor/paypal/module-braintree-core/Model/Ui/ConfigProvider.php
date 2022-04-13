@@ -20,7 +20,6 @@ use Magento\Framework\View\Asset\Source;
 class ConfigProvider implements ConfigProviderInterface
 {
     const CODE = 'braintree';
-
     const CC_VAULT_CODE = 'braintree_cc_vault';
 
     /**
@@ -85,6 +84,10 @@ class ConfigProvider implements ConfigProviderInterface
      */
     public function getConfig(): array
     {
+        if (!$this->config->isActive()) {
+            return [];
+        }
+
         $config = [
             'payment' => [
                 self::CODE => [

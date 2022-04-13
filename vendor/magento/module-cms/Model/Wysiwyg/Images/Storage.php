@@ -77,8 +77,6 @@ class Storage extends \Magento\Framework\DataObject
     protected $_coreFileStorageDb = null;
 
     /**
-     * Cms wysiwyg images
-     *
      * @var \Magento\Cms\Helper\Wysiwyg\Images
      */
     protected $_cmsWysiwygImages = null;
@@ -109,36 +107,26 @@ class Storage extends \Magento\Framework\DataObject
     protected $_session;
 
     /**
-     * Directory database factory
-     *
      * @var \Magento\MediaStorage\Model\File\Storage\Directory\DatabaseFactory
      */
     protected $_directoryDatabaseFactory;
 
     /**
-     * Storage database factory
-     *
      * @var \Magento\MediaStorage\Model\File\Storage\DatabaseFactory
      */
     protected $_storageDatabaseFactory;
 
     /**
-     * Storage file factory
-     *
      * @var \Magento\MediaStorage\Model\File\Storage\FileFactory
      */
     protected $_storageFileFactory;
 
     /**
-     * Storage collection factory
-     *
      * @var \Magento\Cms\Model\Wysiwyg\Images\Storage\CollectionFactory
      */
     protected $_storageCollectionFactory;
 
     /**
-     * Uploader factory
-     *
      * @var \Magento\MediaStorage\Model\File\UploaderFactory
      */
     protected $_uploaderFactory;
@@ -535,7 +523,7 @@ class Storage extends \Magento\Framework\DataObject
      */
     public function deleteDirectory($path)
     {
-        if (!$this->isDirectoryAllowed(dirname($path))) {
+        if (!$this->isDirectoryAllowed($this->file->getParentDirectory($path))) {
             throw new \Magento\Framework\Exception\LocalizedException(
                 __('We cannot delete the selected directory.')
             );
@@ -584,7 +572,7 @@ class Storage extends \Magento\Framework\DataObject
      */
     public function deleteFile($target)
     {
-        if (!$this->isDirectoryAllowed(dirname($target))) {
+        if (!$this->isDirectoryAllowed($this->file->getParentDirectory($target))) {
             throw new \Magento\Framework\Exception\LocalizedException(
                 __('We can\'t delete the file right now.')
             );
@@ -745,8 +733,8 @@ class Storage extends \Magento\Framework\DataObject
         $configWidth = $this->_resizeParameters['width'];
         $configHeight = $this->_resizeParameters['height'];
 
-        //phpcs:ignore Generic.PHP.NoSilencedErrors
-        [$imageWidth, $imageHeight] = @getimagesize($source);
+        $driver = $this->_directory->getDriver();
+        [$imageWidth, $imageHeight] = getimagesizefromstring($driver->fileGetContents($source));
 
         if ($imageWidth && $imageHeight) {
             $imageWidth = $configWidth > $imageWidth ? $imageWidth : $configWidth;
@@ -999,7 +987,7 @@ class Storage extends \Magento\Framework\DataObject
             );
             $regExp = '/^(';
             $or = '';
-            foreach($mediaGalleryImageFolders as $folder) {
+            foreach ($mediaGalleryImageFolders as $folder) {
                 $folderPattern = str_replace('/', '[\/]+', $folder);
                 $regExp .= $or . $folderPattern . '\b(?!-)(?:\/?[a-zA-Z0-9\-\_]+)*\/?$';
                 $or = '|';
@@ -1013,7 +1001,7 @@ class Storage extends \Magento\Framework\DataObject
     /**
      * Get allowed media gallery image folders
      *
-     * example:
+     * Example:
      *   [
      *     [0 => 'wysiwyg'],
      *     [0 => 'catalog', 1 => 'category']

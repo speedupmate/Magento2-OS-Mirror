@@ -72,6 +72,9 @@ class MagentoWebDriver extends WebDriver
         '//div[contains(@class, "admin__data-grid-loading-mask")]',
         '//div[contains(@class, "admin__form-loading-mask")]',
         '//div[@data-role="spinner"]',
+        '//div[contains(@class,"file-uploader-spinner")]',
+        '//div[contains(@class,"image-uploader-spinner")]',
+        '//div[contains(@class,"uploader")]//div[@class="file-row"]',
     ];
 
     /**
@@ -222,7 +225,7 @@ class MagentoWebDriver extends WebDriver
     public function _getCurrentUri()
     {
         $url = $this->webDriver->getCurrentURL();
-        if ($url == 'about:blank') {
+        if ($url === 'about:blank') {
             throw new ModuleException($this, 'Current url is blank, no page was opened');
         }
 
@@ -340,7 +343,7 @@ class MagentoWebDriver extends WebDriver
         $actualUrl = $this->webDriver->getCurrentURL();
         $comparison = "Expected: $needle\nActual: $actualUrl";
         AllureHelper::addAttachmentToCurrentStep($comparison, 'Comparison');
-        $this->assertStringContainsString($needle, $actualUrl);
+        $this->assertStringContainsString(urldecode($needle), urldecode($actualUrl));
     }
 
     /**
@@ -509,7 +512,7 @@ class MagentoWebDriver extends WebDriver
      */
     public function mSetLocale(int $category, $locale)
     {
-        if (self::$localeAll[$category] == $locale) {
+        if (self::$localeAll[$category] === $locale) {
             return;
         }
         foreach (self::$localeAll as $c => $l) {
@@ -571,7 +574,7 @@ class MagentoWebDriver extends WebDriver
             $apiURL,
             [
                 'token' => WebApiAuth::getAdminToken(),
-                getenv('MAGENTO_CLI_COMMAND_PARAMETER') => $command,
+                getenv('MAGENTO_CLI_COMMAND_PARAMETER') => urlencode($command),
                 'arguments' => $arguments,
                 'timeout'   => $timeout,
             ],
@@ -849,7 +852,7 @@ class MagentoWebDriver extends WebDriver
             }
         }
 
-        if ($this->current_test == null) {
+        if ($this->current_test === null) {
             throw new \RuntimeException("Suite condition failure: \n" . $fail->getMessage());
         }
 
@@ -869,7 +872,7 @@ class MagentoWebDriver extends WebDriver
     public function saveScreenshot()
     {
         $testDescription = "unknown." . uniqid();
-        if ($this->current_test != null) {
+        if ($this->current_test !== null) {
             $testDescription = Descriptor::getTestSignature($this->current_test);
         }
 
@@ -970,12 +973,13 @@ class MagentoWebDriver extends WebDriver
     /**
      * Return OTP based on a shared secret
      *
+     * @param string|null $secretsPath
      * @return string
      * @throws TestFrameworkException
      */
-    public function getOTP()
+    public function getOTP($secretsPath = null)
     {
-        return OTP::getOTP();
+        return OTP::getOTP($secretsPath);
     }
 
     /**
@@ -1039,6 +1043,12 @@ class MagentoWebDriver extends WebDriver
      */
     public function pause($pauseOnFail = false)
     {
+        if (\Composer\InstalledVersions::isInstalled('hoa/console') === false) {
+            $message = "<pause /> action is unavailable." . PHP_EOL;
+            $message .= "Please install `hoa/console` via \"composer require hoa/console\"" . PHP_EOL;
+            print($message);
+            return;
+        }
         if (!\Codeception\Util\Debug::isEnabled()) {
             return;
         }

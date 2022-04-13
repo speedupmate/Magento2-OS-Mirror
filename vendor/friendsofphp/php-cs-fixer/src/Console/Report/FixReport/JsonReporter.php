@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types=1);
+
 /*
  * This file is part of PHP CS Fixer.
  *
@@ -24,7 +26,7 @@ final class JsonReporter implements ReporterInterface
     /**
      * {@inheritdoc}
      */
-    public function getFormat()
+    public function getFormat(): string
     {
         return 'json';
     }
@@ -32,37 +34,31 @@ final class JsonReporter implements ReporterInterface
     /**
      * {@inheritdoc}
      */
-    public function generate(ReportSummary $reportSummary)
+    public function generate(ReportSummary $reportSummary): string
     {
-        $jFiles = [];
+        $jsonFiles = [];
 
         foreach ($reportSummary->getChanged() as $file => $fixResult) {
-            $jfile = ['name' => $file];
+            $jsonFile = ['name' => $file];
 
             if ($reportSummary->shouldAddAppliedFixers()) {
-                $jfile['appliedFixers'] = $fixResult['appliedFixers'];
+                $jsonFile['appliedFixers'] = $fixResult['appliedFixers'];
             }
 
             if (!empty($fixResult['diff'])) {
-                $jfile['diff'] = $fixResult['diff'];
+                $jsonFile['diff'] = $fixResult['diff'];
             }
 
-            $jFiles[] = $jfile;
+            $jsonFiles[] = $jsonFile;
         }
 
         $json = [
-            'files' => $jFiles,
-        ];
-
-        if (null !== $reportSummary->getTime()) {
-            $json['time'] = [
+            'files' => $jsonFiles,
+            'time' => [
                 'total' => round($reportSummary->getTime() / 1000, 3),
-            ];
-        }
-
-        if (null !== $reportSummary->getMemory()) {
-            $json['memory'] = round($reportSummary->getMemory() / 1024 / 1024, 3);
-        }
+            ],
+            'memory' => round($reportSummary->getMemory() / 1024 / 1024, 3),
+        ];
 
         $json = json_encode($json);
 

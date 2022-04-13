@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types=1);
+
 /*
  * This file is part of PHP CS Fixer.
  *
@@ -13,11 +15,13 @@
 namespace PhpCsFixer\Fixer\FunctionNotation;
 
 use PhpCsFixer\AbstractFixer;
-use PhpCsFixer\Fixer\ConfigurationDefinitionFixerInterface;
+use PhpCsFixer\Fixer\ConfigurableFixerInterface;
 use PhpCsFixer\FixerConfiguration\FixerConfigurationResolver;
+use PhpCsFixer\FixerConfiguration\FixerConfigurationResolverInterface;
 use PhpCsFixer\FixerConfiguration\FixerOptionBuilder;
 use PhpCsFixer\FixerDefinition\CodeSample;
 use PhpCsFixer\FixerDefinition\FixerDefinition;
+use PhpCsFixer\FixerDefinition\FixerDefinitionInterface;
 use PhpCsFixer\FixerDefinition\VersionSpecification;
 use PhpCsFixer\FixerDefinition\VersionSpecificCodeSample;
 use PhpCsFixer\Tokenizer\CT;
@@ -29,38 +33,37 @@ use PhpCsFixer\Tokenizer\TokensAnalyzer;
  *
  * @author Dariusz Rumiński <dariusz.ruminski@gmail.com>
  */
-final class FunctionDeclarationFixer extends AbstractFixer implements ConfigurationDefinitionFixerInterface
+final class FunctionDeclarationFixer extends AbstractFixer implements ConfigurableFixerInterface
 {
     /**
      * @internal
      */
-    const SPACING_NONE = 'none';
+    public const SPACING_NONE = 'none';
 
     /**
      * @internal
      */
-    const SPACING_ONE = 'one';
+    public const SPACING_ONE = 'one';
 
-    private $supportedSpacings = [self::SPACING_NONE, self::SPACING_ONE];
+    private const SUPPORTED_SPACINGS = [self::SPACING_NONE, self::SPACING_ONE];
 
+    /**
+     * @var string
+     */
     private $singleLineWhitespaceOptions = " \t";
 
     /**
      * {@inheritdoc}
      */
-    public function isCandidate(Tokens $tokens)
+    public function isCandidate(Tokens $tokens): bool
     {
-        if (\PHP_VERSION_ID >= 70400 && $tokens->isTokenKindFound(T_FN)) {
-            return true;
-        }
-
-        return $tokens->isTokenKindFound(T_FUNCTION);
+        return $tokens->isTokenKindFound(T_FUNCTION) || (\PHP_VERSION_ID >= 70400 && $tokens->isTokenKindFound(T_FN));
     }
 
     /**
      * {@inheritdoc}
      */
-    public function getDefinition()
+    public function getDefinition(): FixerDefinitionInterface
     {
         return new FixerDefinition(
             'Spaces should be properly placed in a function declaration.',
@@ -105,7 +108,7 @@ $f = fn () => null;
      * Must run before MethodArgumentSpaceFixer.
      * Must run after SingleSpaceAfterConstructFixer.
      */
-    public function getPriority()
+    public function getPriority(): int
     {
         return 31;
     }
@@ -113,7 +116,7 @@ $f = fn () => null;
     /**
      * {@inheritdoc}
      */
-    protected function applyFix(\SplFileInfo $file, Tokens $tokens)
+    protected function applyFix(\SplFileInfo $file, Tokens $tokens): void
     {
         $tokensAnalyzer = new TokensAnalyzer($tokens);
 
@@ -128,6 +131,7 @@ $f = fn () => null;
             }
 
             $startParenthesisIndex = $tokens->getNextTokenOfKind($index, ['(', ';', [T_CLOSE_TAG]]);
+
             if (!$tokens[$startParenthesisIndex]->equals('(')) {
                 continue;
             }
@@ -168,7 +172,6 @@ $f = fn () => null;
 
             // remove single-line edge whitespaces inside parameters list parentheses
             $this->fixParenthesisInnerEdge($tokens, $startParenthesisIndex, $endParenthesisIndex);
-
             $isLambda = $tokensAnalyzer->isLambda($index);
 
             // remove whitespace before (
@@ -191,6 +194,7 @@ $f = fn () => null;
 
             if ($isLambda) {
                 $prev = $tokens->getPrevMeaningfulToken($index);
+
                 if ($tokens[$prev]->isGivenKind(T_STATIC)) {
                     // fix whitespace after T_STATIC
                     // eg: `$a = static     function(){};` => `$a = static function(){};`
@@ -203,24 +207,24 @@ $f = fn () => null;
     /**
      * {@inheritdoc}
      */
-    protected function createConfigurationDefinition()
+    protected function createConfigurationDefinition(): FixerConfigurationResolverInterface
     {
         return new FixerConfigurationResolver([
             (new FixerOptionBuilder('closure_function_spacing', 'Spacing to use before open parenthesis for closures.'))
                 ->setDefault(self::SPACING_ONE)
-                ->setAllowedValues($this->supportedSpacings)
+                ->setAllowedValues(self::SUPPORTED_SPACINGS)
                 ->getOption(),
         ]);
     }
 
-    private function fixParenthesisInnerEdge(Tokens $tokens, $start, $end)
+    private function fixParenthesisInnerEdge(Tokens $tokens, int $start, int $end): void
     {
-        // remove single-line whitespace before )
+        // remove single-line whitespace before `)`
         if ($tokens[$end - 1]->isWhitespace($this->singleLineWhitespaceOptions)) {
             $tokens->clearAt($end - 1);
         }
 
-        // remove single-line whitespace after (
+        // remove single-line whitespace after `(`
         if ($tokens[$start + 1]->isWhitespace($this->singleLineWhitespaceOptions)) {
             $tokens->clearAt($start + 1);
         }

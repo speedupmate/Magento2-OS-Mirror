@@ -43,6 +43,10 @@
 namespace PDepend\Util\Cache\Driver\File;
 
 use PDepend\Util\Log;
+use RecursiveDirectoryIterator;
+use RecursiveIteratorIterator;
+use SplFileInfo;
+use UnexpectedValueException;
 
 /**
  * Simple garbage collector for PDepend's file cache.
@@ -52,31 +56,33 @@ use PDepend\Util\Log;
  */
 class FileCacheGarbageCollector
 {
+    const DEFAULT_TTL = 2592000; //30 days
+
     /**
      * @var string
      */
     private $cacheDir;
 
     /**
-     * @var integer
+     * @var int
      */
-    private $minTime;
+    private $expirationTimestamp;
 
     /**
      * @param string $cacheDir
-     * @param integer $maxDays
+     * @param int    $ttl
      */
-    public function __construct($cacheDir, $maxDays = 30)
+    public function __construct($cacheDir, $ttl = self::DEFAULT_TTL)
     {
         $this->cacheDir = $cacheDir;
-        $this->minTime = time() - ($maxDays * 86400);
+        $this->expirationTimestamp = time() - $ttl;
     }
 
     /**
      * Removes all outdated cache files and returns the number of garbage
      * collected files.
      *
-     * @return integer
+     * @return int
      */
     public function garbageCollect()
     {
@@ -87,8 +93,8 @@ class FileCacheGarbageCollector
         $count = 0;
 
         try {
-            $files = new \RecursiveIteratorIterator(
-                new \RecursiveDirectoryIterator($this->cacheDir)
+            $files = new RecursiveIteratorIterator(
+                new RecursiveDirectoryIterator($this->cacheDir)
             );
             foreach ($files as $file) {
                 if ($this->isCollectibleFile($file)) {
@@ -98,7 +104,7 @@ class FileCacheGarbageCollector
             }
 
             return $count;
-        } catch (\UnexpectedValueException $e) {
+        } catch (UnexpectedValueException $e) {
             /* This may happen if PHPMD and PDepend run in parallel */
             return $count;
         }
@@ -107,22 +113,21 @@ class FileCacheGarbageCollector
     /**
      * Checks if the given file can be removed.
      *
-     * @param \SplFileInfo $file
-     * @return boolean
+     * @return bool
      */
-    private function isCollectibleFile(\SplFileInfo $file)
+    private function isCollectibleFile(SplFileInfo $file)
     {
         if (false === $file->isFile()) {
             return false;
         }
 
         $time = $file->getATime();
-        if ($time > $this->minTime) {
+        if ($time > $this->expirationTimestamp) {
             return false;
         }
 
         $time = $file->getMTime();
-        if ($time > $this->minTime) {
+        if ($time > $this->expirationTimestamp) {
             return false;
         }
 
@@ -132,10 +137,9 @@ class FileCacheGarbageCollector
     /**
      * Removes the given cache file.
      *
-     * @param \SplFileInfo $file
      * @return void
      */
-    private function garbageCollectFile(\SplFileInfo $file)
+    private function garbageCollectFile(SplFileInfo $file)
     {
         Log::debug("Removing file '{$file->getPathname()}' from cache.");
 

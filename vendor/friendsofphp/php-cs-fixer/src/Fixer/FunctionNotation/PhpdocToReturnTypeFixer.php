@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types=1);
+
 /*
  * This file is part of PHP CS Fixer.
  *
@@ -13,7 +15,9 @@
 namespace PhpCsFixer\Fixer\FunctionNotation;
 
 use PhpCsFixer\AbstractPhpdocToTypeDeclarationFixer;
+use PhpCsFixer\FixerDefinition\CodeSample;
 use PhpCsFixer\FixerDefinition\FixerDefinition;
+use PhpCsFixer\FixerDefinition\FixerDefinitionInterface;
 use PhpCsFixer\FixerDefinition\VersionSpecification;
 use PhpCsFixer\FixerDefinition\VersionSpecificCodeSample;
 use PhpCsFixer\Tokenizer\CT;
@@ -46,28 +50,22 @@ final class PhpdocToReturnTypeFixer extends AbstractPhpdocToTypeDeclarationFixer
     /**
      * {@inheritdoc}
      */
-    public function getDefinition()
+    public function getDefinition(): FixerDefinitionInterface
     {
         return new FixerDefinition(
             'EXPERIMENTAL: Takes `@return` annotation of non-mixed types and adjusts accordingly the function signature. Requires PHP >= 7.0.',
             [
-                new VersionSpecificCodeSample(
+                new CodeSample(
                     '<?php
 
 /** @return \My\Bar */
-function my_foo()
+function f1()
 {}
-',
-                    new VersionSpecification(70000)
-                ),
-                new VersionSpecificCodeSample(
-                    '<?php
 
 /** @return void */
-function my_foo()
+function f2()
 {}
-',
-                    new VersionSpecification(70100)
+'
                 ),
                 new VersionSpecificCodeSample(
                     '<?php
@@ -78,14 +76,14 @@ function my_foo()
 ',
                     new VersionSpecification(70200)
                 ),
-                new VersionSpecificCodeSample(
+                new CodeSample(
                     '<?php
+
 /** @return Foo */
 function foo() {}
 /** @return string */
 function bar() {}
 ',
-                    new VersionSpecification(70100),
                     ['scalar_types' => false]
                 ),
                 new VersionSpecificCodeSample(
@@ -103,20 +101,20 @@ final class Foo {
                 ),
             ],
             null,
-            'This rule is EXPERIMENTAL and [1] is not covered with backward compatibility promise. [2] `@return` annotation is mandatory for the fixer to make changes, signatures of methods without it (no docblock, inheritdocs) will not be fixed. [3] Manual actions are required if inherited signatures are not properly documented. [4] `@inheritdocs` support is under construction.'
+            'This rule is EXPERIMENTAL and [1] is not covered with backward compatibility promise. [2] `@return` annotation is mandatory for the fixer to make changes, signatures of methods without it (no docblock, inheritdocs) will not be fixed. [3] Manual actions are required if inherited signatures are not properly documented.'
         );
     }
 
     /**
      * {@inheritdoc}
      */
-    public function isCandidate(Tokens $tokens)
+    public function isCandidate(Tokens $tokens): bool
     {
         if (\PHP_VERSION_ID >= 70400 && $tokens->isTokenKindFound(T_FN)) {
             return true;
         }
 
-        return \PHP_VERSION_ID >= 70000 && $tokens->isTokenKindFound(T_FUNCTION);
+        return $tokens->isTokenKindFound(T_FUNCTION);
     }
 
     /**
@@ -125,12 +123,12 @@ final class Foo {
      * Must run before FullyQualifiedStrictTypesFixer, NoSuperfluousPhpdocTagsFixer, PhpdocAlignFixer, ReturnTypeDeclarationFixer.
      * Must run after AlignMultilineCommentFixer, CommentToPhpdocFixer, PhpdocIndentFixer, PhpdocScalarFixer, PhpdocScalarFixer, PhpdocToCommentFixer, PhpdocTypesFixer, PhpdocTypesFixer.
      */
-    public function getPriority()
+    public function getPriority(): int
     {
         return 13;
     }
 
-    protected function isSkippedType($type)
+    protected function isSkippedType(string $type): bool
     {
         return isset($this->skippedTypes[$type]);
     }
@@ -138,7 +136,7 @@ final class Foo {
     /**
      * {@inheritdoc}
      */
-    protected function applyFix(\SplFileInfo $file, Tokens $tokens)
+    protected function applyFix(\SplFileInfo $file, Tokens $tokens): void
     {
         if (\PHP_VERSION_ID >= 80000) {
             unset($this->skippedTypes['mixed']);
@@ -158,8 +156,12 @@ final class Foo {
                 continue;
             }
 
-            $returnTypeAnnotation = $this->findAnnotations('return', $tokens, $index);
+            $docCommentIndex = $this->findFunctionDocComment($tokens, $index);
+            if (null === $docCommentIndex) {
+                continue;
+            }
 
+            $returnTypeAnnotation = $this->getAnnotationsFromDocComment('return', $tokens, $docCommentIndex);
             if (1 !== \count($returnTypeAnnotation)) {
                 continue;
             }
@@ -170,7 +172,7 @@ final class Foo {
                 continue;
             }
 
-            list($returnType, $isNullable) = $typeInfo;
+            [$returnType, $isNullable] = $typeInfo;
 
             $startIndex = $tokens->getNextTokenOfKind($index, ['{', ';']);
 
@@ -201,10 +203,8 @@ final class Foo {
      * Determine whether the function already has a return type hint.
      *
      * @param int $index The index of the end of the function definition line, EG at { or ;
-     *
-     * @return bool
      */
-    private function hasReturnTypeHint(Tokens $tokens, $index)
+    private function hasReturnTypeHint(Tokens $tokens, int $index): bool
     {
         $endFuncIndex = $tokens->getPrevTokenOfKind($index, [')']);
         $nextIndex = $tokens->getNextMeaningfulToken($endFuncIndex);

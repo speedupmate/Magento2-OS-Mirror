@@ -1,11 +1,5 @@
 <?php
 
-/**
- * @see       https://github.com/laminas/laminas-view for the canonical source repository
- * @copyright https://github.com/laminas/laminas-view/blob/master/COPYRIGHT.md
- * @license   https://github.com/laminas/laminas-view/blob/master/LICENSE.md New BSD License
- */
-
 namespace Laminas\View\Helper\Navigation;
 
 use Laminas\Navigation\AbstractContainer;
@@ -225,6 +219,7 @@ class Links extends AbstractHelper
      * Finds all relations (forward and reverse) for the given $page
      *
      * The form of the returned array:
+     *
      * <code>
      * // $page denotes an instance of Laminas\Navigation\Page\AbstractPage
      * $returned = array(
@@ -241,9 +236,10 @@ class Links extends AbstractHelper
      * );
      * </code>
      *
-     * @param  AbstractPage $page  page to find links for
-     * @param  null|int
-     * @return array
+     * @param AbstractPage $page  page to find links for
+     * @param int|null $flag
+     * @return array[][]
+     * @psalm-return array{rel: array<array>, rev: array<array>}
      */
     public function findAllRelations(AbstractPage $page, $flag = null)
     {

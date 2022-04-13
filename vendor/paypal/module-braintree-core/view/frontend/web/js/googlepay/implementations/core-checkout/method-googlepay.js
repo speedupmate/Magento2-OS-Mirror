@@ -1,15 +1,17 @@
-define(
-    ['uiComponent', 'Magento_Checkout/js/model/payment/renderer-list'],
-    function (Component, rendererList) {
-        'use strict';
+define([
+    'uiComponent',
+    'Magento_Checkout/js/model/payment/renderer-list'
+], function (Component, rendererList) {
+    'use strict';
 
-        rendererList.push(
-            {
-                type: 'braintree_googlepay',
-                component: 'PayPal_Braintree/js/googlepay/implementations/core-checkout/method-renderer/googlepay'
-            }
-        );
+    let config = window.checkoutConfig.payment;
 
-        return Component.extend({});
+    if (config['braintree_googlepay'].clientToken) {
+        rendererList.push({
+            type: 'braintree_googlepay',
+            component: 'PayPal_Braintree/js/googlepay/implementations/core-checkout/method-renderer/googlepay'
+        });
     }
-);
+
+    return Component.extend({});
+});

@@ -1,15 +1,17 @@
-define(
-    ['uiComponent', 'Magento_Checkout/js/model/payment/renderer-list'],
-    function (Component, rendererList) {
-        'use strict';
+define([
+    'uiComponent',
+    'Magento_Checkout/js/model/payment/renderer-list'
+], function (Component, rendererList) {
+    'use strict';
 
-        rendererList.push(
-            {
-                type: 'braintree_applepay',
-                component: 'PayPal_Braintree/js/applepay/implementations/core-checkout/method-renderer/applepay'
-            }
-        );
+    let config = window.checkoutConfig.payment;
 
-        return Component.extend({});
+    if (config['braintree_applepay'].clientToken) {
+        rendererList.push({
+            type: 'braintree_applepay',
+            component: 'PayPal_Braintree/js/applepay/implementations/core-checkout/method-renderer/applepay'
+        });
     }
-);
+
+    return Component.extend({});
+});

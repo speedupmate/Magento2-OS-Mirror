@@ -80,8 +80,7 @@ class User extends \Magento\Framework\Model\ResourceModel\Db\AbstractDb
         $this->dateTime = $dateTime;
         $this->aclDataCache = $aclDataCache ?: ObjectManager::getInstance()->get(CacheInterface::class);
         $this->observerConfig = $observerConfig ?: ObjectManager::getInstance()->get(ObserverConfig::class);
-        $this->encryptor = $encryptor ??
-            ObjectManager::getInstance()->get(EncryptorInterface::class);
+        $this->encryptor = $encryptor ?? ObjectManager::getInstance()->get(EncryptorInterface::class);
     }
 
     /**

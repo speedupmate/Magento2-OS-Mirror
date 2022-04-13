@@ -6,9 +6,9 @@
         "OSL-3.0",
         "AFL-3.0"
     ],
-    "version": "100.4.3",
+    "version": "100.4.4",
     "require": {
-        "php": "~7.3.0||~7.4.0",
+        "php": "~7.4.0||~8.1.0",
         "magento/module-eav": "102.1.*",
         "magento/module-catalog": "104.0.*",
         "magento/module-catalog-inventory": "100.4.*",
@@ -18,7 +18,8 @@
         "magento/module-eav-graph-ql": "100.4.*",
         "magento/module-catalog-search": "102.0.*",
         "magento/framework": "103.0.*",
-        "magento/module-graph-ql": "100.4.*"
+        "magento/module-graph-ql": "100.4.*",
+        "magento/module-advanced-search": "100.4.*"
     },
     "suggest": {
         "magento/module-graph-ql-cache": "100.4.*",
