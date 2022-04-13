@@ -377,8 +377,6 @@ class Storage extends \Magento\Framework\DataObject
      */
     public function getFilesCollection($path, $type = null)
     {
-        $collectFiles = $this->isDirectoryAllowed($path);
-
         if ($this->_coreFileStorageDb->checkDbUsage()) {
             $files = $this->_storageDatabaseFactory->create()->getDirectoryFiles($path);
 
@@ -394,7 +392,7 @@ class Storage extends \Magento\Framework\DataObject
         )->setCollectDirs(
             false
         )->setCollectFiles(
-            $collectFiles
+            true
         )->setCollectRecursively(
             false
         )->setOrder(

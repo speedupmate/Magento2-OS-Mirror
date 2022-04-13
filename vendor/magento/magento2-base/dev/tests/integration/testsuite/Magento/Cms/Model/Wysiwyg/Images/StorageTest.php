@@ -316,13 +316,13 @@ class StorageTest extends \PHPUnit\Framework\TestCase
      *
      * @param string $directory
      * @param string $filename
-     * @param array $expectedUrls
+     * @param string $expectedUrl
      * @return void
      * @magentoAppIsolation enabled
      * @magentoAppArea adminhtml
      * @dataProvider getThumbnailUrlDataProvider
      */
-    public function testGetThumbnailUrl(string $directory, string $filename, array $expectedUrls): void
+    public function testGetThumbnailUrl(string $directory, string $filename, string $expectedUrl): void
     {
         $root = $this->storage->getCmsWysiwygImages()->getStorageRoot();
         $directory = implode('/', array_filter([rtrim($root, '/'), trim($directory, '/')]));
@@ -334,7 +334,7 @@ class StorageTest extends \PHPUnit\Framework\TestCase
         foreach ($collection as $item) {
             $paths[] = parse_url($item->getThumbUrl(), PHP_URL_PATH);
         }
-        $this->assertEquals($expectedUrls, $paths);
+        $this->assertEquals([$expectedUrl], $paths);
         $this->mediaDirectory->delete($path);
     }
 
@@ -349,27 +349,17 @@ class StorageTest extends \PHPUnit\Framework\TestCase
             [
                 '/',
                 'image1.png',
-                []
+                '/pub/media/.thumbs/image1.png'
             ],
             [
                 '/cms',
                 'image2.png',
-                []
+                '/pub/media/.thumbscms/image2.png'
             ],
             [
                 '/cms/pages',
                 'image3.png',
-                []
-            ],
-            [
-                '/MagentoCmsModelWysiwygImagesStorageTest',
-                'image2.png',
-                ['/pub/media/.thumbsMagentoCmsModelWysiwygImagesStorageTest/image2.png']
-            ],
-            [
-                '/MagentoCmsModelWysiwygImagesStorageTest/pages',
-                'image3.png',
-                ['/pub/media/.thumbsMagentoCmsModelWysiwygImagesStorageTest/pages/image3.png']
+                '/pub/media/.thumbscms/pages/image3.png'
             ]
         ];
     }

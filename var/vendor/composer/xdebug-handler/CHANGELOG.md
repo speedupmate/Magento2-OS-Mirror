@@ -1,5 +1,14 @@
 ## [Unreleased]
 
+## [2.0.5] - 2022-02-24
+  * Fixed: regression in 2.0.4 affecting Xdebug 2.
+
+## [2.0.4] - 2022-01-04
+  * Fixed: allow calling `isXdebugActive` before class instantiation.
+
+## [2.0.3] - 2021-12-08
+  * Added: support, type annotations and refactoring for stricter PHPStan analysis.
+
 ## [2.0.2] - 2021-07-31
   * Added: support for `xdebug_info('mode')` in Xdebug 3.1.
   * Added: support for Psr\Log versions 2 and 3.
@@ -91,7 +100,10 @@
   * Break: the following class was renamed:
     - `Composer\XdebugHandler` -> `Composer\XdebugHandler\XdebugHandler`
 
-[Unreleased]: https://github.com/composer/xdebug-handler/compare/2.0.2...HEAD
+[Unreleased]: https://github.com/composer/xdebug-handler/compare/2.0.5...HEAD
+[2.0.5]: https://github.com/composer/xdebug-handler/compare/2.0.4...2.0.5
+[2.0.4]: https://github.com/composer/xdebug-handler/compare/2.0.3...2.0.4
+[2.0.3]: https://github.com/composer/xdebug-handler/compare/2.0.2...2.0.3
 [2.0.2]: https://github.com/composer/xdebug-handler/compare/2.0.1...2.0.2
 [2.0.1]: https://github.com/composer/xdebug-handler/compare/2.0.0...2.0.1
 [2.0.0]: https://github.com/composer/xdebug-handler/compare/1.4.6...2.0.0

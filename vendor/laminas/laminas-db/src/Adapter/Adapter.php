@@ -195,9 +195,12 @@ class Adapter implements AdapterInterface, Profiler\ProfilerAwareInterface
         }
 
         if ($result instanceof Driver\ResultInterface && $result->isQueryResult()) {
-            $resultSet = $resultPrototype !== null ? clone $resultPrototype : $this->queryResultSetPrototype;
-            $resultSet->initialize($result);
-            return $resultSet;
+            $resultSet     = $resultPrototype ?? $this->queryResultSetPrototype;
+            $resultSetCopy = clone $resultSet;
+
+            $resultSetCopy->initialize($result);
+
+            return $resultSetCopy;
         }
 
         return $result;
@@ -316,7 +319,7 @@ class Adapter implements AdapterInterface, Profiler\ProfilerAwareInterface
         }
 
         if (! isset($driver) || ! $driver instanceof Driver\DriverInterface) {
-            throw new Exception\InvalidArgumentException('DriverInterface expected', null, null);
+            throw new Exception\InvalidArgumentException('DriverInterface expected');
         }
 
         return $driver;

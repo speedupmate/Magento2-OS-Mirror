@@ -134,8 +134,12 @@ class Parser
     public static function getClassesFromFile($file)
     {
         $sourceCode = file_get_contents($file);
-        $classes = [];
-        $tokens = token_get_all($sourceCode);
+        $classes    = [];
+        if (PHP_MAJOR_VERSION > 5) {
+            $tokens = token_get_all($sourceCode, TOKEN_PARSE);
+        } else {
+            $tokens = token_get_all($sourceCode);
+        }
         $tokenCount = count($tokens);
         $namespace = '';
 
