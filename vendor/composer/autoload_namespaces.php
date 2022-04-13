@@ -7,7 +7,7 @@ $baseDir = dirname($vendorDir);
 
 return array(
     'Zend_' => array($vendorDir . '/magento/zendframework1/library'),
-    'Yandex' => array($vendorDir . '/allure-framework/allure-php-api/src', $vendorDir . '/allure-framework/allure-php-api/test', $vendorDir . '/allure-framework/allure-phpunit/src', $vendorDir . '/allure-framework/allure-codeception/src'),
+    'Yandex' => array($vendorDir . '/allure-framework/allure-codeception/src', $vendorDir . '/allure-framework/allure-php-api/src', $vendorDir . '/allure-framework/allure-php-api/test', $vendorDir . '/allure-framework/allure-phpunit/src'),
     'PHPMD\\' => array($vendorDir . '/phpmd/phpmd/src/main/php'),
     'OAuth\\Unit' => array($vendorDir . '/lusitanian/oauth/tests'),
     'OAuth' => array($vendorDir . '/lusitanian/oauth/src'),
